@@ -1,12 +1,11 @@
 // Deployment loader for The Attendant: Pinewood Mall.
-// Reassembles the verified storefront-polish source and normalizes Three.js imports before boot.
+// Reassembles the validated furniture/environment reset source before boot.
 const PARTS = [
-  './bundle/polish-g1-1.txt',
-  './bundle/polish-g1-2.txt',
-  './bundle/polish-g1-3.txt',
-  './bundle/polish-g1-4.txt',
-  './bundle/group-02.txt',
-  './bundle/group-03.txt',
+  './bundle2/part-01.txt',
+  './bundle2/part-02.txt',
+  './bundle2/part-03.txt',
+  './bundle2/p4-1.txt','./bundle2/p4-2.txt','./bundle2/p4-3.txt','./bundle2/p4-4.txt','./bundle2/p4-5.txt',
+  './bundle2/p5-1.txt','./bundle2/p5-2.txt','./bundle2/p5-3.txt','./bundle2/p5-4.txt','./bundle2/p5-5.txt',
 ];
 
 async function decodeSource(){
@@ -26,17 +25,10 @@ async function decodeSource(){
 
 function normalizeGameSource(source){
   return source
-    // Normalize Three.js helper imports to the pinned import-map tree.
     .replace("import { GLTFLoader } from 'https://unpkg.com/three@0.180.0/examples/jsm/loaders/GLTFLoader.js';", "import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';")
     .replace("import { EffectComposer } from 'https://unpkg.com/three@0.180.0/examples/jsm/postprocessing/EffectComposer.js';", "import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';")
     .replace("import { RenderPass } from 'https://unpkg.com/three@0.180.0/examples/jsm/postprocessing/RenderPass.js';", "import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';")
-    .replace("import { UnrealBloomPass } from 'https://unpkg.com/three@0.180.0/examples/jsm/postprocessing/UnrealBloomPass.js';", "import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';")
-    // Verified orientation polish: flip all checkout registers and the Kenney chair front axis from the prior build.
-    .replace("'arcadeCash',new THREE.Vector3(-14.7,1.06,-28.9),{targetHeight:.30,rot:Math.PI", "'arcadeCash',new THREE.Vector3(-14.7,1.06,-28.9),{targetHeight:.30,rot:0")
-    .replace("'marketCash',new THREE.Vector3(12.1,1.05,-20.45),{targetHeight:.31,rot:Math.PI", "'marketCash',new THREE.Vector3(12.1,1.05,-20.45),{targetHeight:.31,rot:0")
-    .replace("'marketCash',new THREE.Vector3(-11.8,1.04,29.2),{targetHeight:.30,rot:0", "'marketCash',new THREE.Vector3(-11.8,1.04,29.2),{targetHeight:.30,rot:Math.PI")
-    .replace("rot:-ang+Math.PI/2,collide:true,fallback:'chair'", "rot:-ang-Math.PI/2,collide:true,fallback:'chair'")
-    .replace("'arcadeCash',new THREE.Vector3(13.5,1.04,29),{targetHeight:.30,rot:0", "'arcadeCash',new THREE.Vector3(13.5,1.04,29),{targetHeight:.30,rot:Math.PI");
+    .replace("import { UnrealBloomPass } from 'https://unpkg.com/three@0.180.0/examples/jsm/postprocessing/UnrealBloomPass.js';", "import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';");
 }
 
 async function preflightThree(){
