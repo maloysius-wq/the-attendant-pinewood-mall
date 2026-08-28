@@ -1,0 +1,110 @@
+async function buildFoodCourt(world){
+  addStorefront(world,{name:'PINEWOOD FOOD COURT',theme:'food',x:-7,z:19.48,face:'north'});
+
+  // Faded cool diner wallpaper: blue-green/gray, grimy, peeling and water-stained.
+  const wallTex=makeCanvasTexture((ctx,c)=>{
+    const g=ctx.createLinearGradient(0,0,0,c.height);
+    g.addColorStop(0,'#687876');g.addColorStop(.58,'#566865');g.addColorStop(1,'#374542');
+    ctx.fillStyle=g;ctx.fillRect(0,0,c.width,c.height);
+
+    // Very faded late-80s/early-90s geometric wallpaper print.
+    ctx.strokeStyle='rgba(214,220,207,.11)';ctx.lineWidth=2;
+    for(let y=20;y<c.height;y+=72){
+      for(let x=16;x<c.width;x+=72){
+        ctx.beginPath();ctx.moveTo(x+18,y);ctx.lineTo(x+36,y+18);ctx.lineTo(x+18,y+36);ctx.lineTo(x,y+18);ctx.closePath();ctx.stroke();
+      }
+    }
+    // Vertical water/nicotine streaking.
+    for(let i=0;i<120;i++){
+      const x=Math.random()*c.width,w=rand(1,7),a=rand(.015,.075),h=rand(70,c.height*.8);
+      ctx.fillStyle='rgba(21,29,27,'+a+')';ctx.fillRect(x,rand(0,c.height*.35),w,h);
+    }
+    // Peeling/patched areas exposing dirty backing paper.
+    for(let i=0;i<28;i++){
+      const x=rand(0,c.width),y=rand(20,c.height-80),w=rand(18,70),h=rand(8,38);
+      ctx.fillStyle=choose(['rgba(188,186,166,.16)','rgba(38,45,42,.22)','rgba(111,104,88,.13)']);
+      ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(x+w,y+rand(-5,5));ctx.lineTo(x+w-rand(0,15),y+h);ctx.lineTo(x+rand(0,12),y+h-rand(0,8));ctx.closePath();ctx.fill();
+    }
+    // General dirt, mold speckling and darker lower-wall grime.
+    for(let i=0;i<2600;i++){
+      const y=Math.random()*c.height;
+      const lower=y/c.height;
+      const a=rand(.01,.055)*(0.45+lower*1.4);
+      ctx.fillStyle='rgba(8,13,12,'+a+')';ctx.fillRect(Math.random()*c.width,y,rand(.5,3.5),rand(.5,3));
+    }
+    const grime=ctx.createLinearGradient(0,c.height*.68,0,c.height);
+    grime.addColorStop(0,'rgba(10,15,14,0)');grime.addColorStop(1,'rgba(7,10,9,.34)');
+    ctx.fillStyle=grime;ctx.fillRect(0,c.height*.68,c.width,c.height*.32);
+  },512,512);
+  wallTex.wrapS=wallTex.wrapT=THREE.RepeatWrapping;wallTex.repeat.set(3.2,2.2);
+  const wallMat=new THREE.MeshStandardMaterial({map:wallTex,color:0xffffff,roughness:.98,metalness:0});
+  const trimMat=new THREE.MeshStandardMaterial({color:0x232b2a,roughness:.86,metalness:.06});
+  const cornerMat=new THREE.MeshStandardMaterial({color:0x1b2221,roughness:.92,metalness:.04});
+
+  // Cover EVERY interior wall, including both front sections around the entrance.
+  const back=addBox(world.root,new THREE.Vector3(-7,1.39,31.445),new THREE.Vector3(17.02,2.76,.055),wallMat);back.receiveShadow=true;
+  const left=addBox(world.root,new THREE.Vector3(-15.445,1.39,25.50),new THREE.Vector3(.055,2.76,11.95),wallMat);left.receiveShadow=true;
+  const right=addBox(world.root,new THREE.Vector3(1.445,1.39,25.50),new THREE.Vector3(.055,2.76,11.95),wallMat);right.receiveShadow=true;
+  const frontL=addBox(world.root,new THREE.Vector3(-12.0,1.39,19.555),new THREE.Vector3(7.02,2.76,.055),wallMat);frontL.receiveShadow=true;
+  const frontR=addBox(world.root,new THREE.Vector3(-2.0,1.39,19.555),new THREE.Vector3(7.02,2.76,.055),wallMat);frontR.receiveShadow=true;
+
+  // Dark chair rail / base trim on all five visible wall runs.
+  addBox(world.root,new THREE.Vector3(-7,1.22,31.405),new THREE.Vector3(17.02,.12,.07),trimMat);
+  addBox(world.root,new THREE.Vector3(-15.405,1.22,25.50),new THREE.Vector3(.07,.12,11.95),trimMat);
+  addBox(world.root,new THREE.Vector3(1.405,1.22,25.50),new THREE.Vector3(.07,.12,11.95),trimMat);
+  addBox(world.root,new THREE.Vector3(-12.0,1.22,19.595),new THREE.Vector3(7.02,.12,.07),trimMat);
+  addBox(world.root,new THREE.Vector3(-2.0,1.22,19.595),new THREE.Vector3(7.02,.12,.07),trimMat);
+
+  // Explicitly cap all four room corners and both doorway jambs so hallway material cannot show through seams.
+  for(const [x,z] of [[-15.405,31.405],[1.405,31.405],[-15.405,19.595],[1.405,19.595],[-8.48,19.595],[-5.52,19.595]]){
+    addBox(world.root,new THREE.Vector3(x,1.39,z),new THREE.Vector3(.14,2.78,.14),cornerMat);
+  }
+
+  addWallPoster(world,makePoster('SLICE CITY','HOT • FAST','#9b5d31'),new THREE.Vector3(-15.34,1.55,24.2),Math.PI/2);
+  addWallPoster(world,makePoster('POLAR POP','FREE REFILLS','#3d7394'),new THREE.Vector3(1.34,1.55,24.6),-Math.PI/2);
+  addWallPoster(world,makePoster('COMBO #4','$3.99','#7a8450'),new THREE.Vector3(-7,1.55,31.34),Math.PI);
+
+  // Long, plain black service counters.
+  const counterBody=new THREE.MeshStandardMaterial({color:0x0d0f10,roughness:.76,metalness:.07});
+  const counterTop=new THREE.MeshStandardMaterial({color:0x24272a,roughness:.40,metalness:.23});
+  const kickMat=new THREE.MeshStandardMaterial({color:0x030404,roughness:.92,metalness:.02});
+  const steelMat=new THREE.MeshStandardMaterial({color:0x74787a,roughness:.31,metalness:.72});
+  function serviceCounter(x,label){
+    const g=new THREE.Group();g.position.set(x,0,29.28);world.root.add(g);
+    addBox(g,new THREE.Vector3(0,.50,0),new THREE.Vector3(4.05,1.00,.78),counterBody);
+    addBox(g,new THREE.Vector3(0,1.02,-.015),new THREE.Vector3(4.18,.08,.88),counterTop);
+    addBox(g,new THREE.Vector3(0,.18,-.405),new THREE.Vector3(3.72,.28,.035),kickMat);
+    addBox(g,new THREE.Vector3(0,.90,-.418),new THREE.Vector3(3.78,.04,.025),steelMat);
+    world.addColliderFrom(g,{navBlock:true,pad:.05});
+    const sign=makeSign(label,'food',3.35,.55);sign.position.set(x,2.12,31.37);sign.rotation.y=Math.PI;world.root.add(sign);world.neonSigns?.push(sign);
+    return g;
+  }
+  serviceCounter(-12.05,'SLICE CITY');
+  serviceCounter(-7.00,'WOK THIS WAY');
+  serviceCounter(-1.95,'POLAR POP');
+
+  await placeModel(world.root,'marketCash',new THREE.Vector3(-11.65,1.08,29.02),{targetHeight:.30,targetLongest:.42,rot:Math.PI,collide:false,fallback:'box'});
+  await placeModel(world.root,'marketCash',new THREE.Vector3(-6.60,1.08,29.02),{targetHeight:.30,targetLongest:.42,rot:Math.PI,collide:false,fallback:'box'});
+  await placeModel(world.root,'marketCash',new THREE.Vector3(-1.55,1.08,29.02),{targetHeight:.30,targetLongest:.42,rot:Math.PI,collide:false,fallback:'box'});
+
+  // NEW furniture only: Quaternius round tables + Quaternius chairs.
+  // Layout is 2 ROWS x 3 COLUMNS, never the old three-rows-of-two arrangement.
+  const spots=[[-12.0,22.7],[-7.0,22.7],[-2.0,22.7],[-12.0,26.0],[-7.0,26.0],[-2.0,26.0]];
+  for(let si=0;si<spots.length;si++){
+    const [x,z]=spots[si];
+    await placeModel(world.root,'qTableRound',new THREE.Vector3(x,0,z),{targetHeight:.75,targetLongest:1.02,rot:si*.13,collide:true,fallback:'table'});
+    for(let a=0;a<4;a++){
+      const ang=a*Math.PI/2,radius=.82,px=x+Math.cos(ang)*radius,pz=z+Math.sin(ang)*radius;
+      await placeModel(world.root,'qChair',new THREE.Vector3(px,0,pz),{targetHeight:.90,targetLongest:.54,rot:yawFacing(px,pz,x,z),collide:true,fallback:'chair',pad:.035});
+    }
+  }
+
+  // Small abandoned food dressing on the NEW tables.
+  await placeModel(world.root,'pizza',new THREE.Vector3(-12.0,.76,22.7),{targetHeight:.045,targetLongest:.32,rot:.35,collide:false,fallback:'box'});
+  await placeModel(world.root,'cup',new THREE.Vector3(-11.70,.76,22.88),{targetHeight:.18,targetLongest:.09,rot:0,collide:false,fallback:'box'});
+  await placeModel(world.root,'pizzaBox',new THREE.Vector3(-2.0,.76,22.7),{targetHeight:.055,targetLongest:.36,rot:-.16,collide:false,fallback:'box'});
+
+  const cab=makeCabinet(new THREE.Vector3(-14.5,0,29),Math.PI);world.root.add(cab);world.addCollider(-14.5,29,.95,.65,{navBlock:true,owner:cab});world.interactables.push(cab);
+  const dec=makePickup('decoy',new THREE.Vector3(-2.7,.16,28.3),'Pager Decoy');world.root.add(dec);world.interactables.push(dec);
+}
+
