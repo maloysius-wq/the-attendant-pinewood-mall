@@ -1,0 +1,35 @@
+name: Runtime audit helper
+
+on:
+  push:
+    paths:
+      - '.github/workflows/runtime-audit.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  decode-runtime:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Decode runtime bundle
+        shell: python
+        run: |
+          import base64, gzip
+          parts = [
+              'bundle2/part-01.txt','bundle2/part-02.txt','bundle2/part-03.txt',
+              'bundle2/p4-1.txt','bundle2/p4-2.txt','bundle2/p4-3.txt','bundle2/p4-4.txt','bundle2/p4-5.txt',
+              'bundle2/p5-1.txt','bundle2/p5-2.txt','bundle2/p5-3.txt','bundle2/p5-4.txt','bundle2/p5-5.txt'
+          ]
+          payload = ''.join(open(p, encoding='utf-8').read().strip() for p in parts)
+          source = gzip.decompress(base64.b64decode(payload)).decode('utf-8')
+          open('runtime-audit.js','w',encoding='utf-8').write(source)
+          print(f'Decoded {len(source)} characters')
+      - name: Commit decoded audit source
+        run: |
+          git config user.name "pinewood-runtime-audit"
+          git config user.email "actions@users.noreply.github.com"
+          git add runtime-audit.js
+          git commit -m "chore: expose runtime for prop audit"
+          git push
