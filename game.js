@@ -1,5 +1,5 @@
 // Deployment loader for The Attendant: Pinewood Mall.
-// Reassembles the game source and normalizes Three.js imports before boot.
+// Reassembles the game source, applies one verified source typo fix, and normalizes Three.js imports before boot.
 const PARTS = Array.from({length:10},(_,i)=>`./bundle/part-${String(i+1).padStart(2,'0')}.txt`);
 
 async function decodeSource(){
@@ -17,8 +17,10 @@ async function decodeSource(){
   return new TextDecoder().decode(ungzip(bytes));
 }
 
-function normalizeThreeImports(source){
+function normalizeGameSource(source){
   return source
+    // Verified Chrome parser error in Cassette Castle listening-station material.
+    .replace('emissiveIntensity=.6','emissiveIntensity:.6')
     .replace("import { GLTFLoader } from 'https://unpkg.com/three@0.180.0/examples/jsm/loaders/GLTFLoader.js';", "import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';")
     .replace("import { EffectComposer } from 'https://unpkg.com/three@0.180.0/examples/jsm/postprocessing/EffectComposer.js';", "import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';")
     .replace("import { RenderPass } from 'https://unpkg.com/three@0.180.0/examples/jsm/postprocessing/RenderPass.js';", "import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';")
@@ -45,7 +47,7 @@ async function preflightThree(){
 
 try{
   await preflightThree();
-  const source=normalizeThreeImports(await decodeSource())+'\n//# sourceURL=pinewood-runtime.js\n';
+  const source=normalizeGameSource(await decodeSource())+'\n//# sourceURL=pinewood-runtime.js\n';
   const moduleUrl=URL.createObjectURL(new Blob([source],{type:'text/javascript'}));
   try{await import(moduleUrl);}
   finally{URL.revokeObjectURL(moduleUrl);}
