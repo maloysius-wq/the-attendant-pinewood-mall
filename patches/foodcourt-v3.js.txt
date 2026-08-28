@@ -1,0 +1,137 @@
+async function buildFoodCourt(world){
+  addStorefront(world,{name:'PINEWOOD FOOD COURT',theme:'food',x:-7,z:19.48,face:'north'});
+
+  // Full-span, non-repeating diner wallpaper. Each wall gets its own texture sized to that wall.
+  function seeded(seed,n=0){const x=Math.sin((seed+1)*12.9898+n*78.233)*43758.5453;return x-Math.floor(x);}
+  function makeFoodWallMat(width,height,seed){
+    const aspect=Math.max(1,width/height);
+    const texW=Math.min(2048,Math.max(768,Math.round(512*aspect)));
+    const texH=512;
+    const tex=makeCanvasTexture((ctx,c)=>{
+      const g=ctx.createLinearGradient(0,0,0,c.height);
+      g.addColorStop(0,'#747a78');
+      g.addColorStop(.42,'#666d6b');
+      g.addColorStop(1,'#4c5452');
+      ctx.fillStyle=g;ctx.fillRect(0,0,c.width,c.height);
+
+      // Faded late-80s diner pattern, drawn once across the whole wall canvas.
+      const cols=Math.max(4,Math.round(width*.78));
+      const rows=3;
+      const cellW=c.width/cols,cellH=c.height/(rows+1);
+      ctx.lineWidth=Math.max(1.5,c.height/280);
+      ctx.strokeStyle='rgba(207,219,215,.105)';
+      for(let row=0;row<rows;row++){
+        for(let col=0;col<cols;col++){
+          const cx=(col+.5)*cellW,cy=(row+1)*cellH;
+          const rw=cellW*.19,rh=cellH*.22;
+          ctx.beginPath();ctx.moveTo(cx,cy-rh);ctx.lineTo(cx+rw,cy);ctx.lineTo(cx,cy+rh);ctx.lineTo(cx-rw,cy);ctx.closePath();ctx.stroke();
+          if((row+col)%3===0){ctx.beginPath();ctx.moveTo(cx-rw*.7,cy);ctx.lineTo(cx+rw*.7,cy);ctx.stroke();}
+        }
+      }
+
+      // Uneven fading patches so the room feels abandoned, not tiled.
+      for(let i=0;i<Math.max(8,Math.round(width*1.2));i++){
+        const x=seeded(seed,i*5.1)*c.width;
+        const y=.08*c.height+seeded(seed,i*7.3)*c.height*.78;
+        const w=c.width*(.025+seeded(seed,i*9.7)*.065);
+        const h=c.height*(.025+seeded(seed,i*11.9)*.065);
+        ctx.fillStyle=i%2?'rgba(190,194,180,.09)':'rgba(38,44,43,.11)';
+        ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(x+w,y-4);ctx.lineTo(x+w*.87,y+h);ctx.lineTo(x+4,y+h*.84);ctx.closePath();ctx.fill();
+      }
+
+      // Water streaking from ceiling and old leaks.
+      for(let i=0;i<Math.max(18,Math.round(width*3.2));i++){
+        const x=seeded(seed,i*13.1)*c.width;
+        const y=seeded(seed,i*17.7)*c.height*.30;
+        const streakW=Math.max(1,c.width*(.001+seeded(seed,i*19.3)*.0035));
+        const streakH=c.height*(.16+seeded(seed,i*23.1)*.48);
+        ctx.fillStyle=`rgba(24,30,29,${.025+seeded(seed,i*29.4)*.07})`;
+        ctx.fillRect(x,y,streakW,streakH);
+      }
+
+      // Dirty lower-wall gradient and isolated mold speckling.
+      const grime=ctx.createLinearGradient(0,c.height*.64,0,c.height);
+      grime.addColorStop(0,'rgba(12,16,15,0)');
+      grime.addColorStop(1,'rgba(8,11,10,.30)');
+      ctx.fillStyle=grime;ctx.fillRect(0,c.height*.64,c.width,c.height*.36);
+      for(let i=0;i<Math.max(250,Math.round(width*80));i++){
+        const x=seeded(seed,i*31.7)*c.width,y=seeded(seed,i*37.1)*c.height;
+        const lower=.35+.65*(y/c.height);
+        ctx.fillStyle=`rgba(10,14,13,${(.008+seeded(seed,i*41.9)*.035)*lower})`;
+        ctx.fillRect(x,y,1+seeded(seed,i*43.3)*2.5,1+seeded(seed,i*47.9)*2);
+      }
+    },texW,texH);
+    tex.wrapS=tex.wrapT=THREE.ClampToEdgeWrapping;
+    tex.repeat.set(1,1);
+    tex.offset.set(0,0);
+    return new THREE.MeshStandardMaterial({map:tex,color:0xffffff,roughness:.98,metalness:0});
+  }
+
+  const trimMat=new THREE.MeshStandardMaterial({color:0x252a29,roughness:.88,metalness:.05});
+  const cornerMat=new THREE.MeshStandardMaterial({color:0x59615f,roughness:.96,metalness:.01});
+
+  // One material/texture per wall. No RepeatWrapping, no vertical midpoint seam.
+  const back=addBox(world.root,new THREE.Vector3(-7,1.39,31.445),new THREE.Vector3(17.02,2.76,.055),makeFoodWallMat(17.02,2.76,10));back.receiveShadow=true;
+  const left=addBox(world.root,new THREE.Vector3(-15.445,1.39,25.50),new THREE.Vector3(.055,2.76,11.95),makeFoodWallMat(11.95,2.76,20));left.receiveShadow=true;
+  const right=addBox(world.root,new THREE.Vector3(1.445,1.39,25.50),new THREE.Vector3(.055,2.76,11.95),makeFoodWallMat(11.95,2.76,30));right.receiveShadow=true;
+  const frontL=addBox(world.root,new THREE.Vector3(-12.0,1.39,19.555),new THREE.Vector3(7.02,2.76,.055),makeFoodWallMat(7.02,2.76,40));frontL.receiveShadow=true;
+  const frontR=addBox(world.root,new THREE.Vector3(-2.0,1.39,19.555),new THREE.Vector3(7.02,2.76,.055),makeFoodWallMat(7.02,2.76,50));frontR.receiveShadow=true;
+
+  // Continuous chair rail and base trim.
+  addBox(world.root,new THREE.Vector3(-7,1.22,31.405),new THREE.Vector3(17.02,.10,.07),trimMat);
+  addBox(world.root,new THREE.Vector3(-15.405,1.22,25.50),new THREE.Vector3(.07,.10,11.95),trimMat);
+  addBox(world.root,new THREE.Vector3(1.405,1.22,25.50),new THREE.Vector3(.07,.10,11.95),trimMat);
+  addBox(world.root,new THREE.Vector3(-12.0,1.22,19.595),new THREE.Vector3(7.02,.10,.07),trimMat);
+  addBox(world.root,new THREE.Vector3(-2.0,1.22,19.595),new THREE.Vector3(7.02,.10,.07),trimMat);
+
+  // Explicitly cap all four room corners and both doorway jambs so hallway material cannot show through seams.
+  for(const [x,z] of [[-15.405,31.405],[1.405,31.405],[-15.405,19.595],[1.405,19.595],[-8.48,19.595],[-5.52,19.595]]){
+    addBox(world.root,new THREE.Vector3(x,1.39,z),new THREE.Vector3(.10,2.78,.10),cornerMat);
+  }
+
+  addWallPoster(world,makePoster('SLICE CITY','HOT • FAST','#9b5d31'),new THREE.Vector3(-15.34,1.55,24.2),Math.PI/2);
+  addWallPoster(world,makePoster('POLAR POP','FREE REFILLS','#3d7394'),new THREE.Vector3(1.34,1.55,24.6),-Math.PI/2);
+  addWallPoster(world,makePoster('COMBO #4','$3.99','#7a8450'),new THREE.Vector3(-7,1.55,31.34),Math.PI);
+
+  // Long, plain black service counters.
+  const counterBody=new THREE.MeshStandardMaterial({color:0x0d0f10,roughness:.76,metalness:.07});
+  const counterTop=new THREE.MeshStandardMaterial({color:0x24272a,roughness:.40,metalness:.23});
+  const kickMat=new THREE.MeshStandardMaterial({color:0x030404,roughness:.92,metalness:.02});
+  const steelMat=new THREE.MeshStandardMaterial({color:0x74787a,roughness:.31,metalness:.72});
+  function serviceCounter(x,label){
+    const g=new THREE.Group();g.position.set(x,0,29.28);world.root.add(g);
+    addBox(g,new THREE.Vector3(0,.50,0),new THREE.Vector3(4.05,1.00,.78),counterBody);
+    addBox(g,new THREE.Vector3(0,1.02,-.015),new THREE.Vector3(4.18,.08,.88),counterTop);
+    addBox(g,new THREE.Vector3(0,.18,-.405),new THREE.Vector3(3.72,.28,.035),kickMat);
+    addBox(g,new THREE.Vector3(0,.90,-.418),new THREE.Vector3(3.78,.04,.025),steelMat);
+    world.addColliderFrom(g,{navBlock:true,pad:.05});
+    const sign=makeSign(label,'food',3.35,.55);sign.position.set(x,2.12,31.37);sign.rotation.y=Math.PI;world.root.add(sign);world.neonSigns?.push(sign);
+    return g;
+  }
+  serviceCounter(-12.05,'SLICE CITY');
+  serviceCounter(-7.00,'WOK THIS WAY');
+  serviceCounter(-1.95,'POLAR POP');
+
+  await placeModel(world.root,'marketCash',new THREE.Vector3(-11.65,1.08,29.02),{targetHeight:.30,targetLongest:.42,rot:Math.PI,collide:false,fallback:'box'});
+  await placeModel(world.root,'marketCash',new THREE.Vector3(-6.60,1.08,29.02),{targetHeight:.30,targetLongest:.42,rot:Math.PI,collide:false,fallback:'box'});
+  await placeModel(world.root,'marketCash',new THREE.Vector3(-1.55,1.08,29.02),{targetHeight:.30,targetLongest:.42,rot:Math.PI,collide:false,fallback:'box'});
+
+  // NEW furniture only: Quaternius round tables + Quaternius chairs.
+  // Layout is 2 ROWS x 3 COLUMNS.
+  const spots=[[-12.0,22.7],[-7.0,22.7],[-2.0,22.7],[-12.0,26.0],[-7.0,26.0],[-2.0,26.0]];
+  for(let si=0;si<spots.length;si++){
+    const [x,z]=spots[si];
+    await placeModel(world.root,'qTableRound',new THREE.Vector3(x,0,z),{targetHeight:.75,targetLongest:1.02,rot:si*.13,collide:true,fallback:'table'});
+    for(let a=0;a<4;a++){
+      const ang=a*Math.PI/2,radius=.82,px=x+Math.cos(ang)*radius,pz=z+Math.sin(ang)*radius;
+      await placeModel(world.root,'qChair',new THREE.Vector3(px,0,pz),{targetHeight:.90,targetLongest:.54,rot:yawFacing(px,pz,x,z),collide:true,fallback:'chair',pad:.035});
+    }
+  }
+
+  await placeModel(world.root,'pizza',new THREE.Vector3(-12.0,.76,22.7),{targetHeight:.045,targetLongest:.32,rot:.35,collide:false,fallback:'box'});
+  await placeModel(world.root,'cup',new THREE.Vector3(-11.70,.76,22.88),{targetHeight:.18,targetLongest:.09,rot:0,collide:false,fallback:'box'});
+  await placeModel(world.root,'pizzaBox',new THREE.Vector3(-2.0,.76,22.7),{targetHeight:.055,targetLongest:.36,rot:-.16,collide:false,fallback:'box'});
+
+  const cab=makeCabinet(new THREE.Vector3(-14.5,0,29),Math.PI);world.root.add(cab);world.addCollider(-14.5,29,.95,.65,{navBlock:true,owner:cab});world.interactables.push(cab);
+  const dec=makePickup('decoy',new THREE.Vector3(-2.7,.16,28.3),'Pager Decoy');world.root.add(dec);world.interactables.push(dec);
+}
