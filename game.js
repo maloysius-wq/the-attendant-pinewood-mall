@@ -5,7 +5,7 @@ const PARTS=[
   './bundle2/p4-1.txt','./bundle2/p4-2.txt','./bundle2/p4-3.txt','./bundle2/p4-4.txt','./bundle2/p4-5.txt',
   './bundle2/p5-1.txt','./bundle2/p5-2.txt','./bundle2/p5-3.txt','./bundle2/p5-4.txt','./bundle2/p5-5.txt'
 ];
-const FOOD_PATCH='./patches/foodcourt-v2.js.txt';
+const FOOD_PATCH='./patches/foodcourt-v3.js.txt';
 
 async function getText(url){
   const r=await fetch(url,{cache:'no-store'});
@@ -41,6 +41,8 @@ function replaceFoodCourt(source,replacement){
   if(!section.includes("'qTableRound'")||!section.includes("'qChair'"))throw new Error('Food Court new furniture is missing.');
   if(section.includes("placeModel(world.root,'table'")||section.includes("placeModel(world.root,'chair'"))throw new Error('Retired Food Court table/chair models detected.');
   if(!section.includes('frontL=')||!section.includes('frontR=')||!section.includes('doorway jambs'))throw new Error('Food Court wall coverage verification failed.');
+  if(section.includes('THREE.RepeatWrapping'))throw new Error('Repeating Food Court wallpaper detected. Refusing to boot.');
+  if(!section.includes('THREE.ClampToEdgeWrapping'))throw new Error('Food Court wall texture is not clamped edge-to-edge.');
   return patched;
 }
 
