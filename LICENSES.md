@@ -14,13 +14,13 @@ All third-party visual assets used by this build were selected because their sou
 - License: CC0 1.0
 - Pinned runtime mirror: `RetroDECK/RetroQUEST` commit `dfa19a5602a31f64bd890d15279a61f43b127328`
 - The mirrored package contains the original `License.txt` stating CC0.
-- Used for food-court tables and chairs.
+- Used for food-court tables/chairs and Cassette Castle listening tables, normalized to human-scale dimensions at runtime.
 
 ## Kenney — Mini Market
 - Original source: https://kenney.nl/assets/mini-market
 - License: CC0 1.0
 - Pinned runtime mirror: `AkiraNim/CLTCrossing` commit `6fe4cd6dcb6fbfa4267d3b9971c0968e0fe375b6`
-- Used for stocked retail shelving and checkout props.
+- Used for stocked retail shelving, endcaps, display counters, return fixture and cash registers.
 
 ## Kenney — Food Kit
 - Original source: https://kenney.nl/assets/food-kit
@@ -45,3 +45,19 @@ The game requests the 1K JPG diffuse, OpenGL normal and roughness maps directly 
 
 ## Original/game-specific work
 The Attendant model and animation rig, story, levels, interaction systems, procedural audio, UI, generated signage/posters, gore effects and fallback geometry/textures are original to this project build.
+
+
+## Additional CC0 assets / references for the storefront polish pass
+
+### VHS cassette 3D — GGBotNet / OpenGameArt
+- Original source: https://opengameart.org/content/vhs-cassette-3d
+- License: CC0 1.0
+- Pinned runtime mirror: `zodiepupper/snow` commit `b9dc9c35bec885aacf31cfca729adcd3e304ef90`
+- Runtime file: `assets/vhs_cassette_3d/VHS_cassette.glb`
+- Used for physical VHS tapes throughout Video Planet. The game's old generated VHS geometry remains only as a fallback if the remote GLB cannot load.
+
+### Neon / dirty-light visual references
+- Neon Sign 2 — OpenGameArt: https://opengameart.org/content/neon-sign-2 — CC0
+- Grungy Lights Texture Pack — OpenGameArt: https://opengameart.org/content/grungy-lights-texture-pack — CC0/public-domain relicensing
+
+Pinewood's named storefront signs are generated locally because their lettering is game-specific. The generated material now incorporates the distressed/dead-tube treatment of those CC0 references, plus emissive mapping, point-light spill, bloom response, and independent randomized flicker bursts. No runtime dependency on the OpenGameArt image files is required.

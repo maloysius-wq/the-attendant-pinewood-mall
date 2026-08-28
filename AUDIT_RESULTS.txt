@@ -1,33 +1,28 @@
-Chapter 1: reachable 1755/1755 cells
-  PASS: arcade at (-18, -24)
-  PASS: vhs at (8, -24)
-  PASS: food at (-7, 25)
-  PASS: music at (18, 25)
-  PASS: A at (-18, -13)
-  PASS: B at (7, -13)
-  PASS: C at (-7, 15)
-  PASS: key at (7, -28)
-  PASS: shutter at (25, 0)
-  PASS: elevator at (29, 0)
-  PASS: arcade has 1 contiguous entrance boundary segment(s) (boundary cells 3)
-  PASS: vhs has 1 contiguous entrance boundary segment(s) (boundary cells 3)
-  PASS: food has 1 contiguous entrance boundary segment(s) (boundary cells 3)
-  PASS: music has 1 contiguous entrance boundary segment(s) (boundary cells 3)
-Chapter 2: reachable 1190/1190 cells
-  PASS: D at (-18, -15)
-  PASS: E at (9, -15)
-  PASS: keycard at (25, -12)
-  PASS: loading at (-26, -7)
-  PASS: maintenance at (-7, 24)
-  PASS: stairs at (24, 18)
-Chapter 3: reachable 1405/1405 cells
-  PASS: LS-07 at (-23, -25)
-  PASS: LS-08 at (5, -25)
-  PASS: LS-09 at (18, 16)
-  PASS: PA core at (26, 27)
-Story/objective audit:
-  PASS: Chapter 1 gates elevator access behind 3 breakers + Master Service Key.
-  PASS: Chapter 2 gates north stairwell behind 2 relays + Security Keycard.
-  PASS: Chapter 3 gates PA shutdown behind LS-07, LS-08 and LS-09.
-  PASS: Alternate ending checks LS-01 through LS-09.
-OVERALL: PASS
+Storefront furniture/neon polish audit — 2026-08-28
+
+Chapter 1 navigation: 1852/1852 walkable cells reachable — PASS
+  Sunburst Arcade reachable — PASS
+  Video Planet reachable — PASS
+  Pinewood Food Court reachable — PASS
+  Cassette Castle reachable — PASS
+  Breakers A/B/C reachable — PASS
+  Master Service Key reachable — PASS
+  Freight elevator reachable — PASS
+  Arcade entrance: 1 contiguous segment, 5 cells wide — PASS
+  VHS entrance: 1 contiguous segment, 5 cells wide — PASS
+  Food Court entrance: 1 contiguous segment, 5 cells wide — PASS
+  Cassette Castle entrance: 1 contiguous segment, 5 cells wide — PASS
+
+Chapter 2 navigation: 1190/1190 walkable cells reachable — PASS
+Chapter 3 navigation: 1405/1405 walkable cells reachable — PASS
+
+Source validation:
+  Node syntax check — PASS
+  Chromium Runtime.compileScript parser check — PASS
+
+Polish checks:
+  CC0 furniture is normalized to human-scale dimensions — PASS
+  Food-court chair facing flipped to correct Kenney model front axis — PASS
+  All store cash registers flipped 180 degrees from previous build — PASS
+  Video Planet uses CC0 VHS GLB with procedural fallback — PASS
+  Storefront neon signs have independent randomized flicker — PASS
