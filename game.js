@@ -25,7 +25,8 @@ async function decodeSource(){
 
 function patchFoodCourt(source){
   const start=source.indexOf('async function buildFoodCourt(world){');
-  const end=source.indexOf('function makeCassetteBin',start);
+  let end=source.indexOf('async function buildMusic(world){',start);
+  if(end<0) end=source.indexOf('function makeCassetteBin',start);
   if(start<0||end<0){
     console.warn('Food court patch markers not found; using bundled version unchanged.');
     return source;
