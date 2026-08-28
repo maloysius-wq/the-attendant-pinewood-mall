@@ -1,6 +1,13 @@
 // Deployment loader for The Attendant: Pinewood Mall.
-// Reassembles the game source, applies one verified source typo fix, and normalizes Three.js imports before boot.
-const PARTS = Array.from({length:10},(_,i)=>`./bundle/part-${String(i+1).padStart(2,'0')}.txt`);
+// Reassembles the verified storefront-polish source and normalizes Three.js imports before boot.
+const PARTS = [
+  './bundle/polish-g1-1.txt',
+  './bundle/polish-g1-2.txt',
+  './bundle/polish-g1-3.txt',
+  './bundle/polish-g1-4.txt',
+  './bundle/group-02.txt',
+  './bundle/group-03.txt',
+];
 
 async function decodeSource(){
   const payload=(await Promise.all(PARTS.map(async url=>{
@@ -19,8 +26,6 @@ async function decodeSource(){
 
 function normalizeGameSource(source){
   return source
-    // Verified Chrome parser error in Cassette Castle listening-station material.
-    .replace('emissiveIntensity=.6','emissiveIntensity:.6')
     .replace("import { GLTFLoader } from 'https://unpkg.com/three@0.180.0/examples/jsm/loaders/GLTFLoader.js';", "import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';")
     .replace("import { EffectComposer } from 'https://unpkg.com/three@0.180.0/examples/jsm/postprocessing/EffectComposer.js';", "import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';")
     .replace("import { RenderPass } from 'https://unpkg.com/three@0.180.0/examples/jsm/postprocessing/RenderPass.js';", "import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';")
