@@ -1,10 +1,11 @@
 // Deployment loader for The Attendant: Pinewood Mall.
-// Runtime bundle stays immutable; authored room overrides live in /patches.
+// Runtime bundle stays immutable; authored room and world-prop overrides live in /patches.
 const PARTS=[
   './bundle2/part-01.txt','./bundle2/part-02.txt','./bundle2/part-03.txt',
   './bundle2/p4-1.txt','./bundle2/p4-2.txt','./bundle2/p4-3.txt','./bundle2/p4-4.txt','./bundle2/p4-5.txt',
   './bundle2/p5-1.txt','./bundle2/p5-2.txt','./bundle2/p5-3.txt','./bundle2/p5-4.txt','./bundle2/p5-5.txt'
 ];
+const WORLD_PATCH='./patches/worldprops-v1.js.txt';
 const FOOD_PATCH='./patches/foodcourt-v3.js.txt';
 
 async function getText(url){
@@ -30,6 +31,15 @@ function normalizeImports(source){
     .replace("import { EffectComposer } from 'https://unpkg.com/three@0.180.0/examples/jsm/postprocessing/EffectComposer.js';","import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';")
     .replace("import { RenderPass } from 'https://unpkg.com/three@0.180.0/examples/jsm/postprocessing/RenderPass.js';","import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';")
     .replace("import { UnrealBloomPass } from 'https://unpkg.com/three@0.180.0/examples/jsm/postprocessing/UnrealBloomPass.js';","import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';");
+}
+
+async function applyWorldProps(source,patchText){
+  const patchUrl=URL.createObjectURL(new Blob([patchText+'\nexport { applyWorldPropsV1 };\n'],{type:'text/javascript'}));
+  try{
+    const mod=await import(patchUrl);
+    if(typeof mod.applyWorldPropsV1!=='function')throw new Error('World Props v1 patch did not export its patch function.');
+    return mod.applyWorldPropsV1(source);
+  }finally{URL.revokeObjectURL(patchUrl);}
 }
 
 function replaceFoodCourt(source,replacement){
@@ -59,8 +69,9 @@ async function preflightThree(){
 
 try{
   await preflightThree();
-  const [base,foodPatch]=await Promise.all([decodeSource(),getText(FOOD_PATCH)]);
-  const source=replaceFoodCourt(normalizeImports(base),foodPatch)+'\n//# sourceURL=pinewood-runtime.js\n';
+  const [base,worldPatch,foodPatch]=await Promise.all([decodeSource(),getText(WORLD_PATCH),getText(FOOD_PATCH)]);
+  const worldSource=await applyWorldProps(normalizeImports(base),worldPatch);
+  const source=replaceFoodCourt(worldSource,foodPatch)+'\n//# sourceURL=pinewood-runtime.js\n';
   const moduleUrl=URL.createObjectURL(new Blob([source],{type:'text/javascript'}));
   try{await import(moduleUrl);}finally{URL.revokeObjectURL(moduleUrl);}
 }catch(err){
