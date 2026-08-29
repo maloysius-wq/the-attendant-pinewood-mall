@@ -1,0 +1,147 @@
+function applyIndustrialCc0V1(source){
+  const fail=msg=>{throw new Error(`Industrial CC0 v1 patch failed: ${msg}`);};
+  const replaceOnce=(label,needle,replacement)=>{
+    const first=source.indexOf(needle);
+    if(first<0)fail(`${label}: marker missing`);
+    if(source.indexOf(needle,first+needle.length)>=0)fail(`${label}: marker is not unique`);
+    source=source.slice(0,first)+replacement+source.slice(first+needle.length);
+  };
+  const replaceRange=(label,startMarker,endMarker,replacement)=>{
+    const start=source.indexOf(startMarker);
+    if(start<0)fail(`${label}: start marker missing`);
+    const end=source.indexOf(endMarker,start+startMarker.length);
+    if(end<0)fail(`${label}: end marker missing`);
+    source=source.slice(0,start)+replacement+source.slice(end);
+  };
+
+  replaceOnce(
+    'industrial CC0 attribution',
+    "GGBOTNET — VHS Cassette 3D\\",
+`KENNEY — Factory Kit\\
+License: Creative Commons Zero (CC0 1.0)\\
+Source: https://kenney.nl/assets/factory-kit\\
+Runtime mirror: Enthceph/hangman, pinned commit 4e84f92f27d924a46a52ea0cf4d06a5dc90a9c12\\
+Used for: breaker cabinet housing and animated freight-elevator door skins.\\
+\\
+KENNEY — Prototype Kit\\
+License: Creative Commons Zero (CC0 1.0)\\
+Source: https://kenney.nl/assets/prototype-kit\\
+Runtime mirror: Enthceph/hangman, pinned commit 4e84f92f27d924a46a52ea0cf4d06a5dc90a9c12\\
+Used for: freight-elevator architectural doorway surround.\\
+\\
+GGBOTNET — VHS Cassette 3D\\`
+  );
+
+  const decoyLine='  pickupDecoy:`https://raw.githubusercontent.com/vinhelysia/godot-fps-cogito/1268440e90e370db6c3351ec4cd7429f3ca278b3/addons/cogito/Assets/Models/Kenney/Furniture/GLTF%20format/radio.glb`';
+  replaceOnce(
+    'industrial model URLs',
+    `${decoyLine}\n};`,
+`${decoyLine},
+  breakerCabinet:\`https://raw.githubusercontent.com/Enthceph/hangman/4e84f92f27d924a46a52ea0cf4d06a5dc90a9c12/assets/kenney_factory-kit_3.0/Models/GLB%20format/machine-window.glb\`,
+  elevatorFrame:\`https://raw.githubusercontent.com/Enthceph/hangman/4e84f92f27d924a46a52ea0cf4d06a5dc90a9c12/assets/kenney_prototype-kit/Models/GLB%20format/wall-doorway-wide.glb\`,
+  elevatorDoorHalf:\`https://raw.githubusercontent.com/Enthceph/hangman/4e84f92f27d924a46a52ea0cf4d06a5dc90a9c12/assets/kenney_factory-kit_3.0/Models/GLB%20format/door-wide-half.glb\`
+};`
+  );
+
+  replaceOnce(
+    'industrial preload',
+    "'pickupKey','pickupJournal','pickupNote','pickupDecoy'].map(n=>this.model(n)))",
+    "'pickupKey','pickupJournal','pickupNote','pickupDecoy','breakerCabinet','elevatorFrame','elevatorDoorHalf'].map(n=>this.model(n)))"
+  );
+
+  replaceRange(
+    'breaker model builder',
+    'function makeBreaker(',
+    '\n\nconst PICKUP_MODEL_SPECS=',
+`function fitIndustrialModel(model,size,center,rotationY=0){
+  model.position.set(0,0,0);model.rotation.set(0,rotationY,0);model.scale.set(1,1,1);model.updateWorldMatrix(true,true);
+  let box=new THREE.Box3().setFromObject(model),dims=box.getSize(new THREE.Vector3());
+  if(dims.x<1e-4||dims.y<1e-4||dims.z<1e-4)return false;
+  model.scale.set(size.x/dims.x,size.y/dims.y,size.z/dims.z);model.updateWorldMatrix(true,true);
+  box=new THREE.Box3().setFromObject(model);const c=box.getCenter(new THREE.Vector3());
+  model.position.add(new THREE.Vector3(center.x-c.x,center.y-c.y,center.z-c.z));
+  model.traverse(o=>{if(o.isMesh){o.castShadow=true;o.receiveShadow=true;}});return true;
+}
+async function attachIndustrialModel(group,key,size,center,rotationY=0,fallback=null){
+  try{
+    const model=await assets.model(key);if(!model)return false;
+    if(!fitIndustrialModel(model,size,center,rotationY))return false;
+    group.add(model);if(fallback)fallback.visible=false;group.userData.assetModel=key;return true;
+  }catch(err){console.warn('CC0 industrial model '+key+' failed; keeping procedural fallback.',err);return false;}
+}
+function makeBreaker(pos,rot=0,id='A'){
+  const g=new THREE.Group();g.position.copy(pos);g.rotation.y=rot;
+  const fallback=new THREE.Group();fallback.name='breaker-procedural-fallback';g.add(fallback);
+  const back=new THREE.MeshStandardMaterial({color:0x17191c,roughness:.78,metalness:.30});
+  const steel=new THREE.MeshStandardMaterial({color:0x3b3f44,roughness:.62,metalness:.38});
+  const dark=new THREE.MeshStandardMaterial({color:0x0b0d0f,roughness:.88,metalness:.12});
+  const trim=new THREE.MeshStandardMaterial({color:0x676b70,roughness:.5,metalness:.46});
+  const led=new THREE.MeshStandardMaterial({color:0x080808,emissive:0xa31d13,emissiveIntensity:1.15});
+  addBox(fallback,new THREE.Vector3(0,.34,-.055),new THREE.Vector3(.58,.70,.05),back);
+  addBox(fallback,new THREE.Vector3(0,.34,.035),new THREE.Vector3(.48,.60,.15),steel);
+  addBox(fallback,new THREE.Vector3(0,.34,.118),new THREE.Vector3(.40,.50,.018),dark);
+  addBox(fallback,new THREE.Vector3(0,.57,.132),new THREE.Vector3(.30,.035,.018),trim);
+  addBox(fallback,new THREE.Vector3(0,.12,.132),new THREE.Vector3(.30,.035,.018),trim);
+  const lamp=new THREE.Mesh(new THREE.SphereGeometry(.032,12,12),led);lamp.position.set(-.145,.48,.151);g.add(lamp);
+  const lever=addBox(g,new THREE.Vector3(.07,.32,.16),new THREE.Vector3(.055,.20,.055),trim);lever.rotation.z=-.16;
+  const tagMat=new THREE.MeshStandardMaterial({color:0xddd4b6,roughness:.86});
+  addBox(g,new THREE.Vector3(0,.68,.145),new THREE.Vector3(.24,.07,.018),tagMat);
+  g.userData={type:'breaker',id,on:false,lamp,lever,assetModel:'breakerCabinet',assetFallback:true};
+  attachIndustrialModel(g,'breakerCabinet',new THREE.Vector3(.56,.68,.19),new THREE.Vector3(0,.34,.025),Math.PI,fallback).then(ok=>{if(ok)g.userData.assetFallback=false;});
+  return g;
+}`
+  );
+
+  replaceRange(
+    'freight elevator CC0 model builder',
+    'function makeExitElevator(',
+    '\n\nasync function decorateLevel',
+`function makeExitElevator(pos,face='west'){
+  const g=new THREE.Group();g.position.copy(pos);
+  const facadeFallback=new THREE.Group();facadeFallback.name='elevator-facade-procedural-fallback';g.add(facadeFallback);
+  const wall=new THREE.MeshStandardMaterial({color:0x4b4b4d,roughness:.82,metalness:.08});
+  const steel=new THREE.MeshStandardMaterial({color:0x34383d,roughness:.43,metalness:.58});
+  const steel2=new THREE.MeshStandardMaterial({color:0x1f2226,roughness:.56,metalness:.42});
+  const dark=new THREE.MeshStandardMaterial({color:0x08090b,roughness:.88,metalness:.14});
+  const floorMat=new THREE.MeshStandardMaterial({color:0x2a2c30,roughness:.58,metalness:.32});
+  const lamp=new THREE.MeshStandardMaterial({color:0x090a0a,emissive:0x74ffd1,emissiveIntensity:.75});
+  addBox(facadeFallback,new THREE.Vector3(-.05,1.40,-1.18),new THREE.Vector3(.22,2.80,.54),wall);
+  addBox(facadeFallback,new THREE.Vector3(-.05,1.40,1.18),new THREE.Vector3(.22,2.80,.54),wall);
+  addBox(facadeFallback,new THREE.Vector3(-.05,2.62,0),new THREE.Vector3(.22,.36,2.62),wall);
+  addBox(facadeFallback,new THREE.Vector3(-.10,1.30,-.96),new THREE.Vector3(.16,2.52,.13),steel);
+  addBox(facadeFallback,new THREE.Vector3(-.10,1.30,.96),new THREE.Vector3(.16,2.52,.13),steel);
+  addBox(facadeFallback,new THREE.Vector3(-.10,2.47,0),new THREE.Vector3(.16,.18,2.02),steel);
+  const cab=new THREE.Group();g.add(cab);
+  addBox(cab,new THREE.Vector3(1.08,.045,0),new THREE.Vector3(2.18,.09,1.90),floorMat);
+  addBox(cab,new THREE.Vector3(1.08,2.48,0),new THREE.Vector3(2.18,.10,1.90),steel2);
+  addBox(cab,new THREE.Vector3(2.12,1.25,0),new THREE.Vector3(.10,2.45,1.90),steel2);
+  addBox(cab,new THREE.Vector3(1.10,1.25,-.99),new THREE.Vector3(2.12,2.45,.10),steel2);
+  addBox(cab,new THREE.Vector3(1.10,1.25,.99),new THREE.Vector3(2.12,2.45,.10),steel2);
+  for(let y=.26;y<2.30;y+=.22)addBox(cab,new THREE.Vector3(2.055,y,0),new THREE.Vector3(.018,.035,1.62),steel);
+  const railMat=new THREE.MeshStandardMaterial({color:0x8b8e91,roughness:.32,metalness:.74});
+  for(const z of[-.83,.83])addBox(cab,new THREE.Vector3(1.10,.92,z),new THREE.Vector3(1.55,.055,.055),railMat);
+  const left=new THREE.Group(),right=new THREE.Group();left.position.set(-.16,0,-.49);right.position.set(-.16,0,.49);g.add(left,right);
+  const makeDoorFallback=(parent)=>{
+    const fallback=new THREE.Group();fallback.name='elevator-door-procedural-fallback';parent.add(fallback);
+    addBox(fallback,new THREE.Vector3(0,1.26,0),new THREE.Vector3(.10,2.36,.92),steel);
+    addBox(fallback,new THREE.Vector3(-.058,1.26,0),new THREE.Vector3(.018,2.08,.72),steel2);
+    for(let y=.32;y<2.20;y+=.31)addBox(fallback,new THREE.Vector3(-.071,y,0),new THREE.Vector3(.012,.022,.68),railMat);
+    return fallback;
+  };
+  const leftFallback=makeDoorFallback(left),rightFallback=makeDoorFallback(right);
+  const indicator=addBox(g,new THREE.Vector3(-.18,2.55,0),new THREE.Vector3(.05,.13,.64),lamp);
+  const callPanel=addBox(g,new THREE.Vector3(-.19,1.15,1.34),new THREE.Vector3(.05,.44,.18),dark);
+  const callLamp=new THREE.Mesh(new THREE.SphereGeometry(.035,12,12),lamp);callLamp.position.set(-.225,1.20,1.34);g.add(callLamp);
+  g.userData={type:'exit',left,right,cab,indicator,callPanel,callLamp,closedL:-.49,closedR:.49,openL:-.99,openR:.99,state:'idle',timer:0,rideAnchor:null,assetModel:'elevatorFrame',assetFallback:true};
+  attachIndustrialModel(g,'elevatorFrame',new THREE.Vector3(.22,2.80,2.64),new THREE.Vector3(-.05,1.40,0),Math.PI/2,facadeFallback).then(ok=>{if(ok)g.userData.assetFallback=false;});
+  attachIndustrialModel(left,'elevatorDoorHalf',new THREE.Vector3(.10,2.36,.92),new THREE.Vector3(0,1.26,0),Math.PI/2,leftFallback);
+  attachIndustrialModel(right,'elevatorDoorHalf',new THREE.Vector3(.10,2.36,.92),new THREE.Vector3(0,1.26,0),-Math.PI/2,rightFallback);
+  return g;
+}`
+  );
+
+  if(!source.includes('breakerCabinet')||!source.includes('elevatorFrame')||!source.includes('elevatorDoorHalf'))fail('industrial model wiring incomplete');
+  if(!source.includes("u.state==='waiting'")||!source.includes('const inside=local.x>.20'))fail('elevator physical-entry state machine was lost');
+  if(!source.includes('breakers:3'))fail('chapter 1 breaker gate was lost');
+  return source;
+}
