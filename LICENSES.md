@@ -60,6 +60,9 @@ Poly Haven assets are released under CC0.
 - Dirty Carpet: https://polyhaven.com/a/dirty_carpet
 - Floor Tiles 06: https://polyhaven.com/a/floor_tiles_06
 - Concrete Wall 001: https://polyhaven.com/a/concrete_wall_001
+- Cassette Player: https://polyhaven.com/a/cassette_player
+  - Runtime GLTF: `https://dl.polyhaven.org/file/ph-assets/Models/gltf/2k/cassette_player/cassette_player_2k.gltf`
+  - Used at Cassette Castle listening stations. The runtime also attempts to extract the model's separately named tape/cassette component for shelf stock; if unavailable, game-authored low-poly cassette geometry is used as a fallback.
 
 The game requests the 1K JPG diffuse, OpenGL normal and roughness maps directly from Poly Haven's asset CDN.
 
@@ -86,3 +89,18 @@ The Attendant model and animation rig, story, levels, interaction systems, proce
 - Grungy Lights Texture Pack — OpenGameArt: https://opengameart.org/content/grungy-lights-texture-pack — CC0/public-domain relicensing
 
 Pinewood's named storefront signs are generated locally because their lettering is game-specific. The generated material now incorporates the distressed/dead-tube treatment of those CC0 references, plus emissive mapping, point-light spill, bloom response, and independent randomized flicker bursts. No runtime dependency on the OpenGameArt image files is required.
+
+### Video Planet shelf reference
+- User-provided visual reference: https://sketchfab.com/3d-models/vhs-shelf-4ac998896ed044deb1038d89f7841012
+- The referenced Sketchfab model is licensed **CC BY**, so it is not embedded in Pinewood under the project's CC0-only third-party asset policy.
+- The new Video Planet rental fixtures are original game geometry following its tall, shallow, multi-tier 1990s rental-store proportions.
+- Quaternius Furniture Pack was additionally verified as a CC0 furniture-proportion reference: https://quaternius.com/packs/furniture.html
+
+### Cassette Castle retail stock
+- Empty retail fixture: Kenney Mini Market `shelf-end.glb` — CC0, from the pinned Mini Market mirror documented above.
+- Cassette stock uses the Poly Haven Cassette Player's separate tape/cassette component when that node is available at runtime, with game-authored low-poly cassette geometry as fallback.
+
+### Blood decals
+- Bloodspatter and Gibs — Ragnar Random — https://opengameart.org/content/bloodspatter-and-gibs — CC0.
+- Liquid Splatter Pixel Texture — AlejandroHaibi — https://opengameart.org/content/liquid-splatter-pixel-texture — CC0.
+- Used as varied wall/floor decals around Chapter 1 concourses. Procedurally generated blood decals remain as a fallback if a remote PNG cannot load.
