@@ -132,6 +132,6 @@ async function buildFoodCourt(world){
   await placeModel(world.root,'cup',new THREE.Vector3(-11.70,.85,22.88),{targetHeight:.18,targetLongest:.09,rot:0,collide:false,fallback:'box'});
   await placeModel(world.root,'pizzaBox',new THREE.Vector3(-2.0,.85,22.7),{targetHeight:.055,targetLongest:.36,rot:-.16,collide:false,fallback:'box'});
 
-  const cab=makeCabinet(new THREE.Vector3(-14.5,0,29),Math.PI);world.root.add(cab);world.addCollider(-14.5,29,.95,.65,{navBlock:true,owner:cab});world.interactables.push(cab);
+  const cab=makeCabinet(new THREE.Vector3(-15.02,0,27.5),Math.PI/2);world.root.add(cab);world.addCollider(-15.02,27.5,.46,.82,{navBlock:true,owner:cab});world.interactables.push(cab);
   const dec=makePickup('decoy',new THREE.Vector3(-2.7,.16,28.3),'Pager Decoy');world.root.add(dec);world.interactables.push(dec);
 }
