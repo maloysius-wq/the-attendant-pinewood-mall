@@ -14,7 +14,30 @@ All third-party visual assets used by this build were selected because their sou
 - License: CC0 1.0
 - Pinned runtime mirror: `RetroDECK/RetroQUEST` commit `dfa19a5602a31f64bd890d15279a61f43b127328`
 - The mirrored package contains the original `License.txt` stating CC0.
-- Used for food-court tables/chairs and Cassette Castle listening tables, normalized to human-scale dimensions at runtime.
+- Used for food-court tables/chairs, Cassette Castle listening tables, and the portable-radio decoy, normalized to human-scale dimensions at runtime.
+
+## Kenney — Mini Dungeon
+- Original source: https://kenney.nl/assets/mini-dungeon
+- License: CC0 1.0
+- Pinned runtime mirror: `Enthceph/hangman` commit `4e84f92f27d924a46a52ea0cf4d06a5dc90a9c12`
+- Used for the service key, Last Shift journal/book, and recovered paper/note pickup visuals.
+- Runtime files: `key.glb`, `book.glb`, and `banner.glb` from `assets/kenney_mini-dungeon/Models/GLB format/`.
+
+## Kenney — Factory Kit 3.0
+- Original source: https://kenney.nl/assets/factory-kit
+- License: CC0 1.0
+- Pinned runtime mirror: `Enthceph/hangman` commit `4e84f92f27d924a46a52ea0cf4d06a5dc90a9c12`
+- The mirrored `assets/kenney_factory-kit_3.0/License.txt` identifies Factory Kit 3.0 as Creative Commons Zero (CC0).
+- Runtime files: `machine-window.glb` and `door-wide-half.glb` from `assets/kenney_factory-kit_3.0/Models/GLB format/`.
+- Used for the wall-mounted breaker cabinet housing and the two animated freight-elevator door leaves. Procedural breaker/elevator geometry remains available as a runtime fallback if a remote GLB fails.
+
+## Kenney — Prototype Kit
+- Original source: https://kenney.nl/assets/prototype-kit
+- License: CC0 1.0
+- Pinned runtime mirror: `Enthceph/hangman` commit `4e84f92f27d924a46a52ea0cf4d06a5dc90a9c12`
+- The mirrored `assets/kenney_prototype-kit/License.txt` identifies Prototype Kit 1.0 as Creative Commons Zero (CC0).
+- Runtime file: `wall-doorway-wide.glb` from `assets/kenney_prototype-kit/Models/GLB format/`.
+- Used as the recessed architectural surround for the freight elevator. The existing physical cabin, moving-door state machine, call controls, and walk-in progression remain game-authored.
 
 ## Kenney — Mini Market
 - Original source: https://kenney.nl/assets/mini-market
