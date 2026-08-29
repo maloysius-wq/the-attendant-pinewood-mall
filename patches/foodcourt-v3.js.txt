@@ -116,21 +116,21 @@ async function buildFoodCourt(world){
   await placeModel(world.root,'marketCash',new THREE.Vector3(-6.60,1.08,29.02),{targetHeight:.30,targetLongest:.42,rot:Math.PI,collide:false,fallback:'box'});
   await placeModel(world.root,'marketCash',new THREE.Vector3(-1.55,1.08,29.02),{targetHeight:.30,targetLongest:.42,rot:Math.PI,collide:false,fallback:'box'});
 
-  // NEW furniture only: Quaternius round tables + Quaternius chairs.
-  // Layout is 2 ROWS x 3 COLUMNS.
+  // Adult-scale seating islands: 2 ROWS x 3 COLUMNS. The earlier dimensions read toy-sized
+  // against the first-person camera, so both the furniture and chair orbit are larger now.
   const spots=[[-12.0,22.7],[-7.0,22.7],[-2.0,22.7],[-12.0,26.0],[-7.0,26.0],[-2.0,26.0]];
   for(let si=0;si<spots.length;si++){
     const [x,z]=spots[si];
-    await placeModel(world.root,'qTableRound',new THREE.Vector3(x,0,z),{targetHeight:.75,targetLongest:1.02,rot:si*.13,collide:true,fallback:'table'});
+    await placeModel(world.root,'qTableRound',new THREE.Vector3(x,0,z),{targetHeight:.84,targetLongest:1.18,rot:si*.13,collide:true,fallback:'table'});
     for(let a=0;a<4;a++){
-      const ang=a*Math.PI/2,radius=.82,px=x+Math.cos(ang)*radius,pz=z+Math.sin(ang)*radius;
-      await placeModel(world.root,'qChair',new THREE.Vector3(px,0,pz),{targetHeight:.90,targetLongest:.54,rot:yawFacing(px,pz,x,z),collide:true,fallback:'chair',pad:.035});
+      const ang=a*Math.PI/2,radius=.94,px=x+Math.cos(ang)*radius,pz=z+Math.sin(ang)*radius;
+      await placeModel(world.root,'qChair',new THREE.Vector3(px,0,pz),{targetHeight:1.02,targetLongest:.62,rot:yawFacing(px,pz,x,z),collide:true,fallback:'chair',pad:.035});
     }
   }
 
-  await placeModel(world.root,'pizza',new THREE.Vector3(-12.0,.76,22.7),{targetHeight:.045,targetLongest:.32,rot:.35,collide:false,fallback:'box'});
-  await placeModel(world.root,'cup',new THREE.Vector3(-11.70,.76,22.88),{targetHeight:.18,targetLongest:.09,rot:0,collide:false,fallback:'box'});
-  await placeModel(world.root,'pizzaBox',new THREE.Vector3(-2.0,.76,22.7),{targetHeight:.055,targetLongest:.36,rot:-.16,collide:false,fallback:'box'});
+  await placeModel(world.root,'pizza',new THREE.Vector3(-12.0,.85,22.7),{targetHeight:.045,targetLongest:.32,rot:.35,collide:false,fallback:'box'});
+  await placeModel(world.root,'cup',new THREE.Vector3(-11.70,.85,22.88),{targetHeight:.18,targetLongest:.09,rot:0,collide:false,fallback:'box'});
+  await placeModel(world.root,'pizzaBox',new THREE.Vector3(-2.0,.85,22.7),{targetHeight:.055,targetLongest:.36,rot:-.16,collide:false,fallback:'box'});
 
   const cab=makeCabinet(new THREE.Vector3(-14.5,0,29),Math.PI);world.root.add(cab);world.addCollider(-14.5,29,.95,.65,{navBlock:true,owner:cab});world.interactables.push(cab);
   const dec=makePickup('decoy',new THREE.Vector3(-2.7,.16,28.3),'Pager Decoy');world.root.add(dec);world.interactables.push(dec);
