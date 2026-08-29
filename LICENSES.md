@@ -12,9 +12,11 @@ All third-party visual assets used by this build were selected because their sou
 ## Kenney — Furniture Kit
 - Original source: https://kenney.nl/assets/furniture-kit
 - License: CC0 1.0
-- Pinned runtime mirror: `RetroDECK/RetroQUEST` commit `dfa19a5602a31f64bd890d15279a61f43b127328`
+- Primary pinned runtime mirror: `RetroDECK/RetroQUEST` commit `dfa19a5602a31f64bd890d15279a61f43b127328`
+- Additional pinned runtime mirror for the hiding cabinet: `vinhelysia/godot-fps-cogito` commit `1268440e90e370db6c3351ec4cd7429f3ca278b3`
 - The mirrored package contains the original `License.txt` stating CC0.
-- Used for food-court tables/chairs, Cassette Castle listening tables, and the portable-radio decoy, normalized to human-scale dimensions at runtime.
+- Hiding-cabinet runtime file: `addons/cogito/Assets/Models/Kenney/Furniture/GLTF format/bookcaseClosedDoors.glb`. The GLB contains separate `doorLeft` and `doorRight` nodes used by Pinewood's existing physical hide animation.
+- Used for food-court tables/chairs, Cassette Castle listening tables, the portable-radio decoy, and full-height hiding cabinets, normalized to human-scale dimensions at runtime.
 
 ## Kenney — Mini Dungeon
 - Original source: https://kenney.nl/assets/mini-dungeon
