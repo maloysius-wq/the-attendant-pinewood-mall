@@ -7,6 +7,7 @@ const PARTS=[
 ];
 const WORLD_PATCH='./patches/worldprops-v1.js.txt';
 const INDUSTRIAL_PATCH='./patches/industrial-cc0-v1.js.txt';
+const VISUAL_FIX_PATCH='./patches/visual-fixes-v1.js.txt';
 const FOOD_PATCH='./patches/foodcourt-v3.js.txt';
 
 async function getText(url){
@@ -52,6 +53,15 @@ async function applyIndustrialCc0(source,patchText){
   }finally{URL.revokeObjectURL(patchUrl);}
 }
 
+async function applyVisualFixes(source,patchText){
+  const patchUrl=URL.createObjectURL(new Blob([patchText+'\nexport { applyVisualFixesV1 };\n'],{type:'text/javascript'}));
+  try{
+    const mod=await import(patchUrl);
+    if(typeof mod.applyVisualFixesV1!=='function')throw new Error('Visual Fixes v1 patch did not export its patch function.');
+    return mod.applyVisualFixesV1(source);
+  }finally{URL.revokeObjectURL(patchUrl);}
+}
+
 function replaceFoodCourt(source,replacement){
   const start=source.indexOf('async function buildFoodCourt(world){');
   const end=source.indexOf('async function buildMusic(world){',start);
@@ -79,10 +89,11 @@ async function preflightThree(){
 
 try{
   await preflightThree();
-  const [base,worldPatch,industrialPatch,foodPatch]=await Promise.all([decodeSource(),getText(WORLD_PATCH),getText(INDUSTRIAL_PATCH),getText(FOOD_PATCH)]);
+  const [base,worldPatch,industrialPatch,visualFixPatch,foodPatch]=await Promise.all([decodeSource(),getText(WORLD_PATCH),getText(INDUSTRIAL_PATCH),getText(VISUAL_FIX_PATCH),getText(FOOD_PATCH)]);
   const worldSource=await applyWorldProps(normalizeImports(base),worldPatch);
   const industrialSource=await applyIndustrialCc0(worldSource,industrialPatch);
-  const source=replaceFoodCourt(industrialSource,foodPatch)+'\n//# sourceURL=pinewood-runtime.js\n';
+  const visualSource=await applyVisualFixes(industrialSource,visualFixPatch);
+  const source=replaceFoodCourt(visualSource,foodPatch)+'\n//# sourceURL=pinewood-runtime.js\n';
   const moduleUrl=URL.createObjectURL(new Blob([source],{type:'text/javascript'}));
   try{await import(moduleUrl);}finally{URL.revokeObjectURL(moduleUrl);}
 }catch(err){
