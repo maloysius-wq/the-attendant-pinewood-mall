@@ -1,0 +1,255 @@
+function applyWorldPropsV1(source){
+  const fail=msg=>{throw new Error(`World Props v1 patch failed: ${msg}`);};
+  const replaceOnce=(label,needle,replacement)=>{
+    const first=source.indexOf(needle);
+    if(first<0)fail(`${label}: marker missing`);
+    if(source.indexOf(needle,first+needle.length)>=0)fail(`${label}: marker is not unique`);
+    source=source.slice(0,first)+replacement+source.slice(first+needle.length);
+  };
+  const replaceRange=(label,startMarker,endMarker,replacement)=>{
+    const start=source.indexOf(startMarker);
+    if(start<0)fail(`${label}: start marker missing`);
+    const end=source.indexOf(endMarker,start+startMarker.length);
+    if(end<0)fail(`${label}: end marker missing`);
+    source=source.slice(0,start)+replacement+source.slice(end);
+  };
+
+  replaceOnce(
+    'Furniture Kit attribution',
+    'Used for: plain checkout/service counters, cash registers and Cassette Castle listening tables.\\',
+    'Used for: plain checkout/service counters, cash registers, Cassette Castle listening tables, and the portable radio decoy.\\'
+  );
+  replaceOnce(
+    'Mini Dungeon attribution',
+    'GGBOTNET — VHS Cassette 3D\\',
+    'KENNEY — Mini Dungeon\\\nLicense: Creative Commons Zero (CC0 1.0)\\\nSource: https://kenney.nl/assets/mini-dungeon\\\nRuntime mirror: Enthceph/hangman, pinned commit 4e84f92f27d924a46a52ea0cf4d06a5dc90a9c12\\\nUsed for: service keys, Last Shift journals, and recovered paper notes.\\\n\\\nGGBOTNET — VHS Cassette 3D\\'
+  );
+
+  replaceOnce(
+    'pickup model URLs',
+    '  vhsCassette:`${RAW_VHS}/assets/vhs_cassette_3d/VHS_cassette.glb`\n};',
+    '  vhsCassette:`${RAW_VHS}/assets/vhs_cassette_3d/VHS_cassette.glb`,\n  pickupKey:`https://raw.githubusercontent.com/Enthceph/hangman/4e84f92f27d924a46a52ea0cf4d06a5dc90a9c12/assets/kenney_mini-dungeon/Models/GLB%20format/key.glb`,\n  pickupJournal:`https://raw.githubusercontent.com/Enthceph/hangman/4e84f92f27d924a46a52ea0cf4d06a5dc90a9c12/assets/kenney_mini-dungeon/Models/GLB%20format/book.glb`,\n  pickupNote:`https://raw.githubusercontent.com/Enthceph/hangman/4e84f92f27d924a46a52ea0cf4d06a5dc90a9c12/assets/kenney_mini-dungeon/Models/GLB%20format/banner.glb`,\n  pickupDecoy:`https://raw.githubusercontent.com/vinhelysia/godot-fps-cogito/1268440e90e370db6c3351ec4cd7429f3ca278b3/addons/cogito/Assets/Models/Kenney/Furniture/GLTF%20format/radio.glb`\n};'
+  );
+
+  replaceOnce(
+    'pickup preload',
+    "'arcadeCash','pizza','pizzaBox','cup'].map(n=>this.model(n)))",
+    "'arcadeCash','pizza','pizzaBox','cup','pickupKey','pickupJournal','pickupNote','pickupDecoy'].map(n=>this.model(n)))"
+  );
+
+  replaceRange(
+    'breaker and pickup builders',
+    'function makeBreaker(',
+    '\n\nconst LEVELS=[',
+`function makeBreaker(pos,rot=0,id='A'){
+  const g=new THREE.Group();g.position.copy(pos);g.rotation.y=rot;
+  const back=new THREE.MeshStandardMaterial({color:0x17191c,roughness:.78,metalness:.30});
+  const steel=new THREE.MeshStandardMaterial({color:0x3b3f44,roughness:.62,metalness:.38});
+  const dark=new THREE.MeshStandardMaterial({color:0x0b0d0f,roughness:.88,metalness:.12});
+  const trim=new THREE.MeshStandardMaterial({color:0x676b70,roughness:.5,metalness:.46});
+  const led=new THREE.MeshStandardMaterial({color:0x080808,emissive:0xa31d13,emissiveIntensity:1.15});
+  // The backplate is almost flush with the wall. The cabinet projects into the corridor like a real surface-mounted breaker box.
+  addBox(g,new THREE.Vector3(0,.34,-.055),new THREE.Vector3(.58,.70,.05),back);
+  addBox(g,new THREE.Vector3(0,.34,.035),new THREE.Vector3(.48,.60,.15),steel);
+  addBox(g,new THREE.Vector3(0,.34,.118),new THREE.Vector3(.40,.50,.018),dark);
+  addBox(g,new THREE.Vector3(0,.57,.132),new THREE.Vector3(.30,.035,.018),trim);
+  addBox(g,new THREE.Vector3(0,.12,.132),new THREE.Vector3(.30,.035,.018),trim);
+  const lamp=new THREE.Mesh(new THREE.SphereGeometry(.032,12,12),led);lamp.position.set(-.145,.48,.151);g.add(lamp);
+  const lever=addBox(g,new THREE.Vector3(.07,.32,.16),new THREE.Vector3(.055,.20,.055),trim);lever.rotation.z=-.16;
+  const tagMat=new THREE.MeshStandardMaterial({color:0xddd4b6,roughness:.86});
+  addBox(g,new THREE.Vector3(0,.68,.13),new THREE.Vector3(.24,.07,.018),tagMat);
+  g.userData={type:'breaker',id,on:false,lamp,lever};return g;
+}
+
+const PICKUP_MODEL_SPECS={
+  key:{model:'pickupKey',longest:.34,rx:0,ry:0,rz:-Math.PI/2},
+  journal:{model:'pickupJournal',longest:.36,rx:0,ry:.18,rz:0},
+  note:{model:'pickupNote',longest:.31,rx:-Math.PI/2,ry:0,rz:0},
+  tape:{model:'vhsCassette',longest:.36,rx:0,ry:.12,rz:0},
+  decoy:{model:'pickupDecoy',longest:.34,rx:0,ry:.18,rz:0}
+};
+function pickupFallback(type){
+  const g=new THREE.Group();
+  const metal=new THREE.MeshStandardMaterial({color:0xb8babd,roughness:.42,metalness:.42});
+  const paper=new THREE.MeshStandardMaterial({color:0xd9d1bb,roughness:.82});
+  const dark=new THREE.MeshStandardMaterial({color:0x25242a,roughness:.62,metalness:.12,emissive:type==='decoy'?0x4e1536:0x000000,emissiveIntensity:type==='decoy'?.45:0});
+  if(type==='key'){
+    const shaft=new THREE.Mesh(new THREE.CylinderGeometry(.018,.018,.22,10),metal);shaft.rotation.z=Math.PI/2;g.add(shaft);
+    const ring=new THREE.Mesh(new THREE.TorusGeometry(.065,.014,8,18),metal);ring.position.x=-.13;g.add(ring);
+  }else if(type==='journal'){
+    addBox(g,new THREE.Vector3(0,.03,0),new THREE.Vector3(.28,.06,.21),new THREE.MeshStandardMaterial({color:0x49352d,roughness:.85}));
+    addBox(g,new THREE.Vector3(.015,.065,0),new THREE.Vector3(.24,.018,.18),paper);
+  }else if(type==='note'){
+    addBox(g,new THREE.Vector3(0,.012,0),new THREE.Vector3(.25,.024,.18),paper);
+  }else if(type==='tape'){
+    addBox(g,new THREE.Vector3(0,.035,0),new THREE.Vector3(.27,.07,.17),dark);
+    for(const sx of[-1,1]){const reel=new THREE.Mesh(new THREE.TorusGeometry(.034,.009,7,14),paper);reel.rotation.x=Math.PI/2;reel.position.set(.07*sx,.074,0);g.add(reel);}
+  }else{
+    addBox(g,new THREE.Vector3(0,.055,0),new THREE.Vector3(.25,.11,.16),dark);
+    const antenna=new THREE.Mesh(new THREE.CylinderGeometry(.007,.007,.18,7),metal);antenna.position.set(.085,.18,0);antenna.rotation.z=-.22;g.add(antenna);
+  }
+  return g;
+}
+async function attachPickupModel(group,type){
+  const spec=PICKUP_MODEL_SPECS[type];if(!spec)return;
+  let model=await assets.model(spec.model);
+  if(group.userData.collected)return;
+  if(!model){group.add(pickupFallback(type));group.userData.assetFallback=true;return;}
+  model.rotation.set(spec.rx||0,spec.ry||0,spec.rz||0);
+  model.position.set(0,0,0);
+  const lift=normalizeModelToMeters(model,{targetLongest:spec.longest});
+  model.position.y=lift;
+  model.updateWorldMatrix(true,true);
+  const box=new THREE.Box3().setFromObject(model),center=box.getCenter(new THREE.Vector3());
+  model.position.x-=center.x;model.position.z-=center.z;
+  model.traverse(o=>{if(o.isMesh){o.castShadow=true;o.receiveShadow=true;}});
+  group.add(model);group.userData.assetModel=spec.model;
+}
+function makePickup(type,pos,label,text=null){
+  const g=new THREE.Group();g.position.copy(pos);
+  g.userData={type,label,text,collected:false,floatBase:pos.y,phase:rand(0,TAU),assetModel:PICKUP_MODEL_SPECS[type]?.model||null};
+  attachPickupModel(g,type);return g;
+}`
+  );
+
+  // Last Shift logs in chapters 1 and 2 are bound journals. Chapter 3 PA memos remain individual paper notes.
+  const noteLoop="for(const[x,z,id,text]of notes){const n=makePickup('note',";
+  const journalLoop="for(const[x,z,id,text]of notes){const n=makePickup('journal',";
+  for(let i=0;i<2;i++){
+    const at=source.indexOf(noteLoop);
+    if(at<0)fail(`journal conversion ${i+1}: note loop missing`);
+    source=source.slice(0,at)+journalLoop+source.slice(at+noteLoop.length);
+  }
+
+  replaceOnce(
+    'chapter 1 breaker mounts',
+    "for(const[id,x,z,r]of[['A',-18,-13,0],['B',7,-13,0],['C',-7,15,Math.PI]]){const b=makeBreaker(new THREE.Vector3(x,.85,z),r,id);",
+    "for(const[id,x,z,r]of[['A',-18,-16.43,0],['B',7,-16.43,0],['C',-7,18.43,Math.PI]]){const b=makeBreaker(new THREE.Vector3(x,.68,z),r,id);"
+  );
+  replaceOnce(
+    'chapter 2 breaker mounts',
+    "for(const[id,x,z,r]of[['D',-18,-15,0],['E',9,-15,0]]){const b=makeBreaker(new THREE.Vector3(x,.85,z),r,id);",
+    "for(const[id,x,z,r]of[['D',-17,-17.43,0],['E',8,-17.43,0]]){const b=makeBreaker(new THREE.Vector3(x,.68,z),r,id);"
+  );
+
+  replaceRange(
+    'freight elevator model',
+    'function makeExitElevator(',
+    '\n\nasync function decorateLevel',
+`function makeExitElevator(pos,face='west'){
+  const g=new THREE.Group();g.position.copy(pos);
+  const wall=new THREE.MeshStandardMaterial({color:0x4b4b4d,roughness:.82,metalness:.08});
+  const steel=new THREE.MeshStandardMaterial({color:0x34383d,roughness:.43,metalness:.58});
+  const steel2=new THREE.MeshStandardMaterial({color:0x1f2226,roughness:.56,metalness:.42});
+  const dark=new THREE.MeshStandardMaterial({color:0x08090b,roughness:.88,metalness:.14});
+  const floorMat=new THREE.MeshStandardMaterial({color:0x2a2c30,roughness:.58,metalness:.32});
+  const lamp=new THREE.MeshStandardMaterial({color:0x090a0a,emissive:0x74ffd1,emissiveIntensity:.75});
+  // Build a complete wall recess around the opening so the car reads as architecture, not a freestanding prop.
+  addBox(g,new THREE.Vector3(-.05,1.40,-1.18),new THREE.Vector3(.22,2.80,.54),wall);
+  addBox(g,new THREE.Vector3(-.05,1.40,1.18),new THREE.Vector3(.22,2.80,.54),wall);
+  addBox(g,new THREE.Vector3(-.05,2.62,0),new THREE.Vector3(.22,.36,2.62),wall);
+  addBox(g,new THREE.Vector3(-.10,1.30,-.96),new THREE.Vector3(.16,2.52,.13),steel);
+  addBox(g,new THREE.Vector3(-.10,1.30,.96),new THREE.Vector3(.16,2.52,.13),steel);
+  addBox(g,new THREE.Vector3(-.10,2.47,0),new THREE.Vector3(.16,.18,2.02),steel);
+  const cab=new THREE.Group();g.add(cab);
+  addBox(cab,new THREE.Vector3(1.08,.045,0),new THREE.Vector3(2.18,.09,1.90),floorMat);
+  addBox(cab,new THREE.Vector3(1.08,2.48,0),new THREE.Vector3(2.18,.10,1.90),steel2);
+  addBox(cab,new THREE.Vector3(2.12,1.25,0),new THREE.Vector3(.10,2.45,1.90),steel2);
+  addBox(cab,new THREE.Vector3(1.10,1.25,-.99),new THREE.Vector3(2.12,2.45,.10),steel2);
+  addBox(cab,new THREE.Vector3(1.10,1.25,.99),new THREE.Vector3(2.12,2.45,.10),steel2);
+  // Ribbed rear panel and hand rail add enough detail to make the car feel modeled rather than boxed-in.
+  for(let y=.26;y<2.30;y+=.22)addBox(cab,new THREE.Vector3(2.055,y,0),new THREE.Vector3(.018,.035,1.62),steel);
+  const railMat=new THREE.MeshStandardMaterial({color:0x8b8e91,roughness:.32,metalness:.74});
+  for(const z of[-.83,.83])addBox(cab,new THREE.Vector3(1.10,.92,z),new THREE.Vector3(1.55,.055,.055),railMat);
+  const left=new THREE.Group(),right=new THREE.Group();left.position.set(-.16,0,-.49);right.position.set(-.16,0,.49);g.add(left,right);
+  const doorSlab=(parent)=>{
+    addBox(parent,new THREE.Vector3(0,1.26,0),new THREE.Vector3(.10,2.36,.92),steel);
+    addBox(parent,new THREE.Vector3(-.058,1.26,0),new THREE.Vector3(.018,2.08,.72),steel2);
+    for(let y=.32;y<2.20;y+=.31)addBox(parent,new THREE.Vector3(-.071,y,0),new THREE.Vector3(.012,.022,.68),railMat);
+  };
+  doorSlab(left);doorSlab(right);
+  const indicator=addBox(g,new THREE.Vector3(-.18,2.55,0),new THREE.Vector3(.05,.13,.64),lamp);
+  const callPanel=addBox(g,new THREE.Vector3(-.19,1.15,1.34),new THREE.Vector3(.05,.44,.18),dark);
+  const callLamp=new THREE.Mesh(new THREE.SphereGeometry(.035,12,12),lamp);callLamp.position.set(-.225,1.20,1.34);g.add(callLamp);
+  g.userData={type:'exit',left,right,cab,indicator,callPanel,callLamp,closedL:-.49,closedR:.49,openL:-.99,openR:.99,state:'idle',timer:0,rideAnchor:null};
+  return g;
+}`
+  );
+
+  replaceOnce(
+    'elevator inset position',
+    'const elevator=makeExitElevator(new THREE.Vector3(29.32,0,0));',
+    'const elevator=makeExitElevator(new THREE.Vector3(27.10,0,0));'
+  );
+
+  replaceOnce(
+    'journal interaction prompt',
+    "else if(t==='note'||t==='tape')UI.hint('E  Recover '+o.userData.label);",
+    "else if(t==='note'||t==='journal'||t==='tape')UI.hint('E  Recover '+o.userData.label);"
+  );
+  replaceOnce(
+    'elevator interaction prompt',
+    "else if(t==='exit')UI.hint(this.breakers<LEVELS[this.levelIndex].breakers?'Elevator has no emergency power':'E  Call freight elevator');",
+    "else if(t==='exit'){const need=LEVELS[this.levelIndex].breakers,u=o.userData;UI.hint(this.breakers<need?`Elevator has no emergency power (${this.breakers}/${need})`:u.state==='idle'?'E  Call freight elevator':u.state==='opening'?'Freight elevator arriving…':u.state==='waiting'?'Freight elevator open • step inside':'');}"
+  );
+  replaceOnce(
+    'journal collection',
+    "}else if(t==='note'||t==='tape'){",
+    "}else if(t==='note'||t==='journal'||t==='tape'){"
+  );
+
+  replaceRange(
+    'elevator state machine',
+    '  startElevator(o){',
+    '  endClosingRoutine(core){',
+`  startElevator(o){
+    const need=LEVELS[this.levelIndex].breakers||0;
+    if(this.breakers<need){audio.beep();UI.hint(\`Emergency power incomplete (\${this.breakers}/\${need}).\`);return;}
+    if(o.userData.state!=='idle')return;
+    o.userData.state='opening';o.userData.timer=0;o.userData.rideAnchor=null;
+    if(o.userData.callLamp?.material)o.userData.callLamp.material.emissiveIntensity=1.45;
+    audio.chime();this.emitSound(o.position.clone(),.75,'elevator');
+  }
+  updateElevator(dt){
+    const e=this.exitObject;if(!e||e.userData.type!=='exit'||e.userData.state==='idle')return;
+    const u=e.userData;u.timer+=dt;
+    if(u.state==='opening'){
+      const t=clamp(u.timer/.9,0,1),s=t*t*(3-2*t);
+      u.left.position.z=lerp(u.closedL,u.openL,s);u.right.position.z=lerp(u.closedR,u.openR,s);
+      if(t>=1){u.state='waiting';u.timer=0;UI.hint('Freight elevator open. Step inside.');}
+    }else if(u.state==='waiting'){
+      const local=e.worldToLocal(this.controls.yaw.position.clone());
+      const inside=local.x>.20&&local.x<1.90&&Math.abs(local.z)<.82;
+      if(inside){u.state='closing';u.timer=0;u.rideAnchor=this.controls.yaw.position.clone();this.attendant.stunUntil=Math.max(this.attendant.stunUntil,this.time+3.5);audio.chime();this.emitSound(e.position.clone(),.38,'elevator');UI.hint('');}
+    }else if(u.state==='closing'){
+      const t=clamp(u.timer/.82,0,1),s=t*t*(3-2*t);
+      u.left.position.z=lerp(u.openL,u.closedL,s);u.right.position.z=lerp(u.openR,u.closedR,s);
+      if(u.rideAnchor)this.controls.yaw.position.copy(u.rideAnchor);
+      if(t>=1){u.state='ride';u.timer=0;audio.thud(.18);UI.static(500);}
+    }else if(u.state==='ride'){
+      if(u.rideAnchor)this.controls.yaw.position.copy(u.rideAnchor);
+      const pulse=Math.sin(u.timer*10)*.006;this.controls.pitch.rotation.x=clamp(this.controls.pitch.rotation.x+pulse,-1.45,1.45);
+      if(u.timer>1.35)this.winChapter();
+    }
+  }
+`
+  );
+
+  replaceOnce(
+    'freeze movement during elevator ride',
+    "const moving=!this.playerHidden&&!this.hideTransition&&(keysDown.w||keysDown.a||keysDown.s||keysDown.d),sprint=keysDown.shift&&moving&&!holding&&this.stamina>.06;",
+    "const elevatorTransit=this.exitObject?.userData?.type==='exit'&&['closing','ride'].includes(this.exitObject.userData.state);const moving=!elevatorTransit&&!this.playerHidden&&!this.hideTransition&&(keysDown.w||keysDown.a||keysDown.s||keysDown.d),sprint=keysDown.shift&&moving&&!holding&&this.stamina>.06;"
+  );
+  replaceOnce(
+    'pickup bob and spin types',
+    "if(['key','decoy','note','tape'].includes(o.userData.type)&&!o.userData.collected)",
+    "if(['key','decoy','journal','note','tape'].includes(o.userData.type)&&!o.userData.collected)"
+  );
+
+  // Sanity checks: the patch must leave chapter 1 gated by all three breakers and preserve the Food Court function for its v3 patch.
+  if(!source.includes("{name:'Chapter 1: Closing Time'")||!source.includes('breakers:3'))fail('chapter 1 breaker requirement was lost');
+  if(!source.includes('async function buildFoodCourt(world){'))fail('Food Court marker was lost');
+  if(!source.includes("pickupJournal")||!source.includes("pickupNote")||!source.includes("pickupDecoy"))fail('pickup model wiring incomplete');
+  if(!source.includes("u.state==='waiting'" )||!source.includes('const inside=local.x>.20'))fail('elevator entry gate incomplete');
+  return source;
+}
