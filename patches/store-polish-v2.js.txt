@@ -1,0 +1,259 @@
+function applyStorePolishV2(source){
+  const fail=msg=>{throw new Error(`Store Polish v2 patch failed: ${msg}`);};
+  const replaceOnce=(label,needle,replacement)=>{
+    const first=source.indexOf(needle);
+    if(first<0)fail(`${label}: marker missing`);
+    if(source.indexOf(needle,first+needle.length)>=0)fail(`${label}: marker is not unique`);
+    source=source.slice(0,first)+replacement+source.slice(first+needle.length);
+  };
+  const replaceRange=(label,startMarker,endMarker,replacement)=>{
+    const start=source.indexOf(startMarker);
+    if(start<0)fail(`${label}: start marker missing`);
+    const end=source.indexOf(endMarker,start+startMarker.length);
+    if(end<0)fail(`${label}: end marker missing`);
+    source=source.slice(0,start)+replacement+source.slice(end);
+  };
+
+  replaceOnce(
+    'store polish attributions',
+    'All Pinewood-specific signage, posters, UI, The Attendant, gore, particle effects and procedural audio are generated/original in this build.',
+`QUATERNIUS — shelf-shape reference\
+License: Creative Commons Zero (CC0 1.0)\
+Source: https://quaternius.com/packs/furniture.html\
+Used as an additional verified-CC0 furniture reference for Pinewood retail-fixture proportions.\
+\
+POLY HAVEN — Cassette Player\
+License: Creative Commons Zero (CC0 1.0)\
+Source: https://polyhaven.com/a/cassette_player\
+Used for Cassette Castle listening-station hardware and, when available, the model's separate cassette/tape component for shelf stock.\
+\
+OPENGAMEART — Bloodspatter and Gibs / Liquid Splatter Pixel Texture\
+License: Creative Commons Zero (CC0 1.0)\
+Sources: https://opengameart.org/content/bloodspatter-and-gibs and https://opengameart.org/content/liquid-splatter-pixel-texture\
+Used for varied wall/floor blood decals around the Chapter 1 mall concourses.\
+\
+All Pinewood-specific signage, posters, UI, The Attendant, gore, particle effects and procedural audio are generated/original in this build.`
+  );
+
+  const cabinetLine='  hidingCabinet:`https://raw.githubusercontent.com/vinhelysia/godot-fps-cogito/1268440e90e370db6c3351ec4cd7429f3ca278b3/addons/cogito/Assets/Models/Kenney/Furniture/GLTF%20format/bookcaseClosedDoors.glb`';
+  replaceOnce(
+    'cassette player model URL',
+    `${cabinetLine}\n};`,
+    `${cabinetLine},\n  cassettePlayer:\`https://dl.polyhaven.org/file/ph-assets/Models/gltf/2k/cassette_player/cassette_player_2k.gltf\`\n};`
+  );
+  replaceOnce(
+    'cassette player preload',
+    "'pickupKey','pickupJournal','pickupNote','pickupDecoy','breakerCabinet','elevatorFrame','elevatorDoorHalf','hidingCabinet'].map(n=>this.model(n)))",
+    "'pickupKey','pickupJournal','pickupNote','pickupDecoy','breakerCabinet','elevatorFrame','elevatorDoorHalf','hidingCabinet','cassettePlayer'].map(n=>this.model(n)))"
+  );
+
+  replaceRange(
+    'cabinet facing color and door swing',
+    'async function attachHidingCabinetModel(root){',
+    '\nfunction fitIndustrialModel(',
+`async function attachHidingCabinetModel(root){
+  try{
+    const model=await assets.model('hidingCabinet');
+    if(!model){root.userData.assetMissing=true;console.warn('CC0 hiding cabinet failed to load; generated cabinet visual is intentionally disabled.');return;}
+    if(!fitIndustrialModel(model,new THREE.Vector3(.90,1.98,.56),new THREE.Vector3(0,.99,0),0)){
+      root.userData.assetMissing=true;console.warn('CC0 hiding cabinet dimensions were invalid.');return;
+    }
+    model.traverse(o=>{if(o.isMesh){
+      const mats=Array.isArray(o.material)?o.material:[o.material];
+      for(const m of mats){if(!m)continue;if(m.color)m.color.setHex(0x111214);if(m.emissive)m.emissive.setHex(0x000000);if('roughness'in m)m.roughness=.84;if('metalness'in m)m.metalness=Math.min(.14,m.metalness??.08);m.needsUpdate=true;}
+      o.castShadow=true;o.receiveShadow=true;
+    }});
+    const doorL=model.getObjectByName('doorLeft')||model.getObjectByName('DoorLeft');
+    const doorR=model.getObjectByName('doorRight')||model.getObjectByName('DoorRight');
+    if(!doorL||!doorR){root.userData.assetMissing=true;console.warn('CC0 hiding cabinet door nodes missing.');return;}
+    root.add(model);
+    root.userData.assetModel='hidingCabinet';root.userData.assetMissing=false;
+    root.userData.cabDoorL=doorL;root.userData.cabDoorR=doorR;
+    root.userData.cabDoorLBase=doorL.rotation.y;root.userData.cabDoorRBase=doorR.rotation.y;
+    setCabinetDoors(root,root.userData.open||0);
+  }catch(err){root.userData.assetMissing=true;console.warn('CC0 hiding cabinet failed to load; generated cabinet visual is intentionally disabled.',err);}
+}
+function makeCabinet(pos,rot=0){
+  const root=new THREE.Group();root.position.copy(pos);root.rotation.y=rot;
+  const l=new THREE.Group(),r=new THREE.Group();root.add(l,r);
+  root.userData={type:'cabinet',hingeL:l,hingeR:r,open:0,baseRot:rot,assetModel:'hidingCabinet',assetMissing:false};
+  attachHidingCabinetModel(root);return root;
+}
+function setCabinetDoors(cab,t){
+  cab.userData.open=t;
+  cab.userData.hingeL.rotation.y=t*1.42;cab.userData.hingeR.rotation.y=-t*1.42;
+  if(cab.userData.cabDoorL)cab.userData.cabDoorL.rotation.y=(cab.userData.cabDoorLBase||0)-t*1.42;
+  if(cab.userData.cabDoorR)cab.userData.cabDoorR.rotation.y=(cab.userData.cabDoorRBase||0)+t*1.42;
+}
+`
+  );
+
+  replaceRange(
+    'sharper neon signs',
+    "function makeSign(text,theme='mall',w=4.2,h=.78){",
+    '\nfunction makePoster(',
+`function makeSign(text,theme='mall',w=4.2,h=.78){
+  const colors={arcade:['#14051f','#78ffe2'],food:['#241207','#ffc65c'],vhs:['#23051f','#ff75cc'],music:['#07152d','#70aaff'],mall:['#101116','#f3d4e6']};
+  const[c1,c2]=colors[theme]||colors.mall;
+  const tex=makeCanvasTexture((ctx,c)=>{
+    const g=ctx.createLinearGradient(0,0,0,c.height);g.addColorStop(0,'#09090d');g.addColorStop(.55,c1);g.addColorStop(1,'#050508');ctx.fillStyle=g;ctx.fillRect(0,0,c.width,c.height);
+    for(let i=0;i<180;i++){ctx.strokeStyle=\`rgba(255,255,255,\${rand(.005,.028)})\`;ctx.lineWidth=rand(.5,1.7);ctx.beginPath();ctx.moveTo(rand(0,c.width),rand(0,c.height));ctx.lineTo(rand(0,c.width),rand(0,c.height));ctx.stroke();}
+    ctx.strokeStyle=c2;ctx.shadowColor=c2;ctx.shadowBlur=20;ctx.lineWidth=8;ctx.strokeRect(24,24,c.width-48,c.height-48);
+    ctx.font='900 72px Arial Black, Arial';ctx.textAlign='center';ctx.textBaseline='middle';ctx.lineJoin='round';ctx.strokeStyle=c2;ctx.lineWidth=5;ctx.strokeText(text,c.width/2,c.height/2+2);ctx.fillStyle='#fffafb';ctx.shadowBlur=10;ctx.fillText(text,c.width/2,c.height/2+2);
+    ctx.shadowBlur=0;for(let i=0;i<8;i++){ctx.fillStyle='rgba(4,4,7,.72)';ctx.fillRect(rand(45,c.width-70),rand(38,c.height-55),rand(6,22),rand(2,5));}
+  },1024,256);
+  const root=new THREE.Group();
+  const backing=new THREE.Mesh(new THREE.BoxGeometry(w,h,.10),new THREE.MeshStandardMaterial({color:0x08090b,roughness:.48,metalness:.32}));root.add(backing);
+  const mat=new THREE.MeshStandardMaterial({map:tex,emissiveMap:tex,emissive:new THREE.Color(c2),emissiveIntensity:2.08,roughness:.4,metalness:.03,transparent:false});
+  const face=new THREE.Mesh(new THREE.PlaneGeometry(w*.97,h*.92),mat);face.position.z=.056;root.add(face);
+  const light=new THREE.PointLight(new THREE.Color(c2),.56,5.7,2);light.position.set(0,-.08,.5);root.add(light);
+  root.userData.neon={mat,light,baseEmissive:2.08,baseLight:.56,next:rand(4.5,15),burst:0,phase:rand(0,TAU)};
+  return root;
+}
+`
+  );
+
+  replaceOnce(
+    'store helper insertion',
+    'async function buildArcade(world){',
+`const BLOOD_DECAL_URLS=[
+  'https://opengameart.org/sites/default/files/bloodsplatterandgibs.png',
+  'https://opengameart.org/sites/default/files/blood_splatter.png'
+];
+const BLOOD_DECAL_CACHE=new Map();
+function proceduralBloodTexture(seed=0){
+  return makeCanvasTexture((ctx,c)=>{
+    ctx.clearRect(0,0,c.width,c.height);
+    for(let i=0;i<7+(seed%4);i++){
+      const x=rand(c.width*.16,c.width*.84),y=rand(c.height*.16,c.height*.84),r=rand(c.width*.035,c.width*.16);
+      const grad=ctx.createRadialGradient(x,y,1,x,y,r);grad.addColorStop(0,'rgba(115,5,8,.98)');grad.addColorStop(.72,'rgba(78,3,5,.83)');grad.addColorStop(1,'rgba(45,0,1,0)');ctx.fillStyle=grad;ctx.beginPath();ctx.arc(x,y,r,0,TAU);ctx.fill();
+      for(let k=0;k<3;k++){const rr=r*rand(.08,.22),a=rand(0,TAU),d=r*rand(1.2,2.4);ctx.fillStyle='rgba(86,3,5,.75)';ctx.beginPath();ctx.arc(x+Math.cos(a)*d,y+Math.sin(a)*d,rr,0,TAU);ctx.fill();}
+    }
+  },512,512);
+}
+async function bloodTexture(index){
+  if(BLOOD_DECAL_CACHE.has(index))return BLOOD_DECAL_CACHE.get(index);
+  let tex=null;try{tex=await assets.tex.loadAsync(BLOOD_DECAL_URLS[index%BLOOD_DECAL_URLS.length]);tex.colorSpace=THREE.SRGBColorSpace;}catch(err){console.warn('CC0 blood texture failed; using procedural fallback.',err);}
+  if(!tex)tex=proceduralBloodTexture(index+1);BLOOD_DECAL_CACHE.set(index,tex);return tex;
+}
+async function bloodDecal(world,{x,y,z,w,h,rx=0,ry=0,index=0,opacity=.8}){
+  const tex=await bloodTexture(index);const mat=new THREE.MeshBasicMaterial({map:tex,alphaMap:tex,transparent:true,opacity,depthWrite:false,color:0x7c1115,side:THREE.DoubleSide});
+  const m=new THREE.Mesh(new THREE.PlaneGeometry(w,h),mat);m.position.set(x,y,z);m.rotation.set(rx,ry,0);m.renderOrder=7;world.root.add(m);return m;
+}
+async function addMallBlood(world){
+  const wall=[
+    {x:-20.37,y:.88,z:-11.3,w:1.00,h:1.25,ry:Math.PI/2,index:0},{x:9.37,y:1.02,z:-12.2,w:1.12,h:1.48,ry:-Math.PI/2,index:1},
+    {x:-10.2,y:.84,z:16.37,w:1.24,h:1.08,ry:Math.PI,index:0},{x:20.2,y:.96,z:16.37,w:.98,h:1.36,ry:Math.PI,index:1},{x:24.37,y:1.00,z:.65,w:.92,h:1.35,ry:Math.PI/2,index:0}
+  ];for(const d of wall)await bloodDecal(world,d);
+  const floor=[
+    {x:-16.2,y:.025,z:-13.7,w:1.22,h:.90,rx:-Math.PI/2,ry:.18,index:1,opacity:.72},{x:5.1,y:.025,z:-14.0,w:1.38,h:1.05,rx:-Math.PI/2,ry:-.35,index:0,opacity:.76},
+    {x:10.5,y:.025,z:-14.1,w:.78,h:.62,rx:-Math.PI/2,ry:.52,index:1,opacity:.58},{x:-7.6,y:.025,z:17.05,w:1.28,h:1.04,rx:-Math.PI/2,ry:-.24,index:0,opacity:.76},
+    {x:17.0,y:.025,z:17.1,w:1.36,h:1.08,rx:-Math.PI/2,ry:.41,index:1,opacity:.74},{x:22.0,y:.025,z:17.25,w:.72,h:.58,rx:-Math.PI/2,ry:-.52,index:0,opacity:.58}
+  ];for(const d of floor)await bloodDecal(world,d);
+}
+function addFixtureBox(parent,x,y,z,w,h,d,mat){return addBox(parent,new THREE.Vector3(x,y,z),new THREE.Vector3(w,h,d),mat);}
+function makeVideoRentalShelf(seed=0,{width=1.65,height=1.95,depth=.54,doubleSided=true}={}){
+  const g=new THREE.Group(),body=new THREE.MeshStandardMaterial({color:0x303238,roughness:.80,metalness:.08}),edge=new THREE.MeshStandardMaterial({color:0x121318,roughness:.63,metalness:.20});
+  addFixtureBox(g,0,.05,0,width,.10,depth,edge);addFixtureBox(g,0,height-.06,0,width,.12,depth*.72,edge);addFixtureBox(g,-width*.475,height*.5,0,.08,height,depth,body);addFixtureBox(g,width*.475,height*.5,0,.08,height,depth,body);addFixtureBox(g,0,height*.5,0,width-.18,height-.18,.05,body);
+  const sides=doubleSided?[1,-1]:[1];let tapeSeed=seed*41+3;
+  for(const side of sides){for(let row=0;row<5;row++){
+    const y=.27+row*.31,z=side*depth*.34;addFixtureBox(g,0,y,z,width-.15,.045,.11,body);addFixtureBox(g,0,y+.04,side*depth*.43,width-.15,.08,.025,edge);
+    for(let col=0;col<12;col++){const faceOut=(col===3||col===9)&&row<2,v=makeVHSCase(tapeSeed++,faceOut);v.position.set(-.67+col*.122,y+.045,side*depth*.30);v.rotation.y=(side<0?Math.PI:0)+rand(-.025,.025);v.rotation.z=rand(-.015,.015);g.add(v);}
+  }}
+  return g;
+}
+function addVideoRentalShelf(world,x,z,rot=0,opts={}){
+  const g=makeVideoRentalShelf(Math.abs(Math.round(x*17+z*23)),opts);g.position.set(x,0,z);g.rotation.y=rot;world.root.add(g);g.updateWorldMatrix(true,true);world.addColliderFrom(g,{navBlock:true,pad:.045});return g;
+}
+let cassetteTapeTemplatePromise=null;
+async function getCassetteTapeTemplate(){
+  if(cassetteTapeTemplatePromise)return cassetteTapeTemplatePromise;
+  cassetteTapeTemplatePromise=(async()=>{
+    const player=await assets.model('cassettePlayer');if(!player)return null;
+    let candidate=null;player.traverse(o=>{const n=(o.name||'').toLowerCase();if(!candidate&&n.includes('tape')&&(o.isMesh||o.children?.length))candidate=o;});
+    if(!candidate)return null;
+    const g=new THREE.Group();g.add(candidate.clone(true));g.rotation.set(0,0,0);g.position.set(0,0,0);const lift=normalizeModelToMeters(g,{targetLongest:.105});g.position.y=lift;g.updateWorldMatrix(true,true);const b=new THREE.Box3().setFromObject(g),c=b.getCenter(new THREE.Vector3());g.position.x-=c.x;g.position.z-=c.z;return g;
+  })();return cassetteTapeTemplatePromise;
+}
+function fallbackCassette(seed=0){
+  const g=new THREE.Group(),colors=[0x1c1d23,0x5b3344,0x315274,0x6b6736,0xb9b1a0],mat=new THREE.MeshStandardMaterial({color:colors[seed%colors.length],roughness:.72});
+  addFixtureBox(g,0,.035,0,.103,.07,.015,mat);const label=new THREE.MeshStandardMaterial({color:0xe3d8c7,roughness:.88});addFixtureBox(g,0,.039,.008,.064,.026,.003,label);for(const sx of[-1,1]){const r=new THREE.Mesh(new THREE.TorusGeometry(.012,.0035,6,12),new THREE.MeshStandardMaterial({color:0x303038,roughness:.55}));r.position.set(.025*sx,.039,.010);r.rotation.x=Math.PI/2;g.add(r);}return g;
+}
+async function stockCassetteShelf(world,x,z,rot=0){
+  const root=new THREE.Group();root.position.set(x,0,z);root.rotation.y=rot;world.root.add(root);const template=await getCassetteTapeTemplate();let seed=Math.abs(Math.round(x*31+z*19));
+  for(const side of[1,-1])for(let row=0;row<4;row++)for(let col=0;col<10;col++){
+    const t=template?template.clone(true):fallbackCassette(seed);t.position.set(-.43+col*.095,.34+row*.29,side*.17);t.rotation.y=(side<0?Math.PI:0)+rand(-.04,.04);t.rotation.z=rand(-.035,.035);root.add(t);seed++;
+  }
+}
+async function addCassetteStockShelf(world,x,z,rot=0){
+  await placeModel(world.root,'marketShelfEnd',new THREE.Vector3(x,0,z),{targetHeight:1.62,targetLongest:1.05,rot,collide:true,fallback:'shelf',pad:.04});await stockCassetteShelf(world,x,z,rot);
+}
+async function buildArcade(world){`
+  );
+
+  replaceRange(
+    'video planet shelving',
+    'async function buildVHS(world){',
+    '\n\nasync function buildFoodCourt(world){',
+`async function buildVHS(world){
+  addStorefront(world,{name:'VIDEO PLANET',theme:'vhs',x:8,z:-18.48,face:'south'});
+  addWallPoster(world,makePoster('BE KIND','REWIND','#8c3d76'),new THREE.Vector3(.56,1.55,-24),Math.PI/2);
+  addWallPoster(world,makePoster('NEW RELEASES','FRIDAY','#5d4a8f'),new THREE.Vector3(15.44,1.55,-23),-Math.PI/2);
+  addWallPoster(world,makePoster('2 NIGHTS','1 PRICE','#3a658f'),new THREE.Vector3(8,1.55,-30.44),0);
+  for(const[x,z,r,opts]of[[4.1,-22.7,0,{doubleSided:true}],[8.0,-22.7,0,{doubleSided:true}],[11.9,-22.7,0,{doubleSided:true}],[4.1,-27.15,0,{doubleSided:false}],[8.0,-27.15,0,{doubleSided:false}]])addVideoRentalShelf(world,x,z,r,opts);
+  await placeModel(world.root,'counterDesk',new THREE.Vector3(12.3,0,-20.7),{targetHeight:1.0,targetLongest:2.45,rot:-.08,collide:true,fallback:'table'});
+  await placeModel(world.root,'marketCash',new THREE.Vector3(12.0,1.01,-20.55),{targetHeight:.28,targetLongest:.42,rot:Math.PI,collide:false,fallback:'box'});
+  await placeModel(world.root,'marketBottleReturn',new THREE.Vector3(14.6,0,-27),{targetHeight:1.55,targetLongest:1.0,rot:-Math.PI/2,collide:true,fallback:'shelf'});
+  const cab=makeCabinet(new THREE.Vector3(13.05,0,-28.85),Math.PI);world.root.add(cab);world.addCollider(13.05,-28.85,.82,.46,{navBlock:true,owner:cab});world.interactables.push(cab);
+  const keyp=makePickup('key',new THREE.Vector3(6.9,.18,-28.2),'Master Service Key');world.root.add(keyp);world.interactables.push(keyp);
+}`
+  );
+
+  replaceRange(
+    'cassette castle shelving',
+    'async function buildMusic(world){',
+    '\n\nfunction makeShutter(',
+`async function buildMusic(world){
+  addStorefront(world,{name:'CASSETTE CASTLE',theme:'music',x:18,z:19.48,face:'north'});
+  addWallPoster(world,makePoster('NEW WAVE','THIS WEEK','#355d92'),new THREE.Vector3(10.56,1.55,25),Math.PI/2);addWallPoster(world,makePoster('MIX TAPE','STATION','#6d4c93'),new THREE.Vector3(27.44,1.55,25),-Math.PI/2);addWallPoster(world,makePoster('TOP 40','PINEWOOD','#8b5639'),new THREE.Vector3(18,1.55,31.44),Math.PI);
+  for(const[x,z,r]of[[14.2,23.0,0],[18.0,23.0,0],[21.8,23.0,0],[16.1,27.0,0],[20.4,27.0,0]])await addCassetteStockShelf(world,x,z,r);
+  for(const z of[22.5,25,27.5]){
+    await placeModel(world.root,'sideTable',new THREE.Vector3(25.3,0,z),{targetHeight:.72,targetLongest:.8,rot:Math.PI/2,collide:true,fallback:'table'});
+    await placeModel(world.root,'cassettePlayer',new THREE.Vector3(25.05,.73,z),{targetHeight:.22,targetLongest:.30,rot:-Math.PI/2,collide:false,fallback:'box'});
+    const ring=new THREE.Mesh(new THREE.TorusGeometry(.16,.035,8,20),new THREE.MeshStandardMaterial({color:0x86adff,emissive:0x17305d,emissiveIntensity:.6,roughness:.55}));ring.position.set(24.95,1.15,z);ring.rotation.y=Math.PI/2;world.root.add(ring);
+  }
+  await placeModel(world.root,'counterDesk',new THREE.Vector3(13.2,0,29.1),{targetHeight:1.0,targetLongest:2.45,rot:Math.PI,collide:true,fallback:'table'});
+  await placeModel(world.root,'arcadeCash',new THREE.Vector3(13.5,1.01,29),{targetHeight:.28,targetLongest:.42,rot:0,collide:false,fallback:'box'});
+  const cab=makeCabinet(new THREE.Vector3(24.75,0,28.95),Math.PI);world.root.add(cab);world.addCollider(24.75,28.95,.82,.46,{navBlock:true,owner:cab});world.interactables.push(cab);
+}`
+  );
+
+  replaceOnce(
+    'arcade cabinet clearance',
+    "const cab=makeCabinet(new THREE.Vector3(-24.7,0,-28.8),0);world.root.add(cab);world.addCollider(-24.7,-28.8,.95,.65,{navBlock:true,owner:cab});world.interactables.push(cab);",
+    "const cab=makeCabinet(new THREE.Vector3(-24.35,0,-28.9),0);world.root.add(cab);world.addCollider(-24.35,-28.9,.82,.46,{navBlock:true,owner:cab});world.interactables.push(cab);"
+  );
+  replaceOnce(
+    'chapter 2 loading cabinet clearance',
+    "const cab=makeCabinet(new THREE.Vector3(-27.8,0,-8.6),Math.PI/2);world.root.add(cab);world.addCollider(-27.8,-8.6,.7,1.0,{navBlock:true,owner:cab});world.interactables.push(cab);",
+    "const cab=makeCabinet(new THREE.Vector3(-27.55,0,-8.35),Math.PI/2);world.root.add(cab);world.addCollider(-27.55,-8.35,.46,.82,{navBlock:true,owner:cab});world.interactables.push(cab);"
+  );
+  replaceOnce(
+    'chapter 2 security cabinet clearance',
+    "const cab=makeCabinet(new THREE.Vector3(8,0,-27),Math.PI);world.root.add(cab);world.addCollider(8,-27,.95,.65,{navBlock:true,owner:cab});world.interactables.push(cab);",
+    "const cab=makeCabinet(new THREE.Vector3(7.75,0,-26.8),Math.PI);world.root.add(cab);world.addCollider(7.75,-26.8,.82,.46,{navBlock:true,owner:cab});world.interactables.push(cab);"
+  );
+  replaceOnce(
+    'mall blood placement',
+    '    await buildArcade(world);await buildVHS(world);await buildFoodCourt(world);await buildMusic(world);',
+    '    await buildArcade(world);await buildVHS(world);await buildFoodCourt(world);await buildMusic(world);await addMallBlood(world);'
+  );
+
+  if(!source.includes('makeVideoRentalShelf')||source.includes("placeModel(world.root,'qShelfLarge',new THREE.Vector3(x,0,z),{targetHeight:1.78"))fail('Video Planet shelf replacement incomplete');
+  if(!source.includes("placeModel(world.root,'marketShelfEnd'")||!source.includes("placeModel(world.root,'cassettePlayer'"))fail('Cassette Castle CC0 stock/accessories incomplete');
+  if(!source.includes('addMallBlood(world)'))fail('blood decals were not injected');
+  if(!source.includes('emissiveIntensity:2.08'))fail('neon sharpening missing');
+  if(!source.includes('cab.userData.hingeL.rotation.y=t*1.42'))fail('cabinet reverse swing missing');
+  if(!source.includes("u.state==='waiting'")||!source.includes('const inside=local.x>.20'))fail('elevator physical-entry state machine was lost');
+  return source;
+}
