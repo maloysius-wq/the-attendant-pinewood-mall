@@ -6,6 +6,7 @@ const PARTS=[
   './bundle2/p5-1.txt','./bundle2/p5-2.txt','./bundle2/p5-3.txt','./bundle2/p5-4.txt','./bundle2/p5-5.txt'
 ];
 const WORLD_PATCH='./patches/worldprops-v1.js.txt';
+const INDUSTRIAL_PATCH='./patches/industrial-cc0-v1.js.txt';
 const FOOD_PATCH='./patches/foodcourt-v3.js.txt';
 
 async function getText(url){
@@ -42,6 +43,15 @@ async function applyWorldProps(source,patchText){
   }finally{URL.revokeObjectURL(patchUrl);}
 }
 
+async function applyIndustrialCc0(source,patchText){
+  const patchUrl=URL.createObjectURL(new Blob([patchText+'\nexport { applyIndustrialCc0V1 };\n'],{type:'text/javascript'}));
+  try{
+    const mod=await import(patchUrl);
+    if(typeof mod.applyIndustrialCc0V1!=='function')throw new Error('Industrial CC0 v1 patch did not export its patch function.');
+    return mod.applyIndustrialCc0V1(source);
+  }finally{URL.revokeObjectURL(patchUrl);}
+}
+
 function replaceFoodCourt(source,replacement){
   const start=source.indexOf('async function buildFoodCourt(world){');
   const end=source.indexOf('async function buildMusic(world){',start);
@@ -69,9 +79,10 @@ async function preflightThree(){
 
 try{
   await preflightThree();
-  const [base,worldPatch,foodPatch]=await Promise.all([decodeSource(),getText(WORLD_PATCH),getText(FOOD_PATCH)]);
+  const [base,worldPatch,industrialPatch,foodPatch]=await Promise.all([decodeSource(),getText(WORLD_PATCH),getText(INDUSTRIAL_PATCH),getText(FOOD_PATCH)]);
   const worldSource=await applyWorldProps(normalizeImports(base),worldPatch);
-  const source=replaceFoodCourt(worldSource,foodPatch)+'\n//# sourceURL=pinewood-runtime.js\n';
+  const industrialSource=await applyIndustrialCc0(worldSource,industrialPatch);
+  const source=replaceFoodCourt(industrialSource,foodPatch)+'\n//# sourceURL=pinewood-runtime.js\n';
   const moduleUrl=URL.createObjectURL(new Blob([source],{type:'text/javascript'}));
   try{await import(moduleUrl);}finally{URL.revokeObjectURL(moduleUrl);}
 }catch(err){
