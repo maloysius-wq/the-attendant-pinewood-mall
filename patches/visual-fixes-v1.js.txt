@@ -14,13 +14,10 @@ function applyVisualFixesV1(source){
     source=source.slice(0,start)+replacement+source.slice(end);
   };
 
-  // The hiding cabinet is now a real CC0 Kenney Furniture Kit model. The source GLB
-  // contains separate doorLeft / doorRight nodes, so the existing physical hiding
-  // sequence can animate imported doors instead of generated box geometry.
   replaceOnce(
     'Furniture Kit hiding-cabinet attribution',
-    'Runtime mirror: RetroDECK/RetroQUEST, pinned commit dfa19a5602a31f64bd890d15279a61f43b127328\\\nUsed for: plain checkout/service counters, cash registers, Cassette Castle listening tables, and the portable radio decoy.\\',
-    'Runtime mirror: RetroDECK/RetroQUEST, pinned commit dfa19a5602a31f64bd890d15279a61f43b127328\\\nAdditional runtime mirror: vinhelysia/godot-fps-cogito, pinned commit 1268440e90e370db6c3351ec4cd7429f3ca278b3\\\nUsed for: plain checkout/service counters, cash registers, Cassette Castle listening tables, the portable radio decoy, and full-height hiding cabinets.\\'
+    'Runtime mirror: RetroDECK/RetroQUEST, pinned commit dfa19a5602a31f64bd890d15279a61f43b127328\\nUsed for: plain checkout/service counters, cash registers, Cassette Castle listening tables, and the portable radio decoy.\\n',
+    'Runtime mirror: RetroDECK/RetroQUEST, pinned commit dfa19a5602a31f64bd890d15279a61f43b127328\\nAdditional runtime mirror: vinhelysia/godot-fps-cogito, pinned commit 1268440e90e370db6c3351ec4cd7429f3ca278b3\\nUsed for: plain checkout/service counters, cash registers, Cassette Castle listening tables, the portable radio decoy, and full-height hiding cabinets.\\n'
   );
 
   const elevatorDoorLine='  elevatorDoorHalf:`https://raw.githubusercontent.com/Enthceph/hangman/4e84f92f27d924a46a52ea0cf4d06a5dc90a9c12/assets/kenney_factory-kit_3.0/Models/GLB%20format/door-wide-half.glb`';
@@ -59,7 +56,6 @@ function applyVisualFixesV1(source){
 }
 function makeCabinet(pos,rot=0){
   const root=new THREE.Group();root.position.copy(pos);root.rotation.y=rot;
-  // Empty logical hinges preserve the existing hide-state contract. They render nothing.
   const l=new THREE.Group(),r=new THREE.Group();root.add(l,r);
   root.userData={type:'cabinet',hingeL:l,hingeR:r,open:0,baseRot:rot,assetModel:'hidingCabinet',assetMissing:false};
   attachHidingCabinetModel(root);return root;
@@ -73,8 +69,6 @@ function setCabinetDoors(cab,t){
 `
   );
 
-  // Move every breaker/relay to a wall segment that is actually solid. The previous
-  // Chapter 1 coordinates sat directly inside the widened store-door throats.
   replaceOnce(
     'chapter 1 breaker wall mounts',
     "for(const[id,x,z,r]of[['A',-18,-16.43,0],['B',7,-16.43,0],['C',-7,18.43,Math.PI]]){const b=makeBreaker(new THREE.Vector3(x,.68,z),r,id);",
@@ -86,17 +80,14 @@ function setCabinetDoors(cab,t){
     "for(const[id,x,z,r]of[['D',-20.43,-10,Math.PI/2],['E',11.43,-10,-Math.PI/2]]){const b=makeBreaker(new THREE.Vector3(x,.68,z),r,id);"
   );
 
-  // Retire the old magenta/black horizontal stripe band. Setting its authored height
-  // to zero makes the legacy wall-band geometry degenerate/invisible without touching
-  // the wall-generation or collision code around it.
-  const stripePattern=/const\s+stripeY\s*=\s*1\.15\s*,\s*stripeH\s*=\s*\.18\s*;\s*const\s+pink\s*=\s*mat\.std\(0xff4fa3\s*,\s*\.55\s*,\s*\.05\)\s*,\s*black\s*=\s*mat\.std\(0x090a0c\s*,\s*\.7\s*,\s*\.03\)\s*;/;
-  if(!stripePattern.test(source))fail('pink/black wall stripe marker missing');
-  source=source.replace(stripePattern,"const stripeY=1.15,stripeH=0; const pink=mat.std(0xff4fa3,.55,.05),black=mat.std(0x090a0c,.7,.03);");
+  const stripePattern=/\s*\/\/ mall wall stripe gives the architecture a 90s identity\s*const stripeMat=[\s\S]*?this\.root\.add\(stripeX,stripeZ\);/;
+  if(!stripePattern.test(source))fail('horizontal mall wall stripe marker missing');
+  source=source.replace(stripePattern,"\n    // Horizontal mall wall stripe retired.\n");
 
   if(source.includes('new THREE.Vector3(-18,-16.43'))fail('old Chapter 1 breaker placement survived');
   if(!source.includes("'A',-20.43,-7,Math.PI/2")||!source.includes("'E',11.43,-10,-Math.PI/2"))fail('wall-mounted breaker coordinates missing');
   if(!source.includes("hidingCabinet")||!source.includes("getObjectByName('doorLeft')"))fail('CC0 hiding cabinet wiring incomplete');
-  if(source.includes('stripeH=.18'))fail('pink/black stripe height survived');
+  if(source.includes('stripeMat=')||source.includes('stripeGeoX'))fail('horizontal mall wall stripe survived');
   if(!source.includes("u.state==='waiting'")||!source.includes('const inside=local.x>.20'))fail('elevator physical-entry state machine was lost');
   return source;
 }
