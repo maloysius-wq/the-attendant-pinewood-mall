@@ -30,8 +30,8 @@ All third-party visual assets used by this build were selected because their sou
 - License: CC0 1.0
 - Pinned runtime mirror: `Enthceph/hangman` commit `4e84f92f27d924a46a52ea0cf4d06a5dc90a9c12`
 - The mirrored `assets/kenney_factory-kit_3.0/License.txt` identifies Factory Kit 3.0 as Creative Commons Zero (CC0).
-- Runtime files: `machine-window.glb` and `door-wide-half.glb` from `assets/kenney_factory-kit_3.0/Models/GLB format/`.
-- Used for the wall-mounted breaker cabinet housing and the two animated freight-elevator door leaves. Procedural breaker/elevator geometry remains available as a runtime fallback if a remote GLB fails.
+- Runtime files: `machine-window.glb`, `door-wide-half.glb`, `structure-wall.glb`, `floor.glb`, and `button-floor-square-small.glb` from `assets/kenney_factory-kit_3.0/Models/GLB format/`.
+- Used for the wall-mounted breaker cabinet housing plus the freight elevator doors, cabin walls, floor/ceiling, and call button. The freight elevator no longer uses any visible procedural shell or procedural door fallback; only the breaker retains its generated fallback if a remote GLB fails.
 
 ## Kenney — Prototype Kit
 - Original source: https://kenney.nl/assets/prototype-kit
@@ -39,7 +39,7 @@ All third-party visual assets used by this build were selected because their sou
 - Pinned runtime mirror: `Enthceph/hangman` commit `4e84f92f27d924a46a52ea0cf4d06a5dc90a9c12`
 - The mirrored `assets/kenney_prototype-kit/License.txt` identifies Prototype Kit 1.0 as Creative Commons Zero (CC0).
 - Runtime file: `wall-doorway-wide.glb` from `assets/kenney_prototype-kit/Models/GLB format/`.
-- Used as the recessed architectural surround for the freight elevator. The existing physical cabin, moving-door state machine, call controls, and walk-in progression remain game-authored.
+- Used as the recessed architectural surround for the freight elevator. The physical moving-door state machine and walk-in progression remain game-authored, while all visible elevator architecture is now assembled from CC0 modular GLBs.
 
 ## Kenney — Mini Market
 - Original source: https://kenney.nl/assets/mini-market
@@ -72,7 +72,7 @@ The game requests the 1K JPG diffuse, OpenGL normal and roughness maps directly 
 - Runtime version pinned to 0.180.0.
 
 ## Original/game-specific work
-The Attendant model and animation rig, story, levels, interaction systems, procedural audio, UI, generated signage/posters, gore effects and fallback geometry/textures are original to this project build.
+The Attendant model and animation rig, story, levels, interaction systems, non-music procedural sound effects, UI, generated signage/posters, gore effects and fallback geometry/textures are original to this project build.
 
 
 ## Additional CC0 assets / references for the storefront polish pass
@@ -90,6 +90,7 @@ The Attendant model and animation rig, story, levels, interaction systems, proce
 
 Pinewood's named storefront signs are generated locally because their lettering is game-specific. The generated material now incorporates the distressed/dead-tube treatment of those CC0 references, plus emissive mapping, point-light spill, bloom response, and independent randomized flicker bursts. No runtime dependency on the OpenGameArt image files is required.
 
+
 ### Video Planet shelf reference
 - User-provided visual reference: https://sketchfab.com/3d-models/vhs-shelf-4ac998896ed044deb1038d89f7841012
 - The referenced Sketchfab model is licensed **CC BY**, so it is not embedded in Pinewood under the project's CC0-only third-party asset policy.
@@ -101,6 +102,23 @@ Pinewood's named storefront signs are generated locally because their lettering 
 - Cassette stock uses the Poly Haven Cassette Player's separate tape/cassette component when that node is available at runtime, with game-authored low-poly cassette geometry as fallback.
 
 ### Blood decals
-- Bloodspatter and Gibs — Ragnar Random — https://opengameart.org/content/bloodspatter-and-gibs — CC0.
-- Liquid Splatter Pixel Texture — AlejandroHaibi — https://opengameart.org/content/liquid-splatter-pixel-texture — CC0.
-- Used as varied wall/floor decals around Chapter 1 concourses. Procedurally generated blood decals remain as a fallback if a remote PNG cannot load.
+- Blood Splat — TobiasM — https://opengameart.org/content/blood-splat — CC0. Primary transparent decal texture used by the visibility fix.
+- miscBloodDecalParticles / `blood_splatter_01.png` — OpenGameArt — https://opengameart.org/content/miscblooddecalparticles-bloodsplatter01png — CC0. Secondary transparent splatter texture.
+- Earlier sourced references retained for provenance: Bloodspatter and Gibs — Ragnar Random — https://opengameart.org/content/bloodspatter-and-gibs — CC0; Liquid Splatter Pixel Texture — AlejandroHaibi — https://opengameart.org/content/liquid-splatter-pixel-texture — CC0.
+- Used as varied wall/floor decals around Chapter 1 concourses. The current material uses the PNG's actual transparency instead of incorrectly reusing the dark-red color texture as an alpha map. Procedurally generated blood decals remain as a fallback if a remote PNG cannot load.
+
+## CC0 music
+
+### Abandoned mall music — Furniture Shop
+- Author: SkyleTheFrench
+- Original source: https://opengameart.org/content/furniture-shop
+- License: CC0 1.0
+- Runtime loop: `https://opengameart.org/sites/default/files/furniture_shop_loop.ogg`
+- Used as the looping retail/mall music bed. It is faded down as The Attendant approaches.
+
+### Attendant proximity music — Insistent: background loop
+- Author: yd
+- Original source: https://opengameart.org/content/insistent-background-loop
+- License: CC0 1.0
+- Runtime loop: `https://lpc.opengameart.org/sites/default/files/Insistent.ogg`
+- Used as the darker threat layer. It fades in progressively with The Attendant's navigation-distance proximity while the mall loop recedes.
