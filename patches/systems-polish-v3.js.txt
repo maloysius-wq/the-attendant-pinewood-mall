@@ -73,11 +73,11 @@ function makeExitElevator(pos,face='west'){
     'authored surface-mounted blood decals',
     'const BLOOD_DECAL_URLS=[',
     '\nfunction addFixtureBox(',
-`// Authored CC0 blood decals by Reactorcore (OpenGameArt), mirrored by last-light at a pinned commit.
+`// Authored CC0 blood decals by Reactorcore (OpenGameArt), vendored byte-for-byte into Pinewood from an audited pinned mirror.
 // There is deliberately NO generated/procedural fallback: if an authored decal cannot load, that decal is skipped.
 const BLOOD_DECAL_URLS=[
-  'https://raw.githubusercontent.com/goshanskiy/last-light/b40e1a2e7f28182681e2d9622f36592165b5d0ef/src/assets/world/decal_blood_01.png',
-  'https://raw.githubusercontent.com/goshanskiy/last-light/b40e1a2e7f28182681e2d9622f36592165b5d0ef/src/assets/world/decal_blood_02.png'
+  new URL('./assets/decals/blood/decal_blood_01.png',location.href).href,
+  new URL('./assets/decals/blood/decal_blood_02.png',location.href).href
 ];
 const BLOOD_DECAL_CACHE=new Map();
 async function bloodTexture(index){
@@ -205,7 +205,7 @@ All Pinewood-specific signage, posters, UI, The Attendant, gore, particle effect
   if(!source.includes("MALL_MUSIC_URL")||!source.includes("THREAT_MUSIC_URL"))fail('CC0 music layer missing');
   if(source.includes('alphaMap:tex'))fail('blood decal alpha-mask bug survived');
   if(source.includes('proceduralBloodTexture'))fail('procedural blood fallback survived');
-  if(!source.includes('decal_blood_01.png')||!source.includes('decal_blood_02.png'))fail('authored blood decal URLs missing');
+  if(!source.includes("./assets/decals/blood/decal_blood_01.png")||!source.includes("./assets/decals/blood/decal_blood_02.png"))fail('vendored blood decal URLs missing');
   if(!source.includes("m.position.set(x,.006,z)"))fail('floor blood is not surface mounted');
   if(!source.includes('SAVE.settings.muzak?.224:0'))fail('mall music 70 percent volume reduction missing');
   if(!source.includes("u.state==='waiting'")||!source.includes('const inside=local.x>.20'))fail('physical elevator entry state machine was lost');
