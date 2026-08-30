@@ -102,10 +102,11 @@ Pinewood's named storefront signs are generated locally because their lettering 
 - Cassette stock uses the Poly Haven Cassette Player's separate tape/cassette component when that node is available at runtime, with game-authored low-poly cassette geometry as fallback.
 
 ### Blood decals
-- Blood Splat — TobiasM — https://opengameart.org/content/blood-splat — CC0. Primary transparent decal texture used by the visibility fix.
-- miscBloodDecalParticles / `blood_splatter_01.png` — OpenGameArt — https://opengameart.org/content/miscblooddecalparticles-bloodsplatter01png — CC0. Secondary transparent splatter texture.
-- Earlier sourced references retained for provenance: Bloodspatter and Gibs — Ragnar Random — https://opengameart.org/content/bloodspatter-and-gibs — CC0; Liquid Splatter Pixel Texture — AlejandroHaibi — https://opengameart.org/content/liquid-splatter-pixel-texture — CC0.
-- Used as varied wall/floor decals around Chapter 1 concourses. The current material uses the PNG's actual transparency instead of incorrectly reusing the dark-red color texture as an alpha map. Procedurally generated blood decals remain as a fallback if a remote PNG cannot load.
+- Gore Blood Gibs Meat Chunks — Reactorcore — https://opengameart.org/content/gore-blood-gibs-meat-chunks — CC0 / public domain.
+- Runtime mirror: `goshanskiy/last-light` pinned commit `b40e1a2e7f28182681e2d9622f36592165b5d0ef`.
+- Runtime decal files: `src/assets/world/decal_blood_01.png` and `src/assets/world/decal_blood_02.png`. The mirror's `src/assets/CREDITS.md` identifies both as derived from Reactorcore's CC0 pack.
+- Used as authored wall/floor stains around the Chapter 1 storefront concourse. Each plane is now explicitly mounted to a known storefront-pillar face or to the Chapter 1 floor plane with only a millimetre-scale anti-z-fighting offset.
+- There is **no procedural blood-decal fallback**. If either authored PNG cannot load, that decal is skipped rather than replaced with generated circles/splats.
 
 ## CC0 music
 
