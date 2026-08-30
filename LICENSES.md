@@ -103,10 +103,12 @@ Pinewood's named storefront signs are generated locally because their lettering 
 
 ### Blood decals
 - Gore Blood Gibs Meat Chunks — Reactorcore — https://opengameart.org/content/gore-blood-gibs-meat-chunks — CC0 / public domain.
-- Runtime mirror: `goshanskiy/last-light` pinned commit `b40e1a2e7f28182681e2d9622f36592165b5d0ef`.
-- Runtime decal files: `src/assets/world/decal_blood_01.png` and `src/assets/world/decal_blood_02.png`. The mirror's `src/assets/CREDITS.md` identifies both as derived from Reactorcore's CC0 pack.
-- Used as authored wall/floor stains around the Chapter 1 storefront concourse. Each plane is now explicitly mounted to a known storefront-pillar face or to the Chapter 1 floor plane with only a millimetre-scale anti-z-fighting offset.
-- There is **no procedural blood-decal fallback**. If either authored PNG cannot load, that decal is skipped rather than replaced with generated circles/splats.
+- Audit/download mirror: `goshanskiy/last-light` pinned commit `b40e1a2e7f28182681e2d9622f36592165b5d0ef`; its `src/assets/CREDITS.md` identifies both decals below as derived from Reactorcore's CC0 pack.
+- Vendored byte-for-byte into this repository:
+  - `assets/decals/blood/decal_blood_01.png` — Git blob SHA `6cfc25f7f05363ef64a9a6acf280d595a7a7dee9` (exactly matches the audited source blob).
+  - `assets/decals/blood/decal_blood_02.png` — Git blob SHA `dfa02a4790e53f11145a2475c92cafbde80d5b81` (exactly matches the audited source blob).
+- Used as authored wall/floor stains around the Chapter 1 storefront concourse. Each plane is explicitly mounted to a known storefront-pillar face or to the Chapter 1 floor plane with only a millimetre-scale anti-z-fighting offset.
+- There is **no procedural blood-decal fallback**. If either vendored PNG cannot load, that decal is skipped rather than replaced with generated circles/splats.
 
 ## CC0 music
 
