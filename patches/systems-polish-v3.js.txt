@@ -1,0 +1,168 @@
+function applySystemsPolishV3(source){
+  const fail=msg=>{throw new Error(`Systems Polish v3 patch failed: ${msg}`);};
+  const replaceOnce=(label,needle,replacement)=>{
+    const first=source.indexOf(needle);
+    if(first<0)fail(`${label}: marker missing`);
+    if(source.indexOf(needle,first+needle.length)>=0)fail(`${label}: marker is not unique`);
+    source=source.slice(0,first)+replacement+source.slice(first+needle.length);
+  };
+  const replaceRange=(label,startMarker,endMarker,replacement)=>{
+    const start=source.indexOf(startMarker);
+    if(start<0)fail(`${label}: start marker missing`);
+    const end=source.indexOf(endMarker,start+startMarker.length);
+    if(end<0)fail(`${label}: end marker missing`);
+    source=source.slice(0,start)+replacement+source.slice(end);
+  };
+
+  replaceOnce(
+    'elevator imported cab model URLs',
+    "  cassettePlayer:`https://dl.polyhaven.org/file/ph-assets/Models/gltf/2k/cassette_player/cassette_player_2k.gltf`\n};",
+`  cassettePlayer:\`https://dl.polyhaven.org/file/ph-assets/Models/gltf/2k/cassette_player/cassette_player_2k.gltf\`,
+  elevatorWall:\`https://raw.githubusercontent.com/Enthceph/hangman/4e84f92f27d924a46a52ea0cf4d06a5dc90a9c12/assets/kenney_factory-kit_3.0/Models/GLB%20format/structure-wall.glb\`,
+  elevatorFloor:\`https://raw.githubusercontent.com/Enthceph/hangman/4e84f92f27d924a46a52ea0cf4d06a5dc90a9c12/assets/kenney_factory-kit_3.0/Models/GLB%20format/floor.glb\`,
+  elevatorButton:\`https://raw.githubusercontent.com/Enthceph/hangman/4e84f92f27d924a46a52ea0cf4d06a5dc90a9c12/assets/kenney_factory-kit_3.0/Models/GLB%20format/button-floor-square-small.glb\`
+};`
+  );
+  replaceOnce(
+    'elevator imported cab preload',
+    "'pickupKey','pickupJournal','pickupNote','pickupDecoy','breakerCabinet','elevatorFrame','elevatorDoorHalf','hidingCabinet','cassettePlayer'].map(n=>this.model(n)))",
+    "'pickupKey','pickupJournal','pickupNote','pickupDecoy','breakerCabinet','elevatorFrame','elevatorDoorHalf','hidingCabinet','cassettePlayer','elevatorWall','elevatorFloor','elevatorButton'].map(n=>this.model(n)))"
+  );
+
+  replaceRange(
+    'fully imported freight elevator',
+    'function makeExitElevator(',
+    '\n\nasync function decorateLevel',
+`async function attachElevatorPiece(parent,key,size,center,rotation=new THREE.Euler()){
+  try{
+    const model=await assets.model(key);
+    if(!model){console.warn('CC0 elevator piece '+key+' failed to load. No procedural visual fallback will be used.');return null;}
+    model.position.set(0,0,0);model.rotation.copy(rotation);model.scale.set(1,1,1);model.updateWorldMatrix(true,true);
+    let box=new THREE.Box3().setFromObject(model),dims=box.getSize(new THREE.Vector3()),c=box.getCenter(new THREE.Vector3());
+    if(dims.x<1e-4||dims.y<1e-4||dims.z<1e-4){console.warn('CC0 elevator piece '+key+' has invalid bounds.');return null;}
+    model.position.sub(c);model.updateWorldMatrix(true,true);
+    box=new THREE.Box3().setFromObject(model);dims=box.getSize(new THREE.Vector3());
+    const wrapper=new THREE.Group();wrapper.position.copy(center);wrapper.scale.set(size.x/dims.x,size.y/dims.y,size.z/dims.z);wrapper.add(model);parent.add(wrapper);
+    model.traverse(o=>{if(o.isMesh){o.castShadow=true;o.receiveShadow=true;}});return wrapper;
+  }catch(err){console.warn('CC0 elevator piece '+key+' failed to load. No procedural visual fallback will be used.',err);return null;}
+}
+function makeExitElevator(pos,face='west'){
+  const g=new THREE.Group();g.position.copy(pos);
+  const cab=new THREE.Group();g.add(cab);
+  const left=new THREE.Group(),right=new THREE.Group();left.position.set(-.16,0,-.49);right.position.set(-.16,0,.49);g.add(left,right);
+  const cabLight=new THREE.PointLight(0xdde9df,.58,4.2,2);cabLight.position.set(1.10,2.24,0);cab.add(cabLight);
+  const callPanel=new THREE.Group();g.add(callPanel);
+  g.userData={type:'exit',left,right,cab,indicator:null,callPanel,callLamp:null,closedL:-.49,closedR:.49,openL:-.99,openR:.99,state:'idle',timer:0,rideAnchor:null,assetModel:'kenney-imported-freight-elevator',assetFallback:false};
+
+  // All visible elevator architecture is CC0 modular GLB content. There is intentionally no generated BoxGeometry shell or door fallback here.
+  attachElevatorPiece(g,'elevatorFrame',new THREE.Vector3(.24,2.80,2.66),new THREE.Vector3(-.05,1.40,0),new THREE.Euler(0,Math.PI/2,0));
+  attachElevatorPiece(left,'elevatorDoorHalf',new THREE.Vector3(.095,2.36,.92),new THREE.Vector3(0,1.26,0),new THREE.Euler(0,Math.PI/2,0));
+  attachElevatorPiece(right,'elevatorDoorHalf',new THREE.Vector3(.095,2.36,.92),new THREE.Vector3(0,1.26,0),new THREE.Euler(0,Math.PI/2,0));
+
+  attachElevatorPiece(cab,'elevatorFloor',new THREE.Vector3(2.18,.085,1.90),new THREE.Vector3(1.08,.045,0));
+  attachElevatorPiece(cab,'elevatorFloor',new THREE.Vector3(2.18,.085,1.90),new THREE.Vector3(1.08,2.48,0));
+  attachElevatorPiece(cab,'elevatorWall',new THREE.Vector3(.10,2.42,1.90),new THREE.Vector3(2.12,1.25,0),new THREE.Euler(0,Math.PI/2,0));
+  attachElevatorPiece(cab,'elevatorWall',new THREE.Vector3(2.12,2.42,.10),new THREE.Vector3(1.10,1.25,-.99));
+  attachElevatorPiece(cab,'elevatorWall',new THREE.Vector3(2.12,2.42,.10),new THREE.Vector3(1.10,1.25,.99),new THREE.Euler(0,Math.PI,0));
+  attachElevatorPiece(callPanel,'elevatorButton',new THREE.Vector3(.055,.28,.18),new THREE.Vector3(-.19,1.17,1.30),new THREE.Euler(0,0,Math.PI/2));
+  return g;
+}`
+  );
+
+  replaceOnce(
+    'blood texture URLs',
+`const BLOOD_DECAL_URLS=[
+  'https://opengameart.org/sites/default/files/bloodsplatterandgibs.png',
+  'https://opengameart.org/sites/default/files/blood_splatter.png'
+];`,
+`const BLOOD_DECAL_URLS=[
+  'https://opengameart.org/sites/default/files/blood_splat.png',
+  'https://opengameart.org/sites/default/files/oga-textures/77840/blood_splatter_01.png'
+];`
+  );
+  replaceOnce(
+    'visible blood decal material',
+    "const tex=await bloodTexture(index);const mat=new THREE.MeshBasicMaterial({map:tex,alphaMap:tex,transparent:true,opacity,depthWrite:false,color:0x7c1115,side:THREE.DoubleSide});",
+    "const tex=await bloodTexture(index);const mat=new THREE.MeshBasicMaterial({map:tex,transparent:true,opacity:Math.max(.72,opacity),depthWrite:false,depthTest:true,color:0xffffff,side:THREE.DoubleSide,alphaTest:.015,polygonOffset:true,polygonOffsetFactor:-2,polygonOffsetUnits:-2});"
+  );
+
+  replaceRange(
+    'cc0 mall and threat music',
+    'class AudioSystem{',
+    '\nconst audio=new AudioSystem();',
+`const MALL_MUSIC_URL='https://opengameart.org/sites/default/files/furniture_shop_loop.ogg';
+const THREAT_MUSIC_URL='https://lpc.opengameart.org/sites/default/files/Insistent.ogg';
+class AudioSystem{
+  constructor(){this.ctx=null;this.master=null;this.amb=null;this.music=null;this.sfx=null;this.voice=null;this.humGain=null;this.noiseGain=null;this.proxGain=null;this.heartTimer=0;this.whisperTimer=0;this.paused=true;this.mallTrack=null;this.threatTrack=null;this.mallVol=0;this.threatVol=0;}
+  setupMusicTracks(){
+    if(this.mallTrack&&this.threatTrack)return;
+    const make=url=>{const a=new Audio(url);a.loop=true;a.preload='auto';a.playsInline=true;a.volume=0;return a;};
+    this.mallTrack=make(MALL_MUSIC_URL);this.threatTrack=make(THREAT_MUSIC_URL);
+  }
+  startMusicTracks(){
+    if(this.paused)return;this.setupMusicTracks();
+    for(const a of [this.mallTrack,this.threatTrack])if(a?.paused)a.play().catch(err=>{if(!a.userDataWarned){a.userDataWarned=true;console.warn('CC0 music playback will retry after the next user gesture.',err);}});
+  }
+  ensure(){
+    this.setupMusicTracks();
+    if(this.ctx)return;this.ctx=new (window.AudioContext||window.webkitAudioContext)();
+    this.master=this.ctx.createGain();this.master.connect(this.ctx.destination);
+    this.amb=this.ctx.createGain();this.music=this.ctx.createGain();this.sfx=this.ctx.createGain();this.voice=this.ctx.createGain();
+    for(const g of [this.amb,this.music,this.sfx,this.voice])g.connect(this.master);
+    const hum=this.ctx.createOscillator();hum.type='sine';hum.frequency.value=50;
+    const hum2=this.ctx.createOscillator();hum2.type='triangle';hum2.frequency.value=100.8;
+    this.humGain=this.ctx.createGain();this.humGain.gain.value=.015;hum.connect(this.humGain);hum2.connect(this.humGain);this.humGain.connect(this.amb);hum.start();hum2.start();
+    const len=this.ctx.sampleRate;const b=this.ctx.createBuffer(1,len,this.ctx.sampleRate),d=b.getChannelData(0);for(let i=0;i<len;i++)d[i]=(Math.random()*2-1)*.25;
+    const ns=this.ctx.createBufferSource();ns.buffer=b;ns.loop=true;const bp=this.ctx.createBiquadFilter();bp.type='bandpass';bp.frequency.value=950;bp.Q.value=.55;this.noiseGain=this.ctx.createGain();this.noiseGain.gain.value=.003;ns.connect(bp);bp.connect(this.noiseGain);this.noiseGain.connect(this.amb);ns.start();
+    this.proxGain=this.ctx.createGain();this.proxGain.gain.value=0;this.proxGain.connect(this.amb);const po=this.ctx.createOscillator();po.type='sine';po.frequency.value=58;po.connect(this.proxGain);po.start();
+    this.apply();
+  }
+  resume(){this.ensure();this.ctx.resume?.();this.startMusicTracks();}
+  apply(){
+    if(this.master){this.master.gain.value=this.paused?0:SAVE.settings.volume;this.music.gain.value=SAVE.settings.music;this.sfx.gain.value=1;this.voice.gain.value=1;}
+    if(this.paused){if(this.mallTrack)this.mallTrack.volume=0;if(this.threatTrack)this.threatTrack.volume=0;}else this.startMusicTracks();
+  }
+  setPaused(v){this.paused=v;this.apply();if(v){this.mallTrack?.pause();this.threatTrack?.pause();}else this.startMusicTracks();}
+  oneShot({type='sine',f=220,f2=null,d=.15,a=.2,bus='sfx',at=0}){if(!this.ctx)return;const now=this.ctx.currentTime+at,o=this.ctx.createOscillator(),g=this.ctx.createGain();o.type=type;o.frequency.setValueAtTime(f,now);if(f2)o.frequency.exponentialRampToValueAtTime(Math.max(20,f2),now+d*.7);g.gain.setValueAtTime(.0001,now);g.gain.exponentialRampToValueAtTime(a,now+.008);g.gain.exponentialRampToValueAtTime(.0001,now+d);o.connect(g);g.connect(this[bus]);o.start(now);o.stop(now+d+.02);}
+  step(sprint=false,quiet=false){const a=(sprint?.17:.105)*(quiet?.28:1);this.oneShot({f:sprint?105:92,f2:52,d:.13,a});}
+  thud(a=.25){this.oneShot({f:115,f2:42,d:.28,a});}
+  slam(){this.oneShot({type:'sawtooth',f:92,f2:30,d:.4,a:.34});}
+  pickup(){this.oneShot({f:420,f2:720,d:.16,a:.12});}
+  radio(){this.oneShot({type:'square',f:980,f2:430,d:.13,a:.13,bus:'voice'});}
+  chime(){this.oneShot({f:650,d:.18,a:.12,bus:'voice'});this.oneShot({f:980,d:.18,a:.11,bus:'voice',at:.12});}
+  rip(){this.oneShot({type:'sawtooth',f:190,f2:38,d:.45,a:.5});}
+  beep(){this.oneShot({type:'square',f:1020,f2:620,d:.09,a:.07});}
+  whisper(pan=0,intensity=.4){if(!this.ctx)return;const now=this.ctx.currentTime,len=Math.floor(this.ctx.sampleRate*.28),b=this.ctx.createBuffer(1,len,this.ctx.sampleRate),d=b.getChannelData(0);for(let i=0;i<len;i++)d[i]=(Math.random()*2-1)*(1-i/len);const src=this.ctx.createBufferSource();src.buffer=b;const bp=this.ctx.createBiquadFilter();bp.type='bandpass';bp.frequency.value=rand(700,1300);bp.Q.value=1;const g=this.ctx.createGain();g.gain.setValueAtTime(.0001,now);g.gain.exponentialRampToValueAtTime(.12*intensity,now+.025);g.gain.exponentialRampToValueAtTime(.0001,now+.27);src.connect(bp);bp.connect(g);if(this.ctx.createStereoPanner){const p=this.ctx.createStereoPanner();p.pan.value=pan;g.connect(p);p.connect(this.amb);}else g.connect(this.amb);src.start(now);}
+  tick(dt,near,fear,pan){
+    if(!this.ctx)return;this.humGain.gain.value=lerp(this.humGain.gain.value,.012+fear*.045,smooth(dt,2));this.noiseGain.gain.value=lerp(this.noiseGain.gain.value,.002+fear*.012,smooth(dt,2));this.proxGain.gain.value=lerp(this.proxGain.gain.value,near*near*.08,smooth(dt,5));
+    this.setupMusicTracks();const threat=clamp((near-.22)/.70,0,1),musicMaster=(this.paused?0:clamp(SAVE.settings.volume,0,1)*clamp(SAVE.settings.music,0,1));
+    const mallTarget=musicMaster*(SAVE.settings.muzak?.32:0)*(1-threat*.84),threatTarget=musicMaster*.48*Math.pow(threat,1.22);const fade=smooth(dt,1.9);
+    this.mallVol=lerp(this.mallVol,mallTarget,fade);this.threatVol=lerp(this.threatVol,threatTarget,fade);
+    if(this.mallTrack)this.mallTrack.volume=clamp(this.mallVol,0,1);if(this.threatTrack)this.threatTrack.volume=clamp(this.threatVol,0,1);
+    if(!this.paused&&(this.mallVol>.002||this.threatVol>.002))this.startMusicTracks();
+    const n=near;if(n>.13){this.heartTimer-=dt;if(this.heartTimer<=0){const bpm=58+n*n*118;this.heartTimer=60/bpm;this.oneShot({f:58+n*18,f2:38,d:.16,a:.09+n*.11});this.oneShot({f:78+n*20,f2:45,d:.13,a:.065+n*.08,at:.105});}}else this.heartTimer=0;
+    if(n>.22){this.whisperTimer-=dt;if(this.whisperTimer<=0){this.whisperTimer=clamp(3.5-n*n*2.9,.45,3.4)*rand(.8,1.2);this.whisper(pan,.25+n*.55);}}
+  }
+}
+`
+  );
+
+  replaceOnce(
+    'cc0 audio attribution',
+    'All Pinewood-specific signage, posters, UI, The Attendant, gore, particle effects and procedural audio are generated/original in this build.',
+`OPENGAMEART — Furniture Shop — SkyleTheFrench — CC0 1.0 — https://opengameart.org/content/furniture-shop\\
+Used for: looping abandoned-mall retail music.\\
+\\
+OPENGAMEART — Insistent: background loop — yd — CC0 1.0 — https://opengameart.org/content/insistent-background-loop\\
+Used for: Attendant-proximity threat music crossfade.\\
+\\
+All Pinewood-specific signage, posters, UI, The Attendant, gore, particle effects and non-music procedural sound effects are generated/original in this build.`
+  );
+
+  if(source.includes('elevator-facade-procedural-fallback')||source.includes('elevator-door-procedural-fallback'))fail('procedural elevator visual fallback survived');
+  if(!source.includes("elevatorWall:")||!source.includes("elevatorFloor:")||!source.includes("elevatorButton:"))fail('imported elevator cab pieces missing');
+  if(!source.includes("MALL_MUSIC_URL")||!source.includes("THREAT_MUSIC_URL"))fail('CC0 music layer missing');
+  if(source.includes('alphaMap:tex'))fail('blood decal alpha-mask bug survived');
+  if(!source.includes("u.state==='waiting'")||!source.includes('const inside=local.x>.20'))fail('physical elevator entry state machine was lost');
+  return source;
+}
