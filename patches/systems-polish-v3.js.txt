@@ -69,21 +69,62 @@ function makeExitElevator(pos,face='west'){
 }`
   );
 
-  replaceOnce(
-    'blood texture URLs',
-`const BLOOD_DECAL_URLS=[
-  'https://opengameart.org/sites/default/files/bloodsplatterandgibs.png',
-  'https://opengameart.org/sites/default/files/blood_splatter.png'
-];`,
-`const BLOOD_DECAL_URLS=[
-  'https://opengameart.org/sites/default/files/blood_splat.png',
-  'https://opengameart.org/sites/default/files/oga-textures/77840/blood_splatter_01.png'
-];`
-  );
-  replaceOnce(
-    'visible blood decal material',
-    "const tex=await bloodTexture(index);const mat=new THREE.MeshBasicMaterial({map:tex,alphaMap:tex,transparent:true,opacity,depthWrite:false,color:0x7c1115,side:THREE.DoubleSide});",
-    "const tex=await bloodTexture(index);const mat=new THREE.MeshBasicMaterial({map:tex,transparent:true,opacity:Math.max(.72,opacity),depthWrite:false,depthTest:true,color:0xffffff,side:THREE.DoubleSide,alphaTest:.015,polygonOffset:true,polygonOffsetFactor:-2,polygonOffsetUnits:-2});"
+  replaceRange(
+    'authored surface-mounted blood decals',
+    'const BLOOD_DECAL_URLS=[',
+    '\nfunction addFixtureBox(',
+`// Authored CC0 blood decals by Reactorcore (OpenGameArt), mirrored by last-light at a pinned commit.
+// There is deliberately NO generated/procedural fallback: if an authored decal cannot load, that decal is skipped.
+const BLOOD_DECAL_URLS=[
+  'https://raw.githubusercontent.com/goshanskiy/last-light/b40e1a2e7f28182681e2d9622f36592165b5d0ef/src/assets/world/decal_blood_01.png',
+  'https://raw.githubusercontent.com/goshanskiy/last-light/b40e1a2e7f28182681e2d9622f36592165b5d0ef/src/assets/world/decal_blood_02.png'
+];
+const BLOOD_DECAL_CACHE=new Map();
+async function bloodTexture(index){
+  const key=index%BLOOD_DECAL_URLS.length;if(BLOOD_DECAL_CACHE.has(key))return BLOOD_DECAL_CACHE.get(key);
+  try{
+    const tex=await assets.tex.loadAsync(BLOOD_DECAL_URLS[key]);
+    tex.colorSpace=THREE.SRGBColorSpace;tex.wrapS=tex.wrapT=THREE.ClampToEdgeWrapping;tex.minFilter=THREE.LinearMipmapLinearFilter;tex.magFilter=THREE.LinearFilter;tex.generateMipmaps=true;tex.needsUpdate=true;
+    BLOOD_DECAL_CACHE.set(key,tex);return tex;
+  }catch(err){console.warn('Authored CC0 blood decal failed to load; skipping decal instead of generating one.',BLOOD_DECAL_URLS[key],err);BLOOD_DECAL_CACHE.set(key,null);return null;}
+}
+async function bloodDecal(world,{surface='floor',x,y=.95,z,w,h,nx=0,nz=1,roll=0,index=0,opacity=.88}){
+  const tex=await bloodTexture(index);if(!tex)return null;
+  const mat=new THREE.MeshStandardMaterial({map:tex,transparent:true,opacity,alphaTest:.018,depthWrite:false,depthTest:true,roughness:.92,metalness:0,side:THREE.FrontSide,polygonOffset:true,polygonOffsetFactor:-4,polygonOffsetUnits:-4});
+  const m=new THREE.Mesh(new THREE.PlaneGeometry(w,h),mat);m.renderOrder=7;m.castShadow=false;m.receiveShadow=false;
+  if(surface==='wall'){
+    const len=Math.hypot(nx,nz)||1;nx/=len;nz/=len;
+    // Storefront facade depth is .16m. These coordinates target its corridor face, then move just 2mm along the outward normal.
+    m.position.set(x+nx*.002,y,z+nz*.002);m.rotation.set(0,Math.atan2(nx,nz),0);m.rotateZ(roll);
+  }else{
+    // Chapter 1 floor is authored at y=.002. Four millimetres of separation prevents z-fighting without visibly floating.
+    m.position.set(x,.006,z);m.rotation.set(-Math.PI/2,0,0);m.rotateZ(roll);
+  }
+  world.root.add(m);return m;
+}
+async function addMallBlood(world){
+  // Every wall decal is anchored to an actual 1.3m-wide storefront pillar produced by addStorefront().
+  // South storefront corridor face: z=-18.399, normal +Z. North storefront corridor face: z=19.399, normal -Z.
+  const wall=[
+    {surface:'wall',x:-21.825,y:1.04,z:-18.399,w:1.02,h:.91,nx:0,nz:1,roll:-.16,index:0,opacity:.86},
+    {surface:'wall',x:11.825,y:.92,z:-18.399,w:.93,h:1.08,nx:0,nz:1,roll:.22,index:1,opacity:.90},
+    {surface:'wall',x:-10.825,y:1.12,z:19.399,w:1.08,h:.97,nx:0,nz:-1,roll:.11,index:1,opacity:.84},
+    {surface:'wall',x:21.825,y:.88,z:19.399,w:.96,h:1.12,nx:0,nz:-1,roll:-.27,index:0,opacity:.88}
+  ];
+  for(const d of wall)await bloodDecal(world,d);
+  // Floor stains sit in the open concourse immediately outside the four Chapter 1 storefronts.
+  const floor=[
+    {surface:'floor',x:-19.15,z:-17.18,w:1.26,h:1.05,roll:.31,index:1,opacity:.82},
+    {surface:'floor',x:-15.85,z:-16.86,w:.74,h:.62,roll:-.52,index:0,opacity:.72},
+    {surface:'floor',x:7.15,z:-17.12,w:1.18,h:.98,roll:-.21,index:0,opacity:.84},
+    {surface:'floor',x:10.15,z:-16.74,w:.78,h:.66,roll:.58,index:1,opacity:.74},
+    {surface:'floor',x:-7.75,z:18.13,w:1.27,h:1.02,roll:.18,index:1,opacity:.82},
+    {surface:'floor',x:18.92,z:18.08,w:1.22,h:1.00,roll:-.38,index:0,opacity:.84},
+    {surface:'floor',x:22.10,z:17.62,w:.72,h:.61,roll:.49,index:1,opacity:.72}
+  ];
+  for(const d of floor)await bloodDecal(world,d);
+}
+`
   );
 
   replaceRange(
@@ -136,7 +177,7 @@ class AudioSystem{
   tick(dt,near,fear,pan){
     if(!this.ctx)return;this.humGain.gain.value=lerp(this.humGain.gain.value,.012+fear*.045,smooth(dt,2));this.noiseGain.gain.value=lerp(this.noiseGain.gain.value,.002+fear*.012,smooth(dt,2));this.proxGain.gain.value=lerp(this.proxGain.gain.value,near*near*.08,smooth(dt,5));
     this.setupMusicTracks();const threat=clamp((near-.22)/.70,0,1),musicMaster=(this.paused?0:clamp(SAVE.settings.volume,0,1)*clamp(SAVE.settings.music,0,1));
-    const mallTarget=musicMaster*(SAVE.settings.muzak?.32:0)*(1-threat*.84),threatTarget=musicMaster*.48*Math.pow(threat,1.22);const fade=smooth(dt,1.9);
+    const mallTarget=musicMaster*(SAVE.settings.muzak?.224:0)*(1-threat*.84),threatTarget=musicMaster*.48*Math.pow(threat,1.22);const fade=smooth(dt,1.9);
     this.mallVol=lerp(this.mallVol,mallTarget,fade);this.threatVol=lerp(this.threatVol,threatTarget,fade);
     if(this.mallTrack)this.mallTrack.volume=clamp(this.mallVol,0,1);if(this.threatTrack)this.threatTrack.volume=clamp(this.threatVol,0,1);
     if(!this.paused&&(this.mallVol>.002||this.threatVol>.002))this.startMusicTracks();
@@ -163,6 +204,10 @@ All Pinewood-specific signage, posters, UI, The Attendant, gore, particle effect
   if(!source.includes("elevatorWall:")||!source.includes("elevatorFloor:")||!source.includes("elevatorButton:"))fail('imported elevator cab pieces missing');
   if(!source.includes("MALL_MUSIC_URL")||!source.includes("THREAT_MUSIC_URL"))fail('CC0 music layer missing');
   if(source.includes('alphaMap:tex'))fail('blood decal alpha-mask bug survived');
+  if(source.includes('proceduralBloodTexture'))fail('procedural blood fallback survived');
+  if(!source.includes('decal_blood_01.png')||!source.includes('decal_blood_02.png'))fail('authored blood decal URLs missing');
+  if(!source.includes("m.position.set(x,.006,z)"))fail('floor blood is not surface mounted');
+  if(!source.includes('SAVE.settings.muzak?.224:0'))fail('mall music 70 percent volume reduction missing');
   if(!source.includes("u.state==='waiting'")||!source.includes('const inside=local.x>.20'))fail('physical elevator entry state machine was lost');
   return source;
 }
