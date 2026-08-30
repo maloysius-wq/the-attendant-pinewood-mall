@@ -1,0 +1,104 @@
+function applyReliabilityV4(source){
+  const fail=msg=>{throw new Error(`Reliability v4 patch failed: ${msg}`);};
+  const replaceOnce=(label,needle,replacement)=>{
+    const first=source.indexOf(needle);
+    if(first<0)fail(`${label}: marker missing`);
+    if(source.indexOf(needle,first+needle.length)>=0)fail(`${label}: marker is not unique`);
+    source=source.slice(0,first)+replacement+source.slice(first+needle.length);
+  };
+  const replaceRange=(label,startMarker,endMarker,replacement)=>{
+    const start=source.indexOf(startMarker);
+    if(start<0)fail(`${label}: start marker missing`);
+    const end=source.indexOf(endMarker,start+startMarker.length);
+    if(end<0)fail(`${label}: end marker missing`);
+    source=source.slice(0,start)+replacement+source.slice(end);
+  };
+
+  replaceOnce(
+    'mall music another 30 percent quieter',
+    'SAVE.settings.muzak?.224:0',
+    'SAVE.settings.muzak?.157:0'
+  );
+
+  replaceOnce(
+    'slimmer KayKit service key',
+    "pickupKey:`https://raw.githubusercontent.com/Enthceph/hangman/4e84f92f27d924a46a52ea0cf4d06a5dc90a9c12/assets/kenney_mini-dungeon/Models/GLB%20format/key.glb`",
+    "pickupKey:`https://raw.githubusercontent.com/KayKit-Game-Assets/KayKit-Dungeon-Remastered-1.0/b0ca9bd96a8072ab36a3a5464f00ed1e06a16d07/addons/kaykit_dungeon_remastered/Assets/gltf/key.gltf.glb`"
+  );
+  replaceOnce(
+    'service key pickup size',
+    "key:{model:'pickupKey',longest:.34,rx:0,ry:0,rz:-Math.PI/2}",
+    "key:{model:'pickupKey',longest:.30,rx:0,ry:0,rz:-Math.PI/2}"
+  );
+
+  replaceOnce(
+    'Chapter 1 elevator physical cab',
+    "const elevator=makeExitElevator(new THREE.Vector3(27.10,0,0));world.root.add(elevator);world.interactables.push(elevator);GAME.exitObject=elevator;",
+`const elevator=makeExitElevator(new THREE.Vector3(27.10,0,0));world.root.add(elevator);world.interactables.push(elevator);GAME.exitObject=elevator;
+    // Physical-only bounds matched to the imported CC0 cab. They stop clipping without changing the Attendant's A* grid.
+    world.addCollider(28.20,-.99,2.08,.10,{navBlock:false,owner:elevator});
+    world.addCollider(28.20,.99,2.08,.10,{navBlock:false,owner:elevator});
+    world.addCollider(29.20,0,.10,1.90,{navBlock:false,owner:elevator});
+    const doorBlocker=world.addCollider(26.94,0,.12,1.84,{navBlock:false,owner:elevator});
+    elevator.userData.doorBlocker=doorBlocker;
+    elevator.userData.syncDoorCollision=()=>{
+      const u=elevator.userData,travel=Math.abs(u.openL-u.closedL)||1;
+      const openness=clamp(Math.abs(u.left.position.z-u.closedL)/travel,0,1);
+      doorBlocker.disabled=u.state==='waiting'||(u.state==='opening'&&openness>=.82);
+    };
+    elevator.userData.syncDoorCollision();`
+  );
+
+  replaceRange(
+    'elevator state and collision audit',
+    '  startElevator(o){',
+    '  endClosingRoutine(core){',
+`  startElevator(o){
+    const need=LEVELS[this.levelIndex].breakers||0;
+    if(this.breakers<need){audio.beep();UI.hint('Emergency power incomplete ('+this.breakers+'/'+need+').');return;}
+    if(o.userData.state!=='idle')return;
+    o.userData.state='opening';o.userData.timer=0;o.userData.rideAnchor=null;o.userData.syncDoorCollision?.();
+    if(o.userData.callLamp?.material)o.userData.callLamp.material.emissiveIntensity=1.45;
+    audio.chime();this.emitSound(o.position.clone(),.75,'elevator');
+  }
+  updateElevator(dt){
+    const e=this.exitObject;if(!e||e.userData.type!=='exit'||e.userData.state==='idle')return;
+    const u=e.userData;u.timer+=dt;
+    if(u.state==='opening'){
+      const t=clamp(u.timer/.9,0,1),s=t*t*(3-2*t);
+      u.left.position.z=lerp(u.closedL,u.openL,s);u.right.position.z=lerp(u.closedR,u.openR,s);u.syncDoorCollision?.();
+      if(t>=1){u.state='waiting';u.timer=0;u.syncDoorCollision?.();UI.hint('Freight elevator open. Step fully inside.');}
+    }else if(u.state==='waiting'){
+      u.syncDoorCollision?.();
+      const local=e.worldToLocal(this.controls.yaw.position.clone());
+      const inside=local.x>.58&&local.x<1.62&&Math.abs(local.z)<.62;
+      if(inside){
+        u.state='closing';u.timer=0;u.rideAnchor=this.controls.yaw.position.clone();u.syncDoorCollision?.();
+        this.attendant.stunUntil=Math.max(this.attendant.stunUntil,this.time+3.5);
+        audio.chime();this.emitSound(e.position.clone(),.38,'elevator');UI.hint('');
+      }
+    }else if(u.state==='closing'){
+      const t=clamp(u.timer/.82,0,1),s=t*t*(3-2*t);
+      u.left.position.z=lerp(u.openL,u.closedL,s);u.right.position.z=lerp(u.openR,u.closedR,s);u.syncDoorCollision?.();
+      if(u.rideAnchor)this.controls.yaw.position.copy(u.rideAnchor);
+      if(t>=1){u.state='ride';u.timer=0;audio.thud(.18);UI.static(500);}
+    }else if(u.state==='ride'){
+      u.syncDoorCollision?.();
+      if(u.rideAnchor)this.controls.yaw.position.copy(u.rideAnchor);
+      const pulse=Math.sin(u.timer*10)*.006;this.controls.pitch.rotation.x=clamp(this.controls.pitch.rotation.x+pulse,-1.45,1.45);
+      if(u.timer>1.35)this.winChapter();
+    }
+  }
+`
+  );
+
+  for(const marker of [
+    'SAVE.settings.muzak?.157:0',
+    'KayKit-Game-Assets/KayKit-Dungeon-Remastered-1.0/b0ca9bd96a8072ab36a3a5464f00ed1e06a16d07',
+    "const inside=local.x>.58&&local.x<1.62&&Math.abs(local.z)<.62",
+    'doorBlocker.disabled=',
+    "u.state='ride'"
+  ])if(!source.includes(marker))fail(`verification marker missing: ${marker}`);
+  if(source.includes('SAVE.settings.muzak?.224:0'))fail('old mall music volume survived');
+  return source;
+}
