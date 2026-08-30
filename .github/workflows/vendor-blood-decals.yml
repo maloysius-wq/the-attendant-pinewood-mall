@@ -1,0 +1,45 @@
+name: Vendor audited blood decals
+
+on:
+  push:
+    paths:
+      - '.github/workflows/vendor-blood-decals.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  vendor:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Download and verify CC0 decals
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p assets/decals/blood
+          curl --fail --location --retry 3 \
+            'https://raw.githubusercontent.com/goshanskiy/last-light/b40e1a2e7f28182681e2d9622f36592165b5d0ef/src/assets/world/decal_blood_01.png' \
+            --output assets/decals/blood/decal_blood_01.png
+          curl --fail --location --retry 3 \
+            'https://raw.githubusercontent.com/goshanskiy/last-light/b40e1a2e7f28182681e2d9622f36592165b5d0ef/src/assets/world/decal_blood_02.png' \
+            --output assets/decals/blood/decal_blood_02.png
+
+          test "$(git hash-object assets/decals/blood/decal_blood_01.png)" = '6cfc25f7f05363ef64a9a6acf280d595a7a7dee9'
+          test "$(git hash-object assets/decals/blood/decal_blood_02.png)" = 'dfa02a4790e53f11145a2475c92cafbde80d5b81'
+
+      - name: Commit verified binary assets
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add assets/decals/blood/decal_blood_01.png assets/decals/blood/decal_blood_02.png
+          if git diff --cached --quiet; then
+            echo 'Verified decals already present.'
+            exit 0
+          fi
+          git commit -m 'Vendor audited CC0 blood decal PNGs'
+          git push origin HEAD:main
