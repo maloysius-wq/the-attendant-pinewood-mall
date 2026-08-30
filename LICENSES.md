@@ -22,8 +22,16 @@ All third-party visual assets used by this build were selected because their sou
 - Original source: https://kenney.nl/assets/mini-dungeon
 - License: CC0 1.0
 - Pinned runtime mirror: `Enthceph/hangman` commit `4e84f92f27d924a46a52ea0cf4d06a5dc90a9c12`
-- Used for the service key, Last Shift journal/book, and recovered paper/note pickup visuals.
-- Runtime files: `key.glb`, `book.glb`, and `banner.glb` from `assets/kenney_mini-dungeon/Models/GLB format/`.
+- Used for the Last Shift journal/book and recovered paper/note pickup visuals.
+- Runtime files: `book.glb` and `banner.glb` from `assets/kenney_mini-dungeon/Models/GLB format/`.
+
+## KayKit — Dungeon Remastered
+- Creator: Kay Lousberg
+- Source: https://github.com/KayKit-Game-Assets/KayKit-Dungeon-Remastered-1.0
+- License: CC0 1.0 Universal
+- Pinned runtime commit: `b0ca9bd96a8072ab36a3a5464f00ed1e06a16d07`
+- Runtime file: `addons/kaykit_dungeon_remastered/Assets/gltf/key.gltf.glb`.
+- Used for the slimmer Chapter 1 service-key pickup model.
 
 ## Kenney — Factory Kit 3.0
 - Original source: https://kenney.nl/assets/factory-kit
