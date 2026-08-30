@@ -21,6 +21,88 @@ function applyReliabilityV4(source){
   );
 
   replaceOnce(
+    'half-speed warped mall music state',
+    'constructor(){this.ctx=null;this.master=null;this.amb=null;this.music=null;this.sfx=null;this.voice=null;this.humGain=null;this.noiseGain=null;this.proxGain=null;this.heartTimer=0;this.whisperTimer=0;this.paused=true;this.mallTrack=null;this.threatTrack=null;this.mallVol=0;this.threatVol=0;}',
+    'constructor(){this.ctx=null;this.master=null;this.amb=null;this.music=null;this.sfx=null;this.voice=null;this.humGain=null;this.noiseGain=null;this.proxGain=null;this.heartTimer=0;this.whisperTimer=0;this.paused=true;this.mallTrack=null;this.mallEchoA=null;this.mallEchoB=null;this.threatTrack=null;this.mallVol=0;this.threatVol=0;this.mallRate=.5;this.detuneWait=rand(8,15);this.detuneTime=0;this.detuneDuration=0;this.detuneDepth=0;this.detunePhase=rand(0,TAU);this.detuneSpeed=0;this.echoSyncTimer=0;}'
+  );
+
+  replaceOnce(
+    'mall music echo tracks and pitch behavior',
+`  setupMusicTracks(){
+    if(this.mallTrack&&this.threatTrack)return;
+    const make=url=>{const a=new Audio(url);a.loop=true;a.preload='auto';a.playsInline=true;a.volume=0;return a;};
+    this.mallTrack=make(MALL_MUSIC_URL);this.threatTrack=make(THREAT_MUSIC_URL);
+  }
+  startMusicTracks(){
+    if(this.paused)return;this.setupMusicTracks();
+    for(const a of [this.mallTrack,this.threatTrack])if(a?.paused)a.play().catch(err=>{if(!a.userDataWarned){a.userDataWarned=true;console.warn('CC0 music playback will retry after the next user gesture.',err);}});
+  }`,
+`  setupMusicTracks(){
+    if(this.mallTrack&&this.mallEchoA&&this.mallEchoB&&this.threatTrack)return;
+    const make=(url,warped=false)=>{const a=new Audio(url);a.loop=true;a.preload='auto';a.playsInline=true;a.volume=0;if(warped){if('preservesPitch' in a)a.preservesPitch=false;if('webkitPreservesPitch' in a)a.webkitPreservesPitch=false;if('mozPreservesPitch' in a)a.mozPreservesPitch=false;a.playbackRate=.5;}return a;};
+    this.mallTrack=make(MALL_MUSIC_URL,true);this.mallEchoA=make(MALL_MUSIC_URL,true);this.mallEchoB=make(MALL_MUSIC_URL,true);this.threatTrack=make(THREAT_MUSIC_URL,false);
+  }
+  syncMallEchoes(force=false){
+    const base=this.mallTrack,dur=base?.duration;if(!base||!Number.isFinite(dur)||dur<=0)return;
+    for(const [echo,delay] of [[this.mallEchoA,.14],[this.mallEchoB,.32]]){
+      if(!echo||echo.readyState<1)continue;
+      const target=(base.currentTime-delay+dur)%dur;
+      const wrapped=((echo.currentTime-target+dur*.5)%dur+dur)%dur-dur*.5;
+      if(force||Math.abs(wrapped)>.12){try{echo.currentTime=target;}catch{}}
+    }
+  }
+  startMusicTracks(){
+    if(this.paused)return;this.setupMusicTracks();
+    for(const a of [this.mallTrack,this.mallEchoA,this.mallEchoB,this.threatTrack])if(a?.paused)a.play().catch(err=>{if(!a.userDataWarned){a.userDataWarned=true;console.warn('CC0 music playback will retry after the next user gesture.',err);}});
+  }`
+  );
+
+  replaceOnce(
+    'mall echo pause and volume handling',
+`    if(this.paused){if(this.mallTrack)this.mallTrack.volume=0;if(this.threatTrack)this.threatTrack.volume=0;}else this.startMusicTracks();
+  }
+  setPaused(v){this.paused=v;this.apply();if(v){this.mallTrack?.pause();this.threatTrack?.pause();}else this.startMusicTracks();}`,
+`    if(this.paused){for(const a of [this.mallTrack,this.mallEchoA,this.mallEchoB,this.threatTrack])if(a)a.volume=0;}else this.startMusicTracks();
+  }
+  setPaused(v){this.paused=v;this.apply();if(v){this.mallTrack?.pause();this.mallEchoA?.pause();this.mallEchoB?.pause();this.threatTrack?.pause();}else{this.echoSyncTimer=0;this.startMusicTracks();}}`
+  );
+
+  replaceOnce(
+    'warped echoey mall mix',
+`    this.setupMusicTracks();const threat=clamp((near-.22)/.70,0,1),musicMaster=(this.paused?0:clamp(SAVE.settings.volume,0,1)*clamp(SAVE.settings.music,0,1));
+    const mallTarget=musicMaster*(SAVE.settings.muzak?.157:0)*(1-threat*.84),threatTarget=musicMaster*.48*Math.pow(threat,1.22);const fade=smooth(dt,1.9);
+    this.mallVol=lerp(this.mallVol,mallTarget,fade);this.threatVol=lerp(this.threatVol,threatTarget,fade);
+    if(this.mallTrack)this.mallTrack.volume=clamp(this.mallVol,0,1);if(this.threatTrack)this.threatTrack.volume=clamp(this.threatVol,0,1);
+    if(!this.paused&&(this.mallVol>.002||this.threatVol>.002))this.startMusicTracks();`,
+`    this.setupMusicTracks();const threat=clamp((near-.22)/.70,0,1),musicMaster=(this.paused?0:clamp(SAVE.settings.volume,0,1)*clamp(SAVE.settings.music,0,1));
+    const mallTarget=musicMaster*(SAVE.settings.muzak?.126:0)*(1-threat*.84),threatTarget=musicMaster*.48*Math.pow(threat,1.22);const fade=smooth(dt,1.9);
+    this.mallVol=lerp(this.mallVol,mallTarget,fade);this.threatVol=lerp(this.threatVol,threatTarget,fade);
+
+    // The abandoned-mall loop runs at half speed with pitch preservation disabled, then occasionally sags or rises like a damaged cassette deck.
+    let desiredRate=.5;
+    if(!this.paused){
+      if(this.detuneTime>0){
+        this.detuneTime=Math.max(0,this.detuneTime-dt);const p=1-clamp(this.detuneTime/Math.max(.001,this.detuneDuration),0,1),env=Math.sin(Math.PI*p);
+        this.detunePhase+=dt*this.detuneSpeed;desiredRate=.5*(1+env*(this.detuneDepth+Math.sin(this.detunePhase)*.024));
+        if(this.detuneTime<=0)this.detuneWait=rand(11,23);
+      }else{
+        this.detuneWait-=dt;
+        if(this.detuneWait<=0){this.detuneDuration=rand(2.7,5.4);this.detuneTime=this.detuneDuration;this.detuneDepth=(Math.random()<.72?-1:1)*rand(.07,.14);this.detuneSpeed=rand(2.8,5.7);this.detunePhase=rand(0,TAU);}
+      }
+    }
+    this.mallRate=lerp(this.mallRate,desiredRate,smooth(dt,2.5));
+    for(const a of [this.mallTrack,this.mallEchoA,this.mallEchoB])if(a)a.playbackRate=clamp(this.mallRate,.40,.60);
+
+    // Keep the total mall-music budget 20% below the previous pass, but split it into dry + two delayed copies for a hollow slapback/reverb impression.
+    if(this.mallTrack)this.mallTrack.volume=clamp(this.mallVol*.68,0,1);
+    if(this.mallEchoA)this.mallEchoA.volume=clamp(this.mallVol*.22,0,1);
+    if(this.mallEchoB)this.mallEchoB.volume=clamp(this.mallVol*.10,0,1);
+    if(this.threatTrack)this.threatTrack.volume=clamp(this.threatVol,0,1);
+    this.echoSyncTimer-=dt;if(this.echoSyncTimer<=0){this.echoSyncTimer=2.8;this.syncMallEchoes(false);}
+    if(!this.paused&&(this.mallVol>.002||this.threatVol>.002))this.startMusicTracks();`
+  );
+
+  replaceOnce(
     'slimmer KayKit service key',
     "pickupKey:`https://raw.githubusercontent.com/Enthceph/hangman/4e84f92f27d924a46a52ea0cf4d06a5dc90a9c12/assets/kenney_mini-dungeon/Models/GLB%20format/key.glb`",
     "pickupKey:`https://raw.githubusercontent.com/KayKit-Game-Assets/KayKit-Dungeon-Remastered-1.0/b0ca9bd96a8072ab36a3a5464f00ed1e06a16d07/addons/kaykit_dungeon_remastered/Assets/gltf/key.gltf.glb`"
@@ -93,12 +175,17 @@ function applyReliabilityV4(source){
   );
 
   for(const marker of [
-    'SAVE.settings.muzak?.157:0',
+    'SAVE.settings.muzak?.126:0',
+    'this.mallRate=.5',
+    'this.mallEchoA',
+    'preservesPitch=false',
+    'this.detuneDepth=',
+    'this.syncMallEchoes(false)',
     'KayKit-Game-Assets/KayKit-Dungeon-Remastered-1.0/b0ca9bd96a8072ab36a3a5464f00ed1e06a16d07',
     "const inside=local.x>.58&&local.x<1.62&&Math.abs(local.z)<.62",
     'doorBlocker.disabled=',
     "u.state='ride'"
   ])if(!source.includes(marker))fail(`verification marker missing: ${marker}`);
-  if(source.includes('SAVE.settings.muzak?.224:0'))fail('old mall music volume survived');
+  if(source.includes('SAVE.settings.muzak?.224:0')||source.includes('SAVE.settings.muzak?.157:0'))fail('old mall music volume survived');
   return source;
 }
