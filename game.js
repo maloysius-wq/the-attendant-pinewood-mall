@@ -9,6 +9,7 @@ const WORLD_PATCH='./patches/worldprops-v1.js.txt';
 const INDUSTRIAL_PATCH='./patches/industrial-cc0-v1.js.txt';
 const VISUAL_FIX_PATCH='./patches/visual-fixes-v1.js.txt';
 const STORE_PATCH='./patches/store-polish-v2.js.txt';
+const SYSTEMS_PATCH='./patches/systems-polish-v3.js.txt';
 const FOOD_PATCH='./patches/foodcourt-v3.js.txt';
 
 async function getText(url){
@@ -72,6 +73,15 @@ async function applyStorePolish(source,patchText){
   }finally{URL.revokeObjectURL(patchUrl);}
 }
 
+async function applySystemsPolish(source,patchText){
+  const patchUrl=URL.createObjectURL(new Blob([patchText+'\nexport { applySystemsPolishV3 };\n'],{type:'text/javascript'}));
+  try{
+    const mod=await import(patchUrl);
+    if(typeof mod.applySystemsPolishV3!=='function')throw new Error('Systems Polish v3 patch did not export its patch function.');
+    return mod.applySystemsPolishV3(source);
+  }finally{URL.revokeObjectURL(patchUrl);}
+}
+
 function replaceFoodCourt(source,replacement){
   const start=source.indexOf('async function buildFoodCourt(world){');
   const end=source.indexOf('async function buildMusic(world){',start);
@@ -99,12 +109,13 @@ async function preflightThree(){
 
 try{
   await preflightThree();
-  const [base,worldPatch,industrialPatch,visualFixPatch,storePatch,foodPatch]=await Promise.all([decodeSource(),getText(WORLD_PATCH),getText(INDUSTRIAL_PATCH),getText(VISUAL_FIX_PATCH),getText(STORE_PATCH),getText(FOOD_PATCH)]);
+  const [base,worldPatch,industrialPatch,visualFixPatch,storePatch,systemsPatch,foodPatch]=await Promise.all([decodeSource(),getText(WORLD_PATCH),getText(INDUSTRIAL_PATCH),getText(VISUAL_FIX_PATCH),getText(STORE_PATCH),getText(SYSTEMS_PATCH),getText(FOOD_PATCH)]);
   const worldSource=await applyWorldProps(normalizeImports(base),worldPatch);
   const industrialSource=await applyIndustrialCc0(worldSource,industrialPatch);
   const visualSource=await applyVisualFixes(industrialSource,visualFixPatch);
   const storeSource=await applyStorePolish(visualSource,storePatch);
-  const source=replaceFoodCourt(storeSource,foodPatch)+'\n//# sourceURL=pinewood-runtime.js\n';
+  const systemsSource=await applySystemsPolish(storeSource,systemsPatch);
+  const source=replaceFoodCourt(systemsSource,foodPatch)+'\n//# sourceURL=pinewood-runtime.js\n';
   const moduleUrl=URL.createObjectURL(new Blob([source],{type:'text/javascript'}));
   try{await import(moduleUrl);}finally{URL.revokeObjectURL(moduleUrl);}
 }catch(err){
