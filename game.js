@@ -22,6 +22,8 @@ const FOOTSTEP_PATCH='./patches/footstep-mix-v11.js.txt';
 const POSTER_DIVERSITY_PATCH='./patches/poster-diversity-v12.js.txt';
 const CASSETTE_V13_PATCH='./patches/cassette-castle-rebuild-v13.js.txt';
 const CASSETTE_V14_PATCH='./patches/cassette-castle-rebuild-v14.js.txt';
+const LOCAL_ASSETS_PATCH='./patches/local-assets-v15.js.txt';
+const LOCAL_ASSETS_MANIFEST='./assets/vendor/runtime/manifest.json';
 
 async function getText(url){
   const r=await fetch(url,{cache:'no-store'});
@@ -36,7 +38,7 @@ async function decodeSource(){
     const stream=new Blob([bytes]).stream().pipeThrough(new DecompressionStream('gzip'));
     return await new Response(stream).text();
   }
-  const {ungzip}=await import('https://cdn.jsdelivr.net/npm/pako@2.1.0/+esm');
+  const {ungzip}=await import('./vendor/pako/pako.esm.mjs');
   return new TextDecoder().decode(ungzip(bytes));
 }
 
@@ -112,6 +114,10 @@ async function applyCassetteCastleV14(source,patchText){
   const patchUrl=URL.createObjectURL(new Blob([patchText+'\nexport { applyCassetteCastleRebuildV14 };\n'],{type:'text/javascript'}));
   try{const mod=await import(patchUrl);if(typeof mod.applyCassetteCastleRebuildV14!=='function')throw new Error('Cassette Castle Rebuild v14 patch did not export its patch function.');return mod.applyCassetteCastleRebuildV14(source);}finally{URL.revokeObjectURL(patchUrl);}
 }
+async function applyLocalAssetsV15Runtime(source,patchText,manifest){
+  const patchUrl=URL.createObjectURL(new Blob([patchText+'\nexport { applyLocalAssetsV15 };\n'],{type:'text/javascript'}));
+  try{const mod=await import(patchUrl);if(typeof mod.applyLocalAssetsV15!=='function')throw new Error('Local Assets v15 patch did not export its patch function.');return mod.applyLocalAssetsV15(source,manifest);}finally{URL.revokeObjectURL(patchUrl);}
+}
 
 function replaceFoodCourt(source,replacement){
   const start=source.indexOf('async function buildFoodCourt(world){');
@@ -140,8 +146,8 @@ async function preflightThree(){
 
 try{
   await preflightThree();
-  const [base,worldPatch,industrialPatch,visualFixPatch,storePatch,systemsPatch,reliabilityPatch,statusPatch,audioPatch,elevatorPatch,fountainPatch,cassettePatch,foodPatch,posterPatch,footstepPatch,posterDiversityPatch,cassetteV13Patch,cassetteV14Patch]=await Promise.all([
-    decodeSource(),getText(WORLD_PATCH),getText(INDUSTRIAL_PATCH),getText(VISUAL_FIX_PATCH),getText(STORE_PATCH),getText(SYSTEMS_PATCH),getText(RELIABILITY_PATCH),getText(STATUS_PATCH),getText(AUDIO_PATCH),getText(ELEVATOR_PATCH),getText(FOUNTAIN_PATCH),getText(CASSETTE_PATCH),getText(FOOD_PATCH),getText(POSTER_PATCH),getText(FOOTSTEP_PATCH),getText(POSTER_DIVERSITY_PATCH),getText(CASSETTE_V13_PATCH),getText(CASSETTE_V14_PATCH)
+  const [base,worldPatch,industrialPatch,visualFixPatch,storePatch,systemsPatch,reliabilityPatch,statusPatch,audioPatch,elevatorPatch,fountainPatch,cassettePatch,foodPatch,posterPatch,footstepPatch,posterDiversityPatch,cassetteV13Patch,cassetteV14Patch,localAssetsPatch,localAssetsManifestText]=await Promise.all([
+    decodeSource(),getText(WORLD_PATCH),getText(INDUSTRIAL_PATCH),getText(VISUAL_FIX_PATCH),getText(STORE_PATCH),getText(SYSTEMS_PATCH),getText(RELIABILITY_PATCH),getText(STATUS_PATCH),getText(AUDIO_PATCH),getText(ELEVATOR_PATCH),getText(FOUNTAIN_PATCH),getText(CASSETTE_PATCH),getText(FOOD_PATCH),getText(POSTER_PATCH),getText(FOOTSTEP_PATCH),getText(POSTER_DIVERSITY_PATCH),getText(CASSETTE_V13_PATCH),getText(CASSETTE_V14_PATCH),getText(LOCAL_ASSETS_PATCH),getText(LOCAL_ASSETS_MANIFEST)
   ]);
   const worldSource=await applyWorldProps(normalizeImports(base),worldPatch);
   const industrialSource=await applyIndustrialCc0(worldSource,industrialPatch);
@@ -160,7 +166,9 @@ try{
   const posterDiversitySource=await applyPosterDiversity(footstepSource,posterDiversityPatch);
   const cassetteV13Source=await applyCassetteCastleV13(posterDiversitySource,cassetteV13Patch);
   const cassetteV14Source=await applyCassetteCastleV14(cassetteV13Source,cassetteV14Patch);
-  const source=cassetteV14Source+'\n//# sourceURL=pinewood-runtime.js\n';
+  const localAssetsManifest=JSON.parse(localAssetsManifestText);
+  const localAssetsV15Source=await applyLocalAssetsV15Runtime(cassetteV14Source,localAssetsPatch,localAssetsManifest);
+  const source=localAssetsV15Source+'\n//# sourceURL=pinewood-runtime.js\n';
   const moduleUrl=URL.createObjectURL(new Blob([source],{type:'text/javascript'}));
   try{await import(moduleUrl);}finally{URL.revokeObjectURL(moduleUrl);}
 }catch(err){
