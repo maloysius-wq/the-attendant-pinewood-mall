@@ -42,3 +42,5 @@ jobs:
           path: visual-artifacts/
           if-no-files-found: warn
           retention-days: 14
+
+# Verification trigger: local-assets v15 final gate
