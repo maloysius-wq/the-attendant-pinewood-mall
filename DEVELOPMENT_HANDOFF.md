@@ -3,7 +3,8 @@
 **Repository:** `maloysius-wq/the-attendant-pinewood-mall`  
 **Default branch:** `main`  
 **Deployment:** GitHub Pages from repository root  
-**Rule:** Read this file first, then inspect the latest commits and current repository files. The repository and the user's newest explicit request always override older chat history.
+**Repository access rule:** **Always use the connected GitHub plugin/connector first for Pinewood repository work. Never claim access is unavailable before checking the GitHub plugin.**  
+**Source-of-truth rule:** Read `AGENTS.md` and this file first, then inspect the latest commits/current repository files. The repository and the user's newest explicit request override older chat history.
 
 ---
 
@@ -31,13 +32,23 @@ Use verified CC0 assets where suitable. Keep `LICENSES.md` and in-game attributi
 8. `patches/audio-immersion-v6.js.txt`
 9. `patches/elevator-rebuild-v7.js.txt`
 10. `patches/fountain-rebuild-v8.js.txt`
-11. `patches/cassette-castle-rebuild-v9.js.txt`
+11. `patches/cassette-castle-rebuild-v9.js.txt` (historical/transitional Cassette Castle rebuild)
 12. Food Court builder replacement from `patches/foodcourt-v3.js.txt`
 13. `patches/poster-polish-v10.js.txt`
+14. `patches/footstep-mix-v11.js.txt`
+15. `patches/poster-diversity-v12.js.txt`
+16. `patches/cassette-castle-rebuild-v13.js.txt` (**final authoritative Cassette Castle override**)
 
-Patch order is intentional. Poster Polish v10 runs **after** the Food Court replacement so it operates on the final authoritative builders for all four Chapter 1 stores.
+Patch order is intentional. Poster v10 runs after the Food Court replacement, v12 diversifies the final store posters, and v13 runs last so its corrected Cassette Castle geometry/grounding cannot be overwritten by an older store builder.
 
-`scripts/audit-runtime.mjs` reconstructs the same deployed patch chain, validates critical behavior markers, checks the local CC0 audio bank, and syntax-checks both the loader and final runtime. `.github/workflows/runtime-audit.yml` runs it automatically on relevant changes.
+`.github/workflows/runtime-audit.yml` runs:
+
+- `scripts/audit-runtime.mjs`
+- `scripts/audit-footstep-mix-v11.mjs`
+- `scripts/audit-poster-diversity-v12.mjs`
+- `scripts/audit-cassette-castle-v13.mjs`
+
+The v13 audit reconstructs the entire deployed patch chain through v13 and syntax-checks the final runtime.
 
 Do not use `runtime-audit.js` as the deployed source of truth. It is a decoded reference/audit copy of the old base runtime.
 
@@ -101,16 +112,16 @@ All vendored files are normalized with FFmpeg EBU R128 processing to approximate
 - **7 LU target LRA**
 - stereo 44.1 kHz Vorbis OGG
 
-### Footsteps
+### Footsteps — authoritative v11 mix
 
 Current footstep mix:
 
-- normal dry gain approximately `.18`,
-- sprint dry gain approximately `.28`,
+- normal dry gain approximately **`.09`**,
+- sprint dry gain approximately **`.14`**,
 - quiet/held-breath movement further attenuates the cue,
-- two low-level delayed copies at roughly **110 ms** and **230 ms** create a subtle empty-mall slapback/echo.
+- two low-level delayed copies at roughly **110 ms** and **230 ms** preserve the subtle empty-mall slapback/echo at the same proportional mix.
 
-Do not turn the echo into a large cavern reverb unless explicitly requested.
+These values are intentionally about 50% of the previous `.18/.28` base gains. Do not restore the louder values unless explicitly requested.
 
 ### Mall music
 
@@ -157,6 +168,8 @@ Required Chapter 1 sequence:
 
 The doors remain open indefinitely while waiting for the player. The Attendant is excluded from the cab and boarding has short grace windows so entering the cab reliably ends the chase.
 
+Never restore the old shutter, second door collision, key-to-shutter behavior, early collision disable, or AI cab access.
+
 ---
 
 ## 9. Central fountain — authoritative implementation
@@ -179,103 +192,139 @@ Current fountain rules:
 
 ---
 
-## 10. Cassette Castle — authoritative v9 rebuild
+## 10. Cassette Castle — authoritative v13 rebuild
 
-`patches/cassette-castle-rebuild-v9.js.txt` is the authoritative Cassette Castle geometry/merchandising implementation.
+`patches/cassette-castle-rebuild-v13.js.txt` is the **final authoritative Cassette Castle geometry, merchandising, and grounding implementation**. It runs after v12. The earlier v9 patch is transitional history only and must not be treated as the final store design.
 
-### Retired implementation
+### Why v13 exists
 
-The old store mixed a Kenney Mini Market shelf that already contained baked-in retail stock with a second generated cassette-stock layer. It also had:
+A full visual audit of v9 found two concrete problems:
 
-- `fallbackCassette(...)` generated cassette bodies/reels,
-- generated cassette fallback stock when the real tape component was unavailable,
-- procedural glowing `TorusGeometry` listening-station rings,
-- primitive shelf/table/box fallbacks through the general `placeModel(...)` helper.
+1. Quaternius `Shelf Large.glb` / `Shelf Small.glb` had been normalized to undersized, toy-like fixture heights.
+2. Merchandise, listening hardware, loose tapes, and checkout props used guessed absolute world-Y values instead of being anchored to actual support geometry, causing obvious floating/clipping.
 
-**Do not restore any of those in Cassette Castle.**
+v13 replaces both systems rather than tuning the old numbers.
 
-### v9 asset rule
+### Permanent shelf ban
 
-All visible Cassette Castle merchandising fixtures, listening furniture, listening hardware and cassette stock are actual imported CC0 models/components.
+The following resources are **permanently banned from all Pinewood runtime use**:
 
-Current sources:
+- `cassetteShelfLarge`
+- `cassetteShelfSmall`
+- Quaternius `Shelf Large.glb`
+- Quaternius `Shelf Small.glb`
+- any URL/alias containing `Shelf%20Large.glb`, `Shelf%20Small.glb`, `/ShelfLarge/`, or `/ShelfSmall/`
 
-- **Kenney Furniture Kit `bookcaseOpen.glb`** — empty full-height wall browsing racks.
-- **Quaternius `Shelf Large.glb` / `Shelf Small.glb`** — empty freestanding retail displays.
-- **Quaternius `Table Round Small.glb` / `Stool.glb`** — listening-station furniture.
-- **Poly Haven Cassette Player** — actual listening hardware.
-- **Poly Haven cassette/tape component extracted from that model** — actual cloned cassette retail stock and loose listening media.
+v13 removes the v9 keys and scrubs historical aliases/URLs from the final assembled source. `AGENTS.md` repeats this prohibition. Do not rename, re-add, or “try again” with these resources for any reason.
 
-Cassette Castle uses its own `placeCassetteCc0(...)` helper. If a required remote CC0 model fails, the object is **skipped**. It is not replaced by generated boxes, tables, shelves or fake products.
+### v13 fixtures and scale
 
-If the Poly Haven tape component cannot be extracted, those shelf positions remain honestly empty. There is no procedural cassette fallback.
+Cassette Castle now uses the verified CC0 Kenney Furniture Kit `bookcaseOpen.glb` as its empty browsing fixture:
 
-### v9 layout
+- perimeter racks target **2.08 m** measured height,
+- center browsing runs use two back-to-back empty racks at **1.78 m** measured height,
+- center depth/offset is derived from the imported fixture's bounding box rather than guessed dimensions.
 
-The store is intentionally laid out as a music/cassette shop rather than a reskinned Video Planet:
+The layout includes:
 
-- open storefront sightline and central circulation,
-- imported full-height browsing racks along the left/rear perimeter,
-- multiple imported freestanding cassette display fixtures through the middle,
-- three actual listening stations on the right side with tables, cassette players and stools,
-- CC0 checkout counter/register area,
-- physical hiding cabinet moved into the back-right corner away from the listening aisle.
+- four full-size racks along the left wall,
+- six full-size racks along the rear wall,
+- two substantial center browsing runs assembled from six double-sided rack bays,
+- three listening stations along the right side,
+- grounded checkout counter/register near the entrance side,
+- physical hiding cabinet preserved at the back-right.
 
-Vinyl-record props were intentionally not added in v9 because candidate assets found during research were not all CC0. Do not slip CC-BY record/turntable assets into this project just to fill the category.
+### Geometry-grounding rule
 
-The current runtime audit explicitly fails if the old `marketShelfEnd` Cassette Castle builder usage, `fallbackCassette`, old cassette-stock helper, procedural listening torus, or primitive Cassette Castle fallbacks return.
+Cassette Castle v13 does **not** place visible fixtures/merchandise by guessed Y coordinates.
+
+The final helpers use `THREE.Box3` model bounds to:
+
+- scale imported furniture to human-scale target height,
+- ground floor fixtures/stools/tables/counter to the floor,
+- discover usable shelf support levels from actual fixture meshes,
+- anchor cassette stock to those support surfaces,
+- measure table/counter tops before placing cassette players, loose tapes, or the cash register.
+
+Key final helpers:
+
+- `cassetteWorldBox(...)`
+- `cassetteScaleToHeight(...)`
+- `placeCassetteGrounded(...)`
+- `placeCassetteOnSurface(...)`
+- `cassetteShelfLevels(...)`
+- `stockCassetteFixture(...)`
+- `addCassetteFullRack(...)`
+- `addCassetteDoubleRackBay(...)`
+- `dressGroundedListeningStation(...)`
+- `buildGroundedCheckout(...)`
+
+If the real Poly Haven cassette/tape component is unavailable, those positions remain empty. If a required CC0 model fails or has invalid bounds, the object is omitted. Do not add visible primitive/fake replacements or leave unsupported props floating.
+
+### Retired Cassette Castle systems
+
+Do not restore:
+
+- Mini Market baked-stock browsing shelf,
+- `fallbackCassette(...)`,
+- generated cassette bodies/reels,
+- procedural listening torus/rings,
+- primitive shelf/table/box fallbacks,
+- v9 `placeCassetteCc0(...)`,
+- `stockRealCassetteFixture(...)`,
+- `addCassetteDisplayFixture(...)`,
+- `dressCassetteListeningTable(...)`,
+- absolute hard-coded world-Y placement for shelf/table/counter objects.
+
+Listening furniture remains Quaternius `Table Round Small.glb` / `Stool.glb`; listening hardware and cassette stock remain the CC0 Poly Haven Cassette Player and its extracted real tape component.
+
+Vinyl-record props remain omitted because previously identified candidates were not all CC0. Do not slip CC-BY record/turntable assets into the project to fill the category.
 
 ---
 
-## 11. Store poster marketing — authoritative v10 polish
+## 11. Store poster marketing — v10 + v12
 
-`patches/poster-polish-v10.js.txt` is authoritative for the Chapter 1 store posters.
+`patches/poster-polish-v10.js.txt` establishes the Chapter 1 store poster campaigns. `patches/poster-diversity-v12.js.txt` is the final poster-layout authority.
 
-The old `makePoster(...)` renderer is retired. It used one generic dark rectangle/noise template for every store and only swapped text/color, which made the stores feel visually interchangeable.
+The old `makePoster(...)` renderer is retired.
 
-Poster Polish v10 replaces it with `makeMarketingPoster(...)` and four distinct original in-world graphic systems. These are game-authored marketing pieces, not third-party/copyrighted poster art.
+Each store keeps one v10 hero design and uses two visually distinct v12 alternates, including different illustration/layout systems and different physical frame treatments.
 
 ### Sunburst Arcade
 
-Visual language: saturated neon, perspective grid, pixel/star accents, joystick/button illustration, high-energy arcade typography.
+Campaigns:
 
-Current campaigns:
-
-- **GALAXY STRIKE** — Tournament • Sat 8PM — Top Score Wins 100 Tokens
-- **TOKEN FRENZY** — 2 for 1 • After 6PM — Tonight Only
-- **PRIZE VAULT** — Trade Tickets • Claim Glory — New Prizes This Week
+- **GALAXY STRIKE** — retained v10 neon-grid hero
+- **TOKEN FRENZY** — v12 radial token-promotion design
+- **PRIZE VAULT** — v12 ticket-redemption/prize-catalog design
 
 ### Video Planet
 
-Visual language: dark rental-store one-sheet treatment, cyan/magenta striping, illustrated VHS cassette, faux film-strip details. Do not replace these with copyrighted real movie posters.
+Campaigns:
 
-Current campaigns:
+- **BE KIND • REWIND** — retained v10 rental-store hero
+- **MIDNIGHT RENTALS** — v12 horror-night one-sheet design
+- **2 NIGHTS • 1 PRICE** — v12 membership/rental-coupon design
 
-- **BE KIND • REWIND** — Save the Late Fee — Video Planet House Rule
-- **MIDNIGHT RENTALS** — Horror • Sci-Fi • Action — Weekend Feature Wall
-- **2 NIGHTS • 1 PRICE** — Fri + Sat Double Feature — Members Save
+Do not replace these with copyrighted real movie posters.
 
 ### Pinewood Food Court
 
-Visual language: faded late-80s mall-food advertising, brighter vendor palettes, checker patterning and illustrated food/drink motifs.
+Campaigns:
 
-Current campaigns:
-
-- **SLICE CITY** — Big Slice + Soda — $3.99 Lunch Combo
-- **POLAR POP** — Bottomless Refills — Ice Cold • All Day
-- **WOK THIS WAY** — Noodles • Rice • Stir-Fry — Combo #4 • $3.99
+- **SLICE CITY** — retained v10 food-promo hero
+- **POLAR POP** — v12 soda/refill advertisement
+- **WOK THIS WAY** — v12 illustrated takeout/noodle/combo design
 
 ### Cassette Castle
 
-Visual language: analog music-zine/collage treatment, halftone texture, cassette illustration, color blocks and zig-zag graphic accents.
+Campaigns:
 
-Current campaigns:
+- **NEW WAVE** — retained v10 music-zine hero
+- **LISTEN BEFORE YOU BUY** — v12 listening/headphones/audio-waveform design
+- **PINEWOOD TOP 40** — v12 ranked chart-board design
 
-- **NEW WAVE** — This Week's Picks — Imports • Indies • Local
-- **LISTEN BEFORE YOU BUY** — Try It at the Sound Bar — Headphones Provided
-- **PINEWOOD TOP 40** — The Countdown Wall — New Chart Every Friday
-
-All v10 posters include subtle print wear, aged edges, framed physical backing, and small mounting-angle variation. Keep the four store identities distinct rather than collapsing back into one reusable generic design.
+Do not collapse the posters back into one shared composition with swapped text/colors.
 
 ---
 
@@ -309,9 +358,7 @@ Food Court v3 specifically uses clamped wall imagery (`THREE.ClampToEdgeWrapping
 
 Named storefront neon is game-specific local art with independent randomized flicker.
 
-Cassette Castle v9 should remain visibly distinct from Video Planet: Video Planet is a rental/video store; Cassette Castle is an analog music shop with cassette browsing and listening stations.
-
-Poster Polish v10 is part of that identity separation. Do not restore generic identical poster art across the stores.
+Cassette Castle must remain visibly distinct from Video Planet: Video Planet is a rental/video store; Cassette Castle is an analog music shop with full-size browsing racks and grounded listening stations.
 
 ---
 
@@ -349,7 +396,7 @@ Major documented sources include Kenney kits, Quaternius, KayKit Dungeon Remaste
 
 For third-party store props/models, preserve the project's CC0-only policy. If an attractive candidate is CC-BY or unclear, do not embed it. Either find a verified CC0 alternative or omit that category.
 
-The v10 store posters are original Pinewood canvas artwork and use no third-party marketing/movie/album artwork.
+The store posters are original Pinewood canvas artwork and use no third-party marketing/movie/album artwork.
 
 Keep provenance pinned/documented when adding assets.
 
@@ -357,21 +404,23 @@ Keep provenance pinned/documented when adding assets.
 
 ## 17. Development workflow
 
-For every future runtime change:
+For every future Pinewood runtime change:
 
-1. inspect current files and latest commits,
-2. preserve unrelated working systems,
-3. update/add a patch rather than mutating the encoded bundle directly,
-4. keep `game.js` patch order explicit,
-5. update `scripts/audit-runtime.mjs` when adding or changing guarded behavior,
-6. require the runtime audit to pass,
-7. verify the GitHub Pages build/deploy,
-8. be explicit if interactive visual playtesting could not be performed.
+1. **Use the GitHub plugin first.**
+2. Read `AGENTS.md` and this handoff.
+3. Inspect current files and latest commits.
+4. Preserve unrelated working systems.
+5. Update/add a patch rather than mutating the encoded bundle directly.
+6. Keep `game.js` patch order explicit.
+7. Update/add focused audit coverage for changed guarded behavior.
+8. Require the relevant runtime audits to pass.
+9. Verify the GitHub Pages build/deploy on the final head.
+10. Be explicit if interactive visual playtesting could not be performed.
 
-The current runtime audit guards the normalized CC0 audio bank, zero oscillator/random-noise SFX synthesis, breaker lever animation, authoritative elevator model/state/collision, AI-only cab exclusion, key-gated elevator progression, exact-fit CC0/PBR fountain and retirement of its old square collider, Cassette Castle v9's CC0-only fixtures/stock/listening layout and retirement of its procedural/baked-stock implementation, Food Court v3, Poster Polish v10's four distinct store campaign systems and retirement of generic `makePoster(...)`, and warped mall music.
+Current CI coverage includes the normalized CC0 audio bank, v11 footstep mix, zero oscillator/random-noise SFX synthesis, breaker lever animation, authoritative elevator model/state/collision, AI-only cab exclusion, key-gated elevator progression, exact-fit CC0/PBR fountain and retirement of its old square collider, Food Court v3, v10/v12 poster systems, and Cassette Castle v13's permanent tiny-shelf ban, human-scale fixture markers, geometry-grounded support logic, retirement of v9 floating-placement helpers, and final JavaScript syntax.
 
 ---
 
 ## 18. Fresh-session restart prompt
 
-> Continue development of The Attendant: Pinewood Mall. Use `maloysius-wq/the-attendant-pinewood-mall` as the source of truth. Read `DEVELOPMENT_HANDOFF.md` first, inspect the latest commits and relevant current files, preserve the documented no-regression constraints, implement directly in the repo, run the runtime audit, and verify GitHub Pages after game changes.
+> Continue development of The Attendant: Pinewood Mall. **Use the GitHub plugin first for all repository work.** Use `maloysius-wq/the-attendant-pinewood-mall` as the source of truth. Read `AGENTS.md` and `DEVELOPMENT_HANDOFF.md` first, inspect the latest commits and relevant current files, preserve all documented no-regression constraints, implement directly in the repo, run the relevant runtime audits, and verify GitHub Pages after game changes. Never reintroduce the permanently banned Quaternius Shelf Large/Shelf Small resources.
