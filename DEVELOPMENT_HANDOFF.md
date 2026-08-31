@@ -1,42 +1,25 @@
 # Development Handoff — The Attendant: Pinewood Mall
 
-**Purpose:** This is the compact source of truth for continuing development in a fresh ChatGPT/Codex session. Read this file first, then inspect the current repository files relevant to the requested change. **The repository itself and newer explicit user requests always win if anything here becomes stale.**
-
-**Project:** The Attendant: Pinewood Mall — Rebuilt Edition  
 **Repository:** `maloysius-wq/the-attendant-pinewood-mall`  
 **Default branch:** `main`  
-**Deployment:** GitHub Pages from `main` / repository root  
-**Current runtime architecture:** immutable encoded base runtime + ordered authored patch chain in `game.js`
+**Deployment:** GitHub Pages from repository root  
+**Rule:** Read this file first, then inspect the latest commits and current repository files. The repository and the user's newest explicit request always override older chat history.
 
 ---
 
-## 1. Creative direction
+## 1. Game direction
 
-The Attendant is a first-person browser horror game set in a decaying 1990s shopping mall. Pinewood should feel oppressive, lonely, physically believable, and increasingly impossible: stained tile, dead storefronts, buzzing lights, damaged walls, old signage, service corridors, obsolete retail technology, distant PA audio, and architecture that slowly stops behaving normally.
+The Attendant is a first-person browser horror game set in a decaying 1990s mall. Pinewood should feel lonely, dirty, physically believable, and increasingly impossible: dead storefronts, stained tile, service corridors, old PA equipment, obsolete retail technology, failing lights, distant sound, and architecture that feels wrong without becoming arbitrary.
 
-The player is not an action hero. The core loop is exploration, maintenance-style objectives, environmental/story discovery, sound and stamina management, hiding, distracting The Attendant, and surviving long enough to complete the mall's closing routine.
+The player is a contractor, not an action hero. The core loop is exploration, maintenance-style objectives, environmental discovery, hiding, sound/stamina management, distraction, and surviving The Attendant long enough to complete Pinewood's closing routine.
 
-Visual changes should preserve believable placement and scale. Wall objects must read as wall-mounted. Floor props must sit on the floor. Major furniture should have appropriate collision. Avoid floating objects, clipped signs, toy-scale furniture, or decorative geometry that blocks required routes.
-
-Use verified **CC0 assets** for suitable third-party visual/audio content. Prefer pinned runtime sources and keep gameplay-safe fallbacks where the current implementation intentionally provides them. `LICENSES.md` is the root provenance record.
+Use verified CC0 assets where suitable. Keep `LICENSES.md` and in-game attribution current.
 
 ---
 
-## 2. Architecture — do not regress this
+## 2. Runtime architecture
 
-The retired `Game2.html` prototype let maze carving, store geometry, collision, and AI navigation mutate the same grid. The rebuild intentionally separates:
-
-1. **Authored walkable floorplan** — corridors and rooms exist before meshes are generated.
-2. **Visual geometry** — walls, floors, storefronts, trim, and décor are built from the authored plan.
-3. **Prop collision** — furniture, cabinets, counters, shelves, elevator pieces, etc. use independent collider data.
-4. **AI navigation** — A* uses the walkability plan plus appropriate blocking props/doors.
-5. **Story/game state** — objectives, save data, audio, progression, inventory, menus, hiding, and ending state are independent of map construction.
-
-Do not return to runtime store carving or make decorative geometry mutate the fundamental floorplan.
-
-### Current deployment loader
-
-`game.js` is the deployment loader. It reconstructs the encoded runtime from `bundle2/`, normalizes Three.js helper imports, then applies patches in this order:
+`game.js` reconstructs the immutable encoded base runtime from `bundle2/`, normalizes Three.js imports, then applies authored patches in this order:
 
 1. `patches/worldprops-v1.js.txt`
 2. `patches/industrial-cc0-v1.js.txt`
@@ -46,410 +29,278 @@ Do not return to runtime store carving or make decorative geometry mutate the fu
 6. `patches/reliability-v4.js.txt`
 7. `patches/status-lights-v5.js.txt`
 8. `patches/audio-immersion-v6.js.txt`
-9. replace the Food Court builder with `patches/foodcourt-v3.js.txt`
+9. `patches/elevator-rebuild-v7.js.txt`
+10. Food Court builder replacement from `patches/foodcourt-v3.js.txt`
 
-**Patch order is intentional.** Later patches depend on markers produced by earlier patches. Do not casually reorder them.
+Patch order is intentional. Later patches depend on earlier markers.
 
-`foodcourt-v2.js.txt` is retained only as historical source and is not the active Food Court.
+`scripts/audit-runtime.mjs` reconstructs the same deployed patch chain, validates critical behavior markers, checks the local CC0 audio bank, and syntax-checks both the loader and final runtime. `.github/workflows/runtime-audit.yml` runs it automatically on relevant changes.
 
-`runtime-audit.js` is a decoded audit/reference copy of the old base runtime, not the direct deployed source of truth. Trace `game.js` for actual deployment behavior.
-
-### Automated runtime regression audit
-
-`scripts/audit-runtime.mjs` reconstructs the same patch chain used by the browser, verifies critical markers, and syntax-checks both `game.js` and the final patched runtime. `.github/workflows/runtime-audit.yml` runs this audit on relevant pushes and pull requests.
-
-The audit currently guards, among other things:
-
-- patch order,
-- CC0 breaker/elevator model wiring,
-- physical elevator entry and collision state,
-- breaker/elevator status-light behavior,
-- breaker lever OFF→ON animation wiring,
-- the complete local normalized CC0 SFX bank,
-- absence of Web Audio oscillator/generated-random-noise SFX synthesis,
-- Food Court v3 edge-clamped wallpaper,
-- current warped mall-music implementation,
-- final JavaScript syntax.
-
-Keep this audit current whenever another patch is added or a guarded system is intentionally changed.
+Do not use `runtime-audit.js` as the deployed source of truth. It is a decoded reference/audit copy of the old base runtime.
 
 ---
 
-## 3. Controls
+## 3. Architecture constraints
 
-- **WASD** — move
-- **Mouse** — look
-- **Shift** — sprint
-- **C** — hold breath / quieter movement
-- **E** — interact
-- **F** — flashlight
-- **Q** — throw decoy
-- **J** — journal
-- **Esc** — pause
+Keep these systems separate:
 
----
+1. authored walkable floorplan,
+2. rendered geometry,
+3. physical prop collision,
+4. AI navigation,
+5. story/game state.
 
-## 4. The Attendant and stealth
+Do not return to runtime store carving or decorative geometry mutating the fundamental walkability grid.
 
-The Attendant is an original creature, not an imported or licensed horror character.
-
-Current identity:
-
-- all-black articulated humanoid silhouette,
-- animated arms/legs and gait,
-- fuzzy/blurry edge treatment,
-- glitch particles/afterimages,
-- white emissive eyes.
-
-Core AI states include dormant, stalk, investigate, hunt, search, and stunned.
-
-Important no-regression behavior:
-
-- physical contact kills the player unless safely hidden,
-- decoys can divert/investigate and temporarily stun/distract,
-- sprinting is faster and louder and drains stamina,
-- holding **C** makes movement quieter/slower and consumes breath,
-- danger/hearing presentation uses **route/path distance**, not straight-line distance through walls,
-- walls must genuinely protect the player from impossible through-wall proximity sensing.
-
-Atmosphere currently includes recorded heartbeat escalation, flashlight instability near danger, recorded directional breath/whisper cues, recorded electrical room tone/static/horror ambience, PA/radio elements, threat music, and degraded mall music.
-
-### Current mall music treatment
-
-The CC0 mall loop is intentionally played at roughly half speed with pitch preservation disabled. Two delayed copies create a hollow slapback/echo impression, and occasional playback-rate drift simulates damaged cassette/mall playback equipment. The threat layer still fades in with The Attendant's route-distance proximity while the mall loop recedes.
-
-### Current non-music audio treatment
-
-The old synthesized Web Audio SFX engine has been retired. The current build uses locally vendored CC0 recordings for footsteps, breaker operation, doors/latches/shutters, impacts, pickups, error/toggle cues, heartbeat, gasping/whispers, radio static, electrical ambience, danger ambience, intercom bell, and death/gore layers.
-
-All files under `assets/audio/cc0/` are normalized during vendoring with FFmpeg EBU R128 processing to **-20 LUFS integrated**, **-2 dBTP true peak**, and **7 LU target LRA**, then stored as stereo 44.1 kHz Vorbis OGG. Runtime event gains still preserve intentional hierarchy, such as quiet footsteps versus a heavy shutter or death impact.
-
-The final runtime intentionally contains **no `createOscillator()` procedural SFX path and no generated random-noise buffer fallback**. If a local recording cannot decode, that individual cue is skipped rather than synthesized.
+The collision system now supports **navigation-only blockers** via `physicalBlock:false`. This exists specifically so spaces such as the freight elevator cab can remain physically enterable by the player while being excluded from The Attendant's A* navigation.
 
 ---
 
-## 5. Hiding, menus, and death
+## 4. Controls
 
-### Cabinets
-
-Hiding cabinets are physical interactable objects using a CC0 Kenney Furniture Kit cabinet with separate animated door nodes. Desired sequence:
-
-1. interact,
-2. doors open,
-3. camera/player moves inside,
-4. doors close,
-5. narrow peek aperture remains,
-6. player can emerge later.
-
-Do not replace this with teleport-only or menu-only hiding.
-
-### Menus
-
-Opening a modal/menu must:
-
-- pause gameplay simulation,
-- silence/pause audio as appropriate,
-- release pointer lock,
-- render above the cabinet peek mask.
-
-### Death
-
-Contact with The Attendant kills outside a valid hiding state. The sequence includes a gore burst and the white message:
-
-**YOU’VE BEEN ATTENDED TO**
-
-The player can restart the chapter or quit.
+- WASD — move
+- Mouse — look
+- Shift — sprint
+- C — hold breath / move quietly
+- E — interact
+- F — flashlight
+- Q — throw decoy
+- J — journal
+- Esc — pause
 
 ---
 
-## 6. Story and chapter arc
+## 5. The Attendant
 
-The rebuilt story preserves three voices/concepts:
+The Attendant is an original black articulated humanoid silhouette with white emissive eyes, blurry/fuzzy edge treatment, gait animation, glitch particles, and afterimages.
 
-- **Dispatcher**
-- **Intercom**
-- **Previous Contractor / Last Shift**
+Important behavior:
+
+- physical contact kills outside a valid hiding/safe state,
+- decoys divert and briefly stun/distract,
+- sprinting is faster and louder,
+- holding C is quieter/slower and consumes breath,
+- danger/hearing uses route/path distance rather than straight-line distance through walls,
+- walls genuinely protect from impossible through-wall proximity sensing.
+
+The freight elevator cab is now an AI-excluded end-of-chapter space. The Attendant cannot path into the cab, and a small cab safety check prevents contact-death edge cases during the active elevator sequence.
+
+---
+
+## 6. Audio
+
+The old generated Web Audio SFX engine is retired. Non-music SFX use locally vendored CC0 recordings in `assets/audio/cc0/`.
+
+The audio bank includes footsteps, breaker operation, doors/shutters/latches, impacts, pickups, interface/error cues, heartbeat, breath/whisper cues, radio static, electrical room tone, horror ambience, intercom bell, gore impact, and death scream.
+
+All vendored files are normalized with FFmpeg EBU R128 processing to approximately:
+
+- **-20 LUFS integrated**
+- **-2 dBTP true peak**
+- **7 LU target LRA**
+- stereo 44.1 kHz Vorbis OGG
+
+Runtime gains still preserve hierarchy.
+
+### Footsteps
+
+Current footstep mix intentionally sits slightly below the previous pass:
+
+- normal dry gain approximately `.18`,
+- sprint dry gain approximately `.28`,
+- quiet/held-breath movement further attenuates the cue,
+- two low-level delayed copies at roughly **110 ms** and **230 ms** create a subtle empty-mall slapback/echo.
+
+Do not turn the echo into a large cavern reverb unless explicitly requested.
+
+### Mall music
+
+The CC0 mall loop remains intentionally degraded: roughly half-speed playback, pitch preservation disabled, delayed copies for hollow slapback, and occasional playback-rate drift. Threat music fades in with The Attendant's route-distance proximity while the mall loop recedes.
+
+---
+
+## 7. Breakers
+
+Chapter 1 breaker IDs: **A / B / C**  
+Chapter 2 relay IDs: **D / E**
+
+Current breaker behavior:
+
+- wall-mounted CC0 Kenney Factory Kit cabinet housing,
+- dim red status LED while off,
+- bright red LED plus restrained local glow when restored,
+- physical lever rests at a clear OFF angle,
+- lever smoothly animates to the opposite ON angle when activated,
+- recorded normalized CC0 breaker-switch sound.
+
+Do not revert the active LED to green or remove the lever animation.
+
+---
+
+## 8. Freight elevator — authoritative current implementation
+
+`patches/elevator-rebuild-v7.js.txt` is the authoritative Chapter 1 freight-elevator implementation.
+
+### Important historical bug now retired
+
+The old Chapter 1 scene placed a **procedurally generated `East Service Shutter` directly in front of the actual freight elevator**. Later patches separately changed elevator visuals, collision, and state behavior. This caused the visible door and collision to disagree: the shutter could appear closed while the player could pass through it, and the actual cab entry remained partially blocked.
+
+**That procedural East Service Shutter is now completely removed from Chapter 1. Do not reintroduce it.**
+
+### Current physical elevator
+
+Visible architecture is assembled from verified Kenney CC0 GLB content:
+
+- imported doorway/frame,
+- two imported sliding door leaves,
+- imported floor and ceiling,
+- imported side/back wall pieces,
+- imported external call control,
+- decorative interior control.
+
+There is only one authoritative set of elevator doors.
+
+Physical collision consists of:
+
+- left/right cab walls,
+- back cab wall,
+- one threshold/door blocker synchronized to visible door openness.
+
+The threshold blocker remains solid until the visible leaves are essentially fully open, preventing the old ghost-through-door behavior.
+
+### Master Service Key
+
+The Master Service Key no longer opens a separate procedural service shutter. It now operates the **elevator's own service lock**.
+
+After A/B/C are restored:
+
+- if the player lacks the key, the objective becomes **Find the Master Service Key**,
+- with the key, the elevator can be unlocked/called,
+- using the service lock consumes the key and permanently unlocks that elevator for the chapter.
+
+### Elevator sequence
+
+Required Chapter 1 sequence:
+
+1. restore A/B/C,
+2. acquire Master Service Key,
+3. interact with the freight elevator,
+4. service lock accepts the key,
+5. imported door leaves visibly slide open,
+6. collision remains closed until the leaves are effectively fully open,
+7. doors remain open indefinitely while waiting,
+8. player physically walks into the cab,
+9. entry is detected only once the player is fully inside,
+10. doors close,
+11. manual movement is blocked during closing/ride,
+12. player is gently centered in the car,
+13. car vibration/light movement sells the ride,
+14. Chapter 1 transitions only after the ride.
+
+There is **no timer that closes the doors while the player is still outside**.
+
+### Attendant protection around boarding
+
+The elevator sequence now adds multiple safeguards:
+
+- a navigation-only exclusion volume prevents The Attendant from entering the cab,
+- opening the powered elevator briefly stuns The Attendant,
+- the open/waiting state extends that boarding grace,
+- entering the cab extends it again through closing,
+- an active-cab safety region prevents a contact-death edge case if geometry/AI positions briefly overlap near the threshold.
+
+The elevator should be tense to reach, but successfully entering it should reliably end the chase rather than allow the player to be attended inside the car.
+
+---
+
+## 9. Chapter/story arc
 
 ### Chapter 1 — Closing Time
 
-A routine maintenance/work order should not exist. The player restores three circuits/breakers (**A / B / C**), deals with the Master Service Key/gated service access, encounters the four major storefronts and The Attendant, then reaches the freight elevator.
+Restore A/B/C, find the Master Service Key, use the freight elevator, and discover that it descends instead of escaping.
 
 ### Chapter 2 — Service Level
 
-The elevator goes deeper instead of up. The player finds a security keycard, restores relays **D / E**, and reaches the north stairwell. The work order is revealed to have been filed in **1997**, undermining confidence in the Dispatcher voice.
+Find the security keycard, restore D/E, and reach the north stairwell. The work order is revealed to have been filed in 1997.
 
 ### Chapter 3 — The Last Shift
 
-The archive/east-wing endgame reveals Pinewood is trapped in a nightly closing/accountability routine. The objective is to **end the shift**, not merely cut power. The player recovers Last Shift material and operates the PA/attendance system.
+Recover the Last Shift material and end Pinewood's closing/accountability routine from PA control. Do not reduce the ending to simply cutting power.
 
-### Ending logic
-
-There are nine numbered Last Shift logs in the larger story set: `LS-01` through `LS-09`.
-
-Recovering all nine changes the ending. The stronger ending clocks everyone out, extinguishes The Attendant's white eyes, lets the player leave at dawn, and causes the impossible work order to vanish. Without all nine, remnants remain and the routine is not fully laid to rest.
-
-Do not flatten the mythology into “turn off generator and escape.” The work-order/closing-routine story is central.
+There are nine numbered Last Shift logs, `LS-01` through `LS-09`. Recovering all nine changes the ending.
 
 ---
 
-## 7. Chapter 1 stores and visual identity
+## 10. Chapter 1 stores
 
-The four authored storefronts are:
+The four authored walkable storefronts are:
 
-- **Sunburst Arcade**
-- **Video Planet**
-- **Pinewood Food Court**
-- **Cassette Castle**
+- Sunburst Arcade
+- Video Planet
+- Pinewood Food Court
+- Cassette Castle
 
-Stores are walkable rooms, not portals or facades. Keep entrances clear and preserve navigation.
+Preserve their distinct visual identities and keep entrances/navigation clear.
 
-### Sunburst Arcade
+Food Court v3 specifically uses clamped wall imagery (`THREE.ClampToEdgeWrapping`, repeat `(1,1)`) to prevent the old tiled-wallpaper regression.
 
-Preserve staggered arcade clusters, human-scale CC0 cabinets, air hockey, basketball, claw machine, prize counter/wall, neon, and colored accents.
-
-### Video Planet
-
-Preserve these hard-earned requirements:
-
-- real shelving rather than giant VHS-shaped shelf blocks,
-- separately placed VHS cases/tapes,
-- varied case colors/designs,
-- conventional checkout counter,
-- correctly oriented registers,
-- human-scale furniture,
-- verified CC0 GGBotNet/OpenGameArt VHS GLB with procedural fallback.
-
-### Pinewood Food Court
-
-The active implementation is **Food Court v3**. Preserve:
-
-- round table/chair appearance,
-- seating roughly two rows deep by three islands across,
-- long plain dark service counters,
-- correctly oriented registers,
-- black/white checker-style floor pairing,
-- faded blue-green/gray diner wallpaper,
-- grime, streaking, peeling, mold speckling, faded geometric print, darker lower-wall staining,
-- finish coverage across back wall, sides, front sections, corners, jambs, and trim.
-
-A prior bug tiled/repeated the wall image. Food Court v3 intentionally uses per-wall aspect sizing with **`THREE.ClampToEdgeWrapping` and repeat `(1,1)`**. Do not restore `RepeatWrapping` there.
-
-### Cassette Castle
-
-Preserve low cassette bins, listening stations/tables, music counter, genre/promotional wall art, and a visual language distinct from Video Planet.
-
-### Storefront neon
-
-Named storefront signs are locally generated because their wording is game-specific. They are physical/fixed, emissive, distressed, bloom-reactive, and use **independent randomized flicker**, not synchronized blinking.
+Named storefront neon is game-specific local art with independent randomized flicker.
 
 ---
 
-## 8. Current pickups and objective props
+## 11. Hiding / menus / death
 
-Current notable pickup mappings:
+Hiding cabinets are physical CC0 cabinet models with animated doors and camera movement into/out of the cabinet. Do not reduce hiding to teleport-only behavior.
 
-- service key → **KayKit Dungeon Remastered** key, CC0,
-- Last Shift journal → Kenney Mini Dungeon book, CC0,
-- recovered note → Kenney Mini Dungeon banner/paper-like model, CC0,
-- tape → GGBotNet/OpenGameArt VHS cassette, CC0,
-- decoy → Kenney Furniture Kit portable radio, CC0.
+Opening a modal/menu must pause gameplay, pause/silence appropriate audio, release pointer lock, and render above the cabinet peek mask.
 
-Collectible key/decoy/journal/note/tape items intentionally hover, bob, and spin so they still read clearly as pickups even when using realistic models.
+Death still displays:
 
-Last Shift logs in Chapters 1 and 2 are represented as bound journals. Chapter 3 PA/archive memos may remain paper notes where appropriate.
+**YOU'VE BEEN ATTENDED TO**
+
+with the existing gore/death presentation and restart/quit flow.
 
 ---
 
-## 9. Breakers and freight elevator — current completed state
+## 12. Navigation baseline
 
-The old “collect a fuse” abstraction is gone. Breakers/relays are wall-mounted interactable equipment.
-
-- Chapter 1 breaker IDs: **A / B / C**
-- Chapter 2 relay IDs: **D / E**
-- visible breaker cabinet housing uses a verified Kenney Factory Kit CC0 model with gameplay-safe fallback,
-- breakers remain physically mounted to authored wall faces.
-
-### Breaker status LEDs and lever animation
-
-The breaker boxes include a small **red status LED**:
-
-- off/unrestored: very dim dark red,
-- on/restored: bright red emissive LED plus a restrained local red glow.
-
-The physical breaker lever also has distinct states. It rests at a clear OFF angle and smoothly travels to the opposite ON angle when the breaker is restored. The animation is driven continuously from breaker state in the main update loop, so it visually settles rather than teleporting between positions.
-
-Do not revert activated breakers to the older green indicator unless explicitly requested, and do not remove the visible lever state change.
-
-### Freight elevator
-
-Visible elevator architecture is assembled from verified Kenney CC0 modular GLB content, including Factory Kit and Prototype Kit pieces. The car remains recessed into the wall and physically enterable.
-
-Chapter 1 progression must remain:
-
-1. activate all three Chapter 1 breakers,
-2. call/interact with the freight elevator,
-3. doors open,
-4. doors remain open while waiting,
-5. player physically walks fully inside,
-6. doors close only after entry,
-7. player movement is held during the ride,
-8. chapter transitions after the ride.
-
-Do not regress this to “press E and instantly complete the chapter.”
-
-The collision audit adds physical-only side/back/call-door bounds without corrupting The Attendant's authored A* walkability grid.
-
-### Elevator ready indicator
-
-The imported call button now has a small amber/orange status glow layered onto it:
-
-- no emergency power: dark,
-- all required Chapter 1 circuits restored and elevator idle: soft pulsing amber glow,
-- once called/opening/ride sequence begins: glow extinguishes.
-
-The glow is deliberately subtle rather than a large arcade-style beacon.
-
----
-
-## 10. Licensing / asset policy
-
-Commercial safety matters. Third-party visual/audio assets should have verified provenance, preferably from original creators plus pinned runtime mirrors where necessary.
-
-Current documented sources include, among others:
-
-- Kenney Mini Arcade — CC0
-- Kenney Furniture Kit — CC0
-- Kenney Mini Market — CC0
-- Kenney Food Kit — CC0
-- Kenney Mini Dungeon — CC0
-- Kenney Factory Kit 3.0 — CC0
-- Kenney Prototype Kit — CC0
-- Kenney RPG Audio / Interface Sounds — CC0
-- KayKit Dungeon Remastered — CC0
-- Poly Haven materials/models — CC0
-- GGBotNet/OpenGameArt VHS Cassette 3D — CC0
-- Reactorcore/OpenGameArt blood decals — CC0/public domain
-- OpenGameArt recorded SFX/ambience bank — CC0/public domain as documented
-- OpenGameArt mall/threat music — CC0
-- Three.js — MIT
-
-See `LICENSES.md` for the exact provenance, pinned commits, files, normalization policy, and usage. Keep both `LICENSES.md` and in-game attribution current when introducing new assets.
-
-The Attendant model/animation rig, story, authored levels, game-specific signs/posters, UI, visual procedural effects, and fallback geometry are project-original unless specifically documented otherwise. Non-music SFX are now CC0 recordings rather than generated audio.
-
----
-
-## 11. Navigation / regression baseline
-
-Most recent recorded navigation baseline:
+Most recently recorded authored reachability baseline:
 
 - Chapter 1: **1852 / 1852** walkable cells reachable
-- Sunburst Arcade reachable
-- Video Planet reachable
-- Pinewood Food Court reachable
-- Cassette Castle reachable
-- breakers A/B/C reachable
-- Master Service Key reachable
-- freight elevator reachable
-- each Chapter 1 store entrance remains one contiguous **5-cell-wide** segment
-- Chapter 2: **1190 / 1190** walkable cells reachable
-- Chapter 3: **1405 / 1405** walkable cells reachable
+- Chapter 2: **1190 / 1190**
+- Chapter 3: **1405 / 1405**
 
-Other established polish checks include human-scale CC0 furniture, corrected Food Court chair facing, corrected store register orientation, Video Planet CC0 VHS with fallback, and independent storefront-neon flicker.
+Chapter 1 store entrances, breakers A/B/C, Master Service Key, and elevator approach must remain reachable.
 
-Any geometry pass should preserve these paths. A prettier mall that blocks an objective is a regression.
+The elevator's AI-only exclusion is deliberately separate from player walkability and should not mutate the authored floorplan.
 
 ---
 
-## 12. Development workflow expectations
+## 13. Asset/licensing policy
 
-When continuing this project:
+Major documented sources include Kenney kits, KayKit Dungeon Remastered, Poly Haven, GGBotNet/OpenGameArt VHS, Reactorcore blood decals, and OpenGameArt audio/music. See `LICENSES.md` and `assets/audio/cc0/README.md` for exact provenance and normalization notes.
 
-1. Read this handoff.
-2. Inspect the **current** GitHub files and latest commits relevant to the requested change.
-3. Treat repository state as more authoritative than old conversations.
-4. Newer explicit user requests override this document.
-5. Make changes directly in the repository when access is available.
-6. Preserve unrelated good work; avoid rebuilding whole systems for narrow fixes.
-7. Use coherent commits with descriptive messages.
-8. Run/verify `scripts/audit-runtime.mjs` through the GitHub Action after runtime changes.
-9. Verify the actual GitHub Pages build/deploy after game changes rather than assuming a push is live.
-10. Be explicit about anything that could not be visually/runtime verified.
-
-For code requests, implement the work rather than asking the user to make surgical edits manually.
+Keep provenance pinned/documented when adding assets.
 
 ---
 
-## 13. Files worth reading before common tasks
+## 14. Development workflow
 
-### Deployment/runtime
+For every future runtime change:
 
-- `game.js`
-- `index.html`
-- `scripts/audit-runtime.mjs`
-- relevant patch files
-- `runtime-audit.js` only as decoded base/audit reference
+1. inspect current files and latest commits,
+2. preserve unrelated working systems,
+3. update/add a patch rather than mutating the encoded bundle directly,
+4. keep `game.js` patch order explicit,
+5. update `scripts/audit-runtime.mjs` when adding or changing guarded behavior,
+6. require the runtime audit to pass,
+7. verify the GitHub Pages build/deploy,
+8. be explicit if interactive visual playtesting could not be performed.
 
-### World props / pickups
-
-- `patches/worldprops-v1.js.txt`
-- `patches/industrial-cc0-v1.js.txt`
-- `patches/visual-fixes-v1.js.txt`
-
-### Stores / visuals / systems
-
-- `patches/store-polish-v2.js.txt`
-- `patches/systems-polish-v3.js.txt`
-- `patches/reliability-v4.js.txt`
-- `patches/status-lights-v5.js.txt`
-- `patches/audio-immersion-v6.js.txt`
-
-### Audio
-
-- `assets/audio/cc0/`
-- `assets/audio/cc0/README.md`
-- `.github/workflows/vendor-cc0-audio.yml` for the normalization/vendoring recipe
-- `LICENSES.md` for source provenance
-
-### Food Court
-
-- `patches/foodcourt-v3.js.txt`
-- do not accidentally reactivate v2
-
-### Design/story/navigation
-
-- `DESIGN_AUDIT.md`
-- `AUDIT_RESULTS.txt`
-- `README.md`
-
-### Licensing
-
-- `LICENSES.md`
-- in-game credit/license string produced by the patch chain
-
----
-
-## 14. Current continuation point
-
-The CC0 breaker/elevator replacement, elevator physical-entry/collision audit, service-key replacement, warped mall-music pass, breaker red status LEDs, elevator-ready call-button glow, normalized CC0 recorded SFX replacement, and breaker lever OFF→ON animation are implemented.
-
-There is no older handoff task that should automatically be repeated. For the next development session, inspect the latest commits and the user's newest request before choosing work.
-
-Longer-term production items still worth considering when explicitly prioritized include:
-
-- recorded voice acting,
-- formal low-end GPU/performance testing,
-- accessibility review,
-- controller support,
-- objective/hunt pacing playtests,
-- locally bundling remaining remote CC0 visual/music dependencies.
+The current runtime audit specifically guards the recorded normalized CC0 audio bank, zero oscillator/random-noise SFX synthesis, breaker lever animation, authoritative elevator model/state/collision, AI-only cab exclusion, key-gated elevator progression, Food Court v3, and warped mall music.
 
 ---
 
 ## 15. Fresh-session restart prompt
 
-A future session can restart with:
-
 > Continue development of The Attendant: Pinewood Mall. Use `maloysius-wq/the-attendant-pinewood-mall` as the source of truth. Read `DEVELOPMENT_HANDOFF.md` first, inspect the latest commits and relevant current files, preserve the documented no-regression constraints, implement directly in the repo, run the runtime audit, and verify GitHub Pages after game changes.
-
-Keep this file current after major architectural, asset, story, or workflow changes so another giant conversational fossil does not grow around the project.
