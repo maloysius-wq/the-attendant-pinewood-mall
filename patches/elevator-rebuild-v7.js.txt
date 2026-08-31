@@ -117,7 +117,7 @@ function applyElevatorRebuildV7(source){
     this.interactTarget=null;this.raycaster.setFromCamera({x:0,y:0},this.camera);const hits=this.raycaster.intersectObjects(this.world.interactables,true);for(const h of hits){if(h.distance>2.45)break;let o=h.object;while(o&&o!==this.scene&&!o.userData?.type)o=o.parent;if(o?.userData?.type){this.interactTarget=o;break;}}
     const o=this.interactTarget;if(!o){UI.hint('');return;}const t=o.userData.type;
     if(t==='breaker')UI.hint(o.userData.on?'Circuit online':'E  Restore circuit '+o.userData.id);
-    else if(t==='door')UI.hint(`E  ${o.userData.open?'Lower':'Raise'} ${o.userData.label}`);
+    else if(t==='door')UI.hint('E  '+(o.userData.open?'Lower':'Raise')+' '+o.userData.label);
     else if(t==='cabinet')UI.hint('E  Hide in cabinet');
     else if(t==='key')UI.hint('E  Take '+o.userData.label);
     else if(t==='decoy')UI.hint('E  Take '+o.userData.label);
