@@ -19,7 +19,8 @@ const PATCHES = [
   ['patches/systems-polish-v3.js.txt', 'applySystemsPolishV3'],
   ['patches/reliability-v4.js.txt', 'applyReliabilityV4'],
   ['patches/status-lights-v5.js.txt', 'applyStatusLightsV5'],
-  ['patches/audio-immersion-v6.js.txt', 'applyAudioImmersionV6']
+  ['patches/audio-immersion-v6.js.txt', 'applyAudioImmersionV6'],
+  ['patches/elevator-rebuild-v7.js.txt', 'applyElevatorRebuildV7']
 ];
 
 const AUDIO_FILES=[
@@ -84,9 +85,10 @@ requireMarkers(loader, [
   "const RELIABILITY_PATCH='./patches/reliability-v4.js.txt';",
   "const STATUS_PATCH='./patches/status-lights-v5.js.txt';",
   "const AUDIO_PATCH='./patches/audio-immersion-v6.js.txt';",
-  'const statusSource=await applyStatusLights(reliabilitySource,statusPatch);',
+  "const ELEVATOR_PATCH='./patches/elevator-rebuild-v7.js.txt';",
   'const audioSource=await applyAudioImmersion(statusSource,audioPatch);',
-  'const source=replaceFoodCourt(audioSource,foodPatch)'
+  'const elevatorSource=await applyElevatorRebuild(audioSource,elevatorPatch);',
+  'const source=replaceFoodCourt(elevatorSource,foodPatch)'
 ], 'game.js');
 
 for(const file of AUDIO_FILES){const bytes=await readFile(`assets/audio/cc0/${file}`);if(bytes.length<500)fail(`CC0 audio asset missing or suspiciously small: ${file}`);}
@@ -107,21 +109,28 @@ source = replaceFoodCourt(source, await readFile('patches/foodcourt-v3.js.txt', 
 
 requireMarkers(source, [
   'breakers:3','breakerCabinet','elevatorFrame','elevatorDoorHalf',
-  "const inside=local.x>.58&&local.x<1.62&&Math.abs(local.z)<.62","u.state='ride'",'doorBlocker.disabled=',
+  "assetModel:'kenney-imported-freight-elevator-v2'",
+  "const inside=local.x>.65&&local.x<1.82&&Math.abs(local.z)<.64","u.state='ride'",
+  'eu.doorBlocker.disabled=','physicalBlock===false','physicalBlock:false','eu.navExclusion=world.addCollider',
+  "elevatorHold=this.exitObject?.userData?.type==='exit'","elevatorSafe=local.x>.24&&local.x<2.02",
+  'Master Service Key + call elevator',"Find the Master Service Key",
   'KayKit-Game-Assets/KayKit-Dungeon-Remastered-1.0/b0ca9bd96a8072ab36a3a5464f00ed1e06a16d07',
   'SAVE.settings.muzak?.126:0','this.mallRate=.5','this.mallEchoA','preservesPitch=false','this.syncMallEchoes(false)',
   'lampGlow=new THREE.PointLight(0xff2418,0,1.05,2)','o.userData.lamp.material.emissiveIntensity=1.9',
-  'callGlow=new THREE.PointLight(0xffa14a,0,1.25,2)',"ready=u.state==='idle'&&this.breakers>=need",'u.callLamp.material.emissiveIntensity=pulse',
+  'callGlow=new THREE.PointLight(0xffa14a,0,1.22,2)',"ready=u.state==='idle'&&powered&&keyReady",'u.callLamp.material.emissiveIntensity=pulse',
   "const CC0_AUDIO_BASE=new URL('./assets/audio/cc0/',location.href).href","heartSlow:'heartbeat-slow.ogg'","roomtone:'electrical-roomtone.ogg'",
   'this.ctx.createBufferSource()','audio.breaker()','audio.gasp()','audio.door(o.userData.open)','u.leverMix=lerp','leverOff:-.58,leverOn:.54','-20 LUFS / -2 dBTP',
+  "gain=(sprint?.28:.18)",'gain:gain*.16','when:.23',
   'THREE.ClampToEdgeWrapping'
 ]);
 
 for (const retired of [
   'SAVE.settings.muzak?.224:0','SAVE.settings.muzak?.157:0','emissive.setHex(0x55ff99)',
-  'createOscillator()','this.oneShot({','createBuffer(1,len','procedural audio are generated/original'
+  'createOscillator()','this.oneShot({','createBuffer(1,len','procedural audio are generated/original',
+  "East Service Shutter');shutter.scale.z=.62",
+  "const inside=local.x>.58&&local.x<1.62&&Math.abs(local.z)<.62"
 ]) if (source.includes(retired)) fail(`retired marker survived: ${retired}`);
 
 await syntaxCheck('patched-runtime', source);
 console.log(`Runtime audit PASS: ${source.length.toLocaleString()} patched source characters parsed successfully.`);
-console.log(`Verified ${AUDIO_FILES.length} normalized CC0 audio assets, zero oscillator/noise synthesis, breaker lever animation, patch order, elevator entry, status lights, Food Court v3 and warped mall music.`);
+console.log(`Verified ${AUDIO_FILES.length} normalized CC0 audio assets, quieter echoed footsteps, zero oscillator/noise synthesis, breaker lever animation, authoritative CC0 elevator geometry/collision/state machine, Attendant cab exclusion, Food Court v3 and warped mall music.`);
