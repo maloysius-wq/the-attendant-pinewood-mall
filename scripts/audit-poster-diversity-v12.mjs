@@ -43,7 +43,7 @@ const loader=await readFile('game.js','utf8');
 for(const marker of [
   "const POSTER_DIVERSITY_PATCH='./patches/poster-diversity-v12.js.txt';",
   'const posterDiversitySource=await applyPosterDiversity(footstepSource,posterDiversityPatch);',
-  'const source=posterDiversitySource+'
+  'const cassetteV13Source=await applyCassetteCastleV13(posterDiversitySource,cassetteV13Patch);'
 ])if(!loader.includes(marker))fail('game.js marker missing: '+marker);
 
 const payload=(await Promise.all(PARTS.map(p=>readFile(p,'utf8')))).map(t=>t.trim()).join('');
@@ -71,4 +71,4 @@ for(const [label,a,b,campaigns] of sets){const s=section(source,a,b,label);for(c
 
 if(source.includes('function makePoster('))fail('retired generic poster renderer returned');
 await syntaxCheck(source);
-console.log('Poster Diversity v12 PASS: all four stores retain one v10 hero design and use two unique v12 alternate poster systems; final runtime syntax is valid.');
+console.log('Poster Diversity v12 PASS: all four stores retain one v10 hero design and use two unique v12 alternate poster systems; v13 follows v12 in the loader; v12 runtime syntax is valid.');
