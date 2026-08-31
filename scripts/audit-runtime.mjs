@@ -21,7 +21,8 @@ const PATCHES = [
   ['patches/status-lights-v5.js.txt', 'applyStatusLightsV5'],
   ['patches/audio-immersion-v6.js.txt', 'applyAudioImmersionV6'],
   ['patches/elevator-rebuild-v7.js.txt', 'applyElevatorRebuildV7'],
-  ['patches/fountain-rebuild-v8.js.txt', 'applyFountainRebuildV8']
+  ['patches/fountain-rebuild-v8.js.txt', 'applyFountainRebuildV8'],
+  ['patches/cassette-castle-rebuild-v9.js.txt', 'applyCassetteCastleRebuildV9']
 ];
 
 const AUDIO_FILES=[
@@ -88,10 +89,12 @@ requireMarkers(loader, [
   "const AUDIO_PATCH='./patches/audio-immersion-v6.js.txt';",
   "const ELEVATOR_PATCH='./patches/elevator-rebuild-v7.js.txt';",
   "const FOUNTAIN_PATCH='./patches/fountain-rebuild-v8.js.txt';",
+  "const CASSETTE_PATCH='./patches/cassette-castle-rebuild-v9.js.txt';",
   'const audioSource=await applyAudioImmersion(statusSource,audioPatch);',
   'const elevatorSource=await applyElevatorRebuild(audioSource,elevatorPatch);',
   'const fountainSource=await applyFountainRebuild(elevatorSource,fountainPatch);',
-  'const source=replaceFoodCourt(fountainSource,foodPatch)'
+  'const cassetteSource=await applyCassetteCastleRebuild(fountainSource,cassettePatch);',
+  'const source=replaceFoodCourt(cassetteSource,foodPatch)'
 ], 'game.js');
 
 for(const file of AUDIO_FILES){const bytes=await readFile(`assets/audio/cc0/${file}`);if(bytes.length<500)fail(`CC0 audio asset missing or suspiciously small: ${file}`);}
@@ -130,8 +133,32 @@ requireMarkers(source, [
   'new THREE.RingGeometry(innerR,outerR,64)','new THREE.TorusGeometry(1.535,.095,12,64)',
   'for(let i=-4;i<=4;i++)','await buildCentralFountain(world);',
   'https://polyhaven.com/a/marble_tiles','https://polyhaven.com/a/grey_tiles',
+  "cassetteShelfWall:`https://raw.githubusercontent.com/RetroDECK/RetroQUEST/dfa19a5602a31f64bd890d15279a61f43b127328/assets/kenney_furniture-kit/Models/GLTF%20format/bookcaseOpen.glb`",
+  "cassetteShelfLarge:`https://raw.githubusercontent.com/BGS3934/BGS3934.github.io/2efb99e0ba4d22a65489c21d01651447be433ef5/Assets/Furniture/Shelf%20Large.glb`",
+  "cassetteShelfSmall:`https://raw.githubusercontent.com/BGS3934/BGS3934.github.io/2efb99e0ba4d22a65489c21d01651447be433ef5/Assets/Furniture/Shelf%20Small.glb`",
+  "cassetteTableRound:`https://raw.githubusercontent.com/BGS3934/BGS3934.github.io/2efb99e0ba4d22a65489c21d01651447be433ef5/Assets/Furniture/Table%20Round%20Small.glb`",
+  "cassetteStool:`https://raw.githubusercontent.com/BGS3934/BGS3934.github.io/2efb99e0ba4d22a65489c21d01651447be433ef5/Assets/Furniture/Stool.glb`",
+  "console.warn('Cassette Castle skipped missing CC0 model: '+name)",
+  "assetModel='poly-haven-cassette-tape-stock'",
+  "addCassetteWallFixture(world,x,z,r)","addCassetteDisplayFixture(world,x,z,r,small)","dressCassetteListeningTable(world,25.35,z,0,i)",
   'THREE.ClampToEdgeWrapping'
 ]);
+
+const musicStart=source.indexOf('async function buildMusic(world){');
+const musicEnd=source.indexOf('\n\nfunction makeShutter(',musicStart);
+if(musicStart<0||musicEnd<0)fail('Cassette Castle final builder section is missing');
+const music=source.slice(musicStart,musicEnd);
+requireMarkers(music,[
+  "name:'CASSETTE CASTLE'","'cassetteShelfWall'","'cassetteShelfLarge'","'cassetteShelfSmall'",
+  "'cassetteTableRound'","'cassetteStool'","'cassettePlayer'",'LISTEN','BEFORE YOU BUY',
+  'Three proper listening stations','CC0-only','25.85,0,30.25'
+],'Cassette Castle v9');
+for(const retired of ["'marketShelfEnd'",'fallbackCassette','new THREE.TorusGeometry',"fallback:'shelf'","fallback:'table'","fallback:'box'"]){
+  if(music.includes(retired))fail(`retired Cassette Castle content survived in builder: ${retired}`);
+}
+for(const retired of ['function fallbackCassette(','async function addCassetteStockShelf(']){
+  if(source.includes(retired))fail(`legacy procedural Cassette Castle helper survived: ${retired}`);
+}
 
 for (const retired of [
   'SAVE.settings.muzak?.224:0','SAVE.settings.muzak?.157:0','emissive.setHex(0x55ff99)',
@@ -144,4 +171,4 @@ for (const retired of [
 
 await syntaxCheck('patched-runtime', source);
 console.log(`Runtime audit PASS: ${source.length.toLocaleString()} patched source characters parsed successfully.`);
-console.log(`Verified ${AUDIO_FILES.length} normalized CC0 audio assets, quieter echoed footsteps, zero oscillator/noise synthesis, breaker lever animation, authoritative CC0 elevator geometry/collision/state machine, Attendant cab exclusion, exact-fit CC0/PBR central fountain, Food Court v3 and warped mall music.`);
+console.log(`Verified ${AUDIO_FILES.length} normalized CC0 audio assets, quieter echoed footsteps, zero oscillator/noise synthesis, breaker lever animation, authoritative CC0 elevator geometry/collision/state machine, Attendant cab exclusion, exact-fit CC0/PBR central fountain, Cassette Castle v9 CC0-only retail/listening rebuild, Food Court v3 and warped mall music.`);
