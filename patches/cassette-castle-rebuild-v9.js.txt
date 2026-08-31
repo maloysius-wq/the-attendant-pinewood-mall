@@ -1,0 +1,147 @@
+function applyCassetteCastleRebuildV9(source){
+  const fail=msg=>{throw new Error(`Cassette Castle Rebuild v9 patch failed: ${msg}`);};
+  const replaceOnce=(label,needle,replacement)=>{
+    const first=source.indexOf(needle);
+    if(first<0)fail(`${label}: marker missing`);
+    if(source.indexOf(needle,first+needle.length)>=0)fail(`${label}: marker is not unique`);
+    source=source.slice(0,first)+replacement+source.slice(first+needle.length);
+  };
+  const replaceRange=(label,startMarker,endMarker,replacement)=>{
+    const start=source.indexOf(startMarker);
+    if(start<0)fail(`${label}: start marker missing`);
+    const end=source.indexOf(endMarker,start+startMarker.length);
+    if(end<0)fail(`${label}: end marker missing`);
+    source=source.slice(0,start)+replacement+source.slice(end);
+  };
+
+  const cassettePlayerLine="  cassettePlayer:`https://dl.polyhaven.org/file/ph-assets/Models/gltf/2k/cassette_player/cassette_player_2k.gltf`";
+  replaceOnce(
+    'Cassette Castle CC0 model URLs',
+    cassettePlayerLine+"\n};",
+    cassettePlayerLine+",\n"+
+    "  cassetteShelfWall:`https://raw.githubusercontent.com/RetroDECK/RetroQUEST/dfa19a5602a31f64bd890d15279a61f43b127328/assets/kenney_furniture-kit/Models/GLTF%20format/bookcaseOpen.glb`,\n"+
+    "  cassetteShelfLarge:`https://raw.githubusercontent.com/BGS3934/BGS3934.github.io/2efb99e0ba4d22a65489c21d01651447be433ef5/Assets/Furniture/Shelf%20Large.glb`,\n"+
+    "  cassetteShelfSmall:`https://raw.githubusercontent.com/BGS3934/BGS3934.github.io/2efb99e0ba4d22a65489c21d01651447be433ef5/Assets/Furniture/Shelf%20Small.glb`,\n"+
+    "  cassetteTableRound:`https://raw.githubusercontent.com/BGS3934/BGS3934.github.io/2efb99e0ba4d22a65489c21d01651447be433ef5/Assets/Furniture/Table%20Round%20Small.glb`,\n"+
+    "  cassetteStool:`https://raw.githubusercontent.com/BGS3934/BGS3934.github.io/2efb99e0ba4d22a65489c21d01651447be433ef5/Assets/Furniture/Stool.glb`\n};"
+  );
+
+  replaceOnce('Quaternius attribution title','QUATERNIUS — shelf-shape reference','QUATERNIUS — Furniture Pack retail fixtures');
+  replaceOnce(
+    'Quaternius attribution use',
+    'Used as an additional verified-CC0 furniture reference for Pinewood retail-fixture proportions.',
+    'Used directly in Cassette Castle for empty display shelves, listening tables and stools; every visible fixture is an imported CC0 model rather than a procedural stand-in.'
+  );
+  replaceOnce(
+    'Poly Haven cassette attribution use',
+    "Used for Cassette Castle listening-station hardware and, when available, the model's separate cassette/tape component for shelf stock.",
+    "Used for Cassette Castle listening-station hardware and the model's separate cassette/tape component for real shelf stock. If the tape component cannot be extracted, that stock is skipped rather than procedurally generated."
+  );
+  replaceOnce(
+    'Kenney furniture attribution cassette extension',
+    'Used for food-court tables/chairs, Cassette Castle listening tables, the portable-radio decoy, and full-height hiding cabinets, normalized to human-scale dimensions at runtime.',
+    'Used for food-court tables/chairs, the portable-radio decoy, full-height hiding cabinets, and Cassette Castle empty open bookcases, normalized to human-scale dimensions at runtime.'
+  );
+
+  replaceRange(
+    'remove legacy procedural cassette helpers',
+    'function fallbackCassette(seed=0){',
+    '\nasync function buildArcade(world){',
+`async function placeCassetteCc0(parent,name,pos,{scale=1,rot=0,collide=true,navBlock=true,targetHeight=null,targetLongest=null,ground=true,pad=.055}={}){
+  const m=await assets.model(name);
+  if(!m){console.warn('Cassette Castle skipped missing CC0 model: '+name);return null;}
+  m.rotation.y=rot;m.scale.setScalar(scale);m.position.set(0,0,0);
+  const groundOffset=normalizeModelToMeters(m,{targetHeight,targetLongest});
+  m.position.set(pos.x,ground?pos.y+groundOffset:pos.y,pos.z);parent.add(m);m.updateWorldMatrix(true,true);
+  if(collide)GAME.world.addColliderFrom(m,{navBlock,pad});
+  return m;
+}
+function addRealCassetteClone(parent,template,x,y,z,ry=0,rz=0,scale=1){
+  const t=template.clone(true);t.position.set(x,y,z);t.rotation.y=ry;t.rotation.z=rz;t.scale.multiplyScalar(scale);parent.add(t);return t;
+}
+async function stockRealCassetteFixture(world,x,z,rot,{rows=4,cols=9,width=.84,y0=.34,yStep=.38,frontZ=.19}={}){
+  const template=await getCassetteTapeTemplate();
+  if(!template){console.warn('Cassette Castle real tape component unavailable; leaving imported shelves honestly empty.');return null;}
+  const stock=new THREE.Group();stock.position.set(x,0,z);stock.rotation.y=rot;stock.userData.assetModel='poly-haven-cassette-tape-stock';world.root.add(stock);
+  let index=0;
+  for(let row=0;row<rows;row++)for(let col=0;col<cols;col++){
+    if((row===1&&col===2)||(row===2&&col===7)||(row===3&&col===4))continue;
+    const px=-width/2+(cols===1?width/2:col*(width/(cols-1)));
+    addRealCassetteClone(stock,template,px,y0+row*yStep,frontZ,rand(-.035,.035),rand(-.025,.025),.96+((index++%3)*.02));
+  }
+  return stock;
+}
+async function addCassetteWallFixture(world,x,z,rot=0){
+  const shelf=await placeCassetteCc0(world.root,'cassetteShelfWall',new THREE.Vector3(x,0,z),{targetHeight:1.92,rot,collide:true,pad:.045});
+  if(shelf)await stockRealCassetteFixture(world,x,z,rot,{rows:4,cols:9,width:.88,y0:.32,yStep:.39,frontZ:.20});
+  return shelf;
+}
+async function addCassetteDisplayFixture(world,x,z,rot=0,small=false){
+  const name=small?'cassetteShelfSmall':'cassetteShelfLarge';
+  const shelf=await placeCassetteCc0(world.root,name,new THREE.Vector3(x,0,z),{targetHeight:small?.82:1.02,targetLongest:small?1.12:1.62,rot,collide:true,pad:.045});
+  if(shelf)await stockRealCassetteFixture(world,x,z,rot,{rows:small?2:3,cols:small?7:11,width:small?.66:1.20,y0:small?.27:.28,yStep:small?.30:.30,frontZ:small?.16:.20});
+  return shelf;
+}
+async function dressCassetteListeningTable(world,x,z,rot=0,index=0){
+  const table=await placeCassetteCc0(world.root,'cassetteTableRound',new THREE.Vector3(x,0,z),{targetHeight:.73,targetLongest:.82,rot,collide:true,pad:.035});
+  if(!table)return null;
+  await placeCassetteCc0(world.root,'cassettePlayer',new THREE.Vector3(x,.74,z),{targetHeight:.22,targetLongest:.31,rot:rot-Math.PI/2,collide:false,pad:0});
+  await placeCassetteCc0(world.root,'cassetteStool',new THREE.Vector3(x-1.04,0,z),{targetHeight:.58,targetLongest:.58,rot:Math.PI/2,collide:true,pad:.025});
+  const tape=await getCassetteTapeTemplate();
+  if(tape){
+    const display=new THREE.Group();display.userData.assetModel='poly-haven-listening-tape';world.root.add(display);
+    addRealCassetteClone(display,tape,x+.28,.76,z+.08,rot+.15,0,1);
+  }
+  return table;
+}
+async function buildArcade(world){`
+  );
+
+  replaceRange(
+    'Cassette Castle full rebuild',
+    'async function buildMusic(world){',
+    '\n\nfunction makeShutter(',
+`async function buildMusic(world){
+  addStorefront(world,{name:'CASSETTE CASTLE',theme:'music',x:18,z:19.48,face:'north'});
+  addWallPoster(world,makePoster('NEW WAVE','THIS WEEK','#355d92'),new THREE.Vector3(10.56,1.55,25),Math.PI/2);
+  addWallPoster(world,makePoster('LISTEN','BEFORE YOU BUY','#6d4c93'),new THREE.Vector3(27.44,1.55,25),-Math.PI/2);
+  addWallPoster(world,makePoster('TOP 40','PINEWOOD','#8b5639'),new THREE.Vector3(18,1.55,31.44),Math.PI);
+
+  // Full-height imported empty browsing walls. The entry sightline and central aisle stay open.
+  for(const [x,z,r] of [
+    [11.42,22.15,Math.PI/2],[11.42,24.85,Math.PI/2],[11.42,27.45,Math.PI/2],
+    [15.15,30.47,Math.PI],[18.15,30.47,Math.PI],[21.15,30.47,Math.PI]
+  ])await addCassetteWallFixture(world,x,z,r);
+
+  // Imported empty display fixtures, individually stocked with the real Poly Haven tape component.
+  for(const [x,z,r,small] of [
+    [14.75,23.55,0,false],[20.45,23.55,0,false],
+    [14.75,26.85,0,false],[20.45,26.85,0,false],
+    [17.60,28.55,Math.PI,true]
+  ])await addCassetteDisplayFixture(world,x,z,r,small);
+
+  // Three proper listening stations: actual tables, players and stools. No glowing procedural rings.
+  for(const [z,i] of [[22.25,0],[25.25,1],[28.25,2]])await dressCassetteListeningTable(world,25.35,z,0,i);
+
+  // The checkout is also CC0-only: missing models are skipped, never replaced with boxes.
+  await placeCassetteCc0(world.root,'counterDesk',new THREE.Vector3(12.9,0,29.65),{targetHeight:1.0,targetLongest:2.35,rot:Math.PI,collide:true,pad:.045});
+  await placeCassetteCc0(world.root,'arcadeCash',new THREE.Vector3(13.45,1.01,29.48),{targetHeight:.28,targetLongest:.42,rot:0,collide:false,pad:0});
+
+  // Keep the physical CC0 hide cabinet, moved into the back-right corner away from the listening aisle.
+  const cab=makeCabinet(new THREE.Vector3(25.85,0,30.25),Math.PI);world.root.add(cab);world.addCollider(25.85,30.25,.82,.46,{navBlock:true,owner:cab});world.interactables.push(cab);
+}`
+  );
+
+  const musicStart=source.indexOf('async function buildMusic(world){');
+  const musicEnd=source.indexOf('\n\nfunction makeShutter(',musicStart);
+  if(musicStart<0||musicEnd<0)fail('final Cassette Castle section missing');
+  const music=source.slice(musicStart,musicEnd);
+  for(const retired of ["'marketShelfEnd'","fallbackCassette","new THREE.TorusGeometry","fallback:'shelf'","fallback:'table'","fallback:'box'"]){
+    if(music.includes(retired))fail('retired Cassette Castle content survived: '+retired);
+  }
+  for(const required of ["'cassetteShelfWall'","'cassetteShelfLarge'","'cassetteShelfSmall'","'cassetteTableRound'","'cassetteStool'","'cassettePlayer'","addCassetteWallFixture","addCassetteDisplayFixture","dressCassetteListeningTable"]){
+    if(!source.includes(required))fail('Cassette Castle CC0 marker missing: '+required);
+  }
+  if(source.includes('function fallbackCassette(')||source.includes('async function addCassetteStockShelf('))fail('legacy procedural cassette helper survived');
+  return source;
+}
