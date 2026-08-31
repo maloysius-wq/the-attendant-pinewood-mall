@@ -1,0 +1,193 @@
+function applyRetailGeometryV16(source){
+  const fail=msg=>{throw new Error('Retail Geometry v16 patch failed: '+msg);};
+  const replaceOnce=(label,needle,replacement)=>{
+    const first=source.indexOf(needle);
+    if(first<0)fail(label+': marker missing');
+    if(source.indexOf(needle,first+needle.length)>=0)fail(label+': marker is not unique');
+    source=source.slice(0,first)+replacement+source.slice(first+needle.length);
+  };
+  const replaceRange=(label,startMarker,endMarker,replacement)=>{
+    const start=source.indexOf(startMarker);
+    if(start<0)fail(label+': start marker missing');
+    const end=source.indexOf(endMarker,start+startMarker.length);
+    if(end<0)fail(label+': end marker missing');
+    source=source.slice(0,start)+replacement+source.slice(end);
+  };
+
+  // Cassette merchandise now reads as dense rows of upright cassette cases with visible spines.
+  // The cases are original Pinewood geometry, not a missing-asset fallback, and are placed only on
+  // measured shelf support levels. Loose Poly Haven tape components remain limited to the listening bar.
+  replaceRange(
+    'cassette case shelf stock',
+    'async function stockCassetteFixture(world,fixture,rot,{rows=4,cols=9,density=.82}={}){',
+    '\nasync function addCassetteFullRack(',
+`function blackenCassetteFixtureV16(obj){
+  obj.traverse(o=>{if(!o.isMesh)return;const mats=Array.isArray(o.material)?o.material:[o.material];for(const mat0 of mats){if(!mat0)continue;const m=mat0;if(m.color)m.color.setHex(0x090b0e);if(m.emissive)m.emissive.setHex(0x000000);if('roughness'in m)m.roughness=.82;if('metalness'in m)m.metalness=Math.min(.10,m.metalness??.05);m.needsUpdate=true;}});
+  obj.userData.cassetteFinish='matte-black-v16';return obj;
+}
+function cassetteCasePaletteV16(i,row){
+  const colors=[0xc44b55,0xd58c39,0xd1b94f,0x4e8c75,0x497aa4,0x725d9e,0xa65e86,0x7b858d,0xb15b3f,0x668a4f];
+  return new THREE.Color(colors[(i+row*7)%colors.length]);
+}
+async function stockCassetteFixture(world,fixture,rot,{rows=4,cols=9,density=.94}={}){
+  const box=cassetteWorldBox(fixture),size=box.getSize(new THREE.Vector3()),center=box.getCenter(new THREE.Vector3());
+  const quarter=Math.abs(Math.sin(rot))>.5,longSpan=quarter?size.z:size.x,depthSpan=quarter?size.x:size.z;
+  const longVec=new THREE.Vector3(Math.cos(rot),0,-Math.sin(rot)),frontVec=new THREE.Vector3(Math.sin(rot),0,Math.cos(rot));
+  const levels=cassetteShelfLevels(fixture,rows),caseStep=.031,usable=Math.max(.30,longSpan*.73),actualCols=Math.max(cols*2,Math.min(48,Math.floor(usable/caseStep)));
+  const count=levels.length*actualCols,bodyGeo=new THREE.BoxGeometry(.024,.168,.108),spineGeo=new THREE.BoxGeometry(.026,.132,.006);
+  const bodyMat=new THREE.MeshStandardMaterial({color:0x5b6066,roughness:.52,metalness:.015});
+  const spineMat=new THREE.MeshStandardMaterial({color:0xffffff,roughness:.70,metalness:.005});
+  const bodies=new THREE.InstancedMesh(bodyGeo,bodyMat,count),spines=new THREE.InstancedMesh(spineGeo,spineMat,count),dummy=new THREE.Object3D();
+  bodies.castShadow=bodies.receiveShadow=true;spines.castShadow=spines.receiveShadow=true;
+  bodies.userData.assetModel='cassette-case-stock-v16';spines.userData.assetModel='cassette-case-spines-v16';
+  let used=0;
+  for(let row=0;row<levels.length;row++)for(let col=0;col<actualCols;col++){
+    const gate=((row*actualCols+col)*37+17)%100;if(gate>density*100)continue;
+    const along=actualCols===1?0:(-usable*.5+caseStep*.5+col*(usable-caseStep)/Math.max(1,actualCols-1));
+    const shelfDepth=depthSpan*.20,px=center.x+longVec.x*along+frontVec.x*shelfDepth,pz=center.z+longVec.z*along+frontVec.z*shelfDepth;
+    const lean=((col+row*3)%17===0?-.035:(col+row)%19===0?.028:0),y=levels[row]+.010+.084;
+    dummy.position.set(px,y,pz);dummy.rotation.set(0,rot,lean);dummy.scale.set(1,1,1);dummy.updateMatrix();bodies.setMatrixAt(used,dummy.matrix);
+    dummy.position.set(px+frontVec.x*.057,y,pz+frontVec.z*.057);dummy.rotation.set(0,rot,lean);dummy.updateMatrix();spines.setMatrixAt(used,dummy.matrix);spines.setColorAt(used,cassetteCasePaletteV16(col,row));used++;
+  }
+  bodies.count=used;spines.count=used;bodies.instanceMatrix.needsUpdate=true;spines.instanceMatrix.needsUpdate=true;if(spines.instanceColor)spines.instanceColor.needsUpdate=true;
+  const stock=new THREE.Group();stock.userData.cassetteFixture='organized-case-stock-v16';stock.userData.caseCount=used;stock.add(bodies,spines);world.root.add(stock);return stock;
+}`
+  );
+
+  replaceRange(
+    'black full cassette racks',
+    'async function addCassetteFullRack(',
+    '\nasync function addCassetteDoubleRackBay(',
+`async function addCassetteFullRack(world,x,z,rot=0,{height=2.08,rows=4,cols=9,tag='wall-rack'}={}){
+  const placed=await placeCassetteGrounded(world.root,'cassetteShelfWall',new THREE.Vector3(x,0,z),{targetHeight:height,rot,collide:true,pad:.035,tag});
+  if(placed){blackenCassetteFixtureV16(placed.obj);await stockCassetteFixture(world,placed.obj,rot,{rows,cols,density:.96});}return placed;
+}`
+  );
+
+  replaceRange(
+    'remove half-height Cassette Castle wall overlays',
+    'function addCassetteStoreFinishV14(world){',
+    '\nasync function addCassetteLowFixtureV14(',
+`function addCassetteStoreFinishV14(world){
+  const finish=new THREE.Group();finish.userData.cassetteFixture='store-finish-v16';finish.userData.visualOnly=true;finish.userData.wallOverlayRemoved=true;world.root.add(finish);
+  const floorMat=new THREE.MeshStandardMaterial({color:0x151a1e,roughness:.95,metalness:.01});
+  const accentMat=new THREE.MeshStandardMaterial({color:0x302820,roughness:.90,metalness:.02});
+  const floor=new THREE.Mesh(new THREE.PlaneGeometry(16.55,11.45),floorMat);floor.rotation.x=-Math.PI/2;floor.position.set(19,.018,25.60);floor.receiveShadow=true;finish.add(floor);
+  for(const [x,z,w,d] of [[19,20.08,15.95,.08],[19,31.12,15.95,.08],[10.94,25.60,.08,10.95],[27.06,25.60,.08,10.95]]){
+    const strip=new THREE.Mesh(new THREE.BoxGeometry(w,.022,d),accentMat);strip.position.set(x,.030,z);strip.receiveShadow=true;finish.add(strip);
+  }
+  // No half-wall panels and no mid-height rails. Existing authored walls and posters stay fully visible.
+  for(const [x,z,intensity] of [[15.25,24.15,4.8],[21.45,26.55,4.5],[18.35,29.25,3.4]]){
+    const light=new THREE.PointLight(0xffb36b,intensity,6.2,2);light.position.set(x,2.55,z);finish.add(light);
+  }
+  return finish;
+}
+async function addCassetteLowFixtureV14(world,x,z,rot=0){
+  const placed=await placeCassetteGrounded(world.root,'cassetteShelfLow',new THREE.Vector3(x,0,z),{targetHeight:1.08,rot,collide:true,pad:.035,tag:'low-merch-fixture-v16'});
+  if(placed){blackenCassetteFixtureV16(placed.obj);await stockCassetteFixture(world,placed.obj,rot,{rows:3,cols:8,density:.96});}
+  return placed;
+}`
+  );
+
+  // Use the exact long black food-court service-counter language for every retail checkout.
+  replaceOnce(
+    'shared retail checkout helper',
+    '\nasync function buildArcade(world){',
+`\nasync function makeSharedRetailCheckoutV16(world,x,z,rot=0,registerName='arcadeCash',registerRot=Math.PI){
+  const g=new THREE.Group();g.position.set(x,0,z);g.rotation.y=rot;g.userData.sharedCheckoutCounter='food-court-counter-v16';world.root.add(g);
+  const counterBody=new THREE.MeshStandardMaterial({color:0x0d0f10,roughness:.76,metalness:.07});
+  const counterTop=new THREE.MeshStandardMaterial({color:0x24272a,roughness:.40,metalness:.23});
+  const kickMat=new THREE.MeshStandardMaterial({color:0x030404,roughness:.92,metalness:.02});
+  const steelMat=new THREE.MeshStandardMaterial({color:0x74787a,roughness:.31,metalness:.72});
+  addBox(g,new THREE.Vector3(0,.50,0),new THREE.Vector3(4.05,1.00,.78),counterBody);
+  addBox(g,new THREE.Vector3(0,1.02,-.015),new THREE.Vector3(4.18,.08,.88),counterTop);
+  addBox(g,new THREE.Vector3(0,.18,-.405),new THREE.Vector3(3.72,.28,.035),kickMat);
+  addBox(g,new THREE.Vector3(0,.90,-.418),new THREE.Vector3(3.78,.04,.025),steelMat);
+  world.addColliderFrom(g,{navBlock:true,pad:.05});
+  await placeModel(g,registerName,new THREE.Vector3(-.55,1.08,-.12),{targetHeight:.28,targetLongest:.42,rot:registerRot,collide:false,fallback:'box'});
+  return g;
+}
+async function buildArcade(world){`
+  );
+
+  replaceOnce(
+    'Sunburst Arcade checkout standardization',
+    "  await placeModel(world.root,'counterDesk',new THREE.Vector3(-14.1,0,-29),{targetHeight:1.0,targetLongest:2.45,rot:0,collide:true,fallback:'table'});\n  await placeModel(world.root,'arcadeCash',new THREE.Vector3(-14.7,1.01,-28.9),{targetHeight:.28,targetLongest:.42,rot:Math.PI,collide:false,fallback:'box'});",
+    "  await makeSharedRetailCheckoutV16(world,-14.1,-29,0,'arcadeCash',Math.PI);"
+  );
+  replaceOnce(
+    'Video Planet checkout standardization',
+    "  await placeModel(world.root,'counterDesk',new THREE.Vector3(12.3,0,-20.7),{targetHeight:1.0,targetLongest:2.45,rot:-.08,collide:true,fallback:'table'});\n  await placeModel(world.root,'marketCash',new THREE.Vector3(12.0,1.01,-20.55),{targetHeight:.28,targetLongest:.42,rot:Math.PI,collide:false,fallback:'box'});",
+    "  await makeSharedRetailCheckoutV16(world,12.3,-20.7,-.08,'marketCash',Math.PI);"
+  );
+  replaceRange(
+    'Cassette Castle checkout standardization',
+    'async function buildCassetteCheckoutV14(world){',
+    '\n\nasync function buildArcade(world){',
+`async function buildCassetteCheckoutV14(world){
+  return await makeSharedRetailCheckoutV16(world,13.40,28.72,0,'arcadeCash',Math.PI/2);
+}
+\nasync function buildArcade(world){`
+  );
+
+  // Freight elevator: align both leaves to the same facade center, close without a seam,
+  // and extend the visible leaves/cab shell to the full opening height.
+  replaceOnce(
+    'elevator centered leaf groups',
+    "  left.position.set(.06,0,closedL);right.position.set(.06,0,closedR);g.add(left,right);",
+    "  left.position.set(0,0,closedL);right.position.set(0,0,closedR);g.add(left,right);"
+  );
+  replaceOnce(
+    'elevator full-height frame',
+    "  attachElevatorPiece(g,'elevatorFrame',new THREE.Vector3(.22,2.82,2.58),new THREE.Vector3(-.02,1.41,0),new THREE.Euler(0,Math.PI/2,0));",
+    "  attachElevatorPiece(g,'elevatorFrame',new THREE.Vector3(.22,2.84,2.64),new THREE.Vector3(-.02,1.42,0),new THREE.Euler(0,Math.PI/2,0));"
+  );
+  replaceOnce(
+    'elevator left door full height',
+    "  attachElevatorPiece(left,'elevatorDoorHalf',new THREE.Vector3(.09,2.38,.88),new THREE.Vector3(0,1.27,0),new THREE.Euler(0,Math.PI/2,0));",
+    "  attachElevatorPiece(left,'elevatorDoorHalf',new THREE.Vector3(.09,2.80,.92),new THREE.Vector3(0,1.40,0),new THREE.Euler(0,Math.PI/2,0));"
+  );
+  replaceOnce(
+    'elevator right door full height',
+    "  attachElevatorPiece(right,'elevatorDoorHalf',new THREE.Vector3(.09,2.38,.88),new THREE.Vector3(0,1.27,0),new THREE.Euler(0,Math.PI/2,0));",
+    "  attachElevatorPiece(right,'elevatorDoorHalf',new THREE.Vector3(.09,2.80,.92),new THREE.Vector3(0,1.40,0),new THREE.Euler(0,Math.PI/2,0));"
+  );
+  replaceOnce(
+    'elevator cab ceiling height',
+    "  attachElevatorPiece(cab,'elevatorFloor',new THREE.Vector3(2.10,.085,1.88),new THREE.Vector3(1.12,2.49,0));",
+    "  attachElevatorPiece(cab,'elevatorFloor',new THREE.Vector3(2.10,.085,1.88),new THREE.Vector3(1.12,2.80,0));"
+  );
+  replaceOnce(
+    'elevator back wall height',
+    "  attachElevatorPiece(cab,'elevatorWall',new THREE.Vector3(.10,2.42,1.88),new THREE.Vector3(2.17,1.25,0),new THREE.Euler(0,Math.PI/2,0));",
+    "  attachElevatorPiece(cab,'elevatorWall',new THREE.Vector3(.10,2.76,1.88),new THREE.Vector3(2.17,1.38,0),new THREE.Euler(0,Math.PI/2,0));"
+  );
+  replaceOnce(
+    'elevator side wall one height',
+    "  attachElevatorPiece(cab,'elevatorWall',new THREE.Vector3(2.12,2.42,.10),new THREE.Vector3(1.13,1.25,-.99));",
+    "  attachElevatorPiece(cab,'elevatorWall',new THREE.Vector3(2.12,2.76,.10),new THREE.Vector3(1.13,1.38,-.99));"
+  );
+  replaceOnce(
+    'elevator side wall two height',
+    "  attachElevatorPiece(cab,'elevatorWall',new THREE.Vector3(2.12,2.42,.10),new THREE.Vector3(1.13,1.25,.99),new THREE.Euler(0,Math.PI,0));",
+    "  attachElevatorPiece(cab,'elevatorWall',new THREE.Vector3(2.12,2.76,.10),new THREE.Vector3(1.13,1.38,.99),new THREE.Euler(0,Math.PI,0));"
+  );
+
+  // Give the existing deterministic harness one direct elevator framing check as well.
+  replaceOnce(
+    'elevator visual regression view',
+    "      'cassette-listening':{p:[22.25,1.70,25.20],yaw:-Math.PI/2,pitch:-.035}",
+    "      'cassette-listening':{p:[22.25,1.70,25.20],yaw:-Math.PI/2,pitch:-.035},\n      'elevator-front':{p:[23.55,1.70,0],yaw:-Math.PI/2,pitch:-.02}"
+  );
+
+  for(const marker of [
+    'cassette-case-stock-v16','organized-case-stock-v16','matte-black-v16','wallOverlayRemoved=true',
+    "sharedCheckoutCounter='food-court-counter-v16'","makeSharedRetailCheckoutV16(world,-14.1,-29","makeSharedRetailCheckoutV16(world,12.3,-20.7",
+    "makeSharedRetailCheckoutV16(world,13.40,28.72","new THREE.Vector3(.09,2.80,.92)","'elevator-front'"
+  ])if(!source.includes(marker))fail('required v16 marker missing: '+marker);
+  for(const forbidden of [
+    "const wallMat=new THREE.MeshStandardMaterial({color:0x15243a","panel(10.75,1.18","rail(16.3,19,1.34",
+    "placeCassetteGrounded(world.root,'cassetteServiceCounter',new THREE.Vector3(12.05,0,28.72)"
+  ])if(source.includes(forbidden))fail('retired visual/checkout marker survived: '+forbidden);
+  return source;
+}
