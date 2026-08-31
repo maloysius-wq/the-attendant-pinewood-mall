@@ -1,0 +1,70 @@
+function applyLocalAssetsV15(source,manifest){
+  const fail=msg=>{throw new Error('Local Assets v15 patch failed: '+msg);};
+  const assets=manifest?.assets;
+  if(!assets||typeof assets!=='object'||!Object.keys(assets).length)fail('vendored asset manifest missing or empty');
+  const MEDIA_EXT_RE=/\.(?:glb|gltf|bin|png|jpe?g|webp|ogg|mp3|wav)(?:[?#].*)?$/i;
+
+  const constants={};
+  for(const m of source.matchAll(/const\s+([A-Z][A-Z0-9_]*)\s*=\s*(['"])(https:\/\/[^'"]+)\2\s*;/g))constants[m[1]]=m[3];
+
+  // Resolve template-literal asset URLs such as `${RAW_RETRO}/...` and `${PH}/...`
+  // into their exact vendored repository paths. This removes the old runtime dependence
+  // on GitHub Raw and Poly Haven while preserving the earlier patches as history.
+  source=source.replace(/`([^`]+)`/g,(whole,body)=>{
+    let resolved=body,changed=false,valid=true;
+    resolved=resolved.replace(/\$\{([A-Z][A-Z0-9_]*)\}/g,(token,name)=>{
+      if(!constants[name]){valid=false;return token;}
+      changed=true;return constants[name];
+    });
+    if(valid&&changed&&resolved.startsWith('https://')&&MEDIA_EXT_RE.test(resolved)){
+      const entry=assets[resolved];
+      if(!entry?.local)fail('manifest entry missing for template asset '+resolved);
+      return JSON.stringify(entry.local);
+    }
+    return whole;
+  });
+
+  // Direct media URLs introduced by authored patches (models, music, etc.).
+  for(const [remote,entry] of Object.entries(assets)){
+    if(!entry?.local)fail('manifest local path missing for '+remote);
+    if(source.includes(remote))source=source.split(remote).join(entry.local);
+  }
+
+  // Fountain PBR URLs were historically assembled dynamically from assetId, so rewrite
+  // that helper to an explicit local map rather than retain a remote base URL.
+  const phBase='https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k';
+  const pbr={};
+  for(const id of ['marble_tiles','grey_tiles']){
+    pbr[id]={};
+    for(const [key,suffix] of [['diff','diff'],['normal','nor_gl'],['rough','rough']]){
+      const remote=`${phBase}/${id}/${id}_${suffix}_1k.jpg`;
+      const local=assets[remote]?.local;
+      if(!local)fail('fountain PBR manifest entry missing: '+remote);
+      pbr[id][key]=local;
+    }
+  }
+  const fountainStart=source.indexOf('async function makeFountainPBR(assetId,fallback,repeat=2){');
+  const fountainEnd=source.indexOf('\nfunction addFountainCylinder(',fountainStart);
+  if(fountainStart<0||fountainEnd<0)fail('fountain PBR helper markers missing');
+  const localFountain=`const FOUNTAIN_LOCAL_PBR=${JSON.stringify(pbr)};\nasync function makeFountainPBR(assetId,fallback,repeat=2){\n  const mat=new THREE.MeshStandardMaterial({color:fallback,roughness:.82,metalness:.02});\n  const set=FOUNTAIN_LOCAL_PBR[assetId];\n  try{\n    if(!set)throw new Error('local fountain texture set missing: '+assetId);\n    const [d,n,r]=await withTimeout(Promise.all([assets.tex.loadAsync(set.diff),assets.tex.loadAsync(set.normal),assets.tex.loadAsync(set.rough)]),7000,'fountain '+assetId+' textures');\n    for(const t of[d,n,r]){t.wrapS=t.wrapT=THREE.RepeatWrapping;t.repeat.set(repeat,repeat);t.anisotropy=8;}\n    d.colorSpace=THREE.SRGBColorSpace;mat.map=d;mat.normalMap=n;mat.roughnessMap=r;mat.color.setHex(0xffffff);mat.needsUpdate=true;\n  }catch(err){assets.failures.push('fountain '+assetId+' texture: '+(err?.message||err));}\n  return mat;\n}`;
+  source=source.slice(0,fountainStart)+localFountain+source.slice(fountainEnd);
+
+  // Remote base constants are no longer runtime sources. Keep provenance in LICENSES.md,
+  // not as executable asset bases in the shipped browser module.
+  source=source
+    .replace(/const RAW_RETRO='https:\/\/[^']+';/,"const RAW_RETRO='./assets/vendor/runtime';")
+    .replace(/const RAW_CLT='https:\/\/[^']+';/,"const RAW_CLT='./assets/vendor/runtime';")
+    .replace(/const RAW_VHS='https:\/\/[^']+';/,"const RAW_VHS='./assets/vendor/runtime';")
+    .replace(/const RAW_QUAT='https:\/\/[^']+';/,"const RAW_QUAT='./assets/vendor/runtime';")
+    .replace(/const PH='https:\/\/[^']+';/,"const PH='./assets/vendor/runtime';")
+    .replace(/const FOUNTAIN_PH_BASE='https:\/\/[^']+';/,"const FOUNTAIN_PH_BASE='./assets/vendor/runtime';")
+    .replace('remote asset(s) using built-in fallback','local asset(s) using built-in fallback');
+
+  // Fail closed if any complete third-party media URL survived the final assembled runtime.
+  const surviving=(source.match(/https:\/\/[^'"`\\s)]+/g)||[]).filter(u=>MEDIA_EXT_RE.test(u));
+  if(surviving.length)fail('remote runtime media URL survived: '+[...new Set(surviving)].join(', '));
+  if(source.includes("FOUNTAIN_PH_BASE+'/'+assetId"))fail('dynamic remote fountain texture construction survived');
+  if(!source.includes('FOUNTAIN_LOCAL_PBR='))fail('local fountain PBR map missing');
+  if(!source.includes('./assets/vendor/runtime/'))fail('no local vendored runtime paths were applied');
+  return source;
+}
