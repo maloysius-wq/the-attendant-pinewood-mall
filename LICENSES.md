@@ -49,6 +49,13 @@ All third-party visual and audio assets used by this build were selected because
 - Runtime file: `wall-doorway-wide.glb` from `assets/kenney_prototype-kit/Models/GLB format/`.
 - Used as the recessed architectural surround for the freight elevator. The physical moving-door state machine and walk-in progression remain game-authored, while all visible elevator architecture is now assembled from CC0 modular GLBs.
 
+## Kenney — Starter Kit City Builder
+- Source repository: https://github.com/KenneyNL/Starter-Kit-City-Builder
+- Asset license: CC0 1.0. The repository README explicitly states that its included sprites, 3D models, and sound effects are CC0 licensed; the starter-kit code itself is MIT.
+- Pinned runtime commit: `4535092b740b378b700efd9df9e27a631815b84a`
+- Runtime file: `models/pavement-fountain.glb` (source blob `07bdcd359c5e30171bce764979b80e486d375ebd`).
+- Used for the imported center sculpture/nozzle form of Pinewood Mall's Chapter 1 central fountain. The surrounding basin is authored to Pinewood's exact existing footprint rather than scaling the entire source model to become the fountain boundary.
+
 ## Kenney — Mini Market
 - Original source: https://kenney.nl/assets/mini-market
 - License: CC0 1.0
@@ -68,6 +75,10 @@ Poly Haven assets are released under CC0.
 - Dirty Carpet: https://polyhaven.com/a/dirty_carpet
 - Floor Tiles 06: https://polyhaven.com/a/floor_tiles_06
 - Concrete Wall 001: https://polyhaven.com/a/concrete_wall_001
+- Marble Tiles: https://polyhaven.com/a/marble_tiles
+  - Used for the worn stone coping, rim, and imported center treatment of the Chapter 1 central fountain.
+- Grey Tiles: https://polyhaven.com/a/grey_tiles
+  - Used for the recessed dry basin floor and inner basin surfaces of the Chapter 1 central fountain.
 - Cassette Player: https://polyhaven.com/a/cassette_player
   - Runtime GLTF: `https://dl.polyhaven.org/file/ph-assets/Models/gltf/2k/cassette_player/cassette_player_2k.gltf`
   - Used at Cassette Castle listening stations. The runtime also attempts to extract the model's separately named tape/cassette component for shelf stock; if unavailable, game-authored low-poly cassette geometry is used as a fallback.
