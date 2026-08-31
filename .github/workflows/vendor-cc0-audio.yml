@@ -1,0 +1,100 @@
+name: Vendor normalized CC0 audio
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/vendor-cc0-audio.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  vendor-audio:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Fetch and loudness-normalize CC0 recordings
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p assets/audio/cc0 .audio-src
+          TARGET='loudnorm=I=-20:TP=-2:LRA=7'
+          TAILGATE='https://raw.githubusercontent.com/Sonofg0tham/tailgate/99de980908146410f5bb3b0efcd6711e22b253b9/public/assets/audio'
+
+          normalize() {
+            local url="$1" out="$2" tmp=".audio-src/${out%.*}.source"
+            echo "Fetching $out"
+            curl --retry 3 --retry-delay 2 -fL "$url" -o "$tmp"
+            ffmpeg -y -hide_banner -loglevel error -i "$tmp" -vn -ac 2 -ar 44100 \
+              -af "$TARGET" -c:a libvorbis -q:a 5 "assets/audio/cc0/$out"
+          }
+
+          # Kenney RPG Audio / Interface Sounds. Provenance is documented by the pinned mirror's CREDITS.md.
+          normalize "$TAILGATE/footstep-tile-1.ogg" footstep-1.ogg
+          normalize "$TAILGATE/footstep-tile-2.ogg" footstep-2.ogg
+          normalize "$TAILGATE/footstep-tile-3.ogg" footstep-3.ogg
+          normalize "$TAILGATE/footstep-tile-4.ogg" footstep-4.ogg
+          normalize "$TAILGATE/breaker-trip.ogg" breaker-switch.ogg
+          normalize "$TAILGATE/door-latch.ogg" door-latch.ogg
+          normalize "$TAILGATE/shutter.ogg" door-shutter.ogg
+          normalize "$TAILGATE/metal-impact-1.ogg" metal-impact-1.ogg
+          normalize "$TAILGATE/metal-impact-2.ogg" metal-impact-2.ogg
+          normalize "$TAILGATE/metal-impact-3.ogg" metal-impact-3.ogg
+          normalize "$TAILGATE/badge-accept.ogg" pickup.ogg
+          normalize "$TAILGATE/badge-deny.ogg" error.ogg
+          normalize "$TAILGATE/camera-return.ogg" toggle.ogg
+          normalize "$TAILGATE/plant-complete.ogg" confirmation.ogg
+          normalize "$TAILGATE/bolt-throw.ogg" throw.ogg
+          normalize "$TAILGATE/document-stamp.ogg" paper.ogg
+
+          # OpenGameArt recordings, each verified CC0 on its source page.
+          normalize 'https://opengameart.org/sites/default/files/heartbeat_slow_0.wav' heartbeat-slow.ogg
+          normalize 'https://opengameart.org/sites/default/files/heartbeat_fast_0.wav' heartbeat-fast.ogg
+          normalize 'https://opengameart.org/sites/default/files/ghostbreath.flac' ghost-breath.ogg
+          normalize 'https://opengameart.org/sites/default/files/ScatterNoise1.mp3' radio-static.ogg
+          normalize 'https://opengameart.org/sites/default/files/qubodup-edev.flac' electrical-roomtone.ogg
+          normalize 'https://opengameart.org/sites/default/files/ambient_horror_0.ogg' horror-ambience.ogg
+          normalize 'https://opengameart.org/sites/default/files/buzz_0.ogg' electric-buzz.ogg
+          normalize 'https://opengameart.org/sites/default/files/bell_ding3.wav' intercom-bell.ogg
+          normalize 'https://opengameart.org/sites/default/files/squishpop.mp3' gore-impact.ogg
+          normalize 'https://opengameart.org/sites/default/files/scream_horror1.mp3' death-scream.ogg
+
+          rm -rf .audio-src
+
+      - name: Record normalization policy
+        shell: bash
+        run: |
+          cat > assets/audio/cc0/README.md <<'EOF'
+          # Pinewood CC0 audio bank
+
+          These are locally vendored, transcoded copies of verified CC0 recordings used by The Attendant: Pinewood Mall.
+
+          Every file in this directory was normalized during vendoring with FFmpeg EBU R128 loudness normalization:
+
+          - integrated target: **-20 LUFS**
+          - true-peak ceiling: **-2 dBTP**
+          - loudness-range target: **7 LU**
+          - output: stereo, 44.1 kHz, Vorbis OGG
+
+          Runtime mix gains still make quiet events quiet and dangerous events loud; those gains are creative mix decisions rather than compensation for inconsistent source-file loudness.
+
+          Full source provenance and licenses are recorded in the repository root `LICENSES.md`.
+          EOF
+
+      - name: Commit normalized audio bank
+        shell: bash
+        run: |
+          git config user.name 'pinewood-audio-vendor'
+          git config user.email 'actions@users.noreply.github.com'
+          git add assets/audio/cc0
+          if git diff --cached --quiet; then
+            echo 'Audio bank already up to date.'
+            exit 0
+          fi
+          git commit -m 'Vendor normalized CC0 sound bank'
+          git push
