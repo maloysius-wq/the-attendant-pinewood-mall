@@ -1,0 +1,216 @@
+function applyAudioImmersionV6(source){
+  const fail=msg=>{throw new Error(`Audio Immersion v6 patch failed: ${msg}`);};
+  const replaceOnce=(label,needle,replacement)=>{
+    const first=source.indexOf(needle);
+    if(first<0)fail(`${label}: marker missing`);
+    if(source.indexOf(needle,first+needle.length)>=0)fail(`${label}: marker is not unique`);
+    source=source.slice(0,first)+replacement+source.slice(first+needle.length);
+  };
+  const replaceRange=(label,startMarker,endMarker,replacement)=>{
+    const start=source.indexOf(startMarker);
+    if(start<0)fail(`${label}: start marker missing`);
+    const end=source.indexOf(endMarker,start+startMarker.length);
+    if(end<0)fail(`${label}: end marker missing`);
+    source=source.slice(0,start)+replacement+source.slice(end);
+  };
+
+  replaceOnce(
+    'in-game CC0 SFX attribution',
+    'All Pinewood-specific signage, posters, UI, The Attendant, gore, particle effects and procedural audio are generated/original in this build.',
+`KENNEY — RPG Audio + Interface Sounds
+License: Creative Commons Zero (CC0 1.0)
+Sources: https://kenney.nl/assets/rpg-audio and https://kenney.nl/assets/interface-sounds
+Pinned audit mirror: Sonofg0tham/tailgate commit 99de980908146410f5bb3b0efcd6711e22b253b9
+Used for: footsteps, breaker switch, doors/latches, metal impacts, pickups, toggles, confirmation/error cues, thrown-object handling and paper handling.
+
+OPENGAMEART — CC0 field/foley recordings
+Heartbeat sounds — bart — https://opengameart.org/content/heartbeat-sounds
+Ghost breath — qubodup — https://opengameart.org/content/ghost-breath
+Static — xhunterko — https://opengameart.org/content/static
+Electronic device loop — qubodup — https://opengameart.org/content/electronic-device-loop
+Ambient horror — techiew — https://opengameart.org/content/ambient-horror
+Electric Buzz — themightyglider — https://opengameart.org/content/electric-buzz
+Bell dings/chimes — PWL — https://opengameart.org/content/bell-dingschimes
+Squish Sounds Effects — EZduzziteh — https://opengameart.org/content/squish-sounds-effects
+Horror scream1 — Vinrax — https://opengameart.org/content/horror-scream1
+Used for: heartbeat, breath/whispers, radio static, electrical ambience, proximity ambience, breaker buzz, intercom bell and death/gore layers.
+
+All Pinewood SFX recordings are vendored locally and normalized to -20 LUFS / -2 dBTP before deployment. No oscillator or generated-noise SFX path remains. Pinewood-specific signage, posters, UI, The Attendant, gore visuals and particle effects are original to this build.`
+  );
+
+  replaceRange(
+    'sample-based CC0 audio engine',
+    "const MALL_MUSIC_URL=",
+    '\nconst audio=new AudioSystem();',
+`const MALL_MUSIC_URL='https://opengameart.org/sites/default/files/furniture_shop_loop.ogg';
+const THREAT_MUSIC_URL='https://lpc.opengameart.org/sites/default/files/Insistent.ogg';
+const CC0_AUDIO_BASE=new URL('./assets/audio/cc0/',location.href).href;
+const CC0_SFX={
+  step1:'footstep-1.ogg',step2:'footstep-2.ogg',step3:'footstep-3.ogg',step4:'footstep-4.ogg',
+  breaker:'breaker-switch.ogg',doorLatch:'door-latch.ogg',doorShutter:'door-shutter.ogg',
+  impact1:'metal-impact-1.ogg',impact2:'metal-impact-2.ogg',impact3:'metal-impact-3.ogg',
+  pickup:'pickup.ogg',error:'error.ogg',toggle:'toggle.ogg',confirm:'confirmation.ogg',throw:'throw.ogg',paper:'paper.ogg',
+  heartSlow:'heartbeat-slow.ogg',heartFast:'heartbeat-fast.ogg',breath:'ghost-breath.ogg',radioStatic:'radio-static.ogg',
+  roomtone:'electrical-roomtone.ogg',horror:'horror-ambience.ogg',buzz:'electric-buzz.ogg',bell:'intercom-bell.ogg',
+  gore:'gore-impact.ogg',death:'death-scream.ogg'
+};
+class AudioSystem{
+  constructor(){
+    this.ctx=null;this.master=null;this.amb=null;this.music=null;this.sfx=null;this.voice=null;this.limiter=null;
+    this.paused=true;this.buffers=new Map();this.loads=new Map();this.loops={};this.preloadPromise=null;this.stepIndex=0;this.whisperTimer=0;
+    this.mallTrack=null;this.mallEchoA=null;this.mallEchoB=null;this.threatTrack=null;this.mallVol=0;this.threatVol=0;
+    this.mallRate=.5;this.detuneWait=rand(8,15);this.detuneTime=0;this.detuneDuration=0;this.detuneDepth=0;this.detunePhase=rand(0,TAU);this.detuneSpeed=0;this.echoSyncTimer=0;
+  }
+  setupMusicTracks(){
+    if(this.mallTrack&&this.mallEchoA&&this.mallEchoB&&this.threatTrack)return;
+    const make=(url,warped=false)=>{const a=new Audio(url);a.loop=true;a.preload='auto';a.playsInline=true;a.volume=0;if(warped){if('preservesPitch' in a)a.preservesPitch=false;if('webkitPreservesPitch' in a)a.webkitPreservesPitch=false;if('mozPreservesPitch' in a)a.mozPreservesPitch=false;a.playbackRate=.5;}return a;};
+    this.mallTrack=make(MALL_MUSIC_URL,true);this.mallEchoA=make(MALL_MUSIC_URL,true);this.mallEchoB=make(MALL_MUSIC_URL,true);this.threatTrack=make(THREAT_MUSIC_URL,false);
+  }
+  syncMallEchoes(force=false){
+    const base=this.mallTrack,dur=base?.duration;if(!base||!Number.isFinite(dur)||dur<=0)return;
+    for(const [echo,delay] of [[this.mallEchoA,.14],[this.mallEchoB,.32]]){
+      if(!echo||echo.readyState<1)continue;
+      const target=(base.currentTime-delay+dur)%dur;
+      const wrapped=((echo.currentTime-target+dur*.5)%dur+dur)%dur-dur*.5;
+      if(force||Math.abs(wrapped)>.12){try{echo.currentTime=target;}catch{}}
+    }
+  }
+  startMusicTracks(){
+    if(this.paused)return;this.setupMusicTracks();
+    for(const a of [this.mallTrack,this.mallEchoA,this.mallEchoB,this.threatTrack])if(a?.paused)a.play().catch(err=>{if(!a.userDataWarned){a.userDataWarned=true;console.warn('CC0 music playback will retry after the next user gesture.',err);}});
+  }
+  ensure(){
+    this.setupMusicTracks();if(this.ctx)return;
+    this.ctx=new (window.AudioContext||window.webkitAudioContext)();
+    this.master=this.ctx.createGain();this.amb=this.ctx.createGain();this.music=this.ctx.createGain();this.sfx=this.ctx.createGain();this.voice=this.ctx.createGain();
+    this.limiter=this.ctx.createDynamicsCompressor();this.limiter.threshold.value=-3;this.limiter.knee.value=1;this.limiter.ratio.value=14;this.limiter.attack.value=.003;this.limiter.release.value=.18;
+    for(const g of [this.amb,this.music,this.sfx,this.voice])g.connect(this.master);this.master.connect(this.limiter);this.limiter.connect(this.ctx.destination);
+    this.apply();this.preloadPromise=this.preload();
+  }
+  async load(name){
+    if(this.buffers.has(name))return this.buffers.get(name);if(this.loads.has(name))return this.loads.get(name);
+    const file=CC0_SFX[name];if(!file)return null;
+    const promise=fetch(CC0_AUDIO_BASE+file,{cache:'force-cache'}).then(r=>{if(!r.ok)throw new Error('HTTP '+r.status);return r.arrayBuffer();}).then(b=>this.ctx.decodeAudioData(b)).then(buffer=>{this.buffers.set(name,buffer);this.loads.delete(name);return buffer;}).catch(err=>{this.loads.delete(name);console.warn('CC0 sound failed to load; leaving this cue silent rather than synthesizing a replacement.',name,err);return null;});
+    this.loads.set(name,promise);return promise;
+  }
+  async preload(){
+    await Promise.all(Object.keys(CC0_SFX).map(name=>this.load(name)));this.startAmbientLoops();
+  }
+  async play(name,{gain=1,bus='sfx',rate=1,pan=0,when=0,offset=0,duration=null}={}){
+    if(!this.ctx)return null;const buffer=await this.load(name);if(!buffer||!this.ctx)return null;
+    const src=this.ctx.createBufferSource();src.buffer=buffer;src.playbackRate.value=rate;
+    const g=this.ctx.createGain();g.gain.value=Math.max(0,gain);let tail=g;
+    if(this.ctx.createStereoPanner&&pan){const p=this.ctx.createStereoPanner();p.pan.value=clamp(pan,-1,1);g.connect(p);tail=p;}
+    tail.connect(this[bus]||this.sfx);src.connect(g);
+    const at=this.ctx.currentTime+Math.max(0,when),safeOffset=clamp(offset,0,Math.max(0,buffer.duration-.01));
+    try{if(duration!=null)src.start(at,safeOffset,Math.min(duration,Math.max(.01,buffer.duration-safeOffset)));else src.start(at,safeOffset);}catch(err){console.warn('CC0 sound playback failed',name,err);}
+    return src;
+  }
+  async startLoop(name,key,bus='amb',rate=1){
+    if(this.loops[key]||!this.ctx)return;const buffer=await this.load(name);if(!buffer||this.loops[key]||!this.ctx)return;
+    const src=this.ctx.createBufferSource(),gain=this.ctx.createGain();src.buffer=buffer;src.loop=true;src.playbackRate.value=rate;gain.gain.value=0;src.connect(gain);gain.connect(this[bus]||this.amb);src.start();this.loops[key]={src,gain};
+  }
+  startAmbientLoops(){
+    this.startLoop('roomtone','roomtone','amb');this.startLoop('radioStatic','static','amb');this.startLoop('horror','horror','amb');this.startLoop('heartSlow','heartSlow','amb');this.startLoop('heartFast','heartFast','amb');
+  }
+  setLoop(key,value,rate=null,dt=.016){const l=this.loops[key];if(!l)return;l.gain.gain.value=lerp(l.gain.gain.value,Math.max(0,value),smooth(dt,3));if(rate!=null)l.src.playbackRate.value=lerp(l.src.playbackRate.value,rate,smooth(dt,2));}
+  resume(){this.ensure();this.ctx.resume?.();this.startAmbientLoops();this.startMusicTracks();}
+  apply(){
+    if(this.master){this.master.gain.value=this.paused?0:clamp(SAVE.settings.volume,0,1);this.music.gain.value=clamp(SAVE.settings.music,0,1.25);this.sfx.gain.value=1;this.voice.gain.value=1;this.amb.gain.value=1;}
+    if(this.paused){for(const a of [this.mallTrack,this.mallEchoA,this.mallEchoB,this.threatTrack])if(a)a.volume=0;}else this.startMusicTracks();
+  }
+  setPaused(v){this.paused=v;this.apply();if(v){this.mallTrack?.pause();this.mallEchoA?.pause();this.mallEchoB?.pause();this.threatTrack?.pause();}else{this.echoSyncTimer=0;this.startMusicTracks();}}
+  step(sprint=false,quiet=false){this.stepIndex=(this.stepIndex+1+((Math.random()*3)|0))%4;const gain=(sprint?.34:.22)*(quiet?.30:1);this.play('step'+(this.stepIndex+1),{gain,rate:rand(.94,1.055)});}
+  impact(gain=.55){this.play('impact'+(1+((Math.random()*3)|0)),{gain,rate:rand(.92,1.06)});}
+  thud(a=.25){this.impact(clamp(.26+a*1.35,.30,.78));}
+  slam(){this.play('doorShutter',{gain:.58,rate:rand(.94,1.02)});this.impact(.34);}
+  door(open=true){if(open){this.play('doorShutter',{gain:.55,rate:rand(.96,1.02)});this.play('doorLatch',{gain:.34,when:.04});}else this.play('doorLatch',{gain:.48,rate:rand(.96,1.04)});}
+  breaker(){this.play('breaker',{gain:.72});this.play('buzz',{gain:.30,when:.025});}
+  pickup(){this.play('pickup',{gain:.34,rate:rand(.98,1.04)});}
+  paper(){this.play('paper',{gain:.30,rate:rand(.97,1.03)});}
+  radio(){this.play('radioStatic',{gain:.28,bus:'voice',rate:rand(.95,1.05),offset:rand(0,2),duration:.24});}
+  chime(){this.play('bell',{gain:.34,bus:'voice',rate:rand(.98,1.02)});}
+  rip(){this.play('death',{gain:.66,rate:.96});this.play('gore',{gain:.72,when:.035,rate:rand(.92,1.04)});}
+  beep(){this.play('error',{gain:.24,rate:rand(.98,1.04)});}
+  toggle(){this.play('toggle',{gain:.26,rate:rand(.98,1.04)});}
+  confirm(){this.play('confirm',{gain:.30});}
+  throwCue(){this.play('throw',{gain:.32,rate:rand(.94,1.05)});}
+  gasp(){this.play('breath',{gain:.44,bus:'voice',rate:1.35,offset:.05,duration:.72});}
+  whisper(pan=0,intensity=.4){this.play('breath',{gain:.10+intensity*.13,bus:'amb',rate:rand(.70,.92),pan,offset:rand(0,.35),duration:rand(.75,1.25)});}
+  tick(dt,near,fear,pan){
+    if(!this.ctx)return;this.startAmbientLoops();
+    const n=clamp(near,0,1),f=clamp(fear,0,1);
+    this.setLoop('roomtone',.075+f*.045,.94+f*.05,dt);this.setLoop('static',.008+f*.035+n*.015,.94+n*.08,dt);this.setLoop('horror',Math.pow(n,1.55)*.14+f*.025,.86+n*.08,dt);
+    const slowIn=clamp((n-.12)/.42,0,1),slowOut=1-clamp((n-.66)/.22,0,1),fastIn=clamp((n-.48)/.42,0,1);
+    this.setLoop('heartSlow',slowIn*slowOut*.25,.92+n*.22,dt);this.setLoop('heartFast',fastIn*.30,.90+n*.24,dt);
+
+    this.setupMusicTracks();const threat=clamp((n-.22)/.70,0,1),musicMaster=(this.paused?0:clamp(SAVE.settings.volume,0,1)*clamp(SAVE.settings.music,0,1));
+    const mallTarget=musicMaster*(SAVE.settings.muzak?.126:0)*(1-threat*.84),threatTarget=musicMaster*.48*Math.pow(threat,1.22);const fade=smooth(dt,1.9);
+    this.mallVol=lerp(this.mallVol,mallTarget,fade);this.threatVol=lerp(this.threatVol,threatTarget,fade);
+    let desiredRate=.5;
+    if(!this.paused){
+      if(this.detuneTime>0){this.detuneTime=Math.max(0,this.detuneTime-dt);const p=1-clamp(this.detuneTime/Math.max(.001,this.detuneDuration),0,1),env=Math.sin(Math.PI*p);this.detunePhase+=dt*this.detuneSpeed;desiredRate=.5*(1+env*(this.detuneDepth+Math.sin(this.detunePhase)*.024));if(this.detuneTime<=0)this.detuneWait=rand(11,23);}
+      else{this.detuneWait-=dt;if(this.detuneWait<=0){this.detuneDuration=rand(2.7,5.4);this.detuneTime=this.detuneDuration;this.detuneDepth=(Math.random()<.72?-1:1)*rand(.07,.14);this.detuneSpeed=rand(2.8,5.7);this.detunePhase=rand(0,TAU);}}
+    }
+    this.mallRate=lerp(this.mallRate,desiredRate,smooth(dt,2.5));for(const a of [this.mallTrack,this.mallEchoA,this.mallEchoB])if(a)a.playbackRate=clamp(this.mallRate,.40,.60);
+    if(this.mallTrack)this.mallTrack.volume=clamp(this.mallVol*.68,0,1);if(this.mallEchoA)this.mallEchoA.volume=clamp(this.mallVol*.22,0,1);if(this.mallEchoB)this.mallEchoB.volume=clamp(this.mallVol*.10,0,1);if(this.threatTrack)this.threatTrack.volume=clamp(this.threatVol,0,1);
+    this.echoSyncTimer-=dt;if(this.echoSyncTimer<=0){this.echoSyncTimer=2.8;this.syncMallEchoes(false);}if(!this.paused&&(this.mallVol>.002||this.threatVol>.002))this.startMusicTracks();
+    if(n>.22){this.whisperTimer-=dt;if(this.whisperTimer<=0){this.whisperTimer=clamp(3.7-n*n*2.9,.65,3.6)*rand(.82,1.24);this.whisper(pan,.20+n*.55);}}
+  }
+}`
+  );
+
+  replaceOnce(
+    'breaker lever animation state',
+    "g.userData={type:'breaker',id,on:false,lamp,lampGlow,lever,assetModel:'breakerCabinet',assetFallback:true};",
+    "lever.rotation.z=-.58;g.userData={type:'breaker',id,on:false,lamp,lampGlow,lever,leverOff:-.58,leverOn:.54,leverMix:0,assetModel:'breakerCabinet',assetFallback:true};"
+  );
+  replaceOnce(
+    'breaker recorded switch sound',
+    'this.breakers++;audio.slam();this.emitSound(p,.78,\'breaker\');',
+    'this.breakers++;audio.breaker();this.emitSound(p,.78,\'breaker\');'
+  );
+  replaceOnce(
+    'flashlight recorded toggle',
+    'toggleFlashlight(){if(this.modal)return;this.flashlightOn=!this.flashlightOn;audio.beep();}',
+    'toggleFlashlight(){if(this.modal)return;this.flashlightOn=!this.flashlightOn;audio.toggle();}'
+  );
+  replaceOnce(
+    'breath exhaustion recorded gasp',
+    "this.emitSound(p,1,'cough');audio.whisper(0,.9);UI.hint('You gasp for air.');",
+    "this.emitSound(p,1,'cough');audio.gasp();UI.hint('You gasp for air.');"
+  );
+  replaceOnce(
+    'door recorded foley',
+    "o.userData.open=!o.userData.open;if(o.userData.open)audio.slam();else audio.thud(.28);this.emitSound(o.position.clone(),.8,'door');",
+    "o.userData.open=!o.userData.open;audio.door(o.userData.open);this.emitSound(o.position.clone(),.8,'door');"
+  );
+  replaceOnce(
+    'decoy landing recorded impact',
+    "d.state='active';d.life=6;d.pulse=0;audio.slam();this.emitSound(d.mesh.position,1,'decoy');",
+    "d.state='active';d.life=6;d.pulse=0;audio.impact(.72);this.emitSound(d.mesh.position,1,'decoy');"
+  );
+  replaceOnce(
+    'breaker lever smooth animation',
+    "for(const o of this.world.interactables){if(['key','decoy','note','tape'].includes(o.userData.type)&&!o.userData.collected){o.position.y=o.userData.floatBase+Math.sin(this.time*2+o.userData.phase)*.055;o.rotation.y+=dt*.65;}}",
+`for(const o of this.world.interactables){
+      if(o.userData.type==='breaker'&&o.userData.lever){const u=o.userData,target=u.on?1:0;u.leverMix=lerp(u.leverMix??0,target,smooth(dt,11));u.lever.rotation.z=lerp(u.leverOff??-.58,u.leverOn??.54,u.leverMix);}
+      if(['key','decoy','note','tape'].includes(o.userData.type)&&!o.userData.collected){o.position.y=o.userData.floatBase+Math.sin(this.time*2+o.userData.phase)*.055;o.rotation.y+=dt*.65;}
+    }`
+  );
+
+  for(const marker of [
+    "const CC0_AUDIO_BASE=new URL('./assets/audio/cc0/',location.href).href",
+    "heartSlow:'heartbeat-slow.ogg'",
+    "roomtone:'electrical-roomtone.ogg'",
+    'this.ctx.createBufferSource()',
+    'audio.breaker()',
+    'audio.gasp()',
+    'audio.door(o.userData.open)',
+    'u.leverMix=lerp',
+    'leverOff:-.58,leverOn:.54',
+    '-20 LUFS / -2 dBTP'
+  ])if(!source.includes(marker))fail(`verification marker missing: ${marker}`);
+  for(const retired of ['createOscillator()','this.oneShot({','createBuffer(1,len','procedural audio are generated/original'])if(source.includes(retired))fail(`procedural-audio marker survived: ${retired}`);
+  return source;
+}

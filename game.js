@@ -12,6 +12,7 @@ const STORE_PATCH='./patches/store-polish-v2.js.txt';
 const SYSTEMS_PATCH='./patches/systems-polish-v3.js.txt';
 const RELIABILITY_PATCH='./patches/reliability-v4.js.txt';
 const STATUS_PATCH='./patches/status-lights-v5.js.txt';
+const AUDIO_PATCH='./patches/audio-immersion-v6.js.txt';
 const FOOD_PATCH='./patches/foodcourt-v3.js.txt';
 
 async function getText(url){
@@ -41,65 +42,35 @@ function normalizeImports(source){
 
 async function applyWorldProps(source,patchText){
   const patchUrl=URL.createObjectURL(new Blob([patchText+'\nexport { applyWorldPropsV1 };\n'],{type:'text/javascript'}));
-  try{
-    const mod=await import(patchUrl);
-    if(typeof mod.applyWorldPropsV1!=='function')throw new Error('World Props v1 patch did not export its patch function.');
-    return mod.applyWorldPropsV1(source);
-  }finally{URL.revokeObjectURL(patchUrl);}
+  try{const mod=await import(patchUrl);if(typeof mod.applyWorldPropsV1!=='function')throw new Error('World Props v1 patch did not export its patch function.');return mod.applyWorldPropsV1(source);}finally{URL.revokeObjectURL(patchUrl);}
 }
-
 async function applyIndustrialCc0(source,patchText){
   const patchUrl=URL.createObjectURL(new Blob([patchText+'\nexport { applyIndustrialCc0V1 };\n'],{type:'text/javascript'}));
-  try{
-    const mod=await import(patchUrl);
-    if(typeof mod.applyIndustrialCc0V1!=='function')throw new Error('Industrial CC0 v1 patch did not export its patch function.');
-    return mod.applyIndustrialCc0V1(source);
-  }finally{URL.revokeObjectURL(patchUrl);}
+  try{const mod=await import(patchUrl);if(typeof mod.applyIndustrialCc0V1!=='function')throw new Error('Industrial CC0 v1 patch did not export its patch function.');return mod.applyIndustrialCc0V1(source);}finally{URL.revokeObjectURL(patchUrl);}
 }
-
 async function applyVisualFixes(source,patchText){
   const patchUrl=URL.createObjectURL(new Blob([patchText+'\nexport { applyVisualFixesV1 };\n'],{type:'text/javascript'}));
-  try{
-    const mod=await import(patchUrl);
-    if(typeof mod.applyVisualFixesV1!=='function')throw new Error('Visual Fixes v1 patch did not export its patch function.');
-    return mod.applyVisualFixesV1(source);
-  }finally{URL.revokeObjectURL(patchUrl);}
+  try{const mod=await import(patchUrl);if(typeof mod.applyVisualFixesV1!=='function')throw new Error('Visual Fixes v1 patch did not export its patch function.');return mod.applyVisualFixesV1(source);}finally{URL.revokeObjectURL(patchUrl);}
 }
-
 async function applyStorePolish(source,patchText){
   const patchUrl=URL.createObjectURL(new Blob([patchText+'\nexport { applyStorePolishV2 };\n'],{type:'text/javascript'}));
-  try{
-    const mod=await import(patchUrl);
-    if(typeof mod.applyStorePolishV2!=='function')throw new Error('Store Polish v2 patch did not export its patch function.');
-    return mod.applyStorePolishV2(source);
-  }finally{URL.revokeObjectURL(patchUrl);}
+  try{const mod=await import(patchUrl);if(typeof mod.applyStorePolishV2!=='function')throw new Error('Store Polish v2 patch did not export its patch function.');return mod.applyStorePolishV2(source);}finally{URL.revokeObjectURL(patchUrl);}
 }
-
 async function applySystemsPolish(source,patchText){
   const patchUrl=URL.createObjectURL(new Blob([patchText+'\nexport { applySystemsPolishV3 };\n'],{type:'text/javascript'}));
-  try{
-    const mod=await import(patchUrl);
-    if(typeof mod.applySystemsPolishV3!=='function')throw new Error('Systems Polish v3 patch did not export its patch function.');
-    return mod.applySystemsPolishV3(source);
-  }finally{URL.revokeObjectURL(patchUrl);}
+  try{const mod=await import(patchUrl);if(typeof mod.applySystemsPolishV3!=='function')throw new Error('Systems Polish v3 patch did not export its patch function.');return mod.applySystemsPolishV3(source);}finally{URL.revokeObjectURL(patchUrl);}
 }
-
 async function applyReliability(source,patchText){
   const patchUrl=URL.createObjectURL(new Blob([patchText+'\nexport { applyReliabilityV4 };\n'],{type:'text/javascript'}));
-  try{
-    const mod=await import(patchUrl);
-    if(typeof mod.applyReliabilityV4!=='function')throw new Error('Reliability v4 patch did not export its patch function.');
-    return mod.applyReliabilityV4(source);
-  }finally{URL.revokeObjectURL(patchUrl);}
+  try{const mod=await import(patchUrl);if(typeof mod.applyReliabilityV4!=='function')throw new Error('Reliability v4 patch did not export its patch function.');return mod.applyReliabilityV4(source);}finally{URL.revokeObjectURL(patchUrl);}
 }
-
 async function applyStatusLights(source,patchText){
   const patchUrl=URL.createObjectURL(new Blob([patchText+'\nexport { applyStatusLightsV5 };\n'],{type:'text/javascript'}));
-  try{
-    const mod=await import(patchUrl);
-    if(typeof mod.applyStatusLightsV5!=='function')throw new Error('Status Lights v5 patch did not export its patch function.');
-    return mod.applyStatusLightsV5(source);
-  }finally{URL.revokeObjectURL(patchUrl);}
+  try{const mod=await import(patchUrl);if(typeof mod.applyStatusLightsV5!=='function')throw new Error('Status Lights v5 patch did not export its patch function.');return mod.applyStatusLightsV5(source);}finally{URL.revokeObjectURL(patchUrl);}
+}
+async function applyAudioImmersion(source,patchText){
+  const patchUrl=URL.createObjectURL(new Blob([patchText+'\nexport { applyAudioImmersionV6 };\n'],{type:'text/javascript'}));
+  try{const mod=await import(patchUrl);if(typeof mod.applyAudioImmersionV6!=='function')throw new Error('Audio Immersion v6 patch did not export its patch function.');return mod.applyAudioImmersionV6(source);}finally{URL.revokeObjectURL(patchUrl);}
 }
 
 function replaceFoodCourt(source,replacement){
@@ -129,7 +100,9 @@ async function preflightThree(){
 
 try{
   await preflightThree();
-  const [base,worldPatch,industrialPatch,visualFixPatch,storePatch,systemsPatch,reliabilityPatch,statusPatch,foodPatch]=await Promise.all([decodeSource(),getText(WORLD_PATCH),getText(INDUSTRIAL_PATCH),getText(VISUAL_FIX_PATCH),getText(STORE_PATCH),getText(SYSTEMS_PATCH),getText(RELIABILITY_PATCH),getText(STATUS_PATCH),getText(FOOD_PATCH)]);
+  const [base,worldPatch,industrialPatch,visualFixPatch,storePatch,systemsPatch,reliabilityPatch,statusPatch,audioPatch,foodPatch]=await Promise.all([
+    decodeSource(),getText(WORLD_PATCH),getText(INDUSTRIAL_PATCH),getText(VISUAL_FIX_PATCH),getText(STORE_PATCH),getText(SYSTEMS_PATCH),getText(RELIABILITY_PATCH),getText(STATUS_PATCH),getText(AUDIO_PATCH),getText(FOOD_PATCH)
+  ]);
   const worldSource=await applyWorldProps(normalizeImports(base),worldPatch);
   const industrialSource=await applyIndustrialCc0(worldSource,industrialPatch);
   const visualSource=await applyVisualFixes(industrialSource,visualFixPatch);
@@ -137,7 +110,8 @@ try{
   const systemsSource=await applySystemsPolish(storeSource,systemsPatch);
   const reliabilitySource=await applyReliability(systemsSource,reliabilityPatch);
   const statusSource=await applyStatusLights(reliabilitySource,statusPatch);
-  const source=replaceFoodCourt(statusSource,foodPatch)+'\n//# sourceURL=pinewood-runtime.js\n';
+  const audioSource=await applyAudioImmersion(statusSource,audioPatch);
+  const source=replaceFoodCourt(audioSource,foodPatch)+'\n//# sourceURL=pinewood-runtime.js\n';
   const moduleUrl=URL.createObjectURL(new Blob([source],{type:'text/javascript'}));
   try{await import(moduleUrl);}finally{URL.revokeObjectURL(moduleUrl);}
 }catch(err){

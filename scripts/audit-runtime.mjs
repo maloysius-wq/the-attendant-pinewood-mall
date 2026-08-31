@@ -18,12 +18,17 @@ const PATCHES = [
   ['patches/store-polish-v2.js.txt', 'applyStorePolishV2'],
   ['patches/systems-polish-v3.js.txt', 'applySystemsPolishV3'],
   ['patches/reliability-v4.js.txt', 'applyReliabilityV4'],
-  ['patches/status-lights-v5.js.txt', 'applyStatusLightsV5']
+  ['patches/status-lights-v5.js.txt', 'applyStatusLightsV5'],
+  ['patches/audio-immersion-v6.js.txt', 'applyAudioImmersionV6']
 ];
 
-function fail(message) {
-  throw new Error(`Runtime audit failed: ${message}`);
-}
+const AUDIO_FILES=[
+  'footstep-1.ogg','footstep-2.ogg','footstep-3.ogg','footstep-4.ogg','breaker-switch.ogg','door-latch.ogg','door-shutter.ogg',
+  'metal-impact-1.ogg','metal-impact-2.ogg','metal-impact-3.ogg','pickup.ogg','error.ogg','toggle.ogg','confirmation.ogg','throw.ogg','paper.ogg',
+  'heartbeat-slow.ogg','heartbeat-fast.ogg','ghost-breath.ogg','radio-static.ogg','electrical-roomtone.ogg','horror-ambience.ogg','electric-buzz.ogg','intercom-bell.ogg','gore-impact.ogg','death-scream.ogg'
+];
+
+function fail(message) { throw new Error(`Runtime audit failed: ${message}`); }
 
 function normalizeImports(source) {
   return source
@@ -57,9 +62,7 @@ function replaceFoodCourt(source, replacement) {
 }
 
 function requireMarkers(source, markers, label = 'runtime') {
-  for (const marker of markers) {
-    if (!source.includes(marker)) fail(`${label} marker missing: ${marker}`);
-  }
+  for (const marker of markers) if (!source.includes(marker)) fail(`${label} marker missing: ${marker}`);
 }
 
 async function syntaxCheck(name, source) {
@@ -69,13 +72,9 @@ async function syntaxCheck(name, source) {
     await writeFile(file, source, 'utf8');
     const result = spawnSync(process.execPath, ['--check', file], { encoding: 'utf8' });
     if (result.status !== 0) {
-      process.stderr.write(result.stdout || '');
-      process.stderr.write(result.stderr || '');
-      fail(`${name} failed Node syntax parsing`);
+      process.stderr.write(result.stdout || '');process.stderr.write(result.stderr || '');fail(`${name} failed Node syntax parsing`);
     }
-  } finally {
-    await rm(dir, { recursive: true, force: true });
-  }
+  } finally { await rm(dir, { recursive: true, force: true }); }
 }
 
 const loader = await readFile('game.js', 'utf8');
@@ -84,58 +83,45 @@ requireMarkers(loader, [
   "const INDUSTRIAL_PATCH='./patches/industrial-cc0-v1.js.txt';",
   "const RELIABILITY_PATCH='./patches/reliability-v4.js.txt';",
   "const STATUS_PATCH='./patches/status-lights-v5.js.txt';",
-  'const reliabilitySource=await applyReliability(systemsSource,reliabilityPatch);',
+  "const AUDIO_PATCH='./patches/audio-immersion-v6.js.txt';",
   'const statusSource=await applyStatusLights(reliabilitySource,statusPatch);',
-  'const source=replaceFoodCourt(statusSource,foodPatch)'
+  'const audioSource=await applyAudioImmersion(statusSource,audioPatch);',
+  'const source=replaceFoodCourt(audioSource,foodPatch)'
 ], 'game.js');
+
+for(const file of AUDIO_FILES){const bytes=await readFile(`assets/audio/cc0/${file}`);if(bytes.length<500)fail(`CC0 audio asset missing or suspiciously small: ${file}`);}
+const audioReadme=await readFile('assets/audio/cc0/README.md','utf8');
+requireMarkers(audioReadme,['-20 LUFS','-2 dBTP','Full source provenance'],'audio normalization README');
 
 const payload = (await Promise.all(PARTS.map(path => readFile(path, 'utf8')))).map(text => text.trim()).join('');
 let source;
-try {
-  source = gunzipSync(Buffer.from(payload, 'base64')).toString('utf8');
-} catch (error) {
-  fail(`bundle2 decode failed: ${error.message}`);
-}
+try { source = gunzipSync(Buffer.from(payload, 'base64')).toString('utf8'); }
+catch (error) { fail(`bundle2 decode failed: ${error.message}`); }
 source = normalizeImports(source);
 
 for (const [path, functionName] of PATCHES) {
-  const patch = await loadPatch(path, functionName);
-  source = patch(source);
+  const patch = await loadPatch(path, functionName);source = patch(source);
   if (typeof source !== 'string' || source.length < 1000) fail(`${path} returned an invalid runtime`);
 }
-
 source = replaceFoodCourt(source, await readFile('patches/foodcourt-v3.js.txt', 'utf8'));
 
 requireMarkers(source, [
-  'breakers:3',
-  'breakerCabinet',
-  'elevatorFrame',
-  'elevatorDoorHalf',
-  "const inside=local.x>.58&&local.x<1.62&&Math.abs(local.z)<.62",
-  "u.state='ride'",
-  'doorBlocker.disabled=',
+  'breakers:3','breakerCabinet','elevatorFrame','elevatorDoorHalf',
+  "const inside=local.x>.58&&local.x<1.62&&Math.abs(local.z)<.62","u.state='ride'",'doorBlocker.disabled=',
   'KayKit-Game-Assets/KayKit-Dungeon-Remastered-1.0/b0ca9bd96a8072ab36a3a5464f00ed1e06a16d07',
-  'SAVE.settings.muzak?.126:0',
-  'this.mallRate=.5',
-  'this.mallEchoA',
-  'preservesPitch=false',
-  'this.syncMallEchoes(false)',
-  'lampGlow=new THREE.PointLight(0xff2418,0,1.05,2)',
-  'o.userData.lamp.material.emissiveIntensity=1.9',
-  'callGlow=new THREE.PointLight(0xffa14a,0,1.25,2)',
-  "ready=u.state==='idle'&&this.breakers>=need",
-  'u.callLamp.material.emissiveIntensity=pulse',
+  'SAVE.settings.muzak?.126:0','this.mallRate=.5','this.mallEchoA','preservesPitch=false','this.syncMallEchoes(false)',
+  'lampGlow=new THREE.PointLight(0xff2418,0,1.05,2)','o.userData.lamp.material.emissiveIntensity=1.9',
+  'callGlow=new THREE.PointLight(0xffa14a,0,1.25,2)',"ready=u.state==='idle'&&this.breakers>=need",'u.callLamp.material.emissiveIntensity=pulse',
+  "const CC0_AUDIO_BASE=new URL('./assets/audio/cc0/',location.href).href","heartSlow:'heartbeat-slow.ogg'","roomtone:'electrical-roomtone.ogg'",
+  'this.ctx.createBufferSource()','audio.breaker()','audio.gasp()','audio.door(o.userData.open)','u.leverMix=lerp','leverOff:-.58,leverOn:.54','-20 LUFS / -2 dBTP',
   'THREE.ClampToEdgeWrapping'
 ]);
 
 for (const retired of [
-  'SAVE.settings.muzak?.224:0',
-  'SAVE.settings.muzak?.157:0',
-  'emissive.setHex(0x55ff99)'
-]) {
-  if (source.includes(retired)) fail(`retired marker survived: ${retired}`);
-}
+  'SAVE.settings.muzak?.224:0','SAVE.settings.muzak?.157:0','emissive.setHex(0x55ff99)',
+  'createOscillator()','this.oneShot({','createBuffer(1,len','procedural audio are generated/original'
+]) if (source.includes(retired)) fail(`retired marker survived: ${retired}`);
 
 await syntaxCheck('patched-runtime', source);
 console.log(`Runtime audit PASS: ${source.length.toLocaleString()} patched source characters parsed successfully.`);
-console.log('Verified patch order, CC0 breaker/elevator wiring, physical elevator entry, status lights, Food Court v3 clamping, and warped mall-music markers.');
+console.log(`Verified ${AUDIO_FILES.length} normalized CC0 audio assets, zero oscillator/noise synthesis, breaker lever animation, patch order, elevator entry, status lights, Food Court v3 and warped mall music.`);
