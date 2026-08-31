@@ -1,0 +1,74 @@
+function applyStatusLightsV5(source){
+  const fail=msg=>{throw new Error(`Status Lights v5 patch failed: ${msg}`);};
+  const replaceOnce=(label,needle,replacement)=>{
+    const first=source.indexOf(needle);
+    if(first<0)fail(`${label}: marker missing`);
+    if(source.indexOf(needle,first+needle.length)>=0)fail(`${label}: marker is not unique`);
+    source=source.slice(0,first)+replacement+source.slice(first+needle.length);
+  };
+
+  replaceOnce(
+    'breaker LED off-state material',
+    'const led=new THREE.MeshStandardMaterial({color:0x080808,emissive:0xa31d13,emissiveIntensity:1.15});',
+    'const led=new THREE.MeshStandardMaterial({color:0x2a0503,emissive:0xff2418,emissiveIntensity:.045});'
+  );
+  replaceOnce(
+    'breaker LED local glow',
+    'const lamp=new THREE.Mesh(new THREE.SphereGeometry(.032,12,12),led);lamp.position.set(-.145,.48,.151);g.add(lamp);',
+    `const lamp=new THREE.Mesh(new THREE.SphereGeometry(.032,12,12),led);lamp.position.set(-.145,.48,.151);g.add(lamp);
+  const lampGlow=new THREE.PointLight(0xff2418,0,1.05,2);lampGlow.position.set(-.145,.48,.24);g.add(lampGlow);`
+  );
+  replaceOnce(
+    'breaker LED state reference',
+    "g.userData={type:'breaker',id,on:false,lamp,lever,assetModel:'breakerCabinet',assetFallback:true};",
+    "g.userData={type:'breaker',id,on:false,lamp,lampGlow,lever,assetModel:'breakerCabinet',assetFallback:true};"
+  );
+  replaceOnce(
+    'breaker LED activation behavior',
+    "if(o.userData.on)return;o.userData.on=true;o.userData.lamp.material.emissive.setHex(0x55ff99);this.breakers++;",
+    "if(o.userData.on)return;o.userData.on=true;o.userData.lamp.material.emissive.setHex(0xff2418);o.userData.lamp.material.emissiveIntensity=1.9;if(o.userData.lampGlow)o.userData.lampGlow.intensity=.34;this.breakers++;"
+  );
+
+  replaceOnce(
+    'freight call-button status lamp',
+    "g.userData={type:'exit',left,right,cab,indicator:null,callPanel,callLamp:null,closedL:-.49,closedR:.49,openL:-.99,openR:.99,state:'idle',timer:0,rideAnchor:null,assetModel:'kenney-imported-freight-elevator',assetFallback:false};",
+`const callMat=new THREE.MeshStandardMaterial({color:0x170904,roughness:.34,metalness:.18,emissive:0x2a0d03,emissiveIntensity:.04});
+  const callLamp=new THREE.Mesh(new THREE.SphereGeometry(.027,12,12),callMat);callLamp.position.set(-.225,1.17,1.30);g.add(callLamp);
+  const callGlow=new THREE.PointLight(0xffa14a,0,1.25,2);callGlow.position.set(-.30,1.17,1.30);g.add(callGlow);
+  g.userData={type:'exit',left,right,cab,indicator:null,callPanel,callLamp,callGlow,closedL:-.49,closedR:.49,openL:-.99,openR:.99,state:'idle',timer:0,rideAnchor:null,assetModel:'kenney-imported-freight-elevator',assetFallback:false};`
+  );
+  replaceOnce(
+    'freight call-button ready behavior',
+`  updateElevator(dt){
+    const e=this.exitObject;if(!e||e.userData.type!=='exit'||e.userData.state==='idle')return;
+    const u=e.userData;u.timer+=dt;`,
+`  updateElevator(dt){
+    const e=this.exitObject;if(!e||e.userData.type!=='exit')return;
+    const u=e.userData,need=LEVELS[this.levelIndex].breakers||0,ready=u.state==='idle'&&this.breakers>=need;
+    if(u.callLamp?.material){
+      const pulse=ready?.58+Math.sin(this.time*2.2)*.10:.04;
+      u.callLamp.material.color.setHex(ready?0x54250d:0x170904);
+      u.callLamp.material.emissive.setHex(ready?0xffa14a:0x2a0d03);
+      u.callLamp.material.emissiveIntensity=pulse;
+    }
+    if(u.callGlow)u.callGlow.intensity=ready?.10+(.5+.5*Math.sin(this.time*2.2))*.045:0;
+    if(u.state==='idle')return;
+    u.timer+=dt;`
+  );
+  replaceOnce(
+    'remove post-call bright flash',
+    "if(o.userData.callLamp?.material)o.userData.callLamp.material.emissiveIntensity=1.45;",
+    "if(o.userData.callLamp?.material)o.userData.callLamp.material.emissiveIntensity=.04;if(o.userData.callGlow)o.userData.callGlow.intensity=0;"
+  );
+
+  for(const marker of [
+    'lampGlow=new THREE.PointLight(0xff2418,0,1.05,2)',
+    'o.userData.lamp.material.emissiveIntensity=1.9',
+    'callGlow=new THREE.PointLight(0xffa14a,0,1.25,2)',
+    "ready=u.state==='idle'&&this.breakers>=need",
+    'u.callLamp.material.emissiveIntensity=pulse',
+    "if(u.state==='idle')return"
+  ])if(!source.includes(marker))fail(`verification marker missing: ${marker}`);
+  if(source.includes('emissive.setHex(0x55ff99)'))fail('old green breaker-on LED survived');
+  return source;
+}

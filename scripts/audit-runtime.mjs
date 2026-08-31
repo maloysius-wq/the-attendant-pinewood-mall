@@ -17,7 +17,8 @@ const PATCHES = [
   ['patches/visual-fixes-v1.js.txt', 'applyVisualFixesV1'],
   ['patches/store-polish-v2.js.txt', 'applyStorePolishV2'],
   ['patches/systems-polish-v3.js.txt', 'applySystemsPolishV3'],
-  ['patches/reliability-v4.js.txt', 'applyReliabilityV4']
+  ['patches/reliability-v4.js.txt', 'applyReliabilityV4'],
+  ['patches/status-lights-v5.js.txt', 'applyStatusLightsV5']
 ];
 
 function fail(message) {
@@ -82,8 +83,10 @@ await syntaxCheck('game-loader', loader);
 requireMarkers(loader, [
   "const INDUSTRIAL_PATCH='./patches/industrial-cc0-v1.js.txt';",
   "const RELIABILITY_PATCH='./patches/reliability-v4.js.txt';",
+  "const STATUS_PATCH='./patches/status-lights-v5.js.txt';",
   'const reliabilitySource=await applyReliability(systemsSource,reliabilityPatch);',
-  'const source=replaceFoodCourt(reliabilitySource,foodPatch)'
+  'const statusSource=await applyStatusLights(reliabilitySource,statusPatch);',
+  'const source=replaceFoodCourt(statusSource,foodPatch)'
 ], 'game.js');
 
 const payload = (await Promise.all(PARTS.map(path => readFile(path, 'utf8')))).map(text => text.trim()).join('');
@@ -117,16 +120,22 @@ requireMarkers(source, [
   'this.mallEchoA',
   'preservesPitch=false',
   'this.syncMallEchoes(false)',
+  'lampGlow=new THREE.PointLight(0xff2418,0,1.05,2)',
+  'o.userData.lamp.material.emissiveIntensity=1.9',
+  'callGlow=new THREE.PointLight(0xffa14a,0,1.25,2)',
+  "ready=u.state==='idle'&&this.breakers>=need",
+  'u.callLamp.material.emissiveIntensity=pulse',
   'THREE.ClampToEdgeWrapping'
 ]);
 
 for (const retired of [
   'SAVE.settings.muzak?.224:0',
-  'SAVE.settings.muzak?.157:0'
+  'SAVE.settings.muzak?.157:0',
+  'emissive.setHex(0x55ff99)'
 ]) {
   if (source.includes(retired)) fail(`retired marker survived: ${retired}`);
 }
 
 await syntaxCheck('patched-runtime', source);
 console.log(`Runtime audit PASS: ${source.length.toLocaleString()} patched source characters parsed successfully.`);
-console.log('Verified patch order, CC0 breaker/elevator wiring, physical elevator entry, Food Court v3 clamping, and warped mall-music markers.');
+console.log('Verified patch order, CC0 breaker/elevator wiring, physical elevator entry, status lights, Food Court v3 clamping, and warped mall-music markers.');
