@@ -188,11 +188,9 @@ class AudioSystem{
   );
   replaceOnce(
     'breaker lever smooth animation',
-    "for(const o of this.world.interactables){if(['key','decoy','note','tape'].includes(o.userData.type)&&!o.userData.collected){o.position.y=o.userData.floatBase+Math.sin(this.time*2+o.userData.phase)*.055;o.rotation.y+=dt*.65;}}",
-`for(const o of this.world.interactables){
-      if(o.userData.type==='breaker'&&o.userData.lever){const u=o.userData,target=u.on?1:0;u.leverMix=lerp(u.leverMix??0,target,smooth(dt,11));u.lever.rotation.z=lerp(u.leverOff??-.58,u.leverOn??.54,u.leverMix);}
-      if(['key','decoy','note','tape'].includes(o.userData.type)&&!o.userData.collected){o.position.y=o.userData.floatBase+Math.sin(this.time*2+o.userData.phase)*.055;o.rotation.y+=dt*.65;}
-    }`
+    '    this.attendant.update(dt,this.time,p,fear);this.updateInteraction();this.updateHUD();',
+`    for(const o of this.world.interactables){if(o.userData.type==='breaker'&&o.userData.lever){const u=o.userData,target=u.on?1:0;u.leverMix=lerp(u.leverMix??0,target,smooth(dt,11));u.lever.rotation.z=lerp(u.leverOff??-.58,u.leverOn??.54,u.leverMix);}}
+    this.attendant.update(dt,this.time,p,fear);this.updateInteraction();this.updateHUD();`
   );
 
   for(const marker of [
