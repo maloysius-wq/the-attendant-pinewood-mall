@@ -28,6 +28,7 @@ function applyElevatorRebuildV7(source){
   }`
   );
 
+  // The collision system previously had only "physical + optional navigation" blockers.
   // A nav-only flag lets the elevator cab remain physically enterable while keeping the Attendant out.
   replaceOnce(
     'nav-only collider support',
@@ -107,17 +108,29 @@ function applyElevatorRebuildV7(source){
     eu.syncDoorCollision();`
   );
 
-  replaceOnce(
-    'elevator interaction hint',
-    "else if(t==='exit')UI.hint(this.breakers<LEVELS[this.levelIndex].breakers?'Elevator has no emergency power':'E  Call freight elevator');else if(t==='core')",
-`else if(t==='exit'){
+  replaceRange(
+    'elevator interaction hints',
+    "  updateInteraction(){",
+    "\n  interact(){",
+`  updateInteraction(){
+    if(this.playerHidden||this.hideTransition){this.interactTarget=this.hideTransition?.cab||this.hideCab;UI.hint(this.hideTransition?'…':this.playerHidden?'E  Leave cabinet':'');return;}
+    this.interactTarget=null;this.raycaster.setFromCamera({x:0,y:0},this.camera);const hits=this.raycaster.intersectObjects(this.world.interactables,true);for(const h of hits){if(h.distance>2.45)break;let o=h.object;while(o&&o!==this.scene&&!o.userData?.type)o=o.parent;if(o?.userData?.type){this.interactTarget=o;break;}}
+    const o=this.interactTarget;if(!o){UI.hint('');return;}const t=o.userData.type;
+    if(t==='breaker')UI.hint(o.userData.on?'Circuit online':'E  Restore circuit '+o.userData.id);
+    else if(t==='door')UI.hint(`E  ${o.userData.open?'Lower':'Raise'} ${o.userData.label}`);
+    else if(t==='cabinet')UI.hint('E  Hide in cabinet');
+    else if(t==='key')UI.hint('E  Take '+o.userData.label);
+    else if(t==='decoy')UI.hint('E  Take '+o.userData.label);
+    else if(t==='note'||t==='tape')UI.hint('E  Recover '+o.userData.label);
+    else if(t==='exit'){
       const need=LEVELS[this.levelIndex].breakers||0,u=o.userData;
       if(this.breakers<need)UI.hint('Elevator has no emergency power');
       else if(u.state==='waiting')UI.hint('Freight elevator open. Step fully inside.');
       else if(u.state!=='idle')UI.hint('Freight elevator in motion…');
       else if(!u.serviceUnlocked&&this.keys<=0)UI.hint('Master Service Key required');
       else UI.hint(u.serviceUnlocked?'E  Call freight elevator':'E  Use Master Service Key + call elevator');
-    }else if(t==='core')`
+    }else if(t==='core')UI.hint(this.tapes<3?'Three Last Shift tapes are required':'E  End the closing routine');
+  }`
   );
 
   replaceRange(
