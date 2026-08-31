@@ -34,6 +34,7 @@ const TAIL_PATCHES=[
 const MEDIA_EXT_RE=/\.(?:glb|gltf|bin|png|jpe?g|webp|ogg|mp3|wav)(?:[?#].*)?$/i;
 function fail(msg){throw new Error('Local Assets v15 audit failed: '+msg);}
 function sha256(bytes){return createHash('sha256').update(bytes).digest('hex');}
+function gitBlobSha1(bytes){return createHash('sha1').update(Buffer.from(`blob ${bytes.length}\0`)).update(bytes).digest('hex');}
 function normalizeImports(source){return source
   .replace("import { GLTFLoader } from 'https://unpkg.com/three@0.180.0/examples/jsm/loaders/GLTFLoader.js';","import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';")
   .replace("import { EffectComposer } from 'https://unpkg.com/three@0.180.0/examples/jsm/postprocessing/EffectComposer.js';","import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';")
@@ -62,12 +63,17 @@ for(const [remote,entry] of entries){
 }
 for(const file of [
   'vendor/three/build/three.module.js',
+  'vendor/three/build/three.core.js',
   'vendor/three/examples/jsm/loaders/GLTFLoader.js',
   'vendor/three/examples/jsm/postprocessing/EffectComposer.js',
   'vendor/three/examples/jsm/postprocessing/RenderPass.js',
   'vendor/three/examples/jsm/postprocessing/UnrealBloomPass.js',
   'vendor/pako/pako.esm.mjs'
 ]){const b=await readFile(file);if(!b.length)fail('vendored browser library missing/empty: '+file);}
+const threeModule=await readFile('vendor/three/build/three.module.js','utf8');
+if(!threeModule.includes("from './three.core.js'"))fail('Three.js r180 module no longer declares expected local three.core.js dependency');
+const threeCore=await readFile('vendor/three/build/three.core.js');
+if(gitBlobSha1(threeCore)!=='7dcd0fbcbc04b8d9a20ecb96c1ce344cb55150d5')fail('vendored Three.js r180 core blob identity mismatch');
 
 const loader=await readFile('game.js','utf8'),index=await readFile('index.html','utf8');
 for(const marker of [
@@ -106,4 +112,4 @@ for(const protectedMarker of [
   'window.__PINEWOOD_VISUAL_READY__=true'
 ])if(!source.includes(protectedMarker))fail('protected pre-v15 runtime marker missing: '+protectedMarker);
 await syntaxCheck(source);
-console.log(`Local Assets v15 PASS: ${entries.length} top-level assets plus dependencies are present and hash-verified; Three.js/Pako are local; final runtime model, PBR, music and authored asset loads contain no external media URL; protected v14/elevator/fountain/audio invariants survive; syntax is valid.`);
+console.log(`Local Assets v15 PASS: ${entries.length} top-level assets plus dependencies are present and hash-verified; Three.js/Pako are local including the exact pinned Three.js r180 core dependency; final runtime model, PBR, music and authored asset loads contain no external media URL; protected v14/elevator/fountain/audio invariants survive; syntax is valid.`);
