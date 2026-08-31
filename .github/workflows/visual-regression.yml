@@ -35,9 +35,10 @@ jobs:
       - name: Capture deterministic store views
         run: node scripts/capture-store-visuals.mjs
       - name: Upload screenshots and telemetry
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: pinewood-store-visuals
           path: visual-artifacts/
-          if-no-files-found: error
+          if-no-files-found: warn
           retention-days: 14
