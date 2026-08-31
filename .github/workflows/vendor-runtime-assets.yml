@@ -8,6 +8,7 @@ on:
       - 'scripts/apply-local-runtime-v15.mjs'
       - 'scripts/finalize-local-assets-v15.mjs'
       - 'scripts/patch-cassette-audits-v15.mjs'
+      - 'scripts/sanitize-loader-v15.mjs'
       - 'patches/local-assets-v15.js.txt'
       - '.github/workflows/vendor-runtime-assets.yml'
   workflow_dispatch:
@@ -39,6 +40,8 @@ jobs:
         run: node scripts/vendor-runtime-assets.mjs
       - name: Wire local runtime v15
         run: node scripts/apply-local-runtime-v15.mjs
+      - name: Remove remote browser-library literals
+        run: node scripts/sanitize-loader-v15.mjs
       - name: Normalize manifest and document permanent policy
         run: node scripts/finalize-local-assets-v15.mjs
       - name: Update inherited Cassette Castle audit handoff
