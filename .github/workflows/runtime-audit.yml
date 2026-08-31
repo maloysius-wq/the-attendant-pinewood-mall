@@ -16,6 +16,7 @@ on:
       - 'scripts/audit-cassette-castle-v13.mjs'
       - 'scripts/audit-cassette-castle-v14.mjs'
       - 'scripts/audit-local-assets-v15.mjs'
+      - 'scripts/audit-retail-geometry-v16.mjs'
       - '.github/workflows/runtime-audit.yml'
   pull_request:
     paths:
@@ -31,6 +32,7 @@ on:
       - 'scripts/audit-cassette-castle-v13.mjs'
       - 'scripts/audit-cassette-castle-v14.mjs'
       - 'scripts/audit-local-assets-v15.mjs'
+      - 'scripts/audit-retail-geometry-v16.mjs'
       - '.github/workflows/runtime-audit.yml'
   workflow_dispatch:
 
@@ -58,5 +60,7 @@ jobs:
         run: node scripts/audit-cassette-castle-v14.mjs
       - name: Validate local runtime assets v15
         run: node scripts/audit-local-assets-v15.mjs
+      - name: Validate retail geometry v16
+        run: node scripts/audit-retail-geometry-v16.mjs
 
-# Verification trigger: local-assets v15 final gate
+# Verification trigger: retail geometry v16 deep-dive gate
