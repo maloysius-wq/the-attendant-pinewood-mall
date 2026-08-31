@@ -112,7 +112,7 @@ requireMarkers(source, [
   "assetModel:'kenney-imported-freight-elevator-v2'",
   "const inside=local.x>.65&&local.x<1.82&&Math.abs(local.z)<.64","u.state='ride'",
   'eu.doorBlocker.disabled=','physicalBlock===false','physicalBlock:false','eu.navExclusion=world.addCollider',
-  "elevatorHold=this.exitObject?.userData?.type==='exit'","elevatorSafe=local.x>.24&&local.x<2.02",
+  "['closing','ride'].includes(this.exitObject.userData.state)","elevatorSafe=local.x>.24&&local.x<2.02",
   'Master Service Key + call elevator',"Find the Master Service Key",
   'KayKit-Game-Assets/KayKit-Dungeon-Remastered-1.0/b0ca9bd96a8072ab36a3a5464f00ed1e06a16d07',
   'SAVE.settings.muzak?.126:0','this.mallRate=.5','this.mallEchoA','preservesPitch=false','this.syncMallEchoes(false)',
