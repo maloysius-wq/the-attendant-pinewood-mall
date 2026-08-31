@@ -1,0 +1,135 @@
+function applyFountainRebuildV8(source){
+  const fail=msg=>{throw new Error(`Fountain Rebuild v8 patch failed: ${msg}`);};
+  const replaceOnce=(label,needle,replacement)=>{
+    const first=source.indexOf(needle);
+    if(first<0)fail(`${label}: marker missing`);
+    if(source.indexOf(needle,first+needle.length)>=0)fail(`${label}: marker is not unique`);
+    source=source.slice(0,first)+replacement+source.slice(first+needle.length);
+  };
+
+  replaceOnce(
+    'runtime fountain attribution',
+    'POLY HAVEN\\\nLicense: Creative Commons Zero (CC0 1.0)\\',
+`KENNEY — Starter Kit City Builder / pavement-fountain.glb\\
+License: Creative Commons Zero (CC0 1.0) for included 3D assets\\
+Source: https://github.com/KenneyNL/Starter-Kit-City-Builder\\
+Pinned commit: 4535092b740b378b700efd9df9e27a631815b84a\\
+Used for: the imported center sculpture/nozzle form inside Pinewood's custom-fit central fountain.\\
+\\
+POLY HAVEN\\
+License: Creative Commons Zero (CC0 1.0)\\`
+  );
+  replaceOnce(
+    'runtime fountain Poly Haven source list',
+    'Sources: terrazzo_tiles, dirty_carpet, floor_tiles_06, concrete_wall_001\\',
+    'Sources: terrazzo_tiles, dirty_carpet, floor_tiles_06, concrete_wall_001, marble_tiles, grey_tiles\\'
+  );
+  replaceOnce(
+    'runtime fountain Poly Haven URLs',
+    'https://polyhaven.com/a/concrete_wall_001\\\nUsed for: mall terrazzo, worn arcade/VHS carpet and food-court tile surfaces.\\',
+    'https://polyhaven.com/a/concrete_wall_001\\\nhttps://polyhaven.com/a/marble_tiles\\\nhttps://polyhaven.com/a/grey_tiles\\\nUsed for: mall terrazzo, worn arcade/VHS carpet, food-court tile surfaces, and the abandoned central fountain rim/basin.\\'
+  );
+
+  replaceOnce(
+    'fountain builder insertion',
+    'async function decorateLevel(world,idx){',
+`const FOUNTAIN_CC0_URL='https://raw.githubusercontent.com/KenneyNL/Starter-Kit-City-Builder/4535092b740b378b700efd9df9e27a631815b84a/models/pavement-fountain.glb';
+const FOUNTAIN_PH_BASE='https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k';
+async function makeFountainPBR(assetId,fallback,repeat=2){
+  const mat=new THREE.MeshStandardMaterial({color:fallback,roughness:.82,metalness:.02});
+  try{
+    const [d,n,r]=await withTimeout(Promise.all([
+      assets.tex.loadAsync(FOUNTAIN_PH_BASE+'/'+assetId+'/'+assetId+'_diff_1k.jpg'),
+      assets.tex.loadAsync(FOUNTAIN_PH_BASE+'/'+assetId+'/'+assetId+'_nor_gl_1k.jpg'),
+      assets.tex.loadAsync(FOUNTAIN_PH_BASE+'/'+assetId+'/'+assetId+'_rough_1k.jpg')
+    ]),7000,'fountain '+assetId+' textures');
+    for(const t of[d,n,r]){t.wrapS=t.wrapT=THREE.RepeatWrapping;t.repeat.set(repeat,repeat);t.anisotropy=8;}
+    d.colorSpace=THREE.SRGBColorSpace;mat.map=d;mat.normalMap=n;mat.roughnessMap=r;mat.color.setHex(0xffffff);mat.needsUpdate=true;
+  }catch(err){assets.failures.push('fountain '+assetId+' texture: '+(err?.message||err));}
+  return mat;
+}
+function addFountainCylinder(group,radius,height,y,material,segments=48,openEnded=false){
+  const mesh=new THREE.Mesh(new THREE.CylinderGeometry(radius,radius,height,segments,1,openEnded),material);mesh.position.y=y;mesh.castShadow=true;mesh.receiveShadow=true;group.add(mesh);return mesh;
+}
+function addFountainNozzleFallback(group,stoneMat){
+  const fallback=new THREE.Group();fallback.name='fountain-center-procedural-fallback';group.add(fallback);
+  const metal=new THREE.MeshStandardMaterial({color:0x565b5d,roughness:.34,metalness:.72});
+  addFountainCylinder(fallback,.29,.18,.13,stoneMat,36);
+  addFountainCylinder(fallback,.17,.42,.43,stoneMat,32);
+  addFountainCylinder(fallback,.23,.075,.665,metal,32);
+  addFountainCylinder(fallback,.055,.24,.80,metal,20);
+  const cap=new THREE.Mesh(new THREE.SphereGeometry(.085,18,12),metal);cap.position.y=.925;fallback.add(cap);
+  const up=new THREE.Vector3(0,1,0);
+  for(let i=0;i<4;i++){
+    const a=i*Math.PI/2,dir=new THREE.Vector3(Math.cos(a),-.16,Math.sin(a)).normalize();
+    const pipe=new THREE.Mesh(new THREE.CylinderGeometry(.018,.024,.27,12),metal);
+    pipe.quaternion.setFromUnitVectors(up,dir);pipe.position.set(Math.cos(a)*.11,.875,Math.sin(a)*.11);pipe.castShadow=true;fallback.add(pipe);
+  }
+  return fallback;
+}
+async function attachFountainCenter(group,fallback,stoneMat){
+  try{
+    const gltf=await withTimeout(assets.gltf.loadAsync(FOUNTAIN_CC0_URL),7000,'Kenney pavement fountain');
+    const model=gltf.scene;model.position.set(0,0,0);model.rotation.set(0,0,0);model.scale.set(1,1,1);model.updateWorldMatrix(true,true);
+    let box=new THREE.Box3().setFromObject(model),dims=box.getSize(new THREE.Vector3());
+    if(dims.x<1e-4||dims.y<1e-4||dims.z<1e-4)throw new Error('invalid fountain model bounds');
+    const scale=Math.min(.92/dims.x,.72/dims.y,.92/dims.z);model.scale.setScalar(scale);model.updateWorldMatrix(true,true);
+    box=new THREE.Box3().setFromObject(model);const center=box.getCenter(new THREE.Vector3());
+    model.position.x-=center.x;model.position.z-=center.z;model.position.y=.085-box.min.y;
+    model.traverse(o=>{if(o.isMesh){o.castShadow=true;o.receiveShadow=true;o.material=stoneMat.clone();o.material.roughness=.74;}});
+    group.add(model);fallback.visible=false;group.userData.assetModel='kenney-city-builder-pavement-fountain';
+  }catch(err){console.warn('CC0 fountain model failed; keeping modeled fallback.',err);group.userData.assetFallback=true;}
+}
+async function buildCentralFountain(world){
+  const g=new THREE.Group();g.name='Pinewood Central Fountain';g.position.set(0,0,0);g.userData={type:'scenery',assetModel:'kenney-city-builder-pavement-fountain',assetFallback:false,footprintRadius:1.64};
+  const outerR=1.64,innerR=1.16,rimY=.37;
+  const [rimMat,basinMat]=await Promise.all([makeFountainPBR('marble_tiles',0x8c8780,2.35),makeFountainPBR('grey_tiles',0x666765,2.8)]);
+  const innerSide=basinMat.clone();innerSide.side=THREE.DoubleSide;innerSide.roughness=.91;
+  addFountainCylinder(g,outerR,.34,.17,rimMat,64,true);
+  addFountainCylinder(g,innerR,.28,.22,innerSide,64,true);
+  const top=new THREE.Mesh(new THREE.RingGeometry(innerR,outerR,64),rimMat);top.rotation.x=-Math.PI/2;top.position.y=rimY;top.receiveShadow=true;g.add(top);
+  const coping=new THREE.Mesh(new THREE.TorusGeometry(1.535,.095,12,64),rimMat);coping.rotation.x=Math.PI/2;coping.position.y=rimY+.015;coping.castShadow=true;coping.receiveShadow=true;g.add(coping);
+  const floor=addFountainCylinder(g,innerR-.025,.075,.0375,basinMat,64);floor.receiveShadow=true;
+  const waterlineMat=new THREE.MeshStandardMaterial({color:0x62513f,roughness:.96,transparent:true,opacity:.72});
+  const waterline=new THREE.Mesh(new THREE.TorusGeometry(innerR-.035,.018,8,64),waterlineMat);waterline.rotation.x=Math.PI/2;waterline.position.y=.205;g.add(waterline);
+  const mineralMat=new THREE.MeshStandardMaterial({color:0xb6afa0,roughness:.98,transparent:true,opacity:.58});
+  const mineral=new THREE.Mesh(new THREE.TorusGeometry(innerR-.07,.012,7,64),mineralMat);mineral.rotation.x=Math.PI/2;mineral.position.y=.315;g.add(mineral);
+  const dampMat=new THREE.MeshStandardMaterial({color:0x222524,roughness:.46,transparent:true,opacity:.42});
+  const damp=new THREE.Mesh(new THREE.CircleGeometry(.82,48),dampMat);damp.rotation.x=-Math.PI/2;damp.position.y=.078;damp.scale.set(1,.72,1);g.add(damp);
+  const centerFallback=addFountainNozzleFallback(g,rimMat);await attachFountainCenter(g,centerFallback,rimMat);
+  const coinMat=new THREE.MeshStandardMaterial({color:0x806d3e,roughness:.43,metalness:.62});
+  for(const[x,z,r]of[[.72,.24,.15],[-.64,.34,-.4],[.34,-.72,.8],[-.48,-.58,-.2],[.83,-.25,.35],[-.12,.79,.7]]){
+    const coin=new THREE.Mesh(new THREE.CylinderGeometry(.025,.025,.004,12),coinMat);coin.position.set(x,.083,z);coin.rotation.set(Math.PI/2,r,0);coin.castShadow=true;g.add(coin);
+  }
+  const paperMat=new THREE.MeshStandardMaterial({color:0xb3a98e,roughness:.96,side:THREE.DoubleSide});
+  for(const[x,z,ry,sx,sz]of[[.52,.61,.4,.15,.09],[-.78,-.17,-.7,.12,.08],[-.22,-.82,.9,.13,.07]]){
+    const paper=new THREE.Mesh(new THREE.PlaneGeometry(sx,sz),paperMat);paper.rotation.set(-Math.PI/2,.08,ry);paper.position.set(x,.086,z);g.add(paper);
+  }
+  const rustMat=new THREE.MeshStandardMaterial({color:0x5a2816,roughness:.94,transparent:true,opacity:.76});
+  for(const[a,h,y]of[[.35,.18,.171],[1.8,.13,.159],[3.15,.20,.178],[4.7,.15,.164],[5.55,.11,.183]]){
+    const stain=new THREE.Mesh(new THREE.PlaneGeometry(.055,h),rustMat);const r=innerR-.006;stain.position.set(Math.cos(a)*r,y,Math.sin(a)*r);stain.lookAt(0,stain.position.y,0);g.add(stain);
+  }
+  world.root.add(g);
+  const stripeH=.34;
+  for(let i=-4;i<=4;i++){
+    const z=i*stripeH,edge=Math.abs(z)+stripeH/2,half=Math.sqrt(Math.max(.01,outerR*outerR-edge*edge));
+    world.addCollider(0,z,half*2,stripeH,{navBlock:true,owner:g,pad:0});
+  }
+  return g;
+}
+
+async function decorateLevel(world,idx){`
+  );
+
+  replaceOnce(
+    'Chapter 1 primitive fountain replacement',
+    "    const stone=new THREE.MeshStandardMaterial({color:0x777476,roughness:.82,metalness:.02});const basin=new THREE.Mesh(new THREE.CylinderGeometry(1.45,1.65,.38,28),stone);basin.position.set(0,.19,0);world.root.add(basin);const inner=new THREE.Mesh(new THREE.CylinderGeometry(.95,.95,.41,28),new THREE.MeshStandardMaterial({color:0x17191b,roughness:.88}));inner.position.set(0,.25,0);world.root.add(inner);world.addCollider(0,0,3.2,3.2,{navBlock:true,pad:.05});",
+    "    await buildCentralFountain(world);"
+  );
+
+  if(!source.includes("assetModel:'kenney-city-builder-pavement-fountain'"))fail('CC0 fountain model marker missing');
+  if(!source.includes("makeFountainPBR('marble_tiles'")||!source.includes("makeFountainPBR('grey_tiles'"))fail('fountain PBR textures missing');
+  if(!source.includes('footprintRadius:1.64')||!source.includes('for(let i=-4;i<=4;i++)'))fail('fountain footprint/collision markers missing');
+  if(source.includes('world.addCollider(0,0,3.2,3.2,{navBlock:true,pad:.05})'))fail('retired square fountain collider survived');
+  return source;
+}
