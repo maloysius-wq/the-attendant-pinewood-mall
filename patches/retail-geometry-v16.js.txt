@@ -81,8 +81,17 @@ async function stockCassetteFixture(world,fixture,rot,{rows=4,cols=9,density=.94
     const light=new THREE.PointLight(0xffb36b,intensity,6.2,2);light.position.set(x,2.55,z);finish.add(light);
   }
   return finish;
-}
-async function addCassetteLowFixtureV14(world,x,z,rot=0){
+}`
+  );
+
+  replaceOnce(
+    'black low Cassette Castle fixtures',
+`async function addCassetteLowFixtureV14(world,x,z,rot=0){
+  const placed=await placeCassetteGrounded(world.root,'cassetteShelfLow',new THREE.Vector3(x,0,z),{targetHeight:1.08,rot,collide:true,pad:.035,tag:'low-merch-fixture-v14'});
+  if(placed)await stockCassetteFixture(world,placed.obj,rot,{rows:3,cols:8,density:.78});
+  return placed;
+}`,
+`async function addCassetteLowFixtureV14(world,x,z,rot=0){
   const placed=await placeCassetteGrounded(world.root,'cassetteShelfLow',new THREE.Vector3(x,0,z),{targetHeight:1.08,rot,collide:true,pad:.035,tag:'low-merch-fixture-v16'});
   if(placed){blackenCassetteFixtureV16(placed.obj);await stockCassetteFixture(world,placed.obj,rot,{rows:3,cols:8,density:.96});}
   return placed;
@@ -120,14 +129,18 @@ async function buildArcade(world){`
     "  await placeModel(world.root,'counterDesk',new THREE.Vector3(12.3,0,-20.7),{targetHeight:1.0,targetLongest:2.45,rot:-.08,collide:true,fallback:'table'});\n  await placeModel(world.root,'marketCash',new THREE.Vector3(12.0,1.01,-20.55),{targetHeight:.28,targetLongest:.42,rot:Math.PI,collide:false,fallback:'box'});",
     "  await makeSharedRetailCheckoutV16(world,12.3,-20.7,-.08,'marketCash',Math.PI);"
   );
-  replaceRange(
+  replaceOnce(
     'Cassette Castle checkout standardization',
-    'async function buildCassetteCheckoutV14(world){',
-    '\n\nasync function buildArcade(world){',
+`async function buildCassetteCheckoutV14(world){
+  const counter=await placeCassetteGrounded(world.root,'cassetteServiceCounter',new THREE.Vector3(12.05,0,28.72),{targetHeight:.96,rot:0,collide:true,pad:.035,tag:'checkout-counter-v14'});
+  if(!counter)return null;
+  const box=cassetteWorldBox(counter.obj),size=box.getSize(new THREE.Vector3()),center=box.getCenter(new THREE.Vector3()),top=box.max.y;
+  await placeCassetteOnSurface(world.root,'arcadeCash',center.x-.02,center.z-size.z*.22,top+.012,{targetHeight:.27,rot:Math.PI/2,tag:'checkout-register-v14'});
+  return counter;
+}`,
 `async function buildCassetteCheckoutV14(world){
   return await makeSharedRetailCheckoutV16(world,13.40,28.72,0,'arcadeCash',Math.PI/2);
-}
-\nasync function buildArcade(world){`
+}`
   );
 
   // Freight elevator: align both leaves to the same facade center, close without a seam,

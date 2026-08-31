@@ -72,13 +72,13 @@ for(const marker of ['store-finish-v16','wallOverlayRemoved=true','new THREE.Pla
 for(const forbidden of ['const wallMat=','panel(','rail(','PlaneGeometry(w,h),wallMat'])if(finish.includes(forbidden))fail('half-height wall overlay survived: '+forbidden);
 if(finish.includes('addCollider'))fail('visual-only finish must not modify collision/navigation');
 
-const arcade=section(source,'async function buildArcade(world){','\nasync function buildVideo','Arcade');
+const arcade=section(source,'async function buildArcade(world){','\nasync function buildVHS(world){','Arcade');
 if(!arcade.includes("makeSharedRetailCheckoutV16(world,-14.1,-29,0,'arcadeCash'"))fail('Arcade is not using shared restaurant-style checkout');
 if(arcade.includes("placeModel(world.root,'counterDesk'"))fail('Arcade legacy desk checkout survived');
-const video=section(source,'async function buildVideo','\nasync function buildFoodCourt','Video Planet');
+const video=section(source,'async function buildVHS(world){','\nasync function buildFoodCourt(world){','Video Planet');
 if(!video.includes("makeSharedRetailCheckoutV16(world,12.3,-20.7,-.08,'marketCash'"))fail('Video Planet is not using shared restaurant-style checkout');
 if(video.includes("placeModel(world.root,'counterDesk'"))fail('Video Planet legacy desk checkout survived');
-const checkout=section(source,'async function buildCassetteCheckoutV14(world){','\n\nasync function buildArcade(world){','Cassette checkout');
+const checkout=section(source,'async function buildCassetteCheckoutV14(world){','\nasync function makeSharedRetailCheckoutV16(','Cassette checkout');
 if(!checkout.includes("makeSharedRetailCheckoutV16(world,13.40,28.72,0,'arcadeCash'"))fail('Cassette Castle is not using shared restaurant-style checkout');
 if(source.includes("placeCassetteGrounded(world.root,'cassetteServiceCounter',new THREE.Vector3(12.05,0,28.72)"))fail('Cassette legacy KSI checkout survived');
 

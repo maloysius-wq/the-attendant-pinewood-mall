@@ -81,7 +81,7 @@ for(const marker of [
   "const LOCAL_ASSETS_MANIFEST='./assets/vendor/runtime/manifest.json';",
   "import('./vendor/pako/pako.esm.mjs')",
   'applyLocalAssetsV15Runtime(cassetteV14Source,localAssetsPatch,localAssetsManifest)',
-  'const source=localAssetsV15Source+'
+  'const source=retailV16Source+'
 ])if(!loader.includes(marker))fail('game.js local-v15 marker missing: '+marker);
 for(const forbidden of ['cdn.jsdelivr.net/npm/pako','unpkg.com/three@','cdn.jsdelivr.net/npm/three@'])if(loader.includes(forbidden))fail('game.js still contains remote browser dependency: '+forbidden);
 if(!index.includes('"three":"./vendor/three/build/three.module.js"')||!index.includes('"three/addons/":"./vendor/three/examples/jsm/"'))fail('index local Three.js import map missing');
