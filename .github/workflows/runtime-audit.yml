@@ -1,35 +1,34 @@
-name: Runtime audit helper
+name: Runtime audit
 
 on:
   push:
+    branches: [main]
     paths:
+      - 'game.js'
+      - 'bundle2/**'
+      - 'patches/**'
+      - 'scripts/audit-runtime.mjs'
       - '.github/workflows/runtime-audit.yml'
+  pull_request:
+    paths:
+      - 'game.js'
+      - 'bundle2/**'
+      - 'patches/**'
+      - 'scripts/audit-runtime.mjs'
+      - '.github/workflows/runtime-audit.yml'
+  workflow_dispatch:
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
-  decode-runtime:
+  audit-runtime:
     runs-on: ubuntu-latest
+    timeout-minutes: 5
     steps:
       - uses: actions/checkout@v4
-      - name: Decode runtime bundle
-        shell: python
-        run: |
-          import base64, gzip
-          parts = [
-              'bundle2/part-01.txt','bundle2/part-02.txt','bundle2/part-03.txt',
-              'bundle2/p4-1.txt','bundle2/p4-2.txt','bundle2/p4-3.txt','bundle2/p4-4.txt','bundle2/p4-5.txt',
-              'bundle2/p5-1.txt','bundle2/p5-2.txt','bundle2/p5-3.txt','bundle2/p5-4.txt','bundle2/p5-5.txt'
-          ]
-          payload = ''.join(open(p, encoding='utf-8').read().strip() for p in parts)
-          source = gzip.decompress(base64.b64decode(payload)).decode('utf-8')
-          open('runtime-audit.js','w',encoding='utf-8').write(source)
-          print(f'Decoded {len(source)} characters')
-      - name: Commit decoded audit source
-        run: |
-          git config user.name "pinewood-runtime-audit"
-          git config user.email "actions@users.noreply.github.com"
-          git add runtime-audit.js
-          git commit -m "chore: expose runtime for prop audit"
-          git push
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Reconstruct and validate deployed runtime
+        run: node scripts/audit-runtime.mjs
