@@ -1,0 +1,40 @@
+name: Vendor Three.js core
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/vendor-three-core.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  vendor-three-core:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - name: Fetch pinned Three.js r180 core
+        run: |
+          set -euo pipefail
+          mkdir -p vendor/three/build
+          curl --fail --location --retry 3 \
+            https://raw.githubusercontent.com/mrdoob/three.js/r180/build/three.core.js \
+            --output vendor/three/build/three.core.js
+          test "$(wc -c < vendor/three/build/three.core.js)" -eq 1406669
+          test "$(git hash-object vendor/three/build/three.core.js)" = "7dcd0fbcbc04b8d9a20ecb96c1ce344cb55150d5"
+      - name: Commit vendored core
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add vendor/three/build/three.core.js
+          if git diff --cached --quiet; then
+            echo "Three.js core already vendored."
+            exit 0
+          fi
+          git commit -m "Vendor Three.js r180 core dependency"
+          git push origin HEAD:main
