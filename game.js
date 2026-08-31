@@ -15,6 +15,7 @@ const STATUS_PATCH='./patches/status-lights-v5.js.txt';
 const AUDIO_PATCH='./patches/audio-immersion-v6.js.txt';
 const ELEVATOR_PATCH='./patches/elevator-rebuild-v7.js.txt';
 const FOUNTAIN_PATCH='./patches/fountain-rebuild-v8.js.txt';
+const CASSETTE_PATCH='./patches/cassette-castle-rebuild-v9.js.txt';
 const FOOD_PATCH='./patches/foodcourt-v3.js.txt';
 
 async function getText(url){
@@ -82,6 +83,10 @@ async function applyFountainRebuild(source,patchText){
   const patchUrl=URL.createObjectURL(new Blob([patchText+'\nexport { applyFountainRebuildV8 };\n'],{type:'text/javascript'}));
   try{const mod=await import(patchUrl);if(typeof mod.applyFountainRebuildV8!=='function')throw new Error('Fountain Rebuild v8 patch did not export its patch function.');return mod.applyFountainRebuildV8(source);}finally{URL.revokeObjectURL(patchUrl);}
 }
+async function applyCassetteCastleRebuild(source,patchText){
+  const patchUrl=URL.createObjectURL(new Blob([patchText+'\nexport { applyCassetteCastleRebuildV9 };\n'],{type:'text/javascript'}));
+  try{const mod=await import(patchUrl);if(typeof mod.applyCassetteCastleRebuildV9!=='function')throw new Error('Cassette Castle Rebuild v9 patch did not export its patch function.');return mod.applyCassetteCastleRebuildV9(source);}finally{URL.revokeObjectURL(patchUrl);}
+}
 
 function replaceFoodCourt(source,replacement){
   const start=source.indexOf('async function buildFoodCourt(world){');
@@ -110,8 +115,8 @@ async function preflightThree(){
 
 try{
   await preflightThree();
-  const [base,worldPatch,industrialPatch,visualFixPatch,storePatch,systemsPatch,reliabilityPatch,statusPatch,audioPatch,elevatorPatch,fountainPatch,foodPatch]=await Promise.all([
-    decodeSource(),getText(WORLD_PATCH),getText(INDUSTRIAL_PATCH),getText(VISUAL_FIX_PATCH),getText(STORE_PATCH),getText(SYSTEMS_PATCH),getText(RELIABILITY_PATCH),getText(STATUS_PATCH),getText(AUDIO_PATCH),getText(ELEVATOR_PATCH),getText(FOUNTAIN_PATCH),getText(FOOD_PATCH)
+  const [base,worldPatch,industrialPatch,visualFixPatch,storePatch,systemsPatch,reliabilityPatch,statusPatch,audioPatch,elevatorPatch,fountainPatch,cassettePatch,foodPatch]=await Promise.all([
+    decodeSource(),getText(WORLD_PATCH),getText(INDUSTRIAL_PATCH),getText(VISUAL_FIX_PATCH),getText(STORE_PATCH),getText(SYSTEMS_PATCH),getText(RELIABILITY_PATCH),getText(STATUS_PATCH),getText(AUDIO_PATCH),getText(ELEVATOR_PATCH),getText(FOUNTAIN_PATCH),getText(CASSETTE_PATCH),getText(FOOD_PATCH)
   ]);
   const worldSource=await applyWorldProps(normalizeImports(base),worldPatch);
   const industrialSource=await applyIndustrialCc0(worldSource,industrialPatch);
@@ -123,7 +128,8 @@ try{
   const audioSource=await applyAudioImmersion(statusSource,audioPatch);
   const elevatorSource=await applyElevatorRebuild(audioSource,elevatorPatch);
   const fountainSource=await applyFountainRebuild(elevatorSource,fountainPatch);
-  const source=replaceFoodCourt(fountainSource,foodPatch)+'\n//# sourceURL=pinewood-runtime.js\n';
+  const cassetteSource=await applyCassetteCastleRebuild(fountainSource,cassettePatch);
+  const source=replaceFoodCourt(cassetteSource,foodPatch)+'\n//# sourceURL=pinewood-runtime.js\n';
   const moduleUrl=URL.createObjectURL(new Blob([source],{type:'text/javascript'}));
   try{await import(moduleUrl);}finally{URL.revokeObjectURL(moduleUrl);}
 }catch(err){
