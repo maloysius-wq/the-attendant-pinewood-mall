@@ -1,0 +1,654 @@
+{
+  "version": 15,
+  "generatedFrom": "assembled-v14-runtime",
+  "policy": "All runtime media is served locally. Source URLs are provenance/development-time inputs only.",
+  "assets": {
+    "https://dl.polyhaven.org/file/ph-assets/Models/gltf/2k/cassette_player/cassette_player_2k.gltf": {
+      "local": "./assets/vendor/runtime/4ffc4e5e21b687d6/cassette_player_2k.gltf",
+      "sha256": "cdcf14188143c2b8f95447dcf020b32f5f1821218e3e7d4038e344ca6a9d71f9",
+      "bytes": 7549,
+      "fetchedFrom": "https://raw.githubusercontent.com/QueenOfSquiggles/squiggle-pt/deabff55b5df0b8989e58400bdf05de1c8e1eae1/Game/Assets/Models/Decoration/cassette_player_2k.gltf",
+      "dependencies": [
+        {
+          "uri": "cassette_player.bin",
+          "source": "https://raw.githubusercontent.com/QueenOfSquiggles/squiggle-pt/deabff55b5df0b8989e58400bdf05de1c8e1eae1/Game/Assets/Models/Decoration/cassette_player.bin",
+          "local": ".//home/runner/work/the-attendant-pinewood-mall/the-attendant-pinewood-mall/assets/vendor/runtime/4ffc4e5e21b687d6/cassette_player.bin",
+          "sha256": "5ebf8d2361d54fa9640b50c28f38a516135a39e0030e513a8cd3fd3096b335f8",
+          "bytes": 147476
+        },
+        {
+          "uri": "textures/cassette_player_body_nor_gl_2k.jpg",
+          "source": "https://raw.githubusercontent.com/QueenOfSquiggles/squiggle-pt/deabff55b5df0b8989e58400bdf05de1c8e1eae1/Game/Assets/Models/Decoration/textures/cassette_player_body_nor_gl_2k.jpg",
+          "local": ".//home/runner/work/the-attendant-pinewood-mall/the-attendant-pinewood-mall/assets/vendor/runtime/4ffc4e5e21b687d6/textures/cassette_player_body_nor_gl_2k.jpg",
+          "sha256": "f0800b44ba1db32d4ee38cbfd860d6f9568780ca8ee7f82c6c2ee0d546739705",
+          "bytes": 399091
+        },
+        {
+          "uri": "textures/cassette_player_body_diff_2k.jpg",
+          "source": "https://raw.githubusercontent.com/QueenOfSquiggles/squiggle-pt/deabff55b5df0b8989e58400bdf05de1c8e1eae1/Game/Assets/Models/Decoration/textures/cassette_player_body_diff_2k.jpg",
+          "local": ".//home/runner/work/the-attendant-pinewood-mall/the-attendant-pinewood-mall/assets/vendor/runtime/4ffc4e5e21b687d6/textures/cassette_player_body_diff_2k.jpg",
+          "sha256": "fcbc01c9e943cf213b07716dfa4d02ac8a1f5184ed47a6ec8a55930305f70767",
+          "bytes": 371331
+        },
+        {
+          "uri": "textures/cassette_player_body_arm_2k.jpg",
+          "source": "https://raw.githubusercontent.com/QueenOfSquiggles/squiggle-pt/deabff55b5df0b8989e58400bdf05de1c8e1eae1/Game/Assets/Models/Decoration/textures/cassette_player_body_arm_2k.jpg",
+          "local": ".//home/runner/work/the-attendant-pinewood-mall/the-attendant-pinewood-mall/assets/vendor/runtime/4ffc4e5e21b687d6/textures/cassette_player_body_arm_2k.jpg",
+          "sha256": "fdb8bfff859c022f0f7ececb0a676a2101c0dfdda459d70ffce199a6288cb826",
+          "bytes": 594696
+        },
+        {
+          "uri": "textures/cassette_player_tape_nor_gl_2k.jpg",
+          "source": "https://raw.githubusercontent.com/QueenOfSquiggles/squiggle-pt/deabff55b5df0b8989e58400bdf05de1c8e1eae1/Game/Assets/Models/Decoration/textures/cassette_player_tape_nor_gl_2k.jpg",
+          "local": ".//home/runner/work/the-attendant-pinewood-mall/the-attendant-pinewood-mall/assets/vendor/runtime/4ffc4e5e21b687d6/textures/cassette_player_tape_nor_gl_2k.jpg",
+          "sha256": "0fa2b242b65d994cdd94c11692843f2902d35139540f01b5e622c972b8975b11",
+          "bytes": 331736
+        },
+        {
+          "uri": "textures/cassette_player_tape_orangeblue_diff_2k.jpg",
+          "source": "https://raw.githubusercontent.com/QueenOfSquiggles/squiggle-pt/deabff55b5df0b8989e58400bdf05de1c8e1eae1/Game/Assets/Models/Decoration/textures/cassette_player_tape_orangeblue_diff_2k.jpg",
+          "local": ".//home/runner/work/the-attendant-pinewood-mall/the-attendant-pinewood-mall/assets/vendor/runtime/4ffc4e5e21b687d6/textures/cassette_player_tape_orangeblue_diff_2k.jpg",
+          "sha256": "f2b84e0a056662975e0c5abb0ef081a0f9a3391da91f6c2ad1d62b62e50d8388",
+          "bytes": 436178
+        },
+        {
+          "uri": "textures/cassette_player_tape_arm_2k.jpg",
+          "source": "https://raw.githubusercontent.com/QueenOfSquiggles/squiggle-pt/deabff55b5df0b8989e58400bdf05de1c8e1eae1/Game/Assets/Models/Decoration/textures/cassette_player_tape_arm_2k.jpg",
+          "local": ".//home/runner/work/the-attendant-pinewood-mall/the-attendant-pinewood-mall/assets/vendor/runtime/4ffc4e5e21b687d6/textures/cassette_player_tape_arm_2k.jpg",
+          "sha256": "af86af4ccc3bed8586d2cfbc0f2ec9dda6c248bb10e2d9db59e56ca060c9c97d",
+          "bytes": 308284
+        }
+      ]
+    },
+    "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/concrete_wall_001/concrete_wall_001_diff_1k.jpg": {
+      "local": "./assets/vendor/runtime/2cc17a586ae39128/concrete_wall_001_diff_1k.jpg",
+      "sha256": "c3c936da86d57997d9fc4022371c3798c8d438aeecb8f41546104da6d3947c02",
+      "bytes": 79320,
+      "fetchedFrom": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/concrete_wall_001/concrete_wall_001_diff_1k.jpg",
+      "dependencies": []
+    },
+    "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/concrete_wall_001/concrete_wall_001_nor_gl_1k.jpg": {
+      "local": "./assets/vendor/runtime/4604e3541bb1bd4c/concrete_wall_001_nor_gl_1k.jpg",
+      "sha256": "6f10711d123c8dff26375555196eae9e16d874c137acdacd44d1ba90168b6d46",
+      "bytes": 179270,
+      "fetchedFrom": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/concrete_wall_001/concrete_wall_001_nor_gl_1k.jpg",
+      "dependencies": []
+    },
+    "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/concrete_wall_001/concrete_wall_001_rough_1k.jpg": {
+      "local": "./assets/vendor/runtime/b9a1b6af3c621e74/concrete_wall_001_rough_1k.jpg",
+      "sha256": "d0964c690a8de99fb4f6657e0d3474eea9f9f293d080f4e5c871a55857d9448b",
+      "bytes": 156479,
+      "fetchedFrom": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/concrete_wall_001/concrete_wall_001_rough_1k.jpg",
+      "dependencies": []
+    },
+    "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/dirty_carpet/dirty_carpet_diff_1k.jpg": {
+      "local": "./assets/vendor/runtime/282ba676c940051b/dirty_carpet_diff_1k.jpg",
+      "sha256": "b0ef2b248cb7dfa1d33f1b2215fb3b83e815527d4091a2c3a423bdcd63bef60a",
+      "bytes": 978020,
+      "fetchedFrom": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/dirty_carpet/dirty_carpet_diff_1k.jpg",
+      "dependencies": []
+    },
+    "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/dirty_carpet/dirty_carpet_nor_gl_1k.jpg": {
+      "local": "./assets/vendor/runtime/bc693280128ae750/dirty_carpet_nor_gl_1k.jpg",
+      "sha256": "ba96f6f098ac64456f4cc310469200ff702596a9070d2553f990da8f7b86d29f",
+      "bytes": 1089297,
+      "fetchedFrom": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/dirty_carpet/dirty_carpet_nor_gl_1k.jpg",
+      "dependencies": []
+    },
+    "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/dirty_carpet/dirty_carpet_rough_1k.jpg": {
+      "local": "./assets/vendor/runtime/4b2be4a9d4c4d56d/dirty_carpet_rough_1k.jpg",
+      "sha256": "a2e13692bd7e5af9875150130ce9904c11879e693e70753d417b93121cf65be4",
+      "bytes": 434062,
+      "fetchedFrom": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/dirty_carpet/dirty_carpet_rough_1k.jpg",
+      "dependencies": []
+    },
+    "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/floor_tiles_06/floor_tiles_06_diff_1k.jpg": {
+      "local": "./assets/vendor/runtime/5e2a13faf5d98437/floor_tiles_06_diff_1k.jpg",
+      "sha256": "ac159ca6072e30dd9d5c65e2d6eae7bb55a7dc9f06e6d141e9119390563511c2",
+      "bytes": 356257,
+      "fetchedFrom": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/floor_tiles_06/floor_tiles_06_diff_1k.jpg",
+      "dependencies": []
+    },
+    "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/floor_tiles_06/floor_tiles_06_nor_gl_1k.jpg": {
+      "local": "./assets/vendor/runtime/963db0da1ffbab17/floor_tiles_06_nor_gl_1k.jpg",
+      "sha256": "efaff964d5688dd52ea3b876d5dac63ffee76d8d7270e30c11c81095246d5fdd",
+      "bytes": 121299,
+      "fetchedFrom": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/floor_tiles_06/floor_tiles_06_nor_gl_1k.jpg",
+      "dependencies": []
+    },
+    "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/floor_tiles_06/floor_tiles_06_rough_1k.jpg": {
+      "local": "./assets/vendor/runtime/465619dc64de605e/floor_tiles_06_rough_1k.jpg",
+      "sha256": "9c1996177892f220bcfdbc44675d0cd404482cfa80b1c577c7bcc100637ef8b6",
+      "bytes": 114013,
+      "fetchedFrom": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/floor_tiles_06/floor_tiles_06_rough_1k.jpg",
+      "dependencies": []
+    },
+    "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/grey_tiles/grey_tiles_diff_1k.jpg": {
+      "local": "./assets/vendor/runtime/62ff2422f600f0f0/grey_tiles_diff_1k.jpg",
+      "sha256": "17369bca024842b44c25b57fa943ea7d676994245d1f029ef6b481c1d3bf8ae3",
+      "bytes": 504333,
+      "fetchedFrom": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/grey_tiles/grey_tiles_diff_1k.jpg",
+      "dependencies": []
+    },
+    "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/grey_tiles/grey_tiles_nor_gl_1k.jpg": {
+      "local": "./assets/vendor/runtime/cfe0bed1f8bcef91/grey_tiles_nor_gl_1k.jpg",
+      "sha256": "3937ee2e30904351572aed1ebb30c2dcd07c1d38c377c73860df39845f0c401e",
+      "bytes": 320481,
+      "fetchedFrom": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/grey_tiles/grey_tiles_nor_gl_1k.jpg",
+      "dependencies": []
+    },
+    "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/grey_tiles/grey_tiles_rough_1k.jpg": {
+      "local": "./assets/vendor/runtime/18c330cdeb222bf1/grey_tiles_rough_1k.jpg",
+      "sha256": "7e17128872ccfd33bd27a948dd139cb9f3e7395069f8594be01cb665f803eae6",
+      "bytes": 454705,
+      "fetchedFrom": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/grey_tiles/grey_tiles_rough_1k.jpg",
+      "dependencies": []
+    },
+    "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/marble_tiles/marble_tiles_diff_1k.jpg": {
+      "local": "./assets/vendor/runtime/86e3dd94a998a988/marble_tiles_diff_1k.jpg",
+      "sha256": "679a968691429536b9f39622472380b5b9ced855f6423c4bb51774f4d7818963",
+      "bytes": 957660,
+      "fetchedFrom": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/marble_tiles/marble_tiles_diff_1k.jpg",
+      "dependencies": []
+    },
+    "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/marble_tiles/marble_tiles_nor_gl_1k.jpg": {
+      "local": "./assets/vendor/runtime/5e2b6d65f3655d3a/marble_tiles_nor_gl_1k.jpg",
+      "sha256": "49748a1cfd41795c1cbba2ff70046740e7b08724d32c0499f2036dc9194cabdb",
+      "bytes": 601407,
+      "fetchedFrom": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/marble_tiles/marble_tiles_nor_gl_1k.jpg",
+      "dependencies": []
+    },
+    "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/marble_tiles/marble_tiles_rough_1k.jpg": {
+      "local": "./assets/vendor/runtime/dafdab67404da2c9/marble_tiles_rough_1k.jpg",
+      "sha256": "7a8418cd54cdb051d0d55d5be9662d1ca188e443d28bd7466aa3606128735a83",
+      "bytes": 759292,
+      "fetchedFrom": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/marble_tiles/marble_tiles_rough_1k.jpg",
+      "dependencies": []
+    },
+    "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/terrazzo_tiles/terrazzo_tiles_diff_1k.jpg": {
+      "local": "./assets/vendor/runtime/4c5fa06ac517f4a9/terrazzo_tiles_diff_1k.jpg",
+      "sha256": "462e3e719cda0472a33152523cf5ca2fc660e1c5869348be1609ba3dca12a2ef",
+      "bytes": 1166107,
+      "fetchedFrom": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/terrazzo_tiles/terrazzo_tiles_diff_1k.jpg",
+      "dependencies": []
+    },
+    "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/terrazzo_tiles/terrazzo_tiles_nor_gl_1k.jpg": {
+      "local": "./assets/vendor/runtime/0c554a6cdcce44a3/terrazzo_tiles_nor_gl_1k.jpg",
+      "sha256": "56bbe2d960b47ddb2dc538be2953a1ad07083b017cdada1cdc7958421a6cfcd9",
+      "bytes": 77954,
+      "fetchedFrom": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/terrazzo_tiles/terrazzo_tiles_nor_gl_1k.jpg",
+      "dependencies": []
+    },
+    "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/terrazzo_tiles/terrazzo_tiles_rough_1k.jpg": {
+      "local": "./assets/vendor/runtime/8cc2ac446022dc40/terrazzo_tiles_rough_1k.jpg",
+      "sha256": "cf0cb8525674adeb7da551ed1846c8c4edfd0377a35c6fe94d5f1cb2142c6152",
+      "bytes": 459022,
+      "fetchedFrom": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/terrazzo_tiles/terrazzo_tiles_rough_1k.jpg",
+      "dependencies": []
+    },
+    "https://lpc.opengameart.org/sites/default/files/Insistent.ogg": {
+      "local": "./assets/vendor/runtime/857e17ba310ae2a1/Insistent.ogg",
+      "sha256": "c5e0eccb09379301c56e95c6b6586e842be0ef363938b8d1062518280da99cfb",
+      "bytes": 1767874,
+      "fetchedFrom": "https://lpc.opengameart.org/sites/default/files/Insistent.ogg",
+      "dependencies": []
+    },
+    "https://opengameart.org/sites/default/files/furniture_shop_loop.ogg": {
+      "local": "./assets/vendor/runtime/34ffcaf5dc0def77/furniture_shop_loop.ogg",
+      "sha256": "209ab56815efbcb7d8443204b3f1d648b38570fec570b49cb1e86ae16367dd3e",
+      "bytes": 2990040,
+      "fetchedFrom": "https://opengameart.org/sites/default/files/furniture_shop_loop.ogg",
+      "dependencies": []
+    },
+    "https://raw.githubusercontent.com/AkiraNim/CLTCrossing/6fe4cd6dcb6fbfa4267d3b9971c0968e0fe375b6/CltCrossingv2/assets/kenney_food-kit/cup.glb": {
+      "local": "./assets/vendor/runtime/f576c2b30a9defad/cup.glb",
+      "sha256": "f9d6786fe9836f16ebb10cc1cb5a8ea8d512c7ae6cfa22394af653e5a5b05f09",
+      "bytes": 8008,
+      "fetchedFrom": "https://raw.githubusercontent.com/AkiraNim/CLTCrossing/6fe4cd6dcb6fbfa4267d3b9971c0968e0fe375b6/CltCrossingv2/assets/kenney_food-kit/cup.glb",
+      "dependencies": [
+        {
+          "uri": "Textures/colormap.png",
+          "source": "https://raw.githubusercontent.com/AkiraNim/CLTCrossing/6fe4cd6dcb6fbfa4267d3b9971c0968e0fe375b6/CltCrossingv2/assets/kenney_food-kit/Textures/colormap.png",
+          "local": ".//home/runner/work/the-attendant-pinewood-mall/the-attendant-pinewood-mall/assets/vendor/runtime/f576c2b30a9defad/Textures/colormap.png",
+          "sha256": "75baf74d9483a0fc56ac21ceba346fbe16fc24a2a1bf0524c53e6bbe802e1153",
+          "bytes": 10715
+        }
+      ]
+    },
+    "https://raw.githubusercontent.com/AkiraNim/CLTCrossing/6fe4cd6dcb6fbfa4267d3b9971c0968e0fe375b6/CltCrossingv2/assets/kenney_food-kit/pizza-box.glb": {
+      "local": "./assets/vendor/runtime/6a62ba711ba90736/pizza-box.glb",
+      "sha256": "6762e9233d74f720486630eb043e7f65cf0f437c6ac77f8b037b7bed2c4ddd23",
+      "bytes": 8788,
+      "fetchedFrom": "https://raw.githubusercontent.com/AkiraNim/CLTCrossing/6fe4cd6dcb6fbfa4267d3b9971c0968e0fe375b6/CltCrossingv2/assets/kenney_food-kit/pizza-box.glb",
+      "dependencies": [
+        {
+          "uri": "Textures/colormap.png",
+          "source": "https://raw.githubusercontent.com/AkiraNim/CLTCrossing/6fe4cd6dcb6fbfa4267d3b9971c0968e0fe375b6/CltCrossingv2/assets/kenney_food-kit/Textures/colormap.png",
+          "local": ".//home/runner/work/the-attendant-pinewood-mall/the-attendant-pinewood-mall/assets/vendor/runtime/6a62ba711ba90736/Textures/colormap.png",
+          "sha256": "75baf74d9483a0fc56ac21ceba346fbe16fc24a2a1bf0524c53e6bbe802e1153",
+          "bytes": 10715
+        }
+      ]
+    },
+    "https://raw.githubusercontent.com/AkiraNim/CLTCrossing/6fe4cd6dcb6fbfa4267d3b9971c0968e0fe375b6/CltCrossingv2/assets/kenney_food-kit/pizza.glb": {
+      "local": "./assets/vendor/runtime/e5871842f77a9579/pizza.glb",
+      "sha256": "e98eda0a63421bc4e86f063ebd096a21e50254b169ddbba945d2473b59390951",
+      "bytes": 106780,
+      "fetchedFrom": "https://raw.githubusercontent.com/AkiraNim/CLTCrossing/6fe4cd6dcb6fbfa4267d3b9971c0968e0fe375b6/CltCrossingv2/assets/kenney_food-kit/pizza.glb",
+      "dependencies": [
+        {
+          "uri": "Textures/colormap.png",
+          "source": "https://raw.githubusercontent.com/AkiraNim/CLTCrossing/6fe4cd6dcb6fbfa4267d3b9971c0968e0fe375b6/CltCrossingv2/assets/kenney_food-kit/Textures/colormap.png",
+          "local": ".//home/runner/work/the-attendant-pinewood-mall/the-attendant-pinewood-mall/assets/vendor/runtime/e5871842f77a9579/Textures/colormap.png",
+          "sha256": "75baf74d9483a0fc56ac21ceba346fbe16fc24a2a1bf0524c53e6bbe802e1153",
+          "bytes": 10715
+        }
+      ]
+    },
+    "https://raw.githubusercontent.com/AkiraNim/CLTCrossing/6fe4cd6dcb6fbfa4267d3b9971c0968e0fe375b6/CltCrossingv2/assets/kenney_mini-market/bottle-return.glb": {
+      "local": "./assets/vendor/runtime/f3f6deadb9c00f1d/bottle-return.glb",
+      "sha256": "039eefd7eb61876eb8bfa3937f2890e75ec4e6629a6c97640504baa3ef51991f",
+      "bytes": 31012,
+      "fetchedFrom": "https://raw.githubusercontent.com/AkiraNim/CLTCrossing/6fe4cd6dcb6fbfa4267d3b9971c0968e0fe375b6/CltCrossingv2/assets/kenney_mini-market/bottle-return.glb",
+      "dependencies": [
+        {
+          "uri": "Textures/colormap.png",
+          "source": "https://raw.githubusercontent.com/AkiraNim/CLTCrossing/6fe4cd6dcb6fbfa4267d3b9971c0968e0fe375b6/CltCrossingv2/assets/kenney_mini-market/Textures/colormap.png",
+          "local": ".//home/runner/work/the-attendant-pinewood-mall/the-attendant-pinewood-mall/assets/vendor/runtime/f3f6deadb9c00f1d/Textures/colormap.png",
+          "sha256": "0d4947d34ff32acf4a359c7f22ca784e057e7e72f622170a9a77b6fc88fdb70e",
+          "bytes": 8706
+        }
+      ]
+    },
+    "https://raw.githubusercontent.com/AkiraNim/CLTCrossing/6fe4cd6dcb6fbfa4267d3b9971c0968e0fe375b6/CltCrossingv2/assets/kenney_mini-market/cash-register.glb": {
+      "local": "./assets/vendor/runtime/ae505c72620ea098/cash-register.glb",
+      "sha256": "155f2eb666dea3a931d133a4953379898c8adb4b827ab60b86cae07235b9b598",
+      "bytes": 20332,
+      "fetchedFrom": "https://raw.githubusercontent.com/AkiraNim/CLTCrossing/6fe4cd6dcb6fbfa4267d3b9971c0968e0fe375b6/CltCrossingv2/assets/kenney_mini-market/cash-register.glb",
+      "dependencies": [
+        {
+          "uri": "Textures/colormap.png",
+          "source": "https://raw.githubusercontent.com/AkiraNim/CLTCrossing/6fe4cd6dcb6fbfa4267d3b9971c0968e0fe375b6/CltCrossingv2/assets/kenney_mini-market/Textures/colormap.png",
+          "local": ".//home/runner/work/the-attendant-pinewood-mall/the-attendant-pinewood-mall/assets/vendor/runtime/ae505c72620ea098/Textures/colormap.png",
+          "sha256": "0d4947d34ff32acf4a359c7f22ca784e057e7e72f622170a9a77b6fc88fdb70e",
+          "bytes": 8706
+        }
+      ]
+    },
+    "https://raw.githubusercontent.com/AkiraNim/CLTCrossing/6fe4cd6dcb6fbfa4267d3b9971c0968e0fe375b6/CltCrossingv2/assets/kenney_mini-market/display-bread.glb": {
+      "local": "./assets/vendor/runtime/adc61ee73dd7c6a3/display-bread.glb",
+      "sha256": "33a57fee0e331e5e40df5f0dc7af302e93266fd978dda810ab9f0ea4a2c205d1",
+      "bytes": 36640,
+      "fetchedFrom": "https://raw.githubusercontent.com/AkiraNim/CLTCrossing/6fe4cd6dcb6fbfa4267d3b9971c0968e0fe375b6/CltCrossingv2/assets/kenney_mini-market/display-bread.glb",
+      "dependencies": [
+        {
+          "uri": "Textures/colormap.png",
+          "source": "https://raw.githubusercontent.com/AkiraNim/CLTCrossing/6fe4cd6dcb6fbfa4267d3b9971c0968e0fe375b6/CltCrossingv2/assets/kenney_mini-market/Textures/colormap.png",
+          "local": ".//home/runner/work/the-attendant-pinewood-mall/the-attendant-pinewood-mall/assets/vendor/runtime/adc61ee73dd7c6a3/Textures/colormap.png",
+          "sha256": "0d4947d34ff32acf4a359c7f22ca784e057e7e72f622170a9a77b6fc88fdb70e",
+          "bytes": 8706
+        }
+      ]
+    },
+    "https://raw.githubusercontent.com/AkiraNim/CLTCrossing/6fe4cd6dcb6fbfa4267d3b9971c0968e0fe375b6/CltCrossingv2/assets/kenney_mini-market/display-fruit.glb": {
+      "local": "./assets/vendor/runtime/9c7d6caba6716ec2/display-fruit.glb",
+      "sha256": "4cc38dcbd0f703d5bc829ff4a627648872dd3f6578f3e7e01fdcee066367873b",
+      "bytes": 62976,
+      "fetchedFrom": "https://raw.githubusercontent.com/AkiraNim/CLTCrossing/6fe4cd6dcb6fbfa4267d3b9971c0968e0fe375b6/CltCrossingv2/assets/kenney_mini-market/display-fruit.glb",
+      "dependencies": [
+        {
+          "uri": "Textures/colormap.png",
+          "source": "https://raw.githubusercontent.com/AkiraNim/CLTCrossing/6fe4cd6dcb6fbfa4267d3b9971c0968e0fe375b6/CltCrossingv2/assets/kenney_mini-market/Textures/colormap.png",
+          "local": ".//home/runner/work/the-attendant-pinewood-mall/the-attendant-pinewood-mall/assets/vendor/runtime/9c7d6caba6716ec2/Textures/colormap.png",
+          "sha256": "0d4947d34ff32acf4a359c7f22ca784e057e7e72f622170a9a77b6fc88fdb70e",
+          "bytes": 8706
+        }
+      ]
+    },
+    "https://raw.githubusercontent.com/AkiraNim/CLTCrossing/6fe4cd6dcb6fbfa4267d3b9971c0968e0fe375b6/CltCrossingv2/assets/kenney_mini-market/shelf-bags.glb": {
+      "local": "./assets/vendor/runtime/bf7012451967bc2f/shelf-bags.glb",
+      "sha256": "17725a5f680aff17dbc6ac3398ef0339d78b5b76bbfaa29292a5084479c4bd69",
+      "bytes": 78444,
+      "fetchedFrom": "https://raw.githubusercontent.com/AkiraNim/CLTCrossing/6fe4cd6dcb6fbfa4267d3b9971c0968e0fe375b6/CltCrossingv2/assets/kenney_mini-market/shelf-bags.glb",
+      "dependencies": [
+        {
+          "uri": "Textures/colormap.png",
+          "source": "https://raw.githubusercontent.com/AkiraNim/CLTCrossing/6fe4cd6dcb6fbfa4267d3b9971c0968e0fe375b6/CltCrossingv2/assets/kenney_mini-market/Textures/colormap.png",
+          "local": ".//home/runner/work/the-attendant-pinewood-mall/the-attendant-pinewood-mall/assets/vendor/runtime/bf7012451967bc2f/Textures/colormap.png",
+          "sha256": "0d4947d34ff32acf4a359c7f22ca784e057e7e72f622170a9a77b6fc88fdb70e",
+          "bytes": 8706
+        }
+      ]
+    },
+    "https://raw.githubusercontent.com/AkiraNim/CLTCrossing/6fe4cd6dcb6fbfa4267d3b9971c0968e0fe375b6/CltCrossingv2/assets/kenney_mini-market/shelf-boxes.glb": {
+      "local": "./assets/vendor/runtime/172e2f2a5fd2a532/shelf-boxes.glb",
+      "sha256": "3f340fe9207a4b85739d8d11104cf5b4cad3a130afcbfc1fadb47c17d6a9e210",
+      "bytes": 56780,
+      "fetchedFrom": "https://raw.githubusercontent.com/AkiraNim/CLTCrossing/6fe4cd6dcb6fbfa4267d3b9971c0968e0fe375b6/CltCrossingv2/assets/kenney_mini-market/shelf-boxes.glb",
+      "dependencies": [
+        {
+          "uri": "Textures/colormap.png",
+          "source": "https://raw.githubusercontent.com/AkiraNim/CLTCrossing/6fe4cd6dcb6fbfa4267d3b9971c0968e0fe375b6/CltCrossingv2/assets/kenney_mini-market/Textures/colormap.png",
+          "local": ".//home/runner/work/the-attendant-pinewood-mall/the-attendant-pinewood-mall/assets/vendor/runtime/172e2f2a5fd2a532/Textures/colormap.png",
+          "sha256": "0d4947d34ff32acf4a359c7f22ca784e057e7e72f622170a9a77b6fc88fdb70e",
+          "bytes": 8706
+        }
+      ]
+    },
+    "https://raw.githubusercontent.com/AkiraNim/CLTCrossing/6fe4cd6dcb6fbfa4267d3b9971c0968e0fe375b6/CltCrossingv2/assets/kenney_mini-market/shelf-end.glb": {
+      "local": "./assets/vendor/runtime/ee0a5e35538d2884/shelf-end.glb",
+      "sha256": "9a6f4528ae127689d538de0fa45c07f58538c8572a1b858cc5e40caceb7d2c69",
+      "bytes": 44560,
+      "fetchedFrom": "https://raw.githubusercontent.com/AkiraNim/CLTCrossing/6fe4cd6dcb6fbfa4267d3b9971c0968e0fe375b6/CltCrossingv2/assets/kenney_mini-market/shelf-end.glb",
+      "dependencies": [
+        {
+          "uri": "Textures/colormap.png",
+          "source": "https://raw.githubusercontent.com/AkiraNim/CLTCrossing/6fe4cd6dcb6fbfa4267d3b9971c0968e0fe375b6/CltCrossingv2/assets/kenney_mini-market/Textures/colormap.png",
+          "local": ".//home/runner/work/the-attendant-pinewood-mall/the-attendant-pinewood-mall/assets/vendor/runtime/ee0a5e35538d2884/Textures/colormap.png",
+          "sha256": "0d4947d34ff32acf4a359c7f22ca784e057e7e72f622170a9a77b6fc88fdb70e",
+          "bytes": 8706
+        }
+      ]
+    },
+    "https://raw.githubusercontent.com/BGS3934/BGS3934.github.io/2efb99e0ba4d22a65489c21d01651447be433ef5/Assets/Furniture/Chair.glb": {
+      "local": "./assets/vendor/runtime/47ff560e83dfc315/Chair.glb",
+      "sha256": "bdc6aeeb64524bbdccba2f079e6485e2a372aed1c428d976d5da67aadcf18b7a",
+      "bytes": 13360,
+      "fetchedFrom": "https://raw.githubusercontent.com/BGS3934/BGS3934.github.io/2efb99e0ba4d22a65489c21d01651447be433ef5/Assets/Furniture/Chair.glb",
+      "dependencies": []
+    },
+    "https://raw.githubusercontent.com/BGS3934/BGS3934.github.io/2efb99e0ba4d22a65489c21d01651447be433ef5/Assets/Furniture/Stool.glb": {
+      "local": "./assets/vendor/runtime/7f3df4bac178c342/Stool.glb",
+      "sha256": "f17ca68ee52a5c5f8dcb2b919ac580483ecbb53da26c2d1dcde4f97c7c409c6d",
+      "bytes": 18068,
+      "fetchedFrom": "https://raw.githubusercontent.com/BGS3934/BGS3934.github.io/2efb99e0ba4d22a65489c21d01651447be433ef5/Assets/Furniture/Stool.glb",
+      "dependencies": []
+    },
+    "https://raw.githubusercontent.com/BGS3934/BGS3934.github.io/2efb99e0ba4d22a65489c21d01651447be433ef5/Assets/Furniture/Table%20Round%20Small.glb": {
+      "local": "./assets/vendor/runtime/85f4a59fc2e8a75e/Table_Round_Small.glb",
+      "sha256": "7f57ea17c9f54f761535d2e66bcd925de93546a42942b4bbf030aab93b0b4406",
+      "bytes": 25236,
+      "fetchedFrom": "https://raw.githubusercontent.com/BGS3934/BGS3934.github.io/2efb99e0ba4d22a65489c21d01651447be433ef5/Assets/Furniture/Table%20Round%20Small.glb",
+      "dependencies": []
+    },
+    "https://raw.githubusercontent.com/Enthceph/hangman/4e84f92f27d924a46a52ea0cf4d06a5dc90a9c12/assets/kenney_factory-kit_3.0/Models/GLB%20format/button-floor-square-small.glb": {
+      "local": "./assets/vendor/runtime/4e69be78f143a332/button-floor-square-small.glb",
+      "sha256": "5406b26ea4f86c51ee20ee04849cee281d080c550c918e4d1aa535c923ffd18b",
+      "bytes": 15984,
+      "fetchedFrom": "https://raw.githubusercontent.com/levinzonr/godot-asset-placer/1dbf9fd782566780d6a6c52bd4197f448622f0aa/demo/assets/kenney_factory_kit/GLB%20format/button-floor-square-small.glb",
+      "dependencies": [
+        {
+          "uri": "Textures/colormap.png",
+          "source": "https://raw.githubusercontent.com/levinzonr/godot-asset-placer/1dbf9fd782566780d6a6c52bd4197f448622f0aa/demo/assets/kenney_factory_kit/GLB%20format/Textures/colormap.png",
+          "local": ".//home/runner/work/the-attendant-pinewood-mall/the-attendant-pinewood-mall/assets/vendor/runtime/4e69be78f143a332/Textures/colormap.png",
+          "sha256": "35d7bd6900dde0208429eeaec87fa17fbf024ed59f3f4eab54bc92802eba9dd7",
+          "bytes": 11813
+        }
+      ]
+    },
+    "https://raw.githubusercontent.com/Enthceph/hangman/4e84f92f27d924a46a52ea0cf4d06a5dc90a9c12/assets/kenney_factory-kit_3.0/Models/GLB%20format/door-wide-half.glb": {
+      "local": "./assets/vendor/runtime/7b86905395f96aa7/door-wide-half.glb",
+      "sha256": "14642cac23d48dc324ac9a520eae1267cc9c5e017c877d0474ef66ab018af479",
+      "bytes": 3396,
+      "fetchedFrom": "https://raw.githubusercontent.com/levinzonr/godot-asset-placer/1dbf9fd782566780d6a6c52bd4197f448622f0aa/demo/assets/kenney_factory_kit/GLB%20format/door-wide-half.glb",
+      "dependencies": [
+        {
+          "uri": "Textures/colormap.png",
+          "source": "https://raw.githubusercontent.com/levinzonr/godot-asset-placer/1dbf9fd782566780d6a6c52bd4197f448622f0aa/demo/assets/kenney_factory_kit/GLB%20format/Textures/colormap.png",
+          "local": ".//home/runner/work/the-attendant-pinewood-mall/the-attendant-pinewood-mall/assets/vendor/runtime/7b86905395f96aa7/Textures/colormap.png",
+          "sha256": "35d7bd6900dde0208429eeaec87fa17fbf024ed59f3f4eab54bc92802eba9dd7",
+          "bytes": 11813
+        }
+      ]
+    },
+    "https://raw.githubusercontent.com/Enthceph/hangman/4e84f92f27d924a46a52ea0cf4d06a5dc90a9c12/assets/kenney_factory-kit_3.0/Models/GLB%20format/floor.glb": {
+      "local": "./assets/vendor/runtime/398aecafb7b7882b/floor.glb",
+      "sha256": "6fd1acd1b3fed85093fd000410cd9b010f4c169e4f10a53699993f0c5667b3a9",
+      "bytes": 1788,
+      "fetchedFrom": "https://raw.githubusercontent.com/levinzonr/godot-asset-placer/1dbf9fd782566780d6a6c52bd4197f448622f0aa/demo/assets/kenney_factory_kit/GLB%20format/floor.glb",
+      "dependencies": [
+        {
+          "uri": "Textures/colormap.png",
+          "source": "https://raw.githubusercontent.com/levinzonr/godot-asset-placer/1dbf9fd782566780d6a6c52bd4197f448622f0aa/demo/assets/kenney_factory_kit/GLB%20format/Textures/colormap.png",
+          "local": ".//home/runner/work/the-attendant-pinewood-mall/the-attendant-pinewood-mall/assets/vendor/runtime/398aecafb7b7882b/Textures/colormap.png",
+          "sha256": "35d7bd6900dde0208429eeaec87fa17fbf024ed59f3f4eab54bc92802eba9dd7",
+          "bytes": 11813
+        }
+      ]
+    },
+    "https://raw.githubusercontent.com/Enthceph/hangman/4e84f92f27d924a46a52ea0cf4d06a5dc90a9c12/assets/kenney_factory-kit_3.0/Models/GLB%20format/machine-window.glb": {
+      "local": "./assets/vendor/runtime/67fae2655401a093/machine-window.glb",
+      "sha256": "1387bd337354fca7c7cb4163e6bd4bef8711373bbe23dae01ba9d42cd35681b7",
+      "bytes": 38812,
+      "fetchedFrom": "https://raw.githubusercontent.com/levinzonr/godot-asset-placer/1dbf9fd782566780d6a6c52bd4197f448622f0aa/demo/assets/kenney_factory_kit/GLB%20format/machine-window.glb",
+      "dependencies": [
+        {
+          "uri": "Textures/colormap.png",
+          "source": "https://raw.githubusercontent.com/levinzonr/godot-asset-placer/1dbf9fd782566780d6a6c52bd4197f448622f0aa/demo/assets/kenney_factory_kit/GLB%20format/Textures/colormap.png",
+          "local": ".//home/runner/work/the-attendant-pinewood-mall/the-attendant-pinewood-mall/assets/vendor/runtime/67fae2655401a093/Textures/colormap.png",
+          "sha256": "35d7bd6900dde0208429eeaec87fa17fbf024ed59f3f4eab54bc92802eba9dd7",
+          "bytes": 11813
+        }
+      ]
+    },
+    "https://raw.githubusercontent.com/Enthceph/hangman/4e84f92f27d924a46a52ea0cf4d06a5dc90a9c12/assets/kenney_factory-kit_3.0/Models/GLB%20format/structure-wall.glb": {
+      "local": "./assets/vendor/runtime/15d58f77f28b6ea3/structure-wall.glb",
+      "sha256": "3bdcb31d693b4e97a9fa198e9de1a47bfd14e829520da08ceaacadbdb258582c",
+      "bytes": 4236,
+      "fetchedFrom": "https://raw.githubusercontent.com/levinzonr/godot-asset-placer/1dbf9fd782566780d6a6c52bd4197f448622f0aa/demo/assets/kenney_factory_kit/GLB%20format/structure-wall.glb",
+      "dependencies": [
+        {
+          "uri": "Textures/colormap.png",
+          "source": "https://raw.githubusercontent.com/levinzonr/godot-asset-placer/1dbf9fd782566780d6a6c52bd4197f448622f0aa/demo/assets/kenney_factory_kit/GLB%20format/Textures/colormap.png",
+          "local": ".//home/runner/work/the-attendant-pinewood-mall/the-attendant-pinewood-mall/assets/vendor/runtime/15d58f77f28b6ea3/Textures/colormap.png",
+          "sha256": "35d7bd6900dde0208429eeaec87fa17fbf024ed59f3f4eab54bc92802eba9dd7",
+          "bytes": 11813
+        }
+      ]
+    },
+    "https://raw.githubusercontent.com/Enthceph/hangman/4e84f92f27d924a46a52ea0cf4d06a5dc90a9c12/assets/kenney_mini-dungeon/Models/GLB%20format/banner.glb": {
+      "local": "./assets/vendor/runtime/6b21e283dba6199b/banner.glb",
+      "sha256": "a60061205c753d05b741b52ade56230a86ac2555623cfa256565fc3a7f22d884",
+      "bytes": 15668,
+      "fetchedFrom": "https://raw.githubusercontent.com/chrisizeful/Gizmo3D/4cdc78b42d22bb29854ca54c85e1a02dec033c20/kenney_mini_dungeon/banner.glb",
+      "dependencies": [
+        {
+          "uri": "Textures/colormap.png",
+          "source": "https://raw.githubusercontent.com/chrisizeful/Gizmo3D/4cdc78b42d22bb29854ca54c85e1a02dec033c20/kenney_mini_dungeon/Textures/colormap.png",
+          "local": ".//home/runner/work/the-attendant-pinewood-mall/the-attendant-pinewood-mall/assets/vendor/runtime/6b21e283dba6199b/Textures/colormap.png",
+          "sha256": "2064aee681d8ba71ea1ff23af0f6ce6ca4afc7b158325d2e8bdc4709c998d05e",
+          "bytes": 8308
+        }
+      ]
+    },
+    "https://raw.githubusercontent.com/Enthceph/hangman/4e84f92f27d924a46a52ea0cf4d06a5dc90a9c12/assets/kenney_mini-dungeon/Models/GLB%20format/book.glb": {
+      "local": "./assets/vendor/runtime/aaa4f3872b3cc4b9/book.glb",
+      "sha256": "5e2341d6a227f5cffd4b9118388a34e2f8f0b875401e3f6dd35b399ff7cafb05",
+      "bytes": 34976,
+      "fetchedFrom": "https://raw.githubusercontent.com/mgaralc/portfolio/6a9da7106a598bb3962acea0c1158195c75a1fdb/apps/MyPortfolio/public/models/book.glb",
+      "dependencies": []
+    },
+    "https://raw.githubusercontent.com/Enthceph/hangman/4e84f92f27d924a46a52ea0cf4d06a5dc90a9c12/assets/kenney_prototype-kit/Models/GLB%20format/wall-doorway-wide.glb": {
+      "local": "./assets/vendor/runtime/ccab3241ed7a1fef/wall-doorway-wide.glb",
+      "sha256": "8775591d2e948399c30f71cedff3507d1fb30ec5e3f6952329f5738cb3d8e883",
+      "bytes": 13696,
+      "fetchedFrom": "https://raw.githubusercontent.com/RetroDECK/RetroQUEST/dfa19a5602a31f64bd890d15279a61f43b127328/assets/kenney_prototype-kit/Models/GLB%20format/wall-doorway-wide.glb",
+      "dependencies": [
+        {
+          "uri": "Textures/colormap.png",
+          "source": "https://raw.githubusercontent.com/RetroDECK/RetroQUEST/dfa19a5602a31f64bd890d15279a61f43b127328/assets/kenney_prototype-kit/Models/GLB%20format/Textures/colormap.png",
+          "local": ".//home/runner/work/the-attendant-pinewood-mall/the-attendant-pinewood-mall/assets/vendor/runtime/ccab3241ed7a1fef/Textures/colormap.png",
+          "sha256": "0d4947d34ff32acf4a359c7f22ca784e057e7e72f622170a9a77b6fc88fdb70e",
+          "bytes": 8706
+        }
+      ]
+    },
+    "https://raw.githubusercontent.com/KayKit-Game-Assets/KayKit-Dungeon-Remastered-1.0/b0ca9bd96a8072ab36a3a5464f00ed1e06a16d07/addons/kaykit_dungeon_remastered/Assets/gltf/key.gltf.glb": {
+      "local": "./assets/vendor/runtime/7fc36f951148d6d9/key.gltf.glb",
+      "sha256": "e9ea072e6e5f8b1f049677f62144d9ae1dcc1cfd2252aec54b42bec29d518dff",
+      "bytes": 24432,
+      "fetchedFrom": "https://raw.githubusercontent.com/KayKit-Game-Assets/KayKit-Dungeon-Remastered-1.0/b0ca9bd96a8072ab36a3a5464f00ed1e06a16d07/addons/kaykit_dungeon_remastered/Assets/gltf/key.gltf.glb",
+      "dependencies": []
+    },
+    "https://raw.githubusercontent.com/KenneyNL/Starter-Kit-City-Builder/4535092b740b378b700efd9df9e27a631815b84a/models/pavement-fountain.glb": {
+      "local": "./assets/vendor/runtime/8cefa5be6dbaf538/pavement-fountain.glb",
+      "sha256": "ea2996089e90a79ba13d764106d374486bb8137666cf1cdbaebd1927ef365185",
+      "bytes": 14076,
+      "fetchedFrom": "https://raw.githubusercontent.com/KenneyNL/Starter-Kit-City-Builder/4535092b740b378b700efd9df9e27a631815b84a/models/pavement-fountain.glb",
+      "dependencies": [
+        {
+          "uri": "Textures/colormap.png",
+          "source": "https://raw.githubusercontent.com/KenneyNL/Starter-Kit-City-Builder/4535092b740b378b700efd9df9e27a631815b84a/models/Textures/colormap.png",
+          "local": ".//home/runner/work/the-attendant-pinewood-mall/the-attendant-pinewood-mall/assets/vendor/runtime/8cefa5be6dbaf538/Textures/colormap.png",
+          "sha256": "106cf02e0d6dccded6d9f90c2ae6a51eb94c6301645fea159e834c44ed4708a3",
+          "bytes": 10108
+        }
+      ]
+    },
+    "https://raw.githubusercontent.com/RetroDECK/RetroQUEST/dfa19a5602a31f64bd890d15279a61f43b127328/assets/kenney_furniture-kit/Models/GLTF%20format/bookcaseOpen.glb": {
+      "local": "./assets/vendor/runtime/14aeb77ecb6cacff/bookcaseOpen.glb",
+      "sha256": "750702218d68c062b15dfef6ab06a4014d1cfa8bd05f02e57c53b7e13bec157c",
+      "bytes": 18020,
+      "fetchedFrom": "https://raw.githubusercontent.com/RetroDECK/RetroQUEST/dfa19a5602a31f64bd890d15279a61f43b127328/assets/kenney_furniture-kit/Models/GLTF%20format/bookcaseOpen.glb",
+      "dependencies": []
+    },
+    "https://raw.githubusercontent.com/RetroDECK/RetroQUEST/dfa19a5602a31f64bd890d15279a61f43b127328/assets/kenney_furniture-kit/Models/GLTF%20format/bookcaseOpenLow.glb": {
+      "local": "./assets/vendor/runtime/5868465fc2ab24c1/bookcaseOpenLow.glb",
+      "sha256": "6d4d625faf977a2dbf155f1313cd32c6310e463114a1cd4c08cb9f80a5fb1d75",
+      "bytes": 11520,
+      "fetchedFrom": "https://raw.githubusercontent.com/RetroDECK/RetroQUEST/dfa19a5602a31f64bd890d15279a61f43b127328/assets/kenney_furniture-kit/Models/GLTF%20format/bookcaseOpenLow.glb",
+      "dependencies": []
+    },
+    "https://raw.githubusercontent.com/RetroDECK/RetroQUEST/dfa19a5602a31f64bd890d15279a61f43b127328/assets/kenney_furniture-kit/Models/GLTF%20format/chair.glb": {
+      "local": "./assets/vendor/runtime/4f24ab1a44c14f48/chair.glb",
+      "sha256": "c8a11eec93e89e31250ba91afc1b8d56c3bec7ae86640fd1239f595ff4180883",
+      "bytes": 10756,
+      "fetchedFrom": "https://raw.githubusercontent.com/RetroDECK/RetroQUEST/dfa19a5602a31f64bd890d15279a61f43b127328/assets/kenney_furniture-kit/Models/GLTF%20format/chair.glb",
+      "dependencies": []
+    },
+    "https://raw.githubusercontent.com/RetroDECK/RetroQUEST/dfa19a5602a31f64bd890d15279a61f43b127328/assets/kenney_furniture-kit/Models/GLTF%20format/desk.glb": {
+      "local": "./assets/vendor/runtime/47206cda3d12810c/desk.glb",
+      "sha256": "0164fe828f028b321730fb8c74502e353583f751be74da1682d42fff7d3c5a42",
+      "bytes": 15048,
+      "fetchedFrom": "https://raw.githubusercontent.com/RetroDECK/RetroQUEST/dfa19a5602a31f64bd890d15279a61f43b127328/assets/kenney_furniture-kit/Models/GLTF%20format/desk.glb",
+      "dependencies": []
+    },
+    "https://raw.githubusercontent.com/RetroDECK/RetroQUEST/dfa19a5602a31f64bd890d15279a61f43b127328/assets/kenney_furniture-kit/Models/GLTF%20format/sideTable.glb": {
+      "local": "./assets/vendor/runtime/65e5acd4b19f5617/sideTable.glb",
+      "sha256": "8227810584f7d37582e4e9ec821c56f1dc54b99c88a8dc74242ea3b7402bc472",
+      "bytes": 8800,
+      "fetchedFrom": "https://raw.githubusercontent.com/RetroDECK/RetroQUEST/dfa19a5602a31f64bd890d15279a61f43b127328/assets/kenney_furniture-kit/Models/GLTF%20format/sideTable.glb",
+      "dependencies": []
+    },
+    "https://raw.githubusercontent.com/RetroDECK/RetroQUEST/dfa19a5602a31f64bd890d15279a61f43b127328/assets/kenney_furniture-kit/Models/GLTF%20format/table.glb": {
+      "local": "./assets/vendor/runtime/a69293dc3a9140d3/table.glb",
+      "sha256": "ff1a94498d023957f4bc3ff6f55a7a82977d336dbf01a573b3364f03afe5ff61",
+      "bytes": 8196,
+      "fetchedFrom": "https://raw.githubusercontent.com/RetroDECK/RetroQUEST/dfa19a5602a31f64bd890d15279a61f43b127328/assets/kenney_furniture-kit/Models/GLTF%20format/table.glb",
+      "dependencies": []
+    },
+    "https://raw.githubusercontent.com/RetroDECK/RetroQUEST/dfa19a5602a31f64bd890d15279a61f43b127328/assets/kenney_mini-arcade/Models/GLB%20format/air-hockey.glb": {
+      "local": "./assets/vendor/runtime/8fcc6eb8e8f17912/air-hockey.glb",
+      "sha256": "b69b39ff7ebdd1da885b704252f4fc185689d97d1c601576bb94b0a00ba7215e",
+      "bytes": 42052,
+      "fetchedFrom": "https://raw.githubusercontent.com/RetroDECK/RetroQUEST/dfa19a5602a31f64bd890d15279a61f43b127328/assets/kenney_mini-arcade/Models/GLB%20format/air-hockey.glb",
+      "dependencies": [
+        {
+          "uri": "Textures/colormap.png",
+          "source": "https://raw.githubusercontent.com/RetroDECK/RetroQUEST/dfa19a5602a31f64bd890d15279a61f43b127328/assets/kenney_mini-arcade/Models/GLB%20format/Textures/colormap.png",
+          "local": ".//home/runner/work/the-attendant-pinewood-mall/the-attendant-pinewood-mall/assets/vendor/runtime/8fcc6eb8e8f17912/Textures/colormap.png",
+          "sha256": "0d4947d34ff32acf4a359c7f22ca784e057e7e72f622170a9a77b6fc88fdb70e",
+          "bytes": 8706
+        }
+      ]
+    },
+    "https://raw.githubusercontent.com/RetroDECK/RetroQUEST/dfa19a5602a31f64bd890d15279a61f43b127328/assets/kenney_mini-arcade/Models/GLB%20format/arcade-machine.glb": {
+      "local": "./assets/vendor/runtime/5b4443e3640efa71/arcade-machine.glb",
+      "sha256": "90e346f68873daae2b4ce6e8e48f9f85486d537c07527b0516191b8f6eda787b",
+      "bytes": 38896,
+      "fetchedFrom": "https://raw.githubusercontent.com/RetroDECK/RetroQUEST/dfa19a5602a31f64bd890d15279a61f43b127328/assets/kenney_mini-arcade/Models/GLB%20format/arcade-machine.glb",
+      "dependencies": [
+        {
+          "uri": "Textures/colormap.png",
+          "source": "https://raw.githubusercontent.com/RetroDECK/RetroQUEST/dfa19a5602a31f64bd890d15279a61f43b127328/assets/kenney_mini-arcade/Models/GLB%20format/Textures/colormap.png",
+          "local": ".//home/runner/work/the-attendant-pinewood-mall/the-attendant-pinewood-mall/assets/vendor/runtime/5b4443e3640efa71/Textures/colormap.png",
+          "sha256": "0d4947d34ff32acf4a359c7f22ca784e057e7e72f622170a9a77b6fc88fdb70e",
+          "bytes": 8706
+        }
+      ]
+    },
+    "https://raw.githubusercontent.com/RetroDECK/RetroQUEST/dfa19a5602a31f64bd890d15279a61f43b127328/assets/kenney_mini-arcade/Models/GLB%20format/basketball-game.glb": {
+      "local": "./assets/vendor/runtime/27d4b43c5e16d9ea/basketball-game.glb",
+      "sha256": "37ea452e319ec7be854b103952af2b4a9c588303fd988aec24c571b50ccd6aef",
+      "bytes": 49532,
+      "fetchedFrom": "https://raw.githubusercontent.com/RetroDECK/RetroQUEST/dfa19a5602a31f64bd890d15279a61f43b127328/assets/kenney_mini-arcade/Models/GLB%20format/basketball-game.glb",
+      "dependencies": [
+        {
+          "uri": "Textures/colormap.png",
+          "source": "https://raw.githubusercontent.com/RetroDECK/RetroQUEST/dfa19a5602a31f64bd890d15279a61f43b127328/assets/kenney_mini-arcade/Models/GLB%20format/Textures/colormap.png",
+          "local": ".//home/runner/work/the-attendant-pinewood-mall/the-attendant-pinewood-mall/assets/vendor/runtime/27d4b43c5e16d9ea/Textures/colormap.png",
+          "sha256": "0d4947d34ff32acf4a359c7f22ca784e057e7e72f622170a9a77b6fc88fdb70e",
+          "bytes": 8706
+        }
+      ]
+    },
+    "https://raw.githubusercontent.com/RetroDECK/RetroQUEST/dfa19a5602a31f64bd890d15279a61f43b127328/assets/kenney_mini-arcade/Models/GLB%20format/cash-register.glb": {
+      "local": "./assets/vendor/runtime/6aeac44b7c9c0f17/cash-register.glb",
+      "sha256": "51d57ddbc623921a54782c40add49664072b192d66b0fa7c16f18f0fb0185c8f",
+      "bytes": 25124,
+      "fetchedFrom": "https://raw.githubusercontent.com/RetroDECK/RetroQUEST/dfa19a5602a31f64bd890d15279a61f43b127328/assets/kenney_mini-arcade/Models/GLB%20format/cash-register.glb",
+      "dependencies": [
+        {
+          "uri": "Textures/colormap.png",
+          "source": "https://raw.githubusercontent.com/RetroDECK/RetroQUEST/dfa19a5602a31f64bd890d15279a61f43b127328/assets/kenney_mini-arcade/Models/GLB%20format/Textures/colormap.png",
+          "local": ".//home/runner/work/the-attendant-pinewood-mall/the-attendant-pinewood-mall/assets/vendor/runtime/6aeac44b7c9c0f17/Textures/colormap.png",
+          "sha256": "0d4947d34ff32acf4a359c7f22ca784e057e7e72f622170a9a77b6fc88fdb70e",
+          "bytes": 8706
+        }
+      ]
+    },
+    "https://raw.githubusercontent.com/RetroDECK/RetroQUEST/dfa19a5602a31f64bd890d15279a61f43b127328/assets/kenney_mini-arcade/Models/GLB%20format/claw-machine.glb": {
+      "local": "./assets/vendor/runtime/8023a1e257e42500/claw-machine.glb",
+      "sha256": "7639b404b51c8f6bcc6656fc3204da8ea668173eb5dea60c04f57a63ffa455a0",
+      "bytes": 72932,
+      "fetchedFrom": "https://raw.githubusercontent.com/RetroDECK/RetroQUEST/dfa19a5602a31f64bd890d15279a61f43b127328/assets/kenney_mini-arcade/Models/GLB%20format/claw-machine.glb",
+      "dependencies": [
+        {
+          "uri": "Textures/colormap.png",
+          "source": "https://raw.githubusercontent.com/RetroDECK/RetroQUEST/dfa19a5602a31f64bd890d15279a61f43b127328/assets/kenney_mini-arcade/Models/GLB%20format/Textures/colormap.png",
+          "local": ".//home/runner/work/the-attendant-pinewood-mall/the-attendant-pinewood-mall/assets/vendor/runtime/8023a1e257e42500/Textures/colormap.png",
+          "sha256": "0d4947d34ff32acf4a359c7f22ca784e057e7e72f622170a9a77b6fc88fdb70e",
+          "bytes": 8706
+        }
+      ]
+    },
+    "https://raw.githubusercontent.com/vinhelysia/godot-fps-cogito/1268440e90e370db6c3351ec4cd7429f3ca278b3/addons/cogito/Assets/Models/Kenney/Furniture/GLTF%20format/bookcaseClosedDoors.glb": {
+      "local": "./assets/vendor/runtime/3d7dfedf514e5c4e/bookcaseClosedDoors.glb",
+      "sha256": "ff33f535acdb1825c0e958a293642b39665adcae0b1317b650e83d2bb687f4e2",
+      "bytes": 22644,
+      "fetchedFrom": "https://raw.githubusercontent.com/vinhelysia/godot-fps-cogito/1268440e90e370db6c3351ec4cd7429f3ca278b3/addons/cogito/Assets/Models/Kenney/Furniture/GLTF%20format/bookcaseClosedDoors.glb",
+      "dependencies": []
+    },
+    "https://raw.githubusercontent.com/vinhelysia/godot-fps-cogito/1268440e90e370db6c3351ec4cd7429f3ca278b3/addons/cogito/Assets/Models/Kenney/Furniture/GLTF%20format/radio.glb": {
+      "local": "./assets/vendor/runtime/e3c9feb9172f2e3b/radio.glb",
+      "sha256": "1ba93d6ba6f049750853b4652b92f286f2898e527695a0705b75cc7615897fed",
+      "bytes": 25020,
+      "fetchedFrom": "https://raw.githubusercontent.com/vinhelysia/godot-fps-cogito/1268440e90e370db6c3351ec4cd7429f3ca278b3/addons/cogito/Assets/Models/Kenney/Furniture/GLTF%20format/radio.glb",
+      "dependencies": []
+    },
+    "https://raw.githubusercontent.com/vinhelysia/godot-fps-cogito/1268440e90e370db6c3351ec4cd7429f3ca278b3/addons/cogito/Assets/Models/Kenney/SpaceInterior/GLTF%20format/KSI_counter.glb": {
+      "local": "./assets/vendor/runtime/ae14ac85cb3b895b/KSI_counter.glb",
+      "sha256": "cf11af690760b66c1a0d1b349269121d7de7afe5413f6fba11df2afa56524976",
+      "bytes": 5240,
+      "fetchedFrom": "https://raw.githubusercontent.com/vinhelysia/godot-fps-cogito/1268440e90e370db6c3351ec4cd7429f3ca278b3/addons/cogito/Assets/Models/Kenney/SpaceInterior/GLTF%20format/KSI_counter.glb",
+      "dependencies": []
+    },
+    "https://raw.githubusercontent.com/zodiepupper/snow/b9dc9c35bec885aacf31cfca729adcd3e304ef90/assets/vhs_cassette_3d/VHS_cassette.glb": {
+      "local": "./assets/vendor/runtime/856bdfdf2197a32e/VHS_cassette.glb",
+      "sha256": "e0baf1b3679c752fad0583f6caa6dbae4673db599c0f48d06204f746b0d34ae4",
+      "bytes": 16552,
+      "fetchedFrom": "https://raw.githubusercontent.com/zodiepupper/snow/b9dc9c35bec885aacf31cfca729adcd3e304ef90/assets/vhs_cassette_3d/VHS_cassette.glb",
+      "dependencies": []
+    }
+  }
+}
