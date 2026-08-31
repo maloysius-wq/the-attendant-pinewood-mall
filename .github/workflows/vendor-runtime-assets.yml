@@ -6,6 +6,7 @@ on:
     paths:
       - 'scripts/vendor-runtime-assets.mjs'
       - 'scripts/apply-local-runtime-v15.mjs'
+      - 'scripts/finalize-local-assets-v15.mjs'
       - 'patches/local-assets-v15.js.txt'
       - '.github/workflows/vendor-runtime-assets.yml'
   workflow_dispatch:
@@ -37,15 +38,17 @@ jobs:
         run: node scripts/vendor-runtime-assets.mjs
       - name: Wire local runtime v15
         run: node scripts/apply-local-runtime-v15.mjs
+      - name: Normalize manifest and document permanent policy
+        run: node scripts/finalize-local-assets-v15.mjs
       - name: Commit localized runtime files
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add -f assets/vendor/runtime vendor/three vendor/pako game.js index.html
+          git add -f assets/vendor/runtime vendor/three vendor/pako game.js index.html DEVELOPMENT_HANDOFF.md LICENSES.md
           if git diff --cached --quiet; then
             echo "Vendored and localized runtime files are already current."
             exit 0
           fi
-          git commit -m "Serve all runtime assets locally"
+          git commit -m "Finalize fully local runtime assets"
           git pull --rebase origin main
           git push origin HEAD:main
