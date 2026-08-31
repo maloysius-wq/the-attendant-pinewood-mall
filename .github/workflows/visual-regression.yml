@@ -53,3 +53,5 @@ jobs:
           path: visual-artifacts/
           if-no-files-found: warn
           retention-days: 14
+
+# Verification trigger: retail geometry v16 deep-dive visual gate
