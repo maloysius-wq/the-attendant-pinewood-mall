@@ -16,7 +16,7 @@ function applyAudioImmersionV6(source){
 
   replaceOnce(
     'in-game CC0 SFX attribution',
-    'All Pinewood-specific signage, posters, UI, The Attendant, gore, particle effects and procedural audio are generated/original in this build.',
+    'All Pinewood-specific signage, posters, UI, The Attendant, gore, particle effects and non-music procedural sound effects are generated/original in this build.',
 `KENNEY — RPG Audio + Interface Sounds
 License: Creative Commons Zero (CC0 1.0)
 Sources: https://kenney.nl/assets/rpg-audio and https://kenney.nl/assets/interface-sounds
@@ -93,9 +93,7 @@ class AudioSystem{
     const promise=fetch(CC0_AUDIO_BASE+file,{cache:'force-cache'}).then(r=>{if(!r.ok)throw new Error('HTTP '+r.status);return r.arrayBuffer();}).then(b=>this.ctx.decodeAudioData(b)).then(buffer=>{this.buffers.set(name,buffer);this.loads.delete(name);return buffer;}).catch(err=>{this.loads.delete(name);console.warn('CC0 sound failed to load; leaving this cue silent rather than synthesizing a replacement.',name,err);return null;});
     this.loads.set(name,promise);return promise;
   }
-  async preload(){
-    await Promise.all(Object.keys(CC0_SFX).map(name=>this.load(name)));this.startAmbientLoops();
-  }
+  async preload(){await Promise.all(Object.keys(CC0_SFX).map(name=>this.load(name)));this.startAmbientLoops();}
   async play(name,{gain=1,bus='sfx',rate=1,pan=0,when=0,offset=0,duration=null}={}){
     if(!this.ctx)return null;const buffer=await this.load(name);if(!buffer||!this.ctx)return null;
     const src=this.ctx.createBufferSource();src.buffer=buffer;src.playbackRate.value=rate;
@@ -110,9 +108,7 @@ class AudioSystem{
     if(this.loops[key]||!this.ctx)return;const buffer=await this.load(name);if(!buffer||this.loops[key]||!this.ctx)return;
     const src=this.ctx.createBufferSource(),gain=this.ctx.createGain();src.buffer=buffer;src.loop=true;src.playbackRate.value=rate;gain.gain.value=0;src.connect(gain);gain.connect(this[bus]||this.amb);src.start();this.loops[key]={src,gain};
   }
-  startAmbientLoops(){
-    this.startLoop('roomtone','roomtone','amb');this.startLoop('radioStatic','static','amb');this.startLoop('horror','horror','amb');this.startLoop('heartSlow','heartSlow','amb');this.startLoop('heartFast','heartFast','amb');
-  }
+  startAmbientLoops(){this.startLoop('roomtone','roomtone','amb');this.startLoop('radioStatic','static','amb');this.startLoop('horror','horror','amb');this.startLoop('heartSlow','heartSlow','amb');this.startLoop('heartFast','heartFast','amb');}
   setLoop(key,value,rate=null,dt=.016){const l=this.loops[key];if(!l)return;l.gain.gain.value=lerp(l.gain.gain.value,Math.max(0,value),smooth(dt,3));if(rate!=null)l.src.playbackRate.value=lerp(l.src.playbackRate.value,rate,smooth(dt,2));}
   resume(){this.ensure();this.ctx.resume?.();this.startAmbientLoops();this.startMusicTracks();}
   apply(){
@@ -167,8 +163,8 @@ class AudioSystem{
   );
   replaceOnce(
     'breaker recorded switch sound',
-    'this.breakers++;audio.slam();this.emitSound(p,.78,\'breaker\');',
-    'this.breakers++;audio.breaker();this.emitSound(p,.78,\'breaker\');'
+    "this.breakers++;audio.slam();this.emitSound(p,.78,'breaker');",
+    "this.breakers++;audio.breaker();this.emitSound(p,.78,'breaker');"
   );
   replaceOnce(
     'flashlight recorded toggle',
@@ -211,6 +207,6 @@ class AudioSystem{
     'leverOff:-.58,leverOn:.54',
     '-20 LUFS / -2 dBTP'
   ])if(!source.includes(marker))fail(`verification marker missing: ${marker}`);
-  for(const retired of ['createOscillator()','this.oneShot({','createBuffer(1,len','procedural audio are generated/original'])if(source.includes(retired))fail(`procedural-audio marker survived: ${retired}`);
+  for(const retired of ['createOscillator()','this.oneShot({','createBuffer(1,len','non-music procedural sound effects are generated/original'])if(source.includes(retired))fail(`procedural-audio marker survived: ${retired}`);
   return source;
 }
