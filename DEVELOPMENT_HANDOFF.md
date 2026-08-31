@@ -31,7 +31,8 @@ Use verified CC0 assets where suitable. Keep `LICENSES.md` and in-game attributi
 8. `patches/audio-immersion-v6.js.txt`
 9. `patches/elevator-rebuild-v7.js.txt`
 10. `patches/fountain-rebuild-v8.js.txt`
-11. Food Court builder replacement from `patches/foodcourt-v3.js.txt`
+11. `patches/cassette-castle-rebuild-v9.js.txt`
+12. Food Court builder replacement from `patches/foodcourt-v3.js.txt`
 
 Patch order is intentional. Later patches depend on earlier markers.
 
@@ -53,7 +54,7 @@ Keep these systems separate:
 
 Do not return to runtime store carving or decorative geometry mutating the fundamental walkability grid.
 
-The collision system now supports **navigation-only blockers** via `physicalBlock:false`. This exists specifically so spaces such as the freight elevator cab can remain physically enterable by the player while being excluded from The Attendant's A* navigation.
+The collision system supports **navigation-only blockers** via `physicalBlock:false`. This exists specifically so spaces such as the freight elevator cab can remain physically enterable by the player while being excluded from The Attendant's A* navigation.
 
 ---
 
@@ -84,15 +85,13 @@ Important behavior:
 - danger/hearing uses route/path distance rather than straight-line distance through walls,
 - walls genuinely protect from impossible through-wall proximity sensing.
 
-The freight elevator cab is now an AI-excluded end-of-chapter space. The Attendant cannot path into the cab, and a small cab safety check prevents contact-death edge cases during the active elevator sequence.
+The freight elevator cab is an AI-excluded end-of-chapter space. The Attendant cannot path into the cab, and a small cab safety check prevents contact-death edge cases during the active elevator sequence.
 
 ---
 
 ## 6. Audio
 
 The old generated Web Audio SFX engine is retired. Non-music SFX use locally vendored CC0 recordings in `assets/audio/cc0/`.
-
-The audio bank includes footsteps, breaker operation, doors/shutters/latches, impacts, pickups, interface/error cues, heartbeat, breath/whisper cues, radio static, electrical room tone, horror ambience, intercom bell, gore impact, and death scream.
 
 All vendored files are normalized with FFmpeg EBU R128 processing to approximately:
 
@@ -101,11 +100,9 @@ All vendored files are normalized with FFmpeg EBU R128 processing to approximate
 - **7 LU target LRA**
 - stereo 44.1 kHz Vorbis OGG
 
-Runtime gains still preserve hierarchy.
-
 ### Footsteps
 
-Current footstep mix intentionally sits slightly below the previous pass:
+Current footstep mix:
 
 - normal dry gain approximately `.18`,
 - sprint dry gain approximately `.28`,
@@ -138,123 +135,114 @@ Do not revert the active LED to green or remove the lever animation.
 
 ---
 
-## 8. Freight elevator — authoritative current implementation
+## 8. Freight elevator — authoritative implementation
 
-`patches/elevator-rebuild-v7.js.txt` is the authoritative Chapter 1 freight-elevator implementation.
+`patches/elevator-rebuild-v7.js.txt` is authoritative.
 
-### Important historical bug now retired
+The old Chapter 1 procedural `East Service Shutter` directly in front of the elevator is completely retired. Do not reintroduce it.
 
-The old Chapter 1 scene placed a **procedurally generated `East Service Shutter` directly in front of the actual freight elevator**. Later patches separately changed elevator visuals, collision, and state behavior. This caused the visible door and collision to disagree: the shutter could appear closed while the player could pass through it, and the actual cab entry remained partially blocked.
-
-**That procedural East Service Shutter is now completely removed from Chapter 1. Do not reintroduce it.**
-
-### Current physical elevator
-
-Visible architecture is assembled from verified Kenney CC0 GLB content:
-
-- imported doorway/frame,
-- two imported sliding door leaves,
-- imported floor and ceiling,
-- imported side/back wall pieces,
-- imported external call control,
-- decorative interior control.
-
-There is only one authoritative set of elevator doors.
-
-Physical collision consists of:
-
-- left/right cab walls,
-- back cab wall,
-- one threshold/door blocker synchronized to visible door openness.
-
-The threshold blocker remains solid until the visible leaves are essentially fully open, preventing the old ghost-through-door behavior.
-
-### Master Service Key
-
-The Master Service Key no longer opens a separate procedural service shutter. It now operates the **elevator's own service lock**.
-
-After A/B/C are restored:
-
-- if the player lacks the key, the objective becomes **Find the Master Service Key**,
-- with the key, the elevator can be unlocked/called,
-- using the service lock consumes the key and permanently unlocks that elevator for the chapter.
-
-### Elevator sequence
+Visible architecture is assembled from verified Kenney CC0 GLB content. The threshold blocker stays solid until the visible leaves are essentially fully open. The Master Service Key operates the elevator's own service lock.
 
 Required Chapter 1 sequence:
 
 1. restore A/B/C,
 2. acquire Master Service Key,
-3. interact with the freight elevator,
-4. service lock accepts the key,
-5. imported door leaves visibly slide open,
-6. collision remains closed until the leaves are effectively fully open,
-7. doors remain open indefinitely while waiting,
-8. player physically walks into the cab,
-9. entry is detected only once the player is fully inside,
-10. doors close,
-11. manual movement is blocked during closing/ride,
-12. player is gently centered in the car,
-13. car vibration/light movement sells the ride,
-14. Chapter 1 transitions only after the ride.
+3. unlock/call freight elevator,
+4. imported leaves open,
+5. player physically enters,
+6. doors close,
+7. player is centered/locked during ride,
+8. chapter transitions after the ride.
 
-There is **no timer that closes the doors while the player is still outside**.
-
-### Attendant protection around boarding
-
-The elevator sequence now adds multiple safeguards:
-
-- a navigation-only exclusion volume prevents The Attendant from entering the cab,
-- opening the powered elevator briefly stuns The Attendant,
-- the open/waiting state extends that boarding grace,
-- entering the cab extends it again through closing,
-- an active-cab safety region prevents a contact-death edge case if geometry/AI positions briefly overlap near the threshold.
-
-The elevator should be tense to reach, but successfully entering it should reliably end the chase rather than allow the player to be attended inside the car.
+The doors remain open indefinitely while waiting for the player. The Attendant is excluded from the cab and boarding has short grace windows so entering the cab reliably ends the chase.
 
 ---
 
-## 9. Central fountain — authoritative current implementation
+## 9. Central fountain — authoritative implementation
 
-`patches/fountain-rebuild-v8.js.txt` is the authoritative Chapter 1 central-fountain implementation.
+`patches/fountain-rebuild-v8.js.txt` is authoritative.
 
-The old fountain was only two primitive cylinders at `(0,0,0)` plus an oversized square `3.2 × 3.2 m` collider. That treatment is retired.
+The old two-cylinder fountain and oversized `3.2 × 3.2 m` square collider are retired.
 
 Current fountain rules:
 
 - center remains exactly at `(0,0,0)`,
-- authored visible footprint radius is **1.64 m**, essentially preserving the old ~3.3 m diameter,
-- the outer basin/rim is custom-authored to that footprint rather than using an arbitrary prebuilt model as the boundary,
-- worn rim/coping uses Poly Haven **Marble Tiles** CC0 PBR maps,
-- the dry inner basin uses Poly Haven **Grey Tiles** CC0 PBR maps,
-- a pinned Kenney Starter Kit City Builder CC0 `pavement-fountain.glb` is fitted inside the basin as the central sculpture/nozzle form,
-- there is a modeled fallback if that remote GLB fails,
-- the basin is visibly dry and includes a recessed floor, old waterline/mineral rings, rust streaks, a dark damp remnant, coins, and paper trash,
-- there is deliberately **no active water surface or spray**, matching the disconnected-fountain story cue.
-
-Physical collision is now an approximate circular footprint made from nine narrow collider strips contained within the 1.64 m visible radius. Do not restore the old square collider, and do not change the authored floor grid to accommodate fountain dressing.
+- visible footprint radius **1.64 m**,
+- custom-authored basin/rim exactly fills the existing spot,
+- Poly Haven **Marble Tiles** on the worn rim/coping,
+- Poly Haven **Grey Tiles** inside the dry basin,
+- pinned Kenney Starter Kit City Builder `pavement-fountain.glb` fitted as the center feature,
+- dry basin includes mineral/waterline staining, rust, damp remnant, coins and paper trash,
+- no active water surface or spray,
+- nine narrow collider strips approximate the circular footprint without changing the authored floor grid.
 
 ---
 
-## 10. Chapter/story arc
+## 10. Cassette Castle — authoritative v9 rebuild
+
+`patches/cassette-castle-rebuild-v9.js.txt` is now the authoritative Cassette Castle implementation.
+
+### Retired implementation
+
+The old store mixed a Kenney Mini Market shelf that already contained baked-in retail stock with a second generated cassette-stock layer. It also had:
+
+- `fallbackCassette(...)` generated cassette bodies/reels,
+- generated cassette fallback stock when the real tape component was unavailable,
+- procedural glowing `TorusGeometry` listening-station rings,
+- primitive shelf/table/box fallbacks through the general `placeModel(...)` helper.
+
+**Do not restore any of those in Cassette Castle.**
+
+### v9 asset rule
+
+All visible Cassette Castle merchandising fixtures, listening furniture, listening hardware and cassette stock are actual imported CC0 models/components.
+
+Current sources:
+
+- **Kenney Furniture Kit `bookcaseOpen.glb`** — empty full-height wall browsing racks.
+- **Quaternius `Shelf Large.glb` / `Shelf Small.glb`** — empty freestanding retail displays.
+- **Quaternius `Table Round Small.glb` / `Stool.glb`** — listening-station furniture.
+- **Poly Haven Cassette Player** — actual listening hardware.
+- **Poly Haven cassette/tape component extracted from that model** — actual cloned cassette retail stock and loose listening media.
+
+Cassette Castle uses its own `placeCassetteCc0(...)` helper. If a required remote CC0 model fails, the object is **skipped**. It is not replaced by generated boxes, tables, shelves or fake products.
+
+If the Poly Haven tape component cannot be extracted, those shelf positions remain honestly empty. There is no procedural cassette fallback.
+
+### v9 layout
+
+The store is intentionally laid out as a music/cassette shop rather than a reskinned Video Planet:
+
+- open storefront sightline and central circulation,
+- imported full-height browsing racks along the left/rear perimeter,
+- multiple imported freestanding cassette display fixtures through the middle,
+- three actual listening stations on the right side with tables, cassette players and stools,
+- CC0 checkout counter/register area,
+- physical hiding cabinet moved into the back-right corner away from the listening aisle,
+- authored `NEW WAVE`, `LISTEN BEFORE YOU BUY`, and `TOP 40` store graphics for identity.
+
+Vinyl-record props were intentionally not added in v9 because candidate assets found during research were not all CC0. Do not slip CC-BY record/turntable assets into this project just to fill the category.
+
+The current runtime audit explicitly fails if the old `marketShelfEnd` Cassette Castle builder usage, `fallbackCassette`, old cassette-stock helper, procedural listening torus, or primitive Cassette Castle fallbacks return.
+
+---
+
+## 11. Chapter/story arc
 
 ### Chapter 1 — Closing Time
-
 Restore A/B/C, find the Master Service Key, use the freight elevator, and discover that it descends instead of escaping.
 
 ### Chapter 2 — Service Level
-
 Find the security keycard, restore D/E, and reach the north stairwell. The work order is revealed to have been filed in 1997.
 
 ### Chapter 3 — The Last Shift
-
 Recover the Last Shift material and end Pinewood's closing/accountability routine from PA control. Do not reduce the ending to simply cutting power.
 
 There are nine numbered Last Shift logs, `LS-01` through `LS-09`. Recovering all nine changes the ending.
 
 ---
 
-## 11. Chapter 1 stores
+## 12. Chapter 1 stores
 
 The four authored walkable storefronts are:
 
@@ -269,15 +257,17 @@ Food Court v3 specifically uses clamped wall imagery (`THREE.ClampToEdgeWrapping
 
 Named storefront neon is game-specific local art with independent randomized flicker.
 
+Cassette Castle v9 should remain visibly distinct from Video Planet: Video Planet is a rental/video store; Cassette Castle is an analog music shop with cassette browsing and listening stations.
+
 ---
 
-## 12. Hiding / menus / death
+## 13. Hiding / menus / death
 
 Hiding cabinets are physical CC0 cabinet models with animated doors and camera movement into/out of the cabinet. Do not reduce hiding to teleport-only behavior.
 
 Opening a modal/menu must pause gameplay, pause/silence appropriate audio, release pointer lock, and render above the cabinet peek mask.
 
-Death still displays:
+Death displays:
 
 **YOU'VE BEEN ATTENDED TO**
 
@@ -285,7 +275,7 @@ with the existing gore/death presentation and restart/quit flow.
 
 ---
 
-## 13. Navigation baseline
+## 14. Navigation baseline
 
 Most recently recorded authored reachability baseline:
 
@@ -295,21 +285,21 @@ Most recently recorded authored reachability baseline:
 
 Chapter 1 store entrances, breakers A/B/C, Master Service Key, and elevator approach must remain reachable.
 
-The elevator's AI-only exclusion is deliberately separate from player walkability and should not mutate the authored floorplan. The central fountain also uses prop collision only; its v8 rebuild does not carve or rewrite the authored walkability grid.
+The elevator AI-only exclusion, fountain collision, and Cassette Castle fixture collision must stay separate from authored floor walkability.
 
 ---
 
-## 14. Asset/licensing policy
+## 15. Asset/licensing policy
 
-Major documented sources include Kenney kits, KayKit Dungeon Remastered, Poly Haven, GGBotNet/OpenGameArt VHS, Reactorcore blood decals, and OpenGameArt audio/music. See `LICENSES.md` and `assets/audio/cc0/README.md` for exact provenance and normalization notes.
+Major documented sources include Kenney kits, Quaternius, KayKit Dungeon Remastered, Poly Haven, GGBotNet/OpenGameArt VHS, Reactorcore blood decals, and OpenGameArt audio/music. See `LICENSES.md` and `assets/audio/cc0/README.md` for exact provenance and normalization notes.
 
-The central fountain specifically uses the pinned Kenney Starter Kit City Builder `pavement-fountain.glb` and Poly Haven `marble_tiles` / `grey_tiles`, all documented as CC0 in `LICENSES.md` and in the runtime attribution manifest.
+For third-party store props/models, preserve the project's CC0-only policy. If an attractive candidate is CC-BY or unclear, do not embed it. Either find a verified CC0 alternative or omit that category.
 
 Keep provenance pinned/documented when adding assets.
 
 ---
 
-## 15. Development workflow
+## 16. Development workflow
 
 For every future runtime change:
 
@@ -322,10 +312,10 @@ For every future runtime change:
 7. verify the GitHub Pages build/deploy,
 8. be explicit if interactive visual playtesting could not be performed.
 
-The current runtime audit specifically guards the recorded normalized CC0 audio bank, zero oscillator/random-noise SFX synthesis, breaker lever animation, authoritative elevator model/state/collision, AI-only cab exclusion, key-gated elevator progression, the exact-fit CC0/PBR central fountain and retirement of its old square collider, Food Court v3, and warped mall music.
+The current runtime audit guards the normalized CC0 audio bank, zero oscillator/random-noise SFX synthesis, breaker lever animation, authoritative elevator model/state/collision, AI-only cab exclusion, key-gated elevator progression, exact-fit CC0/PBR fountain and retirement of its old square collider, Cassette Castle v9's CC0-only fixtures/stock/listening layout and retirement of its procedural/baked-stock implementation, Food Court v3, and warped mall music.
 
 ---
 
-## 16. Fresh-session restart prompt
+## 17. Fresh-session restart prompt
 
 > Continue development of The Attendant: Pinewood Mall. Use `maloysius-wq/the-attendant-pinewood-mall` as the source of truth. Read `DEVELOPMENT_HANDOFF.md` first, inspect the latest commits and relevant current files, preserve the documented no-regression constraints, implement directly in the repo, run the runtime audit, and verify GitHub Pages after game changes.
