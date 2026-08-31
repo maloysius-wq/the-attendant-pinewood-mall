@@ -58,3 +58,5 @@ jobs:
         run: node scripts/audit-cassette-castle-v14.mjs
       - name: Validate local runtime assets v15
         run: node scripts/audit-local-assets-v15.mjs
+
+# Verification trigger: local-assets v15 final gate
