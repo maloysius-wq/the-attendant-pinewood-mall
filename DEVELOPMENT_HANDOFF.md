@@ -440,7 +440,7 @@ For every future Pinewood runtime change:
 8. Require the relevant runtime audits to pass.
 9. Inspect relevant visual-regression artifacts when a visual system changes.
 10. Verify the GitHub Pages build/deploy on the final head.
-11. Be explicit if interactive visual playtesting could not be performed.
+11. Do not perform manual interactive WASD playtests. Use automated runtime audits and deterministic visual regression instead.
 
 Current CI coverage includes normalized CC0 audio, v11 footstep mix, zero oscillator/random-noise SFX synthesis, breaker lever animation, authoritative elevator state/collision rules, AI-only cab exclusion, key-gated elevator progression, exact-fit fountain invariants, Food Court v3, v10/v12 poster systems, and Cassette Castle v14's permanent tiny-shelf ban, open-floor fixture markers, geometry-grounded support logic, visual-only finish rule, localized ambience change, protected elevator/fountain invariants, and final JavaScript syntax.
 
@@ -483,10 +483,10 @@ The run #12 artifact's `report.json` reports `failed: false`, all three determin
 
 The deterministic software-WebGL harness still emits two local-model warnings that are **not external fetch failures**: the Kenney fountain model can hit its model-load timeout and retain the already-approved v8 modeled fallback, and the elevator floor GLB reports degenerate/invalid bounds while the protected elevator state/collision rules remain intact. These should be treated as separate model/runtime-hardening work if revisited; they do not reintroduce remote dependencies.
 
-**No manual interactive WASD playtest has been performed for v15.** Automated runtime and deterministic visual checks are not a substitute for a full human playthrough.
+**Permanent playtest rule:** Do not perform manual interactive WASD playtests for Pinewood. Automated runtime audits and deterministic visual-regression captures are the required verification methods unless the user explicitly changes this rule.
 
 ---
 
 ## 19. Fresh-session restart prompt
 
-> Continue development of The Attendant: Pinewood Mall. **Use the GitHub plugin first for all repository work.** Use `maloysius-wq/the-attendant-pinewood-mall` as the source of truth. Read `AGENTS.md` and `DEVELOPMENT_HANDOFF.md` first, inspect the latest commits and relevant current files, preserve all documented no-regression constraints, implement directly in the repo, run the relevant runtime audits, inspect visual artifacts for visual changes, and verify GitHub Pages after game changes. Local Assets v15 is authoritative: **never use remote runtime assets or CDN browser libraries; always verify, vendor, document, and serve third-party runtime dependencies locally from this repository.** Cassette Castle v14 remains authoritative, while v13's permanent Quaternius Shelf Large/Shelf Small ban and geometry-grounding rules remain mandatory. The old stale/timing-out remote dependency issue from v14 has been resolved; do not reintroduce those URLs. Be explicit if a manual interactive playtest has not been performed.
+> Continue development of The Attendant: Pinewood Mall. **Use the GitHub plugin first for all repository work.** Use `maloysius-wq/the-attendant-pinewood-mall` as the source of truth. Read `AGENTS.md` and `DEVELOPMENT_HANDOFF.md` first, inspect the latest commits and relevant current files, preserve all documented no-regression constraints, implement directly in the repo, run the relevant runtime audits, inspect visual artifacts for visual changes, and verify GitHub Pages after game changes. Local Assets v15 is authoritative: **never use remote runtime assets or CDN browser libraries; always verify, vendor, document, and serve third-party runtime dependencies locally from this repository.** Cassette Castle v14 remains authoritative, while v13's permanent Quaternius Shelf Large/Shelf Small ban and geometry-grounding rules remain mandatory. The old stale/timing-out remote dependency issue from v14 has been resolved; do not reintroduce those URLs. Do not perform a manual interactive WASD playtest; rely on automated audits and deterministic visual-regression captures.

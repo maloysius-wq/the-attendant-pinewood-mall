@@ -29,6 +29,14 @@ This is a permanent no-regression rule, not a preference.
 
 The final assembled runtime must pass the local-assets audit before a Pinewood runtime change is considered complete.
 
+## Permanent playtesting rule
+
+**Do not perform manual interactive WASD playtests for Pinewood.** This is a permanent project rule.
+
+- Use automated runtime audits, deterministic visual-regression captures, source inspection, telemetry, and GitHub Pages verification instead.
+- Do not describe the absence of a manual WASD playtest as incomplete verification or a remaining task.
+- Do not launch a manual keyboard/mouse gameplay session unless the user explicitly reverses this rule in a future request.
+
 ## Permanent Cassette Castle shelf ban
 
 The following retired shelf resources are **permanently banned from Pinewood and must never be reintroduced, reused, re-added under another key, or suggested as a future fixture**:
