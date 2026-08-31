@@ -7,6 +7,7 @@ on:
       - 'scripts/vendor-runtime-assets.mjs'
       - 'scripts/apply-local-runtime-v15.mjs'
       - 'scripts/finalize-local-assets-v15.mjs'
+      - 'scripts/patch-cassette-audits-v15.mjs'
       - 'patches/local-assets-v15.js.txt'
       - '.github/workflows/vendor-runtime-assets.yml'
   workflow_dispatch:
@@ -40,11 +41,13 @@ jobs:
         run: node scripts/apply-local-runtime-v15.mjs
       - name: Normalize manifest and document permanent policy
         run: node scripts/finalize-local-assets-v15.mjs
+      - name: Update inherited Cassette Castle audit handoff
+        run: node scripts/patch-cassette-audits-v15.mjs
       - name: Commit localized runtime files
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add -f assets/vendor/runtime vendor/three vendor/pako game.js index.html DEVELOPMENT_HANDOFF.md LICENSES.md
+          git add -f assets/vendor/runtime vendor/three vendor/pako game.js index.html DEVELOPMENT_HANDOFF.md LICENSES.md scripts/audit-cassette-castle-v13.mjs scripts/audit-cassette-castle-v14.mjs
           if git diff --cached --quiet; then
             echo "Vendored and localized runtime files are already current."
             exit 0
