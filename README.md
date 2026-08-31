@@ -1,6 +1,6 @@
 # THE ATTENDANT: PINEWOOD MALL — Rebuilt Edition
 
-A ground-up reboot of **The Attendant: Pinewood Mall**, rebuilt from the earlier `Game2.html` prototype with authored mall floorplans, distinct stores, revised enemy AI, hiding/decoy systems, story progression, improved visuals, and verified CC0 art sources.
+A ground-up reboot of **The Attendant: Pinewood Mall**, rebuilt from the earlier `Game2.html` prototype with authored mall floorplans, distinct stores, revised enemy AI, hiding/decoy systems, story progression, improved visuals, and verified CC0 art/audio sources.
 
 ## Play online
 
@@ -47,12 +47,14 @@ Then open `http://localhost:8765`.
 - Real collision on shelves, counters, arcade machines, tables, chairs, cabinets and major props.
 - PBR floor/wall materials from verified CC0 Poly Haven assets, with generated fallbacks.
 - Verified CC0 Kenney GLB assets for arcade/furniture/retail/food dressing, with generated fallbacks.
-- Revised procedural audio: mall hum, louder configurable muzak, footsteps, heartbeat, directional whispers, radio, PA and danger tones.
+- Locally vendored **recorded CC0 sound bank** for footsteps, breakers, doors, impacts, heartbeat, breathing/whispers, radio/static ambience, intercom and death/gore cues. Sources are normalized to -20 LUFS / -2 dBTP before deployment; the old oscillator/random-noise SFX synthesis path has been removed.
+- Warped CC0 mall music with half-speed playback, echo copies and intermittent detune, plus a proximity-driven CC0 threat layer.
+- Animated breaker levers with distinct OFF and ON positions plus red status LEDs.
 - Full pause of gameplay and audio in menus.
 - Save data, chapter unlocks, journal, settings, credits/license manifest.
 
 ## Network use
 
-The project currently loads pinned CC0 model mirrors and Poly Haven CC0 textures at runtime. If a model or texture fails to load, the game falls back to built-in procedural art and remains playable.
+The project currently loads pinned CC0 model mirrors, Poly Haven CC0 textures, and the two CC0 music tracks at runtime. The non-music SFX bank is stored locally in this repository. If a model or texture fails to load, the game uses the documented fallback behavior for that asset category.
 
 See `LICENSES.md` for exact provenance and `DESIGN_AUDIT.md` / `AUDIT_RESULTS.txt` for the rebuild audit.
