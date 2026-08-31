@@ -16,18 +16,25 @@ All third-party visual and audio assets used by this build were selected because
 - Additional pinned runtime mirror for the hiding cabinet: `vinhelysia/godot-fps-cogito` commit `1268440e90e370db6c3351ec4cd7429f3ca278b3`
 - The mirrored package contains the original `License.txt` stating CC0.
 - Hiding-cabinet runtime file: `addons/cogito/Assets/Models/Kenney/Furniture/GLTF format/bookcaseClosedDoors.glb`. The GLB contains separate `doorLeft` and `doorRight` nodes used by Pinewood's existing physical hide animation.
-- Cassette Castle browsing-rack runtime file: `assets/kenney_furniture-kit/Models/GLTF format/bookcaseOpen.glb` from the pinned `RetroDECK/RetroQUEST` mirror.
-- Used for food-court tables/chairs, the portable-radio decoy, full-height hiding cabinets, and Cassette Castle's full-size empty perimeter and double-sided browsing racks.
+- Cassette Castle full-height browsing-rack runtime file: `assets/kenney_furniture-kit/Models/GLTF format/bookcaseOpen.glb` from the pinned `RetroDECK/RetroQUEST` mirror.
+- Cassette Castle v14 low-center-fixture runtime file: `assets/kenney_furniture-kit/Models/GLTF format/bookcaseOpenLow.glb` from the same pinned mirror.
+- Used for food-court tables/chairs, the portable-radio decoy, full-height hiding cabinets, Cassette Castle perimeter racks, and Cassette Castle v14's low center fixtures.
+
+## Kenney — Space Kit
+- Original source: https://kenney.nl/assets/space-kit
+- License: CC0 1.0
+- Pinned runtime mirror: `vinhelysia/godot-fps-cogito` commit `1268440e90e370db6c3351ec4cd7429f3ca278b3`
+- Runtime file: `addons/cogito/Assets/Models/Kenney/SpaceInterior/GLTF format/KSI_counter.glb`.
+- Used by Cassette Castle v14 for the three-module listening bar and the checkout counter. Placement is grounded from measured model bounds; tabletop props are anchored to the measured counter top.
 
 ## Quaternius — Ultimate House Interior / Furniture Pack
 - Creator/source: https://quaternius.com/packs/furniture.html
 - Additional public-domain catalog reference: https://poly.pizza/bundle/Ultimate-House-Interior-Pack-2SXnFbwFzm
 - License: CC0 / Public Domain.
 - Pinned runtime mirror: `BGS3934/BGS3934.github.io` commit `2efb99e0ba4d22a65489c21d01651447be433ef5`.
-- Current Cassette Castle runtime files:
-  - `Assets/Furniture/Table Round Small.glb`
+- Current Cassette Castle runtime file:
   - `Assets/Furniture/Stool.glb`
-- Used for Cassette Castle listening-station furniture.
+- `Assets/Furniture/Table Round Small.glb` remains historical v13 provenance but is no longer used by the authoritative v14 store layout.
 - **Permanently retired/banned:** Quaternius `Shelf Large.glb` and `Shelf Small.glb`. Those fixtures produced toy-scale presentation in the prior Cassette Castle implementation. `patches/cassette-castle-rebuild-v13.js.txt` scrubs their runtime keys/URLs, and project rules prohibit reintroducing them under any alias.
 
 ## Kenney — Mini Dungeon
@@ -72,7 +79,7 @@ All third-party visual and audio assets used by this build were selected because
 - Original source: https://kenney.nl/assets/mini-market
 - License: CC0 1.0
 - Pinned runtime mirror: `AkiraNim/CLTCrossing` commit `6fe4cd6dcb6fbfa4267d3b9971c0968e0fe375b6`
-- Used for stocked retail shelving, endcaps, display counters, return fixture and cash registers elsewhere in Pinewood. Cassette Castle v13 does **not** use the baked-stock Mini Market shelf as a browsing fixture.
+- Used for stocked retail shelving, endcaps, display counters, return fixture and cash registers elsewhere in Pinewood. Cassette Castle v14 does **not** use the baked-stock Mini Market shelf as a browsing fixture.
 
 ## Kenney — Food Kit
 - Original source: https://kenney.nl/assets/food-kit
@@ -94,8 +101,8 @@ Poly Haven assets are released under CC0.
 - Cassette Player: https://polyhaven.com/a/cassette_player
   - Runtime GLTF: `https://dl.polyhaven.org/file/ph-assets/Models/gltf/2k/cassette_player/cassette_player_2k.gltf`
   - Used at Cassette Castle listening stations.
-  - Cassette Castle v13 extracts the model's separately named cassette/tape component and clones that **actual model component** as retail stock and loose listening-station media.
-  - v13 anchors those cassette clones to measured fixture support surfaces instead of hard-coded world-Y positions.
+  - Cassette Castle v13 extracts the model's separately named cassette/tape component and clones that **actual model component** as retail stock and loose listening-station media; v14 keeps that grounding/stock system and changes the store layout around it.
+  - v13/v14 anchor those cassette clones to measured fixture support surfaces instead of hard-coded world-Y positions.
   - If that tape component cannot be extracted, the affected stock is simply omitted. There is no generated low-poly cassette fallback in Cassette Castle.
 
 The game requests the 1K JPG diffuse, OpenGL normal and roughness maps directly from Poly Haven's asset CDN where documented materials are used.
@@ -159,16 +166,21 @@ Pinewood's named storefront signs are generated locally because their lettering 
 - The new Video Planet rental fixtures are original game geometry following its tall, shallow, multi-tier 1990s rental-store proportions.
 - Quaternius Furniture Pack was additionally verified as a CC0 furniture-proportion reference: https://quaternius.com/packs/furniture.html
 
-### Cassette Castle v13 retail/listening rebuild
-- Authoritative final runtime patch: `patches/cassette-castle-rebuild-v13.js.txt`.
-- Empty perimeter browsing racks: Kenney Furniture Kit `bookcaseOpen.glb`, CC0, pinned to the `RetroDECK/RetroQUEST` commit documented above, scaled by measured model bounds to **2.08 m** tall.
-- Empty center browsing runs: back-to-back Kenney Furniture Kit `bookcaseOpen.glb` racks, scaled to **1.78 m** tall and positioned from measured fixture depth.
-- Listening furniture: Quaternius `Table Round Small.glb` and `Stool.glb`, CC0/Public Domain.
+### Cassette Castle v13 foundation + v14 authoritative retail/listening rebuild
+- v13 grounding/foundation patch: `patches/cassette-castle-rebuild-v13.js.txt`.
+- **Authoritative final store-layout patch:** `patches/cassette-castle-rebuild-v14.js.txt`.
+- Full-height perimeter browsing racks: Kenney Furniture Kit `bookcaseOpen.glb`, CC0, pinned to the `RetroDECK/RetroQUEST` commit documented above, scaled from measured bounds to **2.00 m** in v14.
+- Low center fixtures: Kenney Furniture Kit `bookcaseOpenLow.glb`, CC0, from the same pinned mirror, scaled from measured bounds to **1.08 m** in v14.
+- Listening bar and checkout: Kenney Space Kit `KSI_counter.glb`, CC0, from the pinned `vinhelysia/godot-fps-cogito` mirror. Three imported modules form the listening bar; one imported module forms checkout.
+- Listening stools: Quaternius `Stool.glb`, CC0/Public Domain.
 - Listening hardware and cassette stock: Poly Haven Cassette Player and its extracted tape component, CC0.
-- Furniture is grounded to the floor from measured `THREE.Box3` bounds. Players/registers/loose cassette media are anchored to measured table/counter/shelf support surfaces rather than guessed absolute Y coordinates.
-- Quaternius `Shelf Large.glb` and `Shelf Small.glb` are **permanently banned**. Their resource keys, URLs and historical aliases are scrubbed from the assembled runtime by v13 and must never be reintroduced.
+- Furniture is grounded to the floor from measured `THREE.Box3` bounds. Players/registers/loose cassette media are anchored to measured counter/shelf support surfaces rather than guessed absolute Y coordinates.
+- v14 adds only visual floor/wall/accent finishes and localized warm point lights; these finishes do not modify authored floor walkability, physical collision, or AI navigation.
+- v14 reduces the roomtone/static mix only while the listener is inside Cassette Castle.
+- Quaternius `Shelf Large.glb` and `Shelf Small.glb` are **permanently banned**. Their resource keys, URLs and historical aliases are scrubbed from the assembled runtime and must never be reintroduced.
 - The old Kenney Mini Market baked-stock `shelf-end.glb` remains retired from Cassette Castle.
-- The old generated `fallbackCassette` geometry, generated cassette reels, procedural glowing listening rings, primitive furniture fallbacks, v9 `placeCassetteCc0`, `stockRealCassetteFixture`, `addCassetteDisplayFixture`, and `dressCassetteListeningTable` helpers are retired from the final Cassette Castle implementation.
+- v13's generated `fallbackCassette` geometry, generated cassette reels, procedural glowing listening rings, primitive furniture fallbacks, v9 `placeCassetteCc0`, `stockRealCassetteFixture`, `addCassetteDisplayFixture`, and `dressCassetteListeningTable` helpers remain retired.
+- v14 additionally retires the v13 center double-rack maze and three isolated round listening-table islands from the final store layout.
 - If a required remote CC0 model/component cannot load, the affected prop/stock is omitted rather than replaced with a visible procedural stand-in or left floating.
 - Vinyl-record props remain omitted because prior candidate record/turntable assets were not all CC0. Pinewood's CC0-only third-party asset rule takes precedence over filling every merchandising category.
 
