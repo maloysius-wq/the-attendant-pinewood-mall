@@ -2,7 +2,7 @@ import { chromium } from 'playwright';
 import { mkdir, writeFile } from 'node:fs/promises';
 
 const base=process.env.PINEWOOD_BASE_URL||'http://127.0.0.1:4173/';
-const views=['cassette-front','cassette-center','cassette-listening','elevator-front'];
+const views=['cassette-front','cassette-center','cassette-listening','elevator-front','arcade-checkout','video-checkout'];
 await mkdir('visual-artifacts',{recursive:true});
 const browser=await chromium.launch({headless:true,args:['--enable-webgl','--ignore-gpu-blocklist','--use-gl=swiftshader','--disable-dev-shm-usage']});
 const report={base,views:{},failed:false};
