@@ -1,0 +1,24 @@
+function applyFootstepMixV11(source){
+  const fail=msg=>{throw new Error(`Footstep Mix v11 patch failed: ${msg}`);};
+  const oldStep=`  step(sprint=false,quiet=false){
+    this.stepIndex=(this.stepIndex+1+((Math.random()*3)|0))%4;
+    const name='step'+(this.stepIndex+1),rate=rand(.94,1.055),gain=(sprint?.28:.18)*(quiet?.30:1);
+    this.play(name,{gain,rate});
+    this.play(name,{gain:gain*.16,rate:rate*.997,pan:-.06,when:.11});
+    this.play(name,{gain:gain*.06,rate:rate*1.003,pan:.07,when:.23});
+  }`;
+  const newStep=`  step(sprint=false,quiet=false){
+    this.stepIndex=(this.stepIndex+1+((Math.random()*3)|0))%4;
+    const name='step'+(this.stepIndex+1),rate=rand(.94,1.055),gain=(sprint?.14:.09)*(quiet?.30:1);
+    this.play(name,{gain,rate});
+    this.play(name,{gain:gain*.16,rate:rate*.997,pan:-.06,when:.11});
+    this.play(name,{gain:gain*.06,rate:rate*1.003,pan:.07,when:.23});
+  }`;
+  const first=source.indexOf(oldStep);
+  if(first<0)fail('current v7 footstep mixer marker missing');
+  if(source.indexOf(oldStep,first+oldStep.length)>=0)fail('current v7 footstep mixer marker is not unique');
+  source=source.slice(0,first)+newStep+source.slice(first+oldStep.length);
+  if(!source.includes("gain=(sprint?.14:.09)*(quiet?.30:1)"))fail('50% footstep gain marker missing after replacement');
+  if(source.includes("gain=(sprint?.28:.18)*(quiet?.30:1)"))fail('retired v7 footstep gain survived');
+  return source;
+}
