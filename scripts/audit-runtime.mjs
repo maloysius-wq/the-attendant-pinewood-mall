@@ -24,6 +24,7 @@ const PATCHES = [
   ['patches/fountain-rebuild-v8.js.txt', 'applyFountainRebuildV8'],
   ['patches/cassette-castle-rebuild-v9.js.txt', 'applyCassetteCastleRebuildV9']
 ];
+const POSTER_PATCH=['patches/poster-polish-v10.js.txt','applyPosterPolishV10'];
 
 const AUDIO_FILES=[
   'footstep-1.ogg','footstep-2.ogg','footstep-3.ogg','footstep-4.ogg','breaker-switch.ogg','door-latch.ogg','door-shutter.ogg',
@@ -67,6 +68,10 @@ function replaceFoodCourt(source, replacement) {
 function requireMarkers(source, markers, label = 'runtime') {
   for (const marker of markers) if (!source.includes(marker)) fail(`${label} marker missing: ${marker}`);
 }
+function sectionBetween(source,startMarker,endMarker,label){
+  const start=source.indexOf(startMarker),end=source.indexOf(endMarker,start+startMarker.length);
+  if(start<0||end<0)fail(`${label} section markers missing`);return source.slice(start,end);
+}
 
 async function syntaxCheck(name, source) {
   const dir = await mkdtemp(join(tmpdir(), 'pinewood-audit-'));
@@ -90,11 +95,13 @@ requireMarkers(loader, [
   "const ELEVATOR_PATCH='./patches/elevator-rebuild-v7.js.txt';",
   "const FOUNTAIN_PATCH='./patches/fountain-rebuild-v8.js.txt';",
   "const CASSETTE_PATCH='./patches/cassette-castle-rebuild-v9.js.txt';",
+  "const POSTER_PATCH='./patches/poster-polish-v10.js.txt';",
   'const audioSource=await applyAudioImmersion(statusSource,audioPatch);',
   'const elevatorSource=await applyElevatorRebuild(audioSource,elevatorPatch);',
   'const fountainSource=await applyFountainRebuild(elevatorSource,fountainPatch);',
   'const cassetteSource=await applyCassetteCastleRebuild(fountainSource,cassettePatch);',
-  'const source=replaceFoodCourt(cassetteSource,foodPatch)'
+  'const foodSource=replaceFoodCourt(cassetteSource,foodPatch);',
+  'const posterSource=await applyPosterPolish(foodSource,posterPatch);'
 ], 'game.js');
 
 for(const file of AUDIO_FILES){const bytes=await readFile(`assets/audio/cc0/${file}`);if(bytes.length<500)fail(`CC0 audio asset missing or suspiciously small: ${file}`);}
@@ -112,6 +119,9 @@ for (const [path, functionName] of PATCHES) {
   if (typeof source !== 'string' || source.length < 1000) fail(`${path} returned an invalid runtime`);
 }
 source = replaceFoodCourt(source, await readFile('patches/foodcourt-v3.js.txt', 'utf8'));
+const posterPatch=await loadPatch(POSTER_PATCH[0],POSTER_PATCH[1]);
+source=posterPatch(source);
+if(typeof source!=='string'||source.length<1000)fail(`${POSTER_PATCH[0]} returned an invalid runtime`);
 
 requireMarkers(source, [
   'breakers:3','breakerCabinet','elevatorFrame','elevatorDoorHalf',
@@ -141,23 +151,29 @@ requireMarkers(source, [
   "console.warn('Cassette Castle skipped missing CC0 model: '+name)",
   "assetModel='poly-haven-cassette-tape-stock'",
   "addCassetteWallFixture(world,x,z,r)","addCassetteDisplayFixture(world,x,z,r,small)","dressCassetteListeningTable(world,25.35,z,0,i)",
+  'function makeMarketingPoster(theme,title,sub,badge,variant=0)',
+  'function drawArcadePoster(ctx,c,seed,variant)','function drawVideoPoster(ctx,c,seed,variant)','function drawFoodPoster(ctx,c,seed,variant)','function drawMusicPoster(ctx,c,seed,variant)',
+  'drawPosterWear(ctx,c,seed)','root.userData.posterTheme=theme','PINEWOOD MALL • LEVEL 1',
   'THREE.ClampToEdgeWrapping'
 ]);
 
-const musicStart=source.indexOf('async function buildMusic(world){');
-const musicEnd=source.indexOf('\n\nfunction makeShutter(',musicStart);
-if(musicStart<0||musicEnd<0)fail('Cassette Castle final builder section is missing');
-const music=source.slice(musicStart,musicEnd);
+const arcade=sectionBetween(source,'async function buildArcade(world){','async function buildVHS(world){','Sunburst Arcade');
+requireMarkers(arcade,["makeMarketingPoster('arcade','GALAXY STRIKE'","makeMarketingPoster('arcade','TOKEN FRENZY'","makeMarketingPoster('arcade','PRIZE VAULT'"],'Sunburst Arcade posters');
+const video=sectionBetween(source,'async function buildVHS(world){','async function buildFoodCourt(world){','Video Planet');
+requireMarkers(video,["makeMarketingPoster('vhs','BE KIND • REWIND'","makeMarketingPoster('vhs','MIDNIGHT RENTALS'","makeMarketingPoster('vhs','2 NIGHTS • 1 PRICE'"],'Video Planet posters');
+const food=sectionBetween(source,'async function buildFoodCourt(world){','async function buildMusic(world){','Food Court');
+requireMarkers(food,["makeMarketingPoster('food','SLICE CITY'","makeMarketingPoster('food','POLAR POP'","makeMarketingPoster('food','WOK THIS WAY'"],'Food Court posters');
+const music=sectionBetween(source,'async function buildMusic(world){','\n\nfunction makeShutter(','Cassette Castle');
 requireMarkers(music,[
   "name:'CASSETTE CASTLE'",'addCassetteWallFixture(world,x,z,r)','addCassetteDisplayFixture(world,x,z,r,small)',
-  'dressCassetteListeningTable(world,25.35,z,0,i)','LISTEN','BEFORE YOU BUY',
+  'dressCassetteListeningTable(world,25.35,z,0,i)',"makeMarketingPoster('music','NEW WAVE'","makeMarketingPoster('music','LISTEN BEFORE YOU BUY'","makeMarketingPoster('music','PINEWOOD TOP 40'",
   'Three proper listening stations','CC0-only','25.85,0,30.25'
-],'Cassette Castle v9');
+],'Cassette Castle v9/v10');
 for(const retired of ["'marketShelfEnd'",'fallbackCassette','new THREE.TorusGeometry',"fallback:'shelf'","fallback:'table'","fallback:'box'"]){
   if(music.includes(retired))fail(`retired Cassette Castle content survived in builder: ${retired}`);
 }
-for(const retired of ['function fallbackCassette(','async function addCassetteStockShelf(']){
-  if(source.includes(retired))fail(`legacy procedural Cassette Castle helper survived: ${retired}`);
+for(const retired of ['function fallbackCassette(','async function addCassetteStockShelf(','function makePoster(']){
+  if(source.includes(retired))fail(`legacy visual/store helper survived: ${retired}`);
 }
 
 for (const retired of [
@@ -171,4 +187,4 @@ for (const retired of [
 
 await syntaxCheck('patched-runtime', source);
 console.log(`Runtime audit PASS: ${source.length.toLocaleString()} patched source characters parsed successfully.`);
-console.log(`Verified ${AUDIO_FILES.length} normalized CC0 audio assets, quieter echoed footsteps, zero oscillator/noise synthesis, breaker lever animation, authoritative CC0 elevator geometry/collision/state machine, Attendant cab exclusion, exact-fit CC0/PBR central fountain, Cassette Castle v9 CC0-only retail/listening rebuild, Food Court v3 and warped mall music.`);
+console.log(`Verified ${AUDIO_FILES.length} normalized CC0 audio assets, quieter echoed footsteps, zero oscillator/noise synthesis, breaker lever animation, authoritative CC0 elevator geometry/collision/state machine, Attendant cab exclusion, exact-fit CC0/PBR central fountain, Cassette Castle v9 CC0-only retail/listening rebuild, Food Court v3, four-store Poster Polish v10 campaigns, and warped mall music.`);
