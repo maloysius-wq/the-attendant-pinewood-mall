@@ -1,0 +1,172 @@
+function applyCassetteCastleRebuildV13(source){
+  const fail=msg=>{throw new Error('Cassette Castle Rebuild v13 patch failed: '+msg);};
+  const replaceOnce=(label,needle,replacement)=>{
+    const first=source.indexOf(needle);
+    if(first<0)fail(label+': marker missing');
+    if(source.indexOf(needle,first+needle.length)>=0)fail(label+': marker is not unique');
+    source=source.slice(0,first)+replacement+source.slice(first+needle.length);
+  };
+  const replaceRange=(label,startMarker,endMarker,replacement)=>{
+    const start=source.indexOf(startMarker);
+    if(start<0)fail(label+': start marker missing');
+    const end=source.indexOf(endMarker,start+startMarker.length);
+    if(end<0)fail(label+': end marker missing');
+    source=source.slice(0,start)+replacement+source.slice(end);
+  };
+
+  // Permanent resource ban. These two Quaternius shelf assets produced toy-scale fixtures
+  // and are not allowed anywhere in Pinewood after this patch.
+  replaceOnce(
+    'remove banned Shelf Large resource',
+    "  cassetteShelfLarge:`https://raw.githubusercontent.com/BGS3934/BGS3934.github.io/2efb99e0ba4d22a65489c21d01651447be433ef5/Assets/Furniture/Shelf%20Large.glb`,\n",
+    ''
+  );
+  replaceOnce(
+    'remove banned Shelf Small resource',
+    "  cassetteShelfSmall:`https://raw.githubusercontent.com/BGS3934/BGS3934.github.io/2efb99e0ba4d22a65489c21d01651447be433ef5/Assets/Furniture/Shelf%20Small.glb`,\n",
+    ''
+  );
+  replaceOnce(
+    'Quaternius attribution cleanup',
+    'Used directly in Cassette Castle for empty display shelves, listening tables and stools; every visible fixture is an imported CC0 model rather than a procedural stand-in.',
+    'Used directly in Cassette Castle for listening tables and stools. The retired Shelf Large / Shelf Small resources are permanently banned from Pinewood.'
+  );
+
+  replaceRange(
+    'geometry-grounded Cassette Castle helpers',
+    'async function placeCassetteCc0(',
+    '\nasync function buildArcade(world){',
+`function cassetteWorldBox(obj){
+  obj.updateWorldMatrix(true,true);return new THREE.Box3().setFromObject(obj);
+}
+function cassetteScaleToHeight(obj,targetHeight){
+  const b=cassetteWorldBox(obj),h=b.max.y-b.min.y;
+  if(!(h>.001))return false;
+  obj.scale.multiplyScalar(targetHeight/h);obj.updateWorldMatrix(true,true);return true;
+}
+async function placeCassetteGrounded(parent,name,pos,{targetHeight,rot=0,collide=true,navBlock=true,pad=.045,tag=null}={}){
+  const m=await assets.model(name);
+  if(!m){console.warn('Cassette Castle skipped missing CC0 model: '+name);return null;}
+  m.rotation.set(0,rot,0);m.scale.setScalar(1);m.position.set(pos.x,0,pos.z);parent.add(m);
+  if(!cassetteScaleToHeight(m,targetHeight)){parent.remove(m);console.warn('Cassette Castle skipped invalid model bounds: '+name);return null;}
+  let box=cassetteWorldBox(m);m.position.y+=pos.y-box.min.y;m.updateWorldMatrix(true,true);box=cassetteWorldBox(m);
+  m.userData.cassetteGrounded=true;if(tag)m.userData.cassetteFixture=tag;
+  if(collide)GAME.world.addColliderFrom(m,{navBlock,pad});
+  return {obj:m,box,name};
+}
+async function placeCassetteOnSurface(parent,name,x,z,surfaceY,{targetHeight,rot=0,tag=null}={}){
+  const placed=await placeCassetteGrounded(parent,name,new THREE.Vector3(x,surfaceY,z),{targetHeight,rot,collide:false,pad:0,tag});
+  if(placed)placed.obj.userData.cassetteSupported=true;
+  return placed;
+}
+function addAnchoredCassette(parent,template,x,z,surfaceY,ry=0,scale=1){
+  const t=template.clone(true);t.position.set(x,surfaceY,z);t.rotation.set(0,ry,0);t.scale.multiplyScalar(scale);parent.add(t);
+  let box=cassetteWorldBox(t);t.position.y+=surfaceY-box.min.y;t.updateWorldMatrix(true,true);t.userData.cassetteSupported=true;return t;
+}
+function cassetteShelfLevels(fixture,desiredRows=4){
+  const overall=cassetteWorldBox(fixture),size=overall.getSize(new THREE.Vector3()),height=size.y,candidates=[];
+  fixture.traverse(o=>{
+    if(!o.isMesh)return;
+    const b=cassetteWorldBox(o),s=b.getSize(new THREE.Vector3());
+    if(s.y<=height*.14&&(s.x>=size.x*.42||s.z>=size.z*.42)){
+      const y=b.max.y;if(y>overall.min.y+height*.10&&y<overall.max.y-height*.04)candidates.push(y);
+    }
+  });
+  candidates.sort((a,b)=>a-b);
+  const clustered=[];for(const y of candidates)if(!clustered.some(v=>Math.abs(v-y)<.035))clustered.push(y);
+  const usable=clustered.filter(y=>y<overall.max.y-height*.08);
+  if(usable.length>=desiredRows){
+    const out=[];for(let i=0;i<desiredRows;i++){const idx=Math.round(i*(usable.length-1)/Math.max(1,desiredRows-1));out.push(usable[idx]);}return out;
+  }
+  const fallback=[.18,.39,.60,.81];return fallback.slice(0,desiredRows).map(f=>overall.min.y+height*f);
+}
+async function stockCassetteFixture(world,fixture,rot,{rows=4,cols=9,density=.82}={}){
+  const template=await getCassetteTapeTemplate();
+  if(!template){console.warn('Cassette Castle tape component unavailable; leaving the shelf empty rather than floating fake stock.');return null;}
+  const box=cassetteWorldBox(fixture),size=box.getSize(new THREE.Vector3()),center=box.getCenter(new THREE.Vector3());
+  const quarter=Math.abs(Math.sin(rot))>.5,longSpan=quarter?size.z:size.x,depthSpan=quarter?size.x:size.z;
+  const longVec=new THREE.Vector3(Math.cos(rot),0,-Math.sin(rot)),frontVec=new THREE.Vector3(Math.sin(rot),0,Math.cos(rot));
+  const levels=cassetteShelfLevels(fixture,rows),stock=new THREE.Group();stock.userData.assetModel='poly-haven-cassette-tape-stock-v13';world.root.add(stock);
+  for(let row=0;row<levels.length;row++)for(let col=0;col<cols;col++){
+    const gate=((row*cols+col)*37+11)%100;if(gate>density*100)continue;
+    const along=cols===1?0:(-longSpan*.37+col*((longSpan*.74)/(cols-1)));
+    const x=center.x+longVec.x*along+frontVec.x*depthSpan*.31,z=center.z+longVec.z*along+frontVec.z*depthSpan*.31;
+    const wobble=((row*cols+col)%3-1)*.012;
+    addAnchoredCassette(stock,template,x,z,levels[row]+.008,rot+wobble,.96+((row+col)%3)*.015);
+  }
+  return stock;
+}
+async function addCassetteFullRack(world,x,z,rot=0,{height=2.08,rows=4,cols=9,tag='wall-rack'}={}){
+  const placed=await placeCassetteGrounded(world.root,'cassetteShelfWall',new THREE.Vector3(x,0,z),{targetHeight:height,rot,collide:true,pad:.035,tag});
+  if(placed)await stockCassetteFixture(world,placed.obj,rot,{rows,cols,density:.82});return placed;
+}
+async function addCassetteDoubleRackBay(world,x,z,rot=0){
+  const a=await placeCassetteGrounded(world.root,'cassetteShelfWall',new THREE.Vector3(x,0,z),{targetHeight:1.78,rot,collide:false,pad:0,tag:'center-gondola-a'});
+  if(!a)return null;
+  const size=a.box.getSize(new THREE.Vector3()),quarter=Math.abs(Math.sin(rot))>.5,depth=quarter?size.x:size.z,front=new THREE.Vector3(Math.sin(rot),0,Math.cos(rot)),offset=depth*.46;
+  a.obj.position.x-=front.x*offset;a.obj.position.z-=front.z*offset;a.obj.updateWorldMatrix(true,true);GAME.world.addColliderFrom(a.obj,{navBlock:true,pad:.03});
+  const b=await placeCassetteGrounded(world.root,'cassetteShelfWall',new THREE.Vector3(x+front.x*offset,0,z+front.z*offset),{targetHeight:1.78,rot:rot+Math.PI,collide:false,pad:0,tag:'center-gondola-b'});
+  if(b){b.obj.position.x+=front.x*offset;b.obj.position.z+=front.z*offset;b.obj.updateWorldMatrix(true,true);GAME.world.addColliderFrom(b.obj,{navBlock:true,pad:.03});}
+  await stockCassetteFixture(world,a.obj,rot,{rows:4,cols:8,density:.76});if(b)await stockCassetteFixture(world,b.obj,rot+Math.PI,{rows:4,cols:8,density:.76});
+  return {a,b};
+}
+async function dressGroundedListeningStation(world,x,z,index=0){
+  const table=await placeCassetteGrounded(world.root,'cassetteTableRound',new THREE.Vector3(x,0,z),{targetHeight:.74,rot:0,collide:true,pad:.025,tag:'listening-table'});
+  if(!table)return null;
+  const top=cassetteWorldBox(table.obj).max.y;
+  await placeCassetteOnSurface(world.root,'cassettePlayer',x,z,top+.012,{targetHeight:.22,rot:-Math.PI/2,tag:'listening-player'});
+  await placeCassetteGrounded(world.root,'cassetteStool',new THREE.Vector3(x-1.03,0,z),{targetHeight:.54,rot:Math.PI/2,collide:true,pad:.02,tag:'listening-stool'});
+  const tape=await getCassetteTapeTemplate();if(tape)addAnchoredCassette(world.root,tape,x+.27,z+.08,top+.014,.12+index*.03,1);
+  return table;
+}
+async function buildGroundedCheckout(world){
+  const counter=await placeCassetteGrounded(world.root,'counterDesk',new THREE.Vector3(12.85,0,21.15),{targetHeight:.98,rot:0,collide:true,pad:.035,tag:'checkout-counter'});
+  if(counter){const top=cassetteWorldBox(counter.obj).max.y;await placeCassetteOnSurface(world.root,'arcadeCash',13.25,21.02,top+.012,{targetHeight:.27,rot:0,tag:'checkout-register'});}
+  return counter;
+}`
+  );
+
+  replaceRange(
+    'fully audited Cassette Castle layout',
+    'async function buildMusic(world){',
+    '\n\nfunction makeShutter(',
+`async function buildMusic(world){
+  addStorefront(world,{name:'CASSETTE CASTLE',theme:'music',x:18,z:19.48,face:'north'});
+  addWallPoster(world,makeMarketingPoster('music','NEW WAVE','THIS WEEK’S PICKS','IMPORTS • INDIES • LOCAL',0),new THREE.Vector3(10.56,1.55,25),Math.PI/2);
+  addWallPoster(world,makeMarketingPoster('music','LISTEN BEFORE YOU BUY','TRY IT AT THE SOUND BAR','HEADPHONES PROVIDED',1),new THREE.Vector3(27.44,1.55,25),-Math.PI/2);
+  addWallPoster(world,makeMarketingPoster('music','PINEWOOD TOP 40','THE COUNTDOWN WALL','NEW CHART EVERY FRIDAY',2),new THREE.Vector3(18,1.55,31.44),Math.PI);
+
+  // Human-scale empty Kenney browsing racks. No Shelf Large / Shelf Small resources are allowed.
+  for(const [x,z,r] of [
+    [11.55,22.35,Math.PI/2],[11.55,24.55,Math.PI/2],[11.55,26.75,Math.PI/2],[11.55,28.95,Math.PI/2],
+    [14.10,30.48,Math.PI],[15.85,30.48,Math.PI],[17.60,30.48,Math.PI],[19.35,30.48,Math.PI],[21.10,30.48,Math.PI],[22.85,30.48,Math.PI]
+  ])await addCassetteFullRack(world,x,z,r,{height:2.08,rows:4,cols:9,tag:'perimeter-rack'});
+
+  // Two substantial double-sided browsing runs made from the same full-size empty CC0 fixture.
+  for(const [x,z] of [
+    [14.85,24.10],[16.25,24.10],[17.65,24.10],
+    [14.85,27.25],[16.25,27.25],[17.65,27.25]
+  ])await addCassetteDoubleRackBay(world,x,z,0);
+
+  // Three fully grounded listening stations. Players and loose tapes sit on measured table tops.
+  for(const [z,i] of [[22.15,0],[25.20,1],[28.20,2]])await dressGroundedListeningStation(world,25.35,z,i);
+
+  // Checkout hardware is grounded to the floor/counter rather than placed at guessed Y coordinates.
+  await buildGroundedCheckout(world);
+
+  // Preserve the physical CC0 hiding cabinet in the back-right corner.
+  const cab=makeCabinet(new THREE.Vector3(25.85,0,30.25),Math.PI);world.root.add(cab);world.addCollider(25.85,30.25,.82,.46,{navBlock:true,owner:cab});world.interactables.push(cab);
+}`
+  );
+
+  const banned=['cassetteShelfLarge','cassetteShelfSmall','Shelf%20Large.glb','Shelf%20Small.glb','Shelf Large.glb','Shelf Small.glb'];
+  for(const marker of banned)if(source.includes(marker))fail('permanently banned shelf resource survived: '+marker);
+  for(const retired of ['async function stockRealCassetteFixture(','async function addCassetteDisplayFixture(','async function dressCassetteListeningTable(','async function placeCassetteCc0('])if(source.includes(retired))fail('retired floating-placement helper survived: '+retired);
+  for(const required of [
+    'function cassetteWorldBox(','async function placeCassetteGrounded(','async function placeCassetteOnSurface(','function cassetteShelfLevels(',
+    'async function stockCassetteFixture(','async function addCassetteFullRack(','async function addCassetteDoubleRackBay(','async function dressGroundedListeningStation(',
+    "targetHeight:2.08","targetHeight:1.78","cassetteGrounded=true","cassetteSupported=true","poly-haven-cassette-tape-stock-v13",
+    "makeMarketingPoster('music','NEW WAVE'","makeMarketingPoster('music','LISTEN BEFORE YOU BUY'","makeMarketingPoster('music','PINEWOOD TOP 40'"
+  ])if(!source.includes(required))fail('v13 marker missing: '+required);
+  return source;
+}
