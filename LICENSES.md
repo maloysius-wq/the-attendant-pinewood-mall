@@ -1,6 +1,6 @@
 # Third-party asset provenance
 
-All third-party visual assets used by this build were selected because their source licensing could be verified as **Creative Commons Zero (CC0 1.0)**.
+All third-party visual and audio assets used by this build were selected because their source licensing could be verified as **Creative Commons Zero (CC0 1.0)** unless otherwise noted below.
 
 ## Kenney — Mini Arcade
 - Original source: https://kenney.nl/assets/mini-arcade
@@ -79,9 +79,38 @@ The game requests the 1K JPG diffuse, OpenGL normal and roughness maps directly 
 - MIT License
 - Runtime version pinned to 0.180.0.
 
-## Original/game-specific work
-The Attendant model and animation rig, story, levels, interaction systems, non-music procedural sound effects, UI, generated signage/posters, gore effects and fallback geometry/textures are original to this project build.
+## CC0 sound effects and ambience
 
+All non-music gameplay SFX in the current build are real recorded samples. They are vendored under `assets/audio/cc0/` rather than fetched from third-party sites during play.
+
+### Kenney — RPG Audio and Interface Sounds
+- Original sources: https://kenney.nl/assets/rpg-audio and https://kenney.nl/assets/interface-sounds
+- License: CC0 1.0
+- Pinned provenance/audit mirror: `Sonofg0tham/tailgate` commit `99de980908146410f5bb3b0efcd6711e22b253b9`; its `CREDITS.md` maps the mirrored filenames to the original Kenney packs and records the CC0 license.
+- Used for footsteps, breaker switch, door/shutter/latch sounds, metal impacts, pickups, error/toggle/confirmation cues, thrown-object handling, and paper handling.
+
+### OpenGameArt — recorded CC0 sources
+- Heartbeat sounds — bart — https://opengameart.org/content/heartbeat-sounds — CC0 1.0
+- Ghost breath — qubodup — https://opengameart.org/content/ghost-breath — CC0 1.0
+- Static — xhunterko — https://opengameart.org/content/static — CC0 1.0
+- Electronic device loop — qubodup — https://opengameart.org/content/electronic-device-loop — CC0 1.0
+- Ambient horror — techiew — https://opengameart.org/content/ambient-horror — CC0 1.0
+- Electric Buzz — themightyglider — https://opengameart.org/content/electric-buzz — CC0 1.0
+- Bell dings/chimes — PWL — https://opengameart.org/content/bell-dingschimes — CC0/public domain
+- Squish Sounds Effects — EZduzziteh — https://opengameart.org/content/squish-sounds-effects — CC0 1.0
+- Horror scream1 — Vinrax — https://opengameart.org/content/horror-scream1 — CC0 1.0
+- Used for heartbeat layers, breath/whisper cues, radio static, electrical room tone, danger ambience, electrical buzz, intercom bell, and death/gore layers.
+
+### Loudness normalization
+The source recordings are normalized during vendoring with FFmpeg EBU R128 loudness normalization and transcoded to stereo 44.1 kHz Vorbis OGG:
+- integrated loudness target: **-20 LUFS**
+- true-peak ceiling: **-2 dBTP**
+- loudness-range target: **7 LU**
+
+Runtime per-event gains still make footsteps quieter than doors, impacts, and death sounds. Those are intentional mix choices rather than compensation for inconsistent source-file loudness. The final runtime contains no Web Audio oscillator or generated-random-noise fallback for non-music SFX; if an individual local sample cannot be decoded, that cue is skipped instead of synthesized.
+
+## Original/game-specific work
+The Attendant model and animation rig, story, levels, interaction systems, UI, generated signage/posters, gore visuals, particle effects and fallback geometry/textures are original to this project build. The current non-music sound effects are third-party CC0 recordings documented above rather than project-generated procedural audio.
 
 ## Additional CC0 assets / references for the storefront polish pass
 
@@ -97,7 +126,6 @@ The Attendant model and animation rig, story, levels, interaction systems, non-m
 - Grungy Lights Texture Pack — OpenGameArt: https://opengameart.org/content/grungy-lights-texture-pack — CC0/public-domain relicensing
 
 Pinewood's named storefront signs are generated locally because their lettering is game-specific. The generated material now incorporates the distressed/dead-tube treatment of those CC0 references, plus emissive mapping, point-light spill, bloom response, and independent randomized flicker bursts. No runtime dependency on the OpenGameArt image files is required.
-
 
 ### Video Planet shelf reference
 - User-provided visual reference: https://sketchfab.com/3d-models/vhs-shelf-4ac998896ed044deb1038d89f7841012
@@ -125,7 +153,7 @@ Pinewood's named storefront signs are generated locally because their lettering 
 - Original source: https://opengameart.org/content/furniture-shop
 - License: CC0 1.0
 - Runtime loop: `https://opengameart.org/sites/default/files/furniture_shop_loop.ogg`
-- Used as the looping retail/mall music bed. It is faded down as The Attendant approaches.
+- Used as the looping retail/mall music bed. It is faded down as The Attendant approaches and intentionally warped at runtime with half-speed playback, delayed echo copies, and intermittent detune drift.
 
 ### Attendant proximity music — Insistent: background loop
 - Author: yd
