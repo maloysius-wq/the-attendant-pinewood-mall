@@ -149,8 +149,8 @@ const musicEnd=source.indexOf('\n\nfunction makeShutter(',musicStart);
 if(musicStart<0||musicEnd<0)fail('Cassette Castle final builder section is missing');
 const music=source.slice(musicStart,musicEnd);
 requireMarkers(music,[
-  "name:'CASSETTE CASTLE'","'cassetteShelfWall'","'cassetteShelfLarge'","'cassetteShelfSmall'",
-  "'cassetteTableRound'","'cassetteStool'","'cassettePlayer'",'LISTEN','BEFORE YOU BUY',
+  "name:'CASSETTE CASTLE'",'addCassetteWallFixture(world,x,z,r)','addCassetteDisplayFixture(world,x,z,r,small)',
+  'dressCassetteListeningTable(world,25.35,z,0,i)','LISTEN','BEFORE YOU BUY',
   'Three proper listening stations','CC0-only','25.85,0,30.25'
 ],'Cassette Castle v9');
 for(const retired of ["'marketShelfEnd'",'fallbackCassette','new THREE.TorusGeometry',"fallback:'shelf'","fallback:'table'","fallback:'box'"]){
