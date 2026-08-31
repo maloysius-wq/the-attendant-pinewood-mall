@@ -59,6 +59,7 @@ for(const banned of [
 ])if(source.includes(banned))fail('banned or retired Cassette Castle marker survived: '+banned);
 
 for(const marker of [
+  "'cassetteShelfWall'",
   'function cassetteWorldBox(','function cassetteScaleToHeight(','async function placeCassetteGrounded(','async function placeCassetteOnSurface(',
   'function cassetteShelfLevels(','async function stockCassetteFixture(','async function addCassetteFullRack(','async function addCassetteDoubleRackBay(',
   'async function dressGroundedListeningStation(','async function buildGroundedCheckout(',
@@ -69,7 +70,7 @@ for(const marker of [
 
 const music=section(source,'async function buildMusic(world){','\n\nfunction makeShutter(','Cassette Castle');
 for(const marker of [
-  "'cassetteShelfWall'",'addCassetteFullRack(world','addCassetteDoubleRackBay(world','dressGroundedListeningStation(world','buildGroundedCheckout(world)',
+  'addCassetteFullRack(world','addCassetteDoubleRackBay(world','dressGroundedListeningStation(world','buildGroundedCheckout(world)',
   "makeMarketingPoster('music','NEW WAVE'","makeMarketingPoster('music','LISTEN BEFORE YOU BUY'","makeMarketingPoster('music','PINEWOOD TOP 40'",
   '[11.55,22.35,Math.PI/2]','[14.10,30.48,Math.PI]','[14.85,24.10]','[14.85,27.25]','[25.20,1]'
 ])if(!music.includes(marker))fail('Cassette Castle layout marker missing: '+marker);
