@@ -14,7 +14,7 @@ on:
       - 'assets/vendor/**'
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
   capture-store-visuals:
@@ -22,26 +22,6 @@ jobs:
     timeout-minutes: 12
     steps:
       - uses: actions/checkout@v4
-        with:
-          ref: main
-      - name: Ensure pinned Three.js core is local
-        run: |
-          set -euo pipefail
-          mkdir -p vendor/three/build
-          if [ ! -f vendor/three/build/three.core.js ]; then
-            curl --fail --location --retry 3 \
-              https://raw.githubusercontent.com/mrdoob/three.js/r180/build/three.core.js \
-              --output vendor/three/build/three.core.js
-          fi
-          echo "Three.js core bytes: $(wc -c < vendor/three/build/three.core.js)"
-          test "$(git hash-object vendor/three/build/three.core.js)" = "7dcd0fbcbc04b8d9a20ecb96c1ce344cb55150d5"
-          if ! git diff --quiet -- vendor/three/build/three.core.js || [ -z "$(git ls-files vendor/three/build/three.core.js)" ]; then
-            git config user.name "github-actions[bot]"
-            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-            git add vendor/three/build/three.core.js
-            git commit -m "Vendor Three.js r180 core dependency"
-            git push origin HEAD:main
-          fi
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
@@ -55,6 +35,7 @@ jobs:
           test -f "$GITHUB_WORKSPACE/vendor/three/build/three.core.js"
           test -f "$GITHUB_WORKSPACE/vendor/three/examples/jsm/loaders/GLTFLoader.js"
           test -f "$GITHUB_WORKSPACE/vendor/pako/pako.esm.mjs"
+          test "$(git hash-object "$GITHUB_WORKSPACE/vendor/three/build/three.core.js")" = "7dcd0fbcbc04b8d9a20ecb96c1ce344cb55150d5"
           python3 -m http.server 4173 --directory "$GITHUB_WORKSPACE" >/tmp/pinewood-http.log 2>&1 &
           echo $! > /tmp/pinewood-http.pid
           sleep 2
