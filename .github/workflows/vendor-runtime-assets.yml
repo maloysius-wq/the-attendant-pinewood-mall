@@ -6,7 +6,7 @@ on:
     paths:
       - 'scripts/vendor-runtime-assets.mjs'
       - 'scripts/apply-local-runtime-v15.mjs'
-      - 'scripts/finalize-local-assets-v15.mjs'
+      - 'scripts/finalize-local-assets-v15-fixed.mjs'
       - 'scripts/patch-cassette-audits-v15.mjs'
       - 'scripts/sanitize-loader-v15.mjs'
       - 'patches/local-assets-v15.js.txt'
@@ -43,7 +43,7 @@ jobs:
       - name: Remove remote browser-library literals
         run: node scripts/sanitize-loader-v15.mjs
       - name: Normalize manifest and document permanent policy
-        run: node scripts/finalize-local-assets-v15.mjs
+        run: node scripts/finalize-local-assets-v15-fixed.mjs
       - name: Update inherited Cassette Castle audit handoff
         run: node scripts/patch-cassette-audits-v15.mjs
       - name: Commit localized runtime files
