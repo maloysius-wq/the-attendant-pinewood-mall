@@ -14,8 +14,6 @@ function applyElevatorRebuildV7(source){
     source=source.slice(0,start)+replacement+source.slice(end);
   };
 
-  // Footsteps retain the normalized CC0 recordings but sit a little farther back in the mix.
-  // Two very quiet delayed copies create the hard-surface slapback of an empty mall concourse.
   replaceOnce(
     'quieter echoed footsteps',
     "  step(sprint=false,quiet=false){this.stepIndex=(this.stepIndex+1+((Math.random()*3)|0))%4;const gain=(sprint?.34:.22)*(quiet?.30:1);this.play('step'+(this.stepIndex+1),{gain,rate:rand(.94,1.055)});}",
@@ -28,8 +26,6 @@ function applyElevatorRebuildV7(source){
   }`
   );
 
-  // The collision system previously had only "physical + optional navigation" blockers.
-  // A nav-only flag lets the elevator cab remain physically enterable while keeping the Attendant out.
   replaceOnce(
     'nav-only collider support',
     "  colliderBlocksPoint(px,pz,navOnly=false){for(const c of this.colliders){if(c.disabled)continue;if(navOnly&&!c.navBlock)continue;if(px>c.minX&&px<c.maxX&&pz>c.minZ&&pz<c.maxZ)return true;}return false;}",
@@ -41,8 +37,6 @@ function applyElevatorRebuildV7(source){
     "  addCollider(cx,cz,w,d,{navBlock=true,physicalBlock=true,disabled=false,owner=null,pad=.03}={}){const c={minX:cx-w/2-pad,maxX:cx+w/2+pad,minZ:cz-d/2-pad,maxZ:cz+d/2+pad,navBlock,physicalBlock,disabled,owner};this.colliders.push(c);return c;}"
   );
 
-  // One authoritative freight elevator. There is no generated shutter/facade in front of it.
-  // All visible architecture and door leaves remain the verified Kenney CC0 GLB pieces.
   replaceRange(
     'authoritative freight elevator model',
     "function makeExitElevator(",
@@ -53,52 +47,36 @@ function applyElevatorRebuildV7(source){
   const left=new THREE.Group(),right=new THREE.Group();
   const closedL=-.46,closedR=.46,openL=-1.22,openR=1.22;
   left.position.set(.06,0,closedL);right.position.set(.06,0,closedR);g.add(left,right);
-
   const cabLight=new THREE.PointLight(0xdde9df,.62,4.0,2);cabLight.position.set(1.18,2.25,0);cab.add(cabLight);
   const callPanel=new THREE.Group();g.add(callPanel);
   const callMat=new THREE.MeshStandardMaterial({color:0x170904,roughness:.34,metalness:.18,emissive:0x2a0d03,emissiveIntensity:.04});
   const callLamp=new THREE.Mesh(new THREE.SphereGeometry(.027,12,12),callMat);callLamp.position.set(-.20,1.17,1.28);g.add(callLamp);
   const callGlow=new THREE.PointLight(0xffa14a,0,1.22,2);callGlow.position.set(-.28,1.17,1.28);g.add(callGlow);
-
-  g.userData={
-    type:'exit',left,right,cab,cabLight,indicator:null,callPanel,callLamp,callGlow,
-    closedL,closedR,openL,openR,state:'idle',timer:0,rideAnchor:null,
-    serviceUnlocked:false,doorBlocker:null,navExclusion:null,
-    assetModel:'kenney-imported-freight-elevator-v2',assetFallback:false
-  };
-
+  g.userData={type:'exit',left,right,cab,cabLight,indicator:null,callPanel,callLamp,callGlow,closedL,closedR,openL,openR,state:'idle',timer:0,rideAnchor:null,serviceUnlocked:false,doorBlocker:null,navExclusion:null,assetModel:'kenney-imported-freight-elevator-v2',assetFallback:false};
   attachElevatorPiece(g,'elevatorFrame',new THREE.Vector3(.22,2.82,2.58),new THREE.Vector3(-.02,1.41,0),new THREE.Euler(0,Math.PI/2,0));
   attachElevatorPiece(left,'elevatorDoorHalf',new THREE.Vector3(.09,2.38,.88),new THREE.Vector3(0,1.27,0),new THREE.Euler(0,Math.PI/2,0));
   attachElevatorPiece(right,'elevatorDoorHalf',new THREE.Vector3(.09,2.38,.88),new THREE.Vector3(0,1.27,0),new THREE.Euler(0,Math.PI/2,0));
-
   attachElevatorPiece(cab,'elevatorFloor',new THREE.Vector3(2.10,.085,1.88),new THREE.Vector3(1.12,.045,0));
   attachElevatorPiece(cab,'elevatorFloor',new THREE.Vector3(2.10,.085,1.88),new THREE.Vector3(1.12,2.49,0));
   attachElevatorPiece(cab,'elevatorWall',new THREE.Vector3(.10,2.42,1.88),new THREE.Vector3(2.17,1.25,0),new THREE.Euler(0,Math.PI/2,0));
   attachElevatorPiece(cab,'elevatorWall',new THREE.Vector3(2.12,2.42,.10),new THREE.Vector3(1.13,1.25,-.99));
   attachElevatorPiece(cab,'elevatorWall',new THREE.Vector3(2.12,2.42,.10),new THREE.Vector3(1.13,1.25,.99),new THREE.Euler(0,Math.PI,0));
-
-  // One call control outside, one non-interactive control inside for visual plausibility.
   attachElevatorPiece(callPanel,'elevatorButton',new THREE.Vector3(.055,.28,.18),new THREE.Vector3(-.17,1.17,1.28),new THREE.Euler(0,0,Math.PI/2));
   attachElevatorPiece(cab,'elevatorButton',new THREE.Vector3(.055,.24,.16),new THREE.Vector3(1.44,1.12,.93),new THREE.Euler(Math.PI/2,0,0));
   return g;
 }`
   );
 
-  // Retire the procedural East Service Shutter entirely. The Master Service Key now operates
-  // the elevator's service lock, so the chapter keeps its key-gated progression without a ghost door.
   replaceRange(
     'remove Chapter 1 procedural service shutter and rebuild elevator collision',
     "    const shutter=makeShutter(new THREE.Vector3(26,0,0),'x',true,'East Service Shutter');",
     "\n    // Last Shift logs",
 `    const elevator=makeExitElevator(new THREE.Vector3(26.95,0,0));world.root.add(elevator);world.interactables.push(elevator);GAME.exitObject=elevator;
     const eu=elevator.userData;
-    // Physical shell: side walls + back wall match the imported cab and leave the doorway completely clear when open.
     world.addCollider(28.08,-1.03,2.10,.12,{navBlock:false,owner:elevator,pad:.01});
     world.addCollider(28.08,1.03,2.10,.12,{navBlock:false,owner:elevator,pad:.01});
     world.addCollider(29.13,0,.12,1.94,{navBlock:false,owner:elevator,pad:.01});
-    // Closed-door collision is one threshold plane. It is disabled only after the visible leaves are essentially fully open.
     eu.doorBlocker=world.addCollider(27.01,0,.16,1.78,{navBlock:false,owner:elevator,pad:.01});
-    // AI-only exclusion keeps the Attendant out of the cab without blocking the player or changing the authored walkable floor.
     eu.navExclusion=world.addCollider(28.10,0,2.75,2.70,{navBlock:true,physicalBlock:false,owner:elevator,pad:0});
     eu.syncDoorCollision=()=>{
       const travel=Math.abs(eu.openL-eu.closedL)||1;
@@ -148,8 +126,7 @@ function applyElevatorRebuildV7(source){
     u.state='opening';u.timer=0;u.rideAnchor=null;u.syncDoorCollision?.();
     if(u.callLamp?.material)u.callLamp.material.emissiveIntensity=.04;if(u.callGlow)u.callGlow.intensity=0;
     audio.chime();audio.door(true);this.emitSound(o.position.clone(),.75,'elevator');
-    // Brief machinery shock gives the player a fair boarding window without making the whole alcove permanently safe.
-    this.attendant.stunUntil=Math.max(this.attendant.stunUntil,this.time+2.8);
+    this.attendant.stunUntil=Math.max(this.attendant.stunUntil,this.time+4.0);
     UI.hint('Service lock accepted. Freight elevator opening…');
   }
   updateElevator(dt){
@@ -164,26 +141,18 @@ function applyElevatorRebuildV7(source){
     }
     if(u.callGlow)u.callGlow.intensity=ready?.085+(.5+.5*Math.sin(this.time*2.1))*.04:0;
     if(u.state==='idle'){u.syncDoorCollision?.();return;}
-
     u.timer+=dt;
     if(u.state==='opening'){
       const t=clamp(u.timer/1.05,0,1),s=t*t*(3-2*t);
       u.left.position.z=lerp(u.closedL,u.openL,s);u.right.position.z=lerp(u.closedR,u.openR,s);u.syncDoorCollision?.();
-      if(t>=1){
-        u.state='waiting';u.timer=0;u.syncDoorCollision?.();
-        this.attendant.stunUntil=Math.max(this.attendant.stunUntil,this.time+1.35);
-        audio.confirm();UI.hint('Freight elevator open. Step fully inside.');
-      }
+      if(t>=1){u.state='waiting';u.timer=0;u.syncDoorCollision?.();this.attendant.stunUntil=Math.max(this.attendant.stunUntil,this.time+3.0);audio.confirm();UI.hint('Freight elevator open. Step fully inside.');}
     }else if(u.state==='waiting'){
       u.syncDoorCollision?.();
       const local=e.worldToLocal(this.controls.yaw.position.clone());
       const inside=local.x>.65&&local.x<1.82&&Math.abs(local.z)<.64;
       if(inside){
-        u.state='closing';u.timer=0;
-        u.rideAnchor=e.localToWorld(new THREE.Vector3(1.30,1.70,0));
-        u.syncDoorCollision?.();
-        this.attendant.stunUntil=Math.max(this.attendant.stunUntil,this.time+5.0);
-        audio.door(false);this.emitSound(e.position.clone(),.34,'elevator');UI.hint('');
+        u.state='closing';u.timer=0;u.rideAnchor=e.localToWorld(new THREE.Vector3(1.30,1.70,0));u.syncDoorCollision?.();
+        this.attendant.stunUntil=Math.max(this.attendant.stunUntil,this.time+5.0);audio.door(false);this.emitSound(e.position.clone(),.34,'elevator');UI.hint('');
       }
     }else if(u.state==='closing'){
       const t=clamp(u.timer/.78,0,1),s=t*t*(3-2*t);
@@ -192,10 +161,7 @@ function applyElevatorRebuildV7(source){
       if(t>=1){u.state='ride';u.timer=0;audio.impact(.24);UI.static(320);}
     }else if(u.state==='ride'){
       u.syncDoorCollision?.();
-      if(u.rideAnchor){
-        this.controls.yaw.position.lerp(u.rideAnchor,smooth(dt,12));
-        this.controls.yaw.position.y=1.70+Math.sin(u.timer*13)*.012+Math.sin(u.timer*23)*.004;
-      }
+      if(u.rideAnchor){this.controls.yaw.position.lerp(u.rideAnchor,smooth(dt,12));this.controls.yaw.position.y=1.70+Math.sin(u.timer*13)*.012+Math.sin(u.timer*23)*.004;}
       if(u.cabLight)u.cabLight.intensity=.52+Math.sin(u.timer*9)*.08;
       if(u.timer>2.15)this.winChapter();
     }
@@ -203,10 +169,15 @@ function applyElevatorRebuildV7(source){
 `
   );
 
-  replaceOnce(
-    'hold player during elevator close and ride',
-    "    const moving=!this.playerHidden&&!this.hideTransition&&(keysDown.w||keysDown.a||keysDown.s||keysDown.d),sprint=keysDown.shift&&moving&&!holding&&this.stamina>.06;",
-    "    const elevatorHold=this.exitObject?.userData?.type==='exit'&&['closing','ride'].includes(this.exitObject.userData.state);const moving=!elevatorHold&&!this.playerHidden&&!this.hideTransition&&(keysDown.w||keysDown.a||keysDown.s||keysDown.d),sprint=keysDown.shift&&moving&&!holding&&this.stamina>.06;"
+  replaceRange(
+    'block manual movement while elevator closes or rides',
+    "  tryMove(dx,dz){",
+    "\n  toggleFlashlight(){",
+`  tryMove(dx,dz){
+    if(this.exitObject?.userData?.type==='exit'&&['closing','ride'].includes(this.exitObject.userData.state))return;
+    const p=this.controls.yaw.position,nx=p.x+dx,nz=p.z+dz;
+    if(this.world.canStand(nx,p.z))p.x=nx;if(this.world.canStand(p.x,nz))p.z=nz;p.y=1.7;
+  }`
   );
 
   replaceOnce(
@@ -228,23 +199,11 @@ function applyElevatorRebuildV7(source){
   );
 
   for(const marker of [
-    "assetModel:'kenney-imported-freight-elevator-v2'",
-    "physicalBlock===false",
-    "physicalBlock:false",
-    "eu.navExclusion=world.addCollider",
-    "const inside=local.x>.65&&local.x<1.82&&Math.abs(local.z)<.64",
-    "elevatorHold=this.exitObject?.userData?.type==='exit'",
-    "elevatorSafe=local.x>.24&&local.x<2.02",
-    "Master Service Key + call elevator",
-    "gain=(sprint?.28:.18)",
-    "gain:gain*.16",
-    "when:.23"
+    "assetModel:'kenney-imported-freight-elevator-v2'","physicalBlock===false","physicalBlock:false","eu.navExclusion=world.addCollider",
+    "const inside=local.x>.65&&local.x<1.82&&Math.abs(local.z)<.64","['closing','ride'].includes(this.exitObject.userData.state)",
+    "elevatorSafe=local.x>.24&&local.x<2.02","Master Service Key + call elevator","gain=(sprint?.28:.18)","gain:gain*.16","when:.23"
   ])if(!source.includes(marker))fail(`verification marker missing: ${marker}`);
-
-  for(const retired of [
-    "East Service Shutter');shutter.scale.z=.62",
-    "const inside=local.x>.58&&local.x<1.62&&Math.abs(local.z)<.62"
-  ])if(source.includes(retired))fail(`retired elevator marker survived: ${retired}`);
-
+  for(const retired of ["East Service Shutter');shutter.scale.z=.62","const inside=local.x>.58&&local.x<1.62&&Math.abs(local.z)<.62"])
+    if(source.includes(retired))fail(`retired elevator marker survived: ${retired}`);
   return source;
 }
