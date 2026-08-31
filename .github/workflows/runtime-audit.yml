@@ -8,6 +8,7 @@ on:
       - 'bundle2/**'
       - 'patches/**'
       - 'scripts/audit-runtime.mjs'
+      - 'scripts/audit-footstep-mix-v11.mjs'
       - '.github/workflows/runtime-audit.yml'
   pull_request:
     paths:
@@ -15,6 +16,7 @@ on:
       - 'bundle2/**'
       - 'patches/**'
       - 'scripts/audit-runtime.mjs'
+      - 'scripts/audit-footstep-mix-v11.mjs'
       - '.github/workflows/runtime-audit.yml'
   workflow_dispatch:
 
@@ -32,3 +34,5 @@ jobs:
           node-version: '22'
       - name: Reconstruct and validate deployed runtime
         run: node scripts/audit-runtime.mjs
+      - name: Validate footstep mix v11
+        run: node scripts/audit-footstep-mix-v11.mjs
