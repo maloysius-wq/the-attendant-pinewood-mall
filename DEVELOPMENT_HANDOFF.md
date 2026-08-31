@@ -446,43 +446,47 @@ Current CI coverage includes normalized CC0 audio, v11 footstep mix, zero oscill
 
 ---
 
-## 18. Verified v14 checkpoint and known follow-up
+## 18. Verified Local Assets v15 checkpoint
 
-The last runtime-changing commit before the documentation-only bookkeeping commits is:
+The remote-runtime reliability issue recorded in the former v14 checkpoint is **resolved by Local Assets v15**. The browser no longer depends on third-party hosts for runtime models, model sidecars, PBR textures, decals/images, sound effects, ambience, music, Three.js, or Pako.
 
-`09806df21c0763e76b75e4ee186d3143ddd145d6`  
-**Commit:** `Refine v14 listening bar and store lighting`
+### Authoritative v15 local-asset state
 
-Exact automated verification for that revision:
+- `patches/local-assets-v15.js.txt` runs after Cassette Castle v14 and rewrites the assembled runtime to repository-local media.
+- `assets/vendor/runtime/manifest.json` records the source/provenance mapping, local path, byte count, SHA-256 digest, and dependent model files.
+- The migration contains **59 top-level runtime media assets plus 30 dependent GLTF/model files**.
+- Three.js **0.180.0** and Pako **2.1.0** are served locally from `vendor/three/` and `vendor/pako/`.
+- Three.js r180's internal `three.core.js` dependency is also vendored locally. Its exact Git blob SHA is `7dcd0fbcbc04b8d9a20ecb96c1ce344cb55150d5`.
+- Poly Haven cassette-player sidecar textures and other GLTF dependencies are local, preserving the real cassette/tape component used by Cassette Castle v13/v14.
+- The freight elevator's no-fake-visible-fallback rule, v8 fountain footprint, v11 footsteps, v12 posters, v13 geometry grounding/shelf ban, and authoritative v14 Cassette Castle layout remain protected.
+- `scripts/audit-local-assets-v15.mjs` rejects surviving external runtime-media URLs, verifies local asset hashes, verifies the exact Three.js core dependency, reconstructs the complete runtime through v15, checks protected invariants, and syntax-checks the final module.
 
-- Runtime audit: **run 33434375417**, run #45, **success**
-- Store visual regression: **run 33434375284**, run #6, **success**
-- GitHub Pages build/deployment: **run 33434360381**, run #140, **success**
-- Visual artifact: **9773941583**, `pinewood-store-visuals`, digest `sha256:275db03fe22cbcc241c1206763983e73c73d2ab19420599abc5c4ec14d9ecda2`
+### Exact automated verification
 
-The final artifact's `cassette-front.png`, `cassette-center.png`, and `cassette-listening.png` were downloaded and visually inspected. They confirm the v14 open center, low fixtures, three-module listening bar, checkout counter, and localized warmer lighting are present.
+The final local-assets runtime and permanent read-only browser-verification setup were verified across these commits:
 
-### Important known reliability issue discovered during that visual inspection
+- `64acc283da2c311dc1b866e540b331bec3c23e2b` — `Vendor Three.js r180 core dependency`
+- `220a837afbb35519cbaf3f089bda38361af070be` — `Audit pinned Three.js core dependency`
+- `a38afe5e918bdd22af526da6bfef3ce90f360189` — `Make local browser verification self-contained`
+- `53d6cbe6a2aa2ec706fdcd790ae4e294b0fa1198` — `Remove one-shot Three.js vendor workflow`
 
-The visual workflow itself passed, but its report exposed pre-existing remote-asset failures that are outside the v14 layout assertion. Do **not** interpret the green visual check as proof that every remote asset URL is healthy.
+Verification results:
 
-The artifact reported 404s for several pinned `Enthceph/hangman` remote GLBs, including:
+- Runtime audit: **run 33442213807**, run #49, **success**
+- Store visual regression: **run 33442231414**, run #12, **success**
+- Visual artifact: **9776792785**, `pinewood-store-visuals`, 562,140 bytes, digest `sha256:9301188f822177033ff5d7102d53e97fe5bf74e497cd65954c38eeab4a73d6a5`
+- GitHub Pages after the permanent workflow cleanup: **run 33442241162**, run #176, **success**
 
-- `pickupJournal` / `book.glb`
-- `pickupNote` / `banner.glb`
-- `breakerCabinet` / `machine-window.glb`
-- `elevatorFrame` / `wall-doorway-wide.glb`
-- `elevatorDoorHalf` / `door-wide-half.glb`
-- `elevatorFloor` / `floor.glb`
-- `elevatorWall` / `structure-wall.glb`
-- `elevatorButton` / `button-floor-square-small.glb`
+The run #12 artifact's `report.json` reports `failed: false`, all three deterministic Cassette Castle views are `ok: true`, and no page errors or runtime `assetFailures` were reported. `cassette-front.png`, `cassette-center.png`, and `cassette-listening.png` were downloaded and visually inspected; the authoritative v14 open-floor store, low center fixtures, perimeter racks, checkout, three-module listening bar, stools, and warm localized lighting remain present after localization.
 
-The same capture also showed intermittent timeouts for `cassetteShelfWall` and the Kenney fountain, plus failed Poly Haven cassette-player texture requests. The runtime's fallback/omit behavior allowed the visual workflow to complete, but these remote dependencies need a dedicated reliability repair pass. Prefer vendored or verified pinned replacements rather than weakening the no-fake-visual rules for the elevator/Cassette Castle.
+### Residual non-network warnings
 
-**No manual interactive WASD playtest has been performed for v14.** Automated runtime and visual checks are not a substitute for a full human playthrough.
+The deterministic software-WebGL harness still emits two local-model warnings that are **not external fetch failures**: the Kenney fountain model can hit its model-load timeout and retain the already-approved v8 modeled fallback, and the elevator floor GLB reports degenerate/invalid bounds while the protected elevator state/collision rules remain intact. These should be treated as separate model/runtime-hardening work if revisited; they do not reintroduce remote dependencies.
+
+**No manual interactive WASD playtest has been performed for v15.** Automated runtime and deterministic visual checks are not a substitute for a full human playthrough.
 
 ---
 
 ## 19. Fresh-session restart prompt
 
-> Continue development of The Attendant: Pinewood Mall. **Use the GitHub plugin first for all repository work.** Use `maloysius-wq/the-attendant-pinewood-mall` as the source of truth. Read `AGENTS.md` and `DEVELOPMENT_HANDOFF.md` first, inspect the latest commits and relevant current files, preserve all documented no-regression constraints, implement directly in the repo, run the relevant runtime audits, inspect visual artifacts for visual changes, and verify GitHub Pages after game changes. Cassette Castle v14 is authoritative, while v13's permanent shelf ban and geometry-grounding rules remain mandatory. Never reintroduce the permanently banned Quaternius Shelf Large/Shelf Small resources. **Never use remote runtime assets or CDN browser libraries: always verify, download/vendor, document, and serve them locally from this repository.** The next known reliability target is the set of stale/timing-out remote CC0 asset dependencies recorded in Section 18.
+> Continue development of The Attendant: Pinewood Mall. **Use the GitHub plugin first for all repository work.** Use `maloysius-wq/the-attendant-pinewood-mall` as the source of truth. Read `AGENTS.md` and `DEVELOPMENT_HANDOFF.md` first, inspect the latest commits and relevant current files, preserve all documented no-regression constraints, implement directly in the repo, run the relevant runtime audits, inspect visual artifacts for visual changes, and verify GitHub Pages after game changes. Local Assets v15 is authoritative: **never use remote runtime assets or CDN browser libraries; always verify, vendor, document, and serve third-party runtime dependencies locally from this repository.** Cassette Castle v14 remains authoritative, while v13's permanent Quaternius Shelf Large/Shelf Small ban and geometry-grounding rules remain mandatory. The old stale/timing-out remote dependency issue from v14 has been resolved; do not reintroduce those URLs. Be explicit if a manual interactive playtest has not been performed.

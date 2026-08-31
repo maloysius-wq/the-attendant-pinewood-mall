@@ -66,7 +66,7 @@ All third-party visual and audio assets used by this build were selected because
 - Pinned runtime mirror: `Enthceph/hangman` commit `4e84f92f27d924a46a52ea0cf4d06a5dc90a9c12`
 - The mirrored `assets/kenney_factory-kit_3.0/License.txt` identifies Factory Kit 3.0 as Creative Commons Zero (CC0).
 - Runtime files: `machine-window.glb`, `door-wide-half.glb`, `structure-wall.glb`, `floor.glb`, and `button-floor-square-small.glb` from `assets/kenney_factory-kit_3.0/Models/GLB format/`.
-- Used for the wall-mounted breaker cabinet housing plus the freight elevator doors, cabin walls, floor/ceiling, and call button. The freight elevator no longer uses any visible procedural shell or procedural door fallback; only the breaker retains its generated fallback if a remote GLB fails.
+- Used for the wall-mounted breaker cabinet housing plus the freight elevator doors, cabin walls, floor/ceiling, and call button. The freight elevator no longer uses any visible procedural shell or procedural door fallback; only the breaker retains its generated fallback if its vendored GLB fails.
 
 ## Kenney — Prototype Kit
 - Original source: https://kenney.nl/assets/prototype-kit
@@ -113,13 +113,13 @@ Poly Haven assets are released under CC0.
   - v13/v14 anchor those cassette clones to measured fixture support surfaces instead of hard-coded world-Y positions.
   - If that tape component cannot be extracted, the affected stock is simply omitted. There is no generated low-poly cassette fallback in Cassette Castle.
 
-The game requests the 1K JPG diffuse, OpenGL normal and roughness maps directly from Poly Haven's asset CDN where documented materials are used.
+The documented Poly Haven 1K JPG diffuse, OpenGL normal and roughness maps used by Pinewood are vendored under `assets/vendor/runtime/` and served locally; the Poly Haven URLs above are provenance only.
 
 ## Three.js
 - https://threejs.org/
 - MIT License
 - Runtime version pinned to 0.180.0.
-- Served locally from `vendor/three/`; the deployed game does not load Three.js from unpkg or jsDelivr.
+- Served locally from `vendor/three/`; the deployed game does not load Three.js from unpkg or jsDelivr. Runtime files include `vendor/three/build/three.module.js`, its required `vendor/three/build/three.core.js`, and the needed `examples/jsm` addons. The vendored r180 `three.core.js` is pinned to Git blob `7dcd0fbcbc04b8d9a20ecb96c1ce344cb55150d5`.
 
 ## Pako
 - Source: https://github.com/nodeca/pako
@@ -166,7 +166,7 @@ The Attendant model and animation rig, story, levels, interaction systems, UI, g
 - License: CC0 1.0
 - Pinned runtime mirror: `zodiepupper/snow` commit `b9dc9c35bec885aacf31cfca729adcd3e304ef90`
 - Runtime file: `assets/vhs_cassette_3d/VHS_cassette.glb`
-- Used for physical VHS tapes throughout Video Planet. The game's old generated VHS geometry remains only as a fallback if the remote GLB cannot load.
+- Used for physical VHS tapes throughout Video Planet. The game's old generated VHS geometry remains only as a fallback if the vendored GLB cannot load.
 
 ### Neon / dirty-light visual references
 - Neon Sign 2 — OpenGameArt: https://opengameart.org/content/neon-sign-2 — CC0
