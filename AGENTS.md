@@ -12,6 +12,23 @@ For **The Attendant: Pinewood Mall**, always use the connected **GitHub plugin/c
 
 This rule exists because the repository is connected with write access and must be treated as the primary development interface in every Pinewood development session.
 
+## Permanent local-runtime-asset rule
+
+**Pinewood must never load runtime assets or browser libraries from third-party network URLs. Always download/vendor them into this repository and serve them locally.**
+
+This is a permanent no-regression rule, not a preference.
+
+- Models (`.glb`, `.gltf`, buffers and model textures) must be stored in the repository before runtime use.
+- PBR/material textures, images and decals must be stored in the repository before runtime use.
+- Sound effects, ambience and music must be stored in the repository before runtime use.
+- Browser/runtime libraries such as Three.js and Pako must be pinned and served from the repository rather than a CDN.
+- A third-party URL may appear in provenance documentation such as `LICENSES.md`, or in a development-time vendoring script whose purpose is to download and pin the source. It must **never** be a shipped browser fetch/load target.
+- When adding a new third-party asset, verify its license, download it, retain source/pin/hash provenance, update `LICENSES.md`, reference only its repository-local path at runtime, and extend the local-asset audit when necessary.
+- If a candidate cannot be legally verified and vendored, omit it or choose another verified asset. Do not create a remote-runtime exception.
+- Do not restore the old strategy of remote URLs plus procedural fallbacks. Runtime reliability must not depend on GitHub Raw, Poly Haven, OpenGameArt, unpkg, jsDelivr, or any other external host being reachable.
+
+The final assembled runtime must pass the local-assets audit before a Pinewood runtime change is considered complete.
+
 ## Permanent Cassette Castle shelf ban
 
 The following retired shelf resources are **permanently banned from Pinewood and must never be reintroduced, reused, re-added under another key, or suggested as a future fixture**:
@@ -39,4 +56,5 @@ Cassette Castle fixture/merchandise placement rules:
 3. Inspect the latest `main` commit and relevant current files.
 4. Treat the current repository plus the user's newest explicit request as source of truth.
 5. Implement directly in the repository when the request is actionable.
-6. Run/inspect runtime audits and verify GitHub Pages after runtime changes.
+6. Preserve the permanent local-runtime-asset rule.
+7. Run/inspect runtime audits and verify GitHub Pages after runtime changes.
