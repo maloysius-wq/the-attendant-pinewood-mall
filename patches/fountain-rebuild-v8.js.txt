@@ -9,15 +9,8 @@ function applyFountainRebuildV8(source){
 
   replaceOnce(
     'runtime fountain attribution',
-    'POLY HAVEN\\\nLicense: Creative Commons Zero (CC0 1.0)\\',
-`KENNEY — Starter Kit City Builder / pavement-fountain.glb\\
-License: Creative Commons Zero (CC0 1.0) for included 3D assets\\
-Source: https://github.com/KenneyNL/Starter-Kit-City-Builder\\
-Pinned commit: 4535092b740b378b700efd9df9e27a631815b84a\\
-Used for: the imported center sculpture/nozzle form inside Pinewood's custom-fit central fountain.\\
-\\
-POLY HAVEN\\
-License: Creative Commons Zero (CC0 1.0)\\`
+    'POLY HAVEN\\',
+    'KENNEY — Starter Kit City Builder / pavement-fountain.glb\\nLicense: Creative Commons Zero (CC0 1.0) for included 3D assets\\nSource: https://github.com/KenneyNL/Starter-Kit-City-Builder\\nPinned commit: 4535092b740b378b700efd9df9e27a631815b84a\\nUsed for: the imported center sculpture/nozzle form inside Pinewood\'s custom-fit central fountain.\\n\\nPOLY HAVEN\\'
   );
   replaceOnce(
     'runtime fountain Poly Haven source list',
@@ -26,8 +19,8 @@ License: Creative Commons Zero (CC0 1.0)\\`
   );
   replaceOnce(
     'runtime fountain Poly Haven URLs',
-    'https://polyhaven.com/a/concrete_wall_001\\\nUsed for: mall terrazzo, worn arcade/VHS carpet and food-court tile surfaces.\\',
-    'https://polyhaven.com/a/concrete_wall_001\\\nhttps://polyhaven.com/a/marble_tiles\\\nhttps://polyhaven.com/a/grey_tiles\\\nUsed for: mall terrazzo, worn arcade/VHS carpet, food-court tile surfaces, and the abandoned central fountain rim/basin.\\'
+    'https://polyhaven.com/a/concrete_wall_001\\',
+    'https://polyhaven.com/a/concrete_wall_001\\nhttps://polyhaven.com/a/marble_tiles\\nhttps://polyhaven.com/a/grey_tiles\\'
   );
 
   replaceOnce(
