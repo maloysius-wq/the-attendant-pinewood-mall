@@ -33,8 +33,9 @@ Use verified CC0 assets where suitable. Keep `LICENSES.md` and in-game attributi
 10. `patches/fountain-rebuild-v8.js.txt`
 11. `patches/cassette-castle-rebuild-v9.js.txt`
 12. Food Court builder replacement from `patches/foodcourt-v3.js.txt`
+13. `patches/poster-polish-v10.js.txt`
 
-Patch order is intentional. Later patches depend on earlier markers.
+Patch order is intentional. Poster Polish v10 runs **after** the Food Court replacement so it operates on the final authoritative builders for all four Chapter 1 stores.
 
 `scripts/audit-runtime.mjs` reconstructs the same deployed patch chain, validates critical behavior markers, checks the local CC0 audio bank, and syntax-checks both the loader and final runtime. `.github/workflows/runtime-audit.yml` runs it automatically on relevant changes.
 
@@ -180,7 +181,7 @@ Current fountain rules:
 
 ## 10. Cassette Castle — authoritative v9 rebuild
 
-`patches/cassette-castle-rebuild-v9.js.txt` is now the authoritative Cassette Castle implementation.
+`patches/cassette-castle-rebuild-v9.js.txt` is the authoritative Cassette Castle geometry/merchandising implementation.
 
 ### Retired implementation
 
@@ -218,8 +219,7 @@ The store is intentionally laid out as a music/cassette shop rather than a reski
 - multiple imported freestanding cassette display fixtures through the middle,
 - three actual listening stations on the right side with tables, cassette players and stools,
 - CC0 checkout counter/register area,
-- physical hiding cabinet moved into the back-right corner away from the listening aisle,
-- authored `NEW WAVE`, `LISTEN BEFORE YOU BUY`, and `TOP 40` store graphics for identity.
+- physical hiding cabinet moved into the back-right corner away from the listening aisle.
 
 Vinyl-record props were intentionally not added in v9 because candidate assets found during research were not all CC0. Do not slip CC-BY record/turntable assets into this project just to fill the category.
 
@@ -227,7 +227,59 @@ The current runtime audit explicitly fails if the old `marketShelfEnd` Cassette 
 
 ---
 
-## 11. Chapter/story arc
+## 11. Store poster marketing — authoritative v10 polish
+
+`patches/poster-polish-v10.js.txt` is authoritative for the Chapter 1 store posters.
+
+The old `makePoster(...)` renderer is retired. It used one generic dark rectangle/noise template for every store and only swapped text/color, which made the stores feel visually interchangeable.
+
+Poster Polish v10 replaces it with `makeMarketingPoster(...)` and four distinct original in-world graphic systems. These are game-authored marketing pieces, not third-party/copyrighted poster art.
+
+### Sunburst Arcade
+
+Visual language: saturated neon, perspective grid, pixel/star accents, joystick/button illustration, high-energy arcade typography.
+
+Current campaigns:
+
+- **GALAXY STRIKE** — Tournament • Sat 8PM — Top Score Wins 100 Tokens
+- **TOKEN FRENZY** — 2 for 1 • After 6PM — Tonight Only
+- **PRIZE VAULT** — Trade Tickets • Claim Glory — New Prizes This Week
+
+### Video Planet
+
+Visual language: dark rental-store one-sheet treatment, cyan/magenta striping, illustrated VHS cassette, faux film-strip details. Do not replace these with copyrighted real movie posters.
+
+Current campaigns:
+
+- **BE KIND • REWIND** — Save the Late Fee — Video Planet House Rule
+- **MIDNIGHT RENTALS** — Horror • Sci-Fi • Action — Weekend Feature Wall
+- **2 NIGHTS • 1 PRICE** — Fri + Sat Double Feature — Members Save
+
+### Pinewood Food Court
+
+Visual language: faded late-80s mall-food advertising, brighter vendor palettes, checker patterning and illustrated food/drink motifs.
+
+Current campaigns:
+
+- **SLICE CITY** — Big Slice + Soda — $3.99 Lunch Combo
+- **POLAR POP** — Bottomless Refills — Ice Cold • All Day
+- **WOK THIS WAY** — Noodles • Rice • Stir-Fry — Combo #4 • $3.99
+
+### Cassette Castle
+
+Visual language: analog music-zine/collage treatment, halftone texture, cassette illustration, color blocks and zig-zag graphic accents.
+
+Current campaigns:
+
+- **NEW WAVE** — This Week's Picks — Imports • Indies • Local
+- **LISTEN BEFORE YOU BUY** — Try It at the Sound Bar — Headphones Provided
+- **PINEWOOD TOP 40** — The Countdown Wall — New Chart Every Friday
+
+All v10 posters include subtle print wear, aged edges, framed physical backing, and small mounting-angle variation. Keep the four store identities distinct rather than collapsing back into one reusable generic design.
+
+---
+
+## 12. Chapter/story arc
 
 ### Chapter 1 — Closing Time
 Restore A/B/C, find the Master Service Key, use the freight elevator, and discover that it descends instead of escaping.
@@ -242,7 +294,7 @@ There are nine numbered Last Shift logs, `LS-01` through `LS-09`. Recovering all
 
 ---
 
-## 12. Chapter 1 stores
+## 13. Chapter 1 stores
 
 The four authored walkable storefronts are:
 
@@ -259,9 +311,11 @@ Named storefront neon is game-specific local art with independent randomized fli
 
 Cassette Castle v9 should remain visibly distinct from Video Planet: Video Planet is a rental/video store; Cassette Castle is an analog music shop with cassette browsing and listening stations.
 
+Poster Polish v10 is part of that identity separation. Do not restore generic identical poster art across the stores.
+
 ---
 
-## 13. Hiding / menus / death
+## 14. Hiding / menus / death
 
 Hiding cabinets are physical CC0 cabinet models with animated doors and camera movement into/out of the cabinet. Do not reduce hiding to teleport-only behavior.
 
@@ -275,7 +329,7 @@ with the existing gore/death presentation and restart/quit flow.
 
 ---
 
-## 14. Navigation baseline
+## 15. Navigation baseline
 
 Most recently recorded authored reachability baseline:
 
@@ -289,17 +343,19 @@ The elevator AI-only exclusion, fountain collision, and Cassette Castle fixture 
 
 ---
 
-## 15. Asset/licensing policy
+## 16. Asset/licensing policy
 
 Major documented sources include Kenney kits, Quaternius, KayKit Dungeon Remastered, Poly Haven, GGBotNet/OpenGameArt VHS, Reactorcore blood decals, and OpenGameArt audio/music. See `LICENSES.md` and `assets/audio/cc0/README.md` for exact provenance and normalization notes.
 
 For third-party store props/models, preserve the project's CC0-only policy. If an attractive candidate is CC-BY or unclear, do not embed it. Either find a verified CC0 alternative or omit that category.
 
+The v10 store posters are original Pinewood canvas artwork and use no third-party marketing/movie/album artwork.
+
 Keep provenance pinned/documented when adding assets.
 
 ---
 
-## 16. Development workflow
+## 17. Development workflow
 
 For every future runtime change:
 
@@ -312,10 +368,10 @@ For every future runtime change:
 7. verify the GitHub Pages build/deploy,
 8. be explicit if interactive visual playtesting could not be performed.
 
-The current runtime audit guards the normalized CC0 audio bank, zero oscillator/random-noise SFX synthesis, breaker lever animation, authoritative elevator model/state/collision, AI-only cab exclusion, key-gated elevator progression, exact-fit CC0/PBR fountain and retirement of its old square collider, Cassette Castle v9's CC0-only fixtures/stock/listening layout and retirement of its procedural/baked-stock implementation, Food Court v3, and warped mall music.
+The current runtime audit guards the normalized CC0 audio bank, zero oscillator/random-noise SFX synthesis, breaker lever animation, authoritative elevator model/state/collision, AI-only cab exclusion, key-gated elevator progression, exact-fit CC0/PBR fountain and retirement of its old square collider, Cassette Castle v9's CC0-only fixtures/stock/listening layout and retirement of its procedural/baked-stock implementation, Food Court v3, Poster Polish v10's four distinct store campaign systems and retirement of generic `makePoster(...)`, and warped mall music.
 
 ---
 
-## 17. Fresh-session restart prompt
+## 18. Fresh-session restart prompt
 
 > Continue development of The Attendant: Pinewood Mall. Use `maloysius-wq/the-attendant-pinewood-mall` as the source of truth. Read `DEVELOPMENT_HANDOFF.md` first, inspect the latest commits and relevant current files, preserve the documented no-regression constraints, implement directly in the repo, run the runtime audit, and verify GitHub Pages after game changes.
