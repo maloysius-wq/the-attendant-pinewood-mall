@@ -10,6 +10,8 @@ on:
       - 'patches/**'
       - 'scripts/capture-store-visuals.mjs'
       - '.github/workflows/visual-regression.yml'
+      - 'vendor/**'
+      - 'assets/vendor/**'
 
 permissions:
   contents: read
@@ -29,9 +31,15 @@ jobs:
           npx playwright install --with-deps chromium
       - name: Start local Pinewood server
         run: |
-          python3 -m http.server 4173 >/tmp/pinewood-http.log 2>&1 &
+          test -f "$GITHUB_WORKSPACE/vendor/three/build/three.module.js"
+          test -f "$GITHUB_WORKSPACE/vendor/three/examples/jsm/loaders/GLTFLoader.js"
+          test -f "$GITHUB_WORKSPACE/vendor/pako/pako.esm.mjs"
+          python3 -m http.server 4173 --directory "$GITHUB_WORKSPACE" >/tmp/pinewood-http.log 2>&1 &
           echo $! > /tmp/pinewood-http.pid
           sleep 2
+          curl --fail --silent --show-error --head http://127.0.0.1:4173/vendor/three/build/three.module.js
+          curl --fail --silent --show-error --head http://127.0.0.1:4173/vendor/three/examples/jsm/loaders/GLTFLoader.js
+          curl --fail --silent --show-error --head http://127.0.0.1:4173/vendor/pako/pako.esm.mjs
       - name: Capture deterministic store views
         run: node scripts/capture-store-visuals.mjs
       - name: Upload screenshots and telemetry
@@ -42,5 +50,3 @@ jobs:
           path: visual-artifacts/
           if-no-files-found: warn
           retention-days: 14
-
-# Verification trigger: local-assets v15 final gate
