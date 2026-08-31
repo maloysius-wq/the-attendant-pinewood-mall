@@ -93,8 +93,7 @@ async function dressCassetteListeningTable(world,x,z,rot=0,index=0){
     addRealCassetteClone(display,tape,x+.28,.76,z+.08,rot+.15,0,1);
   }
   return table;
-}
-async function buildArcade(world){`
+}`
   );
 
   replaceRange(
