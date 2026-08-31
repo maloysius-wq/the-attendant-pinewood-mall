@@ -11,6 +11,7 @@ on:
       - 'scripts/audit-footstep-mix-v11.mjs'
       - 'scripts/audit-poster-diversity-v12.mjs'
       - 'scripts/audit-cassette-castle-v13.mjs'
+      - 'scripts/audit-cassette-castle-v14.mjs'
       - '.github/workflows/runtime-audit.yml'
   pull_request:
     paths:
@@ -21,6 +22,7 @@ on:
       - 'scripts/audit-footstep-mix-v11.mjs'
       - 'scripts/audit-poster-diversity-v12.mjs'
       - 'scripts/audit-cassette-castle-v13.mjs'
+      - 'scripts/audit-cassette-castle-v14.mjs'
       - '.github/workflows/runtime-audit.yml'
   workflow_dispatch:
 
@@ -44,3 +46,5 @@ jobs:
         run: node scripts/audit-poster-diversity-v12.mjs
       - name: Validate Cassette Castle v13
         run: node scripts/audit-cassette-castle-v13.mjs
+      - name: Validate Cassette Castle v14
+        run: node scripts/audit-cassette-castle-v14.mjs
