@@ -27,7 +27,10 @@ jobs:
           TAILGATE='https://raw.githubusercontent.com/Sonofg0tham/tailgate/99de980908146410f5bb3b0efcd6711e22b253b9/public/assets/audio'
 
           normalize() {
-            local url="$1" out="$2" tmp=".audio-src/${out%.*}.source"
+            local url="$1"
+            local out="$2"
+            local stem="${out%.*}"
+            local tmp=".audio-src/${stem}.source"
             echo "Fetching $out"
             curl --retry 3 --retry-delay 2 -fL "$url" -o "$tmp"
             ffmpeg -y -hide_banner -loglevel error -i "$tmp" -vn -ac 2 -ar 44100 \
