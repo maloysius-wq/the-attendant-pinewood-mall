@@ -164,6 +164,33 @@ async function buildGroundedCheckout(world){
 }`
   );
 
+  replaceOnce(
+    'visual-test boot harness',
+`async function boot(){
+  GAME=new Game();syncSettingsUI();bindUI();GAME.updateMenu();GAME.rebuildJournal();UI.show('titleScreen');preloadPromise=assets.preload();try{await preloadPromise;}catch(e){console.warn('Asset preload completed with fallbacks',e);}GAME.applySettings();
+}
+boot();`,
+`async function boot(){
+  GAME=new Game();syncSettingsUI();bindUI();GAME.updateMenu();GAME.rebuildJournal();UI.show('titleScreen');preloadPromise=assets.preload();try{await preloadPromise;}catch(e){console.warn('Asset preload completed with fallbacks',e);}GAME.applySettings();
+  const visualTest=new URLSearchParams(location.search).get('visualTest');
+  if(visualTest){
+    const views={
+      'cassette-front':{p:[18,1.70,18.25],yaw:Math.PI,pitch:-.025},
+      'cassette-center':{p:[18,1.70,22.55],yaw:Math.PI,pitch:-.02},
+      'cassette-listening':{p:[22.25,1.70,25.20],yaw:-Math.PI/2,pitch:-.035}
+    };
+    const view=views[visualTest]||views['cassette-front'];
+    await GAME.startChapter(0);UI.hideAll();GAME.running=false;GAME.modal=false;audio.setPaused(true);
+    GAME.attendant.root.visible=false;GAME.controls.yaw.position.set(...view.p);GAME.controls.yaw.rotation.y=view.yaw;GAME.controls.pitch.rotation.x=view.pitch;
+    GAME.flashlightOn=true;GAME.flashlight.intensity=2.2;GAME.flashlight.distance=18;
+    const fixtures=[];GAME.world.root.traverse(o=>{if(o.userData?.cassetteFixture){const b=new THREE.Box3().setFromObject(o),s=b.getSize(new THREE.Vector3()),c=b.getCenter(new THREE.Vector3());fixtures.push({tag:o.userData.cassetteFixture,center:[c.x,c.y,c.z],size:[s.x,s.y,s.z]});}});
+    window.__PINEWOOD_VISUAL_INFO__={view:visualTest,fixtures,assetFailures:[...assets.failures],renderer:GAME.renderer.info.render};
+    requestAnimationFrame(()=>requestAnimationFrame(()=>{window.__PINEWOOD_VISUAL_READY__=true;}));
+  }
+}
+boot();`
+  );
+
   const banned=['cassetteShelfLarge','cassetteShelfSmall','Shelf%20Large.glb','Shelf%20Small.glb','Shelf Large.glb','Shelf Small.glb','/ShelfLarge/','/ShelfSmall/'];
   for(const marker of banned)if(source.includes(marker))fail('permanently banned shelf resource survived: '+marker);
   for(const retired of ['async function stockRealCassetteFixture(','async function addCassetteDisplayFixture(','async function dressCassetteListeningTable(','async function placeCassetteCc0('])if(source.includes(retired))fail('retired floating-placement helper survived: '+retired);
@@ -171,7 +198,8 @@ async function buildGroundedCheckout(world){
     'function cassetteWorldBox(','async function placeCassetteGrounded(','async function placeCassetteOnSurface(','function cassetteShelfLevels(',
     'async function stockCassetteFixture(','async function addCassetteFullRack(','async function addCassetteDoubleRackBay(','async function dressGroundedListeningStation(',
     "height:2.08","targetHeight:1.78","cassetteGrounded=true","cassetteSupported=true","poly-haven-cassette-tape-stock-v13",
-    "makeMarketingPoster('music','NEW WAVE'","makeMarketingPoster('music','LISTEN BEFORE YOU BUY'","makeMarketingPoster('music','PINEWOOD TOP 40'"
+    "makeMarketingPoster('music','NEW WAVE'","makeMarketingPoster('music','LISTEN BEFORE YOU BUY'","makeMarketingPoster('music','PINEWOOD TOP 40'",
+    "__PINEWOOD_VISUAL_READY__"
   ])if(!source.includes(required))fail('v13 marker missing: '+required);
   return source;
 }
