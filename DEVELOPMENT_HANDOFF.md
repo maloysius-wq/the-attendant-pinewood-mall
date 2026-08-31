@@ -45,7 +45,8 @@ Do not return to runtime store carving or make decorative geometry mutate the fu
 5. `patches/systems-polish-v3.js.txt`
 6. `patches/reliability-v4.js.txt`
 7. `patches/status-lights-v5.js.txt`
-8. replace the Food Court builder with `patches/foodcourt-v3.js.txt`
+8. `patches/audio-immersion-v6.js.txt`
+9. replace the Food Court builder with `patches/foodcourt-v3.js.txt`
 
 **Patch order is intentional.** Later patches depend on markers produced by earlier patches. Do not casually reorder them.
 
@@ -63,6 +64,9 @@ The audit currently guards, among other things:
 - CC0 breaker/elevator model wiring,
 - physical elevator entry and collision state,
 - breaker/elevator status-light behavior,
+- breaker lever OFF→ON animation wiring,
+- the complete local normalized CC0 SFX bank,
+- absence of Web Audio oscillator/generated-random-noise SFX synthesis,
 - Food Court v3 edge-clamped wallpaper,
 - current warped mall-music implementation,
 - final JavaScript syntax.
@@ -108,11 +112,19 @@ Important no-regression behavior:
 - danger/hearing presentation uses **route/path distance**, not straight-line distance through walls,
 - walls must genuinely protect the player from impossible through-wall proximity sensing.
 
-Atmosphere currently includes heartbeat escalation, flashlight instability near danger, directional whispers, mall hum, PA/radio elements, threat music, and degraded mall music.
+Atmosphere currently includes recorded heartbeat escalation, flashlight instability near danger, recorded directional breath/whisper cues, recorded electrical room tone/static/horror ambience, PA/radio elements, threat music, and degraded mall music.
 
 ### Current mall music treatment
 
 The CC0 mall loop is intentionally played at roughly half speed with pitch preservation disabled. Two delayed copies create a hollow slapback/echo impression, and occasional playback-rate drift simulates damaged cassette/mall playback equipment. The threat layer still fades in with The Attendant's route-distance proximity while the mall loop recedes.
+
+### Current non-music audio treatment
+
+The old synthesized Web Audio SFX engine has been retired. The current build uses locally vendored CC0 recordings for footsteps, breaker operation, doors/latches/shutters, impacts, pickups, error/toggle cues, heartbeat, gasping/whispers, radio static, electrical ambience, danger ambience, intercom bell, and death/gore layers.
+
+All files under `assets/audio/cc0/` are normalized during vendoring with FFmpeg EBU R128 processing to **-20 LUFS integrated**, **-2 dBTP true peak**, and **7 LU target LRA**, then stored as stereo 44.1 kHz Vorbis OGG. Runtime event gains still preserve intentional hierarchy, such as quiet footsteps versus a heavy shutter or death impact.
+
+The final runtime intentionally contains **no `createOscillator()` procedural SFX path and no generated random-noise buffer fallback**. If a local recording cannot decode, that individual cue is skipped rather than synthesized.
 
 ---
 
@@ -257,14 +269,16 @@ The old “collect a fuse” abstraction is gone. Breakers/relays are wall-mount
 - visible breaker cabinet housing uses a verified Kenney Factory Kit CC0 model with gameplay-safe fallback,
 - breakers remain physically mounted to authored wall faces.
 
-### Breaker status LEDs
+### Breaker status LEDs and lever animation
 
-The breaker boxes now include a small **red status LED**:
+The breaker boxes include a small **red status LED**:
 
 - off/unrestored: very dim dark red,
 - on/restored: bright red emissive LED plus a restrained local red glow.
 
-Do not revert activated breakers to the older green indicator unless explicitly requested.
+The physical breaker lever also has distinct states. It rests at a clear OFF angle and smoothly travels to the opposite ON angle when the breaker is restored. The animation is driven continuously from breaker state in the main update loop, so it visually settles rather than teleporting between positions.
+
+Do not revert activated breakers to the older green indicator unless explicitly requested, and do not remove the visible lever state change.
 
 ### Freight elevator
 
@@ -310,16 +324,18 @@ Current documented sources include, among others:
 - Kenney Mini Dungeon — CC0
 - Kenney Factory Kit 3.0 — CC0
 - Kenney Prototype Kit — CC0
+- Kenney RPG Audio / Interface Sounds — CC0
 - KayKit Dungeon Remastered — CC0
 - Poly Haven materials/models — CC0
 - GGBotNet/OpenGameArt VHS Cassette 3D — CC0
 - Reactorcore/OpenGameArt blood decals — CC0/public domain
+- OpenGameArt recorded SFX/ambience bank — CC0/public domain as documented
 - OpenGameArt mall/threat music — CC0
 - Three.js — MIT
 
-See `LICENSES.md` for the exact provenance, pinned commits, files, and usage. Keep both `LICENSES.md` and in-game attribution current when introducing new assets.
+See `LICENSES.md` for the exact provenance, pinned commits, files, normalization policy, and usage. Keep both `LICENSES.md` and in-game attribution current when introducing new assets.
 
-The Attendant model/animation rig, story, authored levels, game-specific signs/posters, UI, procedural effects, and fallback geometry are project-original unless specifically documented otherwise.
+The Attendant model/animation rig, story, authored levels, game-specific signs/posters, UI, visual procedural effects, and fallback geometry are project-original unless specifically documented otherwise. Non-music SFX are now CC0 recordings rather than generated audio.
 
 ---
 
@@ -386,6 +402,14 @@ For code requests, implement the work rather than asking the user to make surgic
 - `patches/systems-polish-v3.js.txt`
 - `patches/reliability-v4.js.txt`
 - `patches/status-lights-v5.js.txt`
+- `patches/audio-immersion-v6.js.txt`
+
+### Audio
+
+- `assets/audio/cc0/`
+- `assets/audio/cc0/README.md`
+- `.github/workflows/vendor-cc0-audio.yml` for the normalization/vendoring recipe
+- `LICENSES.md` for source provenance
 
 ### Food Court
 
@@ -407,19 +431,18 @@ For code requests, implement the work rather than asking the user to make surgic
 
 ## 14. Current continuation point
 
-The previously open CC0 breaker/elevator replacement is **complete**. The subsequent elevator physical-entry/collision audit, service-key replacement, warped mall-music pass, breaker red status LEDs, and elevator-ready call-button glow are also implemented.
+The CC0 breaker/elevator replacement, elevator physical-entry/collision audit, service-key replacement, warped mall-music pass, breaker red status LEDs, elevator-ready call-button glow, normalized CC0 recorded SFX replacement, and breaker lever OFF→ON animation are implemented.
 
 There is no older handoff task that should automatically be repeated. For the next development session, inspect the latest commits and the user's newest request before choosing work.
 
 Longer-term production items still worth considering when explicitly prioritized include:
 
 - recorded voice acting,
-- authored/recorded SFX,
 - formal low-end GPU/performance testing,
 - accessibility review,
 - controller support,
 - objective/hunt pacing playtests,
-- locally bundling remote CC0 dependencies.
+- locally bundling remaining remote CC0 visual/music dependencies.
 
 ---
 
