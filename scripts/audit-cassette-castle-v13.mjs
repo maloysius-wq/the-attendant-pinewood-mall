@@ -43,8 +43,10 @@ function section(source,a,b,label){const s=source.indexOf(a),e=source.indexOf(b,
 const loader=await readFile('game.js','utf8');
 for(const marker of [
   "const CASSETTE_V13_PATCH='./patches/cassette-castle-rebuild-v13.js.txt';",
+  "const CASSETTE_V14_PATCH='./patches/cassette-castle-rebuild-v14.js.txt';",
   'const cassetteV13Source=await applyCassetteCastleV13(posterDiversitySource,cassetteV13Patch);',
-  'const source=cassetteV13Source+'
+  'const cassetteV14Source=await applyCassetteCastleV14(cassetteV13Source,cassetteV14Patch);',
+  'const source=cassetteV14Source+'
 ])if(!loader.includes(marker))fail('game.js marker missing: '+marker);
 
 const payload=(await Promise.all(PARTS.map(p=>readFile(p,'utf8')))).map(t=>t.trim()).join('');
@@ -78,4 +80,4 @@ for(const forbidden of ['cassetteShelfLarge','cassetteShelfSmall','stockRealCass
 
 if(source.includes('function makePoster('))fail('retired generic poster renderer returned');
 await syntaxCheck(source);
-console.log('Cassette Castle v13 PASS: banned tiny shelf resources are absent, fixtures are human-scale, stock/listening/checkout props are geometry-grounded, v12 poster diversity and v11 footstep mix survive, and final runtime syntax is valid.');
+console.log('Cassette Castle v13 PASS: v13 still reconstructs cleanly as the verified foundation handed to v14; banned tiny shelf resources are absent, fixtures are human-scale, stock/listening/checkout props are geometry-grounded, v12 poster diversity and v11 footstep mix survive, and v13 runtime syntax is valid.');
