@@ -1,0 +1,237 @@
+function applyElevatorRebuildV7(source){
+  const fail=msg=>{throw new Error(`Elevator Rebuild v7 patch failed: ${msg}`);};
+  const replaceOnce=(label,needle,replacement)=>{
+    const first=source.indexOf(needle);
+    if(first<0)fail(`${label}: marker missing`);
+    if(source.indexOf(needle,first+needle.length)>=0)fail(`${label}: marker is not unique`);
+    source=source.slice(0,first)+replacement+source.slice(first+needle.length);
+  };
+  const replaceRange=(label,startMarker,endMarker,replacement)=>{
+    const start=source.indexOf(startMarker);
+    if(start<0)fail(`${label}: start marker missing`);
+    const end=source.indexOf(endMarker,start+startMarker.length);
+    if(end<0)fail(`${label}: end marker missing`);
+    source=source.slice(0,start)+replacement+source.slice(end);
+  };
+
+  // Footsteps retain the normalized CC0 recordings but sit a little farther back in the mix.
+  // Two very quiet delayed copies create the hard-surface slapback of an empty mall concourse.
+  replaceOnce(
+    'quieter echoed footsteps',
+    "  step(sprint=false,quiet=false){this.stepIndex=(this.stepIndex+1+((Math.random()*3)|0))%4;const gain=(sprint?.34:.22)*(quiet?.30:1);this.play('step'+(this.stepIndex+1),{gain,rate:rand(.94,1.055)});}",
+`  step(sprint=false,quiet=false){
+    this.stepIndex=(this.stepIndex+1+((Math.random()*3)|0))%4;
+    const name='step'+(this.stepIndex+1),rate=rand(.94,1.055),gain=(sprint?.28:.18)*(quiet?.30:1);
+    this.play(name,{gain,rate});
+    this.play(name,{gain:gain*.16,rate:rate*.997,pan:-.06,when:.11});
+    this.play(name,{gain:gain*.06,rate:rate*1.003,pan:.07,when:.23});
+  }`
+  );
+
+  // A nav-only flag lets the elevator cab remain physically enterable while keeping the Attendant out.
+  replaceOnce(
+    'nav-only collider support',
+    "  colliderBlocksPoint(px,pz,navOnly=false){for(const c of this.colliders){if(c.disabled)continue;if(navOnly&&!c.navBlock)continue;if(px>c.minX&&px<c.maxX&&pz>c.minZ&&pz<c.maxZ)return true;}return false;}",
+    "  colliderBlocksPoint(px,pz,navOnly=false){for(const c of this.colliders){if(c.disabled)continue;if(navOnly){if(!c.navBlock)continue;}else if(c.physicalBlock===false)continue;if(px>c.minX&&px<c.maxX&&pz>c.minZ&&pz<c.maxZ)return true;}return false;}"
+  );
+  replaceOnce(
+    'nav-only collider construction',
+    "  addCollider(cx,cz,w,d,{navBlock=true,disabled=false,owner=null,pad=.03}={}){const c={minX:cx-w/2-pad,maxX:cx+w/2+pad,minZ:cz-d/2-pad,maxZ:cz+d/2+pad,navBlock,disabled,owner};this.colliders.push(c);return c;}",
+    "  addCollider(cx,cz,w,d,{navBlock=true,physicalBlock=true,disabled=false,owner=null,pad=.03}={}){const c={minX:cx-w/2-pad,maxX:cx+w/2+pad,minZ:cz-d/2-pad,maxZ:cz+d/2+pad,navBlock,physicalBlock,disabled,owner};this.colliders.push(c);return c;}"
+  );
+
+  // One authoritative freight elevator. There is no generated shutter/facade in front of it.
+  // All visible architecture and door leaves remain the verified Kenney CC0 GLB pieces.
+  replaceRange(
+    'authoritative freight elevator model',
+    "function makeExitElevator(",
+    "\n\nasync function decorateLevel",
+`function makeExitElevator(pos,face='west'){
+  const g=new THREE.Group();g.position.copy(pos);
+  const cab=new THREE.Group();g.add(cab);
+  const left=new THREE.Group(),right=new THREE.Group();
+  const closedL=-.46,closedR=.46,openL=-1.22,openR=1.22;
+  left.position.set(.06,0,closedL);right.position.set(.06,0,closedR);g.add(left,right);
+
+  const cabLight=new THREE.PointLight(0xdde9df,.62,4.0,2);cabLight.position.set(1.18,2.25,0);cab.add(cabLight);
+  const callPanel=new THREE.Group();g.add(callPanel);
+  const callMat=new THREE.MeshStandardMaterial({color:0x170904,roughness:.34,metalness:.18,emissive:0x2a0d03,emissiveIntensity:.04});
+  const callLamp=new THREE.Mesh(new THREE.SphereGeometry(.027,12,12),callMat);callLamp.position.set(-.20,1.17,1.28);g.add(callLamp);
+  const callGlow=new THREE.PointLight(0xffa14a,0,1.22,2);callGlow.position.set(-.28,1.17,1.28);g.add(callGlow);
+
+  g.userData={
+    type:'exit',left,right,cab,cabLight,indicator:null,callPanel,callLamp,callGlow,
+    closedL,closedR,openL,openR,state:'idle',timer:0,rideAnchor:null,
+    serviceUnlocked:false,doorBlocker:null,navExclusion:null,
+    assetModel:'kenney-imported-freight-elevator-v2',assetFallback:false
+  };
+
+  attachElevatorPiece(g,'elevatorFrame',new THREE.Vector3(.22,2.82,2.58),new THREE.Vector3(-.02,1.41,0),new THREE.Euler(0,Math.PI/2,0));
+  attachElevatorPiece(left,'elevatorDoorHalf',new THREE.Vector3(.09,2.38,.88),new THREE.Vector3(0,1.27,0),new THREE.Euler(0,Math.PI/2,0));
+  attachElevatorPiece(right,'elevatorDoorHalf',new THREE.Vector3(.09,2.38,.88),new THREE.Vector3(0,1.27,0),new THREE.Euler(0,Math.PI/2,0));
+
+  attachElevatorPiece(cab,'elevatorFloor',new THREE.Vector3(2.10,.085,1.88),new THREE.Vector3(1.12,.045,0));
+  attachElevatorPiece(cab,'elevatorFloor',new THREE.Vector3(2.10,.085,1.88),new THREE.Vector3(1.12,2.49,0));
+  attachElevatorPiece(cab,'elevatorWall',new THREE.Vector3(.10,2.42,1.88),new THREE.Vector3(2.17,1.25,0),new THREE.Euler(0,Math.PI/2,0));
+  attachElevatorPiece(cab,'elevatorWall',new THREE.Vector3(2.12,2.42,.10),new THREE.Vector3(1.13,1.25,-.99));
+  attachElevatorPiece(cab,'elevatorWall',new THREE.Vector3(2.12,2.42,.10),new THREE.Vector3(1.13,1.25,.99),new THREE.Euler(0,Math.PI,0));
+
+  // One call control outside, one non-interactive control inside for visual plausibility.
+  attachElevatorPiece(callPanel,'elevatorButton',new THREE.Vector3(.055,.28,.18),new THREE.Vector3(-.17,1.17,1.28),new THREE.Euler(0,0,Math.PI/2));
+  attachElevatorPiece(cab,'elevatorButton',new THREE.Vector3(.055,.24,.16),new THREE.Vector3(1.44,1.12,.93),new THREE.Euler(Math.PI/2,0,0));
+  return g;
+}`
+  );
+
+  // Retire the procedural East Service Shutter entirely. The Master Service Key now operates
+  // the elevator's service lock, so the chapter keeps its key-gated progression without a ghost door.
+  replaceRange(
+    'remove Chapter 1 procedural service shutter and rebuild elevator collision',
+    "    const shutter=makeShutter(new THREE.Vector3(26,0,0),'x',true,'East Service Shutter');",
+    "\n    // Last Shift logs",
+`    const elevator=makeExitElevator(new THREE.Vector3(26.95,0,0));world.root.add(elevator);world.interactables.push(elevator);GAME.exitObject=elevator;
+    const eu=elevator.userData;
+    // Physical shell: side walls + back wall match the imported cab and leave the doorway completely clear when open.
+    world.addCollider(28.08,-1.03,2.10,.12,{navBlock:false,owner:elevator,pad:.01});
+    world.addCollider(28.08,1.03,2.10,.12,{navBlock:false,owner:elevator,pad:.01});
+    world.addCollider(29.13,0,.12,1.94,{navBlock:false,owner:elevator,pad:.01});
+    // Closed-door collision is one threshold plane. It is disabled only after the visible leaves are essentially fully open.
+    eu.doorBlocker=world.addCollider(27.01,0,.16,1.78,{navBlock:false,owner:elevator,pad:.01});
+    // AI-only exclusion keeps the Attendant out of the cab without blocking the player or changing the authored walkable floor.
+    eu.navExclusion=world.addCollider(28.10,0,2.75,2.70,{navBlock:true,physicalBlock:false,owner:elevator,pad:0});
+    eu.syncDoorCollision=()=>{
+      const travel=Math.abs(eu.openL-eu.closedL)||1;
+      const openness=clamp(Math.abs(eu.left.position.z-eu.closedL)/travel,0,1);
+      eu.doorBlocker.disabled=eu.state==='waiting'||(eu.state==='opening'&&openness>=.985);
+    };
+    eu.syncDoorCollision();`
+  );
+
+  replaceOnce(
+    'elevator interaction hint',
+    "else if(t==='exit')UI.hint(this.breakers<LEVELS[this.levelIndex].breakers?'Elevator has no emergency power':'E  Call freight elevator');else if(t==='core')",
+`else if(t==='exit'){
+      const need=LEVELS[this.levelIndex].breakers||0,u=o.userData;
+      if(this.breakers<need)UI.hint('Elevator has no emergency power');
+      else if(u.state==='waiting')UI.hint('Freight elevator open. Step fully inside.');
+      else if(u.state!=='idle')UI.hint('Freight elevator in motion…');
+      else if(!u.serviceUnlocked&&this.keys<=0)UI.hint('Master Service Key required');
+      else UI.hint(u.serviceUnlocked?'E  Call freight elevator':'E  Use Master Service Key + call elevator');
+    }else if(t==='core')`
+  );
+
+  replaceRange(
+    'freight elevator state machine',
+    "  startElevator(o){",
+    "  endClosingRoutine(core){",
+`  startElevator(o){
+    const need=LEVELS[this.levelIndex].breakers||0,u=o.userData;
+    if(this.breakers<need){audio.beep();UI.hint('Emergency power incomplete ('+this.breakers+'/'+need+').');return;}
+    if(u.state!=='idle')return;
+    if(!u.serviceUnlocked){
+      if(this.keys<=0){audio.beep();UI.hint('The freight elevator service lock requires the Master Service Key.');return;}
+      this.keys--;u.serviceUnlocked=true;audio.toggle();audio.confirm();this.updateHUD();
+    }
+    u.state='opening';u.timer=0;u.rideAnchor=null;u.syncDoorCollision?.();
+    if(u.callLamp?.material)u.callLamp.material.emissiveIntensity=.04;if(u.callGlow)u.callGlow.intensity=0;
+    audio.chime();audio.door(true);this.emitSound(o.position.clone(),.75,'elevator');
+    // Brief machinery shock gives the player a fair boarding window without making the whole alcove permanently safe.
+    this.attendant.stunUntil=Math.max(this.attendant.stunUntil,this.time+2.8);
+    UI.hint('Service lock accepted. Freight elevator opening…');
+  }
+  updateElevator(dt){
+    const e=this.exitObject;if(!e||e.userData.type!=='exit')return;
+    const u=e.userData,need=LEVELS[this.levelIndex].breakers||0,powered=this.breakers>=need,keyReady=u.serviceUnlocked||this.keys>0;
+    const ready=u.state==='idle'&&powered&&keyReady;
+    if(u.callLamp?.material){
+      const pulse=ready?.56+Math.sin(this.time*2.1)*.09:.035;
+      u.callLamp.material.color.setHex(ready?0x54250d:0x170904);
+      u.callLamp.material.emissive.setHex(ready?0xffa14a:0x2a0d03);
+      u.callLamp.material.emissiveIntensity=pulse;
+    }
+    if(u.callGlow)u.callGlow.intensity=ready?.085+(.5+.5*Math.sin(this.time*2.1))*.04:0;
+    if(u.state==='idle'){u.syncDoorCollision?.();return;}
+
+    u.timer+=dt;
+    if(u.state==='opening'){
+      const t=clamp(u.timer/1.05,0,1),s=t*t*(3-2*t);
+      u.left.position.z=lerp(u.closedL,u.openL,s);u.right.position.z=lerp(u.closedR,u.openR,s);u.syncDoorCollision?.();
+      if(t>=1){
+        u.state='waiting';u.timer=0;u.syncDoorCollision?.();
+        this.attendant.stunUntil=Math.max(this.attendant.stunUntil,this.time+1.35);
+        audio.confirm();UI.hint('Freight elevator open. Step fully inside.');
+      }
+    }else if(u.state==='waiting'){
+      u.syncDoorCollision?.();
+      const local=e.worldToLocal(this.controls.yaw.position.clone());
+      const inside=local.x>.65&&local.x<1.82&&Math.abs(local.z)<.64;
+      if(inside){
+        u.state='closing';u.timer=0;
+        u.rideAnchor=e.localToWorld(new THREE.Vector3(1.30,1.70,0));
+        u.syncDoorCollision?.();
+        this.attendant.stunUntil=Math.max(this.attendant.stunUntil,this.time+5.0);
+        audio.door(false);this.emitSound(e.position.clone(),.34,'elevator');UI.hint('');
+      }
+    }else if(u.state==='closing'){
+      const t=clamp(u.timer/.78,0,1),s=t*t*(3-2*t);
+      u.left.position.z=lerp(u.openL,u.closedL,s);u.right.position.z=lerp(u.openR,u.closedR,s);u.syncDoorCollision?.();
+      if(u.rideAnchor)this.controls.yaw.position.lerp(u.rideAnchor,smooth(dt,9));
+      if(t>=1){u.state='ride';u.timer=0;audio.impact(.24);UI.static(320);}
+    }else if(u.state==='ride'){
+      u.syncDoorCollision?.();
+      if(u.rideAnchor){
+        this.controls.yaw.position.lerp(u.rideAnchor,smooth(dt,12));
+        this.controls.yaw.position.y=1.70+Math.sin(u.timer*13)*.012+Math.sin(u.timer*23)*.004;
+      }
+      if(u.cabLight)u.cabLight.intensity=.52+Math.sin(u.timer*9)*.08;
+      if(u.timer>2.15)this.winChapter();
+    }
+  }
+`
+  );
+
+  replaceOnce(
+    'hold player during elevator close and ride',
+    "    const moving=!this.playerHidden&&!this.hideTransition&&(keysDown.w||keysDown.a||keysDown.s||keysDown.d),sprint=keysDown.shift&&moving&&!holding&&this.stamina>.06;",
+    "    const elevatorHold=this.exitObject?.userData?.type==='exit'&&['closing','ride'].includes(this.exitObject.userData.state);const moving=!elevatorHold&&!this.playerHidden&&!this.hideTransition&&(keysDown.w||keysDown.a||keysDown.s||keysDown.d),sprint=keysDown.shift&&moving&&!holding&&this.stamina>.06;"
+  );
+
+  replaceOnce(
+    'elevator cab safety against Attendant contact',
+    "    if(!GAME.playerHidden&&Math.hypot(this.root.position.x-playerPos.x,this.root.position.z-playerPos.z)<.72){GAME.die('The Attendant reached you. Pinewood has converted you to store property.');return;}",
+`    const exit=GAME.exitObject,eu=exit?.userData;
+    let elevatorSafe=false;
+    if(GAME.levelIndex===0&&eu?.type==='exit'&&eu.state!=='idle'){
+      const local=exit.worldToLocal(playerPos.clone());
+      elevatorSafe=local.x>.24&&local.x<2.02&&Math.abs(local.z)<.76;
+    }
+    if(!GAME.playerHidden&&!elevatorSafe&&Math.hypot(this.root.position.x-playerPos.x,this.root.position.z-playerPos.z)<.72){GAME.die('The Attendant reached you. Pinewood has converted you to store property.');return;}`
+  );
+
+  replaceOnce(
+    'Chapter 1 key-aware objective',
+    "if(this.levelIndex<2)obj=this.breakers<l.breakers?`Restore relays ${this.breakers}/${l.breakers}`:this.levelIndex===0?'Reach the freight elevator':'Open the north stairwell';",
+    "if(this.levelIndex<2)obj=this.breakers<l.breakers?`Restore relays ${this.breakers}/${l.breakers}`:this.levelIndex===0?((this.exitObject?.userData?.serviceUnlocked||this.keys>0)?'Reach the freight elevator':'Find the Master Service Key'):'Open the north stairwell';"
+  );
+
+  for(const marker of [
+    "assetModel:'kenney-imported-freight-elevator-v2'",
+    "physicalBlock===false",
+    "physicalBlock:false",
+    "eu.navExclusion=world.addCollider",
+    "const inside=local.x>.65&&local.x<1.82&&Math.abs(local.z)<.64",
+    "elevatorHold=this.exitObject?.userData?.type==='exit'",
+    "elevatorSafe=local.x>.24&&local.x<2.02",
+    "Master Service Key + call elevator",
+    "gain=(sprint?.28:.18)",
+    "gain:gain*.16",
+    "when:.23"
+  ])if(!source.includes(marker))fail(`verification marker missing: ${marker}`);
+
+  for(const retired of [
+    "East Service Shutter');shutter.scale.z=.62",
+    "const inside=local.x>.58&&local.x<1.62&&Math.abs(local.z)<.62"
+  ])if(source.includes(retired))fail(`retired elevator marker survived: ${retired}`);
+
+  return source;
+}
