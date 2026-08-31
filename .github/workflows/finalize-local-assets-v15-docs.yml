@@ -101,3 +101,5 @@ The deterministic software-WebGL harness still emits two local-model warnings th
           git diff --cached --check
           git commit -m "Record verified Local Assets v15 checkpoint"
           git push origin HEAD:main
+
+# One-shot documentation finalizer; remove after the checkpoint commit lands.
