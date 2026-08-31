@@ -186,17 +186,17 @@ async function buildArcade(world){`
     "  attachElevatorPiece(cab,'elevatorWall',new THREE.Vector3(2.12,2.76,.10),new THREE.Vector3(1.13,1.38,.99),new THREE.Euler(0,Math.PI,0));"
   );
 
-  // Give the existing deterministic harness one direct elevator framing check as well.
+  // Give the deterministic harness direct framing and checkout checks.
   replaceOnce(
-    'elevator visual regression view',
+    'retail geometry visual regression views',
     "      'cassette-listening':{p:[22.25,1.70,25.20],yaw:-Math.PI/2,pitch:-.035}",
-    "      'cassette-listening':{p:[22.25,1.70,25.20],yaw:-Math.PI/2,pitch:-.035},\n      'elevator-front':{p:[23.55,1.70,0],yaw:-Math.PI/2,pitch:-.02}"
+    "      'cassette-listening':{p:[22.25,1.70,25.20],yaw:-Math.PI/2,pitch:-.035},\n      'elevator-front':{p:[23.55,1.70,0],yaw:-Math.PI/2,pitch:-.02},\n      'arcade-checkout':{p:[-14.1,1.65,-25.2],yaw:0,pitch:-.03},\n      'video-checkout':{p:[12.3,1.65,-24.5],yaw:Math.PI,pitch:-.03}"
   );
 
   for(const marker of [
     'cassette-case-stock-v16','organized-case-stock-v16','matte-black-v16','wallOverlayRemoved=true',
     "sharedCheckoutCounter='food-court-counter-v16'","makeSharedRetailCheckoutV16(world,-14.1,-29","makeSharedRetailCheckoutV16(world,12.3,-20.7",
-    "makeSharedRetailCheckoutV16(world,13.40,28.72","new THREE.Vector3(.09,2.80,.92)","'elevator-front'"
+    "makeSharedRetailCheckoutV16(world,13.40,28.72","new THREE.Vector3(.09,2.80,.92)","'elevator-front'","'arcade-checkout'","'video-checkout'"
   ])if(!source.includes(marker))fail('required v16 marker missing: '+marker);
   for(const forbidden of [
     "const wallMat=new THREE.MeshStandardMaterial({color:0x15243a","panel(10.75,1.18","rail(16.3,19,1.34",
