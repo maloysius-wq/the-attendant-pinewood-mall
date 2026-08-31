@@ -1,0 +1,51 @@
+name: Apply Retail Geometry v16
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/apply-retail-geometry-v16.yml'
+      - 'scripts/apply-retail-geometry-v16.mjs'
+      - 'patches/retail-geometry-v16.js.txt'
+      - 'scripts/audit-retail-geometry-v16.mjs'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  apply-and-verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Wire Retail Geometry v16
+        run: node scripts/apply-retail-geometry-v16.mjs
+      - name: Validate loader syntax
+        run: node --check game.js
+      - name: Validate Cassette Castle v13 foundation
+        run: node scripts/audit-cassette-castle-v13.mjs
+      - name: Validate Cassette Castle v14 foundation
+        run: node scripts/audit-cassette-castle-v14.mjs
+      - name: Validate local runtime assets v15
+        run: node scripts/audit-local-assets-v15.mjs
+      - name: Validate retail geometry v16
+        run: node scripts/audit-retail-geometry-v16.mjs
+      - name: Commit v16 wiring
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add game.js scripts/audit-cassette-castle-v13.mjs scripts/audit-cassette-castle-v14.mjs scripts/audit-local-assets-v15.mjs scripts/capture-store-visuals.mjs .github/workflows/runtime-audit.yml
+          git diff --cached --check
+          if git diff --cached --quiet; then
+            echo "No v16 wiring changes needed."
+            exit 0
+          fi
+          git commit -m "Wire and verify Retail Geometry v16"
+          git push origin HEAD:main
