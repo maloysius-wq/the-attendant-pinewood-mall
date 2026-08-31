@@ -37,11 +37,6 @@ function applyCassetteCastleRebuildV9(source){
     "Used for Cassette Castle listening-station hardware and, when available, the model's separate cassette/tape component for shelf stock.",
     "Used for Cassette Castle listening-station hardware and the model's separate cassette/tape component for real shelf stock. If the tape component cannot be extracted, that stock is skipped rather than procedurally generated."
   );
-  replaceOnce(
-    'Kenney furniture attribution cassette extension',
-    'Used for food-court tables/chairs, Cassette Castle listening tables, the portable-radio decoy, and full-height hiding cabinets, normalized to human-scale dimensions at runtime.',
-    'Used for food-court tables/chairs, the portable-radio decoy, full-height hiding cabinets, and Cassette Castle empty open bookcases, normalized to human-scale dimensions at runtime.'
-  );
 
   replaceRange(
     'remove legacy procedural cassette helpers',
