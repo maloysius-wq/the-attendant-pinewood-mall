@@ -33,7 +33,7 @@ jobs:
               https://raw.githubusercontent.com/mrdoob/three.js/r180/build/three.core.js \
               --output vendor/three/build/three.core.js
           fi
-          test "$(wc -c < vendor/three/build/three.core.js)" -eq 1406669
+          echo "Three.js core bytes: $(wc -c < vendor/three/build/three.core.js)"
           test "$(git hash-object vendor/three/build/three.core.js)" = "7dcd0fbcbc04b8d9a20ecb96c1ce344cb55150d5"
           if ! git diff --quiet -- vendor/three/build/three.core.js || [ -z "$(git ls-files vendor/three/build/three.core.js)" ]; then
             git config user.name "github-actions[bot]"
