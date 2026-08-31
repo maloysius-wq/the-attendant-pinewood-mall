@@ -20,7 +20,8 @@ const PATCHES = [
   ['patches/reliability-v4.js.txt', 'applyReliabilityV4'],
   ['patches/status-lights-v5.js.txt', 'applyStatusLightsV5'],
   ['patches/audio-immersion-v6.js.txt', 'applyAudioImmersionV6'],
-  ['patches/elevator-rebuild-v7.js.txt', 'applyElevatorRebuildV7']
+  ['patches/elevator-rebuild-v7.js.txt', 'applyElevatorRebuildV7'],
+  ['patches/fountain-rebuild-v8.js.txt', 'applyFountainRebuildV8']
 ];
 
 const AUDIO_FILES=[
@@ -86,9 +87,11 @@ requireMarkers(loader, [
   "const STATUS_PATCH='./patches/status-lights-v5.js.txt';",
   "const AUDIO_PATCH='./patches/audio-immersion-v6.js.txt';",
   "const ELEVATOR_PATCH='./patches/elevator-rebuild-v7.js.txt';",
+  "const FOUNTAIN_PATCH='./patches/fountain-rebuild-v8.js.txt';",
   'const audioSource=await applyAudioImmersion(statusSource,audioPatch);',
   'const elevatorSource=await applyElevatorRebuild(audioSource,elevatorPatch);',
-  'const source=replaceFoodCourt(elevatorSource,foodPatch)'
+  'const fountainSource=await applyFountainRebuild(elevatorSource,fountainPatch);',
+  'const source=replaceFoodCourt(fountainSource,foodPatch)'
 ], 'game.js');
 
 for(const file of AUDIO_FILES){const bytes=await readFile(`assets/audio/cc0/${file}`);if(bytes.length<500)fail(`CC0 audio asset missing or suspiciously small: ${file}`);}
@@ -121,6 +124,12 @@ requireMarkers(source, [
   "const CC0_AUDIO_BASE=new URL('./assets/audio/cc0/',location.href).href","heartSlow:'heartbeat-slow.ogg'","roomtone:'electrical-roomtone.ogg'",
   'this.ctx.createBufferSource()','audio.breaker()','audio.gasp()','audio.door(o.userData.open)','u.leverMix=lerp','leverOff:-.58,leverOn:.54','-20 LUFS / -2 dBTP',
   "gain=(sprint?.28:.18)",'gain:gain*.16','when:.23',
+  "const FOUNTAIN_CC0_URL='https://raw.githubusercontent.com/KenneyNL/Starter-Kit-City-Builder/4535092b740b378b700efd9df9e27a631815b84a/models/pavement-fountain.glb'",
+  "assetModel:'kenney-city-builder-pavement-fountain'","footprintRadius:1.64",
+  "makeFountainPBR('marble_tiles'","makeFountainPBR('grey_tiles'",
+  'new THREE.RingGeometry(innerR,outerR,64)','new THREE.TorusGeometry(1.535,.095,12,64)',
+  'for(let i=-4;i<=4;i++)','await buildCentralFountain(world);',
+  'https://polyhaven.com/a/marble_tiles','https://polyhaven.com/a/grey_tiles',
   'THREE.ClampToEdgeWrapping'
 ]);
 
@@ -128,9 +137,11 @@ for (const retired of [
   'SAVE.settings.muzak?.224:0','SAVE.settings.muzak?.157:0','emissive.setHex(0x55ff99)',
   'createOscillator()','this.oneShot({','createBuffer(1,len','procedural audio are generated/original',
   "East Service Shutter');shutter.scale.z=.62",
-  "const inside=local.x>.58&&local.x<1.62&&Math.abs(local.z)<.62"
+  "const inside=local.x>.58&&local.x<1.62&&Math.abs(local.z)<.62",
+  'new THREE.CylinderGeometry(1.45,1.65,.38,28)',
+  'world.addCollider(0,0,3.2,3.2,{navBlock:true,pad:.05})'
 ]) if (source.includes(retired)) fail(`retired marker survived: ${retired}`);
 
 await syntaxCheck('patched-runtime', source);
 console.log(`Runtime audit PASS: ${source.length.toLocaleString()} patched source characters parsed successfully.`);
-console.log(`Verified ${AUDIO_FILES.length} normalized CC0 audio assets, quieter echoed footsteps, zero oscillator/noise synthesis, breaker lever animation, authoritative CC0 elevator geometry/collision/state machine, Attendant cab exclusion, Food Court v3 and warped mall music.`);
+console.log(`Verified ${AUDIO_FILES.length} normalized CC0 audio assets, quieter echoed footsteps, zero oscillator/noise synthesis, breaker lever animation, authoritative CC0 elevator geometry/collision/state machine, Attendant cab exclusion, exact-fit CC0/PBR central fountain, Food Court v3 and warped mall music.`);
