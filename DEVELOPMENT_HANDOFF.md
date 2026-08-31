@@ -30,7 +30,8 @@ Use verified CC0 assets where suitable. Keep `LICENSES.md` and in-game attributi
 7. `patches/status-lights-v5.js.txt`
 8. `patches/audio-immersion-v6.js.txt`
 9. `patches/elevator-rebuild-v7.js.txt`
-10. Food Court builder replacement from `patches/foodcourt-v3.js.txt`
+10. `patches/fountain-rebuild-v8.js.txt`
+11. Food Court builder replacement from `patches/foodcourt-v3.js.txt`
 
 Patch order is intentional. Later patches depend on earlier markers.
 
@@ -213,7 +214,29 @@ The elevator should be tense to reach, but successfully entering it should relia
 
 ---
 
-## 9. Chapter/story arc
+## 9. Central fountain — authoritative current implementation
+
+`patches/fountain-rebuild-v8.js.txt` is the authoritative Chapter 1 central-fountain implementation.
+
+The old fountain was only two primitive cylinders at `(0,0,0)` plus an oversized square `3.2 × 3.2 m` collider. That treatment is retired.
+
+Current fountain rules:
+
+- center remains exactly at `(0,0,0)`,
+- authored visible footprint radius is **1.64 m**, essentially preserving the old ~3.3 m diameter,
+- the outer basin/rim is custom-authored to that footprint rather than using an arbitrary prebuilt model as the boundary,
+- worn rim/coping uses Poly Haven **Marble Tiles** CC0 PBR maps,
+- the dry inner basin uses Poly Haven **Grey Tiles** CC0 PBR maps,
+- a pinned Kenney Starter Kit City Builder CC0 `pavement-fountain.glb` is fitted inside the basin as the central sculpture/nozzle form,
+- there is a modeled fallback if that remote GLB fails,
+- the basin is visibly dry and includes a recessed floor, old waterline/mineral rings, rust streaks, a dark damp remnant, coins, and paper trash,
+- there is deliberately **no active water surface or spray**, matching the disconnected-fountain story cue.
+
+Physical collision is now an approximate circular footprint made from nine narrow collider strips contained within the 1.64 m visible radius. Do not restore the old square collider, and do not change the authored floor grid to accommodate fountain dressing.
+
+---
+
+## 10. Chapter/story arc
 
 ### Chapter 1 — Closing Time
 
@@ -231,7 +254,7 @@ There are nine numbered Last Shift logs, `LS-01` through `LS-09`. Recovering all
 
 ---
 
-## 10. Chapter 1 stores
+## 11. Chapter 1 stores
 
 The four authored walkable storefronts are:
 
@@ -248,7 +271,7 @@ Named storefront neon is game-specific local art with independent randomized fli
 
 ---
 
-## 11. Hiding / menus / death
+## 12. Hiding / menus / death
 
 Hiding cabinets are physical CC0 cabinet models with animated doors and camera movement into/out of the cabinet. Do not reduce hiding to teleport-only behavior.
 
@@ -262,7 +285,7 @@ with the existing gore/death presentation and restart/quit flow.
 
 ---
 
-## 12. Navigation baseline
+## 13. Navigation baseline
 
 Most recently recorded authored reachability baseline:
 
@@ -272,19 +295,21 @@ Most recently recorded authored reachability baseline:
 
 Chapter 1 store entrances, breakers A/B/C, Master Service Key, and elevator approach must remain reachable.
 
-The elevator's AI-only exclusion is deliberately separate from player walkability and should not mutate the authored floorplan.
+The elevator's AI-only exclusion is deliberately separate from player walkability and should not mutate the authored floorplan. The central fountain also uses prop collision only; its v8 rebuild does not carve or rewrite the authored walkability grid.
 
 ---
 
-## 13. Asset/licensing policy
+## 14. Asset/licensing policy
 
 Major documented sources include Kenney kits, KayKit Dungeon Remastered, Poly Haven, GGBotNet/OpenGameArt VHS, Reactorcore blood decals, and OpenGameArt audio/music. See `LICENSES.md` and `assets/audio/cc0/README.md` for exact provenance and normalization notes.
+
+The central fountain specifically uses the pinned Kenney Starter Kit City Builder `pavement-fountain.glb` and Poly Haven `marble_tiles` / `grey_tiles`, all documented as CC0 in `LICENSES.md` and in the runtime attribution manifest.
 
 Keep provenance pinned/documented when adding assets.
 
 ---
 
-## 14. Development workflow
+## 15. Development workflow
 
 For every future runtime change:
 
@@ -297,10 +322,10 @@ For every future runtime change:
 7. verify the GitHub Pages build/deploy,
 8. be explicit if interactive visual playtesting could not be performed.
 
-The current runtime audit specifically guards the recorded normalized CC0 audio bank, zero oscillator/random-noise SFX synthesis, breaker lever animation, authoritative elevator model/state/collision, AI-only cab exclusion, key-gated elevator progression, Food Court v3, and warped mall music.
+The current runtime audit specifically guards the recorded normalized CC0 audio bank, zero oscillator/random-noise SFX synthesis, breaker lever animation, authoritative elevator model/state/collision, AI-only cab exclusion, key-gated elevator progression, the exact-fit CC0/PBR central fountain and retirement of its old square collider, Food Court v3, and warped mall music.
 
 ---
 
-## 15. Fresh-session restart prompt
+## 16. Fresh-session restart prompt
 
 > Continue development of The Attendant: Pinewood Mall. Use `maloysius-wq/the-attendant-pinewood-mall` as the source of truth. Read `DEVELOPMENT_HANDOFF.md` first, inspect the latest commits and relevant current files, preserve the documented no-regression constraints, implement directly in the repo, run the runtime audit, and verify GitHub Pages after game changes.
