@@ -1,0 +1,132 @@
+function applyCassetteCastleRebuildV14(source){
+  const fail=msg=>{throw new Error('Cassette Castle Rebuild v14 patch failed: '+msg);};
+  const replaceOnce=(label,needle,replacement)=>{
+    const first=source.indexOf(needle);
+    if(first<0)fail(label+': marker missing');
+    if(source.indexOf(needle,first+needle.length)>=0)fail(label+': marker is not unique');
+    source=source.slice(0,first)+replacement+source.slice(first+needle.length);
+  };
+  const replaceRange=(label,startMarker,endMarker,replacement)=>{
+    const start=source.indexOf(startMarker);
+    if(start<0)fail(label+': start marker missing');
+    const end=source.indexOf(endMarker,start+startMarker.length);
+    if(end<0)fail(label+': end marker missing');
+    source=source.slice(0,start)+replacement+source.slice(end);
+  };
+
+  const wallShelfLine="  cassetteShelfWall:`https://raw.githubusercontent.com/RetroDECK/RetroQUEST/dfa19a5602a31f64bd890d15279a61f43b127328/assets/kenney_furniture-kit/Models/GLTF%20format/bookcaseOpen.glb`,";
+  replaceOnce(
+    'v14 CC0 fixture resources',
+    wallShelfLine,
+    wallShelfLine+"\n"+
+    "  cassetteShelfLow:`https://raw.githubusercontent.com/RetroDECK/RetroQUEST/dfa19a5602a31f64bd890d15279a61f43b127328/assets/kenney_furniture-kit/Models/GLTF%20format/bookcaseOpenLow.glb`,\n"+
+    "  cassetteServiceCounter:`https://raw.githubusercontent.com/vinhelysia/godot-fps-cogito/1268440e90e370db6c3351ec4cd7429f3ca278b3/addons/cogito/Assets/Models/Kenney/SpaceInterior/GLTF%20format/KSI_counter.glb`,"
+  );
+
+  replaceOnce(
+    'Cassette Castle localized ambience reduction',
+    "    this.setLoop('roomtone',.075+f*.045,.94+f*.05,dt);this.setLoop('static',.008+f*.035+n*.015,.94+n*.08,dt);this.setLoop('horror',Math.pow(n,1.55)*.14+f*.025,.86+n*.08,dt);",
+`    const listenerPos=(typeof GAME!=='undefined'&&GAME?.controls?.yaw?.position)?GAME.controls.yaw.position:null;
+    const inCassetteCastle=!!(listenerPos&&listenerPos.x>10.45&&listenerPos.x<27.55&&listenerPos.z>19.35&&listenerPos.z<31.55);
+    const cassetteRoomMix=inCassetteCastle?.62:1;
+    this.setLoop('roomtone',(.075+f*.045)*cassetteRoomMix,.94+f*.05,dt);this.setLoop('static',(.008+f*.035+n*.015)*(inCassetteCastle?.72:1),.94+n*.08,dt);this.setLoop('horror',Math.pow(n,1.55)*.14+f*.025,.86+n*.08,dt);`
+  );
+
+  replaceOnce(
+    'v14 helper insertion',
+    '\nasync function buildArcade(world){',
+`\nfunction addCassetteStoreFinishV14(world){
+  const finish=new THREE.Group();finish.userData.cassetteFixture='store-finish-v14';finish.userData.visualOnly=true;world.root.add(finish);
+  const floorMat=new THREE.MeshStandardMaterial({color:0x18232b,roughness:.94,metalness:.015});
+  const accentMat=new THREE.MeshStandardMaterial({color:0x9a713d,roughness:.82,metalness:.035});
+  const wallMat=new THREE.MeshStandardMaterial({color:0x15243a,roughness:.92,metalness:.01,side:THREE.DoubleSide});
+  const railMat=new THREE.MeshStandardMaterial({color:0x5e3a4b,roughness:.84,metalness:.025});
+  const floor=new THREE.Mesh(new THREE.PlaneGeometry(16.55,11.45),floorMat);floor.rotation.x=-Math.PI/2;floor.position.set(19,.018,25.60);floor.receiveShadow=true;finish.add(floor);
+  for(const [x,z,w,d] of [[19,20.08,15.95,.11],[19,31.12,15.95,.11],[10.94,25.60,.11,10.95],[27.06,25.60,.11,10.95]]){
+    const strip=new THREE.Mesh(new THREE.BoxGeometry(w,.016,d),accentMat);strip.position.set(x,.028,z);strip.receiveShadow=true;finish.add(strip);
+  }
+  const panel=(w,h,x,y,z,ry)=>{const p=new THREE.Mesh(new THREE.PlaneGeometry(w,h),wallMat);p.position.set(x,y,z);p.rotation.y=ry;p.receiveShadow=true;finish.add(p);return p;};
+  panel(10.75,1.18,10.585,.73,25.55,Math.PI/2);panel(10.75,1.18,27.415,.73,25.55,-Math.PI/2);panel(16.55,1.18,19,.73,31.415,Math.PI);
+  const rail=(w,x,y,z,ry=0)=>{const r=new THREE.Mesh(new THREE.BoxGeometry(w,.055,.055),railMat);r.position.set(x,y,z);r.rotation.y=ry;finish.add(r);};
+  rail(16.3,19,1.34,31.39,0);rail(10.5,10.61,1.34,25.55,Math.PI/2);rail(10.5,27.39,1.34,25.55,Math.PI/2);
+  return finish;
+}
+async function addCassetteLowFixtureV14(world,x,z,rot=0){
+  const placed=await placeCassetteGrounded(world.root,'cassetteShelfLow',new THREE.Vector3(x,0,z),{targetHeight:1.08,rot,collide:true,pad:.035,tag:'low-merch-fixture-v14'});
+  if(placed)await stockCassetteFixture(world,placed.obj,rot,{rows:3,cols:8,density:.78});
+  return placed;
+}
+async function buildCassetteListeningBarV14(world){
+  const bar=await placeCassetteGrounded(world.root,'cassetteServiceCounter',new THREE.Vector3(25.63,0,25.18),{targetHeight:.90,rot:0,collide:true,pad:.035,tag:'listening-bar-v14'});
+  if(!bar)return null;
+  const box=cassetteWorldBox(bar.obj),size=box.getSize(new THREE.Vector3()),center=box.getCenter(new THREE.Vector3()),top=box.max.y;
+  const stations=[center.z-size.z*.30,center.z,center.z+size.z*.30],tape=await getCassetteTapeTemplate();
+  for(let i=0;i<stations.length;i++){
+    const z=stations[i];
+    await placeCassetteOnSurface(world.root,'cassettePlayer',center.x-.08,z,top+.012,{targetHeight:.20,rot:-Math.PI/2,tag:'listening-player-v14'});
+    await placeCassetteGrounded(world.root,'cassetteStool',new THREE.Vector3(center.x-1.08,0,z),{targetHeight:.54,rot:Math.PI/2,collide:true,pad:.02,tag:'listening-stool-v14'});
+    if(tape)addAnchoredCassette(world.root,tape,center.x+.22,z+.08,top+.014,.10+i*.025,1);
+  }
+  return bar;
+}
+async function buildCassetteCheckoutV14(world){
+  const counter=await placeCassetteGrounded(world.root,'cassetteServiceCounter',new THREE.Vector3(12.05,0,28.72),{targetHeight:.96,rot:0,collide:true,pad:.035,tag:'checkout-counter-v14'});
+  if(!counter)return null;
+  const box=cassetteWorldBox(counter.obj),size=box.getSize(new THREE.Vector3()),center=box.getCenter(new THREE.Vector3()),top=box.max.y;
+  await placeCassetteOnSurface(world.root,'arcadeCash',center.x-.02,center.z-size.z*.22,top+.012,{targetHeight:.27,rot:Math.PI/2,tag:'checkout-register-v14'});
+  return counter;
+}
+\nasync function buildArcade(world){`
+  );
+
+  replaceRange(
+    'open-plan Cassette Castle v14 layout',
+    'async function buildMusic(world){',
+    '\n\nfunction makeShutter(',
+`async function buildMusic(world){
+  addStorefront(world,{name:'CASSETTE CASTLE',theme:'music',x:18,z:19.48,face:'north'});
+  addCassetteStoreFinishV14(world);
+  addWallPoster(world,makeMarketingPoster('music','NEW WAVE','THIS WEEK’S PICKS','IMPORTS • INDIES • LOCAL',0),new THREE.Vector3(10.56,1.78,24.90),Math.PI/2);
+  addWallPoster(world,makeMarketingPoster('music','LISTEN BEFORE YOU BUY','TRY IT AT THE SOUND BAR','HEADPHONES PROVIDED',1),new THREE.Vector3(27.44,1.78,25.18),-Math.PI/2);
+  addWallPoster(world,makeMarketingPoster('music','PINEWOOD TOP 40','THE COUNTDOWN WALL','NEW CHART EVERY FRIDAY',2),new THREE.Vector3(19.10,1.78,31.44),Math.PI);
+
+  // Perimeter browsing only: enough full-height stock to sell the store, not enough to turn it into a maze.
+  for(const [x,z,r] of [
+    [11.52,22.55,Math.PI/2],[11.52,25.55,Math.PI/2],[11.52,28.55,Math.PI/2],
+    [16.25,30.48,Math.PI],[19.20,30.48,Math.PI],[22.15,30.48,Math.PI]
+  ])await addCassetteFullRack(world,x,z,r,{height:2.00,rows:4,cols:9,tag:'perimeter-rack-v14'});
+
+  // True low Kenney Furniture Kit fixtures create open sightlines through the center of the store.
+  for(const [x,z,r] of [
+    [15.35,23.75,0],[19.45,23.75,0],[17.35,27.10,Math.PI/2]
+  ])await addCassetteLowFixtureV14(world,x,z,r);
+
+  // One coherent three-seat listening bar replaces three isolated table islands.
+  await buildCassetteListeningBarV14(world);
+
+  // A full-size imported Kenney service counter makes checkout immediately readable from the aisle.
+  await buildCassetteCheckoutV14(world);
+
+  // Preserve the physical CC0 hiding cabinet and keep its interaction/collision model unchanged.
+  const cab=makeCabinet(new THREE.Vector3(25.85,0,30.25),Math.PI);world.root.add(cab);world.addCollider(25.85,30.25,.82,.46,{navBlock:true,owner:cab});world.interactables.push(cab);
+}`
+  );
+
+  const musicStart=source.indexOf('async function buildMusic(world){'),musicEnd=source.indexOf('\n\nfunction makeShutter(',musicStart);
+  if(musicStart<0||musicEnd<0)fail('final Cassette Castle section missing');
+  const music=source.slice(musicStart,musicEnd);
+  for(const required of [
+    'addCassetteStoreFinishV14(world)','addCassetteLowFixtureV14(world,x,z,r)','buildCassetteListeningBarV14(world)','buildCassetteCheckoutV14(world)',
+    "tag:'perimeter-rack-v14'","name:'CASSETTE CASTLE'","25.85,0,30.25"
+  ])if(!music.includes(required))fail('v14 layout marker missing: '+required);
+  for(const retired of ['addCassetteDoubleRackBay(world','dressGroundedListeningStation(world',"'marketShelfEnd'",'fallbackCassette','new THREE.TorusGeometry']){
+    if(music.includes(retired))fail('retired/cramped Cassette Castle builder content survived: '+retired);
+  }
+  for(const required of [
+    "cassetteShelfLow:`https://raw.githubusercontent.com/RetroDECK/RetroQUEST/dfa19a5602a31f64bd890d15279a61f43b127328/assets/kenney_furniture-kit/Models/GLTF%20format/bookcaseOpenLow.glb`",
+    "cassetteServiceCounter:`https://raw.githubusercontent.com/vinhelysia/godot-fps-cogito/1268440e90e370db6c3351ec4cd7429f3ca278b3/addons/cogito/Assets/Models/Kenney/SpaceInterior/GLTF%20format/KSI_counter.glb`",
+    'inCassetteCastle?.62:1'
+  ])if(!source.includes(required))fail('v14 runtime marker missing: '+required);
+  if(source.includes('cassetteShelfLarge:')||source.includes('cassetteShelfSmall:'))fail('banned Quaternius shelf resource returned');
+  return source;
+}
