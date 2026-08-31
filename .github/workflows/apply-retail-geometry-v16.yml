@@ -8,6 +8,7 @@ on:
       - 'scripts/apply-retail-geometry-v16.mjs'
       - 'scripts/fix-retail-v16-marker.mjs'
       - 'scripts/fix-retail-v16-audit.mjs'
+      - 'scripts/fix-retail-v16-low-fixture.mjs'
       - 'patches/retail-geometry-v16.js.txt'
       - 'scripts/audit-retail-geometry-v16.mjs'
   workflow_dispatch:
@@ -28,6 +29,8 @@ jobs:
           node-version: '22'
       - name: Fix Retail Geometry v16 marker
         run: node scripts/fix-retail-v16-marker.mjs
+      - name: Fix Retail Geometry v16 low fixture replacement
+        run: node scripts/fix-retail-v16-low-fixture.mjs
       - name: Fix Retail Geometry v16 audit boundaries
         run: node scripts/fix-retail-v16-audit.mjs
       - name: Wire Retail Geometry v16
