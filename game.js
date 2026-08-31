@@ -18,6 +18,7 @@ const FOUNTAIN_PATCH='./patches/fountain-rebuild-v8.js.txt';
 const CASSETTE_PATCH='./patches/cassette-castle-rebuild-v9.js.txt';
 const FOOD_PATCH='./patches/foodcourt-v3.js.txt';
 const POSTER_PATCH='./patches/poster-polish-v10.js.txt';
+const FOOTSTEP_PATCH='./patches/footstep-mix-v11.js.txt';
 
 async function getText(url){
   const r=await fetch(url,{cache:'no-store'});
@@ -92,6 +93,10 @@ async function applyPosterPolish(source,patchText){
   const patchUrl=URL.createObjectURL(new Blob([patchText+'\nexport { applyPosterPolishV10 };\n'],{type:'text/javascript'}));
   try{const mod=await import(patchUrl);if(typeof mod.applyPosterPolishV10!=='function')throw new Error('Poster Polish v10 patch did not export its patch function.');return mod.applyPosterPolishV10(source);}finally{URL.revokeObjectURL(patchUrl);}
 }
+async function applyFootstepMix(source,patchText){
+  const patchUrl=URL.createObjectURL(new Blob([patchText+'\nexport { applyFootstepMixV11 };\n'],{type:'text/javascript'}));
+  try{const mod=await import(patchUrl);if(typeof mod.applyFootstepMixV11!=='function')throw new Error('Footstep Mix v11 patch did not export its patch function.');return mod.applyFootstepMixV11(source);}finally{URL.revokeObjectURL(patchUrl);}
+}
 
 function replaceFoodCourt(source,replacement){
   const start=source.indexOf('async function buildFoodCourt(world){');
@@ -120,8 +125,8 @@ async function preflightThree(){
 
 try{
   await preflightThree();
-  const [base,worldPatch,industrialPatch,visualFixPatch,storePatch,systemsPatch,reliabilityPatch,statusPatch,audioPatch,elevatorPatch,fountainPatch,cassettePatch,foodPatch,posterPatch]=await Promise.all([
-    decodeSource(),getText(WORLD_PATCH),getText(INDUSTRIAL_PATCH),getText(VISUAL_FIX_PATCH),getText(STORE_PATCH),getText(SYSTEMS_PATCH),getText(RELIABILITY_PATCH),getText(STATUS_PATCH),getText(AUDIO_PATCH),getText(ELEVATOR_PATCH),getText(FOUNTAIN_PATCH),getText(CASSETTE_PATCH),getText(FOOD_PATCH),getText(POSTER_PATCH)
+  const [base,worldPatch,industrialPatch,visualFixPatch,storePatch,systemsPatch,reliabilityPatch,statusPatch,audioPatch,elevatorPatch,fountainPatch,cassettePatch,foodPatch,posterPatch,footstepPatch]=await Promise.all([
+    decodeSource(),getText(WORLD_PATCH),getText(INDUSTRIAL_PATCH),getText(VISUAL_FIX_PATCH),getText(STORE_PATCH),getText(SYSTEMS_PATCH),getText(RELIABILITY_PATCH),getText(STATUS_PATCH),getText(AUDIO_PATCH),getText(ELEVATOR_PATCH),getText(FOUNTAIN_PATCH),getText(CASSETTE_PATCH),getText(FOOD_PATCH),getText(POSTER_PATCH),getText(FOOTSTEP_PATCH)
   ]);
   const worldSource=await applyWorldProps(normalizeImports(base),worldPatch);
   const industrialSource=await applyIndustrialCc0(worldSource,industrialPatch);
@@ -136,7 +141,8 @@ try{
   const cassetteSource=await applyCassetteCastleRebuild(fountainSource,cassettePatch);
   const foodSource=replaceFoodCourt(cassetteSource,foodPatch);
   const posterSource=await applyPosterPolish(foodSource,posterPatch);
-  const source=posterSource+'\n//# sourceURL=pinewood-runtime.js\n';
+  const footstepSource=await applyFootstepMix(posterSource,footstepPatch);
+  const source=footstepSource+'\n//# sourceURL=pinewood-runtime.js\n';
   const moduleUrl=URL.createObjectURL(new Blob([source],{type:'text/javascript'}));
   try{await import(moduleUrl);}finally{URL.revokeObjectURL(moduleUrl);}
 }catch(err){
