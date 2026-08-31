@@ -44,10 +44,11 @@ async function decodeSource(){
 
 function normalizeImports(source){
   return source
-    .replace("import { GLTFLoader } from 'https://unpkg.com/three@0.180.0/examples/jsm/loaders/GLTFLoader.js';","import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';")
-    .replace("import { EffectComposer } from 'https://unpkg.com/three@0.180.0/examples/jsm/postprocessing/EffectComposer.js';","import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';")
-    .replace("import { RenderPass } from 'https://unpkg.com/three@0.180.0/examples/jsm/postprocessing/RenderPass.js';","import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';")
-    .replace("import { UnrealBloomPass } from 'https://unpkg.com/three@0.180.0/examples/jsm/postprocessing/UnrealBloomPass.js';","import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';");
+    .replace(/import \{ GLTFLoader \} from ['"][^'"]*\/GLTFLoader\.js['"];?/,'import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';')
+    .replace(/import \{ EffectComposer \} from ['"][^'"]*\/EffectComposer\.js['"];?/,'import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';')
+    .replace(/import \{ RenderPass \} from ['"][^'"]*\/RenderPass\.js['"];?/,'import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';')
+    .replace(/import \{ UnrealBloomPass \} from ['"][^'"]*\/UnrealBloomPass\.js['"];?/,'import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';');
+
 }
 
 async function applyWorldProps(source,patchText){

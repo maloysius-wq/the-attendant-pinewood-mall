@@ -6,6 +6,19 @@
 **Repository access rule:** **Always use the connected GitHub plugin/connector first for Pinewood repository work. Never claim access is unavailable before checking the GitHub plugin.**  
 **Source-of-truth rule:** Read `AGENTS.md` and this file first, then inspect the latest commits/current repository files. The repository and the user's newest explicit request override older chat history.
 
+## Permanent local-runtime-asset rule
+
+**NEVER use remote assets or remote browser libraries at runtime. ALWAYS download/vendor verified dependencies into this repository and serve them locally.** This is a permanent no-regression rule.
+
+- Models, GLTF/GLB buffers and model textures must be repository-local before use.
+- PBR/material textures, images and decals must be repository-local before use.
+- Sound effects, ambience and music must be repository-local before use.
+- Three.js, Pako and any future browser/runtime library must be pinned and served from this repository rather than a CDN.
+- External URLs are allowed only for provenance/documentation or development-time vendoring. They must never be browser fetch/load targets in the shipped game.
+- New third-party assets require verified licensing, a local vendored copy, source/pin/hash provenance, and an updated local-assets audit.
+- If an asset cannot be legally verified and vendored, omit it or choose another verified asset. Do not create a remote-runtime exception.
+- Do not restore the historical strategy of GitHub Raw/Poly Haven/OpenGameArt/CDN runtime URLs plus fallbacks.
+
 ---
 
 ## 1. Game direction
@@ -39,6 +52,7 @@ Use verified CC0 assets where suitable. Keep `LICENSES.md` and in-game attributi
 15. `patches/poster-diversity-v12.js.txt`
 16. `patches/cassette-castle-rebuild-v13.js.txt` (grounding/shelf-ban foundation)
 17. `patches/cassette-castle-rebuild-v14.js.txt` (**final authoritative Cassette Castle layout/finish override**)
+18. `patches/local-assets-v15.js.txt` (**final runtime asset localization layer; all media resolves to repository-local vendored files**)
 
 Patch order is intentional. Poster v10 runs after the Food Court replacement, v12 diversifies the final store posters, v13 establishes the permanent geometry-grounding and banned-shelf foundation, and v14 runs last to replace the v13 store layout with the final open-floor design while preserving those grounding rules.
 
@@ -402,6 +416,16 @@ Keep provenance pinned/documented when adding assets.
 
 ---
 
+### Local runtime assets — authoritative v15
+
+`patches/local-assets-v15.js.txt` runs after Cassette Castle v14 and rewrites the final assembled runtime to repository-local vendored media. `assets/vendor/runtime/manifest.json` is the authoritative source-to-local map and includes SHA-256 provenance. The migration currently vendors **59 top-level runtime media assets plus 30 dependent GLTF/model files**.
+
+Three.js **0.180.0** is served from `vendor/three/`; Pako **2.1.0** is served from `vendor/pako/`. The deployed import map and decompression fallback do not use unpkg or jsDelivr. Music that was formerly fetched from OpenGameArt is also served from the repository.
+
+`scripts/audit-local-assets-v15.mjs` hash-verifies the vendored asset graph, verifies local Three.js/Pako files, reconstructs the complete runtime through v15, rejects surviving external media URLs, and syntax-checks the final localized module. A runtime change is not complete unless this audit passes.
+
+The source/provenance URLs retained in `LICENSES.md`, the vendoring script, and the manifest are documentation/development-time inputs only. They are not runtime dependencies.
+
 ## 17. Development workflow
 
 For every future Pinewood runtime change:
@@ -461,4 +485,4 @@ The same capture also showed intermittent timeouts for `cassetteShelfWall` and t
 
 ## 19. Fresh-session restart prompt
 
-> Continue development of The Attendant: Pinewood Mall. **Use the GitHub plugin first for all repository work.** Use `maloysius-wq/the-attendant-pinewood-mall` as the source of truth. Read `AGENTS.md` and `DEVELOPMENT_HANDOFF.md` first, inspect the latest commits and relevant current files, preserve all documented no-regression constraints, implement directly in the repo, run the relevant runtime audits, inspect visual artifacts for visual changes, and verify GitHub Pages after game changes. Cassette Castle v14 is authoritative, while v13's permanent shelf ban and geometry-grounding rules remain mandatory. Never reintroduce the permanently banned Quaternius Shelf Large/Shelf Small resources. The next known reliability target is the set of stale/timing-out remote CC0 asset dependencies recorded in Section 18.
+> Continue development of The Attendant: Pinewood Mall. **Use the GitHub plugin first for all repository work.** Use `maloysius-wq/the-attendant-pinewood-mall` as the source of truth. Read `AGENTS.md` and `DEVELOPMENT_HANDOFF.md` first, inspect the latest commits and relevant current files, preserve all documented no-regression constraints, implement directly in the repo, run the relevant runtime audits, inspect visual artifacts for visual changes, and verify GitHub Pages after game changes. Cassette Castle v14 is authoritative, while v13's permanent shelf ban and geometry-grounding rules remain mandatory. Never reintroduce the permanently banned Quaternius Shelf Large/Shelf Small resources. **Never use remote runtime assets or CDN browser libraries: always verify, download/vendor, document, and serve them locally from this repository.** The next known reliability target is the set of stale/timing-out remote CC0 asset dependencies recorded in Section 18.

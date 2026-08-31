@@ -2,6 +2,14 @@
 
 All third-party visual and audio assets used by this build were selected because their source licensing could be verified as **Creative Commons Zero (CC0 1.0)** unless otherwise noted below.
 
+## Runtime storage policy — authoritative v15
+- **No third-party asset or browser library is loaded from an external host during play.** All runtime models, model dependencies, PBR textures, decals/images, sound effects, ambience, music, Three.js and Pako are served from this repository.
+- `assets/vendor/runtime/manifest.json` records original provenance, any verified replacement mirror used during development-time vendoring, the repository-local runtime path, byte count, SHA-256 digest, and dependent GLTF/model files.
+- The v15 migration currently contains **59 top-level runtime media assets plus 30 dependent files** discovered from the assembled v14 runtime.
+- External links elsewhere in this document are provenance/source references only. They are not browser runtime fetch targets.
+- The development-only vendoring pipeline is `scripts/vendor-runtime-assets.mjs`; `patches/local-assets-v15.js.txt` maps the final assembled browser runtime to pinned local copies; `scripts/audit-local-assets-v15.mjs` enforces the no-remote-runtime rule and verifies hashes.
+- Historical stale runtime mirrors were repaired with pinned verified equivalents: Kenney Factory Kit via `levinzonr/godot-asset-placer` commit `1dbf9fd782566780d6a6c52bd4197f448622f0aa`; Kenney Prototype Kit via `RetroDECK/RetroQUEST` commit `dfa19a5602a31f64bd890d15279a61f43b127328`; Poly Haven CC0 Book via `mgaralc/portfolio` commit `6a9da7106a598bb3962acea0c1158195c75a1fdb`; and the complete Poly Haven Cassette Player package via `QueenOfSquiggles/squiggle-pt` commit `deabff55b5df0b8989e58400bdf05de1c8e1eae1`.
+
 ## Kenney — Mini Arcade
 - Original source: https://kenney.nl/assets/mini-arcade
 - License: CC0 1.0
@@ -99,7 +107,7 @@ Poly Haven assets are released under CC0.
 - Grey Tiles: https://polyhaven.com/a/grey_tiles
   - Used for the recessed dry basin floor and inner basin surfaces of the Chapter 1 central fountain.
 - Cassette Player: https://polyhaven.com/a/cassette_player
-  - Runtime GLTF: `https://dl.polyhaven.org/file/ph-assets/Models/gltf/2k/cassette_player/cassette_player_2k.gltf`
+  - Original Poly Haven GLTF URL (provenance only): `https://dl.polyhaven.org/file/ph-assets/Models/gltf/2k/cassette_player/cassette_player_2k.gltf`
   - Used at Cassette Castle listening stations.
   - Cassette Castle v13 extracts the model's separately named cassette/tape component and clones that **actual model component** as retail stock and loose listening-station media; v14 keeps that grounding/stock system and changes the store layout around it.
   - v13/v14 anchor those cassette clones to measured fixture support surfaces instead of hard-coded world-Y positions.
@@ -111,6 +119,12 @@ The game requests the 1K JPG diffuse, OpenGL normal and roughness maps directly 
 - https://threejs.org/
 - MIT License
 - Runtime version pinned to 0.180.0.
+- Served locally from `vendor/three/`; the deployed game does not load Three.js from unpkg or jsDelivr.
+
+## Pako
+- Source: https://github.com/nodeca/pako
+- MIT License.
+- Runtime version pinned to 2.1.0 and served locally from `vendor/pako/pako.esm.mjs`; jsDelivr is not a runtime dependency.
 
 ## CC0 sound effects and ambience
 
@@ -199,12 +213,12 @@ Pinewood's named storefront signs are generated locally because their lettering 
 - Author: SkyleTheFrench
 - Original source: https://opengameart.org/content/furniture-shop
 - License: CC0 1.0
-- Runtime loop: `https://opengameart.org/sites/default/files/furniture_shop_loop.ogg`
+- Original source-file URL (provenance only; runtime copy is vendored locally): `https://opengameart.org/sites/default/files/furniture_shop_loop.ogg`
 - Used as the looping retail/mall music bed. It is faded down as The Attendant approaches and intentionally warped at runtime with half-speed playback, delayed echo copies, and intermittent detune drift.
 
 ### Attendant proximity music — Insistent: background loop
 - Author: yd
 - Original source: https://opengameart.org/content/insistent-background-loop
 - License: CC0 1.0
-- Runtime loop: `https://lpc.opengameart.org/sites/default/files/Insistent.ogg`
+- Original source-file URL (provenance only; runtime copy is vendored locally): `https://lpc.opengameart.org/sites/default/files/Insistent.ogg`
 - Used as the darker threat layer. It fades in progressively with The Attendant's navigation-distance proximity while the mall loop recedes.

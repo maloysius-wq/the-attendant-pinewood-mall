@@ -1,7 +1,7 @@
 {
   "version": 15,
   "generatedFrom": "assembled-v14-runtime",
-  "policy": "All runtime media is served locally. Source URLs are provenance/development-time inputs only.",
+  "policy": "All runtime media and browser libraries are served from this repository. External URLs in this manifest are provenance/development-time vendoring inputs only and are never browser runtime targets.",
   "assets": {
     "https://dl.polyhaven.org/file/ph-assets/Models/gltf/2k/cassette_player/cassette_player_2k.gltf": {
       "local": "./assets/vendor/runtime/4ffc4e5e21b687d6/cassette_player_2k.gltf",
@@ -12,49 +12,49 @@
         {
           "uri": "cassette_player.bin",
           "source": "https://raw.githubusercontent.com/QueenOfSquiggles/squiggle-pt/deabff55b5df0b8989e58400bdf05de1c8e1eae1/Game/Assets/Models/Decoration/cassette_player.bin",
-          "local": ".//home/runner/work/the-attendant-pinewood-mall/the-attendant-pinewood-mall/assets/vendor/runtime/4ffc4e5e21b687d6/cassette_player.bin",
+          "local": "./assets/vendor/runtime/4ffc4e5e21b687d6/cassette_player.bin",
           "sha256": "5ebf8d2361d54fa9640b50c28f38a516135a39e0030e513a8cd3fd3096b335f8",
           "bytes": 147476
         },
         {
           "uri": "textures/cassette_player_body_nor_gl_2k.jpg",
           "source": "https://raw.githubusercontent.com/QueenOfSquiggles/squiggle-pt/deabff55b5df0b8989e58400bdf05de1c8e1eae1/Game/Assets/Models/Decoration/textures/cassette_player_body_nor_gl_2k.jpg",
-          "local": ".//home/runner/work/the-attendant-pinewood-mall/the-attendant-pinewood-mall/assets/vendor/runtime/4ffc4e5e21b687d6/textures/cassette_player_body_nor_gl_2k.jpg",
+          "local": "./assets/vendor/runtime/4ffc4e5e21b687d6/textures/cassette_player_body_nor_gl_2k.jpg",
           "sha256": "f0800b44ba1db32d4ee38cbfd860d6f9568780ca8ee7f82c6c2ee0d546739705",
           "bytes": 399091
         },
         {
           "uri": "textures/cassette_player_body_diff_2k.jpg",
           "source": "https://raw.githubusercontent.com/QueenOfSquiggles/squiggle-pt/deabff55b5df0b8989e58400bdf05de1c8e1eae1/Game/Assets/Models/Decoration/textures/cassette_player_body_diff_2k.jpg",
-          "local": ".//home/runner/work/the-attendant-pinewood-mall/the-attendant-pinewood-mall/assets/vendor/runtime/4ffc4e5e21b687d6/textures/cassette_player_body_diff_2k.jpg",
+          "local": "./assets/vendor/runtime/4ffc4e5e21b687d6/textures/cassette_player_body_diff_2k.jpg",
           "sha256": "fcbc01c9e943cf213b07716dfa4d02ac8a1f5184ed47a6ec8a55930305f70767",
           "bytes": 371331
         },
         {
           "uri": "textures/cassette_player_body_arm_2k.jpg",
           "source": "https://raw.githubusercontent.com/QueenOfSquiggles/squiggle-pt/deabff55b5df0b8989e58400bdf05de1c8e1eae1/Game/Assets/Models/Decoration/textures/cassette_player_body_arm_2k.jpg",
-          "local": ".//home/runner/work/the-attendant-pinewood-mall/the-attendant-pinewood-mall/assets/vendor/runtime/4ffc4e5e21b687d6/textures/cassette_player_body_arm_2k.jpg",
+          "local": "./assets/vendor/runtime/4ffc4e5e21b687d6/textures/cassette_player_body_arm_2k.jpg",
           "sha256": "fdb8bfff859c022f0f7ececb0a676a2101c0dfdda459d70ffce199a6288cb826",
           "bytes": 594696
         },
         {
           "uri": "textures/cassette_player_tape_nor_gl_2k.jpg",
           "source": "https://raw.githubusercontent.com/QueenOfSquiggles/squiggle-pt/deabff55b5df0b8989e58400bdf05de1c8e1eae1/Game/Assets/Models/Decoration/textures/cassette_player_tape_nor_gl_2k.jpg",
-          "local": ".//home/runner/work/the-attendant-pinewood-mall/the-attendant-pinewood-mall/assets/vendor/runtime/4ffc4e5e21b687d6/textures/cassette_player_tape_nor_gl_2k.jpg",
+          "local": "./assets/vendor/runtime/4ffc4e5e21b687d6/textures/cassette_player_tape_nor_gl_2k.jpg",
           "sha256": "0fa2b242b65d994cdd94c11692843f2902d35139540f01b5e622c972b8975b11",
           "bytes": 331736
         },
         {
           "uri": "textures/cassette_player_tape_orangeblue_diff_2k.jpg",
           "source": "https://raw.githubusercontent.com/QueenOfSquiggles/squiggle-pt/deabff55b5df0b8989e58400bdf05de1c8e1eae1/Game/Assets/Models/Decoration/textures/cassette_player_tape_orangeblue_diff_2k.jpg",
-          "local": ".//home/runner/work/the-attendant-pinewood-mall/the-attendant-pinewood-mall/assets/vendor/runtime/4ffc4e5e21b687d6/textures/cassette_player_tape_orangeblue_diff_2k.jpg",
+          "local": "./assets/vendor/runtime/4ffc4e5e21b687d6/textures/cassette_player_tape_orangeblue_diff_2k.jpg",
           "sha256": "f2b84e0a056662975e0c5abb0ef081a0f9a3391da91f6c2ad1d62b62e50d8388",
           "bytes": 436178
         },
         {
           "uri": "textures/cassette_player_tape_arm_2k.jpg",
           "source": "https://raw.githubusercontent.com/QueenOfSquiggles/squiggle-pt/deabff55b5df0b8989e58400bdf05de1c8e1eae1/Game/Assets/Models/Decoration/textures/cassette_player_tape_arm_2k.jpg",
-          "local": ".//home/runner/work/the-attendant-pinewood-mall/the-attendant-pinewood-mall/assets/vendor/runtime/4ffc4e5e21b687d6/textures/cassette_player_tape_arm_2k.jpg",
+          "local": "./assets/vendor/runtime/4ffc4e5e21b687d6/textures/cassette_player_tape_arm_2k.jpg",
           "sha256": "af86af4ccc3bed8586d2cfbc0f2ec9dda6c248bb10e2d9db59e56ca060c9c97d",
           "bytes": 308284
         }
@@ -209,7 +209,7 @@
         {
           "uri": "Textures/colormap.png",
           "source": "https://raw.githubusercontent.com/AkiraNim/CLTCrossing/6fe4cd6dcb6fbfa4267d3b9971c0968e0fe375b6/CltCrossingv2/assets/kenney_food-kit/Textures/colormap.png",
-          "local": ".//home/runner/work/the-attendant-pinewood-mall/the-attendant-pinewood-mall/assets/vendor/runtime/f576c2b30a9defad/Textures/colormap.png",
+          "local": "./assets/vendor/runtime/f576c2b30a9defad/Textures/colormap.png",
           "sha256": "75baf74d9483a0fc56ac21ceba346fbe16fc24a2a1bf0524c53e6bbe802e1153",
           "bytes": 10715
         }
@@ -224,7 +224,7 @@
         {
           "uri": "Textures/colormap.png",
           "source": "https://raw.githubusercontent.com/AkiraNim/CLTCrossing/6fe4cd6dcb6fbfa4267d3b9971c0968e0fe375b6/CltCrossingv2/assets/kenney_food-kit/Textures/colormap.png",
-          "local": ".//home/runner/work/the-attendant-pinewood-mall/the-attendant-pinewood-mall/assets/vendor/runtime/6a62ba711ba90736/Textures/colormap.png",
+          "local": "./assets/vendor/runtime/6a62ba711ba90736/Textures/colormap.png",
           "sha256": "75baf74d9483a0fc56ac21ceba346fbe16fc24a2a1bf0524c53e6bbe802e1153",
           "bytes": 10715
         }
@@ -239,7 +239,7 @@
         {
           "uri": "Textures/colormap.png",
           "source": "https://raw.githubusercontent.com/AkiraNim/CLTCrossing/6fe4cd6dcb6fbfa4267d3b9971c0968e0fe375b6/CltCrossingv2/assets/kenney_food-kit/Textures/colormap.png",
-          "local": ".//home/runner/work/the-attendant-pinewood-mall/the-attendant-pinewood-mall/assets/vendor/runtime/e5871842f77a9579/Textures/colormap.png",
+          "local": "./assets/vendor/runtime/e5871842f77a9579/Textures/colormap.png",
           "sha256": "75baf74d9483a0fc56ac21ceba346fbe16fc24a2a1bf0524c53e6bbe802e1153",
           "bytes": 10715
         }
@@ -254,7 +254,7 @@
         {
           "uri": "Textures/colormap.png",
           "source": "https://raw.githubusercontent.com/AkiraNim/CLTCrossing/6fe4cd6dcb6fbfa4267d3b9971c0968e0fe375b6/CltCrossingv2/assets/kenney_mini-market/Textures/colormap.png",
-          "local": ".//home/runner/work/the-attendant-pinewood-mall/the-attendant-pinewood-mall/assets/vendor/runtime/f3f6deadb9c00f1d/Textures/colormap.png",
+          "local": "./assets/vendor/runtime/f3f6deadb9c00f1d/Textures/colormap.png",
           "sha256": "0d4947d34ff32acf4a359c7f22ca784e057e7e72f622170a9a77b6fc88fdb70e",
           "bytes": 8706
         }
@@ -269,7 +269,7 @@
         {
           "uri": "Textures/colormap.png",
           "source": "https://raw.githubusercontent.com/AkiraNim/CLTCrossing/6fe4cd6dcb6fbfa4267d3b9971c0968e0fe375b6/CltCrossingv2/assets/kenney_mini-market/Textures/colormap.png",
-          "local": ".//home/runner/work/the-attendant-pinewood-mall/the-attendant-pinewood-mall/assets/vendor/runtime/ae505c72620ea098/Textures/colormap.png",
+          "local": "./assets/vendor/runtime/ae505c72620ea098/Textures/colormap.png",
           "sha256": "0d4947d34ff32acf4a359c7f22ca784e057e7e72f622170a9a77b6fc88fdb70e",
           "bytes": 8706
         }
@@ -284,7 +284,7 @@
         {
           "uri": "Textures/colormap.png",
           "source": "https://raw.githubusercontent.com/AkiraNim/CLTCrossing/6fe4cd6dcb6fbfa4267d3b9971c0968e0fe375b6/CltCrossingv2/assets/kenney_mini-market/Textures/colormap.png",
-          "local": ".//home/runner/work/the-attendant-pinewood-mall/the-attendant-pinewood-mall/assets/vendor/runtime/adc61ee73dd7c6a3/Textures/colormap.png",
+          "local": "./assets/vendor/runtime/adc61ee73dd7c6a3/Textures/colormap.png",
           "sha256": "0d4947d34ff32acf4a359c7f22ca784e057e7e72f622170a9a77b6fc88fdb70e",
           "bytes": 8706
         }
@@ -299,7 +299,7 @@
         {
           "uri": "Textures/colormap.png",
           "source": "https://raw.githubusercontent.com/AkiraNim/CLTCrossing/6fe4cd6dcb6fbfa4267d3b9971c0968e0fe375b6/CltCrossingv2/assets/kenney_mini-market/Textures/colormap.png",
-          "local": ".//home/runner/work/the-attendant-pinewood-mall/the-attendant-pinewood-mall/assets/vendor/runtime/9c7d6caba6716ec2/Textures/colormap.png",
+          "local": "./assets/vendor/runtime/9c7d6caba6716ec2/Textures/colormap.png",
           "sha256": "0d4947d34ff32acf4a359c7f22ca784e057e7e72f622170a9a77b6fc88fdb70e",
           "bytes": 8706
         }
@@ -314,7 +314,7 @@
         {
           "uri": "Textures/colormap.png",
           "source": "https://raw.githubusercontent.com/AkiraNim/CLTCrossing/6fe4cd6dcb6fbfa4267d3b9971c0968e0fe375b6/CltCrossingv2/assets/kenney_mini-market/Textures/colormap.png",
-          "local": ".//home/runner/work/the-attendant-pinewood-mall/the-attendant-pinewood-mall/assets/vendor/runtime/bf7012451967bc2f/Textures/colormap.png",
+          "local": "./assets/vendor/runtime/bf7012451967bc2f/Textures/colormap.png",
           "sha256": "0d4947d34ff32acf4a359c7f22ca784e057e7e72f622170a9a77b6fc88fdb70e",
           "bytes": 8706
         }
@@ -329,7 +329,7 @@
         {
           "uri": "Textures/colormap.png",
           "source": "https://raw.githubusercontent.com/AkiraNim/CLTCrossing/6fe4cd6dcb6fbfa4267d3b9971c0968e0fe375b6/CltCrossingv2/assets/kenney_mini-market/Textures/colormap.png",
-          "local": ".//home/runner/work/the-attendant-pinewood-mall/the-attendant-pinewood-mall/assets/vendor/runtime/172e2f2a5fd2a532/Textures/colormap.png",
+          "local": "./assets/vendor/runtime/172e2f2a5fd2a532/Textures/colormap.png",
           "sha256": "0d4947d34ff32acf4a359c7f22ca784e057e7e72f622170a9a77b6fc88fdb70e",
           "bytes": 8706
         }
@@ -344,7 +344,7 @@
         {
           "uri": "Textures/colormap.png",
           "source": "https://raw.githubusercontent.com/AkiraNim/CLTCrossing/6fe4cd6dcb6fbfa4267d3b9971c0968e0fe375b6/CltCrossingv2/assets/kenney_mini-market/Textures/colormap.png",
-          "local": ".//home/runner/work/the-attendant-pinewood-mall/the-attendant-pinewood-mall/assets/vendor/runtime/ee0a5e35538d2884/Textures/colormap.png",
+          "local": "./assets/vendor/runtime/ee0a5e35538d2884/Textures/colormap.png",
           "sha256": "0d4947d34ff32acf4a359c7f22ca784e057e7e72f622170a9a77b6fc88fdb70e",
           "bytes": 8706
         }
@@ -380,7 +380,7 @@
         {
           "uri": "Textures/colormap.png",
           "source": "https://raw.githubusercontent.com/levinzonr/godot-asset-placer/1dbf9fd782566780d6a6c52bd4197f448622f0aa/demo/assets/kenney_factory_kit/GLB%20format/Textures/colormap.png",
-          "local": ".//home/runner/work/the-attendant-pinewood-mall/the-attendant-pinewood-mall/assets/vendor/runtime/4e69be78f143a332/Textures/colormap.png",
+          "local": "./assets/vendor/runtime/4e69be78f143a332/Textures/colormap.png",
           "sha256": "35d7bd6900dde0208429eeaec87fa17fbf024ed59f3f4eab54bc92802eba9dd7",
           "bytes": 11813
         }
@@ -395,7 +395,7 @@
         {
           "uri": "Textures/colormap.png",
           "source": "https://raw.githubusercontent.com/levinzonr/godot-asset-placer/1dbf9fd782566780d6a6c52bd4197f448622f0aa/demo/assets/kenney_factory_kit/GLB%20format/Textures/colormap.png",
-          "local": ".//home/runner/work/the-attendant-pinewood-mall/the-attendant-pinewood-mall/assets/vendor/runtime/7b86905395f96aa7/Textures/colormap.png",
+          "local": "./assets/vendor/runtime/7b86905395f96aa7/Textures/colormap.png",
           "sha256": "35d7bd6900dde0208429eeaec87fa17fbf024ed59f3f4eab54bc92802eba9dd7",
           "bytes": 11813
         }
@@ -410,7 +410,7 @@
         {
           "uri": "Textures/colormap.png",
           "source": "https://raw.githubusercontent.com/levinzonr/godot-asset-placer/1dbf9fd782566780d6a6c52bd4197f448622f0aa/demo/assets/kenney_factory_kit/GLB%20format/Textures/colormap.png",
-          "local": ".//home/runner/work/the-attendant-pinewood-mall/the-attendant-pinewood-mall/assets/vendor/runtime/398aecafb7b7882b/Textures/colormap.png",
+          "local": "./assets/vendor/runtime/398aecafb7b7882b/Textures/colormap.png",
           "sha256": "35d7bd6900dde0208429eeaec87fa17fbf024ed59f3f4eab54bc92802eba9dd7",
           "bytes": 11813
         }
@@ -425,7 +425,7 @@
         {
           "uri": "Textures/colormap.png",
           "source": "https://raw.githubusercontent.com/levinzonr/godot-asset-placer/1dbf9fd782566780d6a6c52bd4197f448622f0aa/demo/assets/kenney_factory_kit/GLB%20format/Textures/colormap.png",
-          "local": ".//home/runner/work/the-attendant-pinewood-mall/the-attendant-pinewood-mall/assets/vendor/runtime/67fae2655401a093/Textures/colormap.png",
+          "local": "./assets/vendor/runtime/67fae2655401a093/Textures/colormap.png",
           "sha256": "35d7bd6900dde0208429eeaec87fa17fbf024ed59f3f4eab54bc92802eba9dd7",
           "bytes": 11813
         }
@@ -440,7 +440,7 @@
         {
           "uri": "Textures/colormap.png",
           "source": "https://raw.githubusercontent.com/levinzonr/godot-asset-placer/1dbf9fd782566780d6a6c52bd4197f448622f0aa/demo/assets/kenney_factory_kit/GLB%20format/Textures/colormap.png",
-          "local": ".//home/runner/work/the-attendant-pinewood-mall/the-attendant-pinewood-mall/assets/vendor/runtime/15d58f77f28b6ea3/Textures/colormap.png",
+          "local": "./assets/vendor/runtime/15d58f77f28b6ea3/Textures/colormap.png",
           "sha256": "35d7bd6900dde0208429eeaec87fa17fbf024ed59f3f4eab54bc92802eba9dd7",
           "bytes": 11813
         }
@@ -455,7 +455,7 @@
         {
           "uri": "Textures/colormap.png",
           "source": "https://raw.githubusercontent.com/chrisizeful/Gizmo3D/4cdc78b42d22bb29854ca54c85e1a02dec033c20/kenney_mini_dungeon/Textures/colormap.png",
-          "local": ".//home/runner/work/the-attendant-pinewood-mall/the-attendant-pinewood-mall/assets/vendor/runtime/6b21e283dba6199b/Textures/colormap.png",
+          "local": "./assets/vendor/runtime/6b21e283dba6199b/Textures/colormap.png",
           "sha256": "2064aee681d8ba71ea1ff23af0f6ce6ca4afc7b158325d2e8bdc4709c998d05e",
           "bytes": 8308
         }
@@ -477,7 +477,7 @@
         {
           "uri": "Textures/colormap.png",
           "source": "https://raw.githubusercontent.com/RetroDECK/RetroQUEST/dfa19a5602a31f64bd890d15279a61f43b127328/assets/kenney_prototype-kit/Models/GLB%20format/Textures/colormap.png",
-          "local": ".//home/runner/work/the-attendant-pinewood-mall/the-attendant-pinewood-mall/assets/vendor/runtime/ccab3241ed7a1fef/Textures/colormap.png",
+          "local": "./assets/vendor/runtime/ccab3241ed7a1fef/Textures/colormap.png",
           "sha256": "0d4947d34ff32acf4a359c7f22ca784e057e7e72f622170a9a77b6fc88fdb70e",
           "bytes": 8706
         }
@@ -499,7 +499,7 @@
         {
           "uri": "Textures/colormap.png",
           "source": "https://raw.githubusercontent.com/KenneyNL/Starter-Kit-City-Builder/4535092b740b378b700efd9df9e27a631815b84a/models/Textures/colormap.png",
-          "local": ".//home/runner/work/the-attendant-pinewood-mall/the-attendant-pinewood-mall/assets/vendor/runtime/8cefa5be6dbaf538/Textures/colormap.png",
+          "local": "./assets/vendor/runtime/8cefa5be6dbaf538/Textures/colormap.png",
           "sha256": "106cf02e0d6dccded6d9f90c2ae6a51eb94c6301645fea159e834c44ed4708a3",
           "bytes": 10108
         }
@@ -556,7 +556,7 @@
         {
           "uri": "Textures/colormap.png",
           "source": "https://raw.githubusercontent.com/RetroDECK/RetroQUEST/dfa19a5602a31f64bd890d15279a61f43b127328/assets/kenney_mini-arcade/Models/GLB%20format/Textures/colormap.png",
-          "local": ".//home/runner/work/the-attendant-pinewood-mall/the-attendant-pinewood-mall/assets/vendor/runtime/8fcc6eb8e8f17912/Textures/colormap.png",
+          "local": "./assets/vendor/runtime/8fcc6eb8e8f17912/Textures/colormap.png",
           "sha256": "0d4947d34ff32acf4a359c7f22ca784e057e7e72f622170a9a77b6fc88fdb70e",
           "bytes": 8706
         }
@@ -571,7 +571,7 @@
         {
           "uri": "Textures/colormap.png",
           "source": "https://raw.githubusercontent.com/RetroDECK/RetroQUEST/dfa19a5602a31f64bd890d15279a61f43b127328/assets/kenney_mini-arcade/Models/GLB%20format/Textures/colormap.png",
-          "local": ".//home/runner/work/the-attendant-pinewood-mall/the-attendant-pinewood-mall/assets/vendor/runtime/5b4443e3640efa71/Textures/colormap.png",
+          "local": "./assets/vendor/runtime/5b4443e3640efa71/Textures/colormap.png",
           "sha256": "0d4947d34ff32acf4a359c7f22ca784e057e7e72f622170a9a77b6fc88fdb70e",
           "bytes": 8706
         }
@@ -586,7 +586,7 @@
         {
           "uri": "Textures/colormap.png",
           "source": "https://raw.githubusercontent.com/RetroDECK/RetroQUEST/dfa19a5602a31f64bd890d15279a61f43b127328/assets/kenney_mini-arcade/Models/GLB%20format/Textures/colormap.png",
-          "local": ".//home/runner/work/the-attendant-pinewood-mall/the-attendant-pinewood-mall/assets/vendor/runtime/27d4b43c5e16d9ea/Textures/colormap.png",
+          "local": "./assets/vendor/runtime/27d4b43c5e16d9ea/Textures/colormap.png",
           "sha256": "0d4947d34ff32acf4a359c7f22ca784e057e7e72f622170a9a77b6fc88fdb70e",
           "bytes": 8706
         }
@@ -601,7 +601,7 @@
         {
           "uri": "Textures/colormap.png",
           "source": "https://raw.githubusercontent.com/RetroDECK/RetroQUEST/dfa19a5602a31f64bd890d15279a61f43b127328/assets/kenney_mini-arcade/Models/GLB%20format/Textures/colormap.png",
-          "local": ".//home/runner/work/the-attendant-pinewood-mall/the-attendant-pinewood-mall/assets/vendor/runtime/6aeac44b7c9c0f17/Textures/colormap.png",
+          "local": "./assets/vendor/runtime/6aeac44b7c9c0f17/Textures/colormap.png",
           "sha256": "0d4947d34ff32acf4a359c7f22ca784e057e7e72f622170a9a77b6fc88fdb70e",
           "bytes": 8706
         }
@@ -616,7 +616,7 @@
         {
           "uri": "Textures/colormap.png",
           "source": "https://raw.githubusercontent.com/RetroDECK/RetroQUEST/dfa19a5602a31f64bd890d15279a61f43b127328/assets/kenney_mini-arcade/Models/GLB%20format/Textures/colormap.png",
-          "local": ".//home/runner/work/the-attendant-pinewood-mall/the-attendant-pinewood-mall/assets/vendor/runtime/8023a1e257e42500/Textures/colormap.png",
+          "local": "./assets/vendor/runtime/8023a1e257e42500/Textures/colormap.png",
           "sha256": "0d4947d34ff32acf4a359c7f22ca784e057e7e72f622170a9a77b6fc88fdb70e",
           "bytes": 8706
         }
