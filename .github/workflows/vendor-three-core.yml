@@ -38,3 +38,5 @@ jobs:
           fi
           git commit -m "Vendor Three.js r180 core dependency"
           git push origin HEAD:main
+
+# This workflow is intentionally one-shot and will be removed after vendoring succeeds.
