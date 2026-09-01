@@ -7,7 +7,6 @@ on:
       - 'scripts/vendor-runtime-assets.mjs'
       - 'scripts/apply-local-runtime-v15.mjs'
       - 'scripts/finalize-local-assets-v15-fixed.mjs'
-      - 'scripts/patch-cassette-audits-v15.mjs'
       - 'scripts/sanitize-loader-v15.mjs'
       - 'scripts/apply-retail-hotfix-v16.mjs'
       - 'patches/local-assets-v15.js.txt'
@@ -45,8 +44,6 @@ jobs:
         run: node scripts/sanitize-loader-v15.mjs
       - name: Normalize manifest and document permanent policy
         run: node scripts/finalize-local-assets-v15-fixed.mjs
-      - name: Update inherited Cassette Castle audit handoff
-        run: node scripts/patch-cassette-audits-v15.mjs
       - name: Apply Retail Geometry v16 reliability hotfix
         run: node scripts/apply-retail-hotfix-v16.mjs
       - name: Validate localized loader syntax
@@ -55,7 +52,7 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add -f assets/vendor/runtime vendor/three vendor/pako game.js index.html DEVELOPMENT_HANDOFF.md LICENSES.md scripts/audit-cassette-castle-v13.mjs scripts/audit-cassette-castle-v14.mjs patches/retail-geometry-v16.js.txt scripts/audit-retail-geometry-v16.mjs scripts/capture-store-visuals.mjs
+          git add -f assets/vendor/runtime vendor/three vendor/pako game.js index.html DEVELOPMENT_HANDOFF.md LICENSES.md patches/retail-geometry-v16.js.txt scripts/audit-retail-geometry-v16.mjs scripts/capture-store-visuals.mjs
           if git diff --cached --quiet; then
             echo "Vendored, localized, and retail-hotfixed runtime files are already current."
             exit 0
