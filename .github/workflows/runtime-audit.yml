@@ -63,4 +63,4 @@ jobs:
       - name: Validate retail geometry v16
         run: node scripts/audit-retail-geometry-v16.mjs
 
-# Verification trigger: retail geometry v16 deep-dive gate
+# Verification trigger: clean elevator leaves + cached cassette shelves
