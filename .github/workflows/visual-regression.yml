@@ -54,4 +54,4 @@ jobs:
           if-no-files-found: warn
           retention-days: 14
 
-# Verification trigger: clean elevator leaves + cached cassette shelves
+# Verification trigger: repaired browser boot with pinned Three.js core
