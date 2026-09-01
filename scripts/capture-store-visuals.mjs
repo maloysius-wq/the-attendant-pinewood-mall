@@ -9,7 +9,9 @@ const report={base,views:{},failed:false};
 try{
   for(const view of views){
     const page=await browser.newPage({viewport:{width:1280,height:720},deviceScaleFactor:1});
-    const consoleMessages=[];
+    const consoleMessages=[],remoteRequests=[];
+    const allowedOrigin=new URL(base).origin;
+    page.on('request',request=>{try{const u=new URL(request.url());if((u.protocol==='http:'||u.protocol==='https:')&&u.origin!==allowedOrigin)remoteRequests.push(request.url());}catch{}});
     page.on('console',msg=>consoleMessages.push({type:msg.type(),text:msg.text()}));
     page.on('pageerror',err=>consoleMessages.push({type:'pageerror',text:err.stack||err.message}));
     const url=new URL(base);url.searchParams.set('visualTest',view);
@@ -20,13 +22,15 @@ try{
       const info=await page.evaluate(()=>window.__PINEWOOD_VISUAL_INFO__||null);
       const failureText=await page.locator('#assetStatus').textContent().catch(()=>null);
       await page.screenshot({path:`visual-artifacts/${view}.png`,fullPage:true});
-      report.views[view]={ok:true,info,failureText,consoleMessages};
+      const uniqueRemote=[...new Set(remoteRequests)];
+      if(uniqueRemote.length)report.failed=true;
+      report.views[view]={ok:uniqueRemote.length===0,info,failureText,consoleMessages,remoteRequests:uniqueRemote};
     }catch(err){
       report.failed=true;
       const failureText=await page.locator('#assetStatus').textContent().catch(()=>null);
       const bodyText=await page.locator('body').innerText().catch(()=>null);
       await page.screenshot({path:`visual-artifacts/${view}-failure.png`,fullPage:true}).catch(()=>{});
-      report.views[view]={ok:false,error:err.stack||String(err),failureText,bodyText,consoleMessages};
+      report.views[view]={ok:false,error:err.stack||String(err),failureText,bodyText,consoleMessages,remoteRequests:[...new Set(remoteRequests)]};
     }finally{await page.close();}
   }
 }finally{await browser.close();}

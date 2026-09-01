@@ -58,6 +58,9 @@ const manifest=JSON.parse(await readFile('assets/vendor/runtime/manifest.json','
 source=(await loadPatch('patches/local-assets-v15.js.txt','applyLocalAssetsV15'))(source,manifest);
 source=(await loadPatch('patches/retail-geometry-v16.js.txt','applyRetailGeometryV16'))(source);
 
+const shelfCache=section(source,'const cassetteShelfModelPromisesV16=new Map();','\nasync function placeCassetteOnSurface(','cassette shelf cache');
+for(const marker of ["assets.model(name)","prototype.clone(true)","name==='cassetteShelfWall'||name==='cassetteShelfLow'"])if(!shelfCache.includes(marker))fail('cassette shelf one-load cache marker missing: '+marker);
+
 const stock=section(source,'async function stockCassetteFixture(','\nasync function addCassetteFullRack(','cassette stock');
 for(const marker of ['cassette-case-stock-v16','cassette-case-spines-v16','organized-case-stock-v16','new THREE.InstancedMesh','cassetteShelfLevels(fixture,rows)'])if(!stock.includes(marker))fail('organized cassette-case marker missing: '+marker);
 if(stock.includes('getCassetteTapeTemplate()')||stock.includes('addAnchoredCassette('))fail('loose tape component still used as shelf stock');
@@ -85,7 +88,8 @@ if(source.includes("placeCassetteGrounded(world.root,'cassetteServiceCounter',ne
 const elevator=section(source,"function makeExitElevator(pos,face='west'){",'\n\nasync function decorateLevel','elevator');
 for(const marker of [
   'left.position.set(0,0,closedL);right.position.set(0,0,closedR)',
-  "new THREE.Vector3(.09,2.80,.92),new THREE.Vector3(0,1.40,0)",
+  "attachElevatorPiece(left,'elevatorWall',new THREE.Vector3(.09,2.80,.92)",
+  "attachElevatorPiece(right,'elevatorWall',new THREE.Vector3(.09,2.80,.92)",
   "new THREE.Vector3(2.10,.085,1.88),new THREE.Vector3(1.12,2.80,0)",
   "new THREE.Vector3(.10,2.76,1.88),new THREE.Vector3(2.17,1.38,0)"
 ])if(!elevator.includes(marker))fail('elevator centering/full-height marker missing: '+marker);
@@ -97,4 +101,4 @@ for(const protectedMarker of [
 const externalMedia=(source.match(/https:\/\/[^'"`\\s)]+\.(?:glb|gltf|bin|png|jpe?g|webp|ogg|mp3|wav)(?:[?#][^'"`\\s)]*)?/gi)||[]);
 if(externalMedia.length)fail('external runtime media URL survived v16: '+[...new Set(externalMedia)].join(', '));
 await syntaxCheck(source);
-console.log('Retail Geometry v16 PASS: cassette stock is organized upright in cases, full/low cassette fixtures are matte black, Cassette wall overlays no longer cover posters, all retail checkouts use the Food Court counter design, the elevator facade/leaves are centered and full-height, protected navigation/audio/local-assets invariants survive, and final runtime syntax is valid.');
+console.log('Retail Geometry v16 PASS: cassette stock is organized upright in cases, shelf models load once and clone reliably, full/low cassette fixtures are matte black, Cassette wall overlays no longer cover posters, all retail checkouts use the Food Court counter design, elevator leaves use clean imported Kenney Factory panels rather than the warped half-door mesh, protected navigation/audio/local-assets invariants survive, and final runtime syntax is valid.');
