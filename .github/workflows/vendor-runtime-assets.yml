@@ -34,8 +34,10 @@ jobs:
           rm -rf vendor/three vendor/pako
           mkdir -p vendor/three/build vendor/three/examples vendor/pako
           cp node_modules/three/build/three.module.js vendor/three/build/three.module.js
+          cp node_modules/three/build/three.core.js vendor/three/build/three.core.js
           cp -R node_modules/three/examples/jsm vendor/three/examples/jsm
           cp node_modules/pako/dist/pako.esm.mjs vendor/pako/pako.esm.mjs
+          test "$(git hash-object vendor/three/build/three.core.js)" = "7dcd0fbcbc04b8d9a20ecb96c1ce344cb55150d5"
       - name: Discover and vendor final runtime media
         run: node scripts/vendor-runtime-assets.mjs
       - name: Wire local runtime v15
@@ -57,6 +59,6 @@ jobs:
             echo "Vendored, localized, and retail-hotfixed runtime files are already current."
             exit 0
           fi
-          git commit -m "Fix elevator leaves and cassette rack reliability"
+          git commit -m "Restore pinned Three.js core runtime"
           git pull --rebase origin main
           git push origin HEAD:main
