@@ -48,7 +48,7 @@ for(const marker of [
   'const cassetteV14Source=await applyCassetteCastleV14(cassetteV13Source,cassetteV14Patch);',
   "const LOCAL_ASSETS_PATCH='./patches/local-assets-v15.js.txt';",
   'const localAssetsV15Source=await applyLocalAssetsV15Runtime(cassetteV14Source,localAssetsPatch,localAssetsManifest);',
-  'const source=retailV16Source+'
+  'const source=storyV17Source+'
 ])if(!loader.includes(marker))fail('game.js marker missing: '+marker);
 
 const payload=(await Promise.all(PARTS.map(p=>readFile(p,'utf8')))).map(t=>t.trim()).join('');
