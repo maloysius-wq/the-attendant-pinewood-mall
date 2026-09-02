@@ -20,11 +20,13 @@ try{
       await page.waitForFunction(()=>window.__PINEWOOD_VISUAL_READY__===true,null,{timeout:120000});
       await page.waitForTimeout(3000);
       const info=await page.evaluate(()=>window.__PINEWOOD_VISUAL_INFO__||null);
+      const story=await page.evaluate(()=>window.__PINEWOOD_STORY_V17__||null);
       const failureText=await page.locator('#assetStatus').textContent().catch(()=>null);
       await page.screenshot({path:`visual-artifacts/${view}.png`,fullPage:true});
       const uniqueRemote=[...new Set(remoteRequests)];
-      if(uniqueRemote.length)report.failed=true;
-      report.views[view]={ok:uniqueRemote.length===0,info,failureText,consoleMessages,remoteRequests:uniqueRemote};
+      const storyOk=story?.version===17&&story?.chapterCount===6&&Array.isArray(story?.lastShiftIds)&&story.lastShiftIds.length===9;
+      if(uniqueRemote.length||!storyOk)report.failed=true;
+      report.views[view]={ok:uniqueRemote.length===0&&storyOk,info,story,failureText,consoleMessages,remoteRequests:uniqueRemote};
     }catch(err){
       report.failed=true;
       const failureText=await page.locator('#assetStatus').textContent().catch(()=>null);
