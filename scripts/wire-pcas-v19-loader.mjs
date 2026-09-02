@@ -53,6 +53,42 @@ for(const marker of [
   'const pcasV19Source=await applyPcasVoiceV19Runtime(chapter1V18Source,pcasV19Patch,pcasVoiceManifest);',
   "const source=pcasV19Source+'\\n//# sourceURL=pinewood-runtime.js\\n';"
 ])if(!source.includes(marker))fail('postcondition missing: '+marker);
-
 await writeFile(path,source,'utf8');
-console.log('Chapter 1 v18 and PCAS Voice v19 loader wiring applied.');
+
+// Older audits protect their own layers. They should verify that v17 follows them,
+// not assert that v17 is forever the final deployed source.
+for(const auditPath of [
+  'scripts/audit-cassette-castle-v13.mjs',
+  'scripts/audit-cassette-castle-v14.mjs',
+  'scripts/audit-local-assets-v15.mjs',
+  'scripts/audit-retail-geometry-v16.mjs'
+]){
+  let text=await readFile(auditPath,'utf8');
+  text=text
+    .replace("'const source=storyV17Source+'","'const storyV17Source=await applyStoryFoundationV17Runtime('")
+    .replace('"const source=storyV17Source+"','"const storyV17Source=await applyStoryFoundationV17Runtime("');
+  if(!text.includes('const storyV17Source=await applyStoryFoundationV17Runtime('))fail(auditPath+': forward-compatible v17 handoff marker missing');
+  await writeFile(auditPath,text,'utf8');
+}
+
+{
+  const auditPath='scripts/audit-story-foundation-v17.mjs';
+  let text=await readFile(auditPath,'utf8');
+  text=text.split('\n').filter(line=>!line.includes('const source=storyV17Source+')).join('\n');
+  if(!text.includes('const storyV17Source=await applyStoryFoundationV17Runtime(retailV16Source,storyV17Patch,storyModule.STORY_DATA_V17);'))fail('v17 audit lost its actual v17 loader-chain marker');
+  await writeFile(auditPath,text,'utf8');
+}
+
+{
+  const auditPath='scripts/audit-pcas-voice-v19.mjs';
+  let text=await readFile(auditPath,'utf8');
+  if(!text.includes('game.js live v19 loader marker')){
+    const anchor="const paSpec=JSON.parse(await readFile('story/pa-lines.json','utf8'));";
+    const loaderCheck=`const loader=await readFile('game.js','utf8');\nfor(const marker of [\n  \"const CHAPTER1_V18_PATCH='./patches/chapter1-story-v18.js.txt';\",\n  \"const PCAS_V19_PATCH='./patches/pcas-voice-v19.js.txt';\",\n  \"const PCAS_VOICE_MANIFEST='./assets/audio/pa/manifest.json';\",\n  'async function applyChapter1StoryV18Runtime(source,patchText)',\n  'async function applyPcasVoiceV19Runtime(source,patchText,manifest)',\n  'const chapter1V18Source=await applyChapter1StoryV18Runtime(storyV17Source,chapter1V18Patch);',\n  'const pcasV19Source=await applyPcasVoiceV19Runtime(chapter1V18Source,pcasV19Patch,pcasVoiceManifest);',\n  \"const source=pcasV19Source+'\\\\n//# sourceURL=pinewood-runtime.js\\\\n';\"\n])if(!loader.includes(marker))fail('game.js live v19 loader marker missing: '+marker);\nif(loader.includes(\"const source=storyV17Source+'\\\\n//# sourceURL=pinewood-runtime.js\\\\n';\"))fail('game.js still boots directly from v17');\n\n${anchor}`;
+    if(!text.includes(anchor))fail('v19 audit insertion anchor missing');
+    text=text.replace(anchor,loaderCheck);
+  }
+  await writeFile(auditPath,text,'utf8');
+}
+
+console.log('Chapter 1 v18 + PCAS Voice v19 loader wiring and audit compatibility applied.');
