@@ -1,0 +1,102 @@
+function applyPcasVoiceV19(source,manifest){
+  const fail=msg=>{throw new Error('PCAS Voice v19 patch failed: '+msg);};
+  if(!manifest||manifest.version!==19||!manifest.files)fail('voice manifest v19 is required');
+  const ids=Object.keys(manifest.files);
+  if(ids.length<19)fail('at least nineteen authored PCAS voice lines are required');
+  for(const id of ids){const e=manifest.files[id];if(!e?.file||!e?.text||!e?.duration||!e?.sha256)fail('invalid voice manifest entry '+id);if(/^https?:/i.test(e.file)||e.file.includes('..'))fail('PCAS voice files must be repository-local: '+id);}
+  const replaceOnce=(label,needle,replacement)=>{
+    const first=source.indexOf(needle);if(first<0)fail(label+': marker missing');
+    if(source.indexOf(needle,first+needle.length)>=0)fail(label+': marker is not unique');
+    source=source.slice(0,first)+replacement+source.slice(first+needle.length);
+  };
+  const replaceRange=(label,startMarker,endMarker,replacement)=>{
+    const start=source.indexOf(startMarker);if(start<0)fail(label+': start marker missing');
+    const end=source.indexOf(endMarker,start+startMarker.length);if(end<0)fail(label+': end marker missing');
+    source=source.slice(0,start)+replacement+source.slice(end);
+  };
+
+  replaceOnce('local PCAS manifest injection',
+    "const CC0_AUDIO_BASE=new URL('./assets/audio/cc0/',location.href).href;",
+    "const CC0_AUDIO_BASE=new URL('./assets/audio/cc0/',location.href).href;\nconst PCAS_VOICE_V19="+JSON.stringify(manifest)+";\nconst PCAS_AUDIO_BASE=new URL('./assets/audio/pa/',location.href).href;\nwindow.__PINEWOOD_PCAS_V19__={version:19,lineCount:Object.keys(PCAS_VOICE_V19.files).length,localOnly:true};"
+  );
+
+  replaceOnce('PCAS audio loading and playback',
+    "  async preload(){await Promise.all(Object.keys(CC0_SFX).map(name=>this.load(name)));this.startAmbientLoops();}",
+`  pcasDuration(id){return Number(PCAS_VOICE_V19.files[id]?.duration||0);}
+  async loadPcas(id){
+    const entry=PCAS_VOICE_V19.files[id];if(!entry)return null;const key='pcas:'+id;
+    if(this.buffers.has(key))return this.buffers.get(key);if(this.loads.has(key))return this.loads.get(key);
+    const promise=fetch(PCAS_AUDIO_BASE+entry.file,{cache:'force-cache'}).then(r=>{if(!r.ok)throw new Error('HTTP '+r.status);return r.arrayBuffer();}).then(b=>this.ctx.decodeAudioData(b)).then(buffer=>{this.buffers.set(key,buffer);this.loads.delete(key);return buffer;}).catch(err=>{this.loads.delete(key);console.warn('PCAS voice failed to load; keeping subtitle only rather than synthesizing a runtime replacement.',id,err);return null;});
+    this.loads.set(key,promise);return promise;
+  }
+  async pcas(id){
+    if(!this.ctx)return null;const entry=PCAS_VOICE_V19.files[id];if(!entry)return null;this.chime();
+    const buffer=await this.loadPcas(id);if(!buffer||!this.ctx)return null;
+    this.play('buzz',{gain:.045,bus:'voice',rate:.91,when:.14,offset:.08,duration:Math.min(.82,Math.max(.25,buffer.duration*.18))});
+    const src=this.ctx.createBufferSource(),g=this.ctx.createGain();src.buffer=buffer;src.playbackRate.value=rand(.994,1.006);g.gain.value=.92;src.connect(g);g.connect(this.voice);src.start(this.ctx.currentTime+.22);return src;
+  }
+  async preload(){await Promise.all([...Object.keys(CC0_SFX).map(name=>this.load(name)),...Object.keys(PCAS_VOICE_V19.files).map(id=>this.loadPcas(id))]);this.startAmbientLoops();}`
+  );
+
+  replaceOnce('story dialogue carries PCAS audio id',
+    "queueDialogue(id,delay=0){const line=STORY_DATA_V17.dialogue[id];if(!line)return false;const who=line.speaker==='RENEE'?'RENEE WARD':line.speaker;const kind=line.medium==='radio'?'radio':line.medium==='intercom'?'intercom':'log';this.game.queueStory(delay,kind,who,line.text);return true;}",
+    "queueDialogue(id,delay=0){const line=STORY_DATA_V17.dialogue[id];if(!line)return false;const who=line.speaker==='RENEE'?'RENEE WARD':line.speaker;const kind=line.medium==='radio'?'radio':line.medium==='intercom'?'intercom':'log';this.game.queueStory(delay,kind,who,line.text,line.medium==='intercom'?id:null);return true;}"
+  );
+
+  replaceOnce('story queue audio key',
+    "queueStory(delay,kind,who,text){this.storyQueue.push({at:this.time+delay,kind,who,text});this.storyQueue.sort((a,b)=>a.at-b.at);}",
+    "queueStory(delay,kind,who,text,audioKey=null){this.storyQueue.push({at:this.time+delay,kind,who,text,audioKey});this.storyQueue.sort((a,b)=>a.at-b.at);}"
+  );
+  replaceOnce('story playback uses PCAS voice',
+    "updateStory(){while(this.storyQueue.length&&this.storyQueue[0].at<=this.time){const l=this.storyQueue.shift();if(l.kind==='radio')audio.radio();else audio.chime();UI.subtitle(l.who,l.text,l.kind,l.kind==='log'?4400:3400);}}",
+    "updateStory(){while(this.storyQueue.length&&this.storyQueue[0].at<=this.time){const l=this.storyQueue.shift();let duration=l.kind==='log'?4400:3400;if(l.kind==='radio')audio.radio();else if(l.kind==='intercom'&&l.audioKey){audio.pcas(l.audioKey);duration=Math.max(duration,(audio.pcasDuration(l.audioKey)+.72)*1000);}else audio.chime();UI.subtitle(l.who,l.text,l.kind,duration);}}"
+  );
+
+  replaceRange('ambient PCAS chatter','  playRandomIntercom(){','  emitSound(pos,strength,type=',
+`  playPcasLineV19(id){const entry=PCAS_VOICE_V19.files[id];if(!entry)return false;audio.pcas(id);UI.subtitle('INTERCOM',entry.text,'intercom',Math.max(3600,(Number(entry.duration||0)+.72)*1000));return true;}
+  playRandomIntercom(){
+    let ids;if(this.levelIndex===0&&this.breakers===0)ids=['ambient_ch1_public_exit','ambient_ch1_initializing','ambient_ch1_clear_public'];
+    else if(this.levelIndex===0)ids=['ch1_pcas_hold','ambient_ch1_cleanup','ambient_ch1_customer_service'];
+    else if(this.levelIndex===1)ids=['ambient_ch2_stairwell','ambient_ch2_security','ambient_ch2_stop'];
+    else ids=['ambient_ch3_unaccounted','ambient_ch3_east_wing','ambient_ch3_terminal'];
+    this.playPcasLineV19(choose(ids));this.nextAnnouncement=this.time+rand(18,30);
+  }
+  emitSound(pos,strength,type=`
+  );
+
+  replaceOnce('Chapter 2 evaluation announcement id',
+    "this.queueStory(2.3,'intercom','INTERCOM','Maintenance staff must report to Security for evaluation.');",
+    "this.queueStory(2.3,'intercom','INTERCOM','Maintenance staff must report to Security for evaluation.','ch2_maintenance_eval');"
+  );
+  replaceOnce('Chapter 3 accountability announcement id',
+    "this.queueStory(2.0,'intercom','INTERCOM','All employees must remain until accountability reaches zero.');",
+    "this.queueStory(2.0,'intercom','INTERCOM','All employees must remain until accountability reaches zero.','ch3_accountability_zero');"
+  );
+
+  replaceOnce('ending override PCAS voice',
+    "UI.subtitle('INTERCOM','Accountability override received.','intercom',1800);",
+    "this.playPcasLineV19('ending_override');"
+  );
+  replaceOnce('ending closed PCAS voice',
+    "setTimeout(()=>{audio.chime();UI.subtitle('INTERCOM','All staff accounted for. Pinewood Mall is now closed.','intercom',4200);},700);",
+    "setTimeout(()=>{this.playPcasLineV19('ending_closed');},700);"
+  );
+
+  for(const marker of [
+    'const PCAS_VOICE_V19=',
+    "const PCAS_AUDIO_BASE=new URL('./assets/audio/pa/',location.href).href;",
+    'async loadPcas(id)',
+    'async pcas(id)',
+    "line.medium==='intercom'?id:null",
+    'queueStory(delay,kind,who,text,audioKey=null)',
+    "audio.pcas(l.audioKey)",
+    "playPcasLineV19(id)",
+    "'ambient_ch1_public_exit'",
+    "'ambient_ch2_stairwell'",
+    "'ambient_ch3_unaccounted'",
+    "'ending_override'",
+    'window.__PINEWOOD_PCAS_V19__'
+  ])if(!source.includes(marker))fail('required v19 marker missing after patch: '+marker);
+  if(/speechSynthesis|SpeechSynthesisUtterance/.test(source))fail('browser runtime speech synthesis is forbidden');
+  return source;
+}
