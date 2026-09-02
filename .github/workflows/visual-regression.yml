@@ -13,6 +13,7 @@ on:
       - '.github/workflows/visual-regression.yml'
       - 'vendor/**'
       - 'assets/vendor/**'
+      - 'assets/audio/pa/**'
 
 permissions:
   contents: read
@@ -44,7 +45,7 @@ jobs:
           curl --fail --silent --show-error --head http://127.0.0.1:4173/vendor/three/build/three.core.js
           curl --fail --silent --show-error --head http://127.0.0.1:4173/vendor/three/examples/jsm/loaders/GLTFLoader.js
           curl --fail --silent --show-error --head http://127.0.0.1:4173/vendor/pako/pako.esm.mjs
-      - name: Capture deterministic store views and story foundation state
+      - name: Capture deterministic store views, story foundation and PCAS voice state
         run: node scripts/capture-store-visuals.mjs
       - name: Upload screenshots and telemetry
         if: always()
@@ -55,4 +56,4 @@ jobs:
           if-no-files-found: warn
           retention-days: 14
 
-# Verification trigger: Story Foundation v17 browser boot
+# Verification trigger: PCAS Voice v19 local browser decode gate
