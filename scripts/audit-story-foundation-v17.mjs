@@ -33,7 +33,6 @@ for(const marker of [
   "getText(STORY_V17_PATCH)",
   "import('./story/story-data.js')",
   'const storyV17Source=await applyStoryFoundationV17Runtime(retailV16Source,storyV17Patch,storyModule.STORY_DATA_V17);',
-  "const source=storyV17Source+'\\n//# sourceURL=pinewood-runtime.js\\n';"
 ])if(!loader.includes(marker))fail('game.js v17 loader marker missing: '+marker);
 if(loader.includes("const source=retailV16Source+'\\n//# sourceURL=pinewood-runtime.js\\n';"))fail('game.js still boots directly from v16');
 

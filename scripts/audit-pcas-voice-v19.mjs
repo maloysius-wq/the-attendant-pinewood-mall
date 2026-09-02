@@ -17,6 +17,19 @@ function replaceFoodCourt(source,replacement){const s=source.indexOf('async func
 async function loadStoryData(){const paths=['story/characters.js','story/evidence.js','story/chapters.js','story/timeline.js','story/dialogue.js'];let code='';for(const path of paths)code+=(await readFile(path,'utf8')).replace(/export const /g,'const ')+'\n';code+=(await readFile('story/story-data.js','utf8')).replace(/^import .*$/gm,'').replace(/export const /g,'const ')+'\nthis.__story=STORY_DATA_V17;';const context=vm.createContext({});vm.runInContext(code,context,{filename:'story/story-data.v19.audit.js'});return JSON.parse(JSON.stringify(context.__story));}
 async function syntaxCheck(source){const dir=await mkdtemp(join(tmpdir(),'pinewood-v19-')),file=join(dir,'runtime.mjs');try{await writeFile(file,source);const r=spawnSync(process.execPath,['--check',file],{encoding:'utf8'});if(r.status!==0){process.stderr.write(r.stderr||'');fail('assembled v19 runtime failed syntax parsing');}}finally{await rm(dir,{recursive:true,force:true});}}
 
+const loader=await readFile('game.js','utf8');
+for(const marker of [
+  "const CHAPTER1_V18_PATCH='./patches/chapter1-story-v18.js.txt';",
+  "const PCAS_V19_PATCH='./patches/pcas-voice-v19.js.txt';",
+  "const PCAS_VOICE_MANIFEST='./assets/audio/pa/manifest.json';",
+  'async function applyChapter1StoryV18Runtime(source,patchText)',
+  'async function applyPcasVoiceV19Runtime(source,patchText,manifest)',
+  'const chapter1V18Source=await applyChapter1StoryV18Runtime(storyV17Source,chapter1V18Patch);',
+  'const pcasV19Source=await applyPcasVoiceV19Runtime(chapter1V18Source,pcasV19Patch,pcasVoiceManifest);',
+  "const source=pcasV19Source+'\\n//# sourceURL=pinewood-runtime.js\\n';"
+])if(!loader.includes(marker))fail('game.js live v19 loader marker missing: '+marker);
+if(loader.includes("const source=storyV17Source+'\\n//# sourceURL=pinewood-runtime.js\\n';"))fail('game.js still boots directly from v17');
+
 const paSpec=JSON.parse(await readFile('story/pa-lines.json','utf8'));
 const voiceManifest=JSON.parse(await readFile('assets/audio/pa/manifest.json','utf8'));
 if(paSpec.version!==19||voiceManifest.version!==19)fail('PA source and generated manifest must both be version 19');

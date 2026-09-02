@@ -46,7 +46,7 @@ for(const marker of [
   "const RETAIL_V16_PATCH='./patches/retail-geometry-v16.js.txt';",
   'applyRetailGeometryV16Runtime(source,patchText)',
   'const retailV16Source=await applyRetailGeometryV16Runtime(localAssetsV15Source,retailV16Patch);',
-  'const source=storyV17Source+'
+  'const storyV17Source=await applyStoryFoundationV17Runtime('
 ])if(!loader.includes(marker))fail('game.js v16 marker missing: '+marker);
 
 const payload=(await Promise.all(PARTS.map(p=>readFile(p,'utf8')))).map(t=>t.trim()).join('');
