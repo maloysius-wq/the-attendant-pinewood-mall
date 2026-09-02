@@ -56,4 +56,4 @@ jobs:
           if-no-files-found: warn
           retention-days: 14
 
-# Verification trigger: PCAS Voice v19 local browser decode gate
+# Verification trigger: final clean-head PCAS Voice v19 browser decode gate
