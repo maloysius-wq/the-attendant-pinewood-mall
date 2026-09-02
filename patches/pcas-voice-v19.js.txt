@@ -17,7 +17,7 @@ function applyPcasVoiceV19(source,manifest){
 
   replaceOnce('local PCAS manifest injection',
     "const CC0_AUDIO_BASE=new URL('./assets/audio/cc0/',location.href).href;",
-    "const CC0_AUDIO_BASE=new URL('./assets/audio/cc0/',location.href).href;\nconst PCAS_VOICE_V19="+JSON.stringify(manifest)+";\nconst PCAS_AUDIO_BASE=new URL('./assets/audio/pa/',location.href).href;\nwindow.__PINEWOOD_PCAS_V19__={version:19,lineCount:Object.keys(PCAS_VOICE_V19.files).length,localOnly:true};"
+    "const CC0_AUDIO_BASE=new URL('./assets/audio/cc0/',location.href).href;\nconst PCAS_VOICE_V19="+JSON.stringify(manifest)+";\nconst PCAS_AUDIO_BASE=new URL('./assets/audio/pa/',location.href).href;\nwindow.__PINEWOOD_PCAS_V19__={version:19,lineCount:Object.keys(PCAS_VOICE_V19.files).length,localOnly:true,loaded:0,failures:[]};"
   );
 
   replaceOnce('PCAS audio loading and playback',
@@ -26,7 +26,7 @@ function applyPcasVoiceV19(source,manifest){
   async loadPcas(id){
     const entry=PCAS_VOICE_V19.files[id];if(!entry)return null;const key='pcas:'+id;
     if(this.buffers.has(key))return this.buffers.get(key);if(this.loads.has(key))return this.loads.get(key);
-    const promise=fetch(PCAS_AUDIO_BASE+entry.file,{cache:'force-cache'}).then(r=>{if(!r.ok)throw new Error('HTTP '+r.status);return r.arrayBuffer();}).then(b=>this.ctx.decodeAudioData(b)).then(buffer=>{this.buffers.set(key,buffer);this.loads.delete(key);return buffer;}).catch(err=>{this.loads.delete(key);console.warn('PCAS voice failed to load; keeping subtitle only rather than synthesizing a runtime replacement.',id,err);return null;});
+    const promise=fetch(PCAS_AUDIO_BASE+entry.file,{cache:'force-cache'}).then(r=>{if(!r.ok)throw new Error('HTTP '+r.status);return r.arrayBuffer();}).then(b=>this.ctx.decodeAudioData(b)).then(buffer=>{this.buffers.set(key,buffer);this.loads.delete(key);window.__PINEWOOD_PCAS_V19__.loaded=[...this.buffers.keys()].filter(k=>k.startsWith('pcas:')).length;return buffer;}).catch(err=>{this.loads.delete(key);if(!window.__PINEWOOD_PCAS_V19__.failures.includes(id))window.__PINEWOOD_PCAS_V19__.failures.push(id);console.warn('PCAS voice failed to load; keeping subtitle only rather than synthesizing a runtime replacement.',id,err);return null;});
     this.loads.set(key,promise);return promise;
   }
   async pcas(id){
@@ -87,6 +87,8 @@ function applyPcasVoiceV19(source,manifest){
     "const PCAS_AUDIO_BASE=new URL('./assets/audio/pa/',location.href).href;",
     'async loadPcas(id)',
     'async pcas(id)',
+    "window.__PINEWOOD_PCAS_V19__.loaded=",
+    "window.__PINEWOOD_PCAS_V19__.failures.push(id)",
     "line.medium==='intercom'?id:null",
     'queueStory(delay,kind,who,text,audioKey=null)',
     "audio.pcas(l.audioKey)",
