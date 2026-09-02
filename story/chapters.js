@@ -1,0 +1,8 @@
+export const CHAPTERS_V17=[
+  {id:'closing_time',index:0,name:'Chapter 1: Closing Time',short:'Closing Time',environment:'public_mall',primaryMechanic:'intro_stealth_power',storyPurpose:'Pinewood reacts to the player and the freight elevator turns escape into descent.',targetMinutes:[45,60]},
+  {id:'below_grade',index:1,name:'Chapter 2: Below Grade',short:'Below Grade',environment:'service_level',primaryMechanic:'machinery_noise',storyPurpose:'The work order dates to 1997 and Gavin Cole proves the loop continued after closure.',targetMinutes:[45,60]},
+  {id:'eyes_in_security',index:2,name:'Chapter 3: Eyes in Security',short:'Eyes in Security',environment:'security_receiving',primaryMechanic:'cctv_shutters',storyPurpose:'Luis Ortega’s evidence proves that Pinewood calls first and The Attendant answers.',targetMinutes:[50,65]},
+  {id:'east_wing',index:3,name:'Chapter 4: The East Wing',short:'The East Wing',environment:'sealed_retail_staff',primaryMechanic:'information_distrust',storyPurpose:'The 1997 staff become real people and Pinewood begins imitating Renee.',targetMinutes:[55,70]},
+  {id:'accountability',index:4,name:'Chapter 5: Accountability',short:'Accountability',environment:'records_management',primaryMechanic:'investigation_roster',storyPurpose:'The cover-up, Eli’s fate and Contractor 01–14 are reconstructed.',targetMinutes:[55,75]},
+  {id:'last_shift',index:5,name:'Chapter 6: The Last Shift',short:'The Last Shift',environment:'memory_overlay',primaryMechanic:'closing_ritual',storyPurpose:'The player completes the 1997 closing routine, clears Eli, then discovers Contractor 14 is still counted.',targetMinutes:[60,80]}
+];
