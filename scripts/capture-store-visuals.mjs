@@ -18,21 +18,26 @@ try{
     try{
       await page.goto(url.toString(),{waitUntil:'domcontentloaded',timeout:90000});
       await page.waitForFunction(()=>window.__PINEWOOD_VISUAL_READY__===true,null,{timeout:120000});
-      await page.waitForTimeout(3000);
+      await page.waitForFunction(()=>window.__PINEWOOD_PCAS_V19__?.loaded===window.__PINEWOOD_PCAS_V19__?.lineCount,null,{timeout:45000});
+      await page.waitForTimeout(1000);
       const info=await page.evaluate(()=>window.__PINEWOOD_VISUAL_INFO__||null);
       const story=await page.evaluate(()=>window.__PINEWOOD_STORY_V17__||null);
+      const pcas=await page.evaluate(()=>window.__PINEWOOD_PCAS_V19__||null);
+      const pcasResources=await page.evaluate(()=>performance.getEntriesByType('resource').map(e=>e.name).filter(name=>name.includes('/assets/audio/pa/')&&name.endsWith('.ogg')));
       const failureText=await page.locator('#assetStatus').textContent().catch(()=>null);
       await page.screenshot({path:`visual-artifacts/${view}.png`,fullPage:true});
       const uniqueRemote=[...new Set(remoteRequests)];
       const storyOk=story?.version===17&&story?.chapterCount===6&&Array.isArray(story?.lastShiftIds)&&story.lastShiftIds.length===9;
-      if(uniqueRemote.length||!storyOk)report.failed=true;
-      report.views[view]={ok:uniqueRemote.length===0&&storyOk,info,story,failureText,consoleMessages,remoteRequests:uniqueRemote};
+      const pcasOk=pcas?.version===19&&pcas?.lineCount===19&&pcas?.loaded===19&&pcas?.localOnly===true&&Array.isArray(pcas?.failures)&&pcas.failures.length===0&&new Set(pcasResources).size===19;
+      if(uniqueRemote.length||!storyOk||!pcasOk)report.failed=true;
+      report.views[view]={ok:uniqueRemote.length===0&&storyOk&&pcasOk,info,story,pcas,pcasResources:[...new Set(pcasResources)],failureText,consoleMessages,remoteRequests:uniqueRemote};
     }catch(err){
       report.failed=true;
       const failureText=await page.locator('#assetStatus').textContent().catch(()=>null);
       const bodyText=await page.locator('body').innerText().catch(()=>null);
+      const pcas=await page.evaluate(()=>window.__PINEWOOD_PCAS_V19__||null).catch(()=>null);
       await page.screenshot({path:`visual-artifacts/${view}-failure.png`,fullPage:true}).catch(()=>{});
-      report.views[view]={ok:false,error:err.stack||String(err),failureText,bodyText,consoleMessages,remoteRequests:[...new Set(remoteRequests)]};
+      report.views[view]={ok:false,error:err.stack||String(err),pcas,failureText,bodyText,consoleMessages,remoteRequests:[...new Set(remoteRequests)]};
     }finally{await page.close();}
   }
 }finally{await browser.close();}
