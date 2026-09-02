@@ -17,8 +17,13 @@ for(const line of spec.lines){
   if(!/^[a-z0-9_]+$/.test(line.id))throw new Error('Unsafe PCAS line id: '+line.id);
 }
 
-for(const tool of ['espeak-ng','ffmpeg','ffprobe']){
-  const check=spawnSync(tool,['-version'],{stdio:'ignore'});
+const probes={
+  'espeak-ng':['--version'],
+  ffmpeg:['-version'],
+  ffprobe:['-version']
+};
+for(const [tool,args] of Object.entries(probes)){
+  const check=spawnSync(tool,args,{stdio:'ignore'});
   if(check.status!==0)throw new Error(tool+' is required to generate PCAS voice assets.');
 }
 
