@@ -26,6 +26,17 @@ async function loadStoryData(){
   const context=vm.createContext({});vm.runInContext(code,context,{filename:'story/story-data.audit.js'});return JSON.parse(JSON.stringify(context.__story));
 }
 
+const loader=await readFile('game.js','utf8');
+for(const marker of [
+  "const STORY_V17_PATCH='./patches/story-foundation-v17.js.txt';",
+  'async function applyStoryFoundationV17Runtime(source,patchText,storyData)',
+  "getText(STORY_V17_PATCH)",
+  "import('./story/story-data.js')",
+  'const storyV17Source=await applyStoryFoundationV17Runtime(retailV16Source,storyV17Patch,storyModule.STORY_DATA_V17);',
+  "const source=storyV17Source+'\\n//# sourceURL=pinewood-runtime.js\\n';"
+])if(!loader.includes(marker))fail('game.js v17 loader marker missing: '+marker);
+if(loader.includes("const source=retailV16Source+'\\n//# sourceURL=pinewood-runtime.js\\n';"))fail('game.js still boots directly from v16');
+
 const story=await loadStoryData();
 if(story.version!==17)fail('story data version is not 17');
 if(story.chapters.length!==6)fail(`expected 6 chapters, found ${story.chapters.length}`);
@@ -64,4 +75,4 @@ if(source.includes("const all=Array.from({length:9}"))fail('legacy true-ending j
 for(const protectedMarker of ['physicalBlock:false','footprintRadius:1.64',"gain=(sprint?.14:.09)","tag:'perimeter-rack-v14'",'cassetteShelfModelPromisesV16'])if(!source.includes(protectedMarker))fail('protected earlier-system marker missing: '+protectedMarker);
 const externalMedia=(source.match(/https:\/\/[^'"`\\s)]+\.(?:glb|gltf|bin|png|jpe?g|webp|ogg|mp3|wav)(?:[?#][^'"`\\s)]*)?/gi)||[]);if(externalMedia.length)fail('external runtime media survived: '+[...new Set(externalMedia)].join(', '));
 await syntaxCheck(source);
-console.log('Story Foundation v17 PASS: six-chapter canon data and nine Last Shift evidence definitions are internally linked, versioned save migration/event-manager/structured Journal foundations apply cleanly after v16, legacy LS saves remain compatible, protected gameplay/local-asset invariants survive, and the assembled runtime syntax is valid.');
+console.log('Story Foundation v17 PASS: game.js boots through v17; six-chapter canon data and nine Last Shift evidence definitions are internally linked; versioned save migration, event manager and structured Journal apply cleanly after v16; legacy LS saves remain compatible; protected gameplay/local-asset invariants survive; and the assembled runtime syntax is valid.');
