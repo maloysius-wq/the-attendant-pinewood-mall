@@ -27,15 +27,15 @@ jobs:
         run: node scripts/wire-pcas-v19-loader.mjs
       - name: Check deployment loader syntax
         run: node --check game.js
-      - name: Commit live loader wiring
+      - name: Commit live loader wiring and documentation
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add game.js scripts/audit-cassette-castle-v13.mjs scripts/audit-cassette-castle-v14.mjs scripts/audit-local-assets-v15.mjs scripts/audit-retail-geometry-v16.mjs scripts/audit-story-foundation-v17.mjs scripts/audit-pcas-voice-v19.mjs
+          git add game.js LICENSES.md DEVELOPMENT_HANDOFF.md scripts/audit-cassette-castle-v13.mjs scripts/audit-cassette-castle-v14.mjs scripts/audit-local-assets-v15.mjs scripts/audit-retail-geometry-v16.mjs scripts/audit-story-foundation-v17.mjs scripts/audit-pcas-voice-v19.mjs
           if git diff --cached --quiet; then
-            echo "PCAS v19 loader and audit compatibility are already current."
+            echo "PCAS v19 loader, audits and documentation are already current."
             exit 0
           fi
-          git commit -m "Make protected audits compatible with PCAS v19"
+          git commit -m "Document PCAS voice v19 checkpoint"
           git pull --rebase origin main
           git push origin HEAD:main
