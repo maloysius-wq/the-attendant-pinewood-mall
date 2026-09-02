@@ -69,4 +69,4 @@ jobs:
       - name: Validate story foundation v17
         run: node scripts/audit-story-foundation-v17.mjs
 
-# Verification trigger: Story Foundation v17 narrative architecture
+# Verification trigger: v17 live loader plus forward-compatible protected audits
