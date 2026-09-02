@@ -1,0 +1,71 @@
+function applyChapter1StoryV18(source){
+  const fail=msg=>{throw new Error('Chapter 1 Story v18 patch failed: '+msg);};
+  const replaceOnce=(label,needle,replacement)=>{
+    const first=source.indexOf(needle);if(first<0)fail(label+': marker missing');
+    if(source.indexOf(needle,first+needle.length)>=0)fail(label+': marker is not unique');
+    source=source.slice(0,first)+replacement+source.slice(first+needle.length);
+  };
+
+  // The first sighting should follow the first restored circuit within a few seconds.
+  // `nextStalk` is a countdown everywhere else, so the old absolute GAME.time assignment could delay the reveal for minutes.
+  replaceOnce('Attendant first-reveal countdown',
+    'this.nextStalk=GAME.time+rand(2.5,4.5);',
+    'this.nextStalk=rand(2.5,4.5);'
+  );
+
+  replaceOnce('Chapter 1 work-order introduction',
+    'Pinewood dispatch has a routine emergency call: restore circuits A, B and C, then leave by the freight elevator. The work order says the mall has been empty for six years.',
+    'Dispatcher Renee Ward has a routine after-hours call: restore circuits A, B and C, verify the east freight elevator, then clear the property. Pinewood has been closed to shoppers for six years, but its emergency maintenance ticket is marked active.'
+  );
+
+  replaceOnce('Renee Chapter 1 introduction',
+    "beginPlay(){UI.hideAll();audio.resume();audio.setPaused(false);this.running=true;this.modal=false;this.controls.lock();this.queueStory(.7,'radio','DISPATCH',this.startLine());}",
+    "beginPlay(){UI.hideAll();audio.resume();audio.setPaused(false);this.running=true;this.modal=false;this.controls.lock();if(this.levelIndex===0){SAVE.story.people.renee='known';SAVE.story.flags[STORY_DATA_V17.flags.reneeKnown]=true;save();this.storyV17.queueDialogue('ch1_start',.7);}else this.queueStory(.7,'radio','DISPATCH',this.startLine());}"
+  );
+
+  replaceOnce('first circuit narrative sequence',
+    "if(this.breakers===1){this.queueStory(.8,'radio','DISPATCH',this.levelIndex===0?'Good. I have one leg of the emergency ring. I also have movement on a camera that should not exist. Keep working.':'First relay is up. I found your work order. It was filed in 1997.');this.queueStory(2.3,'intercom','INTERCOM',this.levelIndex===0?'Attention shoppers. Closing has been extended. Employees remain at their stations.':'Maintenance staff must report to Security for evaluation.');}",
+    "if(this.breakers===1){if(this.levelIndex===0){this.storyV17.queueDialogue('ch1_first_power',.8);this.storyV17.queueDialogue('ch1_pcas_hold',2.5);this.storyV17.queueDialogue('ch1_contractor_registered',5.8);}else{this.queueStory(.8,'radio','DISPATCH','First relay is up. I found your work order. It was filed in 1997.');this.queueStory(2.3,'intercom','INTERCOM','Maintenance staff must report to Security for evaluation.');}}"
+  );
+
+  replaceOnce('completed Chapter 1 power narrative',
+    "if(this.breakers>=LEVELS[this.levelIndex].breakers){this.queueStory(.8,'radio','DISPATCH',this.levelIndex===0?'All three circuits are stable. Freight elevator should answer now. Get out. Do not stop for the PA.':'Both relays are online. North stairwell has power. Find the security keycard and go.');}",
+    "if(this.breakers>=LEVELS[this.levelIndex].breakers){if(this.levelIndex===0)this.storyV17.queueDialogue('ch1_power_complete',.8);else this.queueStory(.8,'radio','DISPATCH','Both relays are online. North stairwell has power. Find the security keycard and go.');}"
+  );
+
+  replaceOnce('Master Service Key PCAS response',
+    "if(this.levelIndex===0)this.queueStory(.6,'intercom','INTERCOM','Employee key inventory discrepancy detected. Please return borrowed property to Security.');",
+    "if(this.levelIndex===0)this.storyV17.queueDialogue('ch1_key_discrepancy',.6);"
+  );
+
+  // Before PCAS has registered the contractor aloud, ambient announcements remain impersonal.
+  // This protects the first explicit “Contractor Fourteen” address as a deliberate story beat after power returns.
+  replaceOnce('pre-registration ambient PA',
+    'playRandomIntercom(){const sets=[',
+    "playRandomIntercom(){if(this.levelIndex===0&&this.breakers===0){audio.chime();UI.subtitle('INTERCOM',choose(['Pinewood Mall is now closed. Please proceed to the nearest public exit.','Closing checklist initializing. Tenant zones pending.','Overnight security state pending. Please clear public areas.']),'intercom',3600);this.nextAnnouncement=this.time+rand(18,30);return;}const sets=["
+  );
+
+  replaceOnce('LS-01 authored evidence',
+    'The fountain motor is disconnected. If you hear water, do not follow it.',
+    'ANDRE BELL — MAINTENANCE TAG: Fountain motor disconnected at local isolator, 9:12 PM. Branch is dead. Jo says she can still hear water. Motor is sitting beside me. — A.B.'
+  );
+  replaceOnce('LS-02 authored evidence',
+    'The closing announcements are not recordings. I watched the tape deck with the power cord in my hand.',
+    'LUIS ORTEGA — SECURITY SERVICE NOTE: PA playback deck unplugged at 9:44 PM. Closing announcement repeated two minutes later. Checked the amplifier closet twice. Nothing in that rack should be speaking.'
+  );
+  replaceOnce('LS-03 authored evidence',
+    'It does not chase through walls. It follows the route you would have to walk. Remember that when the heartbeat starts.',
+    'LUIS ORTEGA — ROUTE SKETCH: Page called Cassette Castle. Camera 12 caught the figure at the west junction, then the store. It took the halls. It did not cross a wall. Noise changed its route.'
+  );
+
+  for(const marker of [
+    "this.nextStalk=rand(2.5,4.5);",
+    "SAVE.story.people.renee='known'",
+    "queueDialogue('ch1_contractor_registered',5.8)",
+    "queueDialogue('ch1_key_discrepancy',.6)",
+    'ANDRE BELL — MAINTENANCE TAG',
+    'LUIS ORTEGA — SECURITY SERVICE NOTE',
+    'LUIS ORTEGA — ROUTE SKETCH'
+  ])if(!source.includes(marker))fail('required v18 marker missing after patch: '+marker);
+  return source;
+}
