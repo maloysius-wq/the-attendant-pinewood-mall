@@ -6,6 +6,7 @@ on:
     branches: [main]
     paths:
       - 'scripts/apply-story-foundation-v17-loader.mjs'
+      - 'scripts/update-pre-v17-audit-loader-markers.mjs'
       - '.github/workflows/apply-story-foundation-v17.yml'
 
 permissions:
@@ -25,17 +26,19 @@ jobs:
           node-version: '22'
       - name: Wire v17 into game loader
         run: node scripts/apply-story-foundation-v17-loader.mjs
+      - name: Update protected audit loader markers
+        run: node scripts/update-pre-v17-audit-loader-markers.mjs
       - name: Check loader syntax
         run: node --check game.js
-      - name: Commit loader wiring
+      - name: Commit v17 loader compatibility
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add game.js
+          git add game.js scripts/audit-cassette-castle-v13.mjs scripts/audit-cassette-castle-v14.mjs scripts/audit-local-assets-v15.mjs scripts/audit-retail-geometry-v16.mjs
           if git diff --cached --quiet; then
-            echo "Story Foundation v17 loader is already wired."
+            echo "Story Foundation v17 loader compatibility is already current."
             exit 0
           fi
-          git commit -m "Wire Story Foundation v17 runtime"
+          git commit -m "Make protected audits compatible with Story Foundation v17"
           git pull --rebase origin main
           git push origin HEAD:main
