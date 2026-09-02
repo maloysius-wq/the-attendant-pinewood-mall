@@ -1,0 +1,41 @@
+name: Wire PCAS v19 loader
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'scripts/wire-pcas-v19-loader.mjs'
+      - '.github/workflows/wire-pcas-v19.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  wire-pcas-v19:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Wire Chapter 1 v18 and PCAS Voice v19
+        run: node scripts/wire-pcas-v19-loader.mjs
+      - name: Check deployment loader syntax
+        run: node --check game.js
+      - name: Commit live loader wiring
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add game.js
+          if git diff --cached --quiet; then
+            echo "PCAS v19 loader is already current."
+            exit 0
+          fi
+          git commit -m "Wire Chapter 1 story and PCAS voice live"
+          git pull --rebase origin main
+          git push origin HEAD:main
