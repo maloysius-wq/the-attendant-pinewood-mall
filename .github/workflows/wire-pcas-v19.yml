@@ -31,11 +31,11 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add game.js
+          git add game.js scripts/audit-cassette-castle-v13.mjs scripts/audit-cassette-castle-v14.mjs scripts/audit-local-assets-v15.mjs scripts/audit-retail-geometry-v16.mjs scripts/audit-story-foundation-v17.mjs scripts/audit-pcas-voice-v19.mjs
           if git diff --cached --quiet; then
-            echo "PCAS v19 loader is already current."
+            echo "PCAS v19 loader and audit compatibility are already current."
             exit 0
           fi
-          git commit -m "Wire Chapter 1 story and PCAS voice live"
+          git commit -m "Make protected audits compatible with PCAS v19"
           git pull --rebase origin main
           git push origin HEAD:main
