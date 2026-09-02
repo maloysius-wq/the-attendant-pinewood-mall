@@ -8,6 +8,7 @@ on:
       - 'game.js'
       - 'bundle2/**'
       - 'patches/**'
+      - 'story/**'
       - 'assets/vendor/runtime/**'
       - 'vendor/**'
       - 'scripts/audit-runtime.mjs'
@@ -17,6 +18,7 @@ on:
       - 'scripts/audit-cassette-castle-v14.mjs'
       - 'scripts/audit-local-assets-v15.mjs'
       - 'scripts/audit-retail-geometry-v16.mjs'
+      - 'scripts/audit-story-foundation-v17.mjs'
       - '.github/workflows/runtime-audit.yml'
   pull_request:
     paths:
@@ -24,6 +26,7 @@ on:
       - 'game.js'
       - 'bundle2/**'
       - 'patches/**'
+      - 'story/**'
       - 'assets/vendor/runtime/**'
       - 'vendor/**'
       - 'scripts/audit-runtime.mjs'
@@ -33,6 +36,7 @@ on:
       - 'scripts/audit-cassette-castle-v14.mjs'
       - 'scripts/audit-local-assets-v15.mjs'
       - 'scripts/audit-retail-geometry-v16.mjs'
+      - 'scripts/audit-story-foundation-v17.mjs'
       - '.github/workflows/runtime-audit.yml'
   workflow_dispatch:
 
@@ -62,5 +66,7 @@ jobs:
         run: node scripts/audit-local-assets-v15.mjs
       - name: Validate retail geometry v16
         run: node scripts/audit-retail-geometry-v16.mjs
+      - name: Validate story foundation v17
+        run: node scripts/audit-story-foundation-v17.mjs
 
-# Verification trigger: restored pinned Three.js core runtime
+# Verification trigger: Story Foundation v17 narrative architecture
