@@ -10,7 +10,9 @@ on:
       - 'patches/**'
       - 'story/**'
       - 'assets/vendor/runtime/**'
+      - 'assets/audio/pa/**'
       - 'vendor/**'
+      - 'scripts/generate-pcas-voice.mjs'
       - 'scripts/audit-runtime.mjs'
       - 'scripts/audit-footstep-mix-v11.mjs'
       - 'scripts/audit-poster-diversity-v12.mjs'
@@ -20,6 +22,7 @@ on:
       - 'scripts/audit-retail-geometry-v16.mjs'
       - 'scripts/audit-story-foundation-v17.mjs'
       - 'scripts/audit-chapter1-story-v18.mjs'
+      - 'scripts/audit-pcas-voice-v19.mjs'
       - '.github/workflows/runtime-audit.yml'
   pull_request:
     paths:
@@ -29,7 +32,9 @@ on:
       - 'patches/**'
       - 'story/**'
       - 'assets/vendor/runtime/**'
+      - 'assets/audio/pa/**'
       - 'vendor/**'
+      - 'scripts/generate-pcas-voice.mjs'
       - 'scripts/audit-runtime.mjs'
       - 'scripts/audit-footstep-mix-v11.mjs'
       - 'scripts/audit-poster-diversity-v12.mjs'
@@ -39,6 +44,7 @@ on:
       - 'scripts/audit-retail-geometry-v16.mjs'
       - 'scripts/audit-story-foundation-v17.mjs'
       - 'scripts/audit-chapter1-story-v18.mjs'
+      - 'scripts/audit-pcas-voice-v19.mjs'
       - '.github/workflows/runtime-audit.yml'
   workflow_dispatch:
 
@@ -72,5 +78,7 @@ jobs:
         run: node scripts/audit-story-foundation-v17.mjs
       - name: Validate Chapter 1 Story v18
         run: node scripts/audit-chapter1-story-v18.mjs
+      - name: Validate distorted PCAS voice v19
+        run: node scripts/audit-pcas-voice-v19.mjs
 
-# Verification trigger: Chapter 1 narrative retrofit v18 pre-deploy gate
+# Verification trigger: PCAS Voice v19 pre-deploy reconstruction gate
