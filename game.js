@@ -24,6 +24,7 @@ const CASSETTE_V13_PATCH='./patches/cassette-castle-rebuild-v13.js.txt';
 const CASSETTE_V14_PATCH='./patches/cassette-castle-rebuild-v14.js.txt';
 const LOCAL_ASSETS_PATCH='./patches/local-assets-v15.js.txt';
 const RETAIL_V16_PATCH='./patches/retail-geometry-v16.js.txt';
+const STORY_V17_PATCH='./patches/story-foundation-v17.js.txt';
 const LOCAL_ASSETS_MANIFEST='./assets/vendor/runtime/manifest.json';
 
 async function getText(url){
@@ -124,6 +125,10 @@ async function applyRetailGeometryV16Runtime(source,patchText){
   const patchUrl=URL.createObjectURL(new Blob([patchText+'\nexport { applyRetailGeometryV16 };\n'],{type:'text/javascript'}));
   try{const mod=await import(patchUrl);if(typeof mod.applyRetailGeometryV16!=='function')throw new Error('Retail Geometry v16 patch did not export its patch function.');return mod.applyRetailGeometryV16(source);}finally{URL.revokeObjectURL(patchUrl);}
 }
+async function applyStoryFoundationV17Runtime(source,patchText,storyData){
+  const patchUrl=URL.createObjectURL(new Blob([patchText+'\nexport { applyStoryFoundationV17 };\n'],{type:'text/javascript'}));
+  try{const mod=await import(patchUrl);if(typeof mod.applyStoryFoundationV17!=='function')throw new Error('Story Foundation v17 patch did not export its patch function.');return mod.applyStoryFoundationV17(source,storyData);}finally{URL.revokeObjectURL(patchUrl);}
+}
 
 function replaceFoodCourt(source,replacement){
   const start=source.indexOf('async function buildFoodCourt(world){');
@@ -152,8 +157,8 @@ async function preflightThree(){
 
 try{
   await preflightThree();
-  const [base,worldPatch,industrialPatch,visualFixPatch,storePatch,systemsPatch,reliabilityPatch,statusPatch,audioPatch,elevatorPatch,fountainPatch,cassettePatch,foodPatch,posterPatch,footstepPatch,posterDiversityPatch,cassetteV13Patch,cassetteV14Patch,localAssetsPatch,retailV16Patch,localAssetsManifestText]=await Promise.all([
-    decodeSource(),getText(WORLD_PATCH),getText(INDUSTRIAL_PATCH),getText(VISUAL_FIX_PATCH),getText(STORE_PATCH),getText(SYSTEMS_PATCH),getText(RELIABILITY_PATCH),getText(STATUS_PATCH),getText(AUDIO_PATCH),getText(ELEVATOR_PATCH),getText(FOUNTAIN_PATCH),getText(CASSETTE_PATCH),getText(FOOD_PATCH),getText(POSTER_PATCH),getText(FOOTSTEP_PATCH),getText(POSTER_DIVERSITY_PATCH),getText(CASSETTE_V13_PATCH),getText(CASSETTE_V14_PATCH),getText(LOCAL_ASSETS_PATCH),getText(RETAIL_V16_PATCH),getText(LOCAL_ASSETS_MANIFEST)
+  const [base,worldPatch,industrialPatch,visualFixPatch,storePatch,systemsPatch,reliabilityPatch,statusPatch,audioPatch,elevatorPatch,fountainPatch,cassettePatch,foodPatch,posterPatch,footstepPatch,posterDiversityPatch,cassetteV13Patch,cassetteV14Patch,localAssetsPatch,retailV16Patch,storyV17Patch,localAssetsManifestText,storyModule]=await Promise.all([
+    decodeSource(),getText(WORLD_PATCH),getText(INDUSTRIAL_PATCH),getText(VISUAL_FIX_PATCH),getText(STORE_PATCH),getText(SYSTEMS_PATCH),getText(RELIABILITY_PATCH),getText(STATUS_PATCH),getText(AUDIO_PATCH),getText(ELEVATOR_PATCH),getText(FOUNTAIN_PATCH),getText(CASSETTE_PATCH),getText(FOOD_PATCH),getText(POSTER_PATCH),getText(FOOTSTEP_PATCH),getText(POSTER_DIVERSITY_PATCH),getText(CASSETTE_V13_PATCH),getText(CASSETTE_V14_PATCH),getText(LOCAL_ASSETS_PATCH),getText(RETAIL_V16_PATCH),getText(STORY_V17_PATCH),getText(LOCAL_ASSETS_MANIFEST),import('./story/story-data.js')
   ]);
   const worldSource=await applyWorldProps(normalizeImports(base),worldPatch);
   const industrialSource=await applyIndustrialCc0(worldSource,industrialPatch);
@@ -175,7 +180,8 @@ try{
   const localAssetsManifest=JSON.parse(localAssetsManifestText);
   const localAssetsV15Source=await applyLocalAssetsV15Runtime(cassetteV14Source,localAssetsPatch,localAssetsManifest);
   const retailV16Source=await applyRetailGeometryV16Runtime(localAssetsV15Source,retailV16Patch);
-  const source=retailV16Source+'\n//# sourceURL=pinewood-runtime.js\n';
+  const storyV17Source=await applyStoryFoundationV17Runtime(retailV16Source,storyV17Patch,storyModule.STORY_DATA_V17);
+  const source=storyV17Source+'\n//# sourceURL=pinewood-runtime.js\n';
   const moduleUrl=URL.createObjectURL(new Blob([source],{type:'text/javascript'}));
   try{await import(moduleUrl);}finally{URL.revokeObjectURL(moduleUrl);}
 }catch(err){
