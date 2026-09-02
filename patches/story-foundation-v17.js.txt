@@ -1,0 +1,111 @@
+function applyStoryFoundationV17(source,storyData){
+  const fail=msg=>{throw new Error('Story Foundation v17 patch failed: '+msg);};
+  if(!storyData||storyData.version!==17)fail('story data version 17 is required');
+  if(!Array.isArray(storyData.chapters)||storyData.chapters.length!==6)fail('six-chapter story data is required');
+  if(!Array.isArray(storyData.lastShiftIds)||storyData.lastShiftIds.length!==9)fail('nine Last Shift evidence IDs are required');
+  const replaceOnce=(label,needle,replacement)=>{
+    const first=source.indexOf(needle);
+    if(first<0)fail(label+': marker missing');
+    if(source.indexOf(needle,first+needle.length)>=0)fail(label+': marker is not unique');
+    source=source.slice(0,first)+replacement+source.slice(first+needle.length);
+  };
+  const replaceRange=(label,startMarker,endMarker,replacement)=>{
+    const start=source.indexOf(startMarker);if(start<0)fail(label+': start marker missing');
+    const end=source.indexOf(endMarker,start+startMarker.length);if(end<0)fail(label+': end marker missing');
+    source=source.slice(0,start)+replacement+source.slice(end);
+  };
+
+  replaceOnce('story data injection','const TAU=Math.PI*2;\n',`const TAU=Math.PI*2;\nconst STORY_DATA_V17=${JSON.stringify(storyData)};\nconst STORY_SAVE_VERSION_V17=17;\n`);
+
+  replaceRange(
+    'versioned narrative save state',
+    "const SAVE_KEY='pinewood_attendant_reborn_v1';",
+    'const LICENSE_MANIFEST=',
+`const SAVE_KEY='pinewood_attendant_reborn_v1';
+const DEFAULT_SAVE={
+  started:false, unlockedChapter:0, lastChapter:0,
+  journal:{},
+  story:{version:STORY_SAVE_VERSION_V17,flags:{},completedEvents:{},evidence:{},people:{},timeline:{},ending:null},
+  settings:{brightness:1.0,volume:.86,music:1.05,sensitivity:.00215,quality:'high',jumpscares:true,muzak:true,glitch:'full'}
+};
+function deepClone(v){return JSON.parse(JSON.stringify(v));}
+function migrateStorySaveV17(input){
+  const p=input&&typeof input==='object'?input:{},o=deepClone(DEFAULT_SAVE);Object.assign(o,p);
+  o.settings={...DEFAULT_SAVE.settings,...(p.settings||{})};o.journal=p.journal||{};
+  const prior=p.story&&typeof p.story==='object'?p.story:{};
+  o.story={...deepClone(DEFAULT_SAVE.story),...prior};
+  o.story.flags={...(prior.flags||{})};o.story.completedEvents={...(prior.completedEvents||{})};o.story.evidence={...(prior.evidence||{})};o.story.people={...(prior.people||{})};o.story.timeline={...(prior.timeline||{})};o.story.version=STORY_SAVE_VERSION_V17;
+  for(const id of STORY_DATA_V17.lastShiftIds){
+    if(!o.journal[id])continue;o.story.evidence[id]=true;const ev=STORY_DATA_V17.evidence[id];
+    for(const personId of ev?.people||[])if(!o.story.people[personId])o.story.people[personId]='known';
+    for(const factId of ev?.timeline||[])o.story.timeline[factId]=true;
+  }
+  return o;
+}
+function loadSave(){
+  try{const raw=localStorage.getItem(SAVE_KEY);return migrateStorySaveV17(raw?JSON.parse(raw):{});}catch{return migrateStorySaveV17({});}
+}
+let SAVE=loadSave();
+function save(){try{localStorage.setItem(SAVE_KEY,JSON.stringify(SAVE));}catch{}}
+function storyEscapeV17(value){return String(value??'').replace(/[&<>\"]/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;'}[ch]));}
+function recordEvidenceV17(id,text=null){
+  if(text!=null)SAVE.journal[id]=text;
+  const ev=STORY_DATA_V17.evidence[id];
+  if(ev){SAVE.story.evidence[id]=true;for(const personId of ev.people||[])if(!SAVE.story.people[personId])SAVE.story.people[personId]='known';for(const factId of ev.timeline||[])SAVE.story.timeline[factId]=true;}
+  save();return !!ev;
+}
+function storyLastShiftCompleteV17(){return STORY_DATA_V17.lastShiftIds.every(id=>!!SAVE.story.evidence[id]||!!SAVE.journal[id]);}
+window.__PINEWOOD_STORY_V17__={version:STORY_SAVE_VERSION_V17,chapterCount:STORY_DATA_V17.chapters.length,lastShiftIds:[...STORY_DATA_V17.lastShiftIds]};
+
+class StoryEventManagerV17{
+  constructor(game){this.game=game;}
+  hasFlag(id){return !!SAVE.story.flags[id];}
+  setFlag(id,value=true){SAVE.story.flags[id]=!!value;save();return !!value;}
+  completed(id){return !!SAVE.story.completedEvents[id];}
+  complete(id){SAVE.story.completedEvents[id]=true;save();return true;}
+  runOnce(id,action){if(this.completed(id))return false;if(typeof action==='function')action(this.game,this);this.complete(id);return true;}
+  queueDialogue(id,delay=0){const line=STORY_DATA_V17.dialogue[id];if(!line)return false;const who=line.speaker==='RENEE'?'RENEE WARD':line.speaker;const kind=line.medium==='radio'?'radio':line.medium==='intercom'?'intercom':'log';this.game.queueStory(delay,kind,who,line.text);return true;}
+  evidence(id,text=null){return recordEvidenceV17(id,text);}
+}
+
+`
+  );
+
+  replaceOnce(
+    'Game story manager construction',
+    "this.exitObject=null;this.storyQueue=[];this.nextAnnouncement=20;",
+    "this.exitObject=null;this.storyQueue=[];this.storyV17=new StoryEventManagerV17(this);this.nextAnnouncement=20;"
+  );
+
+  replaceOnce(
+    'legacy evidence collection migration',
+    "SAVE.journal[o.userData.label]=o.userData.text;save();audio.pickup();",
+    "recordEvidenceV17(o.userData.label,o.userData.text);audio.pickup();"
+  );
+
+  replaceOnce(
+    'expanded Journal renderer',
+    "rebuildJournal(){const ids=[...Object.keys(SAVE.journal)].sort();$('journalList').innerHTML=ids.length?ids.map(id=>`<div class=\"chapterCard\"><b>${id}</b><div class=\"tiny\" style=\"white-space:pre-line;color:#d1d3d7\">${SAVE.journal[id]}</div></div>`).join(''):'No Last Shift material recovered yet.';}",
+`rebuildJournal(){
+    const sections=[];
+    const peopleIds=Object.keys(SAVE.story.people||{}).filter(id=>STORY_DATA_V17.characters[id]).sort((a,b)=>STORY_DATA_V17.characters[a].name.localeCompare(STORY_DATA_V17.characters[b].name));
+    if(peopleIds.length){sections.push('<div class="chapterCard"><b>PEOPLE</b><div class="tiny">Confirmed people connected to Pinewood.</div></div>');for(const id of peopleIds){const c=STORY_DATA_V17.characters[id],state=SAVE.story.people[id],copy=c.states?.[state]||c.states?.known||Object.values(c.states||{})[0]||'';sections.push('<div class="chapterCard"><b>'+storyEscapeV17(c.name)+'</b><div class="tiny" style="color:#9fa4aa">'+storyEscapeV17(c.role)+'</div><div class="tiny" style="white-space:pre-line;color:#d1d3d7">'+storyEscapeV17(copy)+'</div></div>');}}
+    const evidenceIds=Object.keys(SAVE.story.evidence||{}).filter(id=>SAVE.story.evidence[id]&&STORY_DATA_V17.evidence[id]).sort();
+    if(evidenceIds.length){sections.push('<div class="chapterCard"><b>EVIDENCE</b><div class="tiny">Recovered physical evidence and Last Shift material.</div></div>');for(const id of evidenceIds){const ev=STORY_DATA_V17.evidence[id],legacy=SAVE.journal[id];sections.push('<div class="chapterCard"><b>'+storyEscapeV17(id+' · '+ev.title)+'</b><div class="tiny" style="white-space:pre-line;color:#d1d3d7">'+storyEscapeV17(ev.summary)+(legacy?'\n\n'+storyEscapeV17(legacy):'')+'</div></div>');}}
+    const timelineIds=Object.keys(SAVE.story.timeline||{}).filter(id=>SAVE.story.timeline[id]&&STORY_DATA_V17.timeline[id]).sort((a,b)=>String(STORY_DATA_V17.timeline[a].date).localeCompare(String(STORY_DATA_V17.timeline[b].date)));
+    if(timelineIds.length){sections.push('<div class="chapterCard"><b>TIMELINE</b><div class="tiny">Confirmed chronology reconstructed from evidence.</div></div>');for(const id of timelineIds){const item=STORY_DATA_V17.timeline[id];sections.push('<div class="chapterCard"><b>'+storyEscapeV17(item.date+' · '+item.title)+'</b><div class="tiny" style="white-space:pre-line;color:#d1d3d7">'+storyEscapeV17(item.text)+'</div></div>');}}
+    const legacyIds=Object.keys(SAVE.journal||{}).filter(id=>!STORY_DATA_V17.evidence[id]).sort();
+    if(legacyIds.length){sections.push('<div class="chapterCard"><b>OTHER RECORDS</b></div>');for(const id of legacyIds)sections.push('<div class="chapterCard"><b>'+storyEscapeV17(id)+'</b><div class="tiny" style="white-space:pre-line;color:#d1d3d7">'+storyEscapeV17(SAVE.journal[id])+'</div></div>');}
+    $('journalList').innerHTML=sections.length?sections.join(''):'No Pinewood evidence recovered yet.';
+  }`
+  );
+
+  replaceOnce(
+    'true-ending evidence state compatibility',
+    "const all=Array.from({length:9},(_,i)=>`LS-${String(i+1).padStart(2,'0')}`).every(id=>SAVE.journal[id]);",
+    'const all=storyLastShiftCompleteV17();'
+  );
+
+  for(const marker of ['STORY_SAVE_VERSION_V17=17','class StoryEventManagerV17','recordEvidenceV17(o.userData.label,o.userData.text)','storyLastShiftCompleteV17()','__PINEWOOD_STORY_V17__'])if(!source.includes(marker))fail('required v17 marker missing after patch: '+marker);
+  return source;
+}
