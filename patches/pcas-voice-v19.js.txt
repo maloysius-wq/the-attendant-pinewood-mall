@@ -61,7 +61,7 @@ function applyPcasVoiceV19(source,manifest){
     else ids=['ambient_ch3_unaccounted','ambient_ch3_east_wing','ambient_ch3_terminal'];
     this.playPcasLineV19(choose(ids));this.nextAnnouncement=this.time+rand(18,30);
   }
-  emitSound(pos,strength,type=`
+`
   );
 
   replaceOnce('Chapter 2 evaluation announcement id',
