@@ -19,6 +19,7 @@ on:
       - 'scripts/audit-local-assets-v15.mjs'
       - 'scripts/audit-retail-geometry-v16.mjs'
       - 'scripts/audit-story-foundation-v17.mjs'
+      - 'scripts/audit-chapter1-story-v18.mjs'
       - '.github/workflows/runtime-audit.yml'
   pull_request:
     paths:
@@ -37,6 +38,7 @@ on:
       - 'scripts/audit-local-assets-v15.mjs'
       - 'scripts/audit-retail-geometry-v16.mjs'
       - 'scripts/audit-story-foundation-v17.mjs'
+      - 'scripts/audit-chapter1-story-v18.mjs'
       - '.github/workflows/runtime-audit.yml'
   workflow_dispatch:
 
@@ -68,5 +70,7 @@ jobs:
         run: node scripts/audit-retail-geometry-v16.mjs
       - name: Validate story foundation v17
         run: node scripts/audit-story-foundation-v17.mjs
+      - name: Validate Chapter 1 Story v18
+        run: node scripts/audit-chapter1-story-v18.mjs
 
-# Verification trigger: v17 live loader plus forward-compatible protected audits
+# Verification trigger: Chapter 1 narrative retrofit v18 pre-deploy gate
