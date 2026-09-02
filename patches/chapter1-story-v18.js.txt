@@ -18,6 +18,11 @@ function applyChapter1StoryV18(source){
     'Dispatcher Renee Ward has a routine after-hours call: restore circuits A, B and C, verify the east freight elevator, then clear the property. Pinewood has been closed to shoppers for six years, but its emergency maintenance ticket is marked active.'
   );
 
+  replaceOnce('retired generic Chapter 1 startLine',
+    'Pinewood dispatch to contractor fourteen. Copy arrival. Restore emergency circuits A through C, then use the east freight elevator. Keep your radio open.',
+    'Fourteen, Ward on dispatch. I have you at Pinewood. Restore emergency circuits A through C, verify the east freight elevator, then clear the property. Keep this channel open.'
+  );
+
   replaceOnce('Renee Chapter 1 introduction',
     "beginPlay(){UI.hideAll();audio.resume();audio.setPaused(false);this.running=true;this.modal=false;this.controls.lock();this.queueStory(.7,'radio','DISPATCH',this.startLine());}",
     "beginPlay(){UI.hideAll();audio.resume();audio.setPaused(false);this.running=true;this.modal=false;this.controls.lock();if(this.levelIndex===0){SAVE.story.people.renee='known';SAVE.story.flags[STORY_DATA_V17.flags.reneeKnown]=true;save();this.storyV17.queueDialogue('ch1_start',.7);}else this.queueStory(.7,'radio','DISPATCH',this.startLine());}"
