@@ -81,4 +81,4 @@ jobs:
       - name: Validate distorted PCAS voice v19
         run: node scripts/audit-pcas-voice-v19.mjs
 
-# Verification trigger: PCAS Voice v19 pre-deploy reconstruction gate
+# Verification trigger: final clean-head PCAS Voice v19 runtime gate
