@@ -6,6 +6,7 @@ on:
     branches: [main]
     paths:
       - 'scripts/wire-pcas-v19-loader.mjs'
+      - 'scripts/finalize-pcas-v19-docs.mjs'
       - '.github/workflows/wire-pcas-v19.yml'
 
 permissions:
@@ -25,6 +26,8 @@ jobs:
           node-version: '22'
       - name: Wire Chapter 1 v18 and PCAS Voice v19
         run: node scripts/wire-pcas-v19-loader.mjs
+      - name: Finalize PCAS provenance and handoff
+        run: node scripts/finalize-pcas-v19-docs.mjs
       - name: Check deployment loader syntax
         run: node --check game.js
       - name: Commit live loader wiring and documentation
