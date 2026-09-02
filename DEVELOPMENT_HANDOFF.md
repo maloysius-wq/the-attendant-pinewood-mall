@@ -6,6 +6,21 @@
 **Repository access rule:** **Always use the connected GitHub plugin/connector first for Pinewood repository work. Never claim access is unavailable before checking the GitHub plugin.**  
 **Source-of-truth rule:** Read `AGENTS.md` and this file first, then inspect the latest commits/current repository files. The repository and the user's newest explicit request override older chat history.
 
+## Current narrative/audio checkpoint — v19
+
+The deployed loader now continues past the visual/local-asset stack through four narrative/audio layers:
+
+1. `patches/retail-geometry-v16.js.txt`
+2. `patches/story-foundation-v17.js.txt`
+3. `patches/chapter1-story-v18.js.txt`
+4. `patches/pcas-voice-v19.js.txt`
+
+Narrative authority is `STORY_BIBLE.md`; implementation staging is tracked in `NARRATIVE_IMPLEMENTATION_PLAN.md`. Story Foundation v17 supplies six-chapter data, versioned save migration, people/evidence/timeline state, StoryEventManager and the structured Journal. Chapter 1 Story v18 introduces Renee Ward by name, delays PCAS identifying the player as Contractor Fourteen until after power returns, fixes the Attendant's first-reveal countdown, and rewrites LS-01 through LS-03 as character-authored 1997 evidence.
+
+PCAS Voice v19 gives the overhead PA a pre-rendered distorted robotic voice. Nineteen authored announcements are generated offline with eSpeak NG and processed offline with FFmpeg, then committed as OGG files under `assets/audio/pa/`. The browser never calls a cloud TTS provider or browser speech synthesis. Runtime subtitles use each recording's manifest duration; ambient PA chatter and authored PCAS story beats share the same local voice system. Browser telemetry `window.__PINEWOOD_PCAS_V19__` reports line count, decoded clip count and failures so automated regression can verify all local voice assets without manual playtesting.
+
+`scripts/audit-pcas-voice-v19.mjs` reconstructs the runtime through v19, verifies all 19 audio hashes/text mappings/local paths, checks the live loader chain, rejects browser/cloud TTS paths and syntax-checks the assembled runtime. `scripts/capture-store-visuals.mjs` also requires all 19 PCAS clips to decode in Chromium and preserves the same-origin network gate.
+
 ## Permanent local-runtime-asset rule
 
 **NEVER use remote assets or remote browser libraries at runtime. ALWAYS download/vendor verified dependencies into this repository and serve them locally.** This is a permanent no-regression rule.
@@ -53,6 +68,10 @@ Use verified CC0 assets where suitable. Keep `LICENSES.md` and in-game attributi
 16. `patches/cassette-castle-rebuild-v13.js.txt` (grounding/shelf-ban foundation)
 17. `patches/cassette-castle-rebuild-v14.js.txt` (**final authoritative Cassette Castle layout/finish override**)
 18. `patches/local-assets-v15.js.txt` (**final runtime asset localization layer; all media resolves to repository-local vendored files**)
+19. `patches/retail-geometry-v16.js.txt` (**final retail/elevator geometry reliability layer**)
+20. `patches/story-foundation-v17.js.txt` (**structured narrative/save/Journal foundation**)
+21. `patches/chapter1-story-v18.js.txt` (**Chapter 1 Renee/PCAS/evidence retrofit**)
+22. `patches/pcas-voice-v19.js.txt` (**local pre-rendered distorted overhead-PA voice layer**)
 
 Patch order is intentional. Poster v10 runs after the Food Court replacement, v12 diversifies the final store posters, v13 establishes the permanent geometry-grounding and banned-shelf foundation, and v14 runs last to replace the v13 store layout with the final open-floor design while preserving those grounding rules.
 
@@ -63,6 +82,11 @@ Patch order is intentional. Poster v10 runs after the Food Court replacement, v1
 - `scripts/audit-poster-diversity-v12.mjs`
 - `scripts/audit-cassette-castle-v13.mjs`
 - `scripts/audit-cassette-castle-v14.mjs`
+- `scripts/audit-local-assets-v15.mjs`
+- `scripts/audit-retail-geometry-v16.mjs`
+- `scripts/audit-story-foundation-v17.mjs`
+- `scripts/audit-chapter1-story-v18.mjs`
+- `scripts/audit-pcas-voice-v19.mjs`
 
 The v13 audit now verifies that v13 reconstructs cleanly as the foundation handed to v14. The v14 audit reconstructs the complete deployed chain through v14, checks the final Cassette Castle layout plus protected earlier systems, and syntax-checks the assembled runtime.
 

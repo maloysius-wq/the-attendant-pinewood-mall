@@ -156,6 +156,19 @@ The source recordings are normalized during vendoring with FFmpeg EBU R128 proce
 
 Runtime per-event gains still make footsteps quieter than doors, impacts, and death sounds. Those are intentional mix choices rather than compensation for inconsistent source-file loudness. The final runtime contains no Web Audio oscillator or generated-random-noise fallback for non-music SFX; if an individual local sample cannot be decoded, that cue is skipped instead of synthesized.
 
+## PCAS synthesized overhead voice
+
+Pinewood's overhead **Pinewood Closing and Accountability System (PCAS)** announcements are pre-rendered project audio stored under `assets/audio/pa/`. They are intentionally separate from the CC0 recorded SFX library.
+
+- Canonical spoken text and synthesis settings: `story/pa-lines.json`.
+- Generation pipeline: `scripts/generate-pcas-voice.mjs` and `.github/workflows/generate-pcas-voice.yml`.
+- Build-time text-to-speech engine: **eSpeak NG 1.51**, GPL-3.0-or-later. Source: https://github.com/espeak-ng/espeak-ng. eSpeak NG is used only by the development/build workflow and is not shipped to or executed by the game browser.
+- Build-time audio processor: **FFmpeg**. Source: https://ffmpeg.org/. FFmpeg is used only by the development/build workflow and is not a browser dependency.
+- The authored English announcement text is original Pinewood game content. The final OGG files are generated from that authored text and then processed into the fictional PCAS presentation.
+- Processing chain: mono 44.1 kHz, 220–4550 Hz ceiling-speaker band limiting, hard compression, two lightly detuned delayed doubles, restrained 11-bit degradation, electrical flutter, presence EQ, 54/137 ms mall slapback, and normalization to approximately -20 LUFS / -2 dBTP.
+- `assets/audio/pa/manifest.json` records the exact text, duration and SHA-256 digest of every generated announcement. `scripts/audit-pcas-voice-v19.mjs` verifies those hashes and text mappings.
+- Runtime playback is **repository-local only**. The game does not call eSpeak, FFmpeg, a cloud TTS API, `speechSynthesis`, or `SpeechSynthesisUtterance` while playing. If a local PCAS clip cannot decode, Pinewood keeps the subtitle and skips the voice rather than synthesizing a remote or procedural replacement.
+
 ## Original/game-specific work
 The Attendant model and animation rig, story, levels, interaction systems, UI, generated signage/posters, gore visuals, particle effects and fallback geometry/textures are original to this project build. The current non-music sound effects are third-party CC0 recordings documented above rather than project-generated procedural audio.
 
