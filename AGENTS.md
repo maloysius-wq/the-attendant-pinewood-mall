@@ -12,6 +12,17 @@ For **The Attendant: Pinewood Mall**, always use the connected **GitHub plugin/c
 
 This rule exists because the repository is connected with write access and must be treated as the primary development interface in every Pinewood development session.
 
+## Canonical narrative source rule
+
+**`STORY_BIBLE.md` is Pinewood's canonical narrative source of truth.**
+
+- Read `STORY_BIBLE.md` before making story, character, lore, ending, chapter-arc, historical-timeline, PCAS, Renee Ward, Eli Mercer, or Attendant-mythology changes.
+- `NARRATIVE_IMPLEMENTATION_PLAN.md` is the implementation roadmap for the approved six-chapter expansion. It describes how to build the canon but does not override the story bible.
+- Structured runtime narrative data under `story/` must remain consistent with `STORY_BIBLE.md`.
+- The current playable three-chapter prototype is transitional. Do not treat old embedded prototype story strings as higher authority than the expanded canon.
+- The user's newest explicit narrative direction always overrides repository documentation. If that happens, update the story bible and affected structured data so the repository does not drift into competing versions of canon.
+- Preserve intentional ambiguity. In particular, do not explain The Attendant's cosmic origin or turn Eli Mercer into The Attendant unless the user explicitly changes that canon.
+
 ## Permanent local-runtime-asset rule
 
 **Pinewood must never load runtime assets or browser libraries from third-party network URLs. Always download/vendor them into this repository and serve them locally.**
@@ -61,8 +72,9 @@ Cassette Castle fixture/merchandise placement rules:
 
 1. Use the GitHub plugin.
 2. Read `DEVELOPMENT_HANDOFF.md`.
-3. Inspect the latest `main` commit and relevant current files.
-4. Treat the current repository plus the user's newest explicit request as source of truth.
-5. Implement directly in the repository when the request is actionable.
-6. Preserve the permanent local-runtime-asset rule.
-7. Run/inspect runtime audits and verify GitHub Pages after runtime changes.
+3. Read `STORY_BIBLE.md` for narrative work.
+4. Inspect the latest `main` commit and relevant current files.
+5. Treat the current repository plus the user's newest explicit request as source of truth.
+6. Implement directly in the repository when the request is actionable.
+7. Preserve the permanent local-runtime-asset and no-manual-WASD rules.
+8. Run/inspect runtime audits and verify GitHub Pages after runtime changes.
