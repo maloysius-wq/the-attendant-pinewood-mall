@@ -1,0 +1,72 @@
+function applyChapter1PcasEscalationV20(source){
+  const fail=msg=>{throw new Error('Chapter 1 PCAS Escalation v20 patch failed: '+msg);};
+  const replaceOnce=(label,needle,replacement)=>{
+    const first=source.indexOf(needle);if(first<0)fail(label+': marker missing');
+    if(source.indexOf(needle,first+needle.length)>=0)fail(label+': marker is not unique');
+    source=source.slice(0,first)+replacement+source.slice(first+needle.length);
+  };
+  const replaceRange=(label,startMarker,endMarker,replacement)=>{
+    const start=source.indexOf(startMarker);if(start<0)fail(label+': start marker missing');
+    const end=source.indexOf(endMarker,start+startMarker.length);if(end<0)fail(label+': end marker missing');
+    source=source.slice(0,start)+replacement+source.slice(end);
+  };
+
+  // PCAS registration becomes real narrative state, then the second restored circuit makes the
+  // building react to the contractor's movement rather than merely reciting a closing script.
+  replaceOnce('graduated Chapter 1 breaker escalation',
+    "if(this.breakers===1){if(this.levelIndex===0){this.storyV17.queueDialogue('ch1_first_power',.8);this.storyV17.queueDialogue('ch1_pcas_hold',2.5);this.storyV17.queueDialogue('ch1_contractor_registered',5.8);}else{this.queueStory(.8,'radio','DISPATCH','First relay is up. I found your work order. It was filed in 1997.');this.queueStory(2.3,'intercom','INTERCOM','Maintenance staff must report to Security for evaluation.');}}",
+    "if(this.breakers===1){if(this.levelIndex===0){SAVE.story.flags[STORY_DATA_V17.flags.contractor14Active]=true;save();this.storyV17.queueDialogue('ch1_first_power',.8);this.storyV17.queueDialogue('ch1_pcas_hold',2.5);this.storyV17.queueDialogue('ch1_contractor_registered',5.8);}else{this.queueStory(.8,'radio','DISPATCH','First relay is up. I found your work order. It was filed in 1997.');this.queueStory(2.3,'intercom','INTERCOM','Maintenance staff must report to Security for evaluation.');}}if(this.levelIndex===0&&this.breakers===2){this.storyV17.queueDialogue('ch1_pcas_route_deviation',.8);this.storyV17.queueDialogue('ch1_second_power',10.0);}"
+  );
+
+  // PCAS notices the physical service-key pickup. Renee now explicitly recognizes that Pinewood is
+  // observing actions it should not have access to and tells the player not to answer the building.
+  replaceOnce('key pickup conflict',
+    "if(this.levelIndex===0)this.storyV17.queueDialogue('ch1_key_discrepancy',.6);",
+    "if(this.levelIndex===0){this.storyV17.queueDialogue('ch1_key_discrepancy',.6);this.storyV17.queueDialogue('ch1_key_reaction',11.7);}"
+  );
+
+  // At the exit, the building and Renee issue contradictory instructions for the first time.
+  // This is still presented as an accountability-system dispute, not impossible supernatural knowledge.
+  replaceOnce('freight elevator departure conflict',
+    "    UI.hint('Service lock accepted. Freight elevator opening…');",
+    "    if(this.levelIndex===0){this.storyV17.queueDialogue('ch1_elevator_denied',.5);this.storyV17.queueDialogue('ch1_elevator_reaction',8.8);}UI.hint('Service lock accepted. Freight elevator opening…');"
+  );
+
+  // Ambient PCAS chatter now evolves with Chapter 1 state. Before power it is generic mall automation;
+  // after registration it becomes increasingly specific about the contractor while remaining plausibly
+  // attributable to old security/accountability telemetry. Voice imitation remains reserved for later chapters.
+  replaceRange('state-aware Chapter 1 ambient PCAS','  playRandomIntercom(){','  emitSound(pos,strength,type=',
+`  playRandomIntercom(){
+    let ids;
+    if(this.levelIndex===0){
+      if(this.breakers===0)ids=['ambient_ch1_public_exit','ambient_ch1_initializing','ambient_ch1_clear_public'];
+      else if(this.breakers===1)ids=['ch1_pcas_hold','ambient_ch1_cleanup'];
+      else if(this.breakers===2)ids=['ambient_ch1_camera_view','ambient_ch1_customer_service'];
+      else ids=['ambient_ch1_departure_pending','ambient_ch1_camera_view'];
+    }else if(this.levelIndex===1)ids=['ambient_ch2_stairwell','ambient_ch2_security','ambient_ch2_stop'];
+    else ids=['ambient_ch3_unaccounted','ambient_ch3_east_wing','ambient_ch3_terminal'];
+    this.playPcasLineV19(choose(ids));this.nextAnnouncement=this.time+rand(18,30);
+  }
+`
+  );
+
+  replaceOnce('v20 browser telemetry',
+    "window.__PINEWOOD_PCAS_V19__={version:19,lineCount:Object.keys(PCAS_VOICE_V19.files).length,localOnly:true,loaded:0,failures:[]};",
+    "window.__PINEWOOD_PCAS_V19__={version:19,lineCount:Object.keys(PCAS_VOICE_V19.files).length,localOnly:true,loaded:0,failures:[]};window.__PINEWOOD_CH1_V20__={version:20,reactivePcas:true,reneeAware:true,voiceImitation:false};"
+  );
+
+  for(const marker of [
+    "STORY_DATA_V17.flags.contractor14Active",
+    "queueDialogue('ch1_pcas_route_deviation',.8)",
+    "queueDialogue('ch1_second_power',10.0)",
+    "queueDialogue('ch1_key_reaction',11.7)",
+    "queueDialogue('ch1_elevator_denied',.5)",
+    "queueDialogue('ch1_elevator_reaction',8.8)",
+    "'ambient_ch1_camera_view'",
+    "'ambient_ch1_departure_pending'",
+    'window.__PINEWOOD_CH1_V20__',
+    'voiceImitation:false'
+  ])if(!source.includes(marker))fail('required v20 marker missing after patch: '+marker);
+  if(source.includes('voiceImitation:true'))fail('Chapter 1 must not introduce Renee voice imitation');
+  return source;
+}
