@@ -21,7 +21,7 @@ permissions:
 jobs:
   capture-store-visuals:
     runs-on: ubuntu-latest
-    timeout-minutes: 12
+    timeout-minutes: 25
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -45,7 +45,7 @@ jobs:
           curl --fail --silent --show-error --head http://127.0.0.1:4173/vendor/three/build/three.core.js
           curl --fail --silent --show-error --head http://127.0.0.1:4173/vendor/three/examples/jsm/loaders/GLTFLoader.js
           curl --fail --silent --show-error --head http://127.0.0.1:4173/vendor/pako/pako.esm.mjs
-      - name: Capture deterministic store views, story foundation, PCAS voice and Chapter 1 v20 state
+      - name: Capture all deterministic Pinewood views and runtime story/audio state
         run: node scripts/capture-store-visuals.mjs
       - name: Upload screenshots and telemetry
         if: always()
@@ -56,4 +56,4 @@ jobs:
           if-no-files-found: warn
           retention-days: 14
 
-# Verification trigger: Chapter 1 PCAS escalation v20 local browser/decode gate
+# Full-suite budget accommodates 16 independent WebGL scene boots on slower hosted runners.
