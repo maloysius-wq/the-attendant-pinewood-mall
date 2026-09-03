@@ -6,20 +6,27 @@
 **Repository access rule:** **Always use the connected GitHub plugin/connector first for Pinewood repository work. Never claim access is unavailable before checking the GitHub plugin.**  
 **Source-of-truth rule:** Read `AGENTS.md` and this file first, then inspect the latest commits/current repository files. The repository and the user's newest explicit request override older chat history.
 
-## Current narrative/audio checkpoint — v19
+## Current narrative/audio checkpoint - v20
 
-The deployed loader now continues past the visual/local-asset stack through four narrative/audio layers:
+The deployed loader now continues past the visual/local-asset stack through five narrative/audio layers:
 
 1. `patches/retail-geometry-v16.js.txt`
 2. `patches/story-foundation-v17.js.txt`
 3. `patches/chapter1-story-v18.js.txt`
 4. `patches/pcas-voice-v19.js.txt`
+5. `patches/chapter1-pcas-escalation-v20.js.txt`
 
-Narrative authority is `STORY_BIBLE.md`; implementation staging is tracked in `NARRATIVE_IMPLEMENTATION_PLAN.md`. Story Foundation v17 supplies six-chapter data, versioned save migration, people/evidence/timeline state, StoryEventManager and the structured Journal. Chapter 1 Story v18 introduces Renee Ward by name, delays PCAS identifying the player as Contractor Fourteen until after power returns, fixes the Attendant's first-reveal countdown, and rewrites LS-01 through LS-03 as character-authored 1997 evidence.
+Narrative authority is `STORY_BIBLE.md`; implementation staging is tracked in `NARRATIVE_IMPLEMENTATION_PLAN.md`. Story Foundation v17 supplies the six-chapter data framework, versioned save migration, people/evidence/timeline state, StoryEventManager and structured Journal. Chapter 1 Story v18 introduces Renee Ward by name, delays PCAS identifying the player as Contractor Fourteen until after power returns, fixes the Attendant's first-reveal countdown, and rewrites LS-01 through LS-03 as character-authored 1997 evidence.
 
-PCAS Voice v19 gives the overhead PA a pre-rendered distorted robotic voice. Nineteen authored announcements are generated offline with eSpeak NG and processed offline with FFmpeg, then committed as OGG files under `assets/audio/pa/`. The browser never calls a cloud TTS provider or browser speech synthesis. Runtime subtitles use each recording's manifest duration; ambient PA chatter and authored PCAS story beats share the same local voice system. Browser telemetry `window.__PINEWOOD_PCAS_V19__` reports line count, decoded clip count and failures so automated regression can verify all local voice assets without manual playtesting.
+PCAS Voice v19 remains the local pre-rendered voice infrastructure. Authored announcements in `story/pa-lines.json` are generated offline with eSpeak NG and processed offline with FFmpeg, then committed as OGG files under `assets/audio/pa/`. The browser never calls a cloud TTS provider or browser speech synthesis. The voice manifest and automated gates are manifest-driven so later authored PCAS lines can be added without hard-coding an old line count.
 
-`scripts/audit-pcas-voice-v19.mjs` reconstructs the runtime through v19, verifies all 19 audio hashes/text mappings/local paths, checks the live loader chain, rejects browser/cloud TTS paths and syntax-checks the assembled runtime. `scripts/capture-store-visuals.mjs` also requires all 19 PCAS clips to decode in Chromium and preserves the same-origin network gate.
+Chapter 1 PCAS Escalation v20 turns those announcements into a state-aware story system. Before power, PCAS is generic mall automation. The first restored circuit registers Contractor Fourteen. The second restored circuit produces a route-deviation response and Renee explicitly notices that Pinewood is reacting to the player's movement. Picking up the Master Service Key causes PCAS to flag a property discrepancy and Renee recognizes that the building is observing actions it should not have access to. At the freight elevator, PCAS and Renee give contradictory departure instructions. Ambient Chapter 1 announcements also escalate with breaker state, moving from public closing language toward contractor-specific surveillance/accountability language.
+
+Chapter 1 deliberately stops short of supernatural voice imitation. Runtime telemetry reports `window.__PINEWOOD_CH1_V20__={version:20,reactivePcas:true,reneeAware:true,voiceImitation:false}`. Renee imitation is reserved for a later chapter where it can function as a major escalation rather than an early gimmick.
+
+Verification checkpoint: the last runtime-affecting v20 source passed Runtime Audit #75 (run `33703984033`) and Store Visual Regression #38 (run `33703984005`). The current head then passed final Chapter 1 browser gate #40 (run `33704143839`) and GitHub Pages #287 (run `33704142656`). No manual WASD playtest was used.
+
+`scripts/audit-pcas-voice-v19.mjs` remains the local-voice/hash/runtime-TTS gate, while `scripts/audit-chapter1-pcas-v20.mjs` reconstructs and validates the reactive Chapter 1 escalation. Browser regression verifies the story/PCAS telemetry and same-origin runtime network policy.
 
 ## Permanent local-runtime-asset rule
 
@@ -72,6 +79,7 @@ Use verified CC0 assets where suitable. Keep `LICENSES.md` and in-game attributi
 20. `patches/story-foundation-v17.js.txt` (**structured narrative/save/Journal foundation**)
 21. `patches/chapter1-story-v18.js.txt` (**Chapter 1 Renee/PCAS/evidence retrofit**)
 22. `patches/pcas-voice-v19.js.txt` (**local pre-rendered distorted overhead-PA voice layer**)
+23. `patches/chapter1-pcas-escalation-v20.js.txt` (**Chapter 1 state-aware reactive PCAS escalation; Renee observes the conflict; voice imitation deliberately deferred**)
 
 Patch order is intentional. Poster v10 runs after the Food Court replacement, v12 diversifies the final store posters, v13 establishes the permanent geometry-grounding and banned-shelf foundation, and v14 runs last to replace the v13 store layout with the final open-floor design while preserving those grounding rules.
 
@@ -87,6 +95,7 @@ Patch order is intentional. Poster v10 runs after the Food Court replacement, v1
 - `scripts/audit-story-foundation-v17.mjs`
 - `scripts/audit-chapter1-story-v18.mjs`
 - `scripts/audit-pcas-voice-v19.mjs`
+- `scripts/audit-chapter1-pcas-v20.mjs`
 
 The v13 audit now verifies that v13 reconstructs cleanly as the foundation handed to v14. The v14 audit reconstructs the complete deployed chain through v14, checks the final Cassette Castle layout plus protected earlier systems, and syntax-checks the assembled runtime.
 
