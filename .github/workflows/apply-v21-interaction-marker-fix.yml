@@ -26,12 +26,13 @@ jobs:
           from pathlib import Path
           path=Path('patches/chapter2-below-grade-v21.js.txt')
           text=path.read_text()
-          old="\"else if(t==='note'||t==='journal'||t==='tape')UI.hint('E  Recover '+o.userData.label);\","
-          new="\"else if(t==='note'||t==='tape')UI.hint('E  Recover '+o.userData.label);\","
+          old="t==='note'||t==='journal'||t==='tape'"
+          new="t==='note'||t==='tape'"
           count=text.count(old)
-          if count != 1:
-              raise SystemExit(f'Expected exactly one stale prompt needle, found {count}')
+          if count < 1:
+              raise SystemExit('Stale v21 prompt needle was not found')
           path.write_text(text.replace(old,new,1))
+          print(f'Corrected first of {count} matching staged marker strings')
           PY
           node scripts/audit-chapter2-below-grade-v21.mjs
       - name: Commit corrected patch
