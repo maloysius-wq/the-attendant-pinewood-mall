@@ -1,6 +1,6 @@
 {
   "version": 19,
-  "generatedAt": "2026-09-03T01:25:57.635Z",
+  "generatedAt": "2026-09-03T15:43:33.163Z",
   "source": "story/pa-lines.json",
   "engine": {
     "name": "eSpeak NG",
@@ -25,161 +25,175 @@
       "file": "ch1_pcas_hold.ogg",
       "text": "Attention shoppers. Closing has been extended. Employees remain at their stations.",
       "textSha256": "fe81aae53e0fc489f7fc5fea9c9934241795972513d76c78b1957f4b7c8aca23",
-      "sha256": "6caf786345d04c0e5ac175f92647a4888d152cb8079cc8bf5552602156218ae0",
+      "sha256": "5f5c94de9c4f4a67bd355ae022bce4febfed38c246d7377b6612f360a30fbae3",
       "duration": 8.74
     },
     "ch1_contractor_registered": {
       "file": "ch1_contractor_registered.ogg",
       "text": "Temporary contractor session active. Contractor Fourteen, remain on property until accountability release.",
       "textSha256": "f2e7e180894889e4913a879135ba0a81a4ae7985749362435751a4a5c7413df8",
-      "sha256": "14f1c98efa43b5b360c339a9ed2d67e70f6c2fbc1ff93f975eb6d43f847dcdd0",
+      "sha256": "53426b2961ad3f29bc90f39ea92bb687d3cf797f285e4f0f0f17957533d0d533",
       "duration": 10.64
     },
     "ch1_pcas_route_deviation": {
       "file": "ch1_pcas_route_deviation.ogg",
       "text": "Emergency power state updated. Contractor Fourteen, movement outside assigned work area logged.",
       "textSha256": "5cb07499b2dd9d4222c5118674d1bcc9933c37163a0857a2607cc1d57550d5ae",
-      "sha256": "7e8cb90894f37efdb939f3e6dc3dd6412a3f42828737613c67bbf30c1f5a634f",
+      "sha256": "db13f47b7ce8f75572541b7bde07dd1fcf9086fb72c0413fcbb4d55ce6b1ae1f",
       "duration": 9.74
     },
     "ch1_key_discrepancy": {
       "file": "ch1_key_discrepancy.ogg",
       "text": "Key control discrepancy detected. Temporary contractor Fourteen, return borrowed property to Security.",
       "textSha256": "b551cf655d109c051426ffe734af6e10d3ca6bac2c297fca438a648d6c343098",
-      "sha256": "be26ba6e508cabc235f40a99d56511033e042be079b3e7a6d3aece8e2a479937",
+      "sha256": "6bb227eb377a7f17dbd8fae86c832614ad1d4ae58bdf479dc9ea2d92f47d73d3",
       "duration": 10.44
     },
     "ch1_elevator_denied": {
       "file": "ch1_elevator_denied.ogg",
       "text": "Contractor Fourteen, departure is not authorized while accountability remains open.",
       "textSha256": "12b3877b078a837a0bcffa141b52e07b58362e0847e88f3d51e82ac84df22576",
-      "sha256": "6ccc84310599341a62b229f89ff4e881052678ead71eca95b01732c1d7e00190",
+      "sha256": "f75218669feebed3c91315b096ee1cfa71979930a2b269c9e7f21d751eda2df3",
       "duration": 7.94
     },
     "ch2_maintenance_eval": {
       "file": "ch2_maintenance_eval.ogg",
       "text": "Maintenance staff must report to Security for evaluation.",
       "textSha256": "72d7693f90b91d44e9918ffe2559ac551e3844d53c0fd411a47a98fca8f9b983",
-      "sha256": "6eada77062112a4317beda237f5aa2c01d5159ea50df463ba22ea0097156c644",
+      "sha256": "32ab3e257bd571f094572e2ff342e37af6fc094f2aed366a1724230d4202fa14",
       "duration": 5.94
+    },
+    "ch2_pump_violation": {
+      "file": "ch2_pump_violation.ogg",
+      "text": "Unauthorized sump cycle detected. Maintenance personnel remain in assigned service zones.",
+      "textSha256": "e600226e6cf0ac3704854093366fc7dee27a9bbeb49db9317154d9e8690e410f",
+      "sha256": "6ea83c42a4d9647b3f8ec43e1a78b68e40009ee77e222510bc7070369512b2e4",
+      "duration": 8.84
+    },
+    "ch2_route_deviation": {
+      "file": "ch2_route_deviation.ogg",
+      "text": "Temporary contractor Fourteen, maintenance route deviation recorded. Return to assigned service area.",
+      "textSha256": "8ae2a993d2318604c6f940ea5813271454bf2c61703053bf92669314515cd406",
+      "sha256": "47a60876021f6019b9f12997459791ab76889a0a33a796be401fb8066e6ab519",
+      "duration": 9.94
     },
     "ch3_accountability_zero": {
       "file": "ch3_accountability_zero.ogg",
       "text": "All employees must remain until accountability reaches zero.",
       "textSha256": "07778ae9e0061fccc3b200b49be6fe587c37ccd1afdaee4272fb2c8ff434f92d",
-      "sha256": "0807934a1aa138036c56e1af71309787d4ebcd4057d59e42331a76eb8e6f29f4",
+      "sha256": "61a0d9b93a9a798d96ff6f4103d2958d8e90c2004abf8581df481d23771dcbdc",
       "duration": 6.04
     },
     "ch6_final_recall": {
       "file": "ch6_final_recall.ogg",
       "text": "Contractor Fourteen, return to your assigned station. Closing checklist incomplete.",
       "textSha256": "a4bd9f8d7c87c373da2422089058ed9b5ca48b55644f194afef08cf8cb45757a",
-      "sha256": "0848f2814c5475983a528fe8e76ab4bdf0ded9e53ea7aca22f81fb6131bed1cf",
+      "sha256": "b346938561f2c299bd932d934c37a5f1d7dd7985b81f16eab335b1be2c7deb95",
       "duration": 8.34
     },
     "ambient_ch1_public_exit": {
       "file": "ambient_ch1_public_exit.ogg",
       "text": "Pinewood Mall is now closed. Please proceed to the nearest public exit.",
       "textSha256": "0151bde7c423a3beec5281d105b629336dd22fae97c917ea1c8492c5cbba66c5",
-      "sha256": "9218b48ab8de1f67dea165f7cd21a80b74b1e6e073c2ae07410257384a8c30c5",
+      "sha256": "22d68c4fe9521706d772d1511f5151b0a24f168a599e0d90a45e26a2be09aaf6",
       "duration": 7.74
     },
     "ambient_ch1_initializing": {
       "file": "ambient_ch1_initializing.ogg",
       "text": "Closing checklist initializing. Tenant zones pending.",
       "textSha256": "2fb8ab6e87a78b42f6ab7a49aa36a99a73bc5263727d4a833c90353fdcf26d50",
-      "sha256": "93d43e31366e34bf86b7e4d05d520e6c42585778bbe98639e5836f1cc98c84b1",
+      "sha256": "be7358254e2c0b3cce2a2929d222a8fe41ef644d9bb952aa7b99bbea209daee8",
       "duration": 5.94
     },
     "ambient_ch1_clear_public": {
       "file": "ambient_ch1_clear_public.ogg",
       "text": "Overnight security state pending. Please clear public areas.",
       "textSha256": "2a80eea5a7aeff248a41dc79212c2335a8bba6a958a8e5b5c0dc794c0661a105",
-      "sha256": "46d03d752956c2988a9f5ff70945db64a2175f35152c8a79bc7fb76118eceacf",
+      "sha256": "bfe3f88b3ba643bff340e406922d7dbffee0c70160a5ac27bffe9f6f3a2376c1",
       "duration": 6.84
     },
     "ambient_ch1_cleanup": {
       "file": "ambient_ch1_cleanup.ogg",
       "text": "Cleanup requested at the fountain. Do not use the nearest exit.",
       "textSha256": "3f586ef0965eb9de817dab6693d925b8fe80367b3338fbb8ab9635132c3cfa62",
-      "sha256": "9b012ea5bb36027758b78a20b63707546fc96cef936e2a652b05c25589fe8b74",
+      "sha256": "27d9b81623d78d57c072a7337311f30d1c4d2f4e425e72199711f7acb768e45d",
       "duration": 6.74
     },
     "ambient_ch1_customer_service": {
       "file": "ambient_ch1_customer_service.ogg",
       "text": "Would contractor fourteen please report to Customer Service.",
       "textSha256": "62e252cba6897fcee28a7fd8e7097f90a7329cc63c9d14bc931c2c0d171a431a",
-      "sha256": "a21fce871f8ad55bcd5e4b0d84e99136aea206044f40ab72728104dcfbbe3154",
+      "sha256": "1e208a164d7710d9249450342c8c3fc227957c30747406236fb3224095515fd4",
       "duration": 5.84
     },
     "ambient_ch1_camera_view": {
       "file": "ambient_ch1_camera_view.ogg",
       "text": "Contractor Fourteen, remain visible to Security while closing is in progress.",
       "textSha256": "f9cc4ab464ac1ee7706fa8c69f70367bc52f9af46a9727a90c99df7fbf41e1ed",
-      "sha256": "0339c66931d48911f6afa1a26a5e9f88c1064e6458958a5a36532b6dcbffaeca",
+      "sha256": "08d8b2f1004a92db062b2e32ebce9e4d2c84ca211851be2f7f3ef938bc55d8bc",
       "duration": 7.94
     },
     "ambient_ch1_departure_pending": {
       "file": "ambient_ch1_departure_pending.ogg",
       "text": "Contractor Fourteen departure request received. Accountability release pending.",
       "textSha256": "88d40b65beeb8196bdce2721381e2c2a5d45bc2831709ff2e88f5dcc0242cc8c",
-      "sha256": "4e95f28866003b2a49eb08b9ef1b5155ae18ecea052dea3615dcfd5c5ec3687a",
+      "sha256": "e89a061a667b686cda2a27993f55e18d7a213d43965de41b407b8850f4ac6e2c",
       "duration": 7.54
     },
     "ambient_ch2_stairwell": {
       "file": "ambient_ch2_stairwell.ogg",
       "text": "Staff reminder. The north stairwell is not an approved exit.",
       "textSha256": "0fbe897d3b46162cac65d67097cb38821aa2f27cbd6a772bfcced719fe3cf259",
-      "sha256": "c5dea26e2483cd0d5fe271f9dbd315ca57279a5da37fe6d0163d5d09cae4e0ce",
+      "sha256": "dae8f340e9eab10bd3e36a3f8cc602bf1c3630c063b3c71797ab77685d6202e4",
       "duration": 6.44
     },
     "ambient_ch2_security": {
       "file": "ambient_ch2_security.ogg",
       "text": "Security inspection in progress. Remain where you can be counted.",
       "textSha256": "4a2ef9f36aebf8e33b5db976540ab8e1e06845549336547a3d93a29043e98b46",
-      "sha256": "5d3f84e27dafda0f1636df74feadbb1df03afa60afa95ea95285974429766a03",
+      "sha256": "00fd329b36439316b21dc99cfdf5caeb7ac711e1396672b270b7f68bfc06fb12",
       "duration": 6.84
     },
     "ambient_ch2_stop": {
       "file": "ambient_ch2_stop.ogg",
       "text": "Contractor fourteen, Dispatch requests that you stop moving.",
       "textSha256": "f804232d428d90c3479628a8aa398b46ffdc19442aa1ba132890046430e62d8f",
-      "sha256": "2a40668c6b60cb31dcec72aaeaacae420a1f84b762e71f4fb67815284feaf686",
+      "sha256": "3d7d61d65bdd4029336e68a8751bfcf1264bfedf4dc017398dc0bbe7c7011533",
       "duration": 6.24
     },
     "ambient_ch3_unaccounted": {
       "file": "ambient_ch3_unaccounted.ogg",
       "text": "Closing checklist incomplete. One staff member remains unaccounted for.",
       "textSha256": "8dcbc6dbccac81d342d7dbae3041d6ea66615418ffe45a7650861caedf86d138",
-      "sha256": "a04dfec66f4f04a370d4f869684290bed16a47fbec6f7873ef32fecf71daf659",
+      "sha256": "11e89fd0210d61e91b9e75db218140779a750fbcd195e9134dec317be23f34f6",
       "duration": 7.44
     },
     "ambient_ch3_east_wing": {
       "file": "ambient_ch3_east_wing.ogg",
       "text": "The east wing will remain open until all employees have clocked out.",
       "textSha256": "097918a5b6730b4e983d4659903d70154c9b35f8d89a0f12d2ebe40c72178623",
-      "sha256": "ba3fb7647d76f713ba43494be1b37b51f63d0f7089409136a7c6af3053f44a12",
+      "sha256": "50ebfb09024bb802003f1a54e46384238d5c1fe2363f1a0fe768a7540bab961f",
       "duration": 6.84
     },
     "ambient_ch3_terminal": {
       "file": "ambient_ch3_terminal.ogg",
       "text": "Thank you for your service. Please proceed to the attendance terminal.",
       "textSha256": "ac6014594b4dfa51c1a618af2fc0fb8903e8f009636851c3d36c9602998f856a",
-      "sha256": "2e9499f337ca7debe947ed2c59fc084a570c52441db60c737971167f56eafbe1",
+      "sha256": "f3e0a64b6215d6ae078fec0751480890d89e334026df93ba14d30a5302e42cd7",
       "duration": 6.94
     },
     "ending_override": {
       "file": "ending_override.ogg",
       "text": "Accountability override received.",
       "textSha256": "3bb1e2ef023bd5f59d05c2486f46f46fdeae00c05c9df81248abc5814060f50d",
-      "sha256": "cd6b93c4225d473119dc6d80e49cebab15248202aac13e1cd0f55a02df65744b",
+      "sha256": "1a11d51a6295f9db50e7f49efe205478383adb65cfe447bbecca1cff735dc3e3",
       "duration": 3.408
     },
     "ending_closed": {
       "file": "ending_closed.ogg",
       "text": "All staff accounted for. Pinewood Mall is now closed.",
       "textSha256": "81ca7af71557f8621c0ff9ca0f60658fae0975a6d5cf9cddce3a9ad9bedc5aa8",
-      "sha256": "26e989d5bf6d3c2e8da22dd076f2e7081ed61cd0ba2b9c747e282aa2e8dffa29",
+      "sha256": "d6158217c968f715565f586d5d79abdbd6e7760a218841ed75543982c620c444",
       "duration": 6.24
     }
   }
