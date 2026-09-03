@@ -22,7 +22,7 @@ try{
       await page.screenshot({path:`east-wing-artifacts/${view}.png`,fullPage:true});
       const remotes=[...new Set(remoteRequests)],errors=consoleMessages.filter(m=>m.type==='pageerror'||m.type==='error');
       const ch4=state.chapter4;
-      const ok=remotes.length===0&&errors.length===0&&state.story?.version===17&&state.chapter2?.version===21&&state.chapter3?.version===22&&state.chapter3?.readabilityPolish===true&&ch4?.version===23&&ch4?.informationDistrust===true&&ch4?.physicalVerification===true&&ch4?.radioImitation===true&&ch4?.tessaSetpiece===true&&ch4?.lastShiftEvidence==='LS-06'&&ch4?.prePcasEvidence==='PRE-1986-LOG'&&ch4?.sceneBuilt===true;
+      const ok=remotes.length===0&&errors.length===0&&state.story?.version===17&&state.chapter2?.version===21&&state.chapter3?.version===22&&state.chapter3?.readabilityPolish===true&&ch4?.version===23&&ch4?.informationDistrust===true&&ch4?.physicalVerification===true&&ch4?.visualReadability===true&&ch4?.radioImitation===true&&ch4?.tessaSetpiece===true&&ch4?.lastShiftEvidence==='LS-06'&&ch4?.prePcasEvidence==='PRE-1986-LOG'&&ch4?.sceneBuilt===true;
       if(!ok)report.failed=true;report.views[view]={ok,state,consoleMessages,remoteRequests:remotes};
     }catch(err){report.failed=true;await page.screenshot({path:`east-wing-artifacts/${view}-failure.png`,fullPage:true}).catch(()=>{});report.views[view]={ok:false,error:err.stack||String(err),consoleMessages,remoteRequests:[...new Set(remoteRequests)]};}
     finally{await page.close();}
