@@ -27,10 +27,11 @@ for(const id of ['ch2_maintenance_eval','ch2_pump_violation','ch2_route_deviatio
   if(line?.speaker!=='PCAS'||line?.medium!=='intercom')fail(id+' must be a PCAS intercom line');
   if(line.text!==paById[id]?.text||line.text!==voiceManifest.files?.[id]?.text)fail(id+' spoken/story text drift detected');
 }
-for(const id of ['ch2_start','ch2_feeder_found','ch2_relay_d','ch2_1997_ticket','ch2_pump_ready','ch2_mask_tutorial','ch2_gavin_body','ch2_gavin_ticket','ch2_contractor13','ch2_relay_e','ch2_exit']){
-  const line=story.dialogue[id];if(line?.speaker!=='RENEE'||line?.medium!=='radio')fail(id+' must be a Renee radio line');
-  if(!line.text.startsWith('Fourteen, Ward on dispatch.'))fail(id+' must preserve Renee authentication phrasing');
-}
+const reneeLines=['ch2_start','ch2_feeder_found','ch2_relay_d','ch2_1997_ticket','ch2_pump_ready','ch2_mask_tutorial','ch2_gavin_body','ch2_gavin_ticket','ch2_contractor13','ch2_relay_e','ch2_exit'];
+for(const id of reneeLines){const line=story.dialogue[id];if(line?.speaker!=='RENEE'||line?.medium!=='radio')fail(id+' must be a Renee radio line');}
+for(const id of reneeLines.filter(id=>id!=='ch2_contractor13'))if(!story.dialogue[id].text.startsWith('Fourteen, Ward on dispatch.'))fail(id+' must preserve Renee authentication phrasing');
+const contractorReveal=story.dialogue.ch2_contractor13.text;
+if(!contractorReveal.includes('CONTRACTOR 13')||!contractorReveal.includes('Yours says CONTRACTOR 14')||!contractorReveal.includes('You are not the first person'))fail('Contractor 13 reveal lost its numbered-session discovery');
 if(story.dialogue.ch4_fake_route?.speaker!=='RENEE?')fail('later voice-imitation setup was altered');
 if(!voiceManifest.files?.ch2_pump_violation||!voiceManifest.files?.ch2_route_deviation)fail('new Chapter 2 local PCAS recordings are missing');
 
