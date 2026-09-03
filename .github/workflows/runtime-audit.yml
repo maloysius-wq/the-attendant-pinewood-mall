@@ -89,4 +89,4 @@ jobs:
       - name: Validate Chapter 2 Below Grade v21
         run: node scripts/audit-chapter2-below-grade-v21.mjs
 
-# Verification checkpoint: corrected staged Below Grade v21 patch
+# Verification checkpoint: live Below Grade v21 loader
