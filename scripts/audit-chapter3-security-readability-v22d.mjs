@@ -19,30 +19,31 @@ const prior=spawnSync(process.execPath,['scripts/audit-chapter3-security-readabi
 const story=await storyData(),voice=JSON.parse(await readFile('assets/audio/pa/manifest.json','utf8')),local=JSON.parse(await readFile('assets/vendor/runtime/manifest.json','utf8'));
 const payload=(await Promise.all(PARTS.map(p=>readFile(p,'utf8')))).map(v=>v.trim()).join('');let source=normalizeImports(gunzipSync(Buffer.from(payload,'base64')).toString('utf8'));
 for(const [p,n] of BASE)source=(await loadPatch(p,n))(source);source=replaceFoodCourt(source,await readFile('patches/foodcourt-v3.js.txt','utf8'));for(const [p,n] of TAIL)source=(await loadPatch(p,n))(source);
-source=(await loadPatch('patches/local-assets-v15.js.txt','applyLocalAssetsV15'))(source,local);
-source=(await loadPatch('patches/retail-geometry-v16.js.txt','applyRetailGeometryV16'))(source);
-source=(await loadPatch('patches/story-foundation-v17.js.txt','applyStoryFoundationV17'))(source,story);
-source=(await loadPatch('patches/chapter1-story-v18.js.txt','applyChapter1StoryV18'))(source);
-source=(await loadPatch('patches/pcas-voice-v19.js.txt','applyPcasVoiceV19'))(source,voice);
-source=(await loadPatch('patches/chapter1-pcas-escalation-v20.js.txt','applyChapter1PcasEscalationV20'))(source);
-source=(await loadPatch('patches/chapter2-below-grade-v21.js.txt','applyChapter2BelowGradeV21'))(source);
-source=(await loadPatch('patches/chapter3-eyes-security-v22.js.txt','applyChapter3EyesSecurityV22'))(source);
-source=(await loadPatch('patches/chapter3-east-wing-handoff-v22b.js.txt','applyChapter3EastWingHandoffV22B'))(source);
-source=(await loadPatch('patches/chapter3-security-readability-v22c.js.txt','applyChapter3SecurityReadabilityV22C'))(source);
-source=(await loadPatch('patches/chapter3-security-readability-v22d.js.txt','applyChapter3SecurityReadabilityV22D'))(source);
+for(const [p,n,args] of [
+ ['patches/local-assets-v15.js.txt','applyLocalAssetsV15',[local]],['patches/retail-geometry-v16.js.txt','applyRetailGeometryV16',[]],['patches/story-foundation-v17.js.txt','applyStoryFoundationV17',[story]],['patches/chapter1-story-v18.js.txt','applyChapter1StoryV18',[]],['patches/pcas-voice-v19.js.txt','applyPcasVoiceV19',[voice]],['patches/chapter1-pcas-escalation-v20.js.txt','applyChapter1PcasEscalationV20',[]],['patches/chapter2-below-grade-v21.js.txt','applyChapter2BelowGradeV21',[]],['patches/chapter3-eyes-security-v22.js.txt','applyChapter3EyesSecurityV22',[]],['patches/chapter3-east-wing-handoff-v22b.js.txt','applyChapter3EastWingHandoffV22B',[]],['patches/chapter3-security-readability-v22c.js.txt','applyChapter3SecurityReadabilityV22C',[]],['patches/chapter3-security-readability-v22d.js.txt','applyChapter3SecurityReadabilityV22D',[]]
+])source=(await loadPatch(p,n))(source,...args);
 
 for(const marker of ["readabilityLighting:true,readabilityPolish:true","1.72,8.4,coolPanel,'west-shutter'","1.72,8.4,coolPanel,'east-shutter'","1.58,7.4,coolPanel,'secondary-security'","chapter3LightV22D='ambient-fill'","chapter3LightV22D='luis-fill'","chapter3LightV22D='vcr-fill'","new THREE.HemisphereLight(0x647b75,0x050606,.115)","'security-shutters':{chapter:2,p:[-8.0,1.70,3.8],yaw:Math.PI,pitch:-.06}","emissiveIntensity:.90,roughness:.3","emissiveIntensity:.88,roughness:.29"])if(!source.includes(marker))fail('assembled runtime missing v22d marker: '+marker);
-for(const protectedMarker of ['securityFeedStatusV22(game,feed)',"securityRouteV22='west'","securityRouteV22='east'","completeSecurityV22(){","SAVE.story.chapterCheckpoint='east_wing'","o.userData.label==='LS-05'",'s.drainElapsed/9.0',"tag:'perimeter-rack-v14'"])if(!source.includes(protectedMarker))fail('protected system marker missing: '+protectedMarker);
+for(const marker of ['securityFeedStatusV22(game,feed)',"securityRouteV22='west'","securityRouteV22='east'","completeSecurityV22(){","SAVE.story.chapterCheckpoint='east_wing'","o.userData.label==='LS-05'",'s.drainElapsed/9.0',"tag:'perimeter-rack-v14'",'reactivePcas:true','contractor13:true'])if(!source.includes(marker))fail('protected system marker missing: '+marker);
 if(source.includes('voiceImitation:true'))fail('v22d introduced voice imitation before Chapter 4');
 for(const forbidden of ['speechSynthesis','SpeechSynthesisUtterance','https://api.elevenlabs','https://api.openai.com','https://translate.google'])if(source.includes(forbidden))fail('runtime speech/network path survived: '+forbidden);
 const externalMedia=(source.match(/https:\/\/[^'"`\\s)]+\.(?:glb|gltf|bin|png|jpe?g|webp|ogg|mp3|wav)(?:[?#][^'"`\\s)]*)?/gi)||[]);if(externalMedia.length)fail('external runtime media survived: '+[...new Set(externalMedia)].join(', '));
 await syntaxCheck(source);
-const loader=await readFile('game.js','utf8'),live=loader.includes("const CHAPTER3_V22D_PATCH='./patches/chapter3-security-readability-v22d.js.txt';"),v23=loader.includes("const CHAPTER4_V23_PATCH='./patches/chapter4-east-wing-v23.js.txt';");
+
+const loader=await readFile('game.js','utf8');
+const live=loader.includes("const CHAPTER3_V22D_PATCH='./patches/chapter3-security-readability-v22d.js.txt';");
+const v23=loader.includes("const CHAPTER4_V23_PATCH='./patches/chapter4-east-wing-v23.js.txt';");
+const v23b=loader.includes("const CHAPTER4_V23B_PATCH='./patches/chapter4-east-wing-readability-v23b.js.txt';");
 if(live){
   for(const marker of ['async function applyChapter3SecurityReadabilityV22DRuntime(source,patchText)','getText(CHAPTER3_V22D_PATCH)','const chapter3V22DSource=await applyChapter3SecurityReadabilityV22DRuntime(chapter3V22CSource,chapter3V22DPatch);'])if(!loader.includes(marker))fail('game.js partial/incorrect live v22d marker: '+marker);
+  if(v23b&&!v23)fail('game.js cannot wire v23b without v23');
   if(v23){
-    for(const marker of ['async function applyChapter4EastWingV23Runtime(source,patchText)','getText(CHAPTER4_V23_PATCH)','const chapter4V23Source=await applyChapter4EastWingV23Runtime(chapter3V22DSource,chapter4V23Patch);',"const source=chapter4V23Source+'\\n//# sourceURL=pinewood-runtime.js\\n';"])if(!loader.includes(marker))fail('game.js invalid v22d→v23 feed-forward marker: '+marker);
+    for(const marker of ['async function applyChapter4EastWingV23Runtime(source,patchText)','getText(CHAPTER4_V23_PATCH)','const chapter4V23Source=await applyChapter4EastWingV23Runtime(chapter3V22DSource,chapter4V23Patch);'])if(!loader.includes(marker))fail('game.js invalid v22d→v23 feed-forward marker: '+marker);
     if(loader.includes("const source=chapter3V22DSource+'\\n//# sourceURL=pinewood-runtime.js\\n';"))fail('game.js still boots terminal v22d while v23 is present');
+    if(v23b){
+      for(const marker of ['async function applyChapter4EastWingReadabilityV23BRuntime(source,patchText)','getText(CHAPTER4_V23B_PATCH)','const chapter4V23BSource=await applyChapter4EastWingReadabilityV23BRuntime(chapter4V23Source,chapter4V23BPatch);',"const source=chapter4V23BSource+'\\n//# sourceURL=pinewood-runtime.js\\n';"])if(!loader.includes(marker))fail('game.js invalid v23→v23b feed-forward marker: '+marker);
+      if(loader.includes("const source=chapter4V23Source+'\\n//# sourceURL=pinewood-runtime.js\\n';"))fail('game.js still boots terminal v23 while v23b is present');
+    }else if(!loader.includes("const source=chapter4V23Source+'\\n//# sourceURL=pinewood-runtime.js\\n';"))fail('game.js missing terminal v23 source marker');
   }else if(!loader.includes("const source=chapter3V22DSource+'\\n//# sourceURL=pinewood-runtime.js\\n';"))fail('game.js missing terminal v22d source marker');
 }else if(loader.includes('applyChapter3SecurityReadabilityV22DRuntime')||loader.includes('chapter3V22DSource'))fail('game.js contains partial v22d wiring');
-console.log(`Chapter 3 Security readability v22d PASS (${live?'LIVE':'STAGED'}${v23?'→V23':''}): shutter regression camera faces the actual interlock; shutter and Luis areas receive stronger local pools plus a low Chapter 3 ambient floor; CCTV/VCR screens remain readable; v22/v22b gameplay and local-runtime invariants survive.`);
+console.log(`Chapter 3 Security readability v22d PASS (${live?'LIVE':'STAGED'}${v23?'→V23':''}${v23b?'→V23B':''}): Security readability, navigation/story invariants, local-only media, and ordered loader feed-forward all survive.`);
