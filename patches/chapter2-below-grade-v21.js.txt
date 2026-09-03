@@ -139,7 +139,7 @@ async function decorateLevel(world,idx){`
   );
 
   replaceOnce('Chapter 2 control interaction prompt',
-    "else if(t==='note'||t==='journal'||t==='tape')UI.hint('E  Recover '+o.userData.label);",
+    "else if(t==='note'||t==='tape')UI.hint('E  Recover '+o.userData.label);",
     "else if(t==='ch2_control_v21'){const s=this.ch2V21;if(o.userData.controlId==='feeder')UI.hint(s?.feederIsolated?'Feeder 4 isolated':'E  Isolate Feeder 4');else UI.hint(!s?.pumpRunning?'E  Start Sump 2':s?.drained?'Sump 2 running • corridor drained':'Sump 2 running • draining');}else if(t==='note'||t==='journal'||t==='tape')UI.hint('E  Recover '+o.userData.label);"
   );
 
@@ -189,8 +189,8 @@ async function decorateLevel(world,idx){`
   );
 
   replaceOnce('Chapter 2 HUD objective',
-    "if(this.levelIndex<2)obj=this.breakers<l.breakers?`Restore relays ${this.breakers}/${l.breakers}`:this.levelIndex===0?'Reach the freight elevator':'Open the north stairwell';else obj=this.tapes<3?`Recover Last Shift tapes ${this.tapes}/3`:'Reach PA control and end the shift';",
-    "if(this.levelIndex===0)obj=this.breakers<l.breakers?`Restore relays ${this.breakers}/${l.breakers}`:'Reach the freight elevator';else if(this.levelIndex===1)obj=this.chapter2ObjectiveV21();else obj=this.tapes<3?`Recover Last Shift tapes ${this.tapes}/3`:'Reach PA control and end the shift';"
+    "if(this.levelIndex<2)obj=this.breakers<l.breakers?`Restore relays ${this.breakers}/${l.breakers}`:this.levelIndex===0?((this.exitObject?.userData?.serviceUnlocked||this.keys>0)?'Reach the freight elevator':'Find the Master Service Key'):'Open the north stairwell';else obj=this.tapes<3?`Recover Last Shift tapes ${this.tapes}/3`:'Reach PA control and end the shift';",
+    "if(this.levelIndex===0)obj=this.breakers<l.breakers?`Restore relays ${this.breakers}/${l.breakers}`:((this.exitObject?.userData?.serviceUnlocked||this.keys>0)?'Reach the freight elevator':'Find the Master Service Key');else if(this.levelIndex===1)obj=this.chapter2ObjectiveV21();else obj=this.tapes<3?`Recover Last Shift tapes ${this.tapes}/3`:'Reach PA control and end the shift';"
   );
 
   replaceOnce('Chapter 2 dynamic update hook',
