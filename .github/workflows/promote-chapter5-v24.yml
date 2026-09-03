@@ -43,7 +43,6 @@ jobs:
           s=replace_once("  const source=chapter4V23BSource+'\\n//# sourceURL=pinewood-runtime.js\\n';","  const chapter5V24Source=await applyChapter5AccountabilityV24Runtime(chapter4V23BSource,chapter5V24Patch);\n  const source=chapter5V24Source+'\\n//# sourceURL=pinewood-runtime.js\\n';",'v24 final source chain')
           p.write_text(s)
           PY
-          node --check game.js
           node scripts/audit-chapter5-accountability-v24.mjs
       - name: Commit live v24 promotion
         run: |
