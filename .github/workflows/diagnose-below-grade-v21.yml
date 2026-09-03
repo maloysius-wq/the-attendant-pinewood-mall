@@ -5,6 +5,7 @@ on:
     branches: [main]
     paths:
       - 'scripts/audit-chapter2-below-grade-v21.mjs'
+      - 'scripts/diagnose-v20-interaction.mjs'
       - 'patches/chapter2-below-grade-v21.js.txt'
       - 'story/dialogue.js'
       - 'story/pa-lines.json'
@@ -24,6 +25,9 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
+      - name: Capture current v20 interaction context
+        shell: bash
+        run: node scripts/diagnose-v20-interaction.mjs > v20-interaction-context.log 2>&1
       - name: Capture v21 audit output
         shell: bash
         run: |
@@ -38,6 +42,7 @@ jobs:
         with:
           name: below-grade-v21-diagnostic
           path: |
+            v20-interaction-context.log
             below-grade-v21-audit.log
             below-grade-v21-exit-code.txt
           if-no-files-found: error
