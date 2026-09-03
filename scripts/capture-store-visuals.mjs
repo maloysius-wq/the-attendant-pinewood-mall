@@ -53,7 +53,7 @@ try{
       const pcasDecodeOk=report.pcasDecode?.version===19&&report.pcasDecode?.lineCount>=19&&report.pcasDecode?.decodedCount===report.pcasDecode?.lineCount&&pcas?.lineCount===report.pcasDecode?.lineCount&&report.pcasDecode?.localOnly===true&&Array.isArray(report.pcasDecode?.failures)&&report.pcasDecode.failures.length===0;
       const chapter1V20Ok=chapter1V20?.version===20&&chapter1V20?.reactivePcas===true&&chapter1V20?.reneeAware===true&&chapter1V20?.voiceImitation===false;
       const chapter2V21Ok=chapter2V21?.version===21&&chapter2V21?.machineryMasking===true&&chapter2V21?.relayRouting===true&&chapter2V21?.dynamicFlood===true&&chapter2V21?.gavinSetpiece===true&&chapter2V21?.contractor13===true&&chapter2V21?.voiceImitation===false;
-      const chapter3V22Ok=chapter3V22?.version===22&&chapter3V22?.cctvFeeds===4&&chapter3V22?.nonOmniscient===true&&chapter3V22?.interlockedShutters===true&&chapter3V22?.luisSetpiece===true&&chapter3V22?.lastShiftEvidence==='LS-05'&&chapter3V22?.voiceImitation===false;
+      const chapter3V22Ok=chapter3V22?.version===22&&chapter3V22?.cctvFeeds===4&&chapter3V22?.nonOmniscient===true&&chapter3V22?.interlockedShutters===true&&chapter3V22?.luisSetpiece===true&&chapter3V22?.lastShiftEvidence==='LS-05'&&chapter3V22?.eastWingHandoff===true&&chapter3V22?.voiceImitation===false;
       const securitySceneOk=!view.startsWith('security-')||chapter3V22?.sceneBuilt===true;
       const ok=uniqueRemote.length===0&&storyOk&&pcasRuntimeOk&&pcasDecodeOk&&chapter1V20Ok&&chapter2V21Ok&&chapter3V22Ok&&securitySceneOk;
       if(!ok)report.failed=true;
