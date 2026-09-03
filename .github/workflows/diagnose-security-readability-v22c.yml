@@ -1,0 +1,32 @@
+name: Diagnose Security readability v22c
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'patches/chapter3-security-readability-v22c.js.txt'
+      - 'scripts/audit-chapter3-security-readability-v22c.mjs'
+      - '.github/workflows/diagnose-security-readability-v22c.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Audit Security readability v22c
+        run: node scripts/audit-chapter3-security-readability-v22c.mjs | tee security-readability-v22c-audit.log
+      - name: Upload audit
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: security-readability-v22c-audit
+          path: security-readability-v22c-audit.log
+          if-no-files-found: warn
