@@ -1,0 +1,114 @@
+name: Apply Eyes in Security v22 live wiring
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/apply-v22-live-wiring.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  wire:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Wire v22 after v21 and make v21 audit feed-forward
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+
+          def replace_once(text, old, new, label):
+              count=text.count(old)
+              if count != 1:
+                  raise SystemExit(f'{label}: expected one marker, found {count}')
+              return text.replace(old,new,1)
+
+          game_path=Path('game.js')
+          game=game_path.read_text()
+          game=replace_once(
+              game,
+              "const CHAPTER2_V21_PATCH='./patches/chapter2-below-grade-v21.js.txt';\nconst PCAS_VOICE_MANIFEST='./assets/audio/pa/manifest.json';",
+              "const CHAPTER2_V21_PATCH='./patches/chapter2-below-grade-v21.js.txt';\nconst CHAPTER3_V22_PATCH='./patches/chapter3-eyes-security-v22.js.txt';\nconst PCAS_VOICE_MANIFEST='./assets/audio/pa/manifest.json';",
+              'v22 patch constant'
+          )
+          game=replace_once(
+              game,
+              "\nfunction replaceFoodCourt(source,replacement){",
+              "\nasync function applyChapter3EyesSecurityV22Runtime(source,patchText){\n  const patchUrl=URL.createObjectURL(new Blob([patchText+'\\nexport { applyChapter3EyesSecurityV22 };\\n'],{type:'text/javascript'}));\n  try{const mod=await import(patchUrl);if(typeof mod.applyChapter3EyesSecurityV22!=='function')throw new Error('Chapter 3 Eyes in Security v22 patch did not export its patch function.');return mod.applyChapter3EyesSecurityV22(source);}finally{URL.revokeObjectURL(patchUrl);}\n}\n\nfunction replaceFoodCourt(source,replacement){",
+              'v22 runtime patch importer'
+          )
+          game=replace_once(
+              game,
+              ',chapter1V20Patch,chapter2V21Patch,pcasVoiceManifestText,localAssetsManifestText,storyModule]',
+              ',chapter1V20Patch,chapter2V21Patch,chapter3V22Patch,pcasVoiceManifestText,localAssetsManifestText,storyModule]',
+              'v22 Promise result binding'
+          )
+          game=replace_once(
+              game,
+              'getText(CHAPTER1_V20_PATCH),getText(CHAPTER2_V21_PATCH),getText(PCAS_VOICE_MANIFEST)',
+              'getText(CHAPTER1_V20_PATCH),getText(CHAPTER2_V21_PATCH),getText(CHAPTER3_V22_PATCH),getText(PCAS_VOICE_MANIFEST)',
+              'v22 Promise fetch'
+          )
+          game=replace_once(
+              game,
+              "  const source=chapter2V21Source+'\\n//# sourceURL=pinewood-runtime.js\\n';",
+              "  const chapter3V22Source=await applyChapter3EyesSecurityV22Runtime(chapter2V21Source,chapter3V22Patch);\n  const source=chapter3V22Source+'\\n//# sourceURL=pinewood-runtime.js\\n';",
+              'v22 final runtime source'
+          )
+          game_path.write_text(game)
+
+          audit_path=Path('scripts/audit-chapter2-below-grade-v21.mjs')
+          audit=audit_path.read_text()
+          audit=replace_once(
+              audit,
+              "    \"const source=chapter2V21Source+'\\\\n//# sourceURL=pinewood-runtime.js\\\\n';\"\n",
+              "    'const chapter3V22Source=await applyChapter3EyesSecurityV22Runtime(chapter2V21Source,chapter3V22Patch);'\n",
+              'v21 forward-compatible loader assertion'
+          )
+          audit_path.write_text(audit)
+          print('Wired live runtime through v22 and made v21 verify its feed-forward edge.')
+          PY
+      - name: Capture live-chain audits
+        shell: bash
+        run: |
+          set +e
+          : > v22-live-wiring-audit.log
+          echo '=== v21 ===' >> v22-live-wiring-audit.log
+          node scripts/audit-chapter2-below-grade-v21.mjs >> v22-live-wiring-audit.log 2>&1
+          v21=$?
+          echo '=== v22 ===' >> v22-live-wiring-audit.log
+          node scripts/audit-chapter3-eyes-security-v22.mjs >> v22-live-wiring-audit.log 2>&1
+          v22=$?
+          echo "v21=$v21 v22=$v22" >> v22-live-wiring-audit.log
+          if [ "$v21" = "0" ] && [ "$v22" = "0" ]; then code=0; else code=1; fi
+          echo "$code" > v22-live-wiring-exit-code.txt
+          cat v22-live-wiring-audit.log
+          exit 0
+      - name: Upload live-wiring diagnostic
+        uses: actions/upload-artifact@v4
+        with:
+          name: v22-live-wiring-diagnostic
+          path: |
+            v22-live-wiring-audit.log
+            v22-live-wiring-exit-code.txt
+          if-no-files-found: error
+      - name: Commit live wiring only if green
+        run: |
+          if [ "$(cat v22-live-wiring-exit-code.txt)" != "0" ]; then
+            cat v22-live-wiring-audit.log
+            exit 1
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add game.js scripts/audit-chapter2-below-grade-v21.mjs
+          git commit -m "Wire Eyes in Security v22 runtime"
+          git push
