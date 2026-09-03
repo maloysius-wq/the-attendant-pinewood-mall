@@ -1,0 +1,53 @@
+name: Promote Chapter 4 East Wing v23b
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/promote-chapter4-v23b.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  promote:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify staged Chapter 4 before loader edit
+        run: node scripts/audit-chapter4-east-wing-readability-v23b.mjs
+      - name: Wire v23 and v23b into candidate loader
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          def once(text,old,new,label):
+              n=text.count(old)
+              if n!=1: raise SystemExit(f'{label}: expected one marker, found {n}')
+              return text.replace(old,new,1)
+          p=Path('game.js'); s=p.read_text()
+          if "const CHAPTER4_V23B_PATCH='./patches/chapter4-east-wing-readability-v23b.js.txt';" in s:
+              raise SystemExit('v23b is already wired; refusing duplicate promotion')
+          s=once(s,"const CHAPTER3_V22D_PATCH='./patches/chapter3-security-readability-v22d.js.txt';\nconst PCAS_VOICE_MANIFEST='./assets/audio/pa/manifest.json';","const CHAPTER3_V22D_PATCH='./patches/chapter3-security-readability-v22d.js.txt';\nconst CHAPTER4_V23_PATCH='./patches/chapter4-east-wing-v23.js.txt';\nconst CHAPTER4_V23B_PATCH='./patches/chapter4-east-wing-readability-v23b.js.txt';\nconst PCAS_VOICE_MANIFEST='./assets/audio/pa/manifest.json';",'constants')
+          s=once(s,"\nfunction replaceFoodCourt(source,replacement){","\nasync function applyChapter4EastWingV23Runtime(source,patchText){\n  const patchUrl=URL.createObjectURL(new Blob([patchText+'\\nexport { applyChapter4EastWingV23 };\\n'],{type:'text/javascript'}));\n  try{const mod=await import(patchUrl);if(typeof mod.applyChapter4EastWingV23!=='function')throw new Error('Chapter 4 The East Wing v23 patch did not export its patch function.');return mod.applyChapter4EastWingV23(source);}finally{URL.revokeObjectURL(patchUrl);}\n}\n\nasync function applyChapter4EastWingReadabilityV23BRuntime(source,patchText){\n  const patchUrl=URL.createObjectURL(new Blob([patchText+'\\nexport { applyChapter4EastWingReadabilityV23B };\\n'],{type:'text/javascript'}));\n  try{const mod=await import(patchUrl);if(typeof mod.applyChapter4EastWingReadabilityV23B!=='function')throw new Error('Chapter 4 East Wing readability v23b patch did not export its patch function.');return mod.applyChapter4EastWingReadabilityV23B(source);}finally{URL.revokeObjectURL(patchUrl);}\n}\n\nfunction replaceFoodCourt(source,replacement){",'importers')
+          s=once(s,',chapter3V22CPatch,chapter3V22DPatch,pcasVoiceManifestText,localAssetsManifestText,storyModule]',',chapter3V22CPatch,chapter3V22DPatch,chapter4V23Patch,chapter4V23BPatch,pcasVoiceManifestText,localAssetsManifestText,storyModule]','binding')
+          s=once(s,'getText(CHAPTER3_V22C_PATCH),getText(CHAPTER3_V22D_PATCH),getText(PCAS_VOICE_MANIFEST)','getText(CHAPTER3_V22C_PATCH),getText(CHAPTER3_V22D_PATCH),getText(CHAPTER4_V23_PATCH),getText(CHAPTER4_V23B_PATCH),getText(PCAS_VOICE_MANIFEST)','fetch')
+          s=once(s,"  const source=chapter3V22DSource+'\\n//# sourceURL=pinewood-runtime.js\\n';","  const chapter4V23Source=await applyChapter4EastWingV23Runtime(chapter3V22DSource,chapter4V23Patch);\n  const chapter4V23BSource=await applyChapter4EastWingReadabilityV23BRuntime(chapter4V23Source,chapter4V23BPatch);\n  const source=chapter4V23BSource+'\\n//# sourceURL=pinewood-runtime.js\\n';",'source')
+          p.write_text(s)
+          PY
+      - name: Verify exact live-chain candidate
+        run: |
+          node scripts/audit-chapter3-security-readability-v22d.mjs
+          node scripts/audit-chapter4-east-wing-readability-v23b.mjs
+      - name: Commit guarded loader promotion
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add game.js
+          git diff --cached --quiet && { echo 'No loader change produced'; exit 1; }
+          git commit -m 'Promote Chapter 4 The East Wing v23b'
+          git push
