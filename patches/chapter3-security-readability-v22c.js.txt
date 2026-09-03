@@ -1,0 +1,33 @@
+function applyChapter3SecurityReadabilityV22C(source){
+  const fail=msg=>{throw new Error('Chapter 3 Security readability v22c patch failed: '+msg);};
+  const replaceOnce=(label,needle,replacement)=>{const first=source.indexOf(needle);if(first<0)fail(label+': marker missing');if(source.indexOf(needle,first+needle.length)>=0)fail(label+': marker is not unique');source=source.slice(0,first)+replacement+source.slice(first+needle.length);};
+
+  replaceOnce('Security readability helper insertion',
+    "\nwindow.__PINEWOOD_CH3_V22__={version:22,cctvFeeds:4,nonOmniscient:true,interlockedShutters:true,luisSetpiece:true,lastShiftEvidence:'LS-05',eastWingHandoff:true,voiceImitation:false,sceneBuilt:false};",
+`\nfunction addSecurityReadabilityV22C(world){
+  const coolPanel=new THREE.MeshStandardMaterial({color:0x8d9d96,emissive:0xb9d2c8,emissiveIntensity:.82,roughness:.34}),warmPanel=new THREE.MeshStandardMaterial({color:0x8f735d,emissive:0xffb36b,emissiveIntensity:.88,roughness:.36}),guideMat=new THREE.MeshStandardMaterial({color:0x20372f,emissive:0x4ccf8c,emissiveIntensity:.88,roughness:.30});
+  const fixtures=[
+    [-23.0,2.62,-26.1,0xb8d2cf,.92,6.8,coolPanel,'cctv'],
+    [-8.0,2.66,6.4,0xb8d2cf,.88,6.3,coolPanel,'west-shutter'],
+    [18.0,2.66,6.4,0xb8d2cf,.88,6.3,coolPanel,'east-shutter'],
+    [22.8,2.58,24.9,0xaecbc0,.82,6.6,coolPanel,'secondary-security'],
+    [27.7,2.52,26.0,0xffb36b,.72,5.4,warmPanel,'east-wing-exit']
+  ];
+  for(const[x,y,z,color,intensity,range,mat,tag]of fixtures){const panel=addBox(world.root,new THREE.Vector3(x,y,z),new THREE.Vector3(tag.includes('shutter')?1.35:1.05,.045,.34),mat);panel.userData.chapter3LightV22C=tag;const light=new THREE.PointLight(color,intensity,range,2);light.position.set(x,y-.18,z);light.userData.chapter3LightV22C=tag;world.root.add(light);}
+  for(const[x,z]of[[-10.25,8],[20.25,8]]){const beacon=addBox(world.root,new THREE.Vector3(x,1.05,z-.20),new THREE.Vector3(.08,1.08,.08),guideMat);beacon.userData.chapter3LightV22C='route-guide';const glow=new THREE.PointLight(0x4ccf8c,.34,2.4,2);glow.position.set(x,1.18,z-.36);world.root.add(glow);}
+  const exitSign=new THREE.Mesh(new THREE.PlaneGeometry(1.36,.58),new THREE.MeshStandardMaterial({map:securityLabelTextureV22('EAST WING','EMPLOYEE ACCESS'),emissive:0x244c3d,emissiveIntensity:.86,roughness:.30}));exitSign.position.set(29.03,1.78,26.0);exitSign.rotation.y=-Math.PI/2;exitSign.userData.chapter3Setpiece='east-wing-sign-v22c';world.root.add(exitSign);
+  const cctvSpill=new THREE.PointLight(0x3fd982,.26,3.6,2);cctvSpill.position.set(-24.0,1.25,-27.35);world.root.add(cctvSpill);
+}
+window.__PINEWOOD_CH3_V22__={version:22,cctvFeeds:4,nonOmniscient:true,interlockedShutters:true,luisSetpiece:true,lastShiftEvidence:'LS-05',eastWingHandoff:true,readabilityLighting:true,voiceImitation:false,sceneBuilt:false};`
+  );
+
+  replaceOnce('Build Security readability after East Wing exit',
+    "world.dynamicDoors.push(exitGate);world.interactables.push(exitGate);GAME.exitObject=exitGate;s.exitGate=exitGate;\n  window.__PINEWOOD_CH3_V22__.sceneBuilt=true;",
+    "world.dynamicDoors.push(exitGate);world.interactables.push(exitGate);GAME.exitObject=exitGate;s.exitGate=exitGate;addSecurityReadabilityV22C(world);\n  window.__PINEWOOD_CH3_V22__.sceneBuilt=true;"
+  );
+
+  replaceOnce('CCTV screen readability',"emissiveIntensity:.58,roughness:.29","emissiveIntensity:.76,roughness:.29");
+
+  for(const marker of ["addSecurityReadabilityV22C(world)","chapter3LightV22C='cctv'","chapter3LightV22C='route-guide'","chapter3Setpiece='east-wing-sign-v22c'","readabilityLighting:true","emissiveIntensity:.76,roughness:.29"])if(!source.includes(marker))fail('required readability marker missing: '+marker);
+  return source;
+}
