@@ -1,0 +1,34 @@
+name: Diagnose Eyes in Security v22
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'patches/chapter3-eyes-security-v22.js.txt'
+      - 'scripts/audit-chapter3-eyes-security-v22.mjs'
+      - 'story/dialogue.js'
+      - '.github/workflows/diagnose-eyes-security-v22.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Audit Chapter 3 Eyes in Security v22
+        shell: bash
+        run: node scripts/audit-chapter3-eyes-security-v22.mjs | tee eyes-security-v22-audit.log
+      - name: Upload audit
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: eyes-security-v22-audit
+          path: eyes-security-v22-audit.log
+          if-no-files-found: warn
