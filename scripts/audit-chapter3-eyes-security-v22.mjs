@@ -1,3 +1,4 @@
+// Revalidate corrected staged v22 runtime after CCTV newline escaping fix.
 import {readFile,writeFile,mkdtemp,rm} from 'node:fs/promises';
 import {gunzipSync} from 'node:zlib';
 import {tmpdir} from 'node:os';
