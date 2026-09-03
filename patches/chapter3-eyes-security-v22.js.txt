@@ -1,0 +1,160 @@
+function applyChapter3EyesSecurityV22(source){
+  const fail=msg=>{throw new Error('Chapter 3 Eyes in Security v22 patch failed: '+msg);};
+  const replaceOnce=(label,needle,replacement)=>{
+    const first=source.indexOf(needle);if(first<0)fail(label+': marker missing');
+    if(source.indexOf(needle,first+needle.length)>=0)fail(label+': marker is not unique');
+    source=source.slice(0,first)+replacement+source.slice(first+needle.length);
+  };
+  const replaceRangeOnce=(label,start,end,replacement)=>{
+    const first=source.indexOf(start);if(first<0)fail(label+': start marker missing');
+    if(source.indexOf(start,first+start.length)>=0)fail(label+': start marker is not unique');
+    const last=source.indexOf(end,first+start.length);if(last<0)fail(label+': end marker missing');
+    source=source.slice(0,first)+replacement+source.slice(last);
+  };
+
+  replaceOnce('Chapter 3 level identity',
+    "{name:'Chapter 3: The Last Shift',short:'The Last Shift',intro:'The east wing archive contains the previous contractor’s final recordings. Recover the three Last Shift tapes, reach the PA control room, and clock Pinewood out for good.',goal:'Recover the Last Shift tapes and shut down the closing routine.',breakers:0}",
+    "{name:'Chapter 3: Eyes in Security',short:'Eyes in Security',intro:'Pinewood Security has powered itself ahead of you. Use named CCTV groups and interlocked shutters to read the halls, then find Luis Ortega’s secondary station and learn what he discovered in 1997.',goal:'Use Security’s cameras and route controls, investigate Luis Ortega, and identify how The Attendant follows Pinewood’s calls.',breakers:0}"
+  );
+
+  replaceOnce('Chapter 3 structured start',
+    "beginPlay(){UI.hideAll();audio.resume();audio.setPaused(false);this.running=true;this.modal=false;this.controls.lock();if(this.levelIndex===0){SAVE.story.people.renee='known';SAVE.story.flags[STORY_DATA_V17.flags.reneeKnown]=true;save();this.storyV17.queueDialogue('ch1_start',.7);}else if(this.levelIndex===1)this.storyV17.queueDialogue('ch2_start',.7);else this.queueStory(.7,'radio','DISPATCH',this.startLine());}",
+    "beginPlay(){UI.hideAll();audio.resume();audio.setPaused(false);this.running=true;this.modal=false;this.controls.lock();if(this.levelIndex===0){SAVE.story.people.renee='known';SAVE.story.flags[STORY_DATA_V17.flags.reneeKnown]=true;save();this.storyV17.queueDialogue('ch1_start',.7);}else if(this.levelIndex===1)this.storyV17.queueDialogue('ch2_start',.7);else if(this.levelIndex===2)this.storyV17.queueDialogue('ch3_start',.7);else this.queueStory(.7,'radio','DISPATCH',this.startLine());}"
+  );
+
+  replaceOnce('Chapter 3 start fallback',
+    "'Dispatch. If you can still hear me, the east-wing PA room is beyond the old records corridor. Find the Last Shift tapes before you touch the closing system.'",
+    "'Fourteen, Ward on dispatch. Security is awake. Use the camera groups, control the route shutters, and find Luis Ortega’s secondary station.'"
+  );
+
+  replaceOnce('Chapter 3 helper insertion','\nasync function decorateLevel(world,idx){',
+`\nfunction securityLabelTextureV22(title,sub=''){
+  return makeCanvasTexture((ctx,c)=>{ctx.fillStyle='#07100d';ctx.fillRect(0,0,c.width,c.height);ctx.strokeStyle='#476258';ctx.lineWidth=12;ctx.strokeRect(8,8,c.width-16,c.height-16);ctx.fillStyle='#b8d3c8';ctx.textAlign='center';ctx.textBaseline='middle';ctx.font='900 42px Arial';ctx.fillText(title,256,112);ctx.fillStyle='#78968a';ctx.font='700 23px Arial';ctx.fillText(sub,256,178);ctx.fillStyle='#45665a';ctx.font='700 16px Arial';ctx.fillText('PINEWOOD SECURITY',256,226);},512,256);
+}
+function securityFeedContainsV22(feed,p){return p.x>=feed.bounds[0]&&p.x<=feed.bounds[1]&&p.z>=feed.bounds[2]&&p.z<=feed.bounds[3];}
+function securityFeedStatusV22(game,feed){const a=game.attendant;return !!(a?.root?.visible&&securityFeedContainsV22(feed,a.root.position));}
+function makeSecurityConsoleV22(pos,rot,controlId,label){
+  const g=new THREE.Group();g.position.copy(pos);g.rotation.y=rot;
+  const body=new THREE.MeshStandardMaterial({color:0x1b2020,roughness:.58,metalness:.48}),trim=new THREE.MeshStandardMaterial({color:0x4d5653,roughness:.38,metalness:.62}),screenMat=new THREE.MeshStandardMaterial({map:securityLabelTextureV22(label,controlId==='cctv'?'CAMERA MATRIX':'ROUTE INTERLOCK'),emissive:0x18372c,emissiveIntensity:.72,roughness:.33});
+  addBox(g,new THREE.Vector3(0,.56,0),new THREE.Vector3(1.65,1.12,.72),body);addBox(g,new THREE.Vector3(0,1.02,-.12),new THREE.Vector3(1.48,.12,.62),trim);
+  const screen=new THREE.Mesh(new THREE.PlaneGeometry(1.24,.62),screenMat);screen.position.set(0,.76,.365);g.add(screen);
+  const lampMat=new THREE.MeshStandardMaterial({color:0x183122,emissive:0x38d67f,emissiveIntensity:.55,roughness:.3});const lamp=new THREE.Mesh(new THREE.SphereGeometry(.045,10,10),lampMat);lamp.position.set(-.62,.28,.39);g.add(lamp);
+  g.userData={type:'ch3_console_v22',controlId,label,lamp,screen};return g;
+}
+function makeSecurityMonitorBankV22(world,feeds){
+  const root=new THREE.Group();root.position.set(-24.4,.08,-28.35);root.rotation.y=0;root.userData.chapter3Setpiece='primary-security-cctv-v22';world.root.add(root);
+  const shell=new THREE.MeshStandardMaterial({color:0x171b1c,roughness:.64,metalness:.36});const monitors=[];
+  feeds.forEach((feed,i)=>{const x=(i%2)*1.32-.66,y=Math.floor(i/2)*.86+.68;addBox(root,new THREE.Vector3(x,y,0),new THREE.Vector3(1.18,.72,.48),shell);const mat=new THREE.MeshStandardMaterial({map:securityLabelTextureV22(feed.id,feed.label),emissive:0x153a2d,emissiveIntensity:.58,roughness:.29});const screen=new THREE.Mesh(new THREE.PlaneGeometry(.96,.48),mat);screen.position.set(x,y,.247);root.add(screen);const lampMat=new THREE.MeshStandardMaterial({color:0x1b3325,emissive:0x3fd982,emissiveIntensity:.28,roughness:.28});const lamp=new THREE.Mesh(new THREE.SphereGeometry(.035,10,10),lampMat);lamp.position.set(x+.49,y-.30,.27);root.add(lamp);monitors.push({feed,screen,lamp});});
+  addBox(root,new THREE.Vector3(0,.28,-.18),new THREE.Vector3(2.75,.18,.74),shell);world.addCollider(-24.4,-28.35,2.95,.82,{navBlock:true,owner:root,pad:.03});return monitors;
+}
+function setSecurityRouteV22(game,route,quiet=false){
+  const s=game.ch3V22;if(!s)return;s.route=route;
+  const westOpen=route==='west';s.westShutter.userData.open=westOpen;s.eastShutter.userData.open=!westOpen;
+  if(s.routeConsole?.userData?.lamp?.material){s.routeConsole.userData.lamp.material.emissive.setHex(westOpen?0x45b9ff:0xffb347);s.routeConsole.userData.lamp.material.emissiveIntensity=1.15;}
+  if(!quiet){s.routeSwaps++;audio.slam();game.emitSound(s.routeConsole.position.clone(),.82,'security-shutter');UI.flash();UI.hint(westOpen?'SECURITY ROUTE: west hall open • east hall sealed':'SECURITY ROUTE: east hall open • west hall sealed');game.attendant.awaken();}
+}
+function makeLuisRemainsV22(world){
+  const root=new THREE.Group();root.position.set(25.25,.015,27.75);root.rotation.y=.42;root.userData.chapter3Setpiece='luis-remains-v22';world.root.add(root);
+  const uniform=new THREE.MeshStandardMaterial({color:0x171b20,roughness:.90}),shirt=new THREE.MeshStandardMaterial({color:0x283849,roughness:.88}),skin=new THREE.MeshStandardMaterial({color:0x80695c,roughness:.96}),shoe=new THREE.MeshStandardMaterial({color:0x0c0d0f,roughness:.9}),badge=new THREE.MeshStandardMaterial({color:0xb49c63,roughness:.34,metalness:.68});
+  addBox(root,new THREE.Vector3(0,.18,0),new THREE.Vector3(.56,.28,.78),shirt,.06);addBox(root,new THREE.Vector3(.19,.335,-.06),new THREE.Vector3(.10,.025,.13),badge,.06);const head=new THREE.Mesh(new THREE.SphereGeometry(.16,14,10),skin);head.scale.y=.9;head.position.set(-.05,.18,-.54);root.add(head);
+  for(const[x,z,r]of[[-.18,.67,.12],[.19,.69,-.08]]){addBox(root,new THREE.Vector3(x,.13,z),new THREE.Vector3(.19,.18,.84),uniform,r);addBox(root,new THREE.Vector3(x,.115,z+.49),new THREE.Vector3(.23,.17,.28),shoe,r);}addBox(root,new THREE.Vector3(-.39,.14,.02),new THREE.Vector3(.17,.16,.72),shirt,.40);addBox(root,new THREE.Vector3(.38,.13,.03),new THREE.Vector3(.17,.16,.69),shirt,-.52);return root;
+}
+async function buildEyesInSecurityV22(world){
+  const feeds=[
+    {id:'CAM 02',label:'WEST JUNCTION',bounds:[-30,-12,-6,6]},
+    {id:'CAM 05',label:'RECEIVING',bounds:[-4,13,-31,-13]},
+    {id:'CAM 09',label:'NORTH SECURITY HALL',bounds:[-12,21,10,20]},
+    {id:'CAM 12',label:'SECONDARY SECURITY',bounds:[13,31,18,32]}
+  ];
+  const s=GAME.ch3V22={feeds,feedIndex:0,cctvUsed:false,route:'west',routeSwaps:0,luisSeen:false,luisEvidence:!!SAVE.story.evidence['LS-05'],authQueued:false,monitors:null,cctvConsole:null,routeConsole:null,westShutter:null,eastShutter:null,luisRoot:null};
+  s.monitors=makeSecurityMonitorBankV22(world,feeds);
+  s.cctvConsole=makeSecurityConsoleV22(new THREE.Vector3(-20.15,.08,-27.25),Math.PI,'cctv','CCTV SELECT');world.root.add(s.cctvConsole);world.addCollider(-20.15,-27.25,1.78,.82,{navBlock:true,owner:s.cctvConsole,pad:.03});world.interactables.push(s.cctvConsole);
+  s.routeConsole=makeSecurityConsoleV22(new THREE.Vector3(-18.1,.08,-23.3),Math.PI/2,'route','SHUTTER ROUTE');world.root.add(s.routeConsole);world.addCollider(-18.1,-23.3,.82,1.78,{navBlock:true,owner:s.routeConsole,pad:.03});world.interactables.push(s.routeConsole);
+  const west=makeShutter(new THREE.Vector3(-8,0,8),'z',false,'West Security Shutter');west.userData.securityRouteV22='west';west.userData.collider=world.addCollider(-8,8,5.15,.28,{navBlock:true,owner:west,pad:.01});world.root.add(west);world.dynamicDoors.push(west);s.westShutter=west;
+  const east=makeShutter(new THREE.Vector3(18,0,8),'z',false,'East Security Shutter');east.userData.securityRouteV22='east';east.userData.collider=world.addCollider(18,8,5.15,.28,{navBlock:true,owner:east,pad:.01});world.root.add(east);world.dynamicDoors.push(east);s.eastShutter=east;setSecurityRouteV22(GAME,'west',true);
+  const deskMat=new THREE.MeshStandardMaterial({color:0x252b2c,roughness:.72,metalness:.24});addBox(world.root,new THREE.Vector3(22.7,.44,25.05),new THREE.Vector3(2.6,.88,.72),deskMat);world.addCollider(22.7,25.05,2.7,.82,{navBlock:true});
+  const barricadeMat=new THREE.MeshStandardMaterial({color:0x4b3b2e,roughness:.93});for(const[x,z,r]of[[17.2,21.7,.18],[18.65,22.15,-.12],[20.0,21.55,.08]]){const b=addBox(world.root,new THREE.Vector3(x,.48,z),new THREE.Vector3(1.05,.96,.58),barricadeMat,r);world.addColliderFrom(b,{navBlock:true,pad:.03});}
+  const paRack=new THREE.Group();paRack.position.set(15.15,.05,28.1);paRack.userData.chapter3Setpiece='disconnected-pa-chain-v22';world.root.add(paRack);const rackMat=new THREE.MeshStandardMaterial({color:0x17191c,roughness:.55,metalness:.50}),deadMat=new THREE.MeshStandardMaterial({color:0x220908,emissive:0x8b120d,emissiveIntensity:.32,roughness:.46});addBox(paRack,new THREE.Vector3(0,.92,0),new THREE.Vector3(.82,1.84,.48),rackMat);for(let i=0;i<5;i++)addBox(paRack,new THREE.Vector3(0,.35+i*.28,.26),new THREE.Vector3(.64,.14,.04),i===2?deadMat:rackMat);addPipeRunV21(world,new THREE.Vector3(15.15,.55,28.4),new THREE.Vector3(16.15,.24,29.05),.025,0x171719);world.addCollider(15.15,28.1,.9,.58,{navBlock:true,owner:paRack});
+  s.luisRoot=makeLuisRemainsV22(world);await bloodDecal(world,{surface:'floor',x:25.16,z:27.82,w:.70,h:.48,roll:.36,index:1,opacity:.45});
+  const vhs=makePickup('tape',new THREE.Vector3(24.15,.16,26.15),'LS-05','LUIS ORTEGA — SECURITY VHS: 9:41 PM page to Food Court. Figure enters west junction at 9:42. 9:48 PM page to Cassette Castle. Figure leaves west junction and follows the public hall route toward the store. The calls happen first. The figure answers them.');world.root.add(vhs);world.interactables.push(vhs);
+  const route=makePickup('journal',new THREE.Vector3(21.85,.18,26.35),'LUIS-ROUTE','LUIS ORTEGA — ROUTE NOTE: Camera groups are incomplete. If Pinewood calls a staff location, check the connecting hall cameras. Do not assume a blank feed means the route is clear. Shutters A and B are interlocked.');world.root.add(route);world.interactables.push(route);
+  const vcr=new THREE.Group();vcr.position.set(24.25,.08,24.72);vcr.userData.chapter3Setpiece='luis-vhs-station-v22';world.root.add(vcr);addBox(vcr,new THREE.Vector3(0,.18,0),new THREE.Vector3(.78,.26,.52),rackMat);addBox(vcr,new THREE.Vector3(0,.83,-.05),new THREE.Vector3(1.02,.85,.70),rackMat);const crtFace=new THREE.Mesh(new THREE.PlaneGeometry(.76,.52),new THREE.MeshStandardMaterial({map:securityLabelTextureV22('PLAYBACK 04','09:41 → 09:48'),emissive:0x174a38,emissiveIntensity:.62,roughness:.3}));crtFace.position.set(0,.86,.306);vcr.add(crtFace);world.addCollider(24.25,24.72,1.12,.82,{navBlock:true,owner:vcr});
+  window.__PINEWOOD_CH3_V22__.sceneBuilt=true;
+}
+function handleSecurityConsoleV22(game,o){
+  const s=game.ch3V22;if(!s)return;
+  if(o.userData.controlId==='cctv'){
+    const feed=s.feeds[s.feedIndex%s.feeds.length],seen=securityFeedStatusV22(game,feed);s.feedIndex=(s.feedIndex+1)%s.feeds.length;
+    if(!s.cctvUsed){s.cctvUsed=true;game.storyV17.runOnce('ch3_cctv_online',()=>game.storyV17.queueDialogue('ch3_cctv_online',.5));game.attendant.awaken();}
+    audio.toggle();UI.subtitle('CCTV · '+feed.id,feed.label+'\n'+(seen?'MOTION: FIGURE IN FRAME':'NO MOVEMENT DETECTED'),'log',2600);
+  }else if(o.userData.controlId==='route'){
+    if(!s.cctvUsed){audio.beep();UI.hint('Review the Security camera groups before changing the route.');return;}
+    setSecurityRouteV22(game,s.route==='west'?'east':'west');game.storyV17.runOnce('ch3_shutter_interlock',()=>game.storyV17.queueDialogue('ch3_shutter_interlock',.45));
+  }
+}
+
+window.__PINEWOOD_CH3_V22__={version:22,cctvFeeds:4,nonOmniscient:true,interlockedShutters:true,luisSetpiece:true,lastShiftEvidence:'LS-05',voiceImitation:false,sceneBuilt:false};
+
+async function decorateLevel(world,idx){`
+  );
+
+  replaceRangeOnce('replace prototype finale scene',
+    "  }else{\n    // Three actual tapes gate the ending.",
+    "  }\n}\n\nlet GAME=null;",
+`  }else{
+    await buildEyesInSecurityV22(world);
+    const cab=makeCabinet(new THREE.Vector3(7.75,0,-26.8),Math.PI);world.root.add(cab);world.addCollider(7.75,-26.8,.82,.46,{navBlock:true,owner:cab});world.interactables.push(cab);
+    const dec=makePickup('decoy',new THREE.Vector3(-20,.18,-23),'Security Pager');world.root.add(dec);world.interactables.push(dec);
+`
+  );
+
+  replaceOnce('Chapter 3 interaction prompt',
+    "else if(t==='ch2_control_v21'){const s=this.ch2V21;if(o.userData.controlId==='feeder')UI.hint(s?.feederIsolated?'Feeder 4 isolated':'E  Isolate Feeder 4');else UI.hint(!s?.pumpRunning?'E  Start Sump 2':s?.drained?'Sump 2 running • corridor drained':'Sump 2 running • draining');}else if(t==='note'||t==='journal'||t==='tape')UI.hint('E  Recover '+o.userData.label);",
+    "else if(t==='ch2_control_v21'){const s=this.ch2V21;if(o.userData.controlId==='feeder')UI.hint(s?.feederIsolated?'Feeder 4 isolated':'E  Isolate Feeder 4');else UI.hint(!s?.pumpRunning?'E  Start Sump 2':s?.drained?'Sump 2 running • corridor drained':'Sump 2 running • draining');}else if(t==='ch3_console_v22'){if(o.userData.controlId==='cctv'){const s=this.ch3V22,feed=s?.feeds?.[s.feedIndex%s.feeds.length];UI.hint('E  View '+(feed?.id||'next camera')+' • '+(feed?.label||'Security feed'));}else UI.hint('E  Switch interlocked Security route');}else if(t==='note'||t==='journal'||t==='tape')UI.hint('E  Recover '+o.userData.label);"
+  );
+
+  replaceOnce('Chapter 3 controls in interact',
+    "}else if(t==='ch2_control_v21'){handleBelowGradeControlV21(this,o,p);\n    }else if(t==='note'||t==='journal'||t==='tape'){",
+    "}else if(t==='ch2_control_v21'){handleBelowGradeControlV21(this,o,p);\n    }else if(t==='ch3_console_v22'){handleSecurityConsoleV22(this,o);\n    }else if(t==='note'||t==='journal'||t==='tape'){"
+  );
+
+  replaceOnce('Chapter 3 Luis evidence progression',
+    "if(this.levelIndex===2&&this.tapes===3){this.queueStory(.5,'radio','DISPATCH','I heard all three recordings. The last one is right. Do not cut power. End the shift from PA control.');this.queueStory(2.0,'intercom','INTERCOM','All employees must remain until accountability reaches zero.','ch3_accountability_zero');}",
+    "if(this.levelIndex===2&&o.userData.label==='LS-05'){SAVE.story.flags[STORY_DATA_V17.flags.luisPattern]=true;SAVE.story.people.luis='body_found';save();if(this.ch3V22)this.ch3V22.luisEvidence=true;this.storyV17.queueDialogue('ch3_luis_pattern',.5);this.storyV17.queueDialogue('ch3_auth',7.4);this.storyV17.queueDialogue('ch3_exit',15.0);}"
+  );
+
+  replaceOnce('Chapter 3 systems methods','  updateBelowGradeV21(dt){',
+`  updateSecurityV22(dt){
+    if(this.levelIndex!==2||!this.ch3V22)return;const s=this.ch3V22,p=this.controls.yaw.position;
+    for(const m of s.monitors||[]){const seen=securityFeedStatusV22(this,m.feed);if(m.lamp?.material){m.lamp.material.color.setHex(seen?0x5b140e:0x183122);m.lamp.material.emissive.setHex(seen?0xff3925:0x39cf78);m.lamp.material.emissiveIntensity=seen?1.55:.30;}if(m.screen?.material)m.screen.material.emissiveIntensity=seen?.92:.55;}
+    if(!s.luisSeen&&s.luisRoot&&p.distanceTo(s.luisRoot.position)<3.5){s.luisSeen=true;SAVE.story.people.luis='body_found';save();this.storyV17.runOnce('ch3_luis_found',()=>this.storyV17.queueDialogue('ch3_luis_body',.45));}
+    window.__PINEWOOD_CH3_V22__.cctvUsed=!!s.cctvUsed;window.__PINEWOOD_CH3_V22__.route=s.route;window.__PINEWOOD_CH3_V22__.routeSwaps=s.routeSwaps;window.__PINEWOOD_CH3_V22__.luisSeen=!!s.luisSeen;window.__PINEWOOD_CH3_V22__.luisEvidence=!!s.luisEvidence;
+  }
+  chapter3ObjectiveV22(){const s=this.ch3V22;if(!s)return'Locate Pinewood Security';if(!s.cctvUsed)return'Find primary Security • review the CCTV groups';if(s.routeSwaps<1)return'Use the Security shutter console • choose a route';if(!s.luisSeen)return'Follow the camera routes • find Luis Ortega’s station';if(!s.luisEvidence)return'Recover Luis Ortega’s Security VHS (LS-05)';return'Follow Luis’s marked employee route toward the East Wing';}
+  updateBelowGradeV21(dt){`
+  );
+
+  replaceOnce('Chapter 3 HUD objective',
+    "if(this.levelIndex===0)obj=this.breakers<l.breakers?`Restore relays ${this.breakers}/${l.breakers}`:((this.exitObject?.userData?.serviceUnlocked||this.keys>0)?'Reach the freight elevator':'Find the Master Service Key');else if(this.levelIndex===1)obj=this.chapter2ObjectiveV21();else obj=this.tapes<3?`Recover Last Shift tapes ${this.tapes}/3`:'Reach PA control and end the shift';",
+    "if(this.levelIndex===0)obj=this.breakers<l.breakers?`Restore relays ${this.breakers}/${l.breakers}`:((this.exitObject?.userData?.serviceUnlocked||this.keys>0)?'Reach the freight elevator':'Find the Master Service Key');else if(this.levelIndex===1)obj=this.chapter2ObjectiveV21();else if(this.levelIndex===2)obj=this.chapter3ObjectiveV22();else obj='Continue the work order';"
+  );
+
+  replaceOnce('Chapter 3 dynamic update hook',
+    "this.time+=dt;this.updateNeon(dt);this.noise=clamp(this.noise-dt*.48,0,1);if(this.levelIndex===1)this.updateBelowGradeV21(dt);this.updateStory();",
+    "this.time+=dt;this.updateNeon(dt);this.noise=clamp(this.noise-dt*.48,0,1);if(this.levelIndex===1)this.updateBelowGradeV21(dt);else if(this.levelIndex===2)this.updateSecurityV22(dt);this.updateStory();"
+  );
+
+  replaceOnce('Chapter 3 visual views',
+    "      'below-grade-flood':{chapter:1,p:[9.0,1.70,-3.25],yaw:0,pitch:-.09}",
+    "      'below-grade-flood':{chapter:1,p:[9.0,1.70,-3.25],yaw:0,pitch:-.09},\n      'security-cctv':{chapter:2,p:[-24.2,1.70,-24.6],yaw:0,pitch:-.08},\n      'security-shutters':{chapter:2,p:[-8.0,1.70,3.8],yaw:0,pitch:-.06},\n      'security-luis':{chapter:2,p:[21.6,1.70,27.1],yaw:-Math.PI/2,pitch:-.12}"
+  );
+
+  for(const marker of [
+    "name:'Chapter 3: Eyes in Security'","window.__PINEWOOD_CH3_V22__={version:22","cctvFeeds:4","nonOmniscient:true","interlockedShutters:true","luisSetpiece:true","lastShiftEvidence:'LS-05'","voiceImitation:false",
+    "CAM 02","CAM 05","CAM 09","CAM 12","securityFeedStatusV22","securityRouteV22='west'","securityRouteV22='east'","navBlock:true,owner:west","navBlock:true,owner:east",
+    "chapter3Setpiece='luis-remains-v22'","chapter3Setpiece='disconnected-pa-chain-v22'","chapter3Setpiece='luis-vhs-station-v22'","o.userData.label==='LS-05'","STORY_DATA_V17.flags.luisPattern","this.updateSecurityV22(dt)","this.chapter3ObjectiveV22()"
+  ])if(!source.includes(marker))fail('required marker missing after patch: '+marker);
+
+  for(const retired of ["Three actual tapes gate the ending.","Recover Last Shift tapes ${this.tapes}/3","Reach PA control and end the shift"]){if(source.includes(retired))fail('retired prototype Chapter 3 marker remains: '+retired);}
+  return source;
+}
