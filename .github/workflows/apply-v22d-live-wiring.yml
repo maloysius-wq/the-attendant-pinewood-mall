@@ -1,0 +1,54 @@
+name: Apply Security readability v22d live wiring
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/apply-v22d-live-wiring.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  wire:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Wire v22d after v22c
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          def once(text,old,new,label):
+              if text.count(old)!=1: raise SystemExit(f'{label}: expected one marker, found {text.count(old)}')
+              return text.replace(old,new,1)
+          p=Path('game.js'); s=p.read_text()
+          s=once(s,"const CHAPTER3_V22C_PATCH='./patches/chapter3-security-readability-v22c.js.txt';\nconst PCAS_VOICE_MANIFEST='./assets/audio/pa/manifest.json';","const CHAPTER3_V22C_PATCH='./patches/chapter3-security-readability-v22c.js.txt';\nconst CHAPTER3_V22D_PATCH='./patches/chapter3-security-readability-v22d.js.txt';\nconst PCAS_VOICE_MANIFEST='./assets/audio/pa/manifest.json';",'constant')
+          s=once(s,"\nfunction replaceFoodCourt(source,replacement){","\nasync function applyChapter3SecurityReadabilityV22DRuntime(source,patchText){\n  const patchUrl=URL.createObjectURL(new Blob([patchText+'\\nexport { applyChapter3SecurityReadabilityV22D };\\n'],{type:'text/javascript'}));\n  try{const mod=await import(patchUrl);if(typeof mod.applyChapter3SecurityReadabilityV22D!=='function')throw new Error('Chapter 3 Security readability v22d patch did not export its patch function.');return mod.applyChapter3SecurityReadabilityV22D(source);}finally{URL.revokeObjectURL(patchUrl);}\n}\n\nfunction replaceFoodCourt(source,replacement){",'importer')
+          s=once(s,',chapter3V22BPatch,chapter3V22CPatch,pcasVoiceManifestText,localAssetsManifestText,storyModule]',',chapter3V22BPatch,chapter3V22CPatch,chapter3V22DPatch,pcasVoiceManifestText,localAssetsManifestText,storyModule]','binding')
+          s=once(s,'getText(CHAPTER3_V22B_PATCH),getText(CHAPTER3_V22C_PATCH),getText(PCAS_VOICE_MANIFEST)','getText(CHAPTER3_V22B_PATCH),getText(CHAPTER3_V22C_PATCH),getText(CHAPTER3_V22D_PATCH),getText(PCAS_VOICE_MANIFEST)','fetch')
+          s=once(s,"  const source=chapter3V22CSource+'\\n//# sourceURL=pinewood-runtime.js\\n';","  const chapter3V22DSource=await applyChapter3SecurityReadabilityV22DRuntime(chapter3V22CSource,chapter3V22DPatch);\n  const source=chapter3V22DSource+'\\n//# sourceURL=pinewood-runtime.js\\n';",'source')
+          p.write_text(s)
+          p=Path('scripts/audit-chapter3-security-readability-v22c.mjs'); a=p.read_text()
+          a=once(a,"if(live){for(const marker of ['async function applyChapter3SecurityReadabilityV22CRuntime(source,patchText)','getText(CHAPTER3_V22C_PATCH)','const chapter3V22CSource=await applyChapter3SecurityReadabilityV22CRuntime(chapter3V22BSource,chapter3V22CPatch);',\"const source=chapter3V22CSource+'\\\\n//# sourceURL=pinewood-runtime.js\\\\n';\"])if(!loader.includes(marker))fail('game.js partial/incorrect live v22c marker: '+marker);}","if(live){for(const marker of ['async function applyChapter3SecurityReadabilityV22CRuntime(source,patchText)','getText(CHAPTER3_V22C_PATCH)','const chapter3V22CSource=await applyChapter3SecurityReadabilityV22CRuntime(chapter3V22BSource,chapter3V22CPatch);','const chapter3V22DSource=await applyChapter3SecurityReadabilityV22DRuntime(chapter3V22CSource,chapter3V22DPatch);'])if(!loader.includes(marker))fail('game.js partial/incorrect live v22c marker: '+marker);}",'feed-forward audit')
+          p.write_text(a)
+          PY
+      - name: Verify candidate live chain
+        shell: bash
+        run: |
+          set +e
+          node scripts/audit-chapter3-security-readability-v22c.mjs > v22d-live.log 2>&1; a=$?
+          node scripts/audit-chapter3-security-readability-v22d.mjs >> v22d-live.log 2>&1; b=$?
+          cat v22d-live.log
+          test "$a" = 0 -a "$b" = 0
+      - name: Commit verified live wiring
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add game.js scripts/audit-chapter3-security-readability-v22c.mjs
+          git commit -m "Wire Security readability v22d runtime"
+          git push
