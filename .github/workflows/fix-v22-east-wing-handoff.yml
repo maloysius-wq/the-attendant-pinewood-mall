@@ -1,0 +1,152 @@
+name: Fix v22 East Wing handoff
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/fix-v22-east-wing-handoff.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  fix:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Add a gated East Wing checkpoint exit
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+
+          def replace_once(text, old, new, label):
+              count=text.count(old)
+              if count != 1:
+                  raise SystemExit(f'{label}: expected one marker, found {count}')
+              return text.replace(old,new,1)
+
+          patch_path=Path('patches/chapter3-eyes-security-v22.js.txt')
+          patch=patch_path.read_text()
+
+          patch=replace_once(
+              patch,
+              "luisEvidence:!!SAVE.story.evidence['LS-05'],authQueued:false,monitors:null,cctvConsole:null,routeConsole:null,westShutter:null,eastShutter:null,luisRoot:null};",
+              "luisEvidence:!!SAVE.story.evidence['LS-05'],authQueued:false,monitors:null,cctvConsole:null,routeConsole:null,westShutter:null,eastShutter:null,luisRoot:null,exitGate:null};",
+              'v22 exit state'
+          )
+
+          patch=replace_once(
+              patch,
+              "world.addCollider(24.25,24.72,1.12,.82,{navBlock:true,owner:vcr});\n  window.__PINEWOOD_CH3_V22__.sceneBuilt=true;",
+              "world.addCollider(24.25,24.72,1.12,.82,{navBlock:true,owner:vcr});\n  const exitGate=makeShutter(new THREE.Vector3(29.35,0,26.0),'x',false,'East Wing Fire Door');exitGate.userData.chapter3ExitV22=true;exitGate.userData.collider=world.addCollider(29.35,26.0,.28,5.15,{navBlock:true,owner:exitGate,pad:.01});world.root.add(exitGate);world.dynamicDoors.push(exitGate);world.interactables.push(exitGate);GAME.exitObject=exitGate;s.exitGate=exitGate;\n  window.__PINEWOOD_CH3_V22__.sceneBuilt=true;",
+              'East Wing exit gate'
+          )
+
+          patch=replace_once(
+              patch,
+              "    }else if(t==='door'){\n      if(this.levelIndex===1&&this.exitObject===o&&this.breakers<2){UI.hint('The stairwell motor has no power. Restore both relays.');audio.beep();return;}\n      if(o.userData.locked)",
+              "    }else if(t==='door'){\n      if(this.levelIndex===1&&this.exitObject===o&&this.breakers<2){UI.hint('The stairwell motor has no power. Restore both relays.');audio.beep();return;}\n      if(this.levelIndex===2&&this.exitObject===o&&!this.ch3V22?.luisEvidence){UI.hint('The East Wing route stays sealed. Recover Luis Ortega’s Security VHS first.');audio.beep();return;}\n      if(o.userData.locked)",
+              'Chapter 3 exit prerequisite'
+          )
+
+          patch=replace_once(
+              patch,
+              "      if(this.levelIndex===1&&this.exitObject===o&&o.userData.open){this.storyV17.queueDialogue('ch2_exit',.4);setTimeout(()=>{if(!this.dead)this.winChapter();},1800);}",
+              "      if(this.levelIndex===1&&this.exitObject===o&&o.userData.open){this.storyV17.queueDialogue('ch2_exit',.4);setTimeout(()=>{if(!this.dead)this.winChapter();},1800);}if(this.levelIndex===2&&this.exitObject===o&&o.userData.open){this.storyV17.queueDialogue('ch3_exit',.35);setTimeout(()=>{if(!this.dead)this.completeSecurityV22();},1800);}",
+              'Chapter 3 exit completion'
+          )
+
+          patch=replace_once(
+              patch,
+              "SAVE.story.people.luis='body_found';save();if(this.ch3V22)this.ch3V22.luisEvidence=true;this.storyV17.queueDialogue('ch3_luis_pattern',.5);this.storyV17.queueDialogue('ch3_auth',7.4);this.storyV17.queueDialogue('ch3_exit',15.0);}",
+              "SAVE.story.people.luis='body_found';save();if(this.ch3V22)this.ch3V22.luisEvidence=true;this.storyV17.queueDialogue('ch3_luis_pattern',.5);this.storyV17.queueDialogue('ch3_auth',7.4);}",
+              'defer Chapter 3 exit line until door'
+          )
+
+          patch=replace_once(
+              patch,
+              "`  updateSecurityV22(dt){",
+              "`  completeSecurityV22(){if(this.won||this.dead)return;this.won=true;this.running=false;this.controls.unlock();SAVE.unlockedChapter=Math.max(SAVE.unlockedChapter,2);SAVE.lastChapter=2;save();this.updateMenu();$('chapterKicker').textContent='SHIFT CHECKPOINT';$('chapterTitle').textContent='Chapter 3 complete';$('chapterCopy').textContent='The East Wing fire door closes behind you. Pinewood Security disappears behind painted steel, but the employee corridor ahead is older, narrower, and still lit. Renee stays on the channel. Somewhere beyond the next shutter, a radio clicks with her voice before she speaks.';$('chapterStartBtn').textContent='Return to Title';$('chapterStartBtn').onclick=()=>this.quit();$('chapterQuitBtn').style.display='none';UI.show('chapterScreen');}\n  updateSecurityV22(dt){",
+              'Chapter 3 checkpoint method'
+          )
+
+          patch=replace_once(
+              patch,
+              "if(!s.luisEvidence)return'Recover Luis Ortega’s Security VHS (LS-05)';return'Follow Luis’s marked employee route toward the East Wing';}",
+              "if(!s.luisEvidence)return'Recover Luis Ortega’s Security VHS (LS-05)';return'Reach the East Wing fire door';}",
+              'Chapter 3 final objective'
+          )
+
+          patch=replace_once(
+              patch,
+              "window.__PINEWOOD_CH3_V22__={version:22,cctvFeeds:4,nonOmniscient:true,interlockedShutters:true,luisSetpiece:true,lastShiftEvidence:'LS-05',voiceImitation:false,sceneBuilt:false};",
+              "window.__PINEWOOD_CH3_V22__={version:22,cctvFeeds:4,nonOmniscient:true,interlockedShutters:true,luisSetpiece:true,lastShiftEvidence:'LS-05',eastWingHandoff:true,voiceImitation:false,sceneBuilt:false};",
+              'v22 handoff capability marker'
+          )
+
+          patch=replace_once(
+              patch,
+              '"cctvFeeds:4","nonOmniscient:true","interlockedShutters:true","luisSetpiece:true","lastShiftEvidence:\'LS-05\'","voiceImitation:false",',
+              '"cctvFeeds:4","nonOmniscient:true","interlockedShutters:true","luisSetpiece:true","lastShiftEvidence:\'LS-05\'","eastWingHandoff:true","voiceImitation:false","chapter3ExitV22","completeSecurityV22",',
+              'patch self-audit markers'
+          )
+          patch_path.write_text(patch)
+
+          audit_path=Path('scripts/audit-chapter3-eyes-security-v22.mjs')
+          audit=audit_path.read_text()
+          audit=replace_once(
+              audit,
+              "'window.__PINEWOOD_CH3_V22__={version:22,cctvFeeds:4,nonOmniscient:true,interlockedShutters:true,luisSetpiece:true,lastShiftEvidence:\\\'LS-05\\\',voiceImitation:false,sceneBuilt:false}',",
+              "'window.__PINEWOOD_CH3_V22__={version:22,cctvFeeds:4,nonOmniscient:true,interlockedShutters:true,luisSetpiece:true,lastShiftEvidence:\\\'LS-05\\\',eastWingHandoff:true,voiceImitation:false,sceneBuilt:false}',",
+              'audit capability marker'
+          )
+          audit=replace_once(
+              audit,
+              "  \"chapter3Setpiece='luis-vhs-station-v22'\",\n  \"makePickup('tape',new THREE.Vector3(24.15,.16,26.15),'LS-05'\",",
+              "  \"chapter3Setpiece='luis-vhs-station-v22'\",\n  \"exitGate.userData.chapter3ExitV22=true\",\n  \"world.addCollider(29.35,26.0,.28,5.15,{navBlock:true,owner:exitGate\",\n  \"GAME.exitObject=exitGate\",\n  \"completeSecurityV22(){\",\n  \"return'Reach the East Wing fire door'\",\n  \"makePickup('tape',new THREE.Vector3(24.15,.16,26.15),'LS-05'\",",
+              'audit exit markers'
+          )
+          audit=replace_once(
+              audit,
+              "if(source.includes('voiceImitation:true'))fail('Chapter 3 introduced Renee voice imitation before Chapter 4');",
+              "if(source.includes(\"queueDialogue('ch3_exit',15.0)\"))fail('Chapter 3 exit dialogue fires before the East Wing door');\nif(!source.includes(\"this.levelIndex===2&&this.exitObject===o&&!this.ch3V22?.luisEvidence\"))fail('East Wing exit is not gated by Luis evidence');\nif(!source.includes(\"this.levelIndex===2&&this.exitObject===o&&o.userData.open\"))fail('East Wing exit does not complete from the physical door');\nif(source.includes('voiceImitation:true'))fail('Chapter 3 introduced Renee voice imitation before Chapter 4');",
+              'audit completion invariants'
+          )
+          audit_path.write_text(audit)
+          print('Added gated East Wing checkpoint handoff to v22.')
+          PY
+      - name: Audit corrected live v22 runtime
+        shell: bash
+        run: |
+          set +e
+          node scripts/audit-chapter3-eyes-security-v22.mjs > v22-east-wing-handoff-audit.log 2>&1
+          code=$?
+          cat v22-east-wing-handoff-audit.log
+          echo "$code" > v22-east-wing-handoff-exit-code.txt
+          exit 0
+      - name: Upload handoff audit
+        uses: actions/upload-artifact@v4
+        with:
+          name: v22-east-wing-handoff-audit
+          path: |
+            v22-east-wing-handoff-audit.log
+            v22-east-wing-handoff-exit-code.txt
+          if-no-files-found: error
+      - name: Commit handoff only if green
+        run: |
+          if [ "$(cat v22-east-wing-handoff-exit-code.txt)" != "0" ]; then
+            cat v22-east-wing-handoff-audit.log
+            exit 1
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add patches/chapter3-eyes-security-v22.js.txt scripts/audit-chapter3-eyes-security-v22.mjs
+          git commit -m "Complete Eyes in Security East Wing handoff"
+          git push
