@@ -1,4 +1,4 @@
-import {readFile} from 'node:fs/promises';
+import {readFile,writeFile} from 'node:fs/promises';
 import {gunzipSync} from 'node:zlib';
 import vm from 'node:vm';
 
@@ -21,6 +21,7 @@ source=(await loadPatch('patches/chapter1-story-v18.js.txt','applyChapter1StoryV
 source=(await loadPatch('patches/pcas-voice-v19.js.txt','applyPcasVoiceV19'))(source,JSON.parse(await readFile('assets/audio/pa/manifest.json','utf8')));
 source=(await loadPatch('patches/chapter1-pcas-escalation-v20.js.txt','applyChapter1PcasEscalationV20'))(source);
 source=(await loadPatch('patches/chapter2-below-grade-v21.js.txt','applyChapter2BelowGradeV21'))(source);
+await writeFile('chapter3-v22-runtime.mjs',source);
 
 const needles=['Chapter 3','levelIndex===2','levelIndex<2','this.levelIndex<2','tapes<3','PA control','async function decorateLevel','async function build','north stairwell','security','Security','CCTV','camera','shutter','startLine()','winChapter()'];
 const hits=[];
