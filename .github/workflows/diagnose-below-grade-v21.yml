@@ -4,6 +4,11 @@ on:
   push:
     branches: [main]
     paths:
+      - 'scripts/audit-chapter2-below-grade-v21.mjs'
+      - 'patches/chapter2-below-grade-v21.js.txt'
+      - 'story/dialogue.js'
+      - 'story/pa-lines.json'
+      - 'assets/audio/pa/**'
       - '.github/workflows/diagnose-below-grade-v21.yml'
   workflow_dispatch:
 
@@ -20,7 +25,6 @@ jobs:
         with:
           node-version: '22'
       - name: Capture v21 audit output
-        id: audit
         shell: bash
         run: |
           set +e
