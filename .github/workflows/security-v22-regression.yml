@@ -1,0 +1,44 @@
+name: Chapter 3 Security regression
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'game.js'
+      - 'patches/chapter3-eyes-security-v22.js.txt'
+      - 'patches/chapter3-east-wing-handoff-v22b.js.txt'
+      - 'scripts/capture-security-v22.mjs'
+      - '.github/workflows/security-v22-regression.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  security-regression:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install Playwright
+        run: |
+          npm install --no-save playwright@1.55.0
+          npx playwright install --with-deps chromium
+      - name: Start local Pinewood server
+        run: |
+          python3 -m http.server 4173 --directory "$GITHUB_WORKSPACE" >/tmp/pinewood-security-http.log 2>&1 &
+          sleep 2
+          curl --fail --silent --show-error --head http://127.0.0.1:4173/game.js
+      - name: Capture Security v22 views
+        run: node scripts/capture-security-v22.mjs
+      - name: Upload Security screenshots and report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pinewood-security-v22
+          path: security-artifacts/
+          if-no-files-found: warn
+          retention-days: 14
