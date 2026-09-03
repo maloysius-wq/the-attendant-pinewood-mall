@@ -1,0 +1,31 @@
+name: Diagnose Chapter 3 v22
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'scripts/diagnose-chapter3-v22.mjs'
+      - '.github/workflows/diagnose-chapter3-v22.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  diagnose:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Capture Chapter 3 source context through v21
+        shell: bash
+        run: node scripts/diagnose-chapter3-v22.mjs > chapter3-v22-context.json
+      - name: Upload diagnostic
+        uses: actions/upload-artifact@v4
+        with:
+          name: chapter3-v22-context
+          path: chapter3-v22-context.json
+          if-no-files-found: error
