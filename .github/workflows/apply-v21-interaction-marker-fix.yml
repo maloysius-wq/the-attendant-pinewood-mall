@@ -1,4 +1,4 @@
-name: Apply v21 interaction marker fix
+name: Apply v21 staged marker fixes
 
 on:
   push:
@@ -20,19 +20,33 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - name: Correct staged v21 prompt marker
+      - name: Correct staged v21 markers
         run: |
           python3 - <<'PY'
           from pathlib import Path
           path=Path('patches/chapter2-below-grade-v21.js.txt')
           text=path.read_text()
-          old="t==='note'||t==='journal'||t==='tape'"
-          new="t==='note'||t==='tape'"
-          count=text.count(old)
-          if count < 1:
+
+          prompt_old="t==='note'||t==='journal'||t==='tape'"
+          prompt_new="t==='note'||t==='tape'"
+          if text.count(prompt_old) < 1:
               raise SystemExit('Stale v21 prompt needle was not found')
-          path.write_text(text.replace(old,new,1))
-          print(f'Corrected first of {count} matching staged marker strings')
+          text=text.replace(prompt_old,prompt_new,1)
+
+          hud_needle_old="this.levelIndex===0?'Reach the freight elevator':'Open the north stairwell'"
+          hud_needle_new="this.levelIndex===0?((this.exitObject?.userData?.serviceUnlocked||this.keys>0)?'Reach the freight elevator':'Find the Master Service Key'):'Open the north stairwell'"
+          if text.count(hud_needle_old) < 1:
+              raise SystemExit('Stale v21 HUD needle was not found')
+          text=text.replace(hud_needle_old,hud_needle_new,1)
+
+          hud_replacement_old="this.levelIndex===0)obj=this.breakers<l.breakers?`Restore relays ${this.breakers}/${l.breakers}`:'Reach the freight elevator';else if(this.levelIndex===1)obj=this.chapter2ObjectiveV21();"
+          hud_replacement_new="this.levelIndex===0)obj=this.breakers<l.breakers?`Restore relays ${this.breakers}/${l.breakers}`:((this.exitObject?.userData?.serviceUnlocked||this.keys>0)?'Reach the freight elevator':'Find the Master Service Key');else if(this.levelIndex===1)obj=this.chapter2ObjectiveV21();"
+          if text.count(hud_replacement_old) != 1:
+              raise SystemExit(f'Expected one v21 HUD replacement body, found {text.count(hud_replacement_old)}')
+          text=text.replace(hud_replacement_old,hud_replacement_new,1)
+
+          path.write_text(text)
+          print('Corrected v21 prompt and HUD attachment markers while preserving Chapter 1 key objective')
           PY
       - name: Capture corrected v21 audit
         shell: bash
@@ -60,5 +74,5 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add patches/chapter2-below-grade-v21.js.txt
-          git commit -m "Fix Below Grade v21 interaction marker"
+          git commit -m "Fix Below Grade v21 staged markers"
           git push
