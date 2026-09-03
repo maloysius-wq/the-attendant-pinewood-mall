@@ -1,0 +1,34 @@
+name: Diagnose Chapter 4 East Wing readability v23b
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'patches/chapter4-east-wing-readability-v23b.js.txt'
+      - 'scripts/audit-chapter4-east-wing-readability-v23b.mjs'
+      - 'story/**'
+      - '.github/workflows/diagnose-chapter4-east-wing-readability-v23b.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Audit Chapter 4 East Wing readability v23b
+        run: node scripts/audit-chapter4-east-wing-readability-v23b.mjs 2>&1 | tee chapter4-v23b-audit.log
+      - name: Upload audit log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: chapter4-v23b-audit
+          path: chapter4-v23b-audit.log
+          if-no-files-found: warn
+          retention-days: 14
