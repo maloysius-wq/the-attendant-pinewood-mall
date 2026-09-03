@@ -28,27 +28,19 @@ jobs:
           p=Path('game.js')
           s=p.read_text()
           def replace_once(old,new,label):
-            global s
             count=s.count(old)
             if count!=1:
               raise SystemExit(f'{label}: expected exactly once, found {count}')
-            s=s.replace(old,new,1)
+            return s.replace(old,new,1)
 
           line="const CHAPTER4_V23B_PATCH='./patches/chapter4-east-wing-readability-v23b.js.txt';"
-          replace_once(line,line+"\nconst CHAPTER5_V24_PATCH='./patches/chapter5-accountability-v24.js.txt';",'v24 constant insertion')
-
+          s=replace_once(line,line+"\nconst CHAPTER5_V24_PATCH='./patches/chapter5-accountability-v24.js.txt';",'v24 constant insertion')
           marker='\nfunction replaceFoodCourt(source,replacement){'
-          runtime="""
-async function applyChapter5AccountabilityV24Runtime(source,patchText){
-  const patchUrl=URL.createObjectURL(new Blob([patchText+'\\nexport { applyChapter5AccountabilityV24 };\\n'],{type:'text/javascript'}));
-  try{const mod=await import(patchUrl);if(typeof mod.applyChapter5AccountabilityV24!=='function')throw new Error('Chapter 5 Accountability v24 patch did not export its patch function.');return mod.applyChapter5AccountabilityV24(source);}finally{URL.revokeObjectURL(patchUrl);}
-}
-"""
-          replace_once(marker,'\n'+runtime+marker,'v24 runtime helper insertion')
-
-          replace_once('chapter4V23Patch,chapter4V23BPatch,pcasVoiceManifestText','chapter4V23Patch,chapter4V23BPatch,chapter5V24Patch,pcasVoiceManifestText','v24 promise destructuring')
-          replace_once('getText(CHAPTER4_V23_PATCH),getText(CHAPTER4_V23B_PATCH),getText(PCAS_VOICE_MANIFEST)','getText(CHAPTER4_V23_PATCH),getText(CHAPTER4_V23B_PATCH),getText(CHAPTER5_V24_PATCH),getText(PCAS_VOICE_MANIFEST)','v24 patch fetch')
-          replace_once("  const source=chapter4V23BSource+'\\n//# sourceURL=pinewood-runtime.js\\n';","  const chapter5V24Source=await applyChapter5AccountabilityV24Runtime(chapter4V23BSource,chapter5V24Patch);\n  const source=chapter5V24Source+'\\n//# sourceURL=pinewood-runtime.js\\n';",'v24 final source chain')
+          runtime="\nasync function applyChapter5AccountabilityV24Runtime(source,patchText){\n  const patchUrl=URL.createObjectURL(new Blob([patchText+'\\nexport { applyChapter5AccountabilityV24 };\\n'],{type:'text/javascript'}));\n  try{const mod=await import(patchUrl);if(typeof mod.applyChapter5AccountabilityV24!=='function')throw new Error('Chapter 5 Accountability v24 patch did not export its patch function.');return mod.applyChapter5AccountabilityV24(source);}finally{URL.revokeObjectURL(patchUrl);}\n}\n"
+          s=replace_once(marker,runtime+marker,'v24 runtime helper insertion')
+          s=replace_once('chapter4V23Patch,chapter4V23BPatch,pcasVoiceManifestText','chapter4V23Patch,chapter4V23BPatch,chapter5V24Patch,pcasVoiceManifestText','v24 promise destructuring')
+          s=replace_once('getText(CHAPTER4_V23_PATCH),getText(CHAPTER4_V23B_PATCH),getText(PCAS_VOICE_MANIFEST)','getText(CHAPTER4_V23_PATCH),getText(CHAPTER4_V23B_PATCH),getText(CHAPTER5_V24_PATCH),getText(PCAS_VOICE_MANIFEST)','v24 patch fetch')
+          s=replace_once("  const source=chapter4V23BSource+'\\n//# sourceURL=pinewood-runtime.js\\n';","  const chapter5V24Source=await applyChapter5AccountabilityV24Runtime(chapter4V23BSource,chapter5V24Patch);\n  const source=chapter5V24Source+'\\n//# sourceURL=pinewood-runtime.js\\n';",'v24 final source chain')
           p.write_text(s)
           PY
           node --check game.js
