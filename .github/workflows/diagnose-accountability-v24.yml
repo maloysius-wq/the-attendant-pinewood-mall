@@ -1,0 +1,26 @@
+name: Diagnose Chapter 5 Accountability v24
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'patches/chapter5-accountability-v24.js.txt'
+      - 'story/**'
+      - 'scripts/audit-chapter5-accountability-v24.mjs'
+      - '.github/workflows/diagnose-accountability-v24.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  audit-accountability-v24:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Reconstruct and audit staged v24 runtime
+        run: node scripts/audit-chapter5-accountability-v24.mjs
