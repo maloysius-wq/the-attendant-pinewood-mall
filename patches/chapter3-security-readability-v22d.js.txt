@@ -1,0 +1,27 @@
+function applyChapter3SecurityReadabilityV22D(source){
+  const fail=msg=>{throw new Error('Chapter 3 Security readability v22d patch failed: '+msg);};
+  const replaceOnce=(label,needle,replacement)=>{const first=source.indexOf(needle);if(first<0)fail(label+': marker missing');if(source.indexOf(needle,first+needle.length)>=0)fail(label+': marker is not unique');source=source.slice(0,first)+replacement+source.slice(first+needle.length);};
+
+  replaceOnce('west shutter light pool',"[-8.0,2.66,6.4,0xb8d2cf,.88,6.3,coolPanel,'west-shutter']","[-8.0,2.58,7.15,0xb8d2cf,1.72,8.4,coolPanel,'west-shutter']");
+  replaceOnce('east shutter light pool',"[18.0,2.66,6.4,0xb8d2cf,.88,6.3,coolPanel,'east-shutter']","[18.0,2.58,7.15,0xb8d2cf,1.72,8.4,coolPanel,'east-shutter']");
+  replaceOnce('secondary Security light pool',"[22.8,2.58,24.9,0xaecbc0,.82,6.6,coolPanel,'secondary-security']","[24.0,2.46,26.15,0xaecbc0,1.58,7.4,coolPanel,'secondary-security']");
+  replaceOnce('East Wing exit light pool',"[27.7,2.52,26.0,0xffb36b,.72,5.4,warmPanel,'east-wing-exit']","[27.7,2.48,26.0,0xffb36b,1.05,6.2,warmPanel,'east-wing-exit']");
+  replaceOnce('route guide visibility',"new THREE.PointLight(0x4ccf8c,.34,2.4,2)","new THREE.PointLight(0x4ccf8c,.68,3.35,2)");
+  replaceOnce('VCR screen readability',"emissiveIntensity:.62,roughness:.3","emissiveIntensity:.90,roughness:.3");
+  replaceOnce('CCTV final screen readability',"emissiveIntensity:.76,roughness:.29","emissiveIntensity:.88,roughness:.29");
+
+  replaceOnce('Chapter 3 subtle fill and Luis task lighting',
+    "const cctvSpill=new THREE.PointLight(0x3fd982,.26,3.6,2);cctvSpill.position.set(-24.0,1.25,-27.35);world.root.add(cctvSpill);",
+    "const cctvSpill=new THREE.PointLight(0x3fd982,.30,3.9,2);cctvSpill.position.set(-24.0,1.25,-27.35);world.root.add(cctvSpill);const securityFill=new THREE.HemisphereLight(0x647b75,0x050606,.115);securityFill.userData.chapter3LightV22D='ambient-fill';world.root.add(securityFill);const luisFill=new THREE.PointLight(0xc2d8d1,1.28,5.8,2);luisFill.position.set(25.0,.92,27.15);luisFill.userData.chapter3LightV22D='luis-fill';world.root.add(luisFill);const luisVcrFill=new THREE.PointLight(0x67d3a0,.72,4.1,2);luisVcrFill.position.set(23.8,1.18,25.2);luisVcrFill.userData.chapter3LightV22D='vcr-fill';world.root.add(luisVcrFill);"
+  );
+
+  replaceOnce('shutter visual camera faces the interlock',
+    "'security-shutters':{chapter:2,p:[-8.0,1.70,3.8],yaw:0,pitch:-.06}",
+    "'security-shutters':{chapter:2,p:[-8.0,1.70,3.8],yaw:Math.PI,pitch:-.06}"
+  );
+
+  replaceOnce('v22d capability marker',"eastWingHandoff:true,readabilityLighting:true,voiceImitation:false","eastWingHandoff:true,readabilityLighting:true,readabilityPolish:true,voiceImitation:false");
+
+  for(const marker of ["1.72,8.4,coolPanel,'west-shutter'","1.72,8.4,coolPanel,'east-shutter'","1.58,7.4,coolPanel,'secondary-security'","chapter3LightV22D='ambient-fill'","chapter3LightV22D='luis-fill'","chapter3LightV22D='vcr-fill'","new THREE.HemisphereLight(0x647b75,0x050606,.115)","'security-shutters':{chapter:2,p:[-8.0,1.70,3.8],yaw:Math.PI","readabilityPolish:true","emissiveIntensity:.90,roughness:.3"])if(!source.includes(marker))fail('required v22d marker missing: '+marker);
+  return source;
+}
