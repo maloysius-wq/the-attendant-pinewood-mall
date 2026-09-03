@@ -1,0 +1,43 @@
+name: Apply v21 interaction marker fix
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/apply-v21-interaction-marker-fix.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  fix:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Correct staged v21 prompt marker
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          path=Path('patches/chapter2-below-grade-v21.js.txt')
+          text=path.read_text()
+          old="\"else if(t==='note'||t==='journal'||t==='tape')UI.hint('E  Recover '+o.userData.label);\","
+          new="\"else if(t==='note'||t==='tape')UI.hint('E  Recover '+o.userData.label);\","
+          count=text.count(old)
+          if count != 1:
+              raise SystemExit(f'Expected exactly one stale prompt needle, found {count}')
+          path.write_text(text.replace(old,new,1))
+          PY
+          node scripts/audit-chapter2-below-grade-v21.mjs
+      - name: Commit corrected patch
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add patches/chapter2-below-grade-v21.js.txt
+          git commit -m "Fix Below Grade v21 interaction marker"
+          git push
