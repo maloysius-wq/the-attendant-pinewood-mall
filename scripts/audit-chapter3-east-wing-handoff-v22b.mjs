@@ -64,7 +64,7 @@ if(live){
     'async function applyChapter3EastWingHandoffV22BRuntime(source,patchText)',
     'getText(CHAPTER3_V22B_PATCH)',
     'const chapter3V22BSource=await applyChapter3EastWingHandoffV22BRuntime(chapter3V22Source,chapter3V22BPatch);',
-    "const source=chapter3V22BSource+'\\n//# sourceURL=pinewood-runtime.js\\n';"
+    'const chapter3V22CSource=await applyChapter3SecurityReadabilityV22CRuntime(chapter3V22BSource,chapter3V22CPatch);'
   ])if(!loader.includes(marker))fail('game.js partial/incorrect live v22b loader marker: '+marker);
   if(loader.includes("const source=chapter3V22Source+'\\n//# sourceURL=pinewood-runtime.js\\n';"))fail('game.js declares v22b but still boots directly from v22');
 }else if(loader.includes('applyChapter3EastWingHandoffV22BRuntime')||loader.includes('chapter3V22BSource'))fail('game.js contains partial v22b wiring without its patch constant');
