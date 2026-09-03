@@ -34,9 +34,29 @@ jobs:
           path.write_text(text.replace(old,new,1))
           print(f'Corrected first of {count} matching staged marker strings')
           PY
-          node scripts/audit-chapter2-below-grade-v21.mjs
-      - name: Commit corrected patch
+      - name: Capture corrected v21 audit
+        shell: bash
         run: |
+          set +e
+          node scripts/audit-chapter2-below-grade-v21.mjs > corrected-v21-audit.log 2>&1
+          code=$?
+          echo "$code" > corrected-v21-exit-code.txt
+          cat corrected-v21-audit.log
+          exit 0
+      - name: Upload corrected-patch diagnostic
+        uses: actions/upload-artifact@v4
+        with:
+          name: corrected-v21-patch-diagnostic
+          path: |
+            corrected-v21-audit.log
+            corrected-v21-exit-code.txt
+          if-no-files-found: error
+      - name: Commit corrected patch only if green
+        run: |
+          if [ "$(cat corrected-v21-exit-code.txt)" != "0" ]; then
+            cat corrected-v21-audit.log
+            exit 1
+          fi
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add patches/chapter2-below-grade-v21.js.txt
