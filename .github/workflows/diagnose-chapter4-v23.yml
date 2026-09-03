@@ -1,0 +1,35 @@
+name: Diagnose Chapter 4 v23
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'scripts/diagnose-chapter4-v23.mjs'
+      - '.github/workflows/diagnose-chapter4-v23.yml'
+      - 'story/**'
+      - 'patches/chapter3-security-readability-v22d.js.txt'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  diagnose:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Reconstruct live runtime for Chapter 4
+        run: node scripts/diagnose-chapter4-v23.mjs
+      - name: Upload Chapter 4 diagnostic
+        uses: actions/upload-artifact@v4
+        with:
+          name: chapter4-v23-runtime
+          path: |
+            chapter4-v23-runtime.mjs
+            chapter4-v23-diagnostic.txt
+          if-no-files-found: error
+          retention-days: 14
