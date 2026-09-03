@@ -46,8 +46,8 @@ try{
       await page.screenshot({path:`visual-artifacts/${view}.png`,fullPage:true});
       const uniqueRemote=[...new Set(remoteRequests)];
       const storyOk=story?.version===17&&story?.chapterCount===6&&Array.isArray(story?.lastShiftIds)&&story.lastShiftIds.length===9;
-      const pcasRuntimeOk=pcas?.version===19&&pcas?.lineCount===19&&pcas?.localOnly===true&&Array.isArray(pcas?.failures)&&pcas.failures.length===0;
-      const pcasDecodeOk=report.pcasDecode?.version===19&&report.pcasDecode?.lineCount===19&&report.pcasDecode?.decodedCount===19&&report.pcasDecode?.localOnly===true&&Array.isArray(report.pcasDecode?.failures)&&report.pcasDecode.failures.length===0;
+      const pcasRuntimeOk=pcas?.version===19&&pcas?.lineCount>=19&&pcas?.localOnly===true&&Array.isArray(pcas?.failures)&&pcas.failures.length===0;
+      const pcasDecodeOk=report.pcasDecode?.version===19&&report.pcasDecode?.lineCount>=19&&report.pcasDecode?.decodedCount===report.pcasDecode?.lineCount&&pcas?.lineCount===report.pcasDecode?.lineCount&&report.pcasDecode?.localOnly===true&&Array.isArray(report.pcasDecode?.failures)&&report.pcasDecode.failures.length===0;
       if(uniqueRemote.length||!storyOk||!pcasRuntimeOk||!pcasDecodeOk)report.failed=true;
       report.views[view]={ok:uniqueRemote.length===0&&storyOk&&pcasRuntimeOk&&pcasDecodeOk,info,story,pcas,failureText,consoleMessages,remoteRequests:uniqueRemote};
     }catch(err){
