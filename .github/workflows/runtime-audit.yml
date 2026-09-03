@@ -23,6 +23,7 @@ on:
       - 'scripts/audit-story-foundation-v17.mjs'
       - 'scripts/audit-chapter1-story-v18.mjs'
       - 'scripts/audit-pcas-voice-v19.mjs'
+      - 'scripts/audit-chapter1-pcas-v20.mjs'
       - '.github/workflows/runtime-audit.yml'
   pull_request:
     paths:
@@ -45,6 +46,7 @@ on:
       - 'scripts/audit-story-foundation-v17.mjs'
       - 'scripts/audit-chapter1-story-v18.mjs'
       - 'scripts/audit-pcas-voice-v19.mjs'
+      - 'scripts/audit-chapter1-pcas-v20.mjs'
       - '.github/workflows/runtime-audit.yml'
   workflow_dispatch:
 
@@ -80,5 +82,7 @@ jobs:
         run: node scripts/audit-chapter1-story-v18.mjs
       - name: Validate distorted PCAS voice v19
         run: node scripts/audit-pcas-voice-v19.mjs
+      - name: Validate Chapter 1 PCAS escalation v20
+        run: node scripts/audit-chapter1-pcas-v20.mjs
 
-# Verification trigger: final clean-head PCAS Voice v19 runtime gate
+# Verification trigger: Chapter 1 PCAS escalation v20 clean-head runtime gate
