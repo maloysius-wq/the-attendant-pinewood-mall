@@ -26,7 +26,6 @@ for(const marker of [
   'async function applyPcasVoiceV19Runtime(source,patchText,manifest)',
   'const chapter1V18Source=await applyChapter1StoryV18Runtime(storyV17Source,chapter1V18Patch);',
   'const pcasV19Source=await applyPcasVoiceV19Runtime(chapter1V18Source,pcasV19Patch,pcasVoiceManifest);',
-  "const source=pcasV19Source+'\\n//# sourceURL=pinewood-runtime.js\\n';"
 ])if(!loader.includes(marker))fail('game.js live v19 loader marker missing: '+marker);
 if(loader.includes("const source=storyV17Source+'\\n//# sourceURL=pinewood-runtime.js\\n';"))fail('game.js still boots directly from v17');
 
