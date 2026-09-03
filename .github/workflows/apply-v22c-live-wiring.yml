@@ -1,5 +1,5 @@
 name: Apply Security readability v22c live wiring
-# Retry after correcting the v22c fixture-table self-check.
+# Retry after aligning both v22c fixture-table audits.
 
 on:
   push:
