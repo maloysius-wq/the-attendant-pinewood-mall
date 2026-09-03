@@ -1,0 +1,39 @@
+name: Diagnose Below Grade v21
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/diagnose-below-grade-v21.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  diagnose:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Capture v21 audit output
+        id: audit
+        shell: bash
+        run: |
+          set +e
+          node scripts/audit-chapter2-below-grade-v21.mjs > below-grade-v21-audit.log 2>&1
+          code=$?
+          cat below-grade-v21-audit.log
+          echo "$code" > below-grade-v21-exit-code.txt
+          exit 0
+      - name: Upload diagnostic
+        uses: actions/upload-artifact@v4
+        with:
+          name: below-grade-v21-diagnostic
+          path: |
+            below-grade-v21-audit.log
+            below-grade-v21-exit-code.txt
+          if-no-files-found: error
