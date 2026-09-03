@@ -35,10 +35,14 @@ source=(await loadPatch('patches/chapter3-east-wing-handoff-v22b.js.txt','applyC
 source=(await loadPatch('patches/chapter3-security-readability-v22c.js.txt','applyChapter3SecurityReadabilityV22C'))(source);
 
 for(const marker of [
-  'function addSecurityReadabilityV22C(world)',"chapter3LightV22C='cctv'","chapter3LightV22C='west-shutter'","chapter3LightV22C='east-shutter'","chapter3LightV22C='secondary-security'","chapter3LightV22C='east-wing-exit'","chapter3LightV22C='route-guide'","chapter3Setpiece='east-wing-sign-v22c'","readabilityLighting:true","addSecurityReadabilityV22C(world)","emissiveIntensity:.76,roughness:.29"
+  'function addSecurityReadabilityV22C(world)',"coolPanel,'cctv'","coolPanel,'west-shutter'","coolPanel,'east-shutter'","coolPanel,'secondary-security'","warmPanel,'east-wing-exit'",'panel.userData.chapter3LightV22C=tag','light.userData.chapter3LightV22C=tag',"chapter3LightV22C='route-guide'","chapter3Setpiece='east-wing-sign-v22c'","readabilityLighting:true","addSecurityReadabilityV22C(world)","emissiveIntensity:.76,roughness:.29"
 ])if(!source.includes(marker))fail('assembled runtime missing readability marker: '+marker);
 const helper=source.slice(source.indexOf('function addSecurityReadabilityV22C'),source.indexOf('window.__PINEWOOD_CH3_V22__',source.indexOf('function addSecurityReadabilityV22C')));
-const pointLights=(helper.match(/new THREE\.PointLight/g)||[]).length;if(pointLights<7)fail('readability helper must provide localized CCTV/shutter/Luis/exit lighting, found '+pointLights+' PointLights');
+const fixtureTags=['cctv','west-shutter','east-shutter','secondary-security','east-wing-exit'];
+for(const tag of fixtureTags)if(!helper.includes(`'${tag}'`))fail('readability fixture table missing '+tag);
+if(!helper.includes("for(const[x,y,z,color,intensity,range,mat,tag]of fixtures)")||!helper.includes('new THREE.PointLight(color,intensity,range,2)'))fail('fixture table is not driving localized PointLights');
+if(!helper.includes("for(const[x,z]of[[-10.25,8],[20.25,8]])")||!helper.includes("chapter3LightV22C='route-guide'"))fail('paired shutter route-guide lights are missing');
+if(!helper.includes('const cctvSpill=new THREE.PointLight'))fail('CCTV monitor spill light is missing');
 if(!helper.includes("securityLabelTextureV22('EAST WING','EMPLOYEE ACCESS')"))fail('East Wing exit lacks readable local sign treatment');
 if(!source.includes('eastWingHandoff:true')||!source.includes('completeSecurityV22(){'))fail('readability pass regressed East Wing handoff');
 if(!source.includes('securityFeedStatusV22(game,feed)')||!source.includes("securityRouteV22='west'")||!source.includes("securityRouteV22='east'"))fail('readability pass regressed Security systems');
