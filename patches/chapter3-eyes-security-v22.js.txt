@@ -86,7 +86,7 @@ function handleSecurityConsoleV22(game,o){
   if(o.userData.controlId==='cctv'){
     const feed=s.feeds[s.feedIndex%s.feeds.length],seen=securityFeedStatusV22(game,feed);s.feedIndex=(s.feedIndex+1)%s.feeds.length;
     if(!s.cctvUsed){s.cctvUsed=true;game.storyV17.runOnce('ch3_cctv_online',()=>game.storyV17.queueDialogue('ch3_cctv_online',.5));game.attendant.awaken();}
-    audio.toggle();UI.subtitle('CCTV · '+feed.id,feed.label+'\n'+(seen?'MOTION: FIGURE IN FRAME':'NO MOVEMENT DETECTED'),'log',2600);
+    audio.toggle();UI.subtitle('CCTV · '+feed.id,feed.label+'\\n'+(seen?'MOTION: FIGURE IN FRAME':'NO MOVEMENT DETECTED'),'log',2600);
   }else if(o.userData.controlId==='route'){
     if(!s.cctvUsed){audio.beep();UI.hint('Review the Security camera groups before changing the route.');return;}
     setSecurityRouteV22(game,s.route==='west'?'east':'west');game.storyV17.runOnce('ch3_shutter_interlock',()=>game.storyV17.queueDialogue('ch3_shutter_interlock',.45));
