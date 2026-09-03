@@ -1,0 +1,50 @@
+function applyChapter3EastWingHandoffV22B(source){
+  const fail=msg=>{throw new Error('Chapter 3 East Wing handoff v22b patch failed: '+msg);};
+  const replaceOnce=(label,needle,replacement)=>{
+    const first=source.indexOf(needle);if(first<0)fail(label+': marker missing');
+    if(source.indexOf(needle,first+needle.length)>=0)fail(label+': marker is not unique');
+    source=source.slice(0,first)+replacement+source.slice(first+needle.length);
+  };
+
+  replaceOnce('East Wing physical exit',
+    "world.addCollider(24.25,24.72,1.12,.82,{navBlock:true,owner:vcr});\n  window.__PINEWOOD_CH3_V22__.sceneBuilt=true;",
+    "world.addCollider(24.25,24.72,1.12,.82,{navBlock:true,owner:vcr});\n  const exitGate=makeShutter(new THREE.Vector3(29.35,0,26.0),'x',false,'East Wing Fire Door');exitGate.userData.chapter3ExitV22=true;exitGate.userData.collider=world.addCollider(29.35,26.0,.28,5.15,{navBlock:true,owner:exitGate,pad:.01});world.root.add(exitGate);world.dynamicDoors.push(exitGate);world.interactables.push(exitGate);GAME.exitObject=exitGate;s.exitGate=exitGate;\n  window.__PINEWOOD_CH3_V22__.sceneBuilt=true;"
+  );
+
+  replaceOnce('East Wing evidence gate',
+    "    }else if(t==='door'){\n      if(this.levelIndex===1&&this.exitObject===o&&this.breakers<2){UI.hint('The stairwell motor has no power. Restore both relays.');audio.beep();return;}\n      if(o.userData.locked)",
+    "    }else if(t==='door'){\n      if(this.levelIndex===1&&this.exitObject===o&&this.breakers<2){UI.hint('The stairwell motor has no power. Restore both relays.');audio.beep();return;}\n      if(this.levelIndex===2&&this.exitObject===o&&!this.ch3V22?.luisEvidence){UI.hint('The East Wing route stays sealed. Recover Luis Ortega’s Security VHS first.');audio.beep();return;}\n      if(o.userData.locked)"
+  );
+
+  replaceOnce('East Wing completion from physical door',
+    "      if(this.levelIndex===1&&this.exitObject===o&&o.userData.open){this.storyV17.queueDialogue('ch2_exit',.4);setTimeout(()=>{if(!this.dead)this.winChapter();},1800);}",
+    "      if(this.levelIndex===1&&this.exitObject===o&&o.userData.open){this.storyV17.queueDialogue('ch2_exit',.4);setTimeout(()=>{if(!this.dead)this.winChapter();},1800);}if(this.levelIndex===2&&this.exitObject===o&&o.userData.open){this.storyV17.queueDialogue('ch3_exit',.35);setTimeout(()=>{if(!this.dead)this.completeSecurityV22();},1800);}"
+  );
+
+  replaceOnce('defer Chapter 3 exit dialogue until the door',
+    "SAVE.story.people.luis='body_found';save();if(this.ch3V22)this.ch3V22.luisEvidence=true;this.storyV17.queueDialogue('ch3_luis_pattern',.5);this.storyV17.queueDialogue('ch3_auth',7.4);this.storyV17.queueDialogue('ch3_exit',15.0);}",
+    "SAVE.story.people.luis='body_found';save();if(this.ch3V22)this.ch3V22.luisEvidence=true;this.storyV17.queueDialogue('ch3_luis_pattern',.5);this.storyV17.queueDialogue('ch3_auth',7.4);}"
+  );
+
+  replaceOnce('Chapter 3 checkpoint completion method',
+    "  updateSecurityV22(dt){",
+    "  completeSecurityV22(){if(this.won||this.dead)return;this.won=true;this.running=false;this.controls.unlock();SAVE.story.completedEvents.ch3_complete=true;SAVE.story.chapterCheckpoint='east_wing';SAVE.unlockedChapter=Math.max(SAVE.unlockedChapter,2);SAVE.lastChapter=2;save();this.updateMenu();$('chapterKicker').textContent='SHIFT CHECKPOINT';$('chapterTitle').textContent='Chapter 3 complete';$('chapterCopy').textContent='The East Wing fire door closes behind you. Pinewood Security disappears behind painted steel, but the employee corridor ahead is older, narrower, and still lit. Renee stays on the channel. Somewhere beyond the next shutter, a radio clicks with her voice before she speaks.';$('chapterStartBtn').textContent='Return to Title';$('chapterStartBtn').onclick=()=>this.quit();$('chapterQuitBtn').style.display='none';UI.show('chapterScreen');}\n  updateSecurityV22(dt){"
+  );
+
+  replaceOnce('Chapter 3 final objective points to physical exit',
+    "if(!s.luisEvidence)return'Recover Luis Ortega’s Security VHS (LS-05)';return'Follow Luis’s marked employee route toward the East Wing';}",
+    "if(!s.luisEvidence)return'Recover Luis Ortega’s Security VHS (LS-05)';return'Reach the East Wing fire door';}"
+  );
+
+  replaceOnce('v22 handoff runtime capability',
+    "window.__PINEWOOD_CH3_V22__={version:22,cctvFeeds:4,nonOmniscient:true,interlockedShutters:true,luisSetpiece:true,lastShiftEvidence:'LS-05',voiceImitation:false,sceneBuilt:false};",
+    "window.__PINEWOOD_CH3_V22__={version:22,cctvFeeds:4,nonOmniscient:true,interlockedShutters:true,luisSetpiece:true,lastShiftEvidence:'LS-05',eastWingHandoff:true,voiceImitation:false,sceneBuilt:false};"
+  );
+
+  for(const marker of [
+    "chapter3ExitV22=true","GAME.exitObject=exitGate","completeSecurityV22(){","SAVE.story.chapterCheckpoint='east_wing'","return'Reach the East Wing fire door'","eastWingHandoff:true",
+    "this.levelIndex===2&&this.exitObject===o&&!this.ch3V22?.luisEvidence","this.levelIndex===2&&this.exitObject===o&&o.userData.open"
+  ])if(!source.includes(marker))fail('required handoff marker missing after patch: '+marker);
+  if(source.includes("queueDialogue('ch3_exit',15.0)"))fail('Chapter 3 exit dialogue still fires before the physical door');
+  return source;
+}
