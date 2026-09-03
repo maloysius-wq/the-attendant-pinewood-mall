@@ -2,7 +2,7 @@ import { chromium } from 'playwright';
 import { mkdir, writeFile } from 'node:fs/promises';
 
 const base=process.env.PINEWOOD_BASE_URL||'http://127.0.0.1:4173/';
-const views=['cassette-front','cassette-center','cassette-listening','elevator-front','arcade-checkout','video-checkout','below-grade-pump','below-grade-flood','below-grade-gavin','security-cctv','security-shutters','security-luis'];
+const views=['cassette-front','cassette-center','cassette-listening','elevator-front','arcade-checkout','video-checkout','below-grade-pump','below-grade-flood','below-grade-gavin','security-cctv','security-shutters','security-luis','east-wing-map','east-wing-lockers','east-wing-training','east-wing-receiving'];
 await mkdir('visual-artifacts',{recursive:true});
 const browser=await chromium.launch({headless:true,args:['--enable-webgl','--ignore-gpu-blocklist','--use-gl=swiftshader','--enable-unsafe-swiftshader','--disable-dev-shm-usage']});
 const report={base,views:{},pcasDecode:null,failed:false};
@@ -45,6 +45,7 @@ try{
       const chapter1V20=await page.evaluate(()=>window.__PINEWOOD_CH1_V20__||null);
       const chapter2V21=await page.evaluate(()=>window.__PINEWOOD_CH2_V21__||null);
       const chapter3V22=await page.evaluate(()=>window.__PINEWOOD_CH3_V22__||null);
+      const chapter4V23=await page.evaluate(()=>window.__PINEWOOD_CH4_V23__||null);
       const failureText=await page.locator('#assetStatus').textContent().catch(()=>null);
       await page.screenshot({path:`visual-artifacts/${view}.png`,fullPage:true});
       const uniqueRemote=[...new Set(remoteRequests)];
@@ -54,10 +55,12 @@ try{
       const chapter1V20Ok=chapter1V20?.version===20&&chapter1V20?.reactivePcas===true&&chapter1V20?.reneeAware===true&&chapter1V20?.voiceImitation===false;
       const chapter2V21Ok=chapter2V21?.version===21&&chapter2V21?.machineryMasking===true&&chapter2V21?.relayRouting===true&&chapter2V21?.dynamicFlood===true&&chapter2V21?.gavinSetpiece===true&&chapter2V21?.contractor13===true&&chapter2V21?.voiceImitation===false;
       const chapter3V22Ok=chapter3V22?.version===22&&chapter3V22?.cctvFeeds===4&&chapter3V22?.nonOmniscient===true&&chapter3V22?.interlockedShutters===true&&chapter3V22?.luisSetpiece===true&&chapter3V22?.lastShiftEvidence==='LS-05'&&chapter3V22?.eastWingHandoff===true&&chapter3V22?.readabilityLighting===true&&chapter3V22?.readabilityPolish===true&&chapter3V22?.voiceImitation===false;
+      const chapter4V23Ok=chapter4V23?.version===23&&chapter4V23?.informationDistrust===true&&chapter4V23?.physicalVerification===true&&chapter4V23?.visualReadability===true&&chapter4V23?.radioImitation===true&&chapter4V23?.tessaSetpiece===true&&chapter4V23?.lastShiftEvidence==='LS-06'&&chapter4V23?.prePcasEvidence==='PRE-1986-LOG';
       const securitySceneOk=!view.startsWith('security-')||chapter3V22?.sceneBuilt===true;
-      const ok=uniqueRemote.length===0&&storyOk&&pcasRuntimeOk&&pcasDecodeOk&&chapter1V20Ok&&chapter2V21Ok&&chapter3V22Ok&&securitySceneOk;
+      const eastWingSceneOk=!view.startsWith('east-wing-')||chapter4V23?.sceneBuilt===true;
+      const ok=uniqueRemote.length===0&&storyOk&&pcasRuntimeOk&&pcasDecodeOk&&chapter1V20Ok&&chapter2V21Ok&&chapter3V22Ok&&chapter4V23Ok&&securitySceneOk&&eastWingSceneOk;
       if(!ok)report.failed=true;
-      report.views[view]={ok,info,story,pcas,chapter1V20,chapter2V21,chapter3V22,securitySceneOk,failureText,consoleMessages,remoteRequests:uniqueRemote};
+      report.views[view]={ok,info,story,pcas,chapter1V20,chapter2V21,chapter3V22,chapter4V23,securitySceneOk,eastWingSceneOk,failureText,consoleMessages,remoteRequests:uniqueRemote};
     }catch(err){
       report.failed=true;
       const failureText=await page.locator('#assetStatus').textContent().catch(()=>null);
@@ -66,8 +69,9 @@ try{
       const chapter1V20=await page.evaluate(()=>window.__PINEWOOD_CH1_V20__||null).catch(()=>null);
       const chapter2V21=await page.evaluate(()=>window.__PINEWOOD_CH2_V21__||null).catch(()=>null);
       const chapter3V22=await page.evaluate(()=>window.__PINEWOOD_CH3_V22__||null).catch(()=>null);
+      const chapter4V23=await page.evaluate(()=>window.__PINEWOOD_CH4_V23__||null).catch(()=>null);
       await page.screenshot({path:`visual-artifacts/${view}-failure.png`,fullPage:true}).catch(()=>{});
-      report.views[view]={ok:false,error:err.stack||String(err),pcas,chapter1V20,chapter2V21,chapter3V22,failureText,bodyText,consoleMessages,remoteRequests:[...new Set(remoteRequests)]};
+      report.views[view]={ok:false,error:err.stack||String(err),pcas,chapter1V20,chapter2V21,chapter3V22,chapter4V23,failureText,bodyText,consoleMessages,remoteRequests:[...new Set(remoteRequests)]};
     }finally{await page.close();}
   }
 }finally{await browser.close();}
