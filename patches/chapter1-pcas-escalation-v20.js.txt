@@ -13,9 +13,10 @@ function applyChapter1PcasEscalationV20(source){
 
   // PCAS registration becomes real narrative state, then the second restored circuit makes the
   // building react to the contractor's movement rather than merely reciting a closing script.
+  // This marker intentionally targets the post-v19 form, which already carries the Chapter 2 PCAS audio key.
   replaceOnce('graduated Chapter 1 breaker escalation',
-    "if(this.breakers===1){if(this.levelIndex===0){this.storyV17.queueDialogue('ch1_first_power',.8);this.storyV17.queueDialogue('ch1_pcas_hold',2.5);this.storyV17.queueDialogue('ch1_contractor_registered',5.8);}else{this.queueStory(.8,'radio','DISPATCH','First relay is up. I found your work order. It was filed in 1997.');this.queueStory(2.3,'intercom','INTERCOM','Maintenance staff must report to Security for evaluation.');}}",
-    "if(this.breakers===1){if(this.levelIndex===0){SAVE.story.flags[STORY_DATA_V17.flags.contractor14Active]=true;save();this.storyV17.queueDialogue('ch1_first_power',.8);this.storyV17.queueDialogue('ch1_pcas_hold',2.5);this.storyV17.queueDialogue('ch1_contractor_registered',5.8);}else{this.queueStory(.8,'radio','DISPATCH','First relay is up. I found your work order. It was filed in 1997.');this.queueStory(2.3,'intercom','INTERCOM','Maintenance staff must report to Security for evaluation.');}}if(this.levelIndex===0&&this.breakers===2){this.storyV17.queueDialogue('ch1_pcas_route_deviation',.8);this.storyV17.queueDialogue('ch1_second_power',10.0);}"
+    "if(this.breakers===1){if(this.levelIndex===0){this.storyV17.queueDialogue('ch1_first_power',.8);this.storyV17.queueDialogue('ch1_pcas_hold',2.5);this.storyV17.queueDialogue('ch1_contractor_registered',5.8);}else{this.queueStory(.8,'radio','DISPATCH','First relay is up. I found your work order. It was filed in 1997.');this.queueStory(2.3,'intercom','INTERCOM','Maintenance staff must report to Security for evaluation.','ch2_maintenance_eval');}}",
+    "if(this.breakers===1){if(this.levelIndex===0){SAVE.story.flags[STORY_DATA_V17.flags.contractor14Active]=true;save();this.storyV17.queueDialogue('ch1_first_power',.8);this.storyV17.queueDialogue('ch1_pcas_hold',2.5);this.storyV17.queueDialogue('ch1_contractor_registered',5.8);}else{this.queueStory(.8,'radio','DISPATCH','First relay is up. I found your work order. It was filed in 1997.');this.queueStory(2.3,'intercom','INTERCOM','Maintenance staff must report to Security for evaluation.','ch2_maintenance_eval');}}if(this.levelIndex===0&&this.breakers===2){this.storyV17.queueDialogue('ch1_pcas_route_deviation',.8);this.storyV17.queueDialogue('ch1_second_power',10.0);}"
   );
 
   // PCAS notices the physical service-key pickup. Renee now explicitly recognizes that Pinewood is
@@ -64,6 +65,7 @@ function applyChapter1PcasEscalationV20(source){
     "queueDialogue('ch1_elevator_reaction',8.8)",
     "'ambient_ch1_camera_view'",
     "'ambient_ch1_departure_pending'",
+    "'ch2_maintenance_eval'",
     'window.__PINEWOOD_CH1_V20__',
     'voiceImitation:false'
   ])if(!source.includes(marker))fail('required v20 marker missing after patch: '+marker);
