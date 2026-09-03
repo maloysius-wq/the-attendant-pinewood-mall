@@ -1,0 +1,40 @@
+function applyChapter4EastWingReadabilityV23B(source){
+  const fail=msg=>{throw new Error('Chapter 4 East Wing readability v23b patch failed: '+msg);};
+  const replaceOnce=(label,needle,replacement)=>{const first=source.indexOf(needle);if(first<0)fail(label+': marker missing');if(source.indexOf(needle,first+needle.length)>=0)fail(label+': marker is not unique');source=source.slice(0,first)+replacement+source.slice(first+needle.length);};
+
+  replaceOnce('East Wing subtle ambient floor',
+    "const fill=new THREE.HemisphereLight(0x7b726b,0x090707,.13);",
+    "const fill=new THREE.HemisphereLight(0x7b726b,0x090707,.17);"
+  );
+  replaceOnce('locker light pool',"[-20,9,0xc7bba5,.82,6.2,'lockers']","[-20,9.7,0xc7bba5,1.32,7.6,'lockers']");
+  replaceOnce('training light pool',"[-17,-10,0xc7d2bd,.68,5.8,'training']","[-18,-10,0xc7d2bd,1.04,7.2,'training']");
+  replaceOnce('receiving light pool',"[22,12,0xa4c4ad,.92,7.2,'receiving']","[22,12,0xa4c4ad,1.18,8.2,'receiving']");
+
+  replaceOnce('route map emissive readability',
+    "roughness:.72});\n  addBox(g,new THREE.Vector3(0,0,-.025)",
+    "roughness:.72,emissive:0x182018,emissiveIntensity:.30});\n  addBox(g,new THREE.Vector3(0,0,-.025)"
+  );
+
+  replaceOnce('locker identity and map task lighting',
+    "const map=makeEastWingRouteMapV23();world.root.add(map);world.interactables.push(map);\n  const locker=makeTessaLockerV23();world.root.add(locker);world.addCollider(-22.8,10.4,.65,2.85,{navBlock:true,owner:locker,pad:.04});world.interactables.push(locker);",
+    "const map=makeEastWingRouteMapV23();world.root.add(map);world.interactables.push(map);const mapTask=new THREE.PointLight(0xc7d8bd,1.18,5.0,2);mapTask.position.set(-22.4,1.78,4.15);mapTask.userData.chapter4LightV23B='route-map';world.root.add(mapTask);\n  const locker=makeTessaLockerV23();world.root.add(locker);world.addCollider(-22.8,10.4,.65,2.85,{navBlock:true,owner:locker,pad:.04});world.interactables.push(locker);const lockerTag=makeEastWingSignV23('LOCKER 27','TESSA KIM • CASSETTE CASTLE',new THREE.Vector3(-22.48,1.74,9.86),Math.PI/2,'#d96caa');lockerTag.userData.chapter4VisualV23B='tessa-locker-id';world.root.add(lockerTag);const lockerTask=new THREE.PointLight(0xffc7df,1.10,4.8,2);lockerTask.position.set(-19.9,1.82,10.0);lockerTask.userData.chapter4LightV23B='tessa-locker';world.root.add(lockerTask);"
+  );
+
+  replaceOnce('training room identity',
+    "const t04=makeEastWingSignV23('T-04','TRAINING',new THREE.Vector3(-17.0,1.75,-5.75),0,'#7a5c9a');world.root.add(t04);",
+    "const t04=makeEastWingSignV23('T-04','TRAINING',new THREE.Vector3(-17.0,1.75,-5.75),0,'#7a5c9a');world.root.add(t04);const trainingBoard=makeEastWingSignV23('CLOSING CREW','ORIENTATION • VERIFY BADGE • CHECK EXIT',new THREE.Vector3(-23.55,1.72,-10.0),Math.PI/2,'#7a5c9a');trainingBoard.scale.set(1.25,1.25,1.25);trainingBoard.userData.chapter4VisualV23B='training-board';world.root.add(trainingBoard);const trainingTask=new THREE.PointLight(0xd7d6ba,.82,4.8,2);trainingTask.position.set(-21.4,1.85,-10.0);trainingTask.userData.chapter4LightV23B='training-board';world.root.add(trainingTask);"
+  );
+
+  replaceOnce('East Wing visual regression cameras',
+    "'east-wing-map':{chapter:3,p:[-24.4,1.70,.4],yaw:-.34,pitch:-.06},\n      'east-wing-lockers':{chapter:3,p:[-19.2,1.70,8.7],yaw:-1.58,pitch:-.08},\n      'east-wing-training':{chapter:3,p:[-14.0,1.70,-9.6],yaw:1.58,pitch:-.08},\n      'east-wing-receiving':{chapter:3,p:[20.0,1.70,12.0],yaw:-.15,pitch:-.08}",
+    "'east-wing-map':{chapter:3,p:[-22.4,1.62,5.15],yaw:Math.PI,pitch:-.025},\n      'east-wing-lockers':{chapter:3,p:[-18.65,1.66,10.2],yaw:Math.PI/2,pitch:-.035},\n      'east-wing-training':{chapter:3,p:[-13.0,1.68,-10.0],yaw:Math.PI/2,pitch:-.045},\n      'east-wing-receiving':{chapter:3,p:[19.2,1.68,12.0],yaw:-.05,pitch:-.055}"
+  );
+
+  replaceOnce('v23b runtime capability',
+    "informationDistrust:true,physicalVerification:true,radioImitation:true",
+    "informationDistrust:true,physicalVerification:true,visualReadability:true,radioImitation:true"
+  );
+
+  for(const marker of ["visualReadability:true","chapter4LightV23B='route-map'","chapter4LightV23B='tessa-locker'","chapter4LightV23B='training-board'","chapter4VisualV23B='tessa-locker-id'","chapter4VisualV23B='training-board'","'east-wing-map':{chapter:3,p:[-22.4,1.62,5.15],yaw:Math.PI","'east-wing-lockers':{chapter:3,p:[-18.65,1.66,10.2],yaw:Math.PI/2","1.32,7.6,'lockers'","1.04,7.2,'training'","1.18,8.2,'receiving'"])if(!source.includes(marker))fail('required v23b marker missing: '+marker);
+  return source;
+}
