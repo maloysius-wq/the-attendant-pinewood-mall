@@ -2,7 +2,7 @@ import { chromium } from 'playwright';
 import { mkdir, writeFile } from 'node:fs/promises';
 
 const base=process.env.PINEWOOD_BASE_URL||'http://127.0.0.1:4173/';
-const views=['cassette-front','cassette-center','cassette-listening','elevator-front','arcade-checkout','video-checkout'];
+const views=['cassette-front','cassette-center','cassette-listening','elevator-front','arcade-checkout','video-checkout','below-grade-pump','below-grade-flood','below-grade-gavin'];
 await mkdir('visual-artifacts',{recursive:true});
 const browser=await chromium.launch({headless:true,args:['--enable-webgl','--ignore-gpu-blocklist','--use-gl=swiftshader','--enable-unsafe-swiftshader','--disable-dev-shm-usage']});
 const report={base,views:{},pcasDecode:null,failed:false};
@@ -43,6 +43,7 @@ try{
       const story=await page.evaluate(()=>window.__PINEWOOD_STORY_V17__||null);
       const pcas=await page.evaluate(()=>window.__PINEWOOD_PCAS_V19__||null);
       const chapter1V20=await page.evaluate(()=>window.__PINEWOOD_CH1_V20__||null);
+      const chapter2V21=await page.evaluate(()=>window.__PINEWOOD_CH2_V21__||null);
       const failureText=await page.locator('#assetStatus').textContent().catch(()=>null);
       await page.screenshot({path:`visual-artifacts/${view}.png`,fullPage:true});
       const uniqueRemote=[...new Set(remoteRequests)];
@@ -50,16 +51,19 @@ try{
       const pcasRuntimeOk=pcas?.version===19&&pcas?.lineCount>=19&&pcas?.localOnly===true&&Array.isArray(pcas?.failures)&&pcas.failures.length===0;
       const pcasDecodeOk=report.pcasDecode?.version===19&&report.pcasDecode?.lineCount>=19&&report.pcasDecode?.decodedCount===report.pcasDecode?.lineCount&&pcas?.lineCount===report.pcasDecode?.lineCount&&report.pcasDecode?.localOnly===true&&Array.isArray(report.pcasDecode?.failures)&&report.pcasDecode.failures.length===0;
       const chapter1V20Ok=chapter1V20?.version===20&&chapter1V20?.reactivePcas===true&&chapter1V20?.reneeAware===true&&chapter1V20?.voiceImitation===false;
-      if(uniqueRemote.length||!storyOk||!pcasRuntimeOk||!pcasDecodeOk||!chapter1V20Ok)report.failed=true;
-      report.views[view]={ok:uniqueRemote.length===0&&storyOk&&pcasRuntimeOk&&pcasDecodeOk&&chapter1V20Ok,info,story,pcas,chapter1V20,failureText,consoleMessages,remoteRequests:uniqueRemote};
+      const chapter2V21Ok=chapter2V21?.version===21&&chapter2V21?.machineryMasking===true&&chapter2V21?.relayRouting===true&&chapter2V21?.dynamicFlood===true&&chapter2V21?.gavinSetpiece===true&&chapter2V21?.contractor13===true&&chapter2V21?.voiceImitation===false;
+      const ok=uniqueRemote.length===0&&storyOk&&pcasRuntimeOk&&pcasDecodeOk&&chapter1V20Ok&&chapter2V21Ok;
+      if(!ok)report.failed=true;
+      report.views[view]={ok,info,story,pcas,chapter1V20,chapter2V21,failureText,consoleMessages,remoteRequests:uniqueRemote};
     }catch(err){
       report.failed=true;
       const failureText=await page.locator('#assetStatus').textContent().catch(()=>null);
       const bodyText=await page.locator('body').innerText().catch(()=>null);
       const pcas=await page.evaluate(()=>window.__PINEWOOD_PCAS_V19__||null).catch(()=>null);
       const chapter1V20=await page.evaluate(()=>window.__PINEWOOD_CH1_V20__||null).catch(()=>null);
+      const chapter2V21=await page.evaluate(()=>window.__PINEWOOD_CH2_V21__||null).catch(()=>null);
       await page.screenshot({path:`visual-artifacts/${view}-failure.png`,fullPage:true}).catch(()=>{});
-      report.views[view]={ok:false,error:err.stack||String(err),pcas,chapter1V20,failureText,bodyText,consoleMessages,remoteRequests:[...new Set(remoteRequests)]};
+      report.views[view]={ok:false,error:err.stack||String(err),pcas,chapter1V20,chapter2V21,failureText,bodyText,consoleMessages,remoteRequests:[...new Set(remoteRequests)]};
     }finally{await page.close();}
   }
 }finally{await browser.close();}
