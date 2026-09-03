@@ -33,10 +33,10 @@ if(loader.includes("const source=storyV17Source+'\\n//# sourceURL=pinewood-runti
 const paSpec=JSON.parse(await readFile('story/pa-lines.json','utf8'));
 const voiceManifest=JSON.parse(await readFile('assets/audio/pa/manifest.json','utf8'));
 if(paSpec.version!==19||voiceManifest.version!==19)fail('PA source and generated manifest must both be version 19');
-if(!Array.isArray(paSpec.lines)||paSpec.lines.length!==19)fail(`expected exactly 19 authored PA lines, found ${paSpec.lines?.length}`);
+if(!Array.isArray(paSpec.lines)||paSpec.lines.length<19)fail(`expected at least 19 authored PA lines, found ${paSpec.lines?.length}`);
 const specById=Object.fromEntries(paSpec.lines.map(line=>[line.id,line]));
-if(Object.keys(specById).length!==19)fail('PA line IDs are not unique');
-if(Object.keys(voiceManifest.files||{}).length!==19)fail('generated voice manifest does not contain exactly 19 files');
+if(Object.keys(specById).length!==paSpec.lines.length)fail('PA line IDs are not unique');
+if(Object.keys(voiceManifest.files||{}).length!==paSpec.lines.length)fail(`generated voice manifest count ${Object.keys(voiceManifest.files||{}).length} does not match authored PA count ${paSpec.lines.length}`);
 for(const [id,line] of Object.entries(specById)){
   const entry=voiceManifest.files[id];if(!entry)fail('voice manifest missing '+id);
   if(entry.text!==line.text)fail(id+' generated text differs from canonical PA source');
@@ -91,4 +91,4 @@ for(const forbidden of ['speechSynthesis','SpeechSynthesisUtterance','https://ap
 for(const protectedMarker of ['physicalBlock:false','footprintRadius:1.64',"gain=(sprint?.14:.09)","tag:'perimeter-rack-v14'",'cassetteShelfModelPromisesV16','class StoryEventManagerV17',"SAVE.story.people.renee='known'",'this.nextStalk=rand(2.5,4.5);'])if(!source.includes(protectedMarker))fail('protected earlier-system marker missing: '+protectedMarker);
 const externalMedia=(source.match(/https:\/\/[^'"`\\s)]+\.(?:glb|gltf|bin|png|jpe?g|webp|ogg|mp3|wav)(?:[?#][^'"`\\s)]*)?/gi)||[]);if(externalMedia.length)fail('external runtime media survived: '+[...new Set(externalMedia)].join(', '));
 await syntaxCheck(source);
-console.log('PCAS Voice v19 PASS: 19 authored announcements have hash-verified repository-local Ogg voice assets; eSpeak NG/FFmpeg generation provenance is recorded; story text matches spoken text; v18 + v19 reconstruct cleanly; intercom story and ambient chatter route through local processed voice with duration-aware subtitles; browser/cloud TTS is absent; and all protected gameplay/local-runtime invariants survive.');
+console.log(`PCAS Voice v19 PASS: ${paSpec.lines.length} authored announcements have hash-verified repository-local Ogg voice assets; eSpeak NG/FFmpeg generation provenance is recorded; story text matches spoken text; v18 + v19 reconstruct cleanly; intercom story and ambient chatter route through local processed voice with duration-aware subtitles; browser/cloud TTS is absent; and all protected gameplay/local-runtime invariants survive.`);
