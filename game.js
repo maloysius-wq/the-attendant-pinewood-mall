@@ -30,6 +30,7 @@ const PCAS_V19_PATCH='./patches/pcas-voice-v19.js.txt';
 const CHAPTER1_V20_PATCH='./patches/chapter1-pcas-escalation-v20.js.txt';
 const CHAPTER2_V21_PATCH='./patches/chapter2-below-grade-v21.js.txt';
 const CHAPTER3_V22_PATCH='./patches/chapter3-eyes-security-v22.js.txt';
+const CHAPTER3_V22B_PATCH='./patches/chapter3-east-wing-handoff-v22b.js.txt';
 const PCAS_VOICE_MANIFEST='./assets/audio/pa/manifest.json';
 const LOCAL_ASSETS_MANIFEST='./assets/vendor/runtime/manifest.json';
 
@@ -158,6 +159,11 @@ async function applyChapter3EyesSecurityV22Runtime(source,patchText){
   try{const mod=await import(patchUrl);if(typeof mod.applyChapter3EyesSecurityV22!=='function')throw new Error('Chapter 3 Eyes in Security v22 patch did not export its patch function.');return mod.applyChapter3EyesSecurityV22(source);}finally{URL.revokeObjectURL(patchUrl);}
 }
 
+async function applyChapter3EastWingHandoffV22BRuntime(source,patchText){
+  const patchUrl=URL.createObjectURL(new Blob([patchText+'\nexport { applyChapter3EastWingHandoffV22B };\n'],{type:'text/javascript'}));
+  try{const mod=await import(patchUrl);if(typeof mod.applyChapter3EastWingHandoffV22B!=='function')throw new Error('Chapter 3 East Wing handoff v22b patch did not export its patch function.');return mod.applyChapter3EastWingHandoffV22B(source);}finally{URL.revokeObjectURL(patchUrl);}
+}
+
 function replaceFoodCourt(source,replacement){
   const start=source.indexOf('async function buildFoodCourt(world){');
   const end=source.indexOf('async function buildMusic(world){',start);
@@ -185,8 +191,8 @@ async function preflightThree(){
 
 try{
   await preflightThree();
-  const [base,worldPatch,industrialPatch,visualFixPatch,storePatch,systemsPatch,reliabilityPatch,statusPatch,audioPatch,elevatorPatch,fountainPatch,cassettePatch,foodPatch,posterPatch,footstepPatch,posterDiversityPatch,cassetteV13Patch,cassetteV14Patch,localAssetsPatch,retailV16Patch,storyV17Patch,chapter1V18Patch,pcasV19Patch,chapter1V20Patch,chapter2V21Patch,chapter3V22Patch,pcasVoiceManifestText,localAssetsManifestText,storyModule]=await Promise.all([
-    decodeSource(),getText(WORLD_PATCH),getText(INDUSTRIAL_PATCH),getText(VISUAL_FIX_PATCH),getText(STORE_PATCH),getText(SYSTEMS_PATCH),getText(RELIABILITY_PATCH),getText(STATUS_PATCH),getText(AUDIO_PATCH),getText(ELEVATOR_PATCH),getText(FOUNTAIN_PATCH),getText(CASSETTE_PATCH),getText(FOOD_PATCH),getText(POSTER_PATCH),getText(FOOTSTEP_PATCH),getText(POSTER_DIVERSITY_PATCH),getText(CASSETTE_V13_PATCH),getText(CASSETTE_V14_PATCH),getText(LOCAL_ASSETS_PATCH),getText(RETAIL_V16_PATCH),getText(STORY_V17_PATCH),getText(CHAPTER1_V18_PATCH),getText(PCAS_V19_PATCH),getText(CHAPTER1_V20_PATCH),getText(CHAPTER2_V21_PATCH),getText(CHAPTER3_V22_PATCH),getText(PCAS_VOICE_MANIFEST),getText(LOCAL_ASSETS_MANIFEST),import('./story/story-data.js')
+  const [base,worldPatch,industrialPatch,visualFixPatch,storePatch,systemsPatch,reliabilityPatch,statusPatch,audioPatch,elevatorPatch,fountainPatch,cassettePatch,foodPatch,posterPatch,footstepPatch,posterDiversityPatch,cassetteV13Patch,cassetteV14Patch,localAssetsPatch,retailV16Patch,storyV17Patch,chapter1V18Patch,pcasV19Patch,chapter1V20Patch,chapter2V21Patch,chapter3V22Patch,chapter3V22BPatch,pcasVoiceManifestText,localAssetsManifestText,storyModule]=await Promise.all([
+    decodeSource(),getText(WORLD_PATCH),getText(INDUSTRIAL_PATCH),getText(VISUAL_FIX_PATCH),getText(STORE_PATCH),getText(SYSTEMS_PATCH),getText(RELIABILITY_PATCH),getText(STATUS_PATCH),getText(AUDIO_PATCH),getText(ELEVATOR_PATCH),getText(FOUNTAIN_PATCH),getText(CASSETTE_PATCH),getText(FOOD_PATCH),getText(POSTER_PATCH),getText(FOOTSTEP_PATCH),getText(POSTER_DIVERSITY_PATCH),getText(CASSETTE_V13_PATCH),getText(CASSETTE_V14_PATCH),getText(LOCAL_ASSETS_PATCH),getText(RETAIL_V16_PATCH),getText(STORY_V17_PATCH),getText(CHAPTER1_V18_PATCH),getText(PCAS_V19_PATCH),getText(CHAPTER1_V20_PATCH),getText(CHAPTER2_V21_PATCH),getText(CHAPTER3_V22_PATCH),getText(CHAPTER3_V22B_PATCH),getText(PCAS_VOICE_MANIFEST),getText(LOCAL_ASSETS_MANIFEST),import('./story/story-data.js')
   ]);
   const worldSource=await applyWorldProps(normalizeImports(base),worldPatch);
   const industrialSource=await applyIndustrialCc0(worldSource,industrialPatch);
@@ -215,7 +221,8 @@ try{
   const chapter1V20Source=await applyChapter1PcasEscalationV20Runtime(pcasV19Source,chapter1V20Patch);
   const chapter2V21Source=await applyChapter2BelowGradeV21Runtime(chapter1V20Source,chapter2V21Patch);
   const chapter3V22Source=await applyChapter3EyesSecurityV22Runtime(chapter2V21Source,chapter3V22Patch);
-  const source=chapter3V22Source+'\n//# sourceURL=pinewood-runtime.js\n';
+  const chapter3V22BSource=await applyChapter3EastWingHandoffV22BRuntime(chapter3V22Source,chapter3V22BPatch);
+  const source=chapter3V22BSource+'\n//# sourceURL=pinewood-runtime.js\n';
   const moduleUrl=URL.createObjectURL(new Blob([source],{type:'text/javascript'}));
   try{await import(moduleUrl);}finally{URL.revokeObjectURL(moduleUrl);}
 }catch(err){
