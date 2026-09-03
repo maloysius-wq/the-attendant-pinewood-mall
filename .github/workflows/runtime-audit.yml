@@ -24,6 +24,7 @@ on:
       - 'scripts/audit-chapter1-story-v18.mjs'
       - 'scripts/audit-pcas-voice-v19.mjs'
       - 'scripts/audit-chapter1-pcas-v20.mjs'
+      - 'scripts/audit-chapter2-below-grade-v21.mjs'
       - '.github/workflows/runtime-audit.yml'
   pull_request:
     paths:
@@ -47,6 +48,7 @@ on:
       - 'scripts/audit-chapter1-story-v18.mjs'
       - 'scripts/audit-pcas-voice-v19.mjs'
       - 'scripts/audit-chapter1-pcas-v20.mjs'
+      - 'scripts/audit-chapter2-below-grade-v21.mjs'
       - '.github/workflows/runtime-audit.yml'
   workflow_dispatch:
 
@@ -84,5 +86,7 @@ jobs:
         run: node scripts/audit-pcas-voice-v19.mjs
       - name: Validate Chapter 1 PCAS escalation v20
         run: node scripts/audit-chapter1-pcas-v20.mjs
+      - name: Validate Chapter 2 Below Grade v21
+        run: node scripts/audit-chapter2-below-grade-v21.mjs
 
-# Verification trigger: Chapter 1 PCAS escalation v20 clean-head runtime gate
+# Verification trigger: Chapter 2 Below Grade v21 staged/live runtime gate
