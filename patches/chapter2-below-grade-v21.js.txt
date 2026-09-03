@@ -1,0 +1,261 @@
+function applyChapter2BelowGradeV21(source){
+  const fail=msg=>{throw new Error('Chapter 2 Below Grade v21 patch failed: '+msg);};
+  const replaceOnce=(label,needle,replacement)=>{
+    const first=source.indexOf(needle);if(first<0)fail(label+': marker missing');
+    if(source.indexOf(needle,first+needle.length)>=0)fail(label+': marker is not unique');
+    source=source.slice(0,first)+replacement+source.slice(first+needle.length);
+  };
+
+  replaceOnce('Chapter 2 level identity',
+    "{name:'Chapter 2: Service Level',short:'Service Level',intro:'The freight elevator did not go up. It went down. Find the security keycard, restore two service relays and open the north stairwell while the Dispatcher tries to determine who created your work order.',goal:'Restore both service relays and unlock the north stairwell.',breakers:2}",
+    "{name:'Chapter 2: Below Grade',short:'Below Grade',intro:'The freight elevator has dropped you into Pinewood’s buried service level. Restore the electrical branch, drain the flooded east low corridor, and find a route into Security while Renee traces the impossible work order.',goal:'Reroute service power, investigate the missing inspector, and reach Pinewood Security.',breakers:2}"
+  );
+
+  replaceOnce('Chapter 2 structured start',
+    "beginPlay(){UI.hideAll();audio.resume();audio.setPaused(false);this.running=true;this.modal=false;this.controls.lock();if(this.levelIndex===0){SAVE.story.people.renee='known';SAVE.story.flags[STORY_DATA_V17.flags.reneeKnown]=true;save();this.storyV17.queueDialogue('ch1_start',.7);}else this.queueStory(.7,'radio','DISPATCH',this.startLine());}",
+    "beginPlay(){UI.hideAll();audio.resume();audio.setPaused(false);this.running=true;this.modal=false;this.controls.lock();if(this.levelIndex===0){SAVE.story.people.renee='known';SAVE.story.flags[STORY_DATA_V17.flags.reneeKnown]=true;save();this.storyV17.queueDialogue('ch1_start',.7);}else if(this.levelIndex===1)this.storyV17.queueDialogue('ch2_start',.7);else this.queueStory(.7,'radio','DISPATCH',this.startLine());}"
+  );
+
+  // Gavin and the Security key now form one physical story scene. The key is revealed after the ticket is recovered.
+  replaceOnce('Security key moved to Gavin set piece',
+    "const keyp=makePickup('key',new THREE.Vector3(25,.18,-12),'Security Keycard');world.root.add(keyp);world.interactables.push(keyp);",
+    "const keyp=makePickup('key',new THREE.Vector3(24.72,.14,-11.42),'Security Keycard');world.root.add(keyp);world.interactables.push(keyp);"
+  );
+
+  // Chapter 2 only owns LS-04 in the expanded canon. LS-05/06 are temporarily retained in the old final area
+  // until Chapters 3 and 4 receive their dedicated rebuilds, so migrated saves and true-ending collection stay viable.
+  replaceOnce('Chapter 2 Last Shift evidence correction',
+    "const notes=[[-22,-6,'LS-04','LAST SHIFT 04\\nDispatch said my name before I gave it. I stopped answering the radio after that.'],[-6,23,'LS-05','LAST SHIFT 05\\nThe thing in the halls is wearing the idea of an employee. Do not let the eyes convince you there is a face behind them.'],[18,8,'LS-06','LAST SHIFT 06\\nI threw my pager down the loading hall. It followed the beeping. Bought me maybe six seconds.']];for(const[x,z,id,text]of notes){const n=makePickup('journal',new THREE.Vector3(x,.18,z),id,text);world.root.add(n);world.interactables.push(n);}",
+    "const notes=[[-6.3,23.4,'LS-04','JO ALVAREZ — CLOSING ROSTER FRAGMENT: 9:08 PM. Tessa out through Receiving. Marcus out. Nina out. PCAS still shows two unresolved. I watched them leave. From here on I count people, not the terminal. — J.A.']];for(const[x,z,id,text]of notes){const n=makePickup('journal',new THREE.Vector3(x,.18,z),id,text);world.root.add(n);world.interactables.push(n);}"
+  );
+
+  replaceOnce('retain LS-05 and LS-06 during transition',
+    "const dec=makePickup('decoy',new THREE.Vector3(-20,.18,-23),'Dead Pager');world.root.add(dec);world.interactables.push(dec);",
+    "const dec=makePickup('decoy',new THREE.Vector3(-20,.18,-23),'Dead Pager');world.root.add(dec);world.interactables.push(dec);for(const[x,z,id,text]of[[-18,-16,'LS-05','LUIS ORTEGA — SECURITY NOTE: The figure is not an employee. It arrives after the page and follows the hall route to wherever Pinewood called.'],[10,-16,'LS-06','TESSA KIM — CASSETTE LABEL: Jo got me outside. The speakers kept calling my name after the doors were locked behind us.']]){if(SAVE.story.evidence[id]||SAVE.journal[id])continue;const legacy=makePickup('journal',new THREE.Vector3(x,.18,z),id,text);world.root.add(legacy);world.interactables.push(legacy);}"
+  );
+
+  replaceOnce('Below Grade helper insertion','\nasync function decorateLevel(world,idx){',
+`\nfunction serviceStencilTextureV21(title,sub=''){
+  return makeCanvasTexture((ctx,c)=>{
+    ctx.fillStyle='#d8d0b8';ctx.fillRect(0,0,c.width,c.height);ctx.strokeStyle='#222326';ctx.lineWidth=18;ctx.strokeRect(10,10,c.width-20,c.height-20);
+    ctx.fillStyle='#191a1c';ctx.textAlign='center';ctx.textBaseline='middle';ctx.font='900 54px Arial';ctx.fillText(title,256,205);
+    ctx.font='700 26px Arial';ctx.fillText(sub,256,292);
+  },512,512);
+}
+function setServiceControlV21(control,on){
+  if(!control)return;control.userData.active=!!on;
+  const lamp=control.userData.lamp;if(lamp?.material){lamp.material.color.setHex(on?0x5b240b:0x260503);lamp.material.emissive.setHex(on?0xffa145:0xff2418);lamp.material.emissiveIntensity=on?1.75:.16;}
+  if(control.userData.glow)control.userData.glow.intensity=on?.25:.025;
+  if(control.userData.handle)control.userData.handle.rotation.z=on?.62:-.48;
+}
+function makeServiceControlV21(pos,rot,controlId,label,sub){
+  const g=new THREE.Group();g.position.copy(pos);g.rotation.y=rot;
+  const steel=new THREE.MeshStandardMaterial({color:0x303439,roughness:.68,metalness:.34}),dark=new THREE.MeshStandardMaterial({color:0x101215,roughness:.88,metalness:.12});
+  const lampMat=new THREE.MeshStandardMaterial({color:0x260503,emissive:0xff2418,emissiveIntensity:.16,roughness:.35});
+  addBox(g,new THREE.Vector3(0,.43,0),new THREE.Vector3(.68,.86,.18),steel);addBox(g,new THREE.Vector3(0,.43,.105),new THREE.Vector3(.56,.72,.035),dark);
+  const plate=new THREE.Mesh(new THREE.PlaneGeometry(.48,.23),new THREE.MeshBasicMaterial({map:serviceStencilTextureV21(label,sub),side:THREE.DoubleSide}));plate.position.set(0,.66,.126);g.add(plate);
+  const lamp=new THREE.Mesh(new THREE.SphereGeometry(.036,12,12),lampMat);lamp.position.set(-.18,.35,.142);g.add(lamp);
+  const glow=new THREE.PointLight(0xff5b2d,.025,1.3,2);glow.position.set(-.18,.35,.22);g.add(glow);
+  const handle=addBox(g,new THREE.Vector3(.12,.34,.145),new THREE.Vector3(.06,.25,.06),new THREE.MeshStandardMaterial({color:0x8c9094,roughness:.35,metalness:.72}));handle.rotation.z=-.48;
+  g.userData={type:'ch2_control_v21',controlId,label,active:false,lamp,glow,handle};return g;
+}
+function addPipeRunV21(world,a,b,r=.075,color=0x5a5e61){
+  const mat=new THREE.MeshStandardMaterial({color,roughness:.55,metalness:.52}),mid=a.clone().add(b).multiplyScalar(.5),len=a.distanceTo(b);
+  const pipe=new THREE.Mesh(new THREE.CylinderGeometry(r,r,len,10),mat);pipe.position.copy(mid);pipe.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),b.clone().sub(a).normalize());pipe.castShadow=pipe.receiveShadow=true;world.root.add(pipe);return pipe;
+}
+function makeMachineBankV21(world,x,z,rot=0,tag='machine'){
+  const g=new THREE.Group();g.position.set(x,0,z);g.rotation.y=rot;g.userData.chapter2Setpiece=tag;world.root.add(g);
+  const body=new THREE.MeshStandardMaterial({color:0x252a2d,roughness:.64,metalness:.38}),edge=new THREE.MeshStandardMaterial({color:0x5b6063,roughness:.46,metalness:.60}),rust=new THREE.MeshStandardMaterial({color:0x4a2d20,roughness:.88,metalness:.12});
+  addBox(g,new THREE.Vector3(0,.68,0),new THREE.Vector3(1.55,1.36,.78),body);
+  addBox(g,new THREE.Vector3(0,1.19,-.02),new THREE.Vector3(1.33,.10,.64),edge);
+  for(const sx of[-.48,0,.48]){const drum=new THREE.Mesh(new THREE.CylinderGeometry(.17,.17,.54,14),sx?edge:rust);drum.rotation.x=Math.PI/2;drum.position.set(sx,.72,.46);g.add(drum);}
+  for(const sx of[-.54,.54])addBox(g,new THREE.Vector3(sx,.31,.42),new THREE.Vector3(.08,.34,.08),edge);
+  world.addColliderFrom(g,{navBlock:true,pad:.04});return g;
+}
+function makeGavinRemainsV21(world){
+  const root=new THREE.Group();root.position.set(25.70,.015,-12.65);root.rotation.y=-.28;root.userData.chapter2Setpiece='gavin-remains-v21';world.root.add(root);
+  const cloth=new THREE.MeshStandardMaterial({color:0x242a2d,roughness:.92}),vest=new THREE.MeshStandardMaterial({color:0x5d6334,roughness:.85}),stripe=new THREE.MeshStandardMaterial({color:0xb6b28c,emissive:0x343226,emissiveIntensity:.16,roughness:.68}),boot=new THREE.MeshStandardMaterial({color:0x111213,roughness:.88}),skin=new THREE.MeshStandardMaterial({color:0x826d60,roughness:.96});
+  addBox(root,new THREE.Vector3(0,.18,0),new THREE.Vector3(.55,.28,.76),cloth,.04);addBox(root,new THREE.Vector3(0,.325,-.03),new THREE.Vector3(.57,.035,.58),vest,.04);addBox(root,new THREE.Vector3(0,.348,-.03),new THREE.Vector3(.58,.018,.07),stripe,.04);
+  const head=new THREE.Mesh(new THREE.SphereGeometry(.16,14,10),skin);head.scale.y=.88;head.position.set(.08,.18,-.53);root.add(head);
+  for(const [x,z,r] of [[-.19,.65,.08],[.18,.70,-.10]]){const leg=addBox(root,new THREE.Vector3(x,.13,z),new THREE.Vector3(.19,.18,.82),cloth,r);addBox(root,new THREE.Vector3(x,.12,z+.48),new THREE.Vector3(.23,.18,.27),boot,r);}
+  addBox(root,new THREE.Vector3(-.38,.14,-.02),new THREE.Vector3(.17,.16,.70),cloth,.35);addBox(root,new THREE.Vector3(.37,.13,.06),new THREE.Vector3(.17,.16,.68),cloth,-.46);
+  const hardHat=new THREE.Mesh(new THREE.SphereGeometry(.19,16,8,0,TAU,0,Math.PI/2),new THREE.MeshStandardMaterial({color:0xc89a32,roughness:.60}));hardHat.position.set(-.48,.12,-.62);hardHat.rotation.z=.34;root.add(hardHat);
+  const bag=new THREE.Group();bag.position.set(25.02,.02,-13.65);bag.userData.chapter2Setpiece='gavin-inspection-kit-v21';world.root.add(bag);const bagMat=new THREE.MeshStandardMaterial({color:0x313636,roughness:.86});addBox(bag,new THREE.Vector3(0,.18,0),new THREE.Vector3(.62,.36,.38),bagMat);addBox(bag,new THREE.Vector3(0,.39,0),new THREE.Vector3(.30,.06,.07),bagMat);
+  const phone=addBox(world.root,new THREE.Vector3(25.13,.055,-12.06),new THREE.Vector3(.08,.025,.15),new THREE.MeshStandardMaterial({color:0x111214,roughness:.34,metalness:.22}));phone.rotation.y=.7;phone.userData.chapter2Setpiece='gavin-phone-v21';
+  return root;
+}
+async function buildBelowGradeV21(world){
+  const s=GAME.ch2V21={
+    feederIsolated:false,loadingCompressor:true,pumpRunning:false,drainElapsed:0,drained:false,mask:0,maskTaught:false,gavinSeen:false,
+    gavinFound:!!SAVE.story.flags[STORY_DATA_V17.flags.gavinFound],contractor13:!!SAVE.story.flags[STORY_DATA_V17.flags.contractor13],
+    water:null,floodBlocker:null,feederControl:null,pumpControl:null,gavinRoot:null,securityKey:null
+  };
+  const serviceFloor=new THREE.MeshStandardMaterial({color:0x14181a,roughness:.94,metalness:.015}),waterMat=new THREE.MeshStandardMaterial({color:0x243a40,emissive:0x071116,emissiveIntensity:.32,transparent:true,opacity:.48,roughness:.28,metalness:.12,side:THREE.DoubleSide});
+  const lowFloor=new THREE.Mesh(new THREE.PlaneGeometry(4.35,12.45),serviceFloor);lowFloor.rotation.x=-Math.PI/2;lowFloor.position.set(9,.009,-11.45);world.root.add(lowFloor);
+  const water=new THREE.Mesh(new THREE.PlaneGeometry(4.28,12.25),waterMat);water.rotation.x=-Math.PI/2;water.position.set(9,.035,-11.45);water.userData.chapter2Setpiece='flooded-east-corridor-v21';world.root.add(water);s.water=water;
+  s.floodBlocker=world.addCollider(9,-5.15,4.85,1.12,{navBlock:true,owner:water,pad:.02});
+
+  // Three machinery identities create learnable acoustic islands instead of a flat ambience change.
+  makeMachineBankV21(world,-26.3,-7.2,Math.PI/2,'loading-compressor-v21');
+  makeMachineBankV21(world,-11.3,24.4,0,'sump-pump-v21');
+  makeMachineBankV21(world,6.0,15.6,Math.PI/2,'service-generator-v21');
+  addPipeRunV21(world,new THREE.Vector3(-11.3,1.05,24.0),new THREE.Vector3(-4.0,1.05,24.0),.085,0x596165);
+  addPipeRunV21(world,new THREE.Vector3(-4.0,1.05,24.0),new THREE.Vector3(-4.0,1.05,18.2),.085,0x596165);
+  addPipeRunV21(world,new THREE.Vector3(9,2.38,-17.0),new THREE.Vector3(9,2.38,-5.6),.07,0x6a5950);
+
+  const feeder=makeServiceControlV21(new THREE.Vector3(-27.0,.08,-9.32),0,'feeder','FEEDER 4','ISOLATION');world.root.add(feeder);world.interactables.push(feeder);s.feederControl=feeder;
+  const pump=makeServiceControlV21(new THREE.Vector3(-8.0,.08,28.34),Math.PI,'pump','SUMP 2','MANUAL RUN');world.root.add(pump);world.interactables.push(pump);s.pumpControl=pump;
+
+  s.gavinRoot=makeGavinRemainsV21(world);await bloodDecal(world,{surface:'floor',x:25.62,z:-12.83,w:.72,h:.48,roll:-.34,index:0,opacity:.52});
+  const ticket=makePickup('journal',new THREE.Vector3(24.72,.18,-11.42),'GAVIN-TICKET','GAVIN COLE — PINEWOOD PROPERTY INSPECTION, 2023. FACILITIES SESSION: CONTRACTOR 13. Scope: verify recurring overnight electrical activation below grade. Status: OPEN. Handwritten beneath the printout: “Elevator went down. Heard somebody walking before I got the lights on.”');world.root.add(ticket);world.interactables.push(ticket);ticket.userData.chapter2Setpiece='gavin-ticket-v21';
+  s.securityKey=world.interactables.find(o=>o.userData?.type==='key'&&o.userData?.label==='Security Keycard')||null;
+  if(s.securityKey)s.securityKey.visible=s.gavinFound;
+
+  // Service-level light is colder and localized. This does not alter the authored walk grid.
+  for(const [x,z,intensity,range] of [[-26,-7,1.4,7],[-10,24,1.15,7],[9,-10,.95,7],[25,-12,.75,5]]){const l=new THREE.PointLight(0xb8d2cf,intensity,range,2);l.position.set(x,2.34,z);world.root.add(l);}
+  window.__PINEWOOD_CH2_V21__.sceneBuilt=true;
+}
+function belowGradeMaskTargetV21(game,p){
+  const s=game.ch2V21;if(game.levelIndex!==1||!s)return 0;let m=0;
+  const zone=(x,z,r,on)=>{if(!on)return;const d=Math.hypot(p.x-x,p.z-z);m=Math.max(m,clamp(1-d/r,0,1));};
+  zone(-26.0,-7.0,6.6,s.loadingCompressor);zone(-10.0,24.0,8.2,s.pumpRunning);zone(9.0,-11.0,7.0,s.pumpRunning);return clamp(m,0,1);
+}
+function handleBelowGradeControlV21(game,o,p){
+  const s=game.ch2V21;if(game.levelIndex!==1||!s)return;
+  if(o.userData.controlId==='feeder'){
+    if(s.feederIsolated){UI.hint('Feeder 4 isolated.');return;}
+    s.feederIsolated=true;s.loadingCompressor=false;setServiceControlV21(o,true);audio.breaker();game.emitSound(o.position.clone(),.62,'machine-control');UI.flash();UI.hint('Feeder 4 isolated • Relay D may be reset');
+  }else if(o.userData.controlId==='pump'){
+    if(game.breakers<1){audio.beep();UI.hint('Sump controller has no service power. Restore Relay D.');return;}
+    if(s.pumpRunning){UI.hint(s.drained?'Sump 2 running • corridor drained':'Sump 2 running • draining east corridor');return;}
+    s.pumpRunning=true;s.drainElapsed=0;setServiceControlV21(o,true);audio.slam();game.emitSound(o.position.clone(),1,'machinery-start');UI.flash();
+    game.storyV17.queueDialogue('ch2_pump_violation',.6);game.storyV17.queueDialogue('ch2_mask_tutorial',5.8);UI.hint('Sump 2 started • east low corridor draining');
+  }
+}
+
+window.__PINEWOOD_CH2_V21__={version:21,machineryMasking:true,relayRouting:true,dynamicFlood:true,gavinSetpiece:true,contractor13:true,voiceImitation:false,sceneBuilt:false};
+
+async function decorateLevel(world,idx){`
+  );
+
+  replaceOnce('build Below Grade after legacy fixtures',
+    "const dec=makePickup('decoy',new THREE.Vector3(-11,.18,16),'Maintenance Buzzer');world.root.add(dec);world.interactables.push(dec);",
+    "const dec=makePickup('decoy',new THREE.Vector3(-11,.18,16),'Maintenance Buzzer');world.root.add(dec);world.interactables.push(dec);await buildBelowGradeV21(world);"
+  );
+
+  replaceOnce('Chapter 2 control interaction prompt',
+    "else if(t==='note'||t==='journal'||t==='tape')UI.hint('E  Recover '+o.userData.label);",
+    "else if(t==='ch2_control_v21'){const s=this.ch2V21;if(o.userData.controlId==='feeder')UI.hint(s?.feederIsolated?'Feeder 4 isolated':'E  Isolate Feeder 4');else UI.hint(!s?.pumpRunning?'E  Start Sump 2':s?.drained?'Sump 2 running • corridor drained':'Sump 2 running • draining');}else if(t==='note'||t==='journal'||t==='tape')UI.hint('E  Recover '+o.userData.label);"
+  );
+
+  replaceOnce('Chapter 2 relay prerequisites',
+    "if(t==='breaker'){\n      if(o.userData.on)return;",
+    "if(t==='breaker'){\n      if(this.levelIndex===1&&o.userData.id==='D'&&!this.ch2V21?.feederIsolated){audio.beep();UI.hint('Relay D is still fed. Isolate Feeder 4 in Loading first.');return;}if(this.levelIndex===1&&o.userData.id==='E'&&!this.ch2V21?.drained){audio.beep();UI.hint('Relay E is beyond the flooded low corridor. Run Sump 2 first.');return;}\n      if(o.userData.on)return;"
+  );
+
+  replaceOnce('Chapter 2 breaker story progression',
+    "if(this.breakers===1){if(this.levelIndex===0){SAVE.story.flags[STORY_DATA_V17.flags.contractor14Active]=true;save();this.storyV17.queueDialogue('ch1_first_power',.8);this.storyV17.queueDialogue('ch1_pcas_hold',2.5);this.storyV17.queueDialogue('ch1_contractor_registered',5.8);}else{this.queueStory(.8,'radio','DISPATCH','First relay is up. I found your work order. It was filed in 1997.');this.queueStory(2.3,'intercom','INTERCOM','Maintenance staff must report to Security for evaluation.','ch2_maintenance_eval');}}if(this.levelIndex===0&&this.breakers===2){this.storyV17.queueDialogue('ch1_pcas_route_deviation',.8);this.storyV17.queueDialogue('ch1_second_power',10.0);}",
+    "if(this.breakers===1){if(this.levelIndex===0){SAVE.story.flags[STORY_DATA_V17.flags.contractor14Active]=true;save();this.storyV17.queueDialogue('ch1_first_power',.8);this.storyV17.queueDialogue('ch1_pcas_hold',2.5);this.storyV17.queueDialogue('ch1_contractor_registered',5.8);}else if(this.levelIndex===1){SAVE.story.flags[STORY_DATA_V17.flags.ticket1997]=true;save();this.storyV17.queueDialogue('ch2_relay_d',.8);this.storyV17.queueDialogue('ch2_1997_ticket',5.1);this.storyV17.queueDialogue('ch2_maintenance_eval',13.0);this.storyV17.queueDialogue('ch2_pump_ready',17.6);}}if(this.levelIndex===0&&this.breakers===2){this.storyV17.queueDialogue('ch1_pcas_route_deviation',.8);this.storyV17.queueDialogue('ch1_second_power',10.0);}"
+  );
+
+  replaceOnce('Chapter 2 completed relay story',
+    "if(this.breakers>=LEVELS[this.levelIndex].breakers){if(this.levelIndex===0)this.storyV17.queueDialogue('ch1_power_complete',.8);else this.queueStory(.8,'radio','DISPATCH','Both relays are online. North stairwell has power. Find the security keycard and go.');}",
+    "if(this.breakers>=LEVELS[this.levelIndex].breakers){if(this.levelIndex===0)this.storyV17.queueDialogue('ch1_power_complete',.8);else if(this.levelIndex===1){SAVE.story.people.jo='known';SAVE.story.people.luis='known';save();this.storyV17.queueDialogue('ch2_relay_e',.8);}}"
+  );
+
+  replaceOnce('Chapter 2 controls in interact',
+    "}else if(t==='note'||t==='journal'||t==='tape'){
+",
+    "}else if(t==='ch2_control_v21'){handleBelowGradeControlV21(this,o,p);\n    }else if(t==='note'||t==='journal'||t==='tape'){\n"
+  );
+
+  replaceOnce('Gavin evidence reaction',
+    "recordEvidenceV17(o.userData.label,o.userData.text);audio.pickup();",
+    "recordEvidenceV17(o.userData.label,o.userData.text);if(this.levelIndex===1&&o.userData.label==='GAVIN-TICKET'){SAVE.story.flags[STORY_DATA_V17.flags.gavinFound]=true;SAVE.story.flags[STORY_DATA_V17.flags.contractor13]=true;SAVE.story.people.gavin='body_found';save();if(this.ch2V21){this.ch2V21.gavinFound=true;this.ch2V21.contractor13=true;if(this.ch2V21.securityKey)this.ch2V21.securityKey.visible=true;}this.storyV17.queueDialogue('ch2_gavin_ticket',.5);this.storyV17.queueDialogue('ch2_contractor13',6.4);}audio.pickup();"
+  );
+
+  replaceOnce('Chapter 2 exit story',
+    "if(this.levelIndex===1&&this.exitObject===o&&o.userData.open){this.queueStory(.4,'radio','DISPATCH','Go. North stairwell. I am losing your signal.');setTimeout(()=>{if(!this.dead)this.winChapter();},1500);}",
+    "if(this.levelIndex===1&&this.exitObject===o&&o.userData.open){this.storyV17.queueDialogue('ch2_exit',.4);setTimeout(()=>{if(!this.dead)this.winChapter();},1800);}"
+  );
+
+  replaceOnce('Chapter 2 feeder discovery and dynamic systems method','  updateHUD(){',
+`  updateBelowGradeV21(dt){
+    if(this.levelIndex!==1||!this.ch2V21)return;const s=this.ch2V21,p=this.controls.yaw.position;
+    const target=belowGradeMaskTargetV21(this,p);s.mask=lerp(s.mask,target,smooth(dt,4.5));
+    if(!s.maskTaught&&target>.46){s.maskTaught=true;this.storyV17.runOnce('ch2_machinery_mask_discovered',()=>this.storyV17.queueDialogue('ch2_mask_tutorial',.5));}
+    if(!s.feederIsolated&&Math.hypot(p.x+27,p.z+8)<5.0)this.storyV17.runOnce('ch2_feeder_discovered',()=>this.storyV17.queueDialogue('ch2_feeder_found',.4));
+    if(s.pumpRunning&&!s.drained){s.drainElapsed+=dt;const t=clamp(s.drainElapsed/9.0,0,1);if(s.water){s.water.position.y=.035-t*.18;s.water.material.opacity=.48*(1-t*.82);}if(t>=1){s.drained=true;if(s.floodBlocker)s.floodBlocker.disabled=true;UI.hint('East low corridor drained • Relay E accessible');}}
+    if(s.drained&&p.x>6.5&&p.x<11.5&&p.z<-6&&!SAVE.story.completedEvents.ch2_east_corridor_entered){this.storyV17.runOnce('ch2_east_corridor_entered',()=>this.storyV17.queueDialogue('ch2_route_deviation',.4));}
+    if(!s.gavinSeen&&s.gavinRoot&&p.distanceTo(s.gavinRoot.position)<3.4){s.gavinSeen=true;this.storyV17.runOnce('ch2_gavin_seen',()=>this.storyV17.queueDialogue('ch2_gavin_body',.45));}
+    window.__PINEWOOD_CH2_V21__.mask=Number(s.mask.toFixed(3));window.__PINEWOOD_CH2_V21__.drained=!!s.drained;window.__PINEWOOD_CH2_V21__.gavinFound=!!s.gavinFound;
+  }
+  chapter2ObjectiveV21(){const s=this.ch2V21;if(!s)return'Restore service power';if(!s.feederIsolated)return'Find Loading • isolate Feeder 4';if(this.breakers<1)return'Restore Relay D';if(!s.pumpRunning)return'Find Sump 2 • drain east low corridor';if(!s.drained)return'Wait for east low corridor to drain';if(this.breakers<2)return'Cross east low corridor • restore Relay E';if(!s.gavinFound)return'Investigate the missing inspector near Security';if(this.keys<=0)return'Take Gavin’s Security Keycard';return'Open the north service gate into Security';}
+  updateHUD(){`
+  );
+
+  replaceOnce('Chapter 2 HUD objective',
+    "if(this.levelIndex<2)obj=this.breakers<l.breakers?`Restore relays ${this.breakers}/${l.breakers}`:this.levelIndex===0?'Reach the freight elevator':'Open the north stairwell';else obj=this.tapes<3?`Recover Last Shift tapes ${this.tapes}/3`:'Reach PA control and end the shift';",
+    "if(this.levelIndex===0)obj=this.breakers<l.breakers?`Restore relays ${this.breakers}/${l.breakers}`:'Reach the freight elevator';else if(this.levelIndex===1)obj=this.chapter2ObjectiveV21();else obj=this.tapes<3?`Recover Last Shift tapes ${this.tapes}/3`:'Reach PA control and end the shift';"
+  );
+
+  replaceOnce('Chapter 2 dynamic update hook',
+    "this.time+=dt;this.updateNeon(dt);this.noise=clamp(this.noise-dt*.48,0,1);this.updateStory();",
+    "this.time+=dt;this.updateNeon(dt);this.noise=clamp(this.noise-dt*.48,0,1);if(this.levelIndex===1)this.updateBelowGradeV21(dt);this.updateStory();"
+  );
+
+  replaceOnce('machinery masks player step detection',
+    "emitSound(pos,strength,type='generic'){this.noise=clamp(this.noise+strength*.4,0,1);this.attendant.hear(pos.clone(),strength,type);}",
+    "emitSound(pos,strength,type='generic'){const raw=strength,mask=this.levelIndex===1&&type==='step'?(this.ch2V21?.mask||0):0;strength*=1-mask*.68;this.noise=clamp(this.noise+raw*.4,0,1);this.attendant.hear(pos.clone(),strength,type);}"
+  );
+
+  // Reuse the already-vendored CC0 electric-buzz recording as a continuous local machinery layer.
+  replaceOnce('machinery ambient loop',
+    "this.startLoop('horror','horror','amb');this.startLoop('heartSlow','heartSlow','amb');this.startLoop('heartFast','heartFast','amb');}",
+    "this.startLoop('horror','horror','amb');this.startLoop('heartSlow','heartSlow','amb');this.startLoop('heartFast','heartFast','amb');this.startLoop('buzz','machineryV21','amb',.78);}"
+  );
+  replaceOnce('machinery cue masking variable',
+    "const n=clamp(near,0,1),f=clamp(fear,0,1);",
+    "const n=clamp(near,0,1),f=clamp(fear,0,1),machinery=clamp((typeof GAME!=='undefined'&&GAME?.levelIndex===1)?(GAME.ch2V21?.mask||0):0,0,1);this.setLoop('machineryV21',machinery*.20,.72+machinery*.08,dt);"
+  );
+  replaceOnce('machinery masks heartbeat cues',
+    "this.setLoop('heartSlow',slowIn*slowOut*.25,.92+n*.22,dt);this.setLoop('heartFast',fastIn*.30,.90+n*.24,dt);",
+    "this.setLoop('heartSlow',slowIn*slowOut*.25*(1-machinery*.72),.92+n*.22,dt);this.setLoop('heartFast',fastIn*.30*(1-machinery*.72),.90+n*.24,dt);"
+  );
+  replaceOnce('machinery masks threat music cue',
+    "if(this.threatTrack)this.threatTrack.volume=clamp(this.threatVol,0,1);",
+    "if(this.threatTrack)this.threatTrack.volume=clamp(this.threatVol*(1-machinery*.76),0,1);"
+  );
+
+  // Chapter 2 ambient PCAS now reacts to the machinery route without pretending to be Renee.
+  replaceOnce('state-aware Chapter 2 ambient PCAS',
+    "else if(this.levelIndex===1)ids=['ambient_ch2_stairwell','ambient_ch2_security','ambient_ch2_stop'];",
+    "else if(this.levelIndex===1){const s=this.ch2V21;if(s?.gavinFound)ids=['ambient_ch2_security','ambient_ch2_stop','ch2_route_deviation'];else if(s?.pumpRunning)ids=['ch2_pump_violation','ambient_ch2_stairwell','ambient_ch2_security'];else ids=['ambient_ch2_stairwell','ambient_ch2_security','ambient_ch2_stop'];}"
+  );
+
+  replaceOnce('Chapter 2 transition into Security',
+    "You force the stairwell gate and climb toward the abandoned east wing. The Dispatcher’s signal returns in fragments.",
+    "The north service gate shudders open into Pinewood Security. Beyond the next fire door, a bank of dead CRT monitors clicks awake one screen at a time."
+  );
+
+  // Add deterministic Chapter 2 camera positions and make the harness choose the matching chapter.
+  replaceOnce('Below Grade visual views',
+    "      'video-checkout':{p:[12.3,1.65,-24.5],yaw:Math.PI,pitch:-.03}",
+    "      'video-checkout':{p:[12.3,1.65,-24.5],yaw:Math.PI,pitch:-.03},\n      'below-grade-pump':{chapter:1,p:[-8.0,1.70,20.6],yaw:Math.PI,pitch:-.06},\n      'below-grade-gavin':{chapter:1,p:[21.9,1.70,-12.2],yaw:-Math.PI/2,pitch:-.12},\n      'below-grade-flood':{chapter:1,p:[9.0,1.70,-3.25],yaw:0,pitch:-.09}"
+  );
+  replaceOnce('visual harness Chapter 2 selection',
+    "const view=views[visualTest]||views['cassette-front'];\n    await GAME.startChapter(0);",
+    "const view=views[visualTest]||views['cassette-front'];\n    await GAME.startChapter(view.chapter||0);"
+  );
+
+  for(const marker of [
+    "name:'Chapter 2: Below Grade'","window.__PINEWOOD_CH2_V21__={version:21","machineryMasking:true","dynamicFlood:true","gavinSetpiece:true","voiceImitation:false",
+    "controlId==='feeder'","controlId==='pump'","Relay D is still fed","s.drainElapsed/9.0","floodBlocker.disabled=true","type==='step'?(this.ch2V21?.mask||0)",
+    "this.startLoop('buzz','machineryV21'","this.threatVol*(1-machinery*.76)","o.userData.label==='GAVIN-TICKET'","STORY_DATA_V17.flags.contractor13",
+    "SAVE.story.people.gavin='body_found'","queueDialogue('ch2_contractor13',6.4)","queueDialogue('ch2_relay_e',.8)","'below-grade-pump'","'below-grade-gavin'","'below-grade-flood'"
+  ])if(!source.includes(marker))fail('required v21 marker missing after patch: '+marker);
+  if(source.includes("Chapter 2: Service Level"))fail('prototype Service Level title survived');
+  if(source.includes("[-6,23,'LS-05'")||source.includes("[18,8,'LS-06'"))fail('LS-05/06 still live in Chapter 2');
+  if(source.includes('voiceImitation:true'))fail('Below Grade must not introduce Renee voice imitation');
+  return source;
+}
