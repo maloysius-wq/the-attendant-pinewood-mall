@@ -34,8 +34,18 @@ export const DIALOGUE_V17={
   ch3_luis_pattern:{id:'ch3_luis_pattern',speaker:'RENEE',medium:'radio',text:'Fourteen, Ward on dispatch. The VHS timestamps show the PA page first, then the figure changes halls toward the called location. Pinewood calls. The Attendant answers.'},
   ch3_exit:{id:'ch3_exit',speaker:'RENEE',medium:'radio',text:'Fourteen, Ward on dispatch. Luis marked an employee route out of Security into the East Wing. Take it. Keep the authentication phrase in your head.'},
 
-  ch4_fake_route:{id:'ch4_fake_route',speaker:'RENEE?',medium:'radio',text:'Contractor Fourteen, Dispatch. East service corridor is clear. Proceed through Receiving and remain on the marked route.'},
-  ch4_real_return:{id:'ch4_real_return',speaker:'RENEE',medium:'radio',text:'Fourteen, Ward on dispatch. Stop. I have not transmitted to you since the stairwell. Whatever just gave you directions was not me.'},
+  ch4_start:{id:'ch4_start',speaker:'RENEE',medium:'radio',text:'Fourteen, Ward on dispatch. East Wing drawings are incomplete on my side. Find an employee route map and give me room numbers. From here on, paper and door labels outrank anything you hear over this radio.'},
+  ch4_map_confirmed:{id:'ch4_map_confirmed',speaker:'RENEE',medium:'radio',text:'Fourteen, Ward on dispatch. I have it. Green R-12 runs through Receiving toward Records. Blue E-17 ends at a fire closure by the old anchor floor. Keep those labels in front of you.'},
+  ch4_fake_route:{id:'ch4_fake_route',speaker:'RENEE?',medium:'radio',text:'Contractor Fourteen, Dispatch. Blue E-17 has reopened. Proceed through Training. Receiving R-12 is sealed.'},
+  ch4_real_return:{id:'ch4_real_return',speaker:'RENEE',medium:'radio',text:'Fourteen, Ward on dispatch. Stop. I have not transmitted to you since you read me the route map. Whatever just gave you directions was not me. E-17 is still listed as a fire closure.'},
+  ch4_tessa_locker:{id:'ch4_tessa_locker',speaker:'RENEE',medium:'radio',text:'Fourteen, Ward on dispatch. Tessa Kim. Nineteen years old, Cassette Castle closing clerk. Her name is on Jo Alvarez’s handwritten count. That locker makes this file a person, not a line in a report.'},
+  ch4_staff_photo:{id:'ch4_staff_photo',speaker:'RENEE',medium:'radio',text:'Fourteen, Ward on dispatch. I found the same staff photo in an archived tenant packet. Tessa is front left. Jo is behind her. Luis is at the edge in the Security jacket. They all knew each other.'},
+  ch4_ls06:{id:'ch4_ls06',speaker:'RENEE',medium:'radio',text:'Fourteen, Ward on dispatch. That Side B recording catches Jo getting Tessa out through Receiving while Pinewood keeps calling Tessa back. She survived. The system was wrong and the thing in the halls obeyed the system anyway.'},
+  ch4_pre1986:{id:'ch4_pre1986',speaker:'RENEE',medium:'radio',text:'Fourteen, Ward on dispatch. That janitorial log is from 1986. PCAS did not exist yet. Whatever employees meant by “the night man,” Pinewood had a closing story before the accountability software.'},
+  ch4_fake_auth:{id:'ch4_fake_auth',speaker:'RENEE?',medium:'radio',text:'Fourteen, Ward on dispatch. Records access has moved to Training T-04. Leave Receiving and follow the red management line.'},
+  ch4_auth_broken:{id:'ch4_auth_broken',speaker:'RENEE',medium:'radio',text:'Fourteen, Ward on dispatch. It used the phrase. That phrase is dead now. Voice is not proof. I will give you facts you can verify: Records is beyond R-12 Receiving. The paper map has not changed.'},
+  ch4_exit:{id:'ch4_exit',speaker:'RENEE',medium:'radio',text:'Fourteen, Ward on dispatch. You have enough to prove the 1997 count was wrong. Take R-12 toward Records and Management. I am done giving you blind turns.'},
+
   ch6_accountability_one:{id:'ch6_accountability_one',speaker:'PCAS',medium:'terminal',text:'ACCOUNTABILITY HOLD. STAFF STATUS UNRESOLVED. CONTRACTOR 14 SESSION ACTIVE.'},
   ch6_final_recall:{id:'ch6_final_recall',speaker:'PCAS',medium:'intercom',text:'Contractor Fourteen, return to your assigned station. Closing checklist incomplete.'}
 };
