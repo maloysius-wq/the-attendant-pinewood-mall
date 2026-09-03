@@ -28,6 +28,6 @@ window.__PINEWOOD_CH3_V22__={version:22,cctvFeeds:4,nonOmniscient:true,interlock
 
   replaceOnce('CCTV screen readability',"emissiveIntensity:.58,roughness:.29","emissiveIntensity:.76,roughness:.29");
 
-  for(const marker of ["addSecurityReadabilityV22C(world)","chapter3LightV22C='cctv'","chapter3LightV22C='route-guide'","chapter3Setpiece='east-wing-sign-v22c'","readabilityLighting:true","emissiveIntensity:.76,roughness:.29"])if(!source.includes(marker))fail('required readability marker missing: '+marker);
+  for(const marker of ["addSecurityReadabilityV22C(world)","coolPanel,'cctv'","coolPanel,'west-shutter'","coolPanel,'east-shutter'","coolPanel,'secondary-security'","warmPanel,'east-wing-exit'","panel.userData.chapter3LightV22C=tag","light.userData.chapter3LightV22C=tag","chapter3LightV22C='route-guide'","chapter3Setpiece='east-wing-sign-v22c'","readabilityLighting:true","emissiveIntensity:.76,roughness:.29"])if(!source.includes(marker))fail('required readability marker missing: '+marker);
   return source;
 }
