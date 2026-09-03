@@ -15,6 +15,8 @@
     {"id":"ch1_key_discrepancy","text":"Key control discrepancy detected. Temporary contractor Fourteen, return borrowed property to Security."},
     {"id":"ch1_elevator_denied","text":"Contractor Fourteen, departure is not authorized while accountability remains open."},
     {"id":"ch2_maintenance_eval","text":"Maintenance staff must report to Security for evaluation."},
+    {"id":"ch2_pump_violation","text":"Unauthorized sump cycle detected. Maintenance personnel remain in assigned service zones."},
+    {"id":"ch2_route_deviation","text":"Temporary contractor Fourteen, maintenance route deviation recorded. Return to assigned service area."},
     {"id":"ch3_accountability_zero","text":"All employees must remain until accountability reaches zero."},
     {"id":"ch6_final_recall","text":"Contractor Fourteen, return to your assigned station. Closing checklist incomplete."},
     {"id":"ambient_ch1_public_exit","text":"Pinewood Mall is now closed. Please proceed to the nearest public exit."},
