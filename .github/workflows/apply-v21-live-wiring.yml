@@ -81,17 +81,15 @@ jobs:
         shell: bash
         run: |
           set +e
-          {
-            echo '=== v20 ==='
-            node scripts/audit-chapter1-pcas-v20.mjs
-            v20=$?
-            echo '=== v21 ==='
-            node scripts/audit-chapter2-below-grade-v21.mjs
-            v21=$?
-            echo "v20=$v20 v21=$v21"
-            if [ "$v20" = "0" ] && [ "$v21" = "0" ]; then exit 0; else exit 1; fi
-          } > v21-live-wiring-audit.log 2>&1
-          code=$?
+          : > v21-live-wiring-audit.log
+          echo '=== v20 ===' >> v21-live-wiring-audit.log
+          node scripts/audit-chapter1-pcas-v20.mjs >> v21-live-wiring-audit.log 2>&1
+          v20=$?
+          echo '=== v21 ===' >> v21-live-wiring-audit.log
+          node scripts/audit-chapter2-below-grade-v21.mjs >> v21-live-wiring-audit.log 2>&1
+          v21=$?
+          echo "v20=$v20 v21=$v21" >> v21-live-wiring-audit.log
+          if [ "$v20" = "0" ] && [ "$v21" = "0" ]; then code=0; else code=1; fi
           echo "$code" > v21-live-wiring-exit-code.txt
           cat v21-live-wiring-audit.log
           exit 0
