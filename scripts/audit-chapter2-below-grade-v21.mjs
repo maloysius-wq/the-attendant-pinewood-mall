@@ -87,7 +87,7 @@ if(live){
     'async function applyChapter2BelowGradeV21Runtime(source,patchText)',
     'getText(CHAPTER2_V21_PATCH)',
     'const chapter2V21Source=await applyChapter2BelowGradeV21Runtime(chapter1V20Source,chapter2V21Patch);',
-    "const source=chapter2V21Source+'\\n//# sourceURL=pinewood-runtime.js\\n';"
+    'const chapter3V22Source=await applyChapter3EyesSecurityV22Runtime(chapter2V21Source,chapter3V22Patch);'
   ])if(!loader.includes(marker))fail('game.js partial/incorrect live v21 loader marker: '+marker);
   if(loader.includes("const source=chapter1V20Source+'\\n//# sourceURL=pinewood-runtime.js\\n';"))fail('game.js declares v21 but still boots directly from v20');
 }else if(loader.includes('applyChapter2BelowGradeV21Runtime')||loader.includes('chapter2V21Source'))fail('game.js contains partial v21 wiring without the v21 patch constant');
