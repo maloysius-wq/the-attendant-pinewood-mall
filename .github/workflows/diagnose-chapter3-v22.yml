@@ -27,5 +27,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: chapter3-v22-context
-          path: chapter3-v22-context.json
+          path: |
+            chapter3-v22-context.json
+            chapter3-v22-runtime.mjs
           if-no-files-found: error
