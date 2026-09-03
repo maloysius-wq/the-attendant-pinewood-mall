@@ -1,0 +1,116 @@
+name: Apply Below Grade v21 live wiring
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/apply-v21-live-wiring.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  wire:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Wire v21 after v20 and make v20 audit feed-forward
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+
+          def replace_once(text, old, new, label):
+              count=text.count(old)
+              if count != 1:
+                  raise SystemExit(f'{label}: expected one marker, found {count}')
+              return text.replace(old,new,1)
+
+          game_path=Path('game.js')
+          game=game_path.read_text()
+          game=replace_once(
+              game,
+              "const CHAPTER1_V20_PATCH='./patches/chapter1-pcas-escalation-v20.js.txt';\nconst PCAS_VOICE_MANIFEST='./assets/audio/pa/manifest.json';",
+              "const CHAPTER1_V20_PATCH='./patches/chapter1-pcas-escalation-v20.js.txt';\nconst CHAPTER2_V21_PATCH='./patches/chapter2-below-grade-v21.js.txt';\nconst PCAS_VOICE_MANIFEST='./assets/audio/pa/manifest.json';",
+              'v21 patch constant'
+          )
+          game=replace_once(
+              game,
+              "\nfunction replaceFoodCourt(source,replacement){",
+              "\nasync function applyChapter2BelowGradeV21Runtime(source,patchText){\n  const patchUrl=URL.createObjectURL(new Blob([patchText+'\\nexport { applyChapter2BelowGradeV21 };\\n'],{type:'text/javascript'}));\n  try{const mod=await import(patchUrl);if(typeof mod.applyChapter2BelowGradeV21!=='function')throw new Error('Chapter 2 Below Grade v21 patch did not export its patch function.');return mod.applyChapter2BelowGradeV21(source);}finally{URL.revokeObjectURL(patchUrl);}\n}\n\nfunction replaceFoodCourt(source,replacement){",
+              'v21 runtime patch importer'
+          )
+          game=replace_once(
+              game,
+              ',pcasV19Patch,chapter1V20Patch,pcasVoiceManifestText,localAssetsManifestText,storyModule]',
+              ',pcasV19Patch,chapter1V20Patch,chapter2V21Patch,pcasVoiceManifestText,localAssetsManifestText,storyModule]',
+              'v21 Promise result binding'
+          )
+          game=replace_once(
+              game,
+              'getText(PCAS_V19_PATCH),getText(CHAPTER1_V20_PATCH),getText(PCAS_VOICE_MANIFEST)',
+              'getText(PCAS_V19_PATCH),getText(CHAPTER1_V20_PATCH),getText(CHAPTER2_V21_PATCH),getText(PCAS_VOICE_MANIFEST)',
+              'v21 Promise fetch'
+          )
+          game=replace_once(
+              game,
+              "  const source=chapter1V20Source+'\\n//# sourceURL=pinewood-runtime.js\\n';",
+              "  const chapter2V21Source=await applyChapter2BelowGradeV21Runtime(chapter1V20Source,chapter2V21Patch);\n  const source=chapter2V21Source+'\\n//# sourceURL=pinewood-runtime.js\\n';",
+              'v21 final runtime source'
+          )
+          game_path.write_text(game)
+
+          audit_path=Path('scripts/audit-chapter1-pcas-v20.mjs')
+          audit=audit_path.read_text()
+          audit=replace_once(
+              audit,
+              "  \"const source=chapter1V20Source+'\\\\n//# sourceURL=pinewood-runtime.js\\\\n';\"\n",
+              "  'const chapter2V21Source=await applyChapter2BelowGradeV21Runtime(chapter1V20Source,chapter2V21Patch);'\n",
+              'v20 forward-compatible loader assertion'
+          )
+          audit_path.write_text(audit)
+          print('Wired live runtime through v21 and made v20 verify its feed-forward edge.')
+          PY
+      - name: Capture live-chain audits
+        shell: bash
+        run: |
+          set +e
+          {
+            echo '=== v20 ==='
+            node scripts/audit-chapter1-pcas-v20.mjs
+            v20=$?
+            echo '=== v21 ==='
+            node scripts/audit-chapter2-below-grade-v21.mjs
+            v21=$?
+            echo "v20=$v20 v21=$v21"
+            if [ "$v20" = "0" ] && [ "$v21" = "0" ]; then exit 0; else exit 1; fi
+          } > v21-live-wiring-audit.log 2>&1
+          code=$?
+          echo "$code" > v21-live-wiring-exit-code.txt
+          cat v21-live-wiring-audit.log
+          exit 0
+      - name: Upload live-wiring diagnostic
+        uses: actions/upload-artifact@v4
+        with:
+          name: v21-live-wiring-diagnostic
+          path: |
+            v21-live-wiring-audit.log
+            v21-live-wiring-exit-code.txt
+          if-no-files-found: error
+      - name: Commit live wiring only if green
+        run: |
+          if [ "$(cat v21-live-wiring-exit-code.txt)" != "0" ]; then
+            cat v21-live-wiring-audit.log
+            exit 1
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add game.js scripts/audit-chapter1-pcas-v20.mjs
+          git commit -m "Wire Below Grade v21 runtime"
+          git push
