@@ -6,6 +6,7 @@ on:
     paths:
       - 'patches/chapter4-east-wing-v23.js.txt'
       - 'story/**'
+      - 'scripts/audit-chapter3-security-readability-v22d.mjs'
       - 'scripts/audit-chapter4-east-wing-v23.mjs'
       - 'scripts/capture-east-wing-v23.mjs'
       - '.github/workflows/staged-east-wing-v23-regression.yml'
