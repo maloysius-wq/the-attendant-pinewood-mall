@@ -1,17 +1,16 @@
-name: Promote Chapter 5 Accountability v24
+name: Diagnose Chapter 5 Accountability v24 promotion
 
 on:
   push:
     branches: [promote-chapter5-accountability-v24]
     paths:
       - '.github/workflows/promote-chapter5-v24.yml'
-  workflow_dispatch:
 
 permissions:
   contents: write
 
 jobs:
-  promote:
+  diagnose:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -20,19 +19,19 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-      - name: Promote staged v24 patch into live loader
+      - name: Capture exact promotion failure
         run: |
-          set -euo pipefail
-          python - <<'PY'
+          set +e
+          python - <<'PY' > promotion-diagnostic.txt 2>&1
           from pathlib import Path
           p=Path('game.js')
           s=p.read_text()
           def replace_once(old,new,label):
             count=s.count(old)
+            print(f'{label}: count={count}')
             if count!=1:
               raise SystemExit(f'{label}: expected exactly once, found {count}')
             return s.replace(old,new,1)
-
           line="const CHAPTER4_V23B_PATCH='./patches/chapter4-east-wing-readability-v23b.js.txt';"
           s=replace_once(line,line+"\nconst CHAPTER5_V24_PATCH='./patches/chapter5-accountability-v24.js.txt';",'v24 constant insertion')
           marker='\nfunction replaceFoodCourt(source,replacement){'
@@ -42,14 +41,21 @@ jobs:
           s=replace_once('getText(CHAPTER4_V23_PATCH),getText(CHAPTER4_V23B_PATCH),getText(PCAS_VOICE_MANIFEST)','getText(CHAPTER4_V23_PATCH),getText(CHAPTER4_V23B_PATCH),getText(CHAPTER5_V24_PATCH),getText(PCAS_VOICE_MANIFEST)','v24 patch fetch')
           s=replace_once("  const source=chapter4V23BSource+'\\n//# sourceURL=pinewood-runtime.js\\n';","  const chapter5V24Source=await applyChapter5AccountabilityV24Runtime(chapter4V23BSource,chapter5V24Patch);\n  const source=chapter5V24Source+'\\n//# sourceURL=pinewood-runtime.js\\n';",'v24 final source chain')
           p.write_text(s)
+          print('EDIT PASS')
           PY
-          node scripts/audit-chapter5-accountability-v24.mjs
-      - name: Commit live v24 promotion
-        run: |
-          set -euo pipefail
-          git rm .github/workflows/promote-chapter5-v24.yml
+          edit_status=$?
+          echo "edit_status=$edit_status" >> promotion-diagnostic.txt
+          if [ "$edit_status" -eq 0 ]; then
+            node scripts/audit-chapter5-accountability-v24.mjs >> promotion-diagnostic.txt 2>&1
+            audit_status=$?
+          else
+            audit_status=99
+          fi
+          echo "audit_status=$audit_status" >> promotion-diagnostic.txt
+          git checkout -- game.js
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add game.js
-          git commit -m 'Promote Chapter 5 Accountability v24 live'
+          git add promotion-diagnostic.txt
+          git commit -m 'Capture v24 promotion diagnostic'
           git push origin HEAD:promote-chapter5-accountability-v24
+          exit 0
