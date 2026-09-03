@@ -18,6 +18,7 @@ export const STORY_DATA_V17={
     reneeKnown:'renee_known',
     ticket1997:'ticket_1997_confirmed',
     gavinFound:'gavin_found',
+    contractor13:'contractor_13_confirmed',
     luisPattern:'luis_pattern_confirmed',
     radioCompromised:'radio_compromised',
     eliFound:'eli_found',
