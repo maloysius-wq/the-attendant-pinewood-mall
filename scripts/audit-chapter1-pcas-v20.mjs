@@ -24,7 +24,7 @@ for(const marker of [
   'async function applyChapter1PcasEscalationV20Runtime(source,patchText)',
   'getText(CHAPTER1_V20_PATCH)',
   'const chapter1V20Source=await applyChapter1PcasEscalationV20Runtime(pcasV19Source,chapter1V20Patch);',
-  "const source=chapter1V20Source+'\\n//# sourceURL=pinewood-runtime.js\\n';"
+  'const chapter2V21Source=await applyChapter2BelowGradeV21Runtime(chapter1V20Source,chapter2V21Patch);'
 ])if(!loader.includes(marker))fail('game.js live v20 loader marker missing: '+marker);
 if(loader.includes("const source=pcasV19Source+'\\n//# sourceURL=pinewood-runtime.js\\n';"))fail('game.js still boots directly from v19');
 
