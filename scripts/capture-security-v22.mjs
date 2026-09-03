@@ -30,7 +30,7 @@ try{
       await page.screenshot({path:`security-artifacts/${view}.png`,fullPage:true});
       const remotes=[...new Set(remoteRequests)];
       const ch3=state.chapter3;
-      const ok=remotes.length===0&&state.story?.version===17&&state.chapter1?.version===20&&state.chapter2?.version===21&&ch3?.version===22&&ch3?.cctvFeeds===4&&ch3?.nonOmniscient===true&&ch3?.interlockedShutters===true&&ch3?.luisSetpiece===true&&ch3?.lastShiftEvidence==='LS-05'&&ch3?.eastWingHandoff===true&&ch3?.readabilityLighting===true&&ch3?.voiceImitation===false&&ch3?.sceneBuilt===true;
+      const ok=remotes.length===0&&state.story?.version===17&&state.chapter1?.version===20&&state.chapter2?.version===21&&ch3?.version===22&&ch3?.cctvFeeds===4&&ch3?.nonOmniscient===true&&ch3?.interlockedShutters===true&&ch3?.luisSetpiece===true&&ch3?.lastShiftEvidence==='LS-05'&&ch3?.eastWingHandoff===true&&ch3?.readabilityLighting===true&&ch3?.readabilityPolish===true&&ch3?.voiceImitation===false&&ch3?.sceneBuilt===true;
       if(!ok)report.failed=true;
       report.views[view]={ok,state,consoleMessages,remoteRequests:remotes};
     }catch(err){
