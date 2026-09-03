@@ -11,7 +11,9 @@
   "lines": [
     {"id":"ch1_pcas_hold","text":"Attention shoppers. Closing has been extended. Employees remain at their stations."},
     {"id":"ch1_contractor_registered","text":"Temporary contractor session active. Contractor Fourteen, remain on property until accountability release."},
+    {"id":"ch1_pcas_route_deviation","text":"Emergency power state updated. Contractor Fourteen, movement outside assigned work area logged."},
     {"id":"ch1_key_discrepancy","text":"Key control discrepancy detected. Temporary contractor Fourteen, return borrowed property to Security."},
+    {"id":"ch1_elevator_denied","text":"Contractor Fourteen, departure is not authorized while accountability remains open."},
     {"id":"ch2_maintenance_eval","text":"Maintenance staff must report to Security for evaluation."},
     {"id":"ch3_accountability_zero","text":"All employees must remain until accountability reaches zero."},
     {"id":"ch6_final_recall","text":"Contractor Fourteen, return to your assigned station. Closing checklist incomplete."},
@@ -20,6 +22,8 @@
     {"id":"ambient_ch1_clear_public","text":"Overnight security state pending. Please clear public areas."},
     {"id":"ambient_ch1_cleanup","text":"Cleanup requested at the fountain. Do not use the nearest exit."},
     {"id":"ambient_ch1_customer_service","text":"Would contractor fourteen please report to Customer Service."},
+    {"id":"ambient_ch1_camera_view","text":"Contractor Fourteen, remain visible to Security while closing is in progress."},
+    {"id":"ambient_ch1_departure_pending","text":"Contractor Fourteen departure request received. Accountability release pending."},
     {"id":"ambient_ch2_stairwell","text":"Staff reminder. The north stairwell is not an approved exit."},
     {"id":"ambient_ch2_security","text":"Security inspection in progress. Remain where you can be counted."},
     {"id":"ambient_ch2_stop","text":"Contractor fourteen, Dispatch requests that you stop moving."},
