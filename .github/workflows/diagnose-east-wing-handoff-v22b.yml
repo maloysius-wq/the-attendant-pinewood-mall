@@ -1,0 +1,33 @@
+name: Diagnose East Wing handoff v22b
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'patches/chapter3-east-wing-handoff-v22b.js.txt'
+      - 'scripts/audit-chapter3-east-wing-handoff-v22b.mjs'
+      - '.github/workflows/diagnose-east-wing-handoff-v22b.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Audit Chapter 3 East Wing handoff v22b
+        shell: bash
+        run: node scripts/audit-chapter3-east-wing-handoff-v22b.mjs | tee east-wing-handoff-v22b-audit.log
+      - name: Upload audit
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: east-wing-handoff-v22b-audit
+          path: east-wing-handoff-v22b-audit.log
+          if-no-files-found: warn
