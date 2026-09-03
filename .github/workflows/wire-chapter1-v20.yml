@@ -1,0 +1,41 @@
+name: Wire Chapter 1 PCAS v20
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'scripts/wire-chapter1-v20.mjs'
+      - '.github/workflows/wire-chapter1-v20.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  wire-chapter1-v20:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Wire Chapter 1 PCAS v20
+        run: node scripts/wire-chapter1-v20.mjs
+      - name: Check deployment loader syntax
+        run: node --check game.js
+      - name: Commit live v20 loader wiring
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add game.js scripts/audit-pcas-voice-v19.mjs
+          if git diff --cached --quiet; then
+            echo "Chapter 1 PCAS v20 loader is already current."
+            exit 0
+          fi
+          git commit -m "Wire Chapter 1 PCAS escalation live"
+          git pull --rebase origin main
+          git push origin HEAD:main
