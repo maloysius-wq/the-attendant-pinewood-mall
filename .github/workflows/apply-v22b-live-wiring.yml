@@ -1,0 +1,55 @@
+name: Apply East Wing handoff v22b live wiring
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/apply-v22b-live-wiring.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  wire:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Wire v22b after v22
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          def once(text, old, new, label):
+              if text.count(old) != 1: raise SystemExit(f'{label}: expected one marker, found {text.count(old)}')
+              return text.replace(old,new,1)
+          p=Path('game.js'); s=p.read_text()
+          s=once(s,"const CHAPTER3_V22_PATCH='./patches/chapter3-eyes-security-v22.js.txt';\nconst PCAS_VOICE_MANIFEST='./assets/audio/pa/manifest.json';","const CHAPTER3_V22_PATCH='./patches/chapter3-eyes-security-v22.js.txt';\nconst CHAPTER3_V22B_PATCH='./patches/chapter3-east-wing-handoff-v22b.js.txt';\nconst PCAS_VOICE_MANIFEST='./assets/audio/pa/manifest.json';",'constant')
+          s=once(s,"\nfunction replaceFoodCourt(source,replacement){","\nasync function applyChapter3EastWingHandoffV22BRuntime(source,patchText){\n  const patchUrl=URL.createObjectURL(new Blob([patchText+'\\nexport { applyChapter3EastWingHandoffV22B };\\n'],{type:'text/javascript'}));\n  try{const mod=await import(patchUrl);if(typeof mod.applyChapter3EastWingHandoffV22B!=='function')throw new Error('Chapter 3 East Wing handoff v22b patch did not export its patch function.');return mod.applyChapter3EastWingHandoffV22B(source);}finally{URL.revokeObjectURL(patchUrl);}\n}\n\nfunction replaceFoodCourt(source,replacement){",'importer')
+          s=once(s,',chapter2V21Patch,chapter3V22Patch,pcasVoiceManifestText,localAssetsManifestText,storyModule]',',chapter2V21Patch,chapter3V22Patch,chapter3V22BPatch,pcasVoiceManifestText,localAssetsManifestText,storyModule]','binding')
+          s=once(s,'getText(CHAPTER2_V21_PATCH),getText(CHAPTER3_V22_PATCH),getText(PCAS_VOICE_MANIFEST)','getText(CHAPTER2_V21_PATCH),getText(CHAPTER3_V22_PATCH),getText(CHAPTER3_V22B_PATCH),getText(PCAS_VOICE_MANIFEST)','fetch')
+          s=once(s,"  const source=chapter3V22Source+'\\n//# sourceURL=pinewood-runtime.js\\n';","  const chapter3V22BSource=await applyChapter3EastWingHandoffV22BRuntime(chapter3V22Source,chapter3V22BPatch);\n  const source=chapter3V22BSource+'\\n//# sourceURL=pinewood-runtime.js\\n';",'source')
+          p.write_text(s)
+          p=Path('scripts/audit-chapter3-eyes-security-v22.mjs'); a=p.read_text()
+          a=once(a,"    \"const source=chapter3V22Source+'\\\\n//# sourceURL=pinewood-runtime.js\\\\n';\"\n","    'const chapter3V22BSource=await applyChapter3EastWingHandoffV22BRuntime(chapter3V22Source,chapter3V22BPatch);'\n",'feed-forward audit')
+          p.write_text(a)
+          PY
+      - name: Verify candidate live chain
+        shell: bash
+        run: |
+          set +e
+          node scripts/audit-chapter3-eyes-security-v22.mjs > v22b-live.log 2>&1; a=$?
+          node scripts/audit-chapter3-east-wing-handoff-v22b.mjs >> v22b-live.log 2>&1; b=$?
+          echo "v22=$a v22b=$b" >> v22b-live.log
+          cat v22b-live.log
+          test "$a" = 0 -a "$b" = 0
+      - name: Commit verified live wiring
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add game.js scripts/audit-chapter3-eyes-security-v22.mjs
+          git commit -m "Wire East Wing handoff v22b runtime"
+          git push
