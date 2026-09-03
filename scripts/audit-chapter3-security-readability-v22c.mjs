@@ -53,7 +53,7 @@ await syntaxCheck(source);
 
 const loader=await readFile('game.js','utf8');
 const live=loader.includes("const CHAPTER3_V22C_PATCH='./patches/chapter3-security-readability-v22c.js.txt';");
-if(live){for(const marker of ['async function applyChapter3SecurityReadabilityV22CRuntime(source,patchText)','getText(CHAPTER3_V22C_PATCH)','const chapter3V22CSource=await applyChapter3SecurityReadabilityV22CRuntime(chapter3V22BSource,chapter3V22CPatch);',"const source=chapter3V22CSource+'\\n//# sourceURL=pinewood-runtime.js\\n';"])if(!loader.includes(marker))fail('game.js partial/incorrect live v22c marker: '+marker);}
+if(live){for(const marker of ['async function applyChapter3SecurityReadabilityV22CRuntime(source,patchText)','getText(CHAPTER3_V22C_PATCH)','const chapter3V22CSource=await applyChapter3SecurityReadabilityV22CRuntime(chapter3V22BSource,chapter3V22CPatch);','const chapter3V22DSource=await applyChapter3SecurityReadabilityV22DRuntime(chapter3V22CSource,chapter3V22DPatch);'])if(!loader.includes(marker))fail('game.js partial/incorrect live v22c marker: '+marker);}
 else if(loader.includes('applyChapter3SecurityReadabilityV22CRuntime')||loader.includes('chapter3V22CSource'))fail('game.js contains partial v22c wiring');
 
 console.log(`Chapter 3 Security readability v22c PASS (${live?'LIVE':'STAGED'}): localized readable lighting now covers CCTV, both route shutters, Luis secondary Security and the East Wing exit; the CCTV screens and exit sign are legible; v22/v22b gameplay, story, local-runtime and no-early-imitation invariants survive.`);
