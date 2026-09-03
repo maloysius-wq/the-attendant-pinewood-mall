@@ -23,19 +23,19 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - name: Wire Chapter 1 PCAS v20
+      - name: Verify wiring and finalize Chapter 1 PCAS v20 handoff
         run: node scripts/wire-chapter1-v20.mjs
       - name: Check deployment loader syntax
         run: node --check game.js
-      - name: Commit live v20 loader wiring
+      - name: Commit final v20 handoff
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add game.js scripts/audit-pcas-voice-v19.mjs
+          git add game.js scripts/audit-pcas-voice-v19.mjs DEVELOPMENT_HANDOFF.md
           if git diff --cached --quiet; then
-            echo "Chapter 1 PCAS v20 loader is already current."
+            echo "Chapter 1 PCAS v20 loader and handoff are already current."
             exit 0
           fi
-          git commit -m "Wire Chapter 1 PCAS escalation live"
+          git commit -m "Document Chapter 1 PCAS escalation v20"
           git pull --rebase origin main
           git push origin HEAD:main
