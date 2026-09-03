@@ -1,0 +1,67 @@
+name: Staged Chapter 5 Accountability regression
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'patches/chapter5-accountability-v24.js.txt'
+      - 'story/**'
+      - 'scripts/audit-chapter4-east-wing-readability-v23b.mjs'
+      - 'scripts/audit-chapter5-accountability-v24.mjs'
+      - 'scripts/capture-accountability-v24.mjs'
+      - '.github/workflows/staged-accountability-v24-regression.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  staged-accountability:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify staged v24 source
+        run: node scripts/audit-chapter5-accountability-v24.mjs
+      - name: Temporarily wire v24 in runner only
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          def once(text,old,new,label):
+              n=text.count(old)
+              if n!=1: raise SystemExit(f'{label}: expected one marker, found {n}')
+              return text.replace(old,new,1)
+          p=Path('game.js'); s=p.read_text()
+          s=once(s,"const CHAPTER4_V23B_PATCH='./patches/chapter4-east-wing-readability-v23b.js.txt';\nconst PCAS_VOICE_MANIFEST='./assets/audio/pa/manifest.json';","const CHAPTER4_V23B_PATCH='./patches/chapter4-east-wing-readability-v23b.js.txt';\nconst CHAPTER5_V24_PATCH='./patches/chapter5-accountability-v24.js.txt';\nconst PCAS_VOICE_MANIFEST='./assets/audio/pa/manifest.json';",'constants')
+          s=once(s,"\nfunction replaceFoodCourt(source,replacement){","\nasync function applyChapter5AccountabilityV24Runtime(source,patchText){\n  const patchUrl=URL.createObjectURL(new Blob([patchText+'\\nexport { applyChapter5AccountabilityV24 };\\n'],{type:'text/javascript'}));\n  try{const mod=await import(patchUrl);if(typeof mod.applyChapter5AccountabilityV24!=='function')throw new Error('Chapter 5 Accountability v24 patch did not export its patch function.');return mod.applyChapter5AccountabilityV24(source);}finally{URL.revokeObjectURL(patchUrl);}\n}\n\nfunction replaceFoodCourt(source,replacement){",'importer')
+          s=once(s,',chapter4V23Patch,chapter4V23BPatch,pcasVoiceManifestText,localAssetsManifestText,storyModule]',',chapter4V23Patch,chapter4V23BPatch,chapter5V24Patch,pcasVoiceManifestText,localAssetsManifestText,storyModule]','binding')
+          s=once(s,'getText(CHAPTER4_V23_PATCH),getText(CHAPTER4_V23B_PATCH),getText(PCAS_VOICE_MANIFEST)','getText(CHAPTER4_V23_PATCH),getText(CHAPTER4_V23B_PATCH),getText(CHAPTER5_V24_PATCH),getText(PCAS_VOICE_MANIFEST)','fetch')
+          s=once(s,"  const chapter4V23BSource=await applyChapter4EastWingReadabilityV23BRuntime(chapter4V23Source,chapter4V23BPatch);\n  const source=chapter4V23BSource+'\\n//# sourceURL=pinewood-runtime.js\\n';","  const chapter4V23BSource=await applyChapter4EastWingReadabilityV23BRuntime(chapter4V23Source,chapter4V23BPatch);\n  const chapter5V24Source=await applyChapter5AccountabilityV24Runtime(chapter4V23BSource,chapter5V24Patch);\n  const source=chapter5V24Source+'\\n//# sourceURL=pinewood-runtime.js\\n';",'source')
+          p.write_text(s)
+          PY
+      - name: Verify temporary live-chain candidate
+        run: node scripts/audit-chapter5-accountability-v24.mjs
+      - name: Install Playwright
+        run: |
+          npm install --no-save playwright@1.55.0
+          npx playwright install --with-deps chromium
+      - name: Start local Pinewood server
+        run: |
+          python3 -m http.server 4173 --bind 127.0.0.1 > /tmp/pinewood-v24-http.log 2>&1 &
+          echo $! > /tmp/pinewood-v24-http.pid
+          for i in {1..30}; do curl -fsS http://127.0.0.1:4173/ >/dev/null && exit 0; sleep 1; done
+          cat /tmp/pinewood-v24-http.log
+          exit 1
+      - name: Capture staged Accountability views
+        run: node scripts/capture-accountability-v24.mjs
+      - name: Upload Accountability screenshots and telemetry
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pinewood-accountability-v24-staged
+          path: accountability-artifacts
+          if-no-files-found: warn
+          retention-days: 14
