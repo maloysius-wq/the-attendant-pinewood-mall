@@ -26,7 +26,14 @@ export const DIALOGUE_V17={
   ch2_relay_e:{id:'ch2_relay_e',speaker:'RENEE',medium:'radio',text:'Fourteen, Ward on dispatch. Relay E is stable. I found two names attached to the 1997 closing file: Jo Alvarez, closing manager, and Luis Ortega, night security. Security is ahead of you. That is where we go next.'},
   ch2_exit:{id:'ch2_exit',speaker:'RENEE',medium:'radio',text:'Fourteen, Ward on dispatch. North service route feeds directly into Security. Go. I am staying on this channel.'},
 
-  ch3_auth:{id:'ch3_auth',speaker:'RENEE',medium:'radio',text:'Interference is getting worse. Important calls from me start with “Fourteen, Ward on dispatch.” If you hear me giving directions without that, verify before you move.'},
+  ch3_start:{id:'ch3_start',speaker:'RENEE',medium:'radio',text:'Fourteen, Ward on dispatch. You are in Security. Four camera groups just powered themselves. Use them to map the halls, but treat every feed as incomplete. Find Luis Ortega’s station. His name is all over the 1997 incident file.'},
+  ch3_cctv_online:{id:'ch3_cctv_online',speaker:'RENEE',medium:'radio',text:'Fourteen, Ward on dispatch. I can see the camera IDs from outside, not the pictures. If a feed catches something, use the hall label. Do not assume a blank screen means an empty mall.'},
+  ch3_shutter_interlock:{id:'ch3_shutter_interlock',speaker:'RENEE',medium:'radio',text:'Fourteen, Ward on dispatch. Those Security shutters are interlocked. One route open means the other closes. Check the camera names before you commit.'},
+  ch3_auth:{id:'ch3_auth',speaker:'RENEE',medium:'radio',text:'Fourteen, Ward on dispatch. Interference is getting worse. From now on, important calls from me start exactly like that. If you hear directions without it, verify before you move.'},
+  ch3_luis_body:{id:'ch3_luis_body',speaker:'RENEE',medium:'radio',text:'Fourteen, Ward on dispatch. That barricade is Luis’s secondary station. I found his personnel photo. The man in that room is Luis Ortega.'},
+  ch3_luis_pattern:{id:'ch3_luis_pattern',speaker:'RENEE',medium:'radio',text:'Fourteen, Ward on dispatch. The VHS timestamps show the PA page first, then the figure changes halls toward the called location. Pinewood calls. The Attendant answers.'},
+  ch3_exit:{id:'ch3_exit',speaker:'RENEE',medium:'radio',text:'Fourteen, Ward on dispatch. Luis marked an employee route out of Security into the East Wing. Take it. Keep the authentication phrase in your head.'},
+
   ch4_fake_route:{id:'ch4_fake_route',speaker:'RENEE?',medium:'radio',text:'Contractor Fourteen, Dispatch. East service corridor is clear. Proceed through Receiving and remain on the marked route.'},
   ch4_real_return:{id:'ch4_real_return',speaker:'RENEE',medium:'radio',text:'Fourteen, Ward on dispatch. Stop. I have not transmitted to you since the stairwell. Whatever just gave you directions was not me.'},
   ch6_accountability_one:{id:'ch6_accountability_one',speaker:'PCAS',medium:'terminal',text:'ACCOUNTABILITY HOLD. STAFF STATUS UNRESOLVED. CONTRACTOR 14 SESSION ACTIVE.'},
