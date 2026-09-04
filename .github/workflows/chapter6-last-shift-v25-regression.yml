@@ -2,7 +2,20 @@ name: Chapter 6 Last Shift v25 regression
 
 on:
   push:
-    branches: [chapter6-last-shift-v25]
+    branches: [main]
+    paths:
+      - 'game.js'
+      - 'patches/chapter6-last-shift-v25.js.txt'
+      - 'story/**'
+      - 'scripts/audit-chapter3-security-readability-v22d.mjs'
+      - 'scripts/audit-chapter5-accountability-v24.mjs'
+      - 'scripts/audit-chapter6-finale-source-v25.mjs'
+      - 'scripts/audit-chapter6-last-shift-v25.mjs'
+      - 'scripts/capture-last-shift-v25.mjs'
+      - 'scripts/simulate-chapter6-finale-v25.mjs'
+      - '.github/workflows/chapter6-last-shift-v25-regression.yml'
+  pull_request:
+    branches: [main]
     paths:
       - 'game.js'
       - 'patches/chapter6-last-shift-v25.js.txt'
@@ -30,7 +43,7 @@ jobs:
           node-version: '22'
       - name: Verify Chapter 6 patch-source safety
         run: node scripts/audit-chapter6-finale-source-v25.mjs
-      - name: Reconstruct and verify Chapter 6 v25 live candidate
+      - name: Reconstruct and verify Chapter 6 v25 live runtime
         run: node scripts/audit-chapter6-last-shift-v25.mjs
       - name: Install Playwright
         run: |
@@ -51,7 +64,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: pinewood-last-shift-v25-vertical-slice
+          name: pinewood-last-shift-v25
           path: last-shift-artifacts
           if-no-files-found: warn
           retention-days: 14

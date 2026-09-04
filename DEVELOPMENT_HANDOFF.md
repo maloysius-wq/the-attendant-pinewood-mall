@@ -3,21 +3,20 @@
 **Repository:** `maloysius-wq/the-attendant-pinewood-mall`  
 **Default branch:** `main`  
 **Deployment:** GitHub Pages from repository root  
-**Repository access rule:** Always use the connected GitHub plugin/connector first for Pinewood repository work. Do not claim repository access is unavailable before checking GitHub.  
+**Repository access rule:** Use the connected GitHub connector first for Pinewood repository work. Do not claim repository access is unavailable before checking GitHub.  
 **Source-of-truth rule:** Read `AGENTS.md`, this file, `STORY_BIBLE.md`, and `NARRATIVE_IMPLEMENTATION_PLAN.md`, then inspect current `main` and recent workflow runs. Current repository state and the user's newest explicit request override old chat history.
 
 ---
 
-## 0. Current canonical checkpoint — Chapters 1–5 live
+## 0. Current canonical checkpoint — all six chapters live
 
-As of September 4, 2026, the playable runtime on `main` is live through **Chapter 5: Accountability v24**.
+As of September 4, 2026, the playable runtime on `main` is live through **Chapter 6: The Last Shift v25**, including both the standard and true endings.
 
-Important commits immediately before this handoff refresh:
+Canonical Chapter 6 promotion commit:
 
-- `ee603433b3911b153e8aeaf60dd845e0572e8e06` — **Promote Chapter 5 Accountability v24 live**. This was squash-merged from PR #1 after both the global Runtime Audit and dedicated Chapter 5 Chromium regression passed.
-- `f17c80e5593e0511130236a2453e78b9ec535a81` — **Make East Wing regression validate the live loader**. This converted an obsolete Chapter 4 staging workflow into a live regression gate after v24 became terminal.
+- `9fed05f8df48ea5763fff5b7d154ed6a92f9542d` — **Promote Chapter 6 The Last Shift v25 live**, squash-merged from PR #2 after the global Runtime Audit, Chapter 4 regression, Chapter 5 regression, dedicated Chapter 6 source/reconstruction audit, deterministic two-ending simulation, and seven-view Chapter 6 Chromium regression passed.
 
-The handoff refresh itself is documentation-only; when resuming development, inspect the actual current `main` HEAD rather than assuming the hashes above are still terminal.
+The handoff refresh that follows that merge is documentation / CI housekeeping. Future work must always inspect the actual current `main` HEAD rather than assuming the hash above is still terminal.
 
 ### Current playable chapter stack
 
@@ -29,18 +28,16 @@ The handoff refresh itself is documentation-only; when resuming development, ins
    - Renee Ward introduction, Contractor Fourteen escalation, LS-01 through LS-03
 
 2. **Chapter 2 — Below Grade v21**
-   - expanded industrial/service-level chapter
-   - machinery/acoustic-risk identity
-   - relay D/E progression
+   - industrial/service-level identity
+   - relay D/E progression and machinery/acoustic-risk gameplay
    - Gavin Cole / Contractor 13 material
    - Chapter 2 handoff into Security
 
 3. **Chapter 3 — Eyes in Security v22 family**
-   - CCTV/security identity
-   - security route control and surveillance story systems
+   - CCTV/security identity and surveillance systems
    - Luis set-piece material
    - readability/navigation polish through v22b/v22c/v22d
-   - v22d is the current readability/feed-forward foundation for later chapters
+   - v22d remains the feed-forward readability foundation for later chapters
 
 4. **Chapter 4 — The East Wing v23 + v23b**
    - information-distrust / human-history chapter
@@ -48,44 +45,58 @@ The handoff refresh itself is documentation-only; when resuming development, ins
    - Tessa/Jo/Luis history and LS-06
    - authored radio-imitation escalation and physical-verification mechanic
    - `PRE-1986-LOG` evidence
-   - v23b is the final readability pass and now feeds forward cleanly into Chapter 5
+   - v23b readability pass feeds forward into Chapter 5
 
 5. **Chapter 5 — Accountability v24**
    - Records / Management investigation chapter
-   - roster reconstruction from Jo's pages, payroll and physical time-clock records
-   - LS-07 reconstructed final-shift roster
+   - LS-07 final-shift roster reconstructed from Jo's pages, payroll, and physical time-clock records
    - LS-09 Martin Kessler management override / falsified all-clear
-   - sealed Eli Mercer utility passage
-   - Eli's remains and contractor badge
+   - sealed Eli Mercer route, Eli's remains and contractor badge
    - LS-08 Eli final job recorder
    - contractor sessions 01–14 reconciliation
-   - PA/accountability-control exit handoff toward Chapter 6
-   - evidence/readability polish keeps Kessler's packet and Eli's reveal legible without flattening the dark Records atmosphere
+   - PA/accountability-control handoff into Chapter 6
+   - `eliIsAttendant:false` is canonical
 
-### Current frontier
+6. **Chapter 6 — The Last Shift v25**
+   - PA / accountability-control environment
+   - authored location-specific present/1997 memory overlays
+   - historical staff silhouettes as environmental closing echoes, not conversational ghosts
+   - ordered closing ritual consuming Chapters 1–5 evidence and systems knowledge
+   - Contractor 14 physical clock-out and east Employee Exit
+   - final PCAS recalls route the Attendant toward named closing stations using existing `investigate` pathing
+   - decoy counterplay remains valid
+   - no finale speed multiplier / hunt shortcut
+   - standard ending and true ending are both implemented and regression-tested
 
-**Chapter 6 — The Last Shift is the next feature-development frontier.**
+### Current development frontier
 
-Do not begin by inventing a new Chapter 6 direction. Use the existing Chapter 6 section of `NARRATIVE_IMPLEMENTATION_PLAN.md` and the canon in `STORY_BIBLE.md`.
+**The six-chapter story is implemented. The next frontier is production hardening, playthrough validation, accessibility, balance, presentation polish, and bug fixing.**
 
-The intended Chapter 6 identity is:
-
-- remembered 1997-state overlays,
-- location-specific present/memory visual groups,
-- historical staff silhouettes as environmental echoes rather than conversational ghosts,
-- final closing/accountability ritual using knowledge earned in Chapters 1–5,
-- final pursuit built from learned systems rather than merely increasing Attendant speed,
-- standard and true-ending logic based on evidence/accountability state.
+Do **not** invent Chapter 7 or a new mystery layer unless the user explicitly asks for additional story content.
 
 ---
 
-## 1. Critical Chapter 5 canon and implementation facts
+## 1. Canon that must remain stable
 
-These facts are now live and must not be casually rewritten:
+### Last Shift evidence IDs
+
+The canonical Last Shift evidence set is exactly:
+
+- LS-01
+- LS-02
+- LS-03
+- LS-04
+- LS-05
+- LS-06
+- LS-07
+- LS-08
+- LS-09
+
+All nine remain unique and are the intended complete-evidence requirement for the true ending.
 
 ### LS-07 — Final Shift Roster
 
-LS-07 is reconstructed from **three independent sources**:
+LS-07 is reconstructed from three independent physical sources:
 
 1. Jo Alvarez's handwritten closing pages,
 2. Pinewood payroll archive,
@@ -108,172 +119,218 @@ No valid physical exit event:
 - Luis Ortega
 - Eli Mercer
 
-The point of LS-07 is that Pinewood/PCAS's official clearance state does not match the physical record.
+The point is that Pinewood/PCAS's official clearance state does not match the physical record.
 
-### LS-09 — Martin Kessler management override
+### LS-09 — Martin Kessler override
 
-Kessler's records establish that management approved an all-clear/reopening path despite an unresolved contractor exception. LS-09 is the management override evidence that opens the sealed route toward Eli's final location.
+Kessler's records establish that management approved an all-clear/reopening path despite an unresolved contractor exception. Kessler remains a human accountability / cover-up element. Do not rewrite the mystery as “the computer did everything by itself.”
 
-Kessler should remain a human accountability/cover-up element. Do not simplify the mystery into “the computer did everything by itself.”
+### Eli Mercer / LS-08
 
-### Eli Mercer and LS-08
+Eli's remains are found in the sealed utility / PA-control approach with contractor-work context. LS-08 establishes that Eli was trying to resolve the unfinished closing/accountability condition and reach PA control.
 
-Eli's remains are found in the sealed utility/PA-control approach with contractor-work context, including his temporary badge/tool-case staging.
+**Eli is not The Attendant.** Chapter 5 deliberately disproves that interpretation.
 
-LS-08 is Eli's final job recorder. It establishes that Eli was trying to resolve the unfinished closing/accountability condition and reach PA/records control.
+### Contractor sessions
 
-**Eli is not The Attendant.** Chapter 5 deliberately disproves that interpretation. Current telemetry expresses this as `eliIsAttendant:false`.
+Legacy contractor sessions 01–14 are descendants of the same unresolved work-order/accountability pattern.
 
-### Contractor sessions 01–14
-
-Chapter 5 reveals the recurrence structure through legacy contractor-session data. Sessions 01–14 are part of the same accountability pattern; Contractor Fourteen is the current player/session and is reserved for the final resolution in Chapter 6.
-
-### Chapter 5 completion state
-
-Chapter 5 ends at the PA/accountability-control route with the narrative checkpoint moving toward **`last_shift`**.
-
-Chapter 6 must consume the reconstructed roster/systems knowledge rather than discard it and introduce an unrelated final puzzle.
+- Eli Mercer is Contractor Session 01.
+- Gavin Cole is Contractor 13.
+- The player is Contractor 14.
+- Contractor 14 cannot be resolved before Chapter 6.
 
 ---
 
-## 2. Supernatural voice / imitation rule
+## 2. Chapter 6 canonical sequence
 
-There are two distinct concepts that must not be conflated:
+The final closing sequence is now implemented in this order:
+
+1. acknowledge seven confirmed staff departures at Staff Accountability,
+2. clear Key Control and Service State discrepancies,
+3. process Eli Mercer / Contractor 01 using required evidence,
+4. observe `ACCOUNTABILITY: 1`,
+5. identify Contractor 14 as the remaining active account,
+6. physically clock out Contractor 14 at Time / Attendance,
+7. cross Pinewood toward the east Employee Exit while PCAS issues location-specific recalls,
+8. release the Employee Exit,
+9. cross the exit threshold and resolve the ending.
+
+Required state ordering is enforced. In particular:
+
+- Eli cannot be processed before staff/key/service prerequisites and LS-08/LS-09 + Eli-body evidence.
+- Contractor 14 cannot clock out before `ACCOUNTABILITY: 1`.
+- Employee Exit cannot release before Contractor 14 clock-out.
+
+### Final Attendant behavior
+
+The finale deliberately builds on learned rules rather than replacing them with raw difficulty inflation.
+
+PCAS recall destinations cycle through named closing locations such as:
+
+- PA CONTROL
+- KEY CONTROL
+- SERVICE STATE
+- STAFF ACCOUNTABILITY
+
+The Attendant is routed through its existing `investigate` behavior and A* pathing toward the recalled location. The finale does not switch to a special speed buff or arbitrary `hunt` shortcut. Active decoys remain a valid counterplay.
+
+### Standard ending
+
+Canonical ending ID: `pinewood_closed`.
+
+The active Contractor 14 ticket closes and Pinewood announces the mall is closed, but incomplete historical evidence leaves the underlying recurrence unresolved. A later dispatch request appears as **CONTRACTOR 15**.
+
+### True ending
+
+Canonical ending ID: `everyone_clocked_out`.
+
+Requires the complete LS-01 through LS-09 evidence state. The final resolution reaches **`ACCOUNTABILITY: 0`**, the original Pinewood work order is archived, the Attendant becomes still / its white eyes extinguish, and no Contractor 15 is created.
+
+---
+
+## 3. Supernatural voice / imitation rule
+
+There are two separate concepts:
 
 1. **Chapter 4 authored radio imitation / information distrust** is implemented and intentional.
-2. A broader supernatural runtime voice-imitation system using browser/cloud synthesis is **not** implemented and should not be smuggled in as a shortcut.
+2. A broad supernatural runtime voice-imitation system using browser/cloud synthesis is **not** implemented and must not be added as a shortcut.
 
-Permanent audio/runtime constraints remain:
+Permanent runtime constraints:
 
 - no browser `speechSynthesis`,
 - no runtime ElevenLabs/OpenAI/Google TTS calls,
 - no remote runtime media,
 - authored PCAS voice assets remain local and pre-rendered,
-- subtitles/text must remain sufficient for story functionality with audio disabled.
+- subtitles/text remain sufficient for story functionality with audio disabled.
 
-If Chapter 6 needs remembered or imitated human lines, author them deliberately within the established local-media pipeline and narrative rules. Do not create uncontrolled generative voice behavior.
+Chapter 6's Renee/unknown overlap and PCAS recall material is authored dialogue, not uncontrolled generative voice behavior.
 
 ---
 
-## 3. Runtime loader architecture
+## 4. Runtime loader architecture
 
 `game.js` reconstructs the encoded base runtime from `bundle2/`, normalizes local Three.js imports, then applies authored patches in order.
 
-The historical visual/system layers remain intentional and protected. The narrative tail currently feeds forward through:
+The narrative tail now feeds forward through:
 
 1. `patches/retail-geometry-v16.js.txt`
 2. `patches/story-foundation-v17.js.txt`
 3. `patches/chapter1-story-v18.js.txt`
 4. `patches/pcas-voice-v19.js.txt`
 5. `patches/chapter1-pcas-escalation-v20.js.txt`
-6. Chapter 2 Below Grade v21 patch layer
-7. Chapter 3 Security v22 and readability layers through v22d
+6. Chapter 2 Below Grade v21
+7. Chapter 3 Security v22 family through v22d
 8. `patches/chapter4-east-wing-v23.js.txt`
 9. `patches/chapter4-east-wing-readability-v23b.js.txt`
 10. `patches/chapter5-accountability-v24.js.txt`
+11. `patches/chapter6-last-shift-v25.js.txt`
 
-The terminal live source is now the v24 result, conceptually:
+The terminal live runtime source is the v25 result, conceptually:
 
 ```js
-const chapter5V24Source = await applyChapter5AccountabilityV24Runtime(
-  chapter4V23BSource,
-  chapter5V24Patch
+const chapter6V25Source = await applyChapter6LastShiftV25Runtime(
+  chapter5V24Source,
+  chapter6V25Patch
 );
-const source = chapter5V24Source + '\n//# sourceURL=pinewood-runtime.js\n';
+const source = chapter6V25Source + '\n//# sourceURL=pinewood-runtime.js\n';
 ```
 
-### Feed-forward audit lesson
+### Feed-forward rule
 
-Older audits/workflows must **not** assume their chapter remains terminal forever.
+Older audits must validate their own chapter plus the expected feed-forward relationship. They must not demand that their chapter remain the terminal runtime forever.
 
-This caused two promotion problems:
-
-- the old v22d audit assumed v23b had to remain the terminal source,
-- the old Chapter 4 staging browser workflow tried to re-install v23/v23b after v24 was already live.
-
-Both were corrected.
-
-When adding Chapter 6, preserve this rule:
-
-- an older chapter audit should validate its own source and the expected feed-forward relationship,
-- if a newer chapter exists, require that newer chapter to consume the prior chapter's output,
-- do not require an obsolete older source to remain the final `source=` assignment.
+If a future post-v25 patch is added, Chapter 6's audit should be extended in the same manner rather than requiring v25 to remain terminal.
 
 ---
 
-## 4. Current validation gates
+## 5. Current validation gates
 
 ### Global runtime audit
 
-`.github/workflows/runtime-audit.yml` remains the broad static/reconstruction gate for the authored runtime stack and protected systems.
+`.github/workflows/runtime-audit.yml`
 
-The Chapter 5 merge commit `ee603433...` passed the post-merge Runtime Audit on `main`.
-
-### Chapter 5 live regression
-
-`.github/workflows/staged-accountability-v24-regression.yml` is retained by filename for history, but its behavior is now a **live Chapter 5 Accountability regression**, not a staging installer.
-
-It validates the committed live loader and runs Chromium capture for:
-
-- `accountability-roster`
-- `accountability-kessler`
-- `accountability-eli`
-- `accountability-sessions`
-
-Expected invariants include:
-
-- Chapter 5 version 24,
-- `sceneBuilt: true`,
-- LS-07 / LS-08 / LS-09 structure,
-- 14 contractor sessions,
-- `eliIsAttendant:false`,
-- no page errors,
-- no remote runtime media requests.
+Broad reconstruction/static gate for the authored runtime stack and protected systems.
 
 ### Chapter 4 live regression
 
-`.github/workflows/staged-east-wing-v23-regression.yml` is likewise retained by filename but is now a **live Chapter 4 East Wing regression**.
+`.github/workflows/staged-east-wing-v23-regression.yml`
 
-It no longer mutates `game.js` in the runner. It audits the committed v23b feed-forward state, launches Chromium against the current live loader, and captures:
+Historical filename, live behavior. Chromium regression against the current loader for:
 
 - `east-wing-map`
 - `east-wing-lockers`
 - `east-wing-training`
 - `east-wing-receiving`
 
-The corrected live gate passed on `main` at `f17c80e5593e0511130236a2453e78b9ec535a81`.
+### Chapter 5 live regression
 
-### Chapter-specific audits relevant to the frontier
+`.github/workflows/staged-accountability-v24-regression.yml`
 
-At minimum preserve and run:
+Historical filename, live behavior. Chromium regression for:
 
-- `scripts/audit-chapter3-security-readability-v22d.mjs`
-- `scripts/audit-chapter4-east-wing-v23.mjs`
-- `scripts/audit-chapter4-east-wing-readability-v23b.mjs`
-- `scripts/audit-chapter5-accountability-v24.mjs`
-- `scripts/capture-east-wing-v23.mjs`
-- `scripts/capture-accountability-v24.mjs`
+- `accountability-roster`
+- `accountability-kessler`
+- `accountability-eli`
+- `accountability-sessions`
 
-When Chapter 6 is introduced, add a dedicated Chapter 6 audit and deterministic browser capture gate rather than relying only on the global runtime audit.
+### Chapter 6 live regression
+
+`.github/workflows/chapter6-last-shift-v25-regression.yml`
+
+This is a permanent live gate for pushes to `main`, pull requests targeting `main`, and manual dispatch. It runs:
+
+1. `scripts/audit-chapter6-finale-source-v25.mjs`
+2. `scripts/audit-chapter6-last-shift-v25.mjs`
+3. Playwright Chromium setup
+4. local Pinewood HTTP server
+5. `scripts/simulate-chapter6-finale-v25.mjs`
+6. `scripts/capture-last-shift-v25.mjs`
+7. artifact upload
+
+Seven deterministic visual views:
+
+- `last-shift-control`
+- `last-shift-memory`
+- `last-shift-echo`
+- `last-shift-roster`
+- `last-shift-eli-control`
+- `last-shift-clockout`
+- `last-shift-exit`
+
+The finale simulation proves both standard and true endings plus prerequisite lockouts.
+
+The patch-source audit specifically protects against nested template literals / generated-runtime string escaping errors in the `.js.txt` patch architecture.
+
+### Useful direct audit commands
+
+```bash
+node scripts/audit-chapter3-security-readability-v22d.mjs
+node scripts/audit-chapter5-accountability-v24.mjs
+node scripts/audit-chapter6-finale-source-v25.mjs
+node scripts/audit-chapter6-last-shift-v25.mjs
+```
+
+Browser scripts require Playwright and a local server, as configured in the workflows.
 
 ---
 
-## 5. Permanent local-runtime-asset rule
+## 6. Permanent local-runtime-asset rule
 
 **Never use remote assets or remote browser libraries at runtime. Download/vendor verified dependencies into this repository and serve them locally.**
 
-- Models, GLTF/GLB buffers and textures must be repository-local before runtime use.
-- PBR/material textures, images and decals must be local.
-- Sound effects, ambience, music and voice assets must be local.
-- Three.js, Pako and future browser/runtime libraries must be pinned and served locally rather than from a CDN.
-- External URLs are allowed only for provenance/documentation or development-time acquisition.
-- New third-party assets require verified licensing, a vendored local copy, provenance and local-assets audit coverage.
-- If licensing/provenance cannot be verified, omit the asset or choose another.
-- Do not restore remote GitHub Raw / Poly Haven / OpenGameArt / CDN runtime fallbacks.
+- models, GLTF/GLB buffers and textures must be repository-local,
+- PBR/material textures, images and decals must be local,
+- sound effects, ambience, music and voice assets must be local,
+- Three.js, Pako and future browser/runtime libraries must be pinned and served locally,
+- external URLs are allowed only for provenance/documentation or development-time acquisition,
+- new third-party assets require verified licensing, a vendored local copy, provenance and local-assets audit coverage,
+- if licensing/provenance cannot be verified, omit the asset or choose another,
+- do not restore remote GitHub Raw / Poly Haven / OpenGameArt / CDN runtime fallbacks.
 
 ### Cassette Castle permanent shelf ban
 
-Do not reintroduce the historically broken tiny shelf resources:
+Do not reintroduce:
 
 - `cassetteShelfLarge`
 - `cassetteShelfSmall`
@@ -281,11 +338,11 @@ Do not reintroduce the historically broken tiny shelf resources:
 - Quaternius `Shelf Small.glb`
 - aliases/URLs containing the corresponding Shelf Large / Shelf Small paths
 
-Cassette Castle v14 remains authoritative for the final store layout, while v13's grounding/safety rules remain protected foundations.
+Cassette Castle v14 remains authoritative for the final store layout, with v13 grounding/safety rules retained as protected foundations.
 
 ---
 
-## 6. Architecture constraints that must survive Chapter 6
+## 7. Architecture constraints
 
 Keep these systems conceptually separate:
 
@@ -295,17 +352,17 @@ Keep these systems conceptually separate:
 4. Attendant AI navigation,
 5. story/save state.
 
-Do not return to decorative geometry mutating the fundamental walkability grid.
+Do not return to decorative geometry mutating fundamental walkability.
 
 Navigation-only blockers using `physicalBlock:false` remain valid where the player can enter a space that should be excluded from Attendant pathfinding.
 
-Do not solve final-chapter difficulty by breaking route-distance sensing, wall protection, hiding rules, decoy behavior, or the learned sound/stamina model.
+Do not break route-distance sensing, wall protection, hiding rules, decoy behavior, or the learned sound/stamina model to manufacture difficulty.
 
 ---
 
-## 7. Player / Attendant fundamentals
+## 8. Player / Attendant fundamentals
 
-Controls remain:
+Controls:
 
 - WASD — move
 - Mouse — look
@@ -319,128 +376,59 @@ Controls remain:
 
 The Attendant remains an original articulated black humanoid silhouette with emissive eyes, fuzzy/glitched edge treatment, gait animation, particles and afterimages.
 
-Important behavior to preserve:
+Behavior to preserve:
 
 - valid physical contact kills outside hiding/safe states,
 - decoys divert/distract,
 - sprint is faster/louder,
 - quiet movement is slower and consumes breath,
 - danger/hearing respects navigable route/path distance rather than impossible through-wall Euclidean sensing,
-- authored safe/AI-excluded spaces must remain reliable.
-
-Chapter 6's final pursuit should build on these learned rules instead of replacing them with arbitrary speed multiplication.
+- authored safe / AI-excluded spaces remain reliable.
 
 ---
 
-## 8. Chapter 6 implementation target — The Last Shift
+## 9. Recommended work from here
 
-Follow the existing plan rather than improvising a seventh mystery layer.
+The story implementation phase is complete. Prioritize in roughly this order unless the user requests something specific:
 
-### 8.1 Memory overlay system
+1. full six-chapter manual playthrough / blocker audit from a clean save,
+2. save migration / continue-game validation across older save shapes,
+3. keyboard/mouse interaction and objective clarity pass,
+4. accessibility pass: subtitles, contrast, motion/flicker, audio-independent story comprehension,
+5. difficulty / stamina / decoy / Attendant-route balance,
+6. checkpoint and death/retry reliability,
+7. standard and true-ending presentation polish,
+8. performance testing on lower-end integrated graphics,
+9. local-asset/provenance audit and dead-asset cleanup,
+10. production/deployment smoke test from the actual GitHub Pages build.
 
-Create authored, location-specific alternate states.
-
-Supported areas should be able to define:
-
-- present-state group,
-- 1997-memory group,
-- transition lighting parameters,
-- transition audio parameters,
-- historical silhouette events.
-
-Do not globally swap arbitrary materials across the whole mall. The remembered state needs controlled, deterministic composition suitable for regression screenshots.
-
-### 8.2 Staff silhouettes
-
-They are environmental echoes, not friendly NPC ghosts.
-
-They should:
-
-- perform a short closing action,
-- correspond to known 1997 events,
-- never directly converse with the player,
-- vanish when the remembered state collapses.
-
-### 8.3 Final closing sequence
-
-The implementation plan's required sequence is:
-
-1. acknowledge staff departures,
-2. clear service/key discrepancies,
-3. process Eli Mercer,
-4. observe `ACCOUNTABILITY: 1`,
-5. realize Contractor 14 is the remaining account,
-6. clear the contractor session at physical time/attendance control,
-7. reach the employee exit while PCAS recalls Contractor 14.
-
-This sequence should consume the evidence/history earned earlier, especially LS-07/08/09.
-
-### 8.4 Final Attendant behavior
-
-Use learned rules and destination bias rather than simply multiplying speed:
-
-- active staff-location calls can bias search destination,
-- player can predict and exploit route behavior,
-- environmental noise and controlled calls remain useful,
-- closing zones can alter route choices.
-
-The intended feeling is mastery under pressure.
-
-### 8.5 Ending integrity
-
-Before treating the six-chapter story as production-ready, implement/finish the story-integrity and deterministic narrative simulation work described in `NARRATIVE_IMPLEMENTATION_PLAN.md`.
-
-Key ending constraints:
-
-- exactly six chapter definitions,
-- LS-01 through LS-09 stable and unique,
-- standard ending reachable without every optional item,
-- true-ending path requires the intended complete evidence state,
-- Eli cannot be cleared before required evidence,
-- Contractor Fourteen cannot be resolved before Chapter 6,
-- save migration remains valid.
+Do not add new story chapters merely because Chapter 6 is complete.
 
 ---
 
-## 9. Recommended development sequence from here
+## 10. Known hygiene / lessons
 
-1. Re-read the Chapter 6 sections of `STORY_BIBLE.md` and `NARRATIVE_IMPLEMENTATION_PLAN.md`.
-2. Inspect current `game.js`, `story/*`, v24 state contracts and current workflow gates.
-3. Design Chapter 6 as a new feed-forward patch after v24, preserving the live Chapters 1–5 chain.
-4. Implement the smallest complete Chapter 6 vertical slice first: chapter definition + map/entry + memory-overlay framework + first deterministic silhouette event.
-5. Add a Chapter 6 static/reconstruction audit immediately.
-6. Add deterministic Chapter 6 visual-test views immediately, not after all feature work.
-7. Build the final closing sequence in ordered, testable stages.
-8. Add final-pursuit route behavior without regressing existing Attendant systems.
-9. Implement standard/true-ending state resolution and story-integrity checks.
-10. Run global runtime audit plus Chapters 4–6 browser gates before promoting any final-chapter milestone.
-
-Every intermediate `main` commit must remain bootable.
+- PR #1 promoted Chapter 5 v24.
+- PR #2 promoted Chapter 6 v25.
+- Temporary Chapter 5/6 promotion and repair workflows used during diagnosis were removed after use.
+- Prefer direct repository edits plus read-only validation. Avoid self-editing CI workflows unless there is no safer practical option.
+- `.js.txt` patch files are JavaScript source despite their extension. `node --check` needs a temporary `.mjs` copy when directly syntax-checking those bytes.
+- `node --check game.js` is not a valid standalone repository gate because `game.js` uses top-level `await` while the repository is not configured as a Node ESM package. Existing audits reconstruct and syntax-check through `.mjs` where appropriate.
+- Some older workflow filenames still contain `staged` for historical continuity even though their behavior is live. Trust workflow content, not the old filename.
+- Do not revive obsolete handoff claims that Chapter 1 v20, Chapter 5 v24, or Chapter 6 planning is the current frontier.
 
 ---
 
-## 10. Known hygiene / historical notes
-
-- PR #1 was the Chapter 5 promotion PR and was squash-merged successfully.
-- Temporary Chapter 5 promotion/repair workflows created during diagnosis were removed after they served their purpose.
-- Do not recreate self-editing CI workflows unless there is no safer option. Direct repository edits plus read-only validation are preferred.
-- `node --check game.js` is not a valid standalone gate here because `game.js` uses top-level `await` while the repository is not configured as a Node ESM package. Existing audits syntax-check the assembled runtime through `.mjs` where appropriate.
-- Some workflow filenames still contain the word `staged` for historical continuity even though the gates now validate the live runtime. Trust workflow content/current behavior, not the old filename.
-- The old handoff's “current checkpoint v20” statement is obsolete and should never be used as a development baseline again.
-
----
-
-## 11. Before editing anything in a future chat
-
-A future developer/chat should perform these checks in order:
+## 11. Before editing in a future chat
 
 1. Read `AGENTS.md`.
 2. Read this `DEVELOPMENT_HANDOFF.md`.
-3. Read `STORY_BIBLE.md` and `NARRATIVE_IMPLEMENTATION_PLAN.md` for the chapter being changed.
+3. Read `STORY_BIBLE.md` and `NARRATIVE_IMPLEMENTATION_PLAN.md` for relevant canon/constraints.
 4. Fetch current `main` HEAD and recent commits.
-5. Inspect recent GitHub Actions results, especially Runtime Audit and chapter-specific browser regressions.
+5. Inspect recent GitHub Actions results, especially Runtime Audit and Chapters 4–6 browser regressions.
 6. Read the current files being modified. Do not rely on snippets from an older conversation.
 7. Keep all runtime assets local and licensed/provenanced.
-8. Preserve feed-forward compatibility so adding Chapter 6 does not make Chapter 3/4/5 audits falsely demand that they remain terminal.
+8. Preserve feed-forward compatibility for older chapter audits.
+9. Do not create Chapter 7 unless explicitly requested.
 
-**Current feature frontier: Chapter 6 — The Last Shift.**
+**Current feature frontier: six-chapter production hardening and polish.**
