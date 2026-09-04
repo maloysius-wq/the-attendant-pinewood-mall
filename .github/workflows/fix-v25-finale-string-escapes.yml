@@ -1,0 +1,42 @@
+name: Fix Chapter 6 finale string escapes
+
+on:
+  push:
+    branches: [chapter6-last-shift-v25]
+    paths:
+      - '.github/workflows/fix-v25-finale-string-escapes.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  repair:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: chapter6-last-shift-v25
+      - name: Escape ending paragraph breaks
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          path=Path('patches/chapter6-last-shift-v25.js.txt')
+          text=path.read_text()
+          pairs=[
+            ("white eyes extinguish.\n\nOutside, Renee’s real voice returns clearly.", "white eyes extinguish.\\\\n\\\\nOutside, Renee’s real voice returns clearly."),
+            ("Attendant stops moving.\n\nOutside, Renee’s real voice returns and confirms", "Attendant stops moving.\\\\n\\\\nOutside, Renee’s real voice returns and confirms")
+          ]
+          for old,new in pairs:
+            if text.count(old)!=1: raise SystemExit(f'expected one ending paragraph marker, found {text.count(old)}')
+            text=text.replace(old,new)
+          path.write_text(text)
+          PY
+          node --check patches/chapter6-last-shift-v25.js.txt
+      - name: Commit repair and cleanup
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git rm .github/workflows/fix-v25-finale-string-escapes.yml
+          git add patches/chapter6-last-shift-v25.js.txt
+          git commit -m 'Fix Chapter 6 finale string escapes'
+          git push origin HEAD:chapter6-last-shift-v25
