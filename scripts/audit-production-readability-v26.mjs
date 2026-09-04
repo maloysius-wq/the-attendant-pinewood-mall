@@ -13,18 +13,22 @@ if(typeof ctx.__patch!=='function')fail('patch function missing');
 const synthetic='\nasync function decorateLevel(world,idx){ return {world,idx}; }\n';
 const patched=ctx.__patch(synthetic);
 for(const marker of [
-  'window.__PINEWOOD_VISUAL_V26__={version:26','motivatedLighting:true','chapter1RetailReadability:true','chapter1ElevatorReadability:true','chapter2NavigationReadability:true','gavinReadability:true','chapterSurfaceIdentity:true','surfaceReadabilityTuned:true','finalVisualReview:true',
+  'window.__PINEWOOD_VISUAL_V26__={version:26','motivatedLighting:true','chapter1RetailReadability:true','chapter1ElevatorReadability:true','chapter2NavigationReadability:true','gavinReadability:true','chapterSurfaceIdentity:true','surfaceReadabilityTuned:true','finalVisualReview:true','darkSceneReadabilityApproved:true',
   "'retail-original'","'below-grade-concrete'","'security-cinderblock'","'east-wing-institutional'","'records-archive-panel'","'pa-control-acoustic'",
   'function productionSurfaceProfileV26(idx)','function productionWallTextureV26(idx)','function productionFloorTextureV26(idx)','function productionSurfaceProtectedV26(o,root)','function addProductionSurfaceIdentityV26(world,idx)',
   "tag:'arcade-checkout-route'","tag:'video-checkout-route'","tag:'freight-elevator-approach'","tag:'feeder-control'","tag:'sump-route'","tag:'flood-corridor-near'","tag:'flood-corridor-deep'","tag:'gavin-overhead'","productionReadabilityV26='gavin-evidence'",
-  "productionReadabilityV26='below-grade-identity-fill'","productionReadabilityV26='security-architectural-fill'","productionReadabilityV26='east-wing-architectural-fill'","productionReadabilityV26='records-architectural-fill'","tag:'records-roster-task'","productionReadabilityV26='pa-architectural-fill'","tag:'pa-control-task'",
-  'new THREE.HemisphereLight(0x556a6b,0x030405,.075)','new THREE.HemisphereLight(0x687d78,0x050606,.055)','addProductionSurfaceIdentityV26(world,idx);','addProductionReadabilityV26(world,idx);'
+  "productionReadabilityV26='below-grade-identity-fill'","productionReadabilityV26='below-grade-loading-fill'","productionReadabilityV26='security-architectural-fill'","productionReadabilityV26='east-wing-architectural-fill'","productionReadabilityV26='records-architectural-fill'","tag:'records-roster-task'","productionReadabilityV26='pa-architectural-fill'","tag:'pa-control-task'",
+  'new THREE.HemisphereLight(0x556a6b,0x030405,.075)','new THREE.HemisphereLight(0x788f88,0x070808,.125)','addProductionSurfaceIdentityV26(world,idx);','addProductionReadabilityV26(world,idx);'
 ])if(!patched.includes(marker))fail('patch output missing marker: '+marker);
 if((patched.match(/async function decorateLevel\(world,idx\)/g)||[]).length!==1)fail('decorateLevel declaration count changed');
 if(!patched.includes("if(idx===0)")||!patched.includes("else if(idx===1)")||!patched.includes("else if(idx===5)"))fail('per-chapter scoped lighting guards missing');
-if(patched.includes("new THREE.HemisphereLight(0x556a6b,0x030405,.15)"))fail('global Below Grade fill exceeds restrained budget');
+if(patched.includes("new THREE.HemisphereLight(0x556a6b,0x030405,.15)"))fail('original Below Grade base fill exceeded the restrained budget');
 if(!patched.includes("1:{key:'below-grade-concrete'")||patched.includes("0:{key:"))fail('Chapter 1 retail materials must remain authored rather than receiving a generic surface profile');
 if(!patched.includes("map.repeat.set(Math.max(1,Math.max(size.x,size.z)/5.5),Math.max(1,size.y/3.2))"))fail('surface repeat scale regressed to a wallpaper-like frequency');
+if(!patched.includes("const retailAmbient=new THREE.HemisphereLight(0x59606a,0x060606,.080)"))fail('Cassette/retail ambient readability regressed');
+if(!patched.includes("const cassetteFill=new THREE.PointLight(0xffc58c,1.10,13.0,2)"))fail('Cassette broad merchandise fill regressed');
+if(!patched.includes("intensity:1.58,range:10.2,w:1.02,rot:Math.PI/2,tag:'feeder-control'"))fail('Below Grade feeder task readability regressed');
+if(!patched.includes("const loadingFill=new THREE.PointLight(0x92aaa4,.72,13.5,2)"))fail('Below Grade loading-area architectural fill regressed');
 
 const chapterIdentityChecks=[
   ['Chapter 1 retail', 'patches/retail-geometry-v16.js.txt', ['store-finish-v16','organized-case-stock-v16']],
@@ -46,4 +50,4 @@ if(live){
   if(loader.includes("const source=chapter6V25Source+'\\n//# sourceURL=pinewood-runtime.js\\n';"))fail('game.js still terminates at v25 while v26 is present');
 }else if(loader.includes('applyProductionReadabilityV26Runtime')||loader.includes('productionReadabilityV26Source'))fail('game.js contains partial v26 wiring');
 
-console.log(`Production readability v26 PASS (${live?'LIVE-CANDIDATE':'STAGED'}): final visual-review tuning is present; motivated lighting remains restrained; all six chapters retain distinct mechanics/set pieces and unique wall/floor identities; texture repeat stays controlled; loader consistency and Chapter 6 prerequisite remain green.`);
+console.log(`Production readability v26 PASS (${live?'LIVE-CANDIDATE':'STAGED'}): final pixel-reviewed dark-scene correction is locked; all six chapters retain distinct mechanics/set pieces and unique wall/floor identities; critical retail, Below Grade, Records and PA surfaces remain readable without flattening Security/East Wing; texture repeat and loader consistency remain controlled.`);
