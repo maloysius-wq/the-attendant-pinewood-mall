@@ -7,6 +7,7 @@ on:
       - 'game.js'
       - 'patches/chapter6-last-shift-v25.js.txt'
       - 'story/**'
+      - 'scripts/audit-chapter3-security-readability-v22d.mjs'
       - 'scripts/audit-chapter5-accountability-v24.mjs'
       - 'scripts/audit-chapter6-last-shift-v25.mjs'
       - 'scripts/capture-last-shift-v25.mjs'
