@@ -16,7 +16,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           ref: chapter6-last-shift-v25
-      - name: Normalize literal patch newline marker
+      - name: Normalize Chapter 6 handler splice
         run: |
           python3 - <<'PY'
           from pathlib import Path
@@ -26,10 +26,16 @@ jobs:
           end=text.index(label)+len(label)
           start=text.rfind('p = one(',0,end)
           if start<0: raise SystemExit('handler patch block start missing')
-          replacement="""handler_nl = chr(92) + "\\n"
-          old_handler = "}else if(t==='ch6_roster_station_v25'||t==='ch6_key_station_v25'||t==='ch6_service_station_v25'||t==='ch6_eli_station_v25'){handleLastShiftRitualV25(this,o);" + handler_nl + "    }else if(t==='note'||t==='journal'||t==='tape'){"
-          new_handler = "}else if(t==='ch6_roster_station_v25'||t==='ch6_key_station_v25'||t==='ch6_service_station_v25'||t==='ch6_eli_station_v25'||t==='ch6_clockout_station_v25'){handleLastShiftRitualV25(this,o);" + handler_nl + "    }else if(t==='ch6_employee_exit_v25'){handleLastShiftExitV25(this,o);" + handler_nl + "    }else if(t==='note'||t==='journal'||t==='tape'){"
-          p = one(p, old_handler, new_handler, 'finale interaction handlers')
+          replacement="""handler_anchor = "t==='ch6_eli_station_v25'){handleLastShiftRitualV25(this,o);"
+          if p.count(handler_anchor)!=1: raise SystemExit(f'finale handler anchor count {p.count(handler_anchor)}')
+          expanded_handler = "t==='ch6_eli_station_v25'||t==='ch6_clockout_station_v25'){handleLastShiftRitualV25(this,o);"
+          p = p.replace(handler_anchor, expanded_handler)
+          handler_at = p.index(expanded_handler)
+          note_anchor = "}else if(t==='note'||t==='journal'||t==='tape'){"
+          note_at = p.find(note_anchor, handler_at)
+          if note_at < 0: raise SystemExit('finale note-handler anchor missing after Chapter 6 handler')
+          insert = "}else if(t==='ch6_employee_exit_v25'){handleLastShiftExitV25(this,o);" + chr(92) + "\n    "
+          p = p[:note_at] + insert + p[note_at:]
           """
           path.write_text(text[:start]+replacement+text[end:])
           PY
