@@ -59,6 +59,7 @@ jobs:
             scripts/audit-chapter5-accountability-v24.mjs
             scripts/audit-chapter6-finale-source-v25.mjs
             scripts/audit-chapter6-last-shift-v25.mjs
+            scripts/audit-production-readability-v26.mjs
             scripts/audit-runtime.mjs
           )
           for script in "${scripts[@]}"; do
