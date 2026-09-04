@@ -1,0 +1,119 @@
+name: Six-chapter production hardening v26
+
+on:
+  push:
+    branches: [production-hardening-pass-v26]
+    paths:
+      - 'game.js'
+      - 'index.html'
+      - 'patches/**'
+      - 'story/**'
+      - 'scripts/**'
+      - '.github/workflows/production-hardening-v26.yml'
+      - 'vendor/**'
+      - 'assets/vendor/**'
+      - 'assets/audio/pa/**'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'game.js'
+      - 'index.html'
+      - 'patches/**'
+      - 'story/**'
+      - 'scripts/**'
+      - '.github/workflows/production-hardening-v26.yml'
+      - 'vendor/**'
+      - 'assets/vendor/**'
+      - 'assets/audio/pa/**'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  hardening:
+    runs-on: ubuntu-latest
+    timeout-minutes: 50
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Run complete authored runtime audit chain
+        shell: bash
+        run: |
+          set +e
+          failed=0
+          scripts=(
+            scripts/audit-story-foundation-v17.mjs
+            scripts/audit-chapter1-story-v18.mjs
+            scripts/audit-chapter1-pcas-v20.mjs
+            scripts/audit-chapter2-below-grade-v21.mjs
+            scripts/audit-chapter3-eyes-security-v22.mjs
+            scripts/audit-chapter3-east-wing-handoff-v22b.mjs
+            scripts/audit-chapter3-security-readability-v22c.mjs
+            scripts/audit-chapter3-security-readability-v22d.mjs
+            scripts/audit-chapter4-east-wing-v23.mjs
+            scripts/audit-chapter4-east-wing-readability-v23b.mjs
+            scripts/audit-chapter5-accountability-v24.mjs
+            scripts/audit-chapter6-finale-source-v25.mjs
+            scripts/audit-chapter6-last-shift-v25.mjs
+            scripts/audit-runtime.mjs
+          )
+          for script in "${scripts[@]}"; do
+            echo "::group::$script"
+            node "$script"
+            rc=$?
+            echo "::endgroup::"
+            if [ $rc -ne 0 ]; then
+              echo "FAILED: $script"
+              failed=1
+            fi
+          done
+          exit $failed
+
+      - name: Install Playwright
+        run: |
+          npm install --no-save playwright@1.55.0
+          npx playwright install --with-deps chromium
+
+      - name: Start local Pinewood server
+        run: |
+          test -f "$GITHUB_WORKSPACE/vendor/three/build/three.module.js"
+          test -f "$GITHUB_WORKSPACE/vendor/three/build/three.core.js"
+          test -f "$GITHUB_WORKSPACE/vendor/three/examples/jsm/loaders/GLTFLoader.js"
+          test -f "$GITHUB_WORKSPACE/vendor/pako/pako.esm.mjs"
+          python3 -m http.server 4173 --directory "$GITHUB_WORKSPACE" >/tmp/pinewood-hardening-http.log 2>&1 &
+          echo $! > /tmp/pinewood-hardening-http.pid
+          for i in {1..30}; do curl -fsS http://127.0.0.1:4173/ >/dev/null && exit 0; sleep 1; done
+          cat /tmp/pinewood-hardening-http.log
+          exit 1
+
+      - name: Exercise menus saves migrations and six chapter HUDs
+        run: node scripts/smoke-production-v26.mjs
+
+      - name: Capture Chapters 1 through 4 deterministic suite
+        run: node scripts/capture-store-visuals.mjs
+
+      - name: Capture Chapter 5 Accountability suite
+        run: node scripts/capture-accountability-v24.mjs
+
+      - name: Simulate both Chapter 6 endings
+        run: node scripts/simulate-chapter6-finale-v25.mjs
+
+      - name: Capture Chapter 6 Last Shift suite
+        run: node scripts/capture-last-shift-v25.mjs
+
+      - name: Upload production hardening artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pinewood-production-hardening-v26
+          path: |
+            production-smoke-artifacts/
+            visual-artifacts/
+            accountability-artifacts/
+            last-shift-artifacts/
+          if-no-files-found: warn
+          retention-days: 14
