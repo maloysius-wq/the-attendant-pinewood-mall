@@ -1,0 +1,68 @@
+name: Apply Chapter 5 v24 evidence visibility polish
+
+on:
+  push:
+    branches: [promote-chapter5-accountability-v24]
+    paths:
+      - '.github/workflows/apply-v24-visibility-polish.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  polish-and-validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Improve critical evidence visibility
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('patches/chapter5-accountability-v24.js.txt')
+          s=p.read_text()
+          fixes=[
+            ("badge=new THREE.MeshStandardMaterial({color:0xd7d1b8,roughness:.82});","badge=new THREE.MeshStandardMaterial({color:0xd7d1b8,emissive:0x514d3c,emissiveIntensity:.65,roughness:.82});"),
+            ("const override=makePickup('journal',new THREE.Vector3(6.15,.18,12.0),'LS-09'","const override=makePickup('journal',new THREE.Vector3(6.15,.88,12.35),'LS-09'"),
+            ("world.root.add(override);world.interactables.push(override);\n  s.eliGate=makeRecordsGateV24", "world.root.add(override);world.interactables.push(override);const kesslerTask=new THREE.PointLight(0xd8c7aa,1.35,4.8,2);kesslerTask.position.set(6.15,1.85,12.35);kesslerTask.userData.chapter5LightV24='kessler-evidence';world.root.add(kesslerTask);\n  s.eliGate=makeRecordsGateV24"),
+            ("s.eliRoot=makeEliRemainsV24(world);const recorder=makeEliRecorderV24", "s.eliRoot=makeEliRemainsV24(world);const eliTask=new THREE.PointLight(0xc8bea8,2.10,5.4,2);eliTask.position.set(-6.2,1.65,-15.6);eliTask.userData.chapter5LightV24='eli-remains-focus';world.root.add(eliTask);const recorder=makeEliRecorderV24"),
+          ]
+          for old,new in fixes:
+            n=s.count(old)
+            if n!=1: raise SystemExit(f'visibility polish expected one match, found {n}: {old[:90]}')
+            s=s.replace(old,new,1)
+          p.write_text(s)
+          PY
+      - name: Verify source invariants
+        run: node scripts/audit-chapter5-accountability-v24.mjs
+      - name: Install Playwright
+        run: |
+          npm install --no-save playwright@1.55.0
+          npx playwright install --with-deps chromium
+      - name: Start local server
+        run: |
+          python3 -m http.server 4173 --bind 127.0.0.1 > /tmp/pinewood-v24-http.log 2>&1 &
+          for i in {1..30}; do curl -fsS http://127.0.0.1:4173/ >/dev/null && exit 0; sleep 1; done
+          cat /tmp/pinewood-v24-http.log
+          exit 1
+      - name: Capture polished Chapter 5 views
+        run: node scripts/capture-accountability-v24.mjs
+      - name: Upload polished views
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pinewood-accountability-v24-visibility-polish
+          path: accountability-artifacts
+          if-no-files-found: warn
+          retention-days: 14
+      - name: Commit visibility polish
+        if: success()
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add patches/chapter5-accountability-v24.js.txt
+          git commit -m "Polish Chapter 5 evidence visibility"
+          git push origin HEAD:promote-chapter5-accountability-v24
