@@ -16,6 +16,23 @@ jobs:
       - uses: actions/checkout@v4
         with:
           ref: chapter6-last-shift-v25
+      - name: Normalize literal patch newline marker
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          path=Path('scripts/tmp-apply-v25-finale.py')
+          text=path.read_text()
+          label="    'finale interaction handlers',\n)\n"
+          end=text.index(label)+len(label)
+          start=text.rfind('p = one(',0,end)
+          if start<0: raise SystemExit('handler patch block start missing')
+          replacement="""handler_nl = chr(92) + "\\n"
+          old_handler = "}else if(t==='ch6_roster_station_v25'||t==='ch6_key_station_v25'||t==='ch6_service_station_v25'||t==='ch6_eli_station_v25'){handleLastShiftRitualV25(this,o);" + handler_nl + "    }else if(t==='note'||t==='journal'||t==='tape'){"
+          new_handler = "}else if(t==='ch6_roster_station_v25'||t==='ch6_key_station_v25'||t==='ch6_service_station_v25'||t==='ch6_eli_station_v25'||t==='ch6_clockout_station_v25'){handleLastShiftRitualV25(this,o);" + handler_nl + "    }else if(t==='ch6_employee_exit_v25'){handleLastShiftExitV25(this,o);" + handler_nl + "    }else if(t==='note'||t==='journal'||t==='tape'){"
+          p = one(p, old_handler, new_handler, 'finale interaction handlers')
+          """
+          path.write_text(text[:start]+replacement+text[end:])
+          PY
       - name: Apply finale patch
         run: python3 scripts/tmp-apply-v25-finale.py
       - name: Commit finale and cleanup
