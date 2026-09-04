@@ -22,7 +22,7 @@ try{
       await page.screenshot({path:`accountability-artifacts/${view}.png`,fullPage:true});
       const remotes=[...new Set(remoteRequests)],errors=consoleMessages.filter(m=>m.type==='pageerror'||m.type==='error');
       const ch5=state.chapter5;
-      const ok=remotes.length===0&&errors.length===0&&state.story?.version===17&&state.chapter2?.version===21&&state.chapter3?.version===22&&state.chapter3?.readabilityPolish===true&&state.chapter4?.version===23&&state.chapter4?.visualReadability===true&&ch5?.version===24&&ch5?.reconstruction===true&&ch5?.rosterTerminal===true&&ch5?.kesslerCoverup===true&&ch5?.eliSetpiece===true&&ch5?.contractorSessions===14&&Array.isArray(ch5?.lastShiftEvidence)&&ch5.lastShiftEvidence.join(',')==='LS-07,LS-08,LS-09'&&ch5?.eliIsAttendant===false&&ch5?.sceneBuilt===true;
+      const ok=remotes.length===0&&errors.length===0&&state.story?.version===17&&state.chapter2?.version===21&&state.chapter3?.version===22&&state.chapter3?.readabilityPolish===true&&state.visual?.view===view&&ch5?.version===24&&ch5?.reconstruction===true&&ch5?.rosterTerminal===true&&ch5?.kesslerCoverup===true&&ch5?.eliSetpiece===true&&ch5?.contractorSessions===14&&Array.isArray(ch5?.lastShiftEvidence)&&ch5.lastShiftEvidence.join(',')==='LS-07,LS-08,LS-09'&&ch5?.eliIsAttendant===false&&ch5?.sceneBuilt===true;
       if(!ok)report.failed=true;report.views[view]={ok,state,consoleMessages,remoteRequests:remotes};
     }catch(err){report.failed=true;await page.screenshot({path:`accountability-artifacts/${view}-failure.png`,fullPage:true}).catch(()=>{});report.views[view]={ok:false,error:err.stack||String(err),consoleMessages,remoteRequests:[...new Set(remoteRequests)]};}
     finally{await page.close();}
