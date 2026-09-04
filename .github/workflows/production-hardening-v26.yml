@@ -2,7 +2,7 @@ name: Six-chapter production hardening v26
 
 on:
   push:
-    branches: [production-hardening-pass-v26]
+    branches: [main]
     paths:
       - 'game.js'
       - 'index.html'
