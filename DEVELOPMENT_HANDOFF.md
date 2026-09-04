@@ -3,523 +3,444 @@
 **Repository:** `maloysius-wq/the-attendant-pinewood-mall`  
 **Default branch:** `main`  
 **Deployment:** GitHub Pages from repository root  
-**Repository access rule:** **Always use the connected GitHub plugin/connector first for Pinewood repository work. Never claim access is unavailable before checking the GitHub plugin.**  
-**Source-of-truth rule:** Read `AGENTS.md` and this file first, then inspect the latest commits/current repository files. The repository and the user's newest explicit request override older chat history.
+**Repository access rule:** Always use the connected GitHub plugin/connector first for Pinewood repository work. Do not claim repository access is unavailable before checking GitHub.  
+**Source-of-truth rule:** Read `AGENTS.md`, this file, `STORY_BIBLE.md`, and `NARRATIVE_IMPLEMENTATION_PLAN.md`, then inspect current `main` and recent workflow runs. Current repository state and the user's newest explicit request override old chat history.
 
-## Current narrative/audio checkpoint - v20
+---
 
-The deployed loader now continues past the visual/local-asset stack through five narrative/audio layers:
+## 0. Current canonical checkpoint — Chapters 1–5 live
+
+As of September 4, 2026, the playable runtime on `main` is live through **Chapter 5: Accountability v24**.
+
+Important commits immediately before this handoff refresh:
+
+- `ee603433b3911b153e8aeaf60dd845e0572e8e06` — **Promote Chapter 5 Accountability v24 live**. This was squash-merged from PR #1 after both the global Runtime Audit and dedicated Chapter 5 Chromium regression passed.
+- `f17c80e5593e0511130236a2453e78b9ec535a81` — **Make East Wing regression validate the live loader**. This converted an obsolete Chapter 4 staging workflow into a live regression gate after v24 became terminal.
+
+The handoff refresh itself is documentation-only; when resuming development, inspect the actual current `main` HEAD rather than assuming the hashes above are still terminal.
+
+### Current playable chapter stack
+
+1. **Chapter 1 — Closing Time**
+   - Story Foundation v17
+   - Chapter 1 Story v18
+   - local pre-rendered PCAS voice v19
+   - reactive PCAS escalation v20
+   - Renee Ward introduction, Contractor Fourteen escalation, LS-01 through LS-03
+
+2. **Chapter 2 — Below Grade v21**
+   - expanded industrial/service-level chapter
+   - machinery/acoustic-risk identity
+   - relay D/E progression
+   - Gavin Cole / Contractor 13 material
+   - Chapter 2 handoff into Security
+
+3. **Chapter 3 — Eyes in Security v22 family**
+   - CCTV/security identity
+   - security route control and surveillance story systems
+   - Luis set-piece material
+   - readability/navigation polish through v22b/v22c/v22d
+   - v22d is the current readability/feed-forward foundation for later chapters
+
+4. **Chapter 4 — The East Wing v23 + v23b**
+   - information-distrust / human-history chapter
+   - staff lockers, Training, Receiving and route-map readability
+   - Tessa/Jo/Luis history and LS-06
+   - authored radio-imitation escalation and physical-verification mechanic
+   - `PRE-1986-LOG` evidence
+   - v23b is the final readability pass and now feeds forward cleanly into Chapter 5
+
+5. **Chapter 5 — Accountability v24**
+   - Records / Management investigation chapter
+   - roster reconstruction from Jo's pages, payroll and physical time-clock records
+   - LS-07 reconstructed final-shift roster
+   - LS-09 Martin Kessler management override / falsified all-clear
+   - sealed Eli Mercer utility passage
+   - Eli's remains and contractor badge
+   - LS-08 Eli final job recorder
+   - contractor sessions 01–14 reconciliation
+   - PA/accountability-control exit handoff toward Chapter 6
+   - evidence/readability polish keeps Kessler's packet and Eli's reveal legible without flattening the dark Records atmosphere
+
+### Current frontier
+
+**Chapter 6 — The Last Shift is the next feature-development frontier.**
+
+Do not begin by inventing a new Chapter 6 direction. Use the existing Chapter 6 section of `NARRATIVE_IMPLEMENTATION_PLAN.md` and the canon in `STORY_BIBLE.md`.
+
+The intended Chapter 6 identity is:
+
+- remembered 1997-state overlays,
+- location-specific present/memory visual groups,
+- historical staff silhouettes as environmental echoes rather than conversational ghosts,
+- final closing/accountability ritual using knowledge earned in Chapters 1–5,
+- final pursuit built from learned systems rather than merely increasing Attendant speed,
+- standard and true-ending logic based on evidence/accountability state.
+
+---
+
+## 1. Critical Chapter 5 canon and implementation facts
+
+These facts are now live and must not be casually rewritten:
+
+### LS-07 — Final Shift Roster
+
+LS-07 is reconstructed from **three independent sources**:
+
+1. Jo Alvarez's handwritten closing pages,
+2. Pinewood payroll archive,
+3. physical punch/time-clock records.
+
+The reconstructed physical exit count is **7 / 9**.
+
+Confirmed physical exits:
+
+- Jo Alvarez
+- Tessa Kim
+- Andre Bell
+- Denise Park
+- Marcus Reed
+- Nina Flores
+- Caleb Moss
+
+No valid physical exit event:
+
+- Luis Ortega
+- Eli Mercer
+
+The point of LS-07 is that Pinewood/PCAS's official clearance state does not match the physical record.
+
+### LS-09 — Martin Kessler management override
+
+Kessler's records establish that management approved an all-clear/reopening path despite an unresolved contractor exception. LS-09 is the management override evidence that opens the sealed route toward Eli's final location.
+
+Kessler should remain a human accountability/cover-up element. Do not simplify the mystery into “the computer did everything by itself.”
+
+### Eli Mercer and LS-08
+
+Eli's remains are found in the sealed utility/PA-control approach with contractor-work context, including his temporary badge/tool-case staging.
+
+LS-08 is Eli's final job recorder. It establishes that Eli was trying to resolve the unfinished closing/accountability condition and reach PA/records control.
+
+**Eli is not The Attendant.** Chapter 5 deliberately disproves that interpretation. Current telemetry expresses this as `eliIsAttendant:false`.
+
+### Contractor sessions 01–14
+
+Chapter 5 reveals the recurrence structure through legacy contractor-session data. Sessions 01–14 are part of the same accountability pattern; Contractor Fourteen is the current player/session and is reserved for the final resolution in Chapter 6.
+
+### Chapter 5 completion state
+
+Chapter 5 ends at the PA/accountability-control route with the narrative checkpoint moving toward **`last_shift`**.
+
+Chapter 6 must consume the reconstructed roster/systems knowledge rather than discard it and introduce an unrelated final puzzle.
+
+---
+
+## 2. Supernatural voice / imitation rule
+
+There are two distinct concepts that must not be conflated:
+
+1. **Chapter 4 authored radio imitation / information distrust** is implemented and intentional.
+2. A broader supernatural runtime voice-imitation system using browser/cloud synthesis is **not** implemented and should not be smuggled in as a shortcut.
+
+Permanent audio/runtime constraints remain:
+
+- no browser `speechSynthesis`,
+- no runtime ElevenLabs/OpenAI/Google TTS calls,
+- no remote runtime media,
+- authored PCAS voice assets remain local and pre-rendered,
+- subtitles/text must remain sufficient for story functionality with audio disabled.
+
+If Chapter 6 needs remembered or imitated human lines, author them deliberately within the established local-media pipeline and narrative rules. Do not create uncontrolled generative voice behavior.
+
+---
+
+## 3. Runtime loader architecture
+
+`game.js` reconstructs the encoded base runtime from `bundle2/`, normalizes local Three.js imports, then applies authored patches in order.
+
+The historical visual/system layers remain intentional and protected. The narrative tail currently feeds forward through:
 
 1. `patches/retail-geometry-v16.js.txt`
 2. `patches/story-foundation-v17.js.txt`
 3. `patches/chapter1-story-v18.js.txt`
 4. `patches/pcas-voice-v19.js.txt`
 5. `patches/chapter1-pcas-escalation-v20.js.txt`
+6. Chapter 2 Below Grade v21 patch layer
+7. Chapter 3 Security v22 and readability layers through v22d
+8. `patches/chapter4-east-wing-v23.js.txt`
+9. `patches/chapter4-east-wing-readability-v23b.js.txt`
+10. `patches/chapter5-accountability-v24.js.txt`
 
-Narrative authority is `STORY_BIBLE.md`; implementation staging is tracked in `NARRATIVE_IMPLEMENTATION_PLAN.md`. Story Foundation v17 supplies the six-chapter data framework, versioned save migration, people/evidence/timeline state, StoryEventManager and structured Journal. Chapter 1 Story v18 introduces Renee Ward by name, delays PCAS identifying the player as Contractor Fourteen until after power returns, fixes the Attendant's first-reveal countdown, and rewrites LS-01 through LS-03 as character-authored 1997 evidence.
+The terminal live source is now the v24 result, conceptually:
 
-PCAS Voice v19 remains the local pre-rendered voice infrastructure. Authored announcements in `story/pa-lines.json` are generated offline with eSpeak NG and processed offline with FFmpeg, then committed as OGG files under `assets/audio/pa/`. The browser never calls a cloud TTS provider or browser speech synthesis. The voice manifest and automated gates are manifest-driven so later authored PCAS lines can be added without hard-coding an old line count.
+```js
+const chapter5V24Source = await applyChapter5AccountabilityV24Runtime(
+  chapter4V23BSource,
+  chapter5V24Patch
+);
+const source = chapter5V24Source + '\n//# sourceURL=pinewood-runtime.js\n';
+```
 
-Chapter 1 PCAS Escalation v20 turns those announcements into a state-aware story system. Before power, PCAS is generic mall automation. The first restored circuit registers Contractor Fourteen. The second restored circuit produces a route-deviation response and Renee explicitly notices that Pinewood is reacting to the player's movement. Picking up the Master Service Key causes PCAS to flag a property discrepancy and Renee recognizes that the building is observing actions it should not have access to. At the freight elevator, PCAS and Renee give contradictory departure instructions. Ambient Chapter 1 announcements also escalate with breaker state, moving from public closing language toward contractor-specific surveillance/accountability language.
+### Feed-forward audit lesson
 
-Chapter 1 deliberately stops short of supernatural voice imitation. Runtime telemetry reports `window.__PINEWOOD_CH1_V20__={version:20,reactivePcas:true,reneeAware:true,voiceImitation:false}`. Renee imitation is reserved for a later chapter where it can function as a major escalation rather than an early gimmick.
+Older audits/workflows must **not** assume their chapter remains terminal forever.
 
-Verification checkpoint: the last runtime-affecting v20 source passed Runtime Audit #75 (run `33703984033`) and Store Visual Regression #38 (run `33703984005`). The current head then passed final Chapter 1 browser gate #40 (run `33704143839`) and GitHub Pages #287 (run `33704142656`). No manual WASD playtest was used.
+This caused two promotion problems:
 
-`scripts/audit-pcas-voice-v19.mjs` remains the local-voice/hash/runtime-TTS gate, while `scripts/audit-chapter1-pcas-v20.mjs` reconstructs and validates the reactive Chapter 1 escalation. Browser regression verifies the story/PCAS telemetry and same-origin runtime network policy.
+- the old v22d audit assumed v23b had to remain the terminal source,
+- the old Chapter 4 staging browser workflow tried to re-install v23/v23b after v24 was already live.
 
-## Permanent local-runtime-asset rule
+Both were corrected.
 
-**NEVER use remote assets or remote browser libraries at runtime. ALWAYS download/vendor verified dependencies into this repository and serve them locally.** This is a permanent no-regression rule.
+When adding Chapter 6, preserve this rule:
 
-- Models, GLTF/GLB buffers and model textures must be repository-local before use.
-- PBR/material textures, images and decals must be repository-local before use.
-- Sound effects, ambience and music must be repository-local before use.
-- Three.js, Pako and any future browser/runtime library must be pinned and served from this repository rather than a CDN.
-- External URLs are allowed only for provenance/documentation or development-time vendoring. They must never be browser fetch/load targets in the shipped game.
-- New third-party assets require verified licensing, a local vendored copy, source/pin/hash provenance, and an updated local-assets audit.
-- If an asset cannot be legally verified and vendored, omit it or choose another verified asset. Do not create a remote-runtime exception.
-- Do not restore the historical strategy of GitHub Raw/Poly Haven/OpenGameArt/CDN runtime URLs plus fallbacks.
-
----
-
-## 1. Game direction
-
-The Attendant is a first-person browser horror game set in a decaying 1990s mall. Pinewood should feel lonely, dirty, physically believable, and increasingly impossible: dead storefronts, stained tile, service corridors, old PA equipment, obsolete retail technology, failing lights, distant sound, and architecture that feels wrong without becoming arbitrary.
-
-The player is a contractor, not an action hero. The core loop is exploration, maintenance-style objectives, environmental discovery, hiding, sound/stamina management, distraction, and surviving The Attendant long enough to complete Pinewood's closing routine.
-
-Use verified CC0 assets where suitable. Keep `LICENSES.md` and in-game attribution current.
+- an older chapter audit should validate its own source and the expected feed-forward relationship,
+- if a newer chapter exists, require that newer chapter to consume the prior chapter's output,
+- do not require an obsolete older source to remain the final `source=` assignment.
 
 ---
 
-## 2. Runtime architecture
+## 4. Current validation gates
 
-`game.js` reconstructs the immutable encoded base runtime from `bundle2/`, normalizes Three.js imports, then applies authored patches in this order:
+### Global runtime audit
 
-1. `patches/worldprops-v1.js.txt`
-2. `patches/industrial-cc0-v1.js.txt`
-3. `patches/visual-fixes-v1.js.txt`
-4. `patches/store-polish-v2.js.txt`
-5. `patches/systems-polish-v3.js.txt`
-6. `patches/reliability-v4.js.txt`
-7. `patches/status-lights-v5.js.txt`
-8. `patches/audio-immersion-v6.js.txt`
-9. `patches/elevator-rebuild-v7.js.txt`
-10. `patches/fountain-rebuild-v8.js.txt`
-11. `patches/cassette-castle-rebuild-v9.js.txt` (historical/transitional Cassette Castle rebuild)
-12. Food Court builder replacement from `patches/foodcourt-v3.js.txt`
-13. `patches/poster-polish-v10.js.txt`
-14. `patches/footstep-mix-v11.js.txt`
-15. `patches/poster-diversity-v12.js.txt`
-16. `patches/cassette-castle-rebuild-v13.js.txt` (grounding/shelf-ban foundation)
-17. `patches/cassette-castle-rebuild-v14.js.txt` (**final authoritative Cassette Castle layout/finish override**)
-18. `patches/local-assets-v15.js.txt` (**final runtime asset localization layer; all media resolves to repository-local vendored files**)
-19. `patches/retail-geometry-v16.js.txt` (**final retail/elevator geometry reliability layer**)
-20. `patches/story-foundation-v17.js.txt` (**structured narrative/save/Journal foundation**)
-21. `patches/chapter1-story-v18.js.txt` (**Chapter 1 Renee/PCAS/evidence retrofit**)
-22. `patches/pcas-voice-v19.js.txt` (**local pre-rendered distorted overhead-PA voice layer**)
-23. `patches/chapter1-pcas-escalation-v20.js.txt` (**Chapter 1 state-aware reactive PCAS escalation; Renee observes the conflict; voice imitation deliberately deferred**)
+`.github/workflows/runtime-audit.yml` remains the broad static/reconstruction gate for the authored runtime stack and protected systems.
 
-Patch order is intentional. Poster v10 runs after the Food Court replacement, v12 diversifies the final store posters, v13 establishes the permanent geometry-grounding and banned-shelf foundation, and v14 runs last to replace the v13 store layout with the final open-floor design while preserving those grounding rules.
+The Chapter 5 merge commit `ee603433...` passed the post-merge Runtime Audit on `main`.
 
-`.github/workflows/runtime-audit.yml` runs:
+### Chapter 5 live regression
 
-- `scripts/audit-runtime.mjs`
-- `scripts/audit-footstep-mix-v11.mjs`
-- `scripts/audit-poster-diversity-v12.mjs`
-- `scripts/audit-cassette-castle-v13.mjs`
-- `scripts/audit-cassette-castle-v14.mjs`
-- `scripts/audit-local-assets-v15.mjs`
-- `scripts/audit-retail-geometry-v16.mjs`
-- `scripts/audit-story-foundation-v17.mjs`
-- `scripts/audit-chapter1-story-v18.mjs`
-- `scripts/audit-pcas-voice-v19.mjs`
-- `scripts/audit-chapter1-pcas-v20.mjs`
+`.github/workflows/staged-accountability-v24-regression.yml` is retained by filename for history, but its behavior is now a **live Chapter 5 Accountability regression**, not a staging installer.
 
-The v13 audit now verifies that v13 reconstructs cleanly as the foundation handed to v14. The v14 audit reconstructs the complete deployed chain through v14, checks the final Cassette Castle layout plus protected earlier systems, and syntax-checks the assembled runtime.
+It validates the committed live loader and runs Chromium capture for:
 
-Do not use `runtime-audit.js` as the deployed source of truth. It is a decoded reference/audit copy of the old base runtime.
+- `accountability-roster`
+- `accountability-kessler`
+- `accountability-eli`
+- `accountability-sessions`
 
----
+Expected invariants include:
 
-## 3. Architecture constraints
+- Chapter 5 version 24,
+- `sceneBuilt: true`,
+- LS-07 / LS-08 / LS-09 structure,
+- 14 contractor sessions,
+- `eliIsAttendant:false`,
+- no page errors,
+- no remote runtime media requests.
 
-Keep these systems separate:
+### Chapter 4 live regression
 
-1. authored walkable floorplan,
-2. rendered geometry,
-3. physical prop collision,
-4. AI navigation,
-5. story/game state.
+`.github/workflows/staged-east-wing-v23-regression.yml` is likewise retained by filename but is now a **live Chapter 4 East Wing regression**.
 
-Do not return to runtime store carving or decorative geometry mutating the fundamental walkability grid.
+It no longer mutates `game.js` in the runner. It audits the committed v23b feed-forward state, launches Chromium against the current live loader, and captures:
 
-The collision system supports **navigation-only blockers** via `physicalBlock:false`. This exists specifically so spaces such as the freight elevator cab can remain physically enterable by the player while being excluded from The Attendant's A* navigation.
+- `east-wing-map`
+- `east-wing-lockers`
+- `east-wing-training`
+- `east-wing-receiving`
+
+The corrected live gate passed on `main` at `f17c80e5593e0511130236a2453e78b9ec535a81`.
+
+### Chapter-specific audits relevant to the frontier
+
+At minimum preserve and run:
+
+- `scripts/audit-chapter3-security-readability-v22d.mjs`
+- `scripts/audit-chapter4-east-wing-v23.mjs`
+- `scripts/audit-chapter4-east-wing-readability-v23b.mjs`
+- `scripts/audit-chapter5-accountability-v24.mjs`
+- `scripts/capture-east-wing-v23.mjs`
+- `scripts/capture-accountability-v24.mjs`
+
+When Chapter 6 is introduced, add a dedicated Chapter 6 audit and deterministic browser capture gate rather than relying only on the global runtime audit.
 
 ---
 
-## 4. Controls
+## 5. Permanent local-runtime-asset rule
 
-- WASD: move
-- Mouse: look
-- Shift: sprint
-- C: hold breath / move quietly
-- E: interact
-- F: flashlight
-- Q: throw decoy
-- J: journal
-- Esc: pause
+**Never use remote assets or remote browser libraries at runtime. Download/vendor verified dependencies into this repository and serve them locally.**
 
----
+- Models, GLTF/GLB buffers and textures must be repository-local before runtime use.
+- PBR/material textures, images and decals must be local.
+- Sound effects, ambience, music and voice assets must be local.
+- Three.js, Pako and future browser/runtime libraries must be pinned and served locally rather than from a CDN.
+- External URLs are allowed only for provenance/documentation or development-time acquisition.
+- New third-party assets require verified licensing, a vendored local copy, provenance and local-assets audit coverage.
+- If licensing/provenance cannot be verified, omit the asset or choose another.
+- Do not restore remote GitHub Raw / Poly Haven / OpenGameArt / CDN runtime fallbacks.
 
-## 5. The Attendant
+### Cassette Castle permanent shelf ban
 
-The Attendant is an original black articulated humanoid silhouette with white emissive eyes, blurry/fuzzy edge treatment, gait animation, glitch particles, and afterimages.
-
-Important behavior:
-
-- physical contact kills outside a valid hiding/safe state,
-- decoys divert and briefly stun/distract,
-- sprinting is faster and louder,
-- holding C is quieter/slower and consumes breath,
-- danger/hearing uses route/path distance rather than straight-line distance through walls,
-- walls genuinely protect from impossible through-wall proximity sensing.
-
-The freight elevator cab is an AI-excluded end-of-chapter space. The Attendant cannot path into the cab, and a small cab safety check prevents contact-death edge cases during the active elevator sequence.
-
----
-
-## 6. Audio
-
-The old generated Web Audio SFX engine is retired. Non-music SFX use locally vendored CC0 recordings in `assets/audio/cc0/`.
-
-All vendored files are normalized with FFmpeg EBU R128 processing to approximately:
-
-- **-20 LUFS integrated**
-- **-2 dBTP true peak**
-- **7 LU target LRA**
-- stereo 44.1 kHz Vorbis OGG
-
-### Footsteps: authoritative v11 mix
-
-Current footstep mix:
-
-- normal dry gain approximately **`.09`**,
-- sprint dry gain approximately **`.14`**,
-- quiet/held-breath movement further attenuates the cue,
-- two low-level delayed copies at roughly **110 ms** and **230 ms** preserve the subtle empty-mall slapback/echo at the same proportional mix.
-
-These values are intentionally about 50% of the previous `.18/.28` base gains. Do not restore the louder values unless explicitly requested.
-
-### Mall music
-
-The CC0 mall loop remains intentionally degraded: roughly half-speed playback, pitch preservation disabled, delayed copies for hollow slapback, and occasional playback-rate drift. Threat music fades in with The Attendant's route-distance proximity while the mall loop recedes.
-
-### Cassette Castle localized mix
-
-v14 reduces roomtone to roughly **62%** and static to roughly **72%** of their normal loop mix while the listener is physically inside Cassette Castle. This is localized ambience shaping only. It does not change threat music logic.
-
----
-
-## 7. Breakers
-
-Chapter 1 breaker IDs: **A / B / C**  
-Chapter 2 relay IDs: **D / E**
-
-Current breaker behavior:
-
-- wall-mounted CC0 Kenney Factory Kit cabinet housing,
-- dim red status LED while off,
-- bright red LED plus restrained local glow when restored,
-- physical lever rests at a clear OFF angle,
-- lever smoothly animates to the opposite ON angle when activated,
-- recorded normalized CC0 breaker-switch sound.
-
-Do not revert the active LED to green or remove the lever animation.
-
----
-
-## 8. Freight elevator: authoritative implementation
-
-`patches/elevator-rebuild-v7.js.txt` is authoritative.
-
-The old Chapter 1 procedural `East Service Shutter` directly in front of the elevator is completely retired. Do not reintroduce it.
-
-Visible architecture is assembled from verified Kenney CC0 GLB content. The threshold blocker stays solid until the visible leaves are essentially fully open. The Master Service Key operates the elevator's own service lock.
-
-Required Chapter 1 sequence:
-
-1. restore A/B/C,
-2. acquire Master Service Key,
-3. unlock/call freight elevator,
-4. imported leaves open,
-5. player physically enters,
-6. doors close,
-7. player is centered/locked during ride,
-8. chapter transitions after the ride.
-
-The doors remain open indefinitely while waiting for the player. The Attendant is excluded from the cab and boarding has short grace windows so entering the cab reliably ends the chase.
-
-Never restore the old shutter, second door collision, key-to-shutter behavior, early collision disable, or AI cab access.
-
----
-
-## 9. Central fountain: authoritative implementation
-
-`patches/fountain-rebuild-v8.js.txt` is authoritative.
-
-The old two-cylinder fountain and oversized `3.2 × 3.2 m` square collider are retired.
-
-Current fountain rules:
-
-- center remains exactly at `(0,0,0)`,
-- visible footprint radius **1.64 m**,
-- custom-authored basin/rim exactly fills the existing spot,
-- Poly Haven **Marble Tiles** on the worn rim/coping,
-- Poly Haven **Grey Tiles** inside the dry basin,
-- pinned Kenney Starter Kit City Builder `pavement-fountain.glb` fitted as the center feature,
-- dry basin includes mineral/waterline staining, rust, damp remnant, coins and paper trash,
-- no active water surface or spray,
-- nine narrow collider strips approximate the circular footprint without changing the authored floor grid.
-
----
-
-## 10. Cassette Castle: authoritative v14 rebuild
-
-`patches/cassette-castle-rebuild-v14.js.txt` is the **final authoritative Cassette Castle layout, visual-finish, and localized-ambience implementation**. It runs after v13.
-
-v13 remains a required foundation. Its model-bounds grounding helpers, real Poly Haven cassette-component stock, and permanent tiny-shelf ban remain active and protected. v14 replaces the v13 floor layout, not the safety rules that made v13 necessary.
-
-### Permanent shelf ban
-
-The following resources are **permanently banned from all Pinewood runtime use**:
+Do not reintroduce the historically broken tiny shelf resources:
 
 - `cassetteShelfLarge`
 - `cassetteShelfSmall`
 - Quaternius `Shelf Large.glb`
 - Quaternius `Shelf Small.glb`
-- any URL/alias containing `Shelf%20Large.glb`, `Shelf%20Small.glb`, `/ShelfLarge/`, or `/ShelfSmall/`
+- aliases/URLs containing the corresponding Shelf Large / Shelf Small paths
 
-v13 scrubs those historical resources from the assembled runtime, v14 verifies they remain absent, and `AGENTS.md` repeats the prohibition. Do not rename, re-add, or retry these resources.
-
-### Geometry-grounding rule
-
-Cassette Castle visible furniture and merchandise must not use guessed absolute world-Y placement.
-
-The retained v13 helpers use `THREE.Box3` bounds to:
-
-- scale imported furniture to intended human-scale target height,
-- ground floor fixtures/stools/counters to the floor,
-- discover usable shelf support levels from real fixture geometry,
-- anchor cassette stock to those supports,
-- measure counter tops before placing cassette players, loose tapes, or registers.
-
-Important retained helpers include:
-
-- `cassetteWorldBox(...)`
-- `cassetteScaleToHeight(...)`
-- `placeCassetteGrounded(...)`
-- `placeCassetteOnSurface(...)`
-- `cassetteShelfLevels(...)`
-- `stockCassetteFixture(...)`
-- `addCassetteFullRack(...)`
-
-If the real Poly Haven cassette/tape component is unavailable, those stock positions remain empty. If a required CC0 model fails or has invalid bounds, omit the affected object rather than create a visible fake primitive replacement or leave unsupported props floating.
-
-### v14 final store layout
-
-The store is intentionally open-plan rather than a shelf maze:
-
-- **six** full-height Kenney Furniture Kit `bookcaseOpen.glb` perimeter racks, three on the left wall and three on the rear wall, target measured height **2.00 m**,
-- **three** true low Kenney Furniture Kit `bookcaseOpenLow.glb` center merchandising fixtures, target measured height **1.08 m**,
-- a coherent **three-module** listening bar on the right using imported Kenney Space Kit `KSI_counter.glb` modules,
-- one grounded Poly Haven cassette player per listening module,
-- one grounded Quaternius stool per listening module,
-- real extracted Poly Haven tape components placed only when available,
-- a separate imported Kenney `KSI_counter.glb` checkout with grounded register near the entrance side,
-- the physical CC0 hiding cabinet preserved at the back-right.
-
-v14 retires the v13 center double-rack runs and the three isolated round listening-table islands. Do not restore either layout.
-
-### v14 store finishes and lighting
-
-v14 adds a visual-only retail finish group:
-
-- dark blue-grey store floor treatment,
-- muted blue wall panels,
-- warm worn accent strips,
-- restrained wall rail detail,
-- three localized warm dying-store point lights.
-
-The finish group is explicitly visual-only and must not add colliders, carve floor cells, or alter AI navigation.
-
-### Retired Cassette Castle systems
-
-Do not restore:
-
-- Mini Market baked-stock browsing shelf,
-- `fallbackCassette(...)`,
-- generated cassette bodies/reels,
-- procedural listening torus/rings,
-- primitive shelf/table/box fallbacks,
-- v9 `placeCassetteCc0(...)`,
-- `stockRealCassetteFixture(...)`,
-- `addCassetteDisplayFixture(...)`,
-- `dressCassetteListeningTable(...)`,
-- v13 center `addCassetteDoubleRackBay(...)` layout usage,
-- v13 isolated `dressGroundedListeningStation(...)` layout usage,
-- hard-coded absolute world-Y placement for visible shelf/table/counter stock.
-
-Vinyl-record props remain omitted because previously identified candidates were not all CC0. Do not slip CC-BY record/turntable assets into the project to fill the category.
+Cassette Castle v14 remains authoritative for the final store layout, while v13's grounding/safety rules remain protected foundations.
 
 ---
 
-## 11. Store poster marketing: v10 + v12
+## 6. Architecture constraints that must survive Chapter 6
 
-`patches/poster-polish-v10.js.txt` establishes the Chapter 1 store poster campaigns. `patches/poster-diversity-v12.js.txt` is the final poster-layout authority.
+Keep these systems conceptually separate:
 
-The old `makePoster(...)` renderer is retired.
+1. authored walkable floorplan,
+2. rendered geometry,
+3. physical prop collision,
+4. Attendant AI navigation,
+5. story/save state.
 
-Each store keeps one v10 hero design and uses two visually distinct v12 alternates, including different illustration/layout systems and different physical frame treatments.
+Do not return to decorative geometry mutating the fundamental walkability grid.
 
-### Sunburst Arcade
+Navigation-only blockers using `physicalBlock:false` remain valid where the player can enter a space that should be excluded from Attendant pathfinding.
 
-- **GALAXY STRIKE**: retained v10 neon-grid hero
-- **TOKEN FRENZY**: v12 radial token-promotion design
-- **PRIZE VAULT**: v12 ticket-redemption/prize-catalog design
-
-### Video Planet
-
-- **BE KIND • REWIND**: retained v10 rental-store hero
-- **MIDNIGHT RENTALS**: v12 horror-night one-sheet design
-- **2 NIGHTS • 1 PRICE**: v12 membership/rental-coupon design
-
-Do not replace these with copyrighted real movie posters.
-
-### Pinewood Food Court
-
-- **SLICE CITY**: retained v10 food-promo hero
-- **POLAR POP**: v12 soda/refill advertisement
-- **WOK THIS WAY**: v12 illustrated takeout/noodle/combo design
-
-### Cassette Castle
-
-- **NEW WAVE**: retained v10 music-zine hero
-- **LISTEN BEFORE YOU BUY**: v12 listening/headphones/audio-waveform design
-- **PINEWOOD TOP 40**: v12 ranked chart-board design
-
-Do not collapse the posters back into one shared composition with swapped text/colors.
+Do not solve final-chapter difficulty by breaking route-distance sensing, wall protection, hiding rules, decoy behavior, or the learned sound/stamina model.
 
 ---
 
-## 12. Chapter/story arc
+## 7. Player / Attendant fundamentals
 
-### Chapter 1: Closing Time
-Restore A/B/C, find the Master Service Key, use the freight elevator, and discover that it descends instead of escaping.
+Controls remain:
 
-### Chapter 2: Service Level
-Find the security keycard, restore D/E, and reach the north stairwell. The work order is revealed to have been filed in 1997.
+- WASD — move
+- Mouse — look
+- Shift — sprint
+- C — hold breath / move quietly
+- E — interact
+- F — flashlight
+- Q — throw decoy
+- J — journal
+- Esc — pause
 
-### Chapter 3: The Last Shift
-Recover the Last Shift material and end Pinewood's closing/accountability routine from PA control. Do not reduce the ending to simply cutting power.
+The Attendant remains an original articulated black humanoid silhouette with emissive eyes, fuzzy/glitched edge treatment, gait animation, particles and afterimages.
 
-There are nine numbered Last Shift logs, `LS-01` through `LS-09`. Recovering all nine changes the ending.
+Important behavior to preserve:
 
----
+- valid physical contact kills outside hiding/safe states,
+- decoys divert/distract,
+- sprint is faster/louder,
+- quiet movement is slower and consumes breath,
+- danger/hearing respects navigable route/path distance rather than impossible through-wall Euclidean sensing,
+- authored safe/AI-excluded spaces must remain reliable.
 
-## 13. Chapter 1 stores
-
-The four authored walkable storefronts are:
-
-- Sunburst Arcade
-- Video Planet
-- Pinewood Food Court
-- Cassette Castle
-
-Preserve their distinct visual identities and keep entrances/navigation clear.
-
-Food Court v3 specifically uses clamped wall imagery (`THREE.ClampToEdgeWrapping`, repeat `(1,1)`) to prevent the old tiled-wallpaper regression.
-
-Named storefront neon is game-specific local art with independent randomized flicker.
-
-Cassette Castle must remain visibly distinct from Video Planet. Video Planet is a rental/video store. Cassette Castle is an analog music shop with open sightlines, perimeter browsing racks, low center merchandising fixtures, and a dedicated listening bar.
+Chapter 6's final pursuit should build on these learned rules instead of replacing them with arbitrary speed multiplication.
 
 ---
 
-## 14. Hiding / menus / death
+## 8. Chapter 6 implementation target — The Last Shift
 
-Hiding cabinets are physical CC0 cabinet models with animated doors and camera movement into/out of the cabinet. Do not reduce hiding to teleport-only behavior.
+Follow the existing plan rather than improvising a seventh mystery layer.
 
-Opening a modal/menu must pause gameplay, pause/silence appropriate audio, release pointer lock, and render above the cabinet peek mask.
+### 8.1 Memory overlay system
 
-Death displays:
+Create authored, location-specific alternate states.
 
-**YOU'VE BEEN ATTENDED TO**
+Supported areas should be able to define:
 
-with the existing gore/death presentation and restart/quit flow.
+- present-state group,
+- 1997-memory group,
+- transition lighting parameters,
+- transition audio parameters,
+- historical silhouette events.
 
----
+Do not globally swap arbitrary materials across the whole mall. The remembered state needs controlled, deterministic composition suitable for regression screenshots.
 
-## 15. Navigation baseline
+### 8.2 Staff silhouettes
 
-Most recently recorded authored reachability baseline:
+They are environmental echoes, not friendly NPC ghosts.
 
-- Chapter 1: **1852 / 1852** walkable cells reachable
-- Chapter 2: **1190 / 1190**
-- Chapter 3: **1405 / 1405**
+They should:
 
-Chapter 1 store entrances, breakers A/B/C, Master Service Key, and elevator approach must remain reachable.
+- perform a short closing action,
+- correspond to known 1997 events,
+- never directly converse with the player,
+- vanish when the remembered state collapses.
 
-The elevator AI-only exclusion, fountain collision, and Cassette Castle fixture collision must stay separate from authored floor walkability.
+### 8.3 Final closing sequence
 
----
+The implementation plan's required sequence is:
 
-## 16. Asset/licensing policy
+1. acknowledge staff departures,
+2. clear service/key discrepancies,
+3. process Eli Mercer,
+4. observe `ACCOUNTABILITY: 1`,
+5. realize Contractor 14 is the remaining account,
+6. clear the contractor session at physical time/attendance control,
+7. reach the employee exit while PCAS recalls Contractor 14.
 
-Major documented sources include Kenney kits, Quaternius, KayKit Dungeon Remastered, Poly Haven, GGBotNet/OpenGameArt VHS, Reactorcore blood decals, and OpenGameArt audio/music. See `LICENSES.md` and `assets/audio/cc0/README.md` for exact provenance and normalization notes.
+This sequence should consume the evidence/history earned earlier, especially LS-07/08/09.
 
-Cassette Castle v14 provenance is now explicitly documented in `LICENSES.md`, including Kenney Furniture Kit `bookcaseOpenLow.glb` and Kenney Space Kit `KSI_counter.glb`.
+### 8.4 Final Attendant behavior
 
-For third-party store props/models, preserve the project's CC0-only policy. If an attractive candidate is CC-BY or unclear, do not embed it. Either find a verified CC0 alternative or omit that category.
+Use learned rules and destination bias rather than simply multiplying speed:
 
-The store posters are original Pinewood canvas artwork and use no third-party marketing/movie/album artwork.
+- active staff-location calls can bias search destination,
+- player can predict and exploit route behavior,
+- environmental noise and controlled calls remain useful,
+- closing zones can alter route choices.
 
-Keep provenance pinned/documented when adding assets.
+The intended feeling is mastery under pressure.
 
----
+### 8.5 Ending integrity
 
-### Local runtime assets — authoritative v15
+Before treating the six-chapter story as production-ready, implement/finish the story-integrity and deterministic narrative simulation work described in `NARRATIVE_IMPLEMENTATION_PLAN.md`.
 
-`patches/local-assets-v15.js.txt` runs after Cassette Castle v14 and rewrites the final assembled runtime to repository-local vendored media. `assets/vendor/runtime/manifest.json` is the authoritative source-to-local map and includes SHA-256 provenance. The migration currently vendors **59 top-level runtime media assets plus 30 dependent GLTF/model files**.
+Key ending constraints:
 
-Three.js **0.180.0** is served from `vendor/three/`; Pako **2.1.0** is served from `vendor/pako/`. The deployed import map and decompression fallback do not use unpkg or jsDelivr. Music that was formerly fetched from OpenGameArt is also served from the repository.
-
-`scripts/audit-local-assets-v15.mjs` hash-verifies the vendored asset graph, verifies local Three.js/Pako files, reconstructs the complete runtime through v15, rejects surviving external media URLs, and syntax-checks the final localized module. A runtime change is not complete unless this audit passes.
-
-The source/provenance URLs retained in `LICENSES.md`, the vendoring script, and the manifest are documentation/development-time inputs only. They are not runtime dependencies.
-
-## 17. Development workflow
-
-For every future Pinewood runtime change:
-
-1. **Use the GitHub plugin first.**
-2. Read `AGENTS.md` and this handoff.
-3. Inspect current files and latest commits.
-4. Preserve unrelated working systems.
-5. Update/add a patch rather than mutating the encoded bundle directly.
-6. Keep `game.js` patch order explicit.
-7. Update/add focused audit coverage for changed guarded behavior.
-8. Require the relevant runtime audits to pass.
-9. Inspect relevant visual-regression artifacts when a visual system changes.
-10. Verify the GitHub Pages build/deploy on the final head.
-11. Do not perform manual interactive WASD playtests. Use automated runtime audits and deterministic visual regression instead.
-
-Current CI coverage includes normalized CC0 audio, v11 footstep mix, zero oscillator/random-noise SFX synthesis, breaker lever animation, authoritative elevator state/collision rules, AI-only cab exclusion, key-gated elevator progression, exact-fit fountain invariants, Food Court v3, v10/v12 poster systems, and Cassette Castle v14's permanent tiny-shelf ban, open-floor fixture markers, geometry-grounded support logic, visual-only finish rule, localized ambience change, protected elevator/fountain invariants, and final JavaScript syntax.
+- exactly six chapter definitions,
+- LS-01 through LS-09 stable and unique,
+- standard ending reachable without every optional item,
+- true-ending path requires the intended complete evidence state,
+- Eli cannot be cleared before required evidence,
+- Contractor Fourteen cannot be resolved before Chapter 6,
+- save migration remains valid.
 
 ---
 
-## 18. Verified Local Assets v15 checkpoint
+## 9. Recommended development sequence from here
 
-The remote-runtime reliability issue recorded in the former v14 checkpoint is **resolved by Local Assets v15**. The browser no longer depends on third-party hosts for runtime models, model sidecars, PBR textures, decals/images, sound effects, ambience, music, Three.js, or Pako.
+1. Re-read the Chapter 6 sections of `STORY_BIBLE.md` and `NARRATIVE_IMPLEMENTATION_PLAN.md`.
+2. Inspect current `game.js`, `story/*`, v24 state contracts and current workflow gates.
+3. Design Chapter 6 as a new feed-forward patch after v24, preserving the live Chapters 1–5 chain.
+4. Implement the smallest complete Chapter 6 vertical slice first: chapter definition + map/entry + memory-overlay framework + first deterministic silhouette event.
+5. Add a Chapter 6 static/reconstruction audit immediately.
+6. Add deterministic Chapter 6 visual-test views immediately, not after all feature work.
+7. Build the final closing sequence in ordered, testable stages.
+8. Add final-pursuit route behavior without regressing existing Attendant systems.
+9. Implement standard/true-ending state resolution and story-integrity checks.
+10. Run global runtime audit plus Chapters 4–6 browser gates before promoting any final-chapter milestone.
 
-### Authoritative v15 local-asset state
-
-- `patches/local-assets-v15.js.txt` runs after Cassette Castle v14 and rewrites the assembled runtime to repository-local media.
-- `assets/vendor/runtime/manifest.json` records the source/provenance mapping, local path, byte count, SHA-256 digest, and dependent model files.
-- The migration contains **59 top-level runtime media assets plus 30 dependent GLTF/model files**.
-- Three.js **0.180.0** and Pako **2.1.0** are served locally from `vendor/three/` and `vendor/pako/`.
-- Three.js r180's internal `three.core.js` dependency is also vendored locally. Its exact Git blob SHA is `7dcd0fbcbc04b8d9a20ecb96c1ce344cb55150d5`.
-- Poly Haven cassette-player sidecar textures and other GLTF dependencies are local, preserving the real cassette/tape component used by Cassette Castle v13/v14.
-- The freight elevator's no-fake-visible-fallback rule, v8 fountain footprint, v11 footsteps, v12 posters, v13 geometry grounding/shelf ban, and authoritative v14 Cassette Castle layout remain protected.
-- `scripts/audit-local-assets-v15.mjs` rejects surviving external runtime-media URLs, verifies local asset hashes, verifies the exact Three.js core dependency, reconstructs the complete runtime through v15, checks protected invariants, and syntax-checks the final module.
-
-### Exact automated verification
-
-The final local-assets runtime and permanent read-only browser-verification setup were verified across these commits:
-
-- `64acc283da2c311dc1b866e540b331bec3c23e2b` — `Vendor Three.js r180 core dependency`
-- `220a837afbb35519cbaf3f089bda38361af070be` — `Audit pinned Three.js core dependency`
-- `a38afe5e918bdd22af526da6bfef3ce90f360189` — `Make local browser verification self-contained`
-- `53d6cbe6a2aa2ec706fdcd790ae4e294b0fa1198` — `Remove one-shot Three.js vendor workflow`
-
-Verification results:
-
-- Runtime audit: **run 33442213807**, run #49, **success**
-- Store visual regression: **run 33442231414**, run #12, **success**
-- Visual artifact: **9776792785**, `pinewood-store-visuals`, 562,140 bytes, digest `sha256:9301188f822177033ff5d7102d53e97fe5bf74e497cd65954c38eeab4a73d6a5`
-- GitHub Pages after the permanent workflow cleanup: **run 33442241162**, run #176, **success**
-
-The run #12 artifact's `report.json` reports `failed: false`, all three deterministic Cassette Castle views are `ok: true`, and no page errors or runtime `assetFailures` were reported. `cassette-front.png`, `cassette-center.png`, and `cassette-listening.png` were downloaded and visually inspected; the authoritative v14 open-floor store, low center fixtures, perimeter racks, checkout, three-module listening bar, stools, and warm localized lighting remain present after localization.
-
-### Residual non-network warnings
-
-The deterministic software-WebGL harness still emits two local-model warnings that are **not external fetch failures**: the Kenney fountain model can hit its model-load timeout and retain the already-approved v8 modeled fallback, and the elevator floor GLB reports degenerate/invalid bounds while the protected elevator state/collision rules remain intact. These should be treated as separate model/runtime-hardening work if revisited; they do not reintroduce remote dependencies.
-
-**Permanent playtest rule:** Do not perform manual interactive WASD playtests for Pinewood. Automated runtime audits and deterministic visual-regression captures are the required verification methods unless the user explicitly changes this rule.
+Every intermediate `main` commit must remain bootable.
 
 ---
 
-## 19. Fresh-session restart prompt
+## 10. Known hygiene / historical notes
 
-> Continue development of The Attendant: Pinewood Mall. **Use the GitHub plugin first for all repository work.** Use `maloysius-wq/the-attendant-pinewood-mall` as the source of truth. Read `AGENTS.md` and `DEVELOPMENT_HANDOFF.md` first, inspect the latest commits and relevant current files, preserve all documented no-regression constraints, implement directly in the repo, run the relevant runtime audits, inspect visual artifacts for visual changes, and verify GitHub Pages after game changes. Local Assets v15 is authoritative: **never use remote runtime assets or CDN browser libraries; always verify, vendor, document, and serve third-party runtime dependencies locally from this repository.** Cassette Castle v14 remains authoritative, while v13's permanent Quaternius Shelf Large/Shelf Small ban and geometry-grounding rules remain mandatory. The old stale/timing-out remote dependency issue from v14 has been resolved; do not reintroduce those URLs. Do not perform a manual interactive WASD playtest; rely on automated audits and deterministic visual-regression captures.
+- PR #1 was the Chapter 5 promotion PR and was squash-merged successfully.
+- Temporary Chapter 5 promotion/repair workflows created during diagnosis were removed after they served their purpose.
+- Do not recreate self-editing CI workflows unless there is no safer option. Direct repository edits plus read-only validation are preferred.
+- `node --check game.js` is not a valid standalone gate here because `game.js` uses top-level `await` while the repository is not configured as a Node ESM package. Existing audits syntax-check the assembled runtime through `.mjs` where appropriate.
+- Some workflow filenames still contain the word `staged` for historical continuity even though the gates now validate the live runtime. Trust workflow content/current behavior, not the old filename.
+- The old handoff's “current checkpoint v20” statement is obsolete and should never be used as a development baseline again.
+
+---
+
+## 11. Before editing anything in a future chat
+
+A future developer/chat should perform these checks in order:
+
+1. Read `AGENTS.md`.
+2. Read this `DEVELOPMENT_HANDOFF.md`.
+3. Read `STORY_BIBLE.md` and `NARRATIVE_IMPLEMENTATION_PLAN.md` for the chapter being changed.
+4. Fetch current `main` HEAD and recent commits.
+5. Inspect recent GitHub Actions results, especially Runtime Audit and chapter-specific browser regressions.
+6. Read the current files being modified. Do not rely on snippets from an older conversation.
+7. Keep all runtime assets local and licensed/provenanced.
+8. Preserve feed-forward compatibility so adding Chapter 6 does not make Chapter 3/4/5 audits falsely demand that they remain terminal.
+
+**Current feature frontier: Chapter 6 — The Last Shift.**
