@@ -31,7 +31,8 @@ jobs:
             text=text.replace(old,new)
           path.write_text(text)
           PY
-          node --check patches/chapter6-last-shift-v25.js.txt
+          cp patches/chapter6-last-shift-v25.js.txt /tmp/chapter6-last-shift-v25.mjs
+          node --check /tmp/chapter6-last-shift-v25.mjs
       - name: Commit repair and cleanup
         run: |
           git config user.name 'github-actions[bot]'
