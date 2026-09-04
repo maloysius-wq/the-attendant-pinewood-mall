@@ -5,6 +5,9 @@ on:
     branches: [production-hardening-pass-v26]
     paths:
       - '.github/workflows/identity-preview-v26.yml'
+      - 'patches/production-readability-v26.js.txt'
+      - 'scripts/audit-production-readability-v26.mjs'
+      - 'scripts/smoke-production-v26.mjs'
 
 permissions:
   contents: read
