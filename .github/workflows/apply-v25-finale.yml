@@ -34,7 +34,7 @@ jobs:
           note_anchor = "}else if(t==='note'||t==='journal'||t==='tape'){"
           note_at = p.find(note_anchor, handler_at)
           if note_at < 0: raise SystemExit('finale note-handler anchor missing after Chapter 6 handler')
-          insert = "}else if(t==='ch6_employee_exit_v25'){handleLastShiftExitV25(this,o);" + chr(92) + "\n    "
+          insert = "}else if(t==='ch6_employee_exit_v25'){handleLastShiftExitV25(this,o);" + chr(92) + chr(10) + "    "
           p = p[:note_at] + insert + p[note_at:]
           """
           path.write_text(text[:start]+replacement+text[end:])
