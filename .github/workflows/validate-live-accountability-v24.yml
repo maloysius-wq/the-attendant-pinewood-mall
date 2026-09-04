@@ -27,7 +27,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - name: Test corrected v24 audit assertions and expose syntax context
+      - name: Test corrected v24 patch and audit assertions
         run: |
           python3 - <<'PY'
           from pathlib import Path
@@ -38,10 +38,11 @@ jobs:
               ("type:'ch5_roster_terminal_v24'", "'ch5_roster_terminal_v24','FINAL SHIFT ROSTER'"),
               ("type:'ch5_sessions_terminal_v24'", "'ch5_sessions_terminal_v24','CONTRACTOR SESSIONS'"),
               ("this.storyV17.evidence('LS-07'", "game.storyV17.evidence('LS-07'"),
+              ("  window.__PINEWOOD_CH5_V24__.sceneBuilt=true;\n}\n`);", "  window.__PINEWOOD_CH5_V24__.sceneBuilt=true;\n}\n\nasync function decorateLevel(world,idx){\n`);"),
           ]
           for old,new in fixes:
               if s.count(old)!=1:
-                  raise SystemExit(f'expected one patch self-check marker {old!r}, found {s.count(old)}')
+                  raise SystemExit(f'expected one patch marker {old!r}, found {s.count(old)}')
               s=s.replace(old,new,1)
           p.write_text(s)
 
@@ -51,12 +52,7 @@ jobs:
           new="game.storyV17.evidence('LS-07'"
           if t.count(old)!=1:
               raise SystemExit(f'expected one v24 audit marker {old!r}, found {t.count(old)}')
-          t=t.replace(old,new,1)
-          needle='await syntaxCheck(source);'
-          diag="const __v24Lines=source.split('\\n');console.error(__v24Lines.slice(1700,1764).map((line,i)=>`${1701+i}: ${line}`).join('\\n'));await syntaxCheck(source);"
-          if t.count(needle)!=1:
-              raise SystemExit(f'expected one syntax-check marker, found {t.count(needle)}')
-          a.write_text(t.replace(needle,diag,1))
+          a.write_text(t.replace(old,new,1))
           PY
       - name: Verify live v24 source and loader chain
         run: node scripts/audit-chapter5-accountability-v24.mjs
