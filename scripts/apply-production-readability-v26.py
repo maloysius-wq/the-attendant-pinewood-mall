@@ -47,16 +47,3 @@ game = replace_once(
     'v26 terminal source',
 )
 game_path.write_text(game)
-
-hardening_path = Path('.github/workflows/production-hardening-v26.yml')
-hardening = hardening_path.read_text()
-hardening = replace_once(
-    hardening,
-    '            scripts/audit-chapter6-last-shift-v25.mjs\n            scripts/audit-runtime.mjs',
-    '            scripts/audit-chapter6-last-shift-v25.mjs\n            scripts/audit-production-readability-v26.mjs\n            scripts/audit-runtime.mjs',
-    'v26 audit gate',
-)
-hardening_path.write_text(hardening)
-
-Path('.github/workflows/apply-production-readability-v26.yml').unlink()
-Path('scripts/apply-production-readability-v26.py').unlink()
