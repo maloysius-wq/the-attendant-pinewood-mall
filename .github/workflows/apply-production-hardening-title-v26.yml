@@ -1,0 +1,42 @@
+name: Apply production hardening title fix v26
+
+on:
+  push:
+    branches: [production-hardening-pass-v26]
+    paths:
+      - '.github/workflows/apply-production-hardening-title-v26.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: production-hardening-pass-v26
+      - name: Correct present-day title kicker
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          path=Path('index.html')
+          text=path.read_text()
+          old='PINEWOOD MALL • 1997'
+          new='PINEWOOD MALL • AFTER HOURS'
+          if text.count(old)!=1:
+              raise SystemExit(f'expected exactly one title kicker, found {text.count(old)}')
+          if new in text:
+              raise SystemExit('replacement title kicker already present unexpectedly')
+          path.write_text(text.replace(old,new))
+          PY
+          grep -Fq 'PINEWOOD MALL • AFTER HOURS' index.html
+          ! grep -Fq 'PINEWOOD MALL • 1997' index.html
+      - name: Commit fix and remove one-shot workflow
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git rm .github/workflows/apply-production-hardening-title-v26.yml
+          git add index.html
+          git commit -m 'Correct present-day title screen kicker'
+          git push origin HEAD:production-hardening-pass-v26
