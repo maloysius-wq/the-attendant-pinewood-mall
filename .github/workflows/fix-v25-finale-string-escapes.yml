@@ -16,18 +16,19 @@ jobs:
       - uses: actions/checkout@v4
         with:
           ref: chapter6-last-shift-v25
-      - name: Escape ending paragraph breaks
+      - name: Repair nested finale strings
         run: |
           python3 - <<'PY'
           from pathlib import Path
           path=Path('patches/chapter6-last-shift-v25.js.txt')
           text=path.read_text()
           pairs=[
+            ("game.queueStory(.05,'intercom','PCAS',`CONTRACTOR FOURTEEN. REPORT TO ${route.label}. CLOSING CHECKLIST INCOMPLETE.`);", "game.queueStory(.05,'intercom','PCAS','CONTRACTOR FOURTEEN. REPORT TO '+route.label+'. CLOSING CHECKLIST INCOMPLETE.');"),
             ("white eyes extinguish.\n\nOutside, Renee’s real voice returns clearly.", "white eyes extinguish.\\\\n\\\\nOutside, Renee’s real voice returns clearly."),
             ("Attendant stops moving.\n\nOutside, Renee’s real voice returns and confirms", "Attendant stops moving.\\\\n\\\\nOutside, Renee’s real voice returns and confirms")
           ]
           for old,new in pairs:
-            if text.count(old)!=1: raise SystemExit(f'expected one ending paragraph marker, found {text.count(old)}')
+            if text.count(old)!=1: raise SystemExit(f'expected one finale string marker, found {text.count(old)} for {old[:42]!r}')
             text=text.replace(old,new)
           path.write_text(text)
           PY
@@ -39,5 +40,5 @@ jobs:
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git rm .github/workflows/fix-v25-finale-string-escapes.yml
           git add patches/chapter6-last-shift-v25.js.txt
-          git commit -m 'Fix Chapter 6 finale string escapes'
+          git commit -m 'Fix Chapter 6 finale nested strings'
           git push origin HEAD:chapter6-last-shift-v25
