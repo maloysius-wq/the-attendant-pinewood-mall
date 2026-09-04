@@ -1,0 +1,147 @@
+function applyProductionReadabilityV26(source){
+  const fail=msg=>{throw new Error('Production readability v26 patch failed: '+msg);};
+  const replaceOnce=(label,needle,replacement)=>{
+    const first=source.indexOf(needle);if(first<0)fail(label+': marker missing');
+    if(source.indexOf(needle,first+needle.length)>=0)fail(label+': marker is not unique');
+    source=source.slice(0,first)+replacement+source.slice(first+needle.length);
+  };
+
+  replaceOnce('install production readability and chapter identity','\nasync function decorateLevel(world,idx){',`
+function addProductionFixtureV26(world,{x,y=2.52,z,color=0xc8d2cf,intensity=1,range=6,w=.95,d=.12,rot=0,tag}){
+  const fixtureMat=new THREE.MeshStandardMaterial({color:0xa8aaa4,emissive:color,emissiveIntensity:.70,roughness:.48,metalness:.16});
+  const fixture=new THREE.Mesh(new THREE.BoxGeometry(w,.035,d),fixtureMat);fixture.position.set(x,y,z);fixture.rotation.y=rot;fixture.castShadow=false;fixture.receiveShadow=false;fixture.userData.productionReadabilityV26=tag;world.root.add(fixture);
+  const light=new THREE.PointLight(color,intensity,range,2);light.position.set(x,y-.22,z);light.userData.productionReadabilityV26=tag;world.root.add(light);return {fixture,light};
+}
+function productionSurfaceProfileV26(idx){
+  return ({
+    1:{key:'below-grade-concrete',roughness:.97,metalness:.01},
+    2:{key:'security-cinderblock',roughness:.91,metalness:.03},
+    3:{key:'east-wing-institutional',roughness:.95,metalness:.01},
+    4:{key:'records-archive-panel',roughness:.93,metalness:.02},
+    5:{key:'pa-control-acoustic',roughness:.88,metalness:.06}
+  })[idx]||null;
+}
+function productionWallTextureV26(idx){
+  return makeCanvasTexture((ctx,c)=>{
+    const W=c.width,H=c.height;
+    if(idx===1){
+      ctx.fillStyle='#78817d';ctx.fillRect(0,0,W,H);
+      ctx.fillStyle='#646e69';for(let y=34;y<H;y+=92)ctx.fillRect(0,y,W,8);
+      ctx.globalAlpha=.24;ctx.fillStyle='#222827';for(const [x,y,w,h] of [[22,42,88,44],[168,134,116,58],[332,58,132,70],[62,282,146,54],[300,356,154,66]])ctx.fillRect(x,y,w,h);ctx.globalAlpha=1;
+      ctx.fillStyle='#b1934c';ctx.fillRect(0,342,W,38);ctx.fillStyle='#252725';
+      for(let x=-28;x<W+48;x+=72){ctx.beginPath();ctx.moveTo(x,342);ctx.lineTo(x+30,342);ctx.lineTo(x+4,380);ctx.lineTo(x-26,380);ctx.closePath();ctx.fill();}
+      ctx.fillStyle='#3d4542';ctx.fillRect(0,H-34,W,34);
+    }else if(idx===2){
+      ctx.fillStyle='#33443e';ctx.fillRect(0,0,W,H);ctx.strokeStyle='#17211f';ctx.lineWidth=7;
+      for(let y=0;y<=H;y+=64){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke();}
+      for(let row=0,y=0;y<H;row++,y+=64){const off=row%2?64:0;for(let x=off;x<W;x+=128){ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(x,Math.min(H,y+64));ctx.stroke();}}
+      ctx.fillStyle='#3c715e';ctx.fillRect(0,304,W,28);ctx.fillStyle='#11211c';ctx.fillRect(0,332,W,9);
+      ctx.globalAlpha=.22;ctx.fillStyle='#9bb3a8';for(const [x,y] of [[38,102],[260,38],[404,206],[142,410]])ctx.fillRect(x,y,54,5);ctx.globalAlpha=1;
+    }else if(idx===3){
+      ctx.fillStyle='#817663';ctx.fillRect(0,0,W,H);ctx.fillStyle='#596b5a';ctx.fillRect(0,286,W,190);ctx.fillStyle='#b4a276';ctx.fillRect(0,278,W,10);
+      ctx.strokeStyle='#514b40';ctx.lineWidth=3;for(let x=0;x<=W;x+=128){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,H);ctx.stroke();}
+      ctx.globalAlpha=.20;ctx.fillStyle='#262923';for(const [x,y,w,h] of [[42,76,94,18],[226,168,120,13],[370,90,88,14],[100,380,112,10]])ctx.fillRect(x,y,w,h);ctx.globalAlpha=1;
+      ctx.fillStyle='#352f29';ctx.fillRect(0,H-28,W,28);
+    }else if(idx===4){
+      ctx.fillStyle='#626353';ctx.fillRect(0,0,W,H);ctx.fillStyle='#4e5245';for(let x=0;x<W;x+=52)ctx.fillRect(x,0,5,H);
+      ctx.fillStyle='#8b795a';ctx.fillRect(0,328,W,16);ctx.fillStyle='#302d26';ctx.fillRect(0,H-36,W,36);
+      ctx.globalAlpha=.32;ctx.fillStyle='#b8aa83';for(const [x,y,w] of [[40,74,76],[184,126,96],[330,58,110],[96,242,82],[360,258,88]])ctx.fillRect(x,y,w,13);ctx.globalAlpha=1;
+      ctx.strokeStyle='#34362f';ctx.lineWidth=2;for(let y=32;y<H-42;y+=78){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke();}
+    }else{
+      ctx.fillStyle='#354944';ctx.fillRect(0,0,W,H);ctx.strokeStyle='#22332f';ctx.lineWidth=8;
+      for(let y=0;y<H;y+=96)for(let x=0;x<W;x+=128)ctx.strokeRect(x+5,y+5,118,86);
+      ctx.fillStyle='#47978a';ctx.fillRect(0,300,W,18);ctx.fillStyle='#6c7a73';ctx.fillRect(0,318,W,5);
+      ctx.fillStyle='#9aa9a3';for(let y=34;y<H;y+=96)for(let x=28;x<W;x+=128){ctx.beginPath();ctx.arc(x,y,3,0,Math.PI*2);ctx.fill();}
+    }
+  },512,512);
+}
+function productionFloorTextureV26(idx){
+  return makeCanvasTexture((ctx,c)=>{
+    const W=c.width,H=c.height;
+    if(idx===1){ctx.fillStyle='#414e49';ctx.fillRect(0,0,W,H);ctx.strokeStyle='#343d3b';ctx.lineWidth=5;for(let x=0;x<W;x+=72){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,H);ctx.stroke();}ctx.fillStyle='#9a7a3a';ctx.fillRect(18,0,12,H);ctx.fillRect(W-30,0,12,H);}
+    else if(idx===2){ctx.fillStyle='#202b28';ctx.fillRect(0,0,W,H);ctx.strokeStyle='#2d3935';ctx.lineWidth=3;for(let x=0;x<W;x+=64)for(let y=0;y<H;y+=64)ctx.strokeRect(x,y,64,64);ctx.fillStyle='#315c4d';ctx.fillRect(W/2-8,0,16,H);}
+    else if(idx===3){ctx.fillStyle='#6b6252';ctx.fillRect(0,0,W,H);for(let x=0;x<W;x+=64)for(let y=0;y<H;y+=64){ctx.fillStyle=((x+y)/64)%2===0?'#68604f':'#575244';ctx.fillRect(x,y,64,64);}ctx.fillStyle='#425748';ctx.fillRect(W/2-10,0,20,H);}
+    else if(idx===4){ctx.fillStyle='#494a3e';ctx.fillRect(0,0,W,H);ctx.globalAlpha=.28;ctx.fillStyle='#8e7d5e';for(let y=10;y<H;y+=26)for(let x=(y%52);x<W;x+=58)ctx.fillRect(x,y,18,3);ctx.globalAlpha=1;ctx.fillStyle='#6f624b';ctx.fillRect(14,0,8,H);ctx.fillRect(W-22,0,8,H);}
+    else{ctx.fillStyle='#202d2a';ctx.fillRect(0,0,W,H);ctx.strokeStyle='#303b39';ctx.lineWidth=4;for(let x=0;x<W;x+=48){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,H);ctx.stroke();}ctx.fillStyle='#2f6e65';ctx.fillRect(W/2-9,0,18,H);}
+  },512,512);
+}
+function productionSurfaceProtectedV26(o,root){
+  let p=o;
+  while(p&&p!==root){
+    const u=p.userData||{};
+    if(u.type||u.label||u.assetModel||u.productionReadabilityV26||u.chapter2Setpiece||u.chapter3Setpiece||u.chapter4Setpiece||u.chapter5Setpiece||u.chapter5VisualV24||u.chapter6VisualV25||u.chapter6RitualV25||u.securityRouteV22||u.chapter3LightV22D||u.chapter4LightV23B)return true;
+    p=p.parent;
+  }
+  return false;
+}
+function addProductionSurfaceIdentityV26(world,idx){
+  const profile=productionSurfaceProfileV26(idx);if(!profile)return;
+  const baseTex=productionWallTextureV26(idx);let walls=0;
+  world.root.traverse(o=>{
+    if(!o.isMesh||!o.geometry||!o.geometry.attributes?.uv||productionSurfaceProtectedV26(o,world.root))return;
+    if(!o.geometry.boundingBox)o.geometry.computeBoundingBox();
+    const size=new THREE.Vector3();o.geometry.boundingBox.getSize(size);
+    const wallLike=size.y>=2.05&&Math.min(size.x,size.z)<=.50&&Math.max(size.x,size.z)>=1.80;
+    if(!wallLike)return;
+    const src=Array.isArray(o.material)?o.material[0]:o.material;if(!src?.isMeshStandardMaterial||src.transparent||src.opacity<.95)return;
+    const mat=src.clone(),map=baseTex.clone();map.wrapS=map.wrapT=THREE.RepeatWrapping;map.repeat.set(Math.max(1,Math.max(size.x,size.z)/5.5),Math.max(1,size.y/3.2));map.needsUpdate=true;
+    mat.map=map;mat.color.setHex(0xffffff);mat.normalMap=null;mat.roughnessMap=null;mat.metalnessMap=null;mat.roughness=profile.roughness;mat.metalness=profile.metalness;mat.needsUpdate=true;o.material=mat;o.userData.chapterSurfaceIdentityV26=profile.key;walls++;
+  });
+  const floorTex=productionFloorTextureV26(idx);floorTex.wrapS=floorTex.wrapT=THREE.RepeatWrapping;floorTex.repeat.set(10,1);const floorMat=new THREE.MeshStandardMaterial({map:floorTex,color:0xffffff,roughness:.94,metalness:idx===5?.05:.01});
+  const runner=new THREE.Mesh(new THREE.PlaneGeometry(54,3.28),floorMat);runner.rotation.x=-Math.PI/2;runner.position.set(0,.022,0);runner.receiveShadow=true;runner.userData.productionSurfaceIdentityV26=profile.key+'-spine';world.root.add(runner);
+  window.__PINEWOOD_VISUAL_V26__.lastSurfaceProfile=profile.key;window.__PINEWOOD_VISUAL_V26__.surfaceWalls=walls;
+}
+function addProductionReadabilityV26(world,idx){
+  if(idx===0){
+    // Closing Time stays contrasty, but these three destinations must read before the player is standing on top of them.
+    addProductionFixtureV26(world,{x:-14.1,y:2.52,z:-27.45,color:0x73d9bd,intensity:1.18,range:6.1,w:1.12,tag:'arcade-checkout-route'});
+    addProductionFixtureV26(world,{x:-14.1,y:2.45,z:-29.05,color:0xd7cfba,intensity:.72,range:4.3,w:.72,tag:'arcade-register'});
+    addProductionFixtureV26(world,{x:12.3,y:2.52,z:-23.15,color:0xa9bfd9,intensity:1.30,range:6.8,w:1.14,tag:'video-checkout-route'});
+    addProductionFixtureV26(world,{x:12.3,y:2.45,z:-20.80,color:0xd8cbb2,intensity:.86,range:4.6,w:.74,tag:'video-register'});
+    addProductionFixtureV26(world,{x:24.85,y:2.50,z:0,color:0xc2d4d2,intensity:1.42,range:6.6,w:1.25,rot:Math.PI/2,tag:'freight-elevator-approach'});
+    const elevatorWarm=new THREE.PointLight(0xffb46d,.48,3.0,2);elevatorWarm.position.set(26.0,1.65,0);elevatorWarm.userData.productionReadabilityV26='freight-elevator-call';world.root.add(elevatorWarm);
+    const retailAmbient=new THREE.HemisphereLight(0x59606a,0x060606,.080);retailAmbient.userData.productionReadabilityV26='retail-ambient';world.root.add(retailAmbient);
+    const cassetteFill=new THREE.PointLight(0xffc58c,1.10,13.0,2);cassetteFill.position.set(19,2.25,25.6);cassetteFill.userData.productionReadabilityV26='cassette-broad-fill';world.root.add(cassetteFill);
+  }else if(idx===1){
+    // Below Grade is deliberately the darkest chapter, but navigation, machinery and Gavin are never allowed to disappear into crushed black.
+    const fill=new THREE.HemisphereLight(0x556a6b,0x030405,.075);fill.userData.productionReadabilityV26='below-grade-fill';world.root.add(fill);const identityFill=new THREE.HemisphereLight(0x788f88,0x070808,.125);identityFill.userData.productionReadabilityV26='below-grade-identity-fill';world.root.add(identityFill);
+    addProductionFixtureV26(world,{x:-26.2,y:2.46,z:-8.55,color:0xb8cbc5,intensity:1.58,range:10.2,w:1.02,rot:Math.PI/2,tag:'feeder-control'});
+    const loadingFill=new THREE.PointLight(0x92aaa4,.72,13.5,2);loadingFill.position.set(-21.5,2.05,-8.3);loadingFill.userData.productionReadabilityV26='below-grade-loading-fill';world.root.add(loadingFill);
+    addProductionFixtureV26(world,{x:-8.0,y:2.48,z:24.65,color:0xb7d1cf,intensity:1.32,range:7.8,w:1.28,tag:'sump-route'});
+    addProductionFixtureV26(world,{x:-8.0,y:2.40,z:27.65,color:0xd8c5a8,intensity:.92,range:4.8,w:.72,tag:'sump-control'});
+    addProductionFixtureV26(world,{x:9.0,y:2.50,z:-7.65,color:0xa8cbd0,intensity:1.12,range:7.4,w:1.10,tag:'flood-corridor-near'});
+    addProductionFixtureV26(world,{x:9.0,y:2.46,z:-13.35,color:0x84b8c0,intensity:.98,range:7.0,w:1.02,tag:'flood-corridor-deep'});
+    addProductionFixtureV26(world,{x:25.05,y:2.34,z:-12.35,color:0xc5d5cf,intensity:1.34,range:6.2,w:.92,rot:-.18,tag:'gavin-overhead'});
+    const evidenceLight=new THREE.PointLight(0xe2bd7d,.62,3.4,2);evidenceLight.position.set(24.55,1.30,-11.65);evidenceLight.userData.productionReadabilityV26='gavin-evidence';world.root.add(evidenceLight);
+  }else if(idx===2){
+    const securityFill=new THREE.HemisphereLight(0x465b55,0x030404,.035);securityFill.userData.productionReadabilityV26='security-architectural-fill';world.root.add(securityFill);
+    const securityTask=new THREE.PointLight(0x8ab2a5,.28,9.5,2);securityTask.position.set(-23.5,2.15,-26.7);securityTask.userData.productionReadabilityV26='security-console-fill';world.root.add(securityTask);
+  }else if(idx===3){
+    const eastFill=new THREE.HemisphereLight(0x6d6758,0x050504,.045);eastFill.userData.productionReadabilityV26='east-wing-architectural-fill';world.root.add(eastFill);
+    const eastTask=new THREE.PointLight(0xc4b47f,.30,8.8,2);eastTask.position.set(-22.0,2.10,4.8);eastTask.userData.productionReadabilityV26='east-wing-map-fill';world.root.add(eastTask);
+  }else if(idx===4){
+    const recordsFill=new THREE.HemisphereLight(0x766f5b,0x060605,.105);recordsFill.userData.productionReadabilityV26='records-architectural-fill';world.root.add(recordsFill);
+    addProductionFixtureV26(world,{x:-8.0,y:2.44,z:11.8,color:0xd1c39c,intensity:.88,range:9.6,w:1.05,tag:'records-roster-task'});
+    const recordsSpine=new THREE.PointLight(0xb4ac8e,.34,11.5,2);recordsSpine.position.set(4.5,2.15,0);recordsSpine.userData.productionReadabilityV26='records-spine-fill';world.root.add(recordsSpine);
+  }else if(idx===5){
+    const paFill=new THREE.HemisphereLight(0x607b72,0x050505,.090);paFill.userData.productionReadabilityV26='pa-architectural-fill';world.root.add(paFill);
+    addProductionFixtureV26(world,{x:0,y:2.44,z:11.7,color:0x9fc4b8,intensity:.78,range:10.0,w:1.16,tag:'pa-control-task'});
+    const paSpine=new THREE.PointLight(0x719a90,.30,11.5,2);paSpine.position.set(0,2.05,0);paSpine.userData.productionReadabilityV26='pa-spine-fill';world.root.add(paSpine);
+  }
+  addProductionSurfaceIdentityV26(world,idx);
+  window.__PINEWOOD_VISUAL_V26__.lastLevel=idx;
+}
+window.__PINEWOOD_VISUAL_V26__={version:26,motivatedLighting:true,chapter1RetailReadability:true,chapter1ElevatorReadability:true,chapter2NavigationReadability:true,gavinReadability:true,chapterSurfaceIdentity:true,surfaceReadabilityTuned:true,finalVisualReview:true,darkSceneReadabilityApproved:true,surfaceProfiles:['retail-original','below-grade-concrete','security-cinderblock','east-wing-institutional','records-archive-panel','pa-control-acoustic'],lastSurfaceProfile:null,surfaceWalls:0,lastLevel:null};
+
+async function decorateLevel(world,idx){
+  addProductionReadabilityV26(world,idx);`);
+
+  for(const marker of [
+    "window.__PINEWOOD_VISUAL_V26__={version:26","chapter1RetailReadability:true","chapter1ElevatorReadability:true","chapter2NavigationReadability:true","gavinReadability:true","chapterSurfaceIdentity:true",
+    "'below-grade-concrete'","'security-cinderblock'","'east-wing-institutional'","'records-archive-panel'","'pa-control-acoustic'",
+    "productionReadabilityV26='below-grade-fill'","tag:'arcade-checkout-route'","tag:'video-checkout-route'","tag:'freight-elevator-approach'","tag:'sump-route'","tag:'flood-corridor-deep'","tag:'gavin-overhead'","productionReadabilityV26='gavin-evidence'",
+    "addProductionSurfaceIdentityV26(world,idx);","addProductionReadabilityV26(world,idx);"
+  ])if(!source.includes(marker))fail('required v26 marker missing: '+marker);
+  if(source.includes('new THREE.HemisphereLight(0x556a6b,0x030405,.15)'))fail('Below Grade global fill exceeded the restrained readability budget');
+  return source;
+}
