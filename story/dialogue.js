@@ -56,6 +56,9 @@ export const DIALOGUE_V17={
   ch5_sessions:{id:'ch5_sessions',speaker:'RENEE',medium:'radio',text:'I have the legacy contractor table. Eli is Session 01. Two through twelve are a mess of cancelled and partial descendants. Gavin Cole is 13. You are 14. Pinewood has been reopening the same unresolved work-order family for twenty-nine years.'},
   ch5_exit:{id:'ch5_exit',speaker:'RENEE',medium:'radio',text:'Fourteen, Ward on dispatch. We know what Pinewood expects now: the real roster, the unresolved service states, then accountability control. The route ahead is PA control. You are going to finish the shift Eli could not.'},
 
-  ch6_accountability_one:{id:'ch6_accountability_one',speaker:'PCAS',medium:'terminal',text:'ACCOUNTABILITY HOLD. STAFF STATUS UNRESOLVED. CONTRACTOR 14 SESSION ACTIVE.'},
-  ch6_final_recall:{id:'ch6_final_recall',speaker:'PCAS',medium:'intercom',text:'Contractor Fourteen, return to your assigned station. Closing checklist incomplete.'}
+  ch6_accountability_one:{id:'ch6_accountability_one',speaker:'PCAS',medium:'terminal',text:'ACCOUNTABILITY: 1. CONTRACTOR 14 SESSION ACTIVE. EXIT EVENT REQUIRED.'},
+  ch6_clockout:{id:'ch6_clockout',speaker:'PCAS',medium:'terminal',text:'CONTRACTOR 14 CLOCK-OUT RECORDED. EXIT EVENT PENDING. PROCEED TO EMPLOYEE EXIT.'},
+  ch6_radio_overlap:{id:'ch6_radio_overlap',speaker:'RENEE / UNKNOWN',medium:'radio',text:'Fourteen, Ward on dispatch. Employee exit is east— Fourteen, Ward on dispatch. Return to assigned station— east exit, physical signs only— return to assigned station.'},
+  ch6_final_recall:{id:'ch6_final_recall',speaker:'PCAS',medium:'intercom',text:'Contractor Fourteen, return to your assigned station. Closing checklist incomplete.'},
+  ch6_accountability_zero:{id:'ch6_accountability_zero',speaker:'PCAS',medium:'terminal',text:'ACCOUNTABILITY: 0. ALL STAFF ACCOUNTED FOR. CLOSING RELEASE AUTHORIZED.'}
 };
