@@ -27,7 +27,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - name: Test corrected v24 audit assertions
+      - name: Test corrected v24 audit assertions and expose syntax context
         run: |
           python3 - <<'PY'
           from pathlib import Path
@@ -51,7 +51,12 @@ jobs:
           new="game.storyV17.evidence('LS-07'"
           if t.count(old)!=1:
               raise SystemExit(f'expected one v24 audit marker {old!r}, found {t.count(old)}')
-          a.write_text(t.replace(old,new,1))
+          t=t.replace(old,new,1)
+          needle='await syntaxCheck(source);'
+          diag="const __v24Lines=source.split('\\n');console.error(__v24Lines.slice(1738,1772).map((line,i)=>`${1739+i}: ${line}`).join('\\n'));await syntaxCheck(source);"
+          if t.count(needle)!=1:
+              raise SystemExit(f'expected one syntax-check marker, found {t.count(needle)}')
+          a.write_text(t.replace(needle,diag,1))
           PY
       - name: Verify live v24 source and loader chain
         run: node scripts/audit-chapter5-accountability-v24.mjs
