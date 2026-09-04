@@ -1,0 +1,41 @@
+name: Chapter identity preview v26
+
+on:
+  push:
+    branches: [production-hardening-pass-v26]
+    paths:
+      - '.github/workflows/identity-preview-v26.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  preview:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify identity source gate
+        run: node scripts/audit-production-readability-v26.mjs
+      - name: Install Playwright
+        run: |
+          npm install --no-save playwright@1.55.0
+          npx playwright install --with-deps chromium
+      - name: Start local Pinewood server
+        run: |
+          python3 -m http.server 4173 --directory "$GITHUB_WORKSPACE" >/tmp/pinewood-identity-http.log 2>&1 &
+          for i in {1..30}; do curl -fsS http://127.0.0.1:4173/ >/dev/null && exit 0; sleep 1; done
+          cat /tmp/pinewood-identity-http.log
+          exit 1
+      - name: Capture one representative view per chapter
+        run: node scripts/smoke-production-v26.mjs
+      - name: Upload identity preview
+        uses: actions/upload-artifact@v4
+        with:
+          name: pinewood-chapter-identity-preview-v26
+          path: production-smoke-artifacts/
+          if-no-files-found: error
+          retention-days: 2
