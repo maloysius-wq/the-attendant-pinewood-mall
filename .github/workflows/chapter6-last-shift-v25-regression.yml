@@ -9,6 +9,7 @@ on:
       - 'story/**'
       - 'scripts/audit-chapter3-security-readability-v22d.mjs'
       - 'scripts/audit-chapter5-accountability-v24.mjs'
+      - 'scripts/audit-chapter6-finale-source-v25.mjs'
       - 'scripts/audit-chapter6-last-shift-v25.mjs'
       - 'scripts/capture-last-shift-v25.mjs'
       - 'scripts/simulate-chapter6-finale-v25.mjs'
@@ -27,6 +28,8 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
+      - name: Verify Chapter 6 patch-source safety
+        run: node scripts/audit-chapter6-finale-source-v25.mjs
       - name: Reconstruct and verify Chapter 6 v25 live candidate
         run: node scripts/audit-chapter6-last-shift-v25.mjs
       - name: Install Playwright
