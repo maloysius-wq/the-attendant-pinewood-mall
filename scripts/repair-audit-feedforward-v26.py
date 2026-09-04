@@ -45,14 +45,12 @@ s = replace_once(
 )
 p.write_text(s)
 
-# Chapter 6's own audit also needs to permit a later readability layer instead of insisting on v25 as terminal.
+# Chapter 6's audit must permit a later readability layer instead of insisting on v25 as terminal.
 p = Path('scripts/audit-chapter6-last-shift-v25.mjs')
 s = p.read_text()
-old = """const loader=await readFile('game.js','utf8'),live=loader.includes(\"const CHAPTER6_V25_PATCH='./patches/chapter6-last-shift-v25.js.txt';\");
-if(live){for(const marker of ['applyChapter6LastShiftV25Runtime','getText(CHAPTER6_V25_PATCH)','const chapter6V25Source=await applyChapter6LastShiftV25Runtime(chapter5V24Source,chapter6V25Patch);',\"const source=chapter6V25Source+'\\\\n//# sourceURL=pinewood-runtime.js\\\\n';\"])if(!loader.includes(marker))fail('game.js partial/incorrect live v25 marker: '+marker);if(loader.includes(\"const source=chapter5V24Source+'\\\\n//# sourceURL=pinewood-runtime.js\\\\n';\"))fail('game.js still boots terminal v24 while v25 is present');}else if(loader.includes('applyChapter6LastShiftV25Runtime')||loader.includes('chapter6V25Source'))fail('game.js contains partial v25 wiring');
-console.log(`Chapter 6 Last Shift v25 PASS (${live?'LIVE-CANDIDATE':'STAGED'}): memory reconstruction, ordered closing ritual, ACCOUNTABILITY: 1, Contractor 14 clock-out, predictable PCAS recall routing, employee exit, decoy counterplay and standard/true ending selection are assembled and syntax-valid without any finale speed boost.`);
-"""
-new = """const loader=await readFile('game.js','utf8'),live=loader.includes(\"const CHAPTER6_V25_PATCH='./patches/chapter6-last-shift-v25.js.txt';\"),v26=loader.includes(\"const PRODUCTION_READABILITY_V26_PATCH='./patches/production-readability-v26.js.txt';\");
+loader_start = s.index("const loader=await readFile('game.js','utf8')")
+console_start = s.index("console.log(`Chapter 6 Last Shift v25 PASS", loader_start)
+new_loader = """const loader=await readFile('game.js','utf8'),live=loader.includes(\"const CHAPTER6_V25_PATCH='./patches/chapter6-last-shift-v25.js.txt';\"),v26=loader.includes(\"const PRODUCTION_READABILITY_V26_PATCH='./patches/production-readability-v26.js.txt';\");
 if(live){
   for(const marker of ['applyChapter6LastShiftV25Runtime','getText(CHAPTER6_V25_PATCH)','const chapter6V25Source=await applyChapter6LastShiftV25Runtime(chapter5V24Source,chapter6V25Patch);'])if(!loader.includes(marker))fail('game.js partial/incorrect live v25 marker: '+marker);
   if(loader.includes(\"const source=chapter5V24Source+'\\\\n//# sourceURL=pinewood-runtime.js\\\\n';\"))fail('game.js still boots terminal v24 while v25 is present');
@@ -61,7 +59,12 @@ if(live){
     if(loader.includes(\"const source=chapter6V25Source+'\\\\n//# sourceURL=pinewood-runtime.js\\\\n';\"))fail('game.js still boots terminal v25 while v26 is present');
   }else if(!loader.includes(\"const source=chapter6V25Source+'\\\\n//# sourceURL=pinewood-runtime.js\\\\n';\"))fail('game.js missing terminal v25 source marker');
 }else if(loader.includes('applyChapter6LastShiftV25Runtime')||loader.includes('chapter6V25Source'))fail('game.js contains partial v25 wiring');
-console.log(`Chapter 6 Last Shift v25 PASS (${live?'LIVE-CANDIDATE':'STAGED'}${v26?'→V26':''}): memory reconstruction, ordered closing ritual, ACCOUNTABILITY: 1, Contractor 14 clock-out, predictable PCAS recall routing, employee exit, decoy counterplay and standard/true ending selection are assembled and syntax-valid without any finale speed boost.`);
 """
-s = replace_once(s, old, new, 'v25 v26-aware loader block')
+s = s[:loader_start] + new_loader + s[console_start:]
+s = replace_once(
+    s,
+    "(${live?'LIVE-CANDIDATE':'STAGED'}): memory reconstruction",
+    "(${live?'LIVE-CANDIDATE':'STAGED'}${v26?'→V26':''}): memory reconstruction",
+    'v25 status suffix',
+)
 p.write_text(s)
