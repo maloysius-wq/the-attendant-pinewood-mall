@@ -1,0 +1,44 @@
+name: Wire Chapter 6 Last Shift v25
+
+on:
+  push:
+    branches: [chapter6-last-shift-v25]
+    paths:
+      - '.github/workflows/wire-chapter6-v25.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  wire:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Wire v25 after v24
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('game.js'); s=p.read_text()
+          if "const CHAPTER6_V25_PATCH='./patches/chapter6-last-shift-v25.js.txt';" in s:
+              print('v25 already wired')
+              raise SystemExit(0)
+          def once(old,new,label):
+              global s
+              n=s.count(old)
+              if n!=1: raise SystemExit(f'{label}: expected one marker, found {n}')
+              s=s.replace(old,new,1)
+          once("const CHAPTER5_V24_PATCH='./patches/chapter5-accountability-v24.js.txt';\nconst PCAS_VOICE_MANIFEST=", "const CHAPTER5_V24_PATCH='./patches/chapter5-accountability-v24.js.txt';\nconst CHAPTER6_V25_PATCH='./patches/chapter6-last-shift-v25.js.txt';\nconst PCAS_VOICE_MANIFEST=", 'constant')
+          once("async function applyChapter5AccountabilityV24Runtime(source,patchText){\n  const patchUrl=URL.createObjectURL(new Blob([patchText+'\\nexport { applyChapter5AccountabilityV24 };\\n'],{type:'text/javascript'}));\n  try{const mod=await import(patchUrl);if(typeof mod.applyChapter5AccountabilityV24!=='function')throw new Error('Chapter 5 Accountability v24 patch did not export its patch function.');return mod.applyChapter5AccountabilityV24(source);}finally{URL.revokeObjectURL(patchUrl);}\n}\n\nfunction replaceFoodCourt", "async function applyChapter5AccountabilityV24Runtime(source,patchText){\n  const patchUrl=URL.createObjectURL(new Blob([patchText+'\\nexport { applyChapter5AccountabilityV24 };\\n'],{type:'text/javascript'}));\n  try{const mod=await import(patchUrl);if(typeof mod.applyChapter5AccountabilityV24!=='function')throw new Error('Chapter 5 Accountability v24 patch did not export its patch function.');return mod.applyChapter5AccountabilityV24(source);}finally{URL.revokeObjectURL(patchUrl);}\n}\n\nasync function applyChapter6LastShiftV25Runtime(source,patchText){\n  const patchUrl=URL.createObjectURL(new Blob([patchText+'\\nexport { applyChapter6LastShiftV25 };\\n'],{type:'text/javascript'}));\n  try{const mod=await import(patchUrl);if(typeof mod.applyChapter6LastShiftV25!=='function')throw new Error('Chapter 6 Last Shift v25 patch did not export its patch function.');return mod.applyChapter6LastShiftV25(source);}finally{URL.revokeObjectURL(patchUrl);}\n}\n\nfunction replaceFoodCourt", 'importer')
+          once(',chapter4V23Patch,chapter4V23BPatch,chapter5V24Patch,pcasVoiceManifestText,localAssetsManifestText,storyModule]', ',chapter4V23Patch,chapter4V23BPatch,chapter5V24Patch,chapter6V25Patch,pcasVoiceManifestText,localAssetsManifestText,storyModule]', 'binding')
+          once('getText(CHAPTER4_V23_PATCH),getText(CHAPTER4_V23B_PATCH),getText(CHAPTER5_V24_PATCH),getText(PCAS_VOICE_MANIFEST)', 'getText(CHAPTER4_V23_PATCH),getText(CHAPTER4_V23B_PATCH),getText(CHAPTER5_V24_PATCH),getText(CHAPTER6_V25_PATCH),getText(PCAS_VOICE_MANIFEST)', 'fetch')
+          once("  const chapter5V24Source=await applyChapter5AccountabilityV24Runtime(chapter4V23BSource,chapter5V24Patch);\n  const source=chapter5V24Source+'\\n//# sourceURL=pinewood-runtime.js\\n';", "  const chapter5V24Source=await applyChapter5AccountabilityV24Runtime(chapter4V23BSource,chapter5V24Patch);\n  const chapter6V25Source=await applyChapter6LastShiftV25Runtime(chapter5V24Source,chapter6V25Patch);\n  const source=chapter6V25Source+'\\n//# sourceURL=pinewood-runtime.js\\n';", 'source')
+          p.write_text(s)
+          PY
+      - name: Commit loader wiring
+        run: |
+          if git diff --quiet -- game.js; then exit 0; fi
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add game.js
+          git commit -m 'Wire Chapter 6 Last Shift v25 loader'
+          git push
