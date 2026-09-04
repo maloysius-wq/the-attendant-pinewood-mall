@@ -1,0 +1,41 @@
+name: Tune v26 surface readability
+
+on:
+  push:
+    branches: [production-hardening-pass-v26]
+    paths:
+      - '.github/workflows/tune-v26-surface-readability.yml'
+      - 'scripts/tune-v26-surface-readability.py'
+
+permissions:
+  contents: write
+
+jobs:
+  tune:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: production-hardening-pass-v26
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Apply guarded surface readability tuning
+        run: python3 scripts/tune-v26-surface-readability.py
+      - name: Verify tuned v26 source
+        run: |
+          node scripts/audit-production-readability-v26.mjs
+          node scripts/audit-runtime.mjs
+          grep -q "surfaceReadabilityTuned:true" patches/production-readability-v26.js.txt
+          grep -q "tag:'feeder-control'" patches/production-readability-v26.js.txt
+          grep -q "tag:'records-roster-task'" patches/production-readability-v26.js.txt
+          grep -q "tag:'pa-control-task'" patches/production-readability-v26.js.txt
+      - name: Commit tuned visual candidate
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add patches/production-readability-v26.js.txt
+          git diff --cached --check
+          git commit -m 'Tune chapter surface readability from final visual review'
+          git push origin HEAD:production-hardening-pass-v26
