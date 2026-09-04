@@ -1,0 +1,28 @@
+name: Apply Chapter 6 finale
+
+on:
+  push:
+    branches: [chapter6-last-shift-v25]
+    paths:
+      - '.github/workflows/apply-v25-finale.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: chapter6-last-shift-v25
+      - name: Apply finale patch
+        run: python3 scripts/tmp-apply-v25-finale.py
+      - name: Commit finale and cleanup
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git rm .github/workflows/apply-v25-finale.yml scripts/tmp-apply-v25-finale.py
+          git add patches/chapter6-last-shift-v25.js.txt story/dialogue.js
+          git commit -m 'Implement Chapter 6 Contractor 14 finale'
+          git push origin HEAD:chapter6-last-shift-v25
