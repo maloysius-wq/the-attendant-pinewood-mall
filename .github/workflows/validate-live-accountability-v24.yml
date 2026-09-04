@@ -27,6 +27,22 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
+      - name: Test corrected v24 terminal self-check assertions
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('patches/chapter5-accountability-v24.js.txt')
+          s=p.read_text()
+          fixes=[
+              ("type:'ch5_roster_terminal_v24'", "'ch5_roster_terminal_v24','FINAL SHIFT ROSTER'"),
+              ("type:'ch5_sessions_terminal_v24'", "'ch5_sessions_terminal_v24','CONTRACTOR SESSIONS'"),
+          ]
+          for old,new in fixes:
+              if s.count(old)!=1:
+                  raise SystemExit(f'expected one self-check marker {old!r}, found {s.count(old)}')
+              s=s.replace(old,new,1)
+          p.write_text(s)
+          PY
       - name: Verify live v24 source and loader chain
         run: node scripts/audit-chapter5-accountability-v24.mjs
       - name: Install Playwright
