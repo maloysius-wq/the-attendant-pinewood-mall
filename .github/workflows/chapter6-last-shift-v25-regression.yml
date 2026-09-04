@@ -11,6 +11,7 @@ on:
       - 'scripts/audit-chapter5-accountability-v24.mjs'
       - 'scripts/audit-chapter6-last-shift-v25.mjs'
       - 'scripts/capture-last-shift-v25.mjs'
+      - 'scripts/simulate-chapter6-finale-v25.mjs'
       - '.github/workflows/chapter6-last-shift-v25-regression.yml'
   workflow_dispatch:
 
@@ -39,6 +40,8 @@ jobs:
           for i in {1..30}; do curl -fsS http://127.0.0.1:4173/ >/dev/null && exit 0; sleep 1; done
           cat /tmp/pinewood-v25-http.log
           exit 1
+      - name: Simulate standard and true finales
+        run: node scripts/simulate-chapter6-finale-v25.mjs
       - name: Capture Last Shift v25 views
         run: node scripts/capture-last-shift-v25.mjs
       - name: Upload Last Shift screenshots and telemetry
