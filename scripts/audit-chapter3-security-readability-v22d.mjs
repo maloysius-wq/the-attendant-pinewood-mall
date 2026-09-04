@@ -35,10 +35,12 @@ const live=loader.includes("const CHAPTER3_V22D_PATCH='./patches/chapter3-securi
 const v23=loader.includes("const CHAPTER4_V23_PATCH='./patches/chapter4-east-wing-v23.js.txt';");
 const v23b=loader.includes("const CHAPTER4_V23B_PATCH='./patches/chapter4-east-wing-readability-v23b.js.txt';");
 const v24=loader.includes("const CHAPTER5_V24_PATCH='./patches/chapter5-accountability-v24.js.txt';");
+const v25=loader.includes("const CHAPTER6_V25_PATCH='./patches/chapter6-last-shift-v25.js.txt';");
 if(live){
   for(const marker of ['async function applyChapter3SecurityReadabilityV22DRuntime(source,patchText)','getText(CHAPTER3_V22D_PATCH)','const chapter3V22DSource=await applyChapter3SecurityReadabilityV22DRuntime(chapter3V22CSource,chapter3V22DPatch);'])if(!loader.includes(marker))fail('game.js partial/incorrect live v22d marker: '+marker);
   if(v23b&&!v23)fail('game.js cannot wire v23b without v23');
   if(v24&&!v23b)fail('game.js cannot wire v24 without v23b');
+  if(v25&&!v24)fail('game.js cannot wire v25 without v24');
   if(v23){
     for(const marker of ['async function applyChapter4EastWingV23Runtime(source,patchText)','getText(CHAPTER4_V23_PATCH)','const chapter4V23Source=await applyChapter4EastWingV23Runtime(chapter3V22DSource,chapter4V23Patch);'])if(!loader.includes(marker))fail('game.js invalid v22d→v23 feed-forward marker: '+marker);
     if(loader.includes("const source=chapter3V22DSource+'\\n//# sourceURL=pinewood-runtime.js\\n';"))fail('game.js still boots terminal v22d while v23 is present');
@@ -46,10 +48,14 @@ if(live){
       for(const marker of ['async function applyChapter4EastWingReadabilityV23BRuntime(source,patchText)','getText(CHAPTER4_V23B_PATCH)','const chapter4V23BSource=await applyChapter4EastWingReadabilityV23BRuntime(chapter4V23Source,chapter4V23BPatch);'])if(!loader.includes(marker))fail('game.js invalid v23→v23b feed-forward marker: '+marker);
       if(loader.includes("const source=chapter4V23Source+'\\n//# sourceURL=pinewood-runtime.js\\n';"))fail('game.js still boots terminal v23 while v23b is present');
       if(v24){
-        for(const marker of ['async function applyChapter5AccountabilityV24Runtime(source,patchText)','getText(CHAPTER5_V24_PATCH)','const chapter5V24Source=await applyChapter5AccountabilityV24Runtime(chapter4V23BSource,chapter5V24Patch);',"const source=chapter5V24Source+'\\n//# sourceURL=pinewood-runtime.js\\n';"])if(!loader.includes(marker))fail('game.js invalid v23b→v24 feed-forward marker: '+marker);
+        for(const marker of ['async function applyChapter5AccountabilityV24Runtime(source,patchText)','getText(CHAPTER5_V24_PATCH)','const chapter5V24Source=await applyChapter5AccountabilityV24Runtime(chapter4V23BSource,chapter5V24Patch);'])if(!loader.includes(marker))fail('game.js invalid v23b→v24 feed-forward marker: '+marker);
         if(loader.includes("const source=chapter4V23BSource+'\\n//# sourceURL=pinewood-runtime.js\\n';"))fail('game.js still boots terminal v23b while v24 is present');
+        if(v25){
+          for(const marker of ['async function applyChapter6LastShiftV25Runtime(source,patchText)','getText(CHAPTER6_V25_PATCH)','const chapter6V25Source=await applyChapter6LastShiftV25Runtime(chapter5V24Source,chapter6V25Patch);',"const source=chapter6V25Source+'\\n//# sourceURL=pinewood-runtime.js\\n';"])if(!loader.includes(marker))fail('game.js invalid v24→v25 feed-forward marker: '+marker);
+          if(loader.includes("const source=chapter5V24Source+'\\n//# sourceURL=pinewood-runtime.js\\n';"))fail('game.js still boots terminal v24 while v25 is present');
+        }else if(!loader.includes("const source=chapter5V24Source+'\\n//# sourceURL=pinewood-runtime.js\\n';"))fail('game.js missing terminal v24 source marker');
       }else if(!loader.includes("const source=chapter4V23BSource+'\\n//# sourceURL=pinewood-runtime.js\\n';"))fail('game.js missing terminal v23b source marker');
     }else if(!loader.includes("const source=chapter4V23Source+'\\n//# sourceURL=pinewood-runtime.js\\n';"))fail('game.js missing terminal v23 source marker');
   }else if(!loader.includes("const source=chapter3V22DSource+'\\n//# sourceURL=pinewood-runtime.js\\n';"))fail('game.js missing terminal v22d source marker');
 }else if(loader.includes('applyChapter3SecurityReadabilityV22DRuntime')||loader.includes('chapter3V22DSource'))fail('game.js contains partial v22d wiring');
-console.log(`Chapter 3 Security readability v22d PASS (${live?'LIVE':'STAGED'}${v23?'→V23':''}${v23b?'→V23B':''}${v24?'→V24':''}): Security readability, navigation/story invariants, local-only media, and ordered loader feed-forward all survive.`);
+console.log(`Chapter 3 Security readability v22d PASS (${live?'LIVE':'STAGED'}${v23?'→V23':''}${v23b?'→V23B':''}${v24?'→V24':''}${v25?'→V25':''}): Security readability, navigation/story invariants, local-only media, and ordered loader feed-forward all survive.`);
