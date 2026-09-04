@@ -1,0 +1,48 @@
+function applyProductionReadabilityV26(source){
+  const fail=msg=>{throw new Error('Production readability v26 patch failed: '+msg);};
+  const replaceOnce=(label,needle,replacement)=>{
+    const first=source.indexOf(needle);if(first<0)fail(label+': marker missing');
+    if(source.indexOf(needle,first+needle.length)>=0)fail(label+': marker is not unique');
+    source=source.slice(0,first)+replacement+source.slice(first+needle.length);
+  };
+
+  replaceOnce('install production readability lighting','\nasync function decorateLevel(world,idx){',`
+function addProductionFixtureV26(world,{x,y=2.52,z,color=0xc8d2cf,intensity=1,range=6,w=.95,d=.12,rot=0,tag}){
+  const fixtureMat=new THREE.MeshStandardMaterial({color:0xa8aaa4,emissive:color,emissiveIntensity:.70,roughness:.48,metalness:.16});
+  const fixture=new THREE.Mesh(new THREE.BoxGeometry(w,.035,d),fixtureMat);fixture.position.set(x,y,z);fixture.rotation.y=rot;fixture.castShadow=false;fixture.receiveShadow=false;fixture.userData.productionReadabilityV26=tag;world.root.add(fixture);
+  const light=new THREE.PointLight(color,intensity,range,2);light.position.set(x,y-.22,z);light.userData.productionReadabilityV26=tag;world.root.add(light);return {fixture,light};
+}
+function addProductionReadabilityV26(world,idx){
+  if(idx===0){
+    // Closing Time stays contrasty, but these three destinations must read before the player is standing on top of them.
+    addProductionFixtureV26(world,{x:-14.1,y:2.52,z:-27.45,color:0x73d9bd,intensity:1.18,range:6.1,w:1.12,tag:'arcade-checkout-route'});
+    addProductionFixtureV26(world,{x:-14.1,y:2.45,z:-29.05,color:0xd7cfba,intensity:.72,range:4.3,w:.72,tag:'arcade-register'});
+    addProductionFixtureV26(world,{x:12.3,y:2.52,z:-23.15,color:0xa9bfd9,intensity:1.30,range:6.8,w:1.14,tag:'video-checkout-route'});
+    addProductionFixtureV26(world,{x:12.3,y:2.45,z:-20.80,color:0xd8cbb2,intensity:.86,range:4.6,w:.74,tag:'video-register'});
+    addProductionFixtureV26(world,{x:24.85,y:2.50,z:0,color:0xc2d4d2,intensity:1.42,range:6.6,w:1.25,rot:Math.PI/2,tag:'freight-elevator-approach'});
+    const elevatorWarm=new THREE.PointLight(0xffb46d,.48,3.0,2);elevatorWarm.position.set(26.0,1.65,0);elevatorWarm.userData.productionReadabilityV26='freight-elevator-call';world.root.add(elevatorWarm);
+  }else if(idx===1){
+    // Below Grade is deliberately the darkest chapter, but navigation, machinery and Gavin are never allowed to disappear into crushed black.
+    const fill=new THREE.HemisphereLight(0x556a6b,0x030405,.075);fill.userData.productionReadabilityV26='below-grade-fill';world.root.add(fill);
+    addProductionFixtureV26(world,{x:-8.0,y:2.48,z:24.65,color:0xb7d1cf,intensity:1.32,range:7.8,w:1.28,tag:'sump-route'});
+    addProductionFixtureV26(world,{x:-8.0,y:2.40,z:27.65,color:0xd8c5a8,intensity:.92,range:4.8,w:.72,tag:'sump-control'});
+    addProductionFixtureV26(world,{x:9.0,y:2.50,z:-7.65,color:0xa8cbd0,intensity:1.12,range:7.4,w:1.10,tag:'flood-corridor-near'});
+    addProductionFixtureV26(world,{x:9.0,y:2.46,z:-13.35,color:0x84b8c0,intensity:.98,range:7.0,w:1.02,tag:'flood-corridor-deep'});
+    addProductionFixtureV26(world,{x:25.05,y:2.34,z:-12.35,color:0xc5d5cf,intensity:1.34,range:6.2,w:.92,rot:-.18,tag:'gavin-overhead'});
+    const evidenceLight=new THREE.PointLight(0xe2bd7d,.62,3.4,2);evidenceLight.position.set(24.55,1.30,-11.65);evidenceLight.userData.productionReadabilityV26='gavin-evidence';world.root.add(evidenceLight);
+  }
+  window.__PINEWOOD_VISUAL_V26__.lastLevel=idx;
+}
+window.__PINEWOOD_VISUAL_V26__={version:26,motivatedLighting:true,chapter1RetailReadability:true,chapter1ElevatorReadability:true,chapter2NavigationReadability:true,gavinReadability:true,lastLevel:null};
+
+async function decorateLevel(world,idx){
+  addProductionReadabilityV26(world,idx);`);
+
+  for(const marker of [
+    "window.__PINEWOOD_VISUAL_V26__={version:26","chapter1RetailReadability:true","chapter1ElevatorReadability:true","chapter2NavigationReadability:true","gavinReadability:true",
+    "productionReadabilityV26='below-grade-fill'","tag:'arcade-checkout-route'","tag:'video-checkout-route'","tag:'freight-elevator-approach'","tag:'sump-route'","tag:'flood-corridor-deep'","tag:'gavin-overhead'","productionReadabilityV26='gavin-evidence'",
+    "addProductionReadabilityV26(world,idx);"
+  ])if(!source.includes(marker))fail('required v26 marker missing: '+marker);
+  if(source.includes('new THREE.HemisphereLight(0x556a6b,0x030405,.15)'))fail('Below Grade global fill exceeded the restrained readability budget');
+  return source;
+}
