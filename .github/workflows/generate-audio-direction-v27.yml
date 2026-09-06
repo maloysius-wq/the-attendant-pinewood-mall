@@ -8,6 +8,7 @@ on:
       - 'scripts/generate-pcas-voice-v27.mjs'
       - 'scripts/generate-character-voices-v27.mjs'
       - 'scripts/audit-audio-direction-v27.mjs'
+      - 'scripts/audit-chapter3-security-readability-v22d.mjs'
       - 'patches/audio-direction-v27.js.txt'
       - '.github/workflows/generate-audio-direction-v27.yml'
   workflow_dispatch:
