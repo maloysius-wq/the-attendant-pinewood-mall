@@ -25,8 +25,10 @@ for(const marker of [
 for(const marker of ['rand(72,118)','this.time<45','voiceBusyV27()','recording_jo_ls06','recording_eli_ls08','serializedVoices:true','deepPcas:true'])if(!patch.includes(marker))fail('patch marker missing '+marker);
 const legacyCadenceMentions=(patch.match(/rand\(18,30\)/g)||[]).length;
 if(legacyCadenceMentions!==1||!patch.includes("if(source.includes('this.nextAnnouncement=this.time+rand(18,30)'))fail('legacy rapid PCAS cadence survived v27');"))fail('legacy cadence may exist outside its explicit rejection guard');
-if(/speechSynthesis|SpeechSynthesisUtterance/.test(patch))fail('runtime speech synthesis is forbidden');
+const speechGuard="if(/speechSynthesis|SpeechSynthesisUtterance/.test(source))fail('runtime browser speech synthesis is forbidden');";
+if(!patch.includes(speechGuard))fail('runtime speech-synthesis rejection guard missing');
+if(/speechSynthesis|SpeechSynthesisUtterance/.test(patch.replace(speechGuard,'')))fail('runtime speech synthesis appears outside its explicit rejection guard');
 if(!/"voice": "en-us\+m3"/.test(await readFile(path.join(root,'story','pa-lines-v27.json'),'utf8')))fail('PCAS is not using the deep male base voice');
 
 const temp='/tmp/pinewood-audio-direction-v27.mjs';await writeFile(temp,patch);execFileSync('node',['--check',temp],{stdio:'inherit'});
-console.log(`Audio Direction v27 audit passed: ${Object.keys(charManifest.files).length} character clips, ${Object.keys(pcasManifest.files).length} PCAS clips; legacy 18-30 second cadence exists only in the patch rejection guard.`);
+console.log(`Audio Direction v27 audit passed: ${Object.keys(charManifest.files).length} character clips, ${Object.keys(pcasManifest.files).length} PCAS clips; rapid cadence and browser TTS tokens exist only inside explicit rejection guards.`);
