@@ -25,7 +25,7 @@ lines.push(
 const profiles={
   renee:{voice:'en-us+f4',speed:158,pitch:48,amp:178,filter:'aresample=44100,highpass=f=260,lowpass=f=3600,acompressor=threshold=0.07:ratio=5.2:attack=5:release=70,acrusher=bits=14:mode=lin:aa=1:mix=0.05,tremolo=f=18:d=0.018,equalizer=f=1800:t=q:w=1.2:g=2.4,aecho=0.68:0.18:38:0.08,loudnorm=I=-19:LRA=5:TP=-2,apad=pad_dur=0.12'},
   'fake-renee':{voice:'en-us+f4',speed:155,pitch:45,amp:180,filter:'aresample=44100,asetrate=42300,aresample=44100,highpass=f=240,lowpass=f=3300,acompressor=threshold=0.06:ratio=6.5:attack=4:release=80,acrusher=bits=10:mode=lin:aa=1:mix=0.22,tremolo=f=13:d=0.11,aecho=0.72:0.30:47|113:0.18|0.08,loudnorm=I=-19:LRA=4:TP=-2,apad=pad_dur=0.15'},
-  cassette:{voice:'en-us+f2',speed:146,pitch:42,amp:174,filter:'aresample=44100,highpass=f=150,lowpass=f=4300,acompressor=threshold=0.08:ratio=4:attack=8:release=90,tremolo=f=.72:d=.025,acrusher=bits=13:mode=lin:aa=1:mix=0.08,aecho=0.64:0.12:71:0.07,loudnorm=I=-20:LRA=6:TP=-2,apad=pad_dur=0.16'},
+  cassette:{voice:'en-us+f2',speed:146,pitch:42,amp:174,filter:'aresample=44100,highpass=f=150,lowpass=f=4300,acompressor=threshold=0.08:ratio=4:attack=8:release=90,tremolo=f=0.72:d=0.025,acrusher=bits=13:mode=lin:aa=1:mix=0.08,aecho=0.64:0.12:71:0.07,loudnorm=I=-20:LRA=6:TP=-2,apad=pad_dur=0.16'},
   recorder:{voice:'en-us+m2',speed:149,pitch:34,amp:178,filter:'aresample=44100,highpass=f=210,lowpass=f=3400,acompressor=threshold=0.075:ratio=5:attack=6:release=80,acrusher=bits=12:mode=lin:aa=1:mix=0.10,aecho=0.66:0.14:52:0.06,loudnorm=I=-20:LRA=5:TP=-2,apad=pad_dur=0.15'}
 };
 const outDir=path.join(root,'assets','audio','characters'),tempDir=path.join(root,'.tmp-character-voices-v27');await rm(tempDir,{recursive:true,force:true});await mkdir(tempDir,{recursive:true});await mkdir(outDir,{recursive:true});
@@ -36,7 +36,7 @@ for(const line of lines){
     const a=path.join(tempDir,line.id+'-a.wav'),b=path.join(tempDir,line.id+'-b.wav');
     execFileSync('espeak-ng',['-v','en-us+f4','-s','158','-p','48','-a','178','-w',a,line.text]);
     execFileSync('espeak-ng',['-v','en-us+m3','-s','132','-p','16','-a','170','-w',b,line.text]);
-    const fx='[0:a]highpass=f=260,lowpass=f=3600,acompressor=threshold=.07:ratio=5[a];[1:a]adelay=150,asetrate=40000,aresample=44100,highpass=f=130,lowpass=f=2800,acrusher=bits=9:mix=.2,volume=.52[b];[a][b]amix=inputs=2:normalize=0,aecho=.7:.2:51:.09,loudnorm=I=-19:LRA=4:TP=-2,apad=pad_dur=.15[out]';
+    const fx='[0:a]highpass=f=260,lowpass=f=3600,acompressor=threshold=0.07:ratio=5[a];[1:a]adelay=150,asetrate=40000,aresample=44100,highpass=f=130,lowpass=f=2800,acrusher=bits=9:mix=0.2,volume=0.52[b];[a][b]amix=inputs=2:normalize=0,aecho=0.7:0.2:51:0.09,loudnorm=I=-19:LRA=4:TP=-2,apad=pad_dur=0.15[out]';
     execFileSync('ffmpeg',['-hide_banner','-loglevel','error','-y','-i',a,'-i',b,'-filter_complex',fx,'-map','[out]','-ac','1','-ar','44100','-c:a','libvorbis','-q:a','5',output]);
   }else{
     const p=profiles[line.profile],raw=path.join(tempDir,line.id+'.wav');execFileSync('espeak-ng',['-v',p.voice,'-s',String(p.speed),'-p',String(p.pitch),'-a',String(p.amp),'-g','3','-w',raw,line.text]);
