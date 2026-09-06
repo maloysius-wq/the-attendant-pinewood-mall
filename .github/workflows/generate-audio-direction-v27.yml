@@ -7,6 +7,7 @@ on:
       - 'story/pa-lines-v27.json'
       - 'scripts/generate-pcas-voice-v27.mjs'
       - 'scripts/generate-character-voices-v27.mjs'
+      - 'scripts/audit-audio-direction-v27.mjs'
       - 'patches/audio-direction-v27.js.txt'
       - '.github/workflows/generate-audio-direction-v27.yml'
   workflow_dispatch:
@@ -31,6 +32,22 @@ jobs:
         run: |
           node scripts/generate-pcas-voice-v27.mjs
           node scripts/generate-character-voices-v27.mjs
+      - name: Upload representative voice review clips
+        uses: actions/upload-artifact@v4
+        with:
+          name: pinewood-audio-direction-v27-review
+          retention-days: 7
+          if-no-files-found: error
+          path: |
+            assets/audio/pa/ch1_contractor_registered.ogg
+            assets/audio/pa/ambient_ch1_public_exit.ogg
+            assets/audio/characters/ch1_start.ogg
+            assets/audio/characters/ch4_fake_route.ogg
+            assets/audio/characters/ch6_radio_overlap.ogg
+            assets/audio/characters/recording_jo_ls06.ogg
+            assets/audio/characters/recording_eli_ls08.ogg
+            assets/audio/pa/manifest.json
+            assets/audio/characters/manifest.json
       - name: Wire v27 after production readability and feed forward v26 audit
         shell: python
         run: |
