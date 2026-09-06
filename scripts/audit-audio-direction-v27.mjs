@@ -30,5 +30,12 @@ if(!patch.includes(speechGuard))fail('runtime speech-synthesis rejection guard m
 if(/speechSynthesis|SpeechSynthesisUtterance/.test(patch.replace(speechGuard,'')))fail('runtime speech synthesis appears outside its explicit rejection guard');
 if(!/"voice": "en-us\+m3"/.test(await readFile(path.join(root,'story','pa-lines-v27.json'),'utf8')))fail('PCAS is not using the deep male base voice');
 
+for(const auditPath of ['scripts/audit-chapter3-security-readability-v22d.mjs','scripts/audit-chapter6-last-shift-v25.mjs']){
+  const audit=await readFile(path.join(root,auditPath),'utf8');
+  for(const marker of ["const AUDIO_DIRECTION_V27_PATCH='./patches/audio-direction-v27.js.txt';",'audioDirectionV27Source',"const source=audioDirectionV27Source+'\\n//# sourceURL=pinewood-runtime.js\\n';"]){
+    if(!audit.includes(marker))fail(`${auditPath} does not feed forward through v27: ${marker}`);
+  }
+}
+
 const temp='/tmp/pinewood-audio-direction-v27.mjs';await writeFile(temp,patch);execFileSync('node',['--check',temp],{stdio:'inherit'});
-console.log(`Audio Direction v27 audit passed: ${Object.keys(charManifest.files).length} character clips, ${Object.keys(pcasManifest.files).length} PCAS clips; rapid cadence and browser TTS tokens exist only inside explicit rejection guards.`);
+console.log(`Audio Direction v27 audit passed: ${Object.keys(charManifest.files).length} character clips, ${Object.keys(pcasManifest.files).length} PCAS clips; rapid cadence and browser TTS tokens exist only inside explicit rejection guards, and historical loader audits feed forward through v27.`);
