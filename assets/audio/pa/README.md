@@ -1,10 +1,7 @@
 # Pinewood PCAS Voice Assets
 
-These are pre-rendered, repository-local voice lines for the Pinewood Closing and Accountability System (PCAS). Runtime playback never calls a cloud TTS service or the browser speech-synthesis API.
+Pre-rendered repository-local PCAS lines. The v27 audio-direction pass preserves the established ceiling-speaker presentation while using a much deeper male eSpeak NG source and a heavier robotic PA treatment. No browser or cloud speech synthesis runs during gameplay.
 
-Source text: `story/pa-lines.json`  
-Generator: `scripts/generate-pcas-voice.mjs`  
-TTS: eSpeak NG, used only at build time  
-Processing: FFmpeg band-limited ceiling-speaker chain with compression, detuned doubles, light bit reduction, electrical flutter, slapback echo, EQ and loudness normalization.
-
-The authored spoken text and resulting Pinewood-specific processed voice assets are part of the game content. eSpeak NG and FFmpeg are not shipped as runtime dependencies.
+Source: `story/pa-lines-v27.json`  
+Generator: `scripts/generate-pcas-voice-v27.mjs`  
+Build-time tools: eSpeak NG + FFmpeg.

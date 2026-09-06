@@ -46,8 +46,11 @@ if(new Set(profiles).size!==6)fail('surface identity profiles are not unique acr
 const loader=await readFile('game.js','utf8');
 const live=loader.includes("const PRODUCTION_READABILITY_V26_PATCH='./patches/production-readability-v26.js.txt';");
 if(live){
-  for(const marker of ['applyProductionReadabilityV26Runtime','getText(PRODUCTION_READABILITY_V26_PATCH)','const productionReadabilityV26Source=await applyProductionReadabilityV26Runtime(chapter6V25Source,productionReadabilityV26Patch);',"const source=productionReadabilityV26Source+'\\n//# sourceURL=pinewood-runtime.js\\n';"])if(!loader.includes(marker))fail('game.js partial/incorrect live v26 marker: '+marker);
+  for(const marker of ['applyProductionReadabilityV26Runtime','getText(PRODUCTION_READABILITY_V26_PATCH)','const productionReadabilityV26Source=await applyProductionReadabilityV26Runtime(chapter6V25Source,productionReadabilityV26Patch);'])if(!loader.includes(marker))fail('game.js partial/incorrect live v26 marker: '+marker);
   if(loader.includes("const source=chapter6V25Source+'\\n//# sourceURL=pinewood-runtime.js\\n';"))fail('game.js still terminates at v25 while v26 is present');
+  const v27=loader.includes("const AUDIO_DIRECTION_V27_PATCH='./patches/audio-direction-v27.js.txt';");
+  if(v27){for(const marker of ['applyAudioDirectionV27Runtime','getText(AUDIO_DIRECTION_V27_PATCH)','const audioDirectionV27Source=await applyAudioDirectionV27Runtime(productionReadabilityV26Source,audioDirectionV27Patch,characterVoiceManifest);',"const source=audioDirectionV27Source+'\\n//# sourceURL=pinewood-runtime.js\\n';"])if(!loader.includes(marker))fail('game.js partial/incorrect v27 feed-forward marker: '+marker);}
+  else if(!loader.includes("const source=productionReadabilityV26Source+'\\n//# sourceURL=pinewood-runtime.js\\n';"))fail('v26 must terminate the loader when no later patch is present');
 }else if(loader.includes('applyProductionReadabilityV26Runtime')||loader.includes('productionReadabilityV26Source'))fail('game.js contains partial v26 wiring');
 
 console.log(`Production readability v26 PASS (${live?'LIVE-CANDIDATE':'STAGED'}): final pixel-reviewed dark-scene correction is locked; all six chapters retain distinct mechanics/set pieces and unique wall/floor identities; critical retail, Below Grade, Records and PA surfaces remain readable without flattening Security/East Wing; texture repeat and loader consistency remain controlled.`);
