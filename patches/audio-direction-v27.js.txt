@@ -47,11 +47,6 @@ function applyAudioDirectionV27(source,manifest){
   }`
   );
 
-  replaceOnce('preload character voices',
-    "  async preload(){await Promise.all([...Object.keys(CC0_SFX).map(name=>this.load(name)),...Object.keys(PCAS_VOICE_V19.files).map(id=>this.loadPcas(id))]);this.startAmbientLoops();}",
-    "  async preload(){await Promise.all([...Object.keys(CC0_SFX).map(name=>this.load(name)),...Object.keys(PCAS_VOICE_V19.files).map(id=>this.loadPcas(id)),...Object.keys(CHARACTER_VOICE_V27.files).map(id=>this.loadCharacterV27(id))]);this.startAmbientLoops();}"
-  );
-
   replaceOnce('all structured radio lines carry audio ids',
     "this.game.queueStory(delay,kind,who,line.text,line.medium==='intercom'?id:null);",
     "this.game.queueStory(delay,kind,who,line.text,(line.medium==='intercom'||line.medium==='radio')?id:null);"
