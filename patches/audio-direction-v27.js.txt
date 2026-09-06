@@ -25,9 +25,10 @@ function applyAudioDirectionV27(source,manifest){
   async characterV27(id){
     if(!this.ctx)return null;const entry=CHARACTER_VOICE_V27.files[id];if(!entry)return null;
     if(this.voiceBusyV27()){const delay=(this.voiceRemainingV27()+.45)*1000;setTimeout(()=>this.characterV27(id),delay);return null;}
+    this.reserveVoiceV27(Number(entry.duration||0),.42);
     const buffer=await this.loadCharacterV27(id);if(!buffer||!this.ctx)return null;
-    if(this.voiceBusyV27()){const delay=(this.voiceRemainingV27()+.45)*1000;setTimeout(()=>this.characterV27(id),delay);return null;}
-    this.radio();const src=this.ctx.createBufferSource(),g=this.ctx.createGain();src.buffer=buffer;g.gain.value=.93;src.connect(g);g.connect(this.voice);this.reserveVoiceV27(buffer.duration,.42);src.start(this.ctx.currentTime+.11);return src;
+    this.voiceBusyUntilV27=Math.max(this.voiceBusyUntilV27||0,this.ctx.currentTime+buffer.duration+.42);
+    this.radio();const src=this.ctx.createBufferSource(),g=this.ctx.createGain();src.buffer=buffer;g.gain.value=.93;src.connect(g);g.connect(this.voice);src.start(this.ctx.currentTime+.11);return src;
   }`
   );
 
