@@ -32,9 +32,13 @@ if(!/"voice": "en-us\+m3"/.test(await readFile(path.join(root,'story','pa-lines-
 
 for(const auditPath of ['scripts/audit-chapter3-security-readability-v22d.mjs','scripts/audit-chapter6-last-shift-v25.mjs']){
   const audit=await readFile(path.join(root,auditPath),'utf8');
-  for(const marker of ["const AUDIO_DIRECTION_V27_PATCH='./patches/audio-direction-v27.js.txt';",'audioDirectionV27Source',"const source=audioDirectionV27Source+'\\n//# sourceURL=pinewood-runtime.js\\n';"]){
-    if(!audit.includes(marker))fail(`${auditPath} does not feed forward through v27: ${marker}`);
-  }
+  for(const marker of [
+    "loader.includes(\"const AUDIO_DIRECTION_V27_PATCH='./patches/audio-direction-v27.js.txt';\")",
+    'getText(AUDIO_DIRECTION_V27_PATCH)',
+    'applyAudioDirectionV27Runtime',
+    'audioDirectionV27Source',
+    'while v27 is present'
+  ])if(!audit.includes(marker))fail(`${auditPath} does not feed forward through v27: ${marker}`);
 }
 
 const temp='/tmp/pinewood-audio-direction-v27.mjs';await writeFile(temp,patch);execFileSync('node',['--check',temp],{stdio:'inherit'});
