@@ -22,7 +22,8 @@ for(const marker of [
   'audioDirectionV27Source',
   "const source=audioDirectionV27Source+'\\n//# sourceURL=pinewood-runtime.js\\n';"
 ])if(!game.includes(marker))fail('loader marker missing '+marker);
-for(const marker of ['rand(72,118)','this.time<45','voiceBusyV27()','recording_jo_ls06','recording_eli_ls08','serializedVoices:true','deepPcas:true'])if(!patch.includes(marker))fail('patch marker missing '+marker);
+for(const marker of ['rand(72,118)','this.time<45','voiceBusyV27()','loadCharacterV27(id)','recording_jo_ls06','recording_eli_ls08','serializedVoices:true','deepPcas:true'])if(!patch.includes(marker))fail('patch marker missing '+marker);
+if(patch.includes('Object.keys(CHARACTER_VOICE_V27.files).map(id=>this.loadCharacterV27(id))'))fail('character voices must lazy-load on demand, not decode all 47 clips during boot');
 const legacyCadenceMentions=(patch.match(/rand\(18,30\)/g)||[]).length;
 if(legacyCadenceMentions!==1||!patch.includes("if(source.includes('this.nextAnnouncement=this.time+rand(18,30)'))fail('legacy rapid PCAS cadence survived v27');"))fail('legacy cadence may exist outside its explicit rejection guard');
 const speechGuard="if(/speechSynthesis|SpeechSynthesisUtterance/.test(source))fail('runtime browser speech synthesis is forbidden');";
@@ -42,4 +43,4 @@ for(const auditPath of ['scripts/audit-chapter3-security-readability-v22d.mjs','
 }
 
 const temp='/tmp/pinewood-audio-direction-v27.mjs';await writeFile(temp,patch);execFileSync('node',['--check',temp],{stdio:'inherit'});
-console.log(`Audio Direction v27 audit passed: ${Object.keys(charManifest.files).length} character clips, ${Object.keys(pcasManifest.files).length} PCAS clips; rapid cadence and browser TTS tokens exist only inside explicit rejection guards, and historical loader audits feed forward through v27.`);
+console.log(`Audio Direction v27 audit passed: ${Object.keys(charManifest.files).length} lazy-loaded character clips, ${Object.keys(pcasManifest.files).length} PCAS clips; rapid cadence and browser TTS tokens exist only inside explicit rejection guards, and historical loader audits feed forward through v27.`);
