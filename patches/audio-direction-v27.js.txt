@@ -6,7 +6,7 @@ function applyAudioDirectionV27(source,manifest){
 
   replaceOnce('character voice manifest injection',
     "const PCAS_AUDIO_BASE=new URL('./assets/audio/pa/',location.href).href;",
-    "const PCAS_AUDIO_BASE=new URL('./assets/audio/pa/',location.href).href;\nconst CHARACTER_VOICE_V27="+JSON.stringify(manifest)+";\nconst CHARACTER_AUDIO_BASE_V27=new URL('./assets/audio/characters/',location.href).href;\nwindow.__PINEWOOD_AUDIO_V27__={version:27,sparsePcas:true,serializedVoices:true,radioVoices:true,deepPcas:true,loaded:0,failures:[]};"
+    "const PCAS_AUDIO_BASE=new URL('./assets/audio/pa/',location.href).href;\nconst CHARACTER_VOICE_V27="+JSON.stringify(manifest)+";\nconst CHARACTER_AUDIO_BASE_V27=new URL('./assets/audio/characters/',location.href).href;\nwindow.__PINEWOOD_AUDIO_V27__={version:27,sparsePcas:true,serializedVoices:true,radioVoices:true,deepPcas:true,ambientMin:72,ambientMax:118,openingQuiet:45,loaded:0,failures:[]};"
   );
 
   replaceOnce('v27 voice helpers',
@@ -23,7 +23,10 @@ function applyAudioDirectionV27(source,manifest){
     this.loads.set(key,promise);return promise;
   }
   async characterV27(id){
-    if(!this.ctx)return null;const entry=CHARACTER_VOICE_V27.files[id];if(!entry)return null;const buffer=await this.loadCharacterV27(id);if(!buffer||!this.ctx)return null;
+    if(!this.ctx)return null;const entry=CHARACTER_VOICE_V27.files[id];if(!entry)return null;
+    if(this.voiceBusyV27()){const delay=(this.voiceRemainingV27()+.45)*1000;setTimeout(()=>this.characterV27(id),delay);return null;}
+    const buffer=await this.loadCharacterV27(id);if(!buffer||!this.ctx)return null;
+    if(this.voiceBusyV27()){const delay=(this.voiceRemainingV27()+.45)*1000;setTimeout(()=>this.characterV27(id),delay);return null;}
     this.radio();const src=this.ctx.createBufferSource(),g=this.ctx.createGain();src.buffer=buffer;g.gain.value=.93;src.connect(g);g.connect(this.voice);this.reserveVoiceV27(buffer.duration,.42);src.start(this.ctx.currentTime+.11);return src;
   }`
   );
@@ -36,9 +39,10 @@ function applyAudioDirectionV27(source,manifest){
     const src=this.ctx.createBufferSource(),g=this.ctx.createGain();src.buffer=buffer;src.playbackRate.value=rand(.994,1.006);g.gain.value=.92;src.connect(g);g.connect(this.voice);src.start(this.ctx.currentTime+.22);return src;
   }`,
 `  async pcas(id){
-    if(!this.ctx)return null;const entry=PCAS_VOICE_V19.files[id];if(!entry)return null;this.chime();
-    const buffer=await this.loadPcas(id);if(!buffer||!this.ctx)return null;
-    this.play('buzz',{gain:.055,bus:'voice',rate:.78,when:.12,offset:.06,duration:Math.min(.95,Math.max(.30,buffer.duration*.16))});
+    if(!this.ctx)return null;const entry=PCAS_VOICE_V19.files[id];if(!entry)return null;
+    if(this.voiceBusyV27())return null;
+    const buffer=await this.loadPcas(id);if(!buffer||!this.ctx||this.voiceBusyV27())return null;
+    this.chime();this.play('buzz',{gain:.055,bus:'voice',rate:.78,when:.12,offset:.06,duration:Math.min(.95,Math.max(.30,buffer.duration*.16))});
     const src=this.ctx.createBufferSource(),g=this.ctx.createGain(),lp=this.ctx.createBiquadFilter();src.buffer=buffer;src.playbackRate.value=rand(.965,.985);lp.type='lowpass';lp.frequency.value=3300;lp.Q.value=.72;g.gain.value=.98;src.connect(lp);lp.connect(g);g.connect(this.voice);this.reserveVoiceV27(buffer.duration/src.playbackRate.value,.52);src.start(this.ctx.currentTime+.20);return src;
   }`
   );
@@ -57,25 +61,26 @@ function applyAudioDirectionV27(source,manifest){
     "updateStory(){while(this.storyQueue.length&&this.storyQueue[0].at<=this.time){const l=this.storyQueue.shift();let duration=l.kind==='log'?4400:3400;if(l.kind==='radio')audio.radio();else if(l.kind==='intercom'&&l.audioKey){audio.pcas(l.audioKey);duration=Math.max(duration,(audio.pcasDuration(l.audioKey)+.72)*1000);}else audio.chime();UI.subtitle(l.who,l.text,l.kind,duration);}}",
 `updateStory(){
     if(!this.storyQueue.length||this.storyQueue[0].at>this.time)return;
-    if(audio.voiceBusyV27())return;
+    if(audio.voiceBusyV27()||this.time<(this.storyVoiceUntilV27||0))return;
     const l=this.storyQueue.shift();let duration=l.kind==='log'?4400:3400;
     if(l.kind==='radio'&&l.audioKey&&CHARACTER_VOICE_V27.files[l.audioKey]){audio.characterV27(l.audioKey);duration=Math.max(duration,(audio.characterDurationV27(l.audioKey)+.65)*1000);}
     else if(l.kind==='radio')audio.radio();
     else if(l.kind==='intercom'&&l.audioKey){audio.pcas(l.audioKey);duration=Math.max(duration,(audio.pcasDuration(l.audioKey)+.85)*1000);}
     else audio.chime();
+    this.storyVoiceUntilV27=this.time+duration/1000+.30;
     UI.subtitle(l.who,l.text,l.kind,duration);
   }`
   );
 
-  replaceOnce('direct PCAS respects voice lock',
+  replaceOnce('direct PCAS respects voice and subtitle locks',
     "playPcasLineV19(id){const entry=PCAS_VOICE_V19.files[id];if(!entry)return false;audio.pcas(id);UI.subtitle('INTERCOM',entry.text,'intercom',Math.max(3600,(Number(entry.duration||0)+.72)*1000));return true;}",
-    "playPcasLineV19(id){const entry=PCAS_VOICE_V19.files[id];if(!entry)return false;if(audio.voiceBusyV27()){this.queueStory(Math.max(.45,audio.voiceRemainingV27()+.48),'intercom','INTERCOM',entry.text,id);return true;}audio.pcas(id);UI.subtitle('INTERCOM',entry.text,'intercom',Math.max(3600,(Number(entry.duration||0)+.85)*1000));return true;}"
+    "playPcasLineV19(id){const entry=PCAS_VOICE_V19.files[id];if(!entry)return false;const duration=Math.max(3600,(Number(entry.duration||0)+.85)*1000);if(audio.voiceBusyV27()||this.time<(this.storyVoiceUntilV27||0)){const delay=Math.max(.45,audio.voiceRemainingV27()+.48,(this.storyVoiceUntilV27||0)-this.time+.20);this.queueStory(delay,'intercom','INTERCOM',entry.text,id);return true;}audio.pcas(id);this.storyVoiceUntilV27=this.time+duration/1000+.30;UI.subtitle('INTERCOM',entry.text,'intercom',duration);return true;}"
   );
 
   replaceRange('sparse ambient PCAS','  playRandomIntercom(){','  emitSound(pos,strength,type=',
 `  playRandomIntercom(){
     if(this.time<45){this.nextAnnouncement=this.time+rand(55,78);return;}
-    if(audio.voiceBusyV27()||this.storyQueue.some(l=>l.at<=this.time+12)){this.nextAnnouncement=this.time+rand(24,38);return;}
+    if(audio.voiceBusyV27()||this.time<(this.storyVoiceUntilV27||0)||this.storyQueue.some(l=>l.at<=this.time+12)){this.nextAnnouncement=this.time+rand(24,38);return;}
     let ids;
     if(this.levelIndex===0){
       if(this.breakers===0)ids=['ambient_ch1_public_exit','ambient_ch1_initializing','ambient_ch1_clear_public'];
@@ -89,11 +94,11 @@ function applyAudioDirectionV27(source,manifest){
 `
   );
 
-  replaceOnce('Jo cassette gets a distinct voice',
+  replaceOnce('Jo cassette gets a distinct serialized voice',
     "else if(o.userData.label==='LS-06'){s.ls06Found=true;",
     "else if(o.userData.label==='LS-06'){audio.characterV27('recording_jo_ls06');s.ls06Found=true;"
   );
-  replaceOnce('Eli recorder gets a distinct voice',
+  replaceOnce('Eli recorder gets a distinct serialized voice',
     "else if(label==='LS-08'){s.eliRecorder=true;",
     "else if(label==='LS-08'){audio.characterV27('recording_eli_ls08');s.eliRecorder=true;"
   );
@@ -103,12 +108,13 @@ function applyAudioDirectionV27(source,manifest){
     'voiceBusyV27()',
     'reserveVoiceV27(',
     'characterV27(id)',
+    'this.storyVoiceUntilV27',
     "line.medium==='intercom'||line.medium==='radio'",
-    'if(audio.voiceBusyV27())return;',
     'this.time<45',
     'rand(72,118)',
     "recording_jo_ls06",
     "recording_eli_ls08",
+    'ambientMin:72',
     'window.__PINEWOOD_AUDIO_V27__'
   ])if(!source.includes(marker))fail('required v27 marker missing: '+marker);
   if(source.includes('this.nextAnnouncement=this.time+rand(18,30)'))fail('legacy rapid PCAS cadence survived v27');
