@@ -1,0 +1,117 @@
+function applyAudioDirectionV27(source,manifest){
+  const fail=msg=>{throw new Error('Audio Direction v27 patch failed: '+msg);};
+  if(!manifest||manifest.version!==27||!manifest.files)fail('character voice manifest v27 is required');
+  const replaceOnce=(label,needle,replacement)=>{const first=source.indexOf(needle);if(first<0)fail(label+': marker missing');if(source.indexOf(needle,first+needle.length)>=0)fail(label+': marker is not unique');source=source.slice(0,first)+replacement+source.slice(first+needle.length);};
+  const replaceRange=(label,startMarker,endMarker,replacement)=>{const start=source.indexOf(startMarker);if(start<0)fail(label+': start marker missing');const end=source.indexOf(endMarker,start+startMarker.length);if(end<0)fail(label+': end marker missing');source=source.slice(0,start)+replacement+source.slice(end);};
+
+  replaceOnce('character voice manifest injection',
+    "const PCAS_AUDIO_BASE=new URL('./assets/audio/pa/',location.href).href;",
+    "const PCAS_AUDIO_BASE=new URL('./assets/audio/pa/',location.href).href;\nconst CHARACTER_VOICE_V27="+JSON.stringify(manifest)+";\nconst CHARACTER_AUDIO_BASE_V27=new URL('./assets/audio/characters/',location.href).href;\nwindow.__PINEWOOD_AUDIO_V27__={version:27,sparsePcas:true,serializedVoices:true,radioVoices:true,deepPcas:true,loaded:0,failures:[]};"
+  );
+
+  replaceOnce('v27 voice helpers',
+    "  pcasDuration(id){return Number(PCAS_VOICE_V19.files[id]?.duration||0);}",
+`  pcasDuration(id){return Number(PCAS_VOICE_V19.files[id]?.duration||0);}
+  characterDurationV27(id){return Number(CHARACTER_VOICE_V27.files[id]?.duration||0);}
+  voiceBusyV27(){return !!this.ctx&&this.ctx.currentTime<(this.voiceBusyUntilV27||0);}
+  voiceRemainingV27(){return this.ctx?Math.max(0,(this.voiceBusyUntilV27||0)-this.ctx.currentTime):0;}
+  reserveVoiceV27(seconds,pad=.38){if(!this.ctx)return;this.voiceBusyUntilV27=Math.max(this.voiceBusyUntilV27||0,this.ctx.currentTime)+Math.max(.1,seconds)+pad;}
+  async loadCharacterV27(id){
+    const entry=CHARACTER_VOICE_V27.files[id];if(!entry)return null;const key='character:'+id;
+    if(this.buffers.has(key))return this.buffers.get(key);if(this.loads.has(key))return this.loads.get(key);
+    const promise=fetch(CHARACTER_AUDIO_BASE_V27+entry.file,{cache:'force-cache'}).then(r=>{if(!r.ok)throw new Error('HTTP '+r.status);return r.arrayBuffer();}).then(b=>this.ctx.decodeAudioData(b)).then(buffer=>{this.buffers.set(key,buffer);this.loads.delete(key);window.__PINEWOOD_AUDIO_V27__.loaded=[...this.buffers.keys()].filter(k=>k.startsWith('character:')).length;return buffer;}).catch(err=>{this.loads.delete(key);if(!window.__PINEWOOD_AUDIO_V27__.failures.includes(id))window.__PINEWOOD_AUDIO_V27__.failures.push(id);console.warn('Character voice failed to load; subtitles remain available.',id,err);return null;});
+    this.loads.set(key,promise);return promise;
+  }
+  async characterV27(id){
+    if(!this.ctx)return null;const entry=CHARACTER_VOICE_V27.files[id];if(!entry)return null;const buffer=await this.loadCharacterV27(id);if(!buffer||!this.ctx)return null;
+    this.radio();const src=this.ctx.createBufferSource(),g=this.ctx.createGain();src.buffer=buffer;g.gain.value=.93;src.connect(g);g.connect(this.voice);this.reserveVoiceV27(buffer.duration,.42);src.start(this.ctx.currentTime+.11);return src;
+  }`
+  );
+
+  replaceOnce('PCAS playback reserves voice channel',
+`  async pcas(id){
+    if(!this.ctx)return null;const entry=PCAS_VOICE_V19.files[id];if(!entry)return null;this.chime();
+    const buffer=await this.loadPcas(id);if(!buffer||!this.ctx)return null;
+    this.play('buzz',{gain:.045,bus:'voice',rate:.91,when:.14,offset:.08,duration:Math.min(.82,Math.max(.25,buffer.duration*.18))});
+    const src=this.ctx.createBufferSource(),g=this.ctx.createGain();src.buffer=buffer;src.playbackRate.value=rand(.994,1.006);g.gain.value=.92;src.connect(g);g.connect(this.voice);src.start(this.ctx.currentTime+.22);return src;
+  }`,
+`  async pcas(id){
+    if(!this.ctx)return null;const entry=PCAS_VOICE_V19.files[id];if(!entry)return null;this.chime();
+    const buffer=await this.loadPcas(id);if(!buffer||!this.ctx)return null;
+    this.play('buzz',{gain:.055,bus:'voice',rate:.78,when:.12,offset:.06,duration:Math.min(.95,Math.max(.30,buffer.duration*.16))});
+    const src=this.ctx.createBufferSource(),g=this.ctx.createGain(),lp=this.ctx.createBiquadFilter();src.buffer=buffer;src.playbackRate.value=rand(.965,.985);lp.type='lowpass';lp.frequency.value=3300;lp.Q.value=.72;g.gain.value=.98;src.connect(lp);lp.connect(g);g.connect(this.voice);this.reserveVoiceV27(buffer.duration/src.playbackRate.value,.52);src.start(this.ctx.currentTime+.20);return src;
+  }`
+  );
+
+  replaceOnce('preload character voices',
+    "  async preload(){await Promise.all([...Object.keys(CC0_SFX).map(name=>this.load(name)),...Object.keys(PCAS_VOICE_V19.files).map(id=>this.loadPcas(id))]);this.startAmbientLoops();}",
+    "  async preload(){await Promise.all([...Object.keys(CC0_SFX).map(name=>this.load(name)),...Object.keys(PCAS_VOICE_V19.files).map(id=>this.loadPcas(id)),...Object.keys(CHARACTER_VOICE_V27.files).map(id=>this.loadCharacterV27(id))]);this.startAmbientLoops();}"
+  );
+
+  replaceOnce('all structured radio lines carry audio ids',
+    "this.game.queueStory(delay,kind,who,line.text,line.medium==='intercom'?id:null);",
+    "this.game.queueStory(delay,kind,who,line.text,(line.medium==='intercom'||line.medium==='radio')?id:null);"
+  );
+
+  replaceOnce('serialized story voice playback',
+    "updateStory(){while(this.storyQueue.length&&this.storyQueue[0].at<=this.time){const l=this.storyQueue.shift();let duration=l.kind==='log'?4400:3400;if(l.kind==='radio')audio.radio();else if(l.kind==='intercom'&&l.audioKey){audio.pcas(l.audioKey);duration=Math.max(duration,(audio.pcasDuration(l.audioKey)+.72)*1000);}else audio.chime();UI.subtitle(l.who,l.text,l.kind,duration);}}",
+`updateStory(){
+    if(!this.storyQueue.length||this.storyQueue[0].at>this.time)return;
+    if(audio.voiceBusyV27())return;
+    const l=this.storyQueue.shift();let duration=l.kind==='log'?4400:3400;
+    if(l.kind==='radio'&&l.audioKey&&CHARACTER_VOICE_V27.files[l.audioKey]){audio.characterV27(l.audioKey);duration=Math.max(duration,(audio.characterDurationV27(l.audioKey)+.65)*1000);}
+    else if(l.kind==='radio')audio.radio();
+    else if(l.kind==='intercom'&&l.audioKey){audio.pcas(l.audioKey);duration=Math.max(duration,(audio.pcasDuration(l.audioKey)+.85)*1000);}
+    else audio.chime();
+    UI.subtitle(l.who,l.text,l.kind,duration);
+  }`
+  );
+
+  replaceOnce('direct PCAS respects voice lock',
+    "playPcasLineV19(id){const entry=PCAS_VOICE_V19.files[id];if(!entry)return false;audio.pcas(id);UI.subtitle('INTERCOM',entry.text,'intercom',Math.max(3600,(Number(entry.duration||0)+.72)*1000));return true;}",
+    "playPcasLineV19(id){const entry=PCAS_VOICE_V19.files[id];if(!entry)return false;if(audio.voiceBusyV27()){this.queueStory(Math.max(.45,audio.voiceRemainingV27()+.48),'intercom','INTERCOM',entry.text,id);return true;}audio.pcas(id);UI.subtitle('INTERCOM',entry.text,'intercom',Math.max(3600,(Number(entry.duration||0)+.85)*1000));return true;}"
+  );
+
+  replaceRange('sparse ambient PCAS','  playRandomIntercom(){','  emitSound(pos,strength,type=',
+`  playRandomIntercom(){
+    if(this.time<45){this.nextAnnouncement=this.time+rand(55,78);return;}
+    if(audio.voiceBusyV27()||this.storyQueue.some(l=>l.at<=this.time+12)){this.nextAnnouncement=this.time+rand(24,38);return;}
+    let ids;
+    if(this.levelIndex===0){
+      if(this.breakers===0)ids=['ambient_ch1_public_exit','ambient_ch1_initializing','ambient_ch1_clear_public'];
+      else if(this.breakers===1)ids=['ch1_pcas_hold','ambient_ch1_cleanup'];
+      else if(this.breakers===2)ids=['ambient_ch1_camera_view','ambient_ch1_customer_service'];
+      else ids=['ambient_ch1_departure_pending','ambient_ch1_camera_view'];
+    }else if(this.levelIndex===1)ids=['ambient_ch2_stairwell','ambient_ch2_security','ambient_ch2_stop'];
+    else ids=['ambient_ch3_unaccounted','ambient_ch3_east_wing','ambient_ch3_terminal'];
+    this.playPcasLineV19(choose(ids));this.nextAnnouncement=this.time+rand(72,118);
+  }
+`
+  );
+
+  replaceOnce('Jo cassette gets a distinct voice',
+    "else if(o.userData.label==='LS-06'){s.ls06Found=true;",
+    "else if(o.userData.label==='LS-06'){audio.characterV27('recording_jo_ls06');s.ls06Found=true;"
+  );
+  replaceOnce('Eli recorder gets a distinct voice',
+    "else if(label==='LS-08'){s.eliRecorder=true;",
+    "else if(label==='LS-08'){audio.characterV27('recording_eli_ls08');s.eliRecorder=true;"
+  );
+
+  for(const marker of [
+    'CHARACTER_VOICE_V27=',
+    'voiceBusyV27()',
+    'reserveVoiceV27(',
+    'characterV27(id)',
+    "line.medium==='intercom'||line.medium==='radio'",
+    'if(audio.voiceBusyV27())return;',
+    'this.time<45',
+    'rand(72,118)',
+    "recording_jo_ls06",
+    "recording_eli_ls08",
+    'window.__PINEWOOD_AUDIO_V27__'
+  ])if(!source.includes(marker))fail('required v27 marker missing: '+marker);
+  if(source.includes('this.nextAnnouncement=this.time+rand(18,30)'))fail('legacy rapid PCAS cadence survived v27');
+  if(/speechSynthesis|SpeechSynthesisUtterance/.test(source))fail('runtime browser speech synthesis is forbidden');
+  return source;
+}
