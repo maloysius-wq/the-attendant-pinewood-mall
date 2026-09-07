@@ -1,4 +1,4 @@
-name: Six-chapter production hardening v26
+name: Six-chapter production hardening v27
 
 on:
   push:
@@ -13,6 +13,7 @@ on:
       - 'vendor/**'
       - 'assets/vendor/**'
       - 'assets/audio/pa/**'
+      - 'assets/audio/characters/**'
   pull_request:
     branches: [main]
     paths:
@@ -25,6 +26,7 @@ on:
       - 'vendor/**'
       - 'assets/vendor/**'
       - 'assets/audio/pa/**'
+      - 'assets/audio/characters/**'
   workflow_dispatch:
 
 permissions:
@@ -60,6 +62,7 @@ jobs:
             scripts/audit-chapter6-finale-source-v25.mjs
             scripts/audit-chapter6-last-shift-v25.mjs
             scripts/audit-production-readability-v26.mjs
+            scripts/audit-audio-direction-v27.mjs
             scripts/audit-runtime.mjs
           )
           for script in "${scripts[@]}"; do
@@ -91,6 +94,9 @@ jobs:
           cat /tmp/pinewood-hardening-http.log
           exit 1
 
+      - name: Smoke sparse serialized v27 voice runtime
+        run: node scripts/smoke-audio-direction-v27.mjs
+
       - name: Exercise menus saves migrations and six chapter HUDs
         run: node scripts/smoke-production-v26.mjs
 
@@ -110,7 +116,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: pinewood-production-hardening-v26
+          name: pinewood-production-hardening-v27
           path: |
             production-smoke-artifacts/
             visual-artifacts/
