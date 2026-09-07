@@ -6,14 +6,14 @@ function applyAudioDirectionV27(source,manifest){
 
   replaceOnce('character voice manifest injection',
     "const PCAS_AUDIO_BASE=new URL('./assets/audio/pa/',location.href).href;",
-    "const PCAS_AUDIO_BASE=new URL('./assets/audio/pa/',location.href).href;\nconst CHARACTER_VOICE_V27="+JSON.stringify(manifest)+";\nconst CHARACTER_AUDIO_BASE_V27=new URL('./assets/audio/characters/',location.href).href;\nwindow.__PINEWOOD_AUDIO_V27__={version:27,sparsePcas:true,serializedVoices:true,radioVoices:true,deepPcas:true,ambientMin:72,ambientMax:118,openingQuiet:45,loaded:0,failures:[]};"
+    "const PCAS_AUDIO_BASE=new URL('./assets/audio/pa/',location.href).href;\nconst CHARACTER_VOICE_V27="+JSON.stringify(manifest)+";\nconst CHARACTER_AUDIO_BASE_V27=new URL('./assets/audio/characters/',location.href).href;\nwindow.__PINEWOOD_AUDIO_V27__={version:27,sparsePcas:true,serializedVoices:true,radioVoices:true,deepPcas:true,subtitleTracksVoice:true,ambientMin:72,ambientMax:118,openingQuiet:45,loaded:0,failures:[]};"
   );
 
   replaceOnce('v27 voice helpers',
     "  pcasDuration(id){return Number(PCAS_VOICE_V19.files[id]?.duration||0);}",
 `  pcasDuration(id){return Number(PCAS_VOICE_V19.files[id]?.duration||0);}
   characterDurationV27(id){return Number(CHARACTER_VOICE_V27.files[id]?.duration||0);}
-  voiceBusyV27(){return !!this.ctx&&this.ctx.currentTime<(this.voiceBusyUntilV27||0);}
+  voiceBusyV27(){return !!this.voiceLoadingV27||(!!this.ctx&&this.ctx.currentTime<(this.voiceBusyUntilV27||0));}
   voiceRemainingV27(){return this.ctx?Math.max(0,(this.voiceBusyUntilV27||0)-this.ctx.currentTime):0;}
   reserveVoiceV27(seconds,pad=.38){if(!this.ctx)return;this.voiceBusyUntilV27=Math.max(this.voiceBusyUntilV27||0,this.ctx.currentTime)+Math.max(.1,seconds)+pad;}
   async loadCharacterV27(id){
@@ -22,13 +22,15 @@ function applyAudioDirectionV27(source,manifest){
     const promise=fetch(CHARACTER_AUDIO_BASE_V27+entry.file,{cache:'force-cache'}).then(r=>{if(!r.ok)throw new Error('HTTP '+r.status);return r.arrayBuffer();}).then(b=>this.ctx.decodeAudioData(b)).then(buffer=>{this.buffers.set(key,buffer);this.loads.delete(key);window.__PINEWOOD_AUDIO_V27__.loaded=[...this.buffers.keys()].filter(k=>k.startsWith('character:')).length;return buffer;}).catch(err=>{this.loads.delete(key);if(!window.__PINEWOOD_AUDIO_V27__.failures.includes(id))window.__PINEWOOD_AUDIO_V27__.failures.push(id);console.warn('Character voice failed to load; subtitles remain available.',id,err);return null;});
     this.loads.set(key,promise);return promise;
   }
-  async characterV27(id){
-    if(!this.ctx)return null;const entry=CHARACTER_VOICE_V27.files[id];if(!entry)return null;
-    if(this.voiceBusyV27()){const delay=(this.voiceRemainingV27()+.45)*1000;setTimeout(()=>this.characterV27(id),delay);return null;}
-    this.reserveVoiceV27(Number(entry.duration||0),.42);
-    const buffer=await this.loadCharacterV27(id);if(!buffer||!this.ctx)return null;
-    this.voiceBusyUntilV27=Math.max(this.voiceBusyUntilV27||0,this.ctx.currentTime+buffer.duration+.42);
-    this.radio();const src=this.ctx.createBufferSource(),g=this.ctx.createGain();src.buffer=buffer;g.gain.value=.93;src.connect(g);g.connect(this.voice);src.start(this.ctx.currentTime+.11);return src;
+  async characterV27(id,onStart=null,onUnavailable=null){
+    const unavailable=()=>{this.voiceLoadingV27=false;onUnavailable?.();return null;};
+    if(!this.ctx)return unavailable();const entry=CHARACTER_VOICE_V27.files[id];if(!entry)return unavailable();
+    if(this.voiceBusyV27()){const delay=(this.voiceRemainingV27()+.45)*1000;setTimeout(()=>this.characterV27(id,onStart,onUnavailable),Math.max(180,delay));return null;}
+    this.voiceLoadingV27=true;
+    const buffer=await this.loadCharacterV27(id);this.voiceLoadingV27=false;if(!buffer||!this.ctx)return unavailable();
+    if(this.voiceBusyV27()){setTimeout(()=>this.characterV27(id,onStart,onUnavailable),Math.max(180,(this.voiceRemainingV27()+.45)*1000));return null;}
+    this.radio();const src=this.ctx.createBufferSource(),g=this.ctx.createGain();src.buffer=buffer;g.gain.value=.90;src.connect(g);g.connect(this.voice);
+    const startDelay=.11,total=startDelay+buffer.duration;this.reserveVoiceV27(total,.42);src.start(this.ctx.currentTime+startDelay);onStart?.({duration:buffer.duration,startDelay,total,source:src});return src;
   }`
   );
 
@@ -59,7 +61,18 @@ function applyAudioDirectionV27(source,manifest){
     if(!this.storyQueue.length||this.storyQueue[0].at>this.time)return;
     if(audio.voiceBusyV27()||this.time<(this.storyVoiceUntilV27||0))return;
     const l=this.storyQueue.shift();let duration=l.kind==='log'?4400:3400;
-    if(l.kind==='radio'&&l.audioKey&&CHARACTER_VOICE_V27.files[l.audioKey]){audio.characterV27(l.audioKey);duration=Math.max(duration,(audio.characterDurationV27(l.audioKey)+.65)*1000);}
+    if(l.kind==='radio'&&l.audioKey&&CHARACTER_VOICE_V27.files[l.audioKey]){
+      audio.characterV27(l.audioKey,timing=>{
+        const spokenDuration=Math.max(3400,(timing.total+.65)*1000);
+        this.storyVoiceUntilV27=this.time+spokenDuration/1000+.30;
+        UI.subtitle(l.who,l.text,l.kind,spokenDuration);
+      },()=>{
+        const fallbackDuration=Math.max(3400,(audio.characterDurationV27(l.audioKey)+.65)*1000);
+        this.storyVoiceUntilV27=this.time+fallbackDuration/1000+.30;
+        UI.subtitle(l.who,l.text,l.kind,fallbackDuration);
+      });
+      return;
+    }
     else if(l.kind==='radio')audio.radio();
     else if(l.kind==='intercom'&&l.audioKey){audio.pcas(l.audioKey);duration=Math.max(duration,(audio.pcasDuration(l.audioKey)+.85)*1000);}
     else audio.chime();
@@ -102,8 +115,12 @@ function applyAudioDirectionV27(source,manifest){
   for(const marker of [
     'CHARACTER_VOICE_V27=',
     'voiceBusyV27()',
+    'voiceLoadingV27',
     'reserveVoiceV27(',
-    'characterV27(id)',
+    'characterV27(id,onStart=null,onUnavailable=null)',
+    'subtitleTracksVoice:true',
+    'spokenDuration=Math.max(3400,(timing.total+.65)*1000)',
+    'g.gain.value=.90',
     'this.storyVoiceUntilV27',
     "line.medium==='intercom'||line.medium==='radio'",
     'this.time<45',
@@ -113,6 +130,7 @@ function applyAudioDirectionV27(source,manifest){
     'ambientMin:72',
     'window.__PINEWOOD_AUDIO_V27__'
   ])if(!source.includes(marker))fail('required v27 marker missing: '+marker);
+  if(source.includes('this.reserveVoiceV27(Number(entry.duration||0),.42);'))fail('character voice lifetime may not begin before lazy load completes');
   if(source.includes('this.nextAnnouncement=this.time+rand(18,30)'))fail('legacy rapid PCAS cadence survived v27');
   if(/speechSynthesis|SpeechSynthesisUtterance/.test(source))fail('runtime browser speech synthesis is forbidden');
   return source;
