@@ -6,6 +6,9 @@ on:
       - '.github/workflows/renee-neural-production.yml'
       - 'scripts/render-renee-neural-v27.mjs'
       - 'scripts/reprocess-renee-walkie-v28.mjs'
+      - 'scripts/audit-audio-direction-v27.mjs'
+      - 'patches/audio-direction-v27.js.txt'
+      - 'story/renee-voice-direction-v27.json'
       - 'story/renee-voice-sources-v27.json'
   workflow_dispatch:
 
