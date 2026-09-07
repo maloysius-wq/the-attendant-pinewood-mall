@@ -1,12 +1,9 @@
 {
   "version": 27,
   "voice": {
-    "engine": "espeak-ng",
-    "voice": "en-us+m3",
-    "speed": 122,
-    "pitch": 10,
-    "amplitude": 186,
-    "wordGap": 9
+    "engine": "flite",
+    "voice": "rms",
+    "profile": "pcas-b-deep-mechanical"
   },
   "lines": [
     {"id":"ch1_pcas_hold","text":"Attention shoppers. Closing has been extended. Employees remain at their stations."},
