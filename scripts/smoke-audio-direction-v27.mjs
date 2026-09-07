@@ -37,16 +37,19 @@ try{
       const ogg=bytes.length>=4&&String.fromCharCode(...bytes.slice(0,4))==='OggS';
       assets.push({label,file,ok:response.ok&&ogg,size:bytes.length});
     }
-    return {telemetry,pcasRevision:pcas.audioDirectionRevision,pcasCount:Object.keys(pcas.files||{}).length,characterVersion:characters.version,characterCount:Object.keys(characters.files||{}).length,assets};
+    return {telemetry,pcasRevision:pcas.audioDirectionRevision,pcasCount:Object.keys(pcas.files||{}).length,characterVersion:characters.version,characterCount:Object.keys(characters.files||{}).length,reneeEngine:characters.engine?.renee||'',characterProcessing:characters.processing?.description||'',assets};
   });
   expect(!result.error,result.error||'manifest fetch failed');
   expect(result.telemetry?.version===27,'runtime telemetry v27 missing');
   expect(result.telemetry.sparsePcas===true&&result.telemetry.serializedVoices===true&&result.telemetry.radioVoices===true&&result.telemetry.deepPcas===true,'v27 runtime flags incomplete');
+  expect(result.telemetry.subtitleTracksVoice===true,'Renee subtitle lifecycle is not tied to actual character voice playback');
   expect(result.telemetry.ambientMin===72&&result.telemetry.ambientMax===118&&result.telemetry.openingQuiet===45,'sparse PCAS timing telemetry changed');
   expect(result.telemetry.loaded===0,'character voices decoded during deterministic boot instead of lazy-loading');
   expect(Array.isArray(result.telemetry.failures)&&result.telemetry.failures.length===0,'character voice preload reported failures: '+JSON.stringify(result.telemetry.failures));
   expect(result.pcasRevision===27&&result.pcasCount===25,`PCAS manifest mismatch: revision ${result.pcasRevision}, count ${result.pcasCount}`);
   expect(result.characterVersion===27&&result.characterCount===47,`character manifest mismatch: version ${result.characterVersion}, count ${result.characterCount}`);
+  expect(result.reneeEngine.includes('Crisp / approved Take 1'),'approved Renee Crisp Take 1 provenance missing from served character manifest');
+  expect(result.characterProcessing.includes('pronounced dispatch-radio chain at reduced level'),'served Renee master does not contain the strengthened reduced-level radio treatment');
   for(const asset of result.assets)expect(asset.ok&&asset.size>1000,`${asset.label} local OGG failed: ${JSON.stringify(asset)}`);
   expect(errors.length===0,'browser errors: '+errors.join(' | '));
   expect(remote.length===0,'remote requests escaped local runtime: '+[...new Set(remote)].join(', '));
