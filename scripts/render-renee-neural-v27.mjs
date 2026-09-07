@@ -29,6 +29,7 @@ await mkdir(outDir,{recursive:true});
 const manifestPath=path.join(outDir,'manifest.json');
 const manifest=JSON.parse(await readFile(manifestPath,'utf8'));
 const sha256=data=>createHash('sha256').update(data).digest('hex');
+const stableSeed=id=>Math.max(1,Number.parseInt(createHash('sha256').update(id).digest('hex').slice(0,7),16));
 
 const genuine=Object.values(dialogue).filter(line=>line.medium==='radio'&&line.speaker==='RENEE');
 const fake=Object.values(dialogue).filter(line=>line.medium==='radio'&&line.speaker==='RENEE?');
@@ -42,22 +43,34 @@ for(const line of [...genuine,...fake]){
 }
 if(!sources.sources?.ch6_radio_overlap_renee)throw new Error('Missing neural Renee source for Chapter 6 overlap.');
 
-async function download(url,dest){
-  const response=await fetch(url,{redirect:'follow'});
-  if(!response.ok)throw new Error(`Failed to download ${url}: ${response.status} ${response.statusText}`);
-  const bytes=Buffer.from(await response.arrayBuffer());
-  if(bytes.length<1000)throw new Error(`Downloaded source is unexpectedly small: ${url}`);
-  await writeFile(dest,bytes);
+async function download(url,dest,label){
+  let lastError;
+  for(let attempt=1;attempt<=3;attempt++){
+    try{
+      console.log(`Downloading ${label} (${attempt}/3)...`);
+      const response=await fetch(url,{redirect:'follow',signal:AbortSignal.timeout(30000)});
+      if(!response.ok)throw new Error(`${response.status} ${response.statusText}`);
+      const bytes=Buffer.from(await response.arrayBuffer());
+      if(bytes.length<1000)throw new Error(`source is unexpectedly small (${bytes.length} bytes)`);
+      await writeFile(dest,bytes);
+      return;
+    }catch(error){
+      lastError=error;
+      console.warn(`Download attempt ${attempt} failed for ${label}: ${error.message}`);
+      if(attempt<3)await new Promise(resolve=>setTimeout(resolve,1000*attempt));
+    }
+  }
+  throw new Error(`Failed to download ${label} after 3 attempts: ${lastError?.message||lastError}`);
 }
 
 const realFx='[0:a]aresample=44100,highpass=f=300,lowpass=f=3250,acompressor=threshold=0.075:ratio=4.8:attack=4:release=75,equalizer=f=1850:t=q:w=1.0:g=3.6,acrusher=bits=14:mode=lin:aa=1:mix=0.018,loudnorm=I=-18.5:LRA=5:TP=-1.8[voice];[1:a]highpass=f=650,lowpass=f=3900,volume=0.11[noise];[voice][noise]amix=inputs=2:duration=first:normalize=0,alimiter=limit=0.94,apad=pad_dur=0.12[out]';
 const fakeFx='[0:a]aresample=44100,asetrate=42600,aresample=44100,highpass=f=250,lowpass=f=3150,acompressor=threshold=0.06:ratio=6.2:attack=4:release=80,equalizer=f=1750:t=q:w=1.0:g=3.0,acrusher=bits=10:mode=lin:aa=1:mix=0.19,tremolo=f=12:d=0.085,aecho=0.70:0.24:43|107:0.16|0.07,loudnorm=I=-18.5:LRA=4:TP=-1.8[voice];[1:a]highpass=f=500,lowpass=f=4200,volume=0.15[noise];[voice][noise]amix=inputs=2:duration=first:normalize=0,alimiter=limit=0.94,apad=pad_dur=0.14[out]';
 
-function renderRadio(source,output,fx){
+function renderRadio(source,output,fx,id){
   execFileSync('ffmpeg',[
     '-hide_banner','-loglevel','error','-y',
     '-i',source,
-    '-f','lavfi','-i','anoisesrc=color=pink:amplitude=0.006:r=44100',
+    '-f','lavfi','-i',`anoisesrc=color=pink:amplitude=0.006:r=44100:seed=${stableSeed(id)}`,
     '-filter_complex',fx,
     '-map','[out]','-ac','1','-ar','44100','-c:a','libvorbis','-q:a','5',output
   ]);
@@ -66,8 +79,8 @@ function renderRadio(source,output,fx){
 async function updateEntry(line,profile,sourceUrl){
   const source=path.join(tempDir,`${line.id}.mp3`);
   const output=path.join(outDir,`${line.id}.ogg`);
-  await download(sourceUrl,source);
-  renderRadio(source,output,profile==='renee'?realFx:fakeFx);
+  await download(sourceUrl,source,line.id);
+  renderRadio(source,output,profile==='renee'?realFx:fakeFx,line.id);
   const bytes=await readFile(output);
   const probe=JSON.parse(execFileSync('ffprobe',['-v','error','-show_entries','format=duration','-of','json',output],{encoding:'utf8'}));
   manifest.files[line.id]={
@@ -91,7 +104,7 @@ const overlapReneeMp3=path.join(tempDir,'ch6-radio-overlap-renee.mp3');
 const overlapReneeWav=path.join(tempDir,'ch6-radio-overlap-renee.wav');
 const overlapUnknownWav=path.join(tempDir,'ch6-radio-overlap-unknown.wav');
 const overlapOut=path.join(outDir,'ch6_radio_overlap.ogg');
-await download(sources.sources.ch6_radio_overlap_renee,overlapReneeMp3);
+await download(sources.sources.ch6_radio_overlap_renee,overlapReneeMp3,'ch6_radio_overlap_renee');
 execFileSync('ffmpeg',[
   '-hide_banner','-loglevel','error','-y','-i',overlapReneeMp3,
   '-af','aresample=44100,highpass=f=300,lowpass=f=3250,acompressor=threshold=0.075:ratio=4.8:attack=4:release=75,equalizer=f=1850:t=q:w=1.0:g=3.6',
@@ -104,7 +117,7 @@ execFileSync('espeak-ng',[
 const overlapFx='[0:a]adelay=0,volume=1.0[a];[1:a]adelay=1650,asetrate=40100,aresample=44100,highpass=f=135,lowpass=f=2750,acompressor=threshold=0.055:ratio=7:attack=4:release=90,acrusher=bits=9:mode=lin:aa=1:mix=0.23,tremolo=f=11:d=0.12,aecho=0.72:0.28:49|117:0.18|0.08,volume=0.56[b];[2:a]highpass=f=550,lowpass=f=4000,volume=0.12[n];[a][b][n]amix=inputs=3:duration=longest:normalize=0,loudnorm=I=-18.5:LRA=4:TP=-1.8,alimiter=limit=0.94,apad=pad_dur=0.15[out]';
 execFileSync('ffmpeg',[
   '-hide_banner','-loglevel','error','-y','-i',overlapReneeWav,'-i',overlapUnknownWav,
-  '-f','lavfi','-i','anoisesrc=color=pink:amplitude=0.006:r=44100',
+  '-f','lavfi','-i',`anoisesrc=color=pink:amplitude=0.006:r=44100:seed=${stableSeed('ch6_radio_overlap')}`,
   '-filter_complex',overlapFx,'-map','[out]','-ac','1','-ar','44100','-c:a','libvorbis','-q:a','5',overlapOut
 ]);
 {
@@ -131,7 +144,7 @@ manifest.engine={
 };
 manifest.processing={
   name:'FFmpeg',
-  description:'approved Renee Take 1 natural dispatch-radio chain; corrupted neural-base fake Renee; layered Chapter 6 overlap; archival recording chains retained'
+  description:'approved Renee Take 1 natural dispatch-radio chain; deterministic low-level radio noise; corrupted neural-base fake Renee; layered Chapter 6 overlap; archival recording chains retained'
 };
 
 await writeFile(manifestPath,JSON.stringify(manifest,null,2)+'\n');
@@ -141,7 +154,7 @@ Pre-rendered, repository-local dialogue for Audio Direction v27.
 
 ## Renee Ward
 
-Renee uses the user-approved **AI Voice Generator Crisp, Take 1** performance direction: a professional overnight dispatcher maintaining control while fear increasingly leaks through her cadence. Her final files use restrained walkie-talkie processing: narrow speech bandwidth, communications compression, light presence emphasis, extremely mild transmission grit, and low-level radio noise. The processing deliberately avoids robotic tremolo, heavy bitcrushing, or pitch effects that would make her resemble PCAS.
+Renee uses the user-approved **AI Voice Generator Crisp, Take 1** performance direction: a professional overnight dispatcher maintaining control while fear increasingly leaks through her cadence. Her final files use restrained walkie-talkie processing: narrow speech bandwidth, communications compression, light presence emphasis, extremely mild transmission grit, and low-level deterministic radio noise. The processing deliberately avoids robotic tremolo, heavy bitcrushing, or pitch effects that would make her resemble PCAS.
 
 Fake-Renee lines begin from the same Crisp neural voice so the imitation is recognizably Renee before receiving more aggressive corruption. Chapter 6 keeps Renee's neural performance in the foreground while a separately rendered counterfeit transmission overlaps it.
 
