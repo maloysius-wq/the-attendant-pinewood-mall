@@ -6,7 +6,7 @@ function applyAudioDirectionV27(source,manifest){
 
   replaceOnce('character voice manifest injection',
     "const PCAS_AUDIO_BASE=new URL('./assets/audio/pa/',location.href).href;",
-    "const PCAS_AUDIO_BASE=new URL('./assets/audio/pa/',location.href).href;\nconst CHARACTER_VOICE_V27="+JSON.stringify(manifest)+";\nconst CHARACTER_AUDIO_BASE_V27=new URL('./assets/audio/characters/',location.href).href;\nwindow.__PINEWOOD_AUDIO_V27__={version:27,sparsePcas:true,serializedVoices:true,radioVoices:true,deepPcas:true,subtitleTracksVoice:true,ambientMin:72,ambientMax:118,openingQuiet:45,loaded:0,failures:[]};"
+    "const PCAS_AUDIO_BASE=new URL('./assets/audio/pa/',location.href).href;\nconst CHARACTER_VOICE_V27="+JSON.stringify(manifest)+";\nconst CHARACTER_AUDIO_BASE_V27=new URL('./assets/audio/characters/',location.href).href;\nwindow.__PINEWOOD_AUDIO_V27__={version:27,sparsePcas:true,serializedVoices:true,radioVoices:true,deepPcas:true,subtitleTracksVoice:true,retainedCharacterSources:true,ambientMin:72,ambientMax:118,openingQuiet:45,loaded:0,failures:[],activeCharacters:0,lastCharacter:null};"
   );
 
   replaceOnce('v27 voice helpers',
@@ -30,8 +30,18 @@ function applyAudioDirectionV27(source,manifest){
     const buffer=await this.loadCharacterV27(id);this.voiceLoadingV27=false;if(!buffer||!this.ctx)return unavailable();
     if(this.voiceBusyV27()){setTimeout(()=>this.characterV27(id,onStart,onUnavailable),Math.max(180,(this.voiceRemainingV27()+.45)*1000));return null;}
     this.radio();const src=this.ctx.createBufferSource(),g=this.ctx.createGain();src.buffer=buffer;g.gain.value=.90;src.connect(g);g.connect(this.voice);
-    const startDelay=.11,total=startDelay+buffer.duration;this.reserveVoiceV27(total,.42);src.start(this.ctx.currentTime+startDelay);onStart?.({duration:buffer.duration,startDelay,total,source:src});return src;
+    const startDelay=.11,total=startDelay+buffer.duration,scheduledAt=this.ctx.currentTime+startDelay;this.reserveVoiceV27(total,.42);
+    this.activeCharacterSourcesV27??=new Set();this.activeCharacterSourcesV27.add(src);
+    const telemetry=window.__PINEWOOD_AUDIO_V27__;telemetry.activeCharacters=this.activeCharacterSourcesV27.size;telemetry.lastCharacter={id,expectedDuration:buffer.duration,scheduledAt,ended:false,endedNaturally:false,minMaster:Number(this.master?.gain?.value??1),minVoice:Number(this.voice?.gain?.value??1)};
+    const monitor=setInterval(()=>{const t=window.__PINEWOOD_AUDIO_V27__?.lastCharacter;if(!t||t.id!==id||t.ended)return;t.minMaster=Math.min(t.minMaster,Number(this.master?.gain?.value??1));t.minVoice=Math.min(t.minVoice,Number(this.voice?.gain?.value??1));},50);
+    src.onended=()=>{clearInterval(monitor);this.activeCharacterSourcesV27?.delete(src);telemetry.activeCharacters=this.activeCharacterSourcesV27?.size||0;const t=telemetry.lastCharacter;if(t?.id===id){t.ended=true;t.endedAt=this.ctx?.currentTime??scheduledAt;t.elapsed=Math.max(0,t.endedAt-scheduledAt);t.endedNaturally=t.elapsed>=buffer.duration-.15;t.masterAtEnd=Number(this.master?.gain?.value??1);t.voiceAtEnd=Number(this.voice?.gain?.value??1);}};
+    src.start(scheduledAt);onStart?.({duration:buffer.duration,startDelay,total,source:src});return src;
   }`
+  );
+
+  replaceOnce('v27 deterministic character playback hook',
+    "const audio=new AudioSystem();",
+    "const audio=new AudioSystem();\nif(new URL(location.href).searchParams.has('visualTest'))window.__PINEWOOD_AUDIO_V27__.playCharacterTest=id=>{audio.resume();return audio.characterV27(id);};"
   );
 
   replaceOnce('PCAS playback reserves voice channel',
@@ -119,6 +129,10 @@ function applyAudioDirectionV27(source,manifest){
     'reserveVoiceV27(',
     'characterV27(id,onStart=null,onUnavailable=null)',
     'subtitleTracksVoice:true',
+    'retainedCharacterSources:true',
+    'activeCharacterSourcesV27',
+    'endedNaturally',
+    'playCharacterTest',
     'spokenDuration=Math.max(3400,(timing.total+.65)*1000)',
     'g.gain.value=.90',
     'this.storyVoiceUntilV27',
