@@ -1,7 +1,7 @@
 {
   "version": 27,
   "character": "Renee Ward",
-  "status": "approved production direction; Crisp Take 1 neural performances replace the legacy Renee voice set and receive restrained dispatch-radio processing",
+  "status": "approved production direction; Crisp Take 1 neural performances receive an intentionally extreme handheld-radio treatment and play at 75% of the prior runtime level",
   "source": {
     "provider": "AI Voice Generator",
     "voiceId": "crisp",
@@ -21,19 +21,21 @@
     ]
   },
   "radioProcessing": {
-    "intent": "handheld dispatch/walkie-talkie coloration while preserving the natural neural performance",
+    "intent": "make Renee unmistakably sound like a real voice fighting through a cheap handheld walkie-talkie speaker, even at the cost of pristine fidelity",
     "targets": [
-      "narrow speech bandwidth",
-      "moderate communications compression",
-      "light presence emphasis",
-      "extremely mild transmission grit",
-      "subtle low-level radio noise that does not mask words"
+      "very narrow handheld speech bandwidth",
+      "hard communications compression",
+      "strong small-speaker presence and midrange bite",
+      "clearly audible transmission grit and limited bit depth",
+      "persistent filtered radio hiss",
+      "obvious squelch bursts at transmission edges",
+      "75 percent of the previous runtime playback gain"
     ],
     "avoid": [
-      "heavy bitcrushing",
-      "synthetic pitch shifting",
-      "robotic tremolo",
-      "processing strong enough to make Renee resemble PCAS"
+      "clean studio-voice presentation",
+      "full-bandwidth low end",
+      "subtle radio coloration that can disappear in the game mix",
+      "processing so supernatural that Renee becomes confused with PCAS or fake-Renee"
     ]
   },
   "runtime": {
@@ -41,6 +43,9 @@
     "remoteTts": false,
     "browserSpeechSynthesis": false,
     "productionRenderer": "scripts/render-renee-neural-v27.mjs",
-    "sourceManifest": "story/renee-voice-sources-v27.json"
+    "postProcessor": "scripts/reprocess-renee-walkie-v28.mjs",
+    "sourceManifest": "story/renee-voice-sources-v27.json",
+    "characterGain": 0.585,
+    "cacheVersioning": "manifest sha256 query parameter"
   }
 }
