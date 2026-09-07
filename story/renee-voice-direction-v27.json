@@ -1,0 +1,37 @@
+{
+  "version": 27,
+  "character": "Renee Ward",
+  "status": "approved performance direction; production audio replacement pending local pre-render and radio processing",
+  "source": {
+    "provider": "AI Voice Generator",
+    "voiceId": "crisp",
+    "approvedTake": 2,
+    "referenceLine": "Fourteen... Ward on dispatch. I have you at Pinewood. Restore emergency circuits A through C. Verify the east freight elevator... then clear the property. Keep this channel open."
+  },
+  "performance": {
+    "core": "professional overnight dispatcher maintaining control while increasingly frightened",
+    "cadence": "hesitant pauses and short controlled breaks; fear should leak through composure rather than become panic",
+    "intensity": "tense and scared, restrained rather than theatrical",
+    "avoid": [
+      "announcer cadence",
+      "robotic timing",
+      "flat text-to-speech delivery",
+      "full panic or melodrama"
+    ]
+  },
+  "radioProcessing": {
+    "intent": "handheld dispatch/walkie-talkie coloration while preserving the natural neural performance",
+    "targets": [
+      "narrow speech bandwidth",
+      "moderate communications compression",
+      "very light transmission grit",
+      "subtle low-level radio noise or squelch only where it does not mask words"
+    ],
+    "avoid": [
+      "heavy bitcrushing",
+      "synthetic pitch shifting",
+      "robotic tremolo",
+      "processing strong enough to make Renee resemble PCAS"
+    ]
+  }
+}
