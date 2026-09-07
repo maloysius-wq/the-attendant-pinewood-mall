@@ -18,16 +18,23 @@ jobs:
       - uses: actions/checkout@v4
       - name: Install FFmpeg
         run: sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg
-      - name: Compare provider preview and full output
+      - name: Trace old and fresh provider/render durations
         shell: bash
         run: |
           set -euxo pipefail
-          preview='https://storage.googleapis.com/adm--audio-playback--7d--public/mcp-preview/6179e3c7-5c72-462c-bebc-99088d3daf87.mp3'
-          full='https://www.aidocmaker.com/g0/audio?name=626a0652e0e24d13b88c6597143acd85'
-          curl -fL --retry 2 "$preview" -o /tmp/preview.mp3
-          curl -fL --retry 2 "$full" -o /tmp/full.mp3
-          echo "preview_bytes=$(stat -c%s /tmp/preview.mp3)"
-          echo "full_bytes=$(stat -c%s /tmp/full.mp3)"
-          echo "preview_duration=$(ffprobe -v error -show_entries format=duration -of default=nw=1:nk=1 /tmp/preview.mp3)"
-          echo "full_duration=$(ffprobe -v error -show_entries format=duration -of default=nw=1:nk=1 /tmp/full.mp3)"
-          sha256sum /tmp/preview.mp3 /tmp/full.mp3
+          old_start='https://storage.googleapis.com/adm--audio-playback--7d--public/mcp-preview/9312751d-6481-4c1e-a39e-94f9b590931f.mp3'
+          fresh_start='https://storage.googleapis.com/adm--audio-playback--7d--public/mcp-preview/6179e3c7-5c72-462c-bebc-99088d3daf87.mp3'
+          old_first='https://storage.googleapis.com/adm--audio-playback--7d--public/mcp-preview/dc07d2c7-4c76-4992-935f-bd545f97e262.mp3'
+          fresh_first='https://storage.googleapis.com/adm--audio-playback--7d--public/mcp-preview/51cc93b4-fcea-43d7-9fa3-3628140ede92.mp3'
+          curl -fL --retry 2 "$old_start" -o /tmp/old-start.mp3
+          curl -fL --retry 2 "$fresh_start" -o /tmp/fresh-start.mp3
+          curl -fL --retry 2 "$old_first" -o /tmp/old-first.mp3
+          curl -fL --retry 2 "$fresh_first" -o /tmp/fresh-first.mp3
+          for f in /tmp/old-start.mp3 /tmp/fresh-start.mp3 /tmp/old-first.mp3 /tmp/fresh-first.mp3; do
+            echo "SOURCE $f bytes=$(stat -c%s "$f") duration=$(ffprobe -v error -show_entries format=duration -of default=nw=1:nk=1 "$f") bitrate=$(ffprobe -v error -show_entries format=bit_rate -of default=nw=1:nk=1 "$f")"
+          done
+          fx='[0:a]aresample=44100,highpass=f=340,lowpass=f=2950,acompressor=threshold=0.070:ratio=5.4:attack=3:release=70,equalizer=f=900:t=q:w=1.0:g=1.8,equalizer=f=1850:t=q:w=0.9:g=4.4,acrusher=bits=13:mode=lin:aa=1:mix=0.040,loudnorm=I=-20.0:LRA=4.5:TP=-2.0[voice];[1:a]highpass=f=600,lowpass=f=3800,volume=0.16[noise];[voice][noise]amix=inputs=2:duration=first:normalize=0,alimiter=limit=0.92,apad=pad_dur=0.14[out]'
+          for name in old-start fresh-start old-first fresh-first; do
+            ffmpeg -hide_banner -loglevel error -y -i "/tmp/$name.mp3" -f lavfi -i 'anoisesrc=color=pink:amplitude=0.007:r=44100:seed=1' -filter_complex "$fx" -map '[out]' -ac 1 -ar 44100 -c:a libvorbis -q:a 5 "/tmp/$name.ogg"
+            echo "RENDER /tmp/$name.ogg duration=$(ffprobe -v error -show_entries format=duration -of default=nw=1:nk=1 "/tmp/$name.ogg")"
+          done
