@@ -92,7 +92,10 @@ for(const marker of [
   'serializedVoices:true',
   'deepPcas:true'
 ])if(!patch.includes(marker))fail('patch marker missing '+marker);
-if(patch.includes("fetch(CHARACTER_AUDIO_BASE_V27+entry.file,{cache:'force-cache'})"))fail('stale force-cache character loader survived cache versioning');
+const staleCacheLoader="fetch(CHARACTER_AUDIO_BASE_V27+entry.file,{cache:'force-cache'})";
+const staleCacheGuard=`if(source.includes("${staleCacheLoader}"))fail('character voice cache must be hash-versioned so regenerated Renee audio cannot remain stale');`;
+const staleCacheMentions=patch.split(staleCacheLoader).length-1;
+if(staleCacheMentions!==1||!patch.includes(staleCacheGuard))fail('stale force-cache character loader exists outside its explicit rejection guard');
 const preloadReservation="this.reserveVoiceV27(Number(entry.duration||0),.42);";
 const preloadReservationGuard=`if(source.includes('${preloadReservation}'))fail('character voice lifetime may not begin before lazy load completes');`;
 const preloadReservationMentions=patch.split(preloadReservation).length-1;
