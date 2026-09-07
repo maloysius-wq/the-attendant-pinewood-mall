@@ -5,7 +5,7 @@ const fail=msg=>{throw new Error('Audio Direction v27 browser smoke failed: '+ms
 const expect=(cond,msg)=>{if(!cond)fail(msg);};
 const origin=new URL(base).origin;
 const pageUrl=new URL(base);pageUrl.searchParams.set('visualTest','last-shift-control');
-const browser=await chromium.launch({headless:true,args:['--enable-webgl','--ignore-gpu-blocklist','--use-gl=swiftshader','--enable-unsafe-swiftshader','--disable-dev-shm-usage']});
+const browser=await chromium.launch({headless:true,args:['--enable-webgl','--ignore-gpu-blocklist','--use-gl=swiftshader','--enable-unsafe-swiftshader','--disable-dev-shm-usage','--autoplay-policy=no-user-gesture-required']});
 const page=await browser.newPage({viewport:{width:1280,height:720}});
 const errors=[],remote=[];
 page.on('pageerror',e=>errors.push(e.stack||e.message));
@@ -37,12 +37,13 @@ try{
       const ogg=bytes.length>=4&&String.fromCharCode(...bytes.slice(0,4))==='OggS';
       assets.push({label,file,ok:response.ok&&ogg,size:bytes.length});
     }
-    return {telemetry,pcasRevision:pcas.audioDirectionRevision,pcasCount:Object.keys(pcas.files||{}).length,characterVersion:characters.version,characterCount:Object.keys(characters.files||{}).length,reneeEngine:characters.engine?.renee||'',characterProcessing:characters.processing?.description||'',assets};
+    return {telemetry,pcasRevision:pcas.audioDirectionRevision,pcasCount:Object.keys(pcas.files||{}).length,characterVersion:characters.version,characterCount:Object.keys(characters.files||{}).length,reneeEngine:characters.engine?.renee||'',characterProcessing:characters.processing?.description||'',reneeDuration:Number(characters.files?.ch1_start?.duration||0),assets};
   });
   expect(!result.error,result.error||'manifest fetch failed');
   expect(result.telemetry?.version===27,'runtime telemetry v27 missing');
   expect(result.telemetry.sparsePcas===true&&result.telemetry.serializedVoices===true&&result.telemetry.radioVoices===true&&result.telemetry.deepPcas===true,'v27 runtime flags incomplete');
   expect(result.telemetry.subtitleTracksVoice===true,'Renee subtitle lifecycle is not tied to actual character voice playback');
+  expect(result.telemetry.retainedCharacterSources===true,'Renee character sources are not explicitly retained through onended');
   expect(result.telemetry.ambientMin===72&&result.telemetry.ambientMax===118&&result.telemetry.openingQuiet===45,'sparse PCAS timing telemetry changed');
   expect(result.telemetry.loaded===0,'character voices decoded during deterministic boot instead of lazy-loading');
   expect(Array.isArray(result.telemetry.failures)&&result.telemetry.failures.length===0,'character voice preload reported failures: '+JSON.stringify(result.telemetry.failures));
@@ -51,7 +52,25 @@ try{
   expect(result.reneeEngine.includes('Crisp / approved Take 1'),'approved Renee Crisp Take 1 provenance missing from served character manifest');
   expect(result.characterProcessing.includes('pronounced dispatch-radio chain at reduced level'),'served Renee master does not contain the strengthened reduced-level radio treatment');
   for(const asset of result.assets)expect(asset.ok&&asset.size>1000,`${asset.label} local OGG failed: ${JSON.stringify(asset)}`);
+
+  // Actually run a representative Renee buffer through the production WebAudio graph.
+  // This is intentionally stronger than merely fetching the OGG: it proves the source remains
+  // retained and reaches its natural onended event instead of being cut by subtitle/UI timing.
+  const testStarted=await page.evaluate(()=>{
+    const t=window.__PINEWOOD_AUDIO_V27__;
+    if(typeof t?.playCharacterTest!=='function')return false;
+    t.playCharacterTest('ch1_start');
+    return true;
+  });
+  expect(testStarted,'deterministic Renee playback hook missing');
+  await page.waitForFunction(()=>window.__PINEWOOD_AUDIO_V27__?.lastCharacter?.id==='ch1_start'&&window.__PINEWOOD_AUDIO_V27__.lastCharacter.ended===true,null,{timeout:30000});
+  const playback=await page.evaluate(()=>JSON.parse(JSON.stringify({lastCharacter:window.__PINEWOOD_AUDIO_V27__.lastCharacter,activeCharacters:window.__PINEWOOD_AUDIO_V27__.activeCharacters,failures:window.__PINEWOOD_AUDIO_V27__.failures})));
+  expect(playback.lastCharacter?.endedNaturally===true,'Renee source ended early: '+JSON.stringify(playback.lastCharacter));
+  expect(playback.lastCharacter.elapsed>=result.reneeDuration-.15,`Renee played ${playback.lastCharacter.elapsed}s but manifest duration is ${result.reneeDuration}s`);
+  expect(playback.activeCharacters===0,'Renee active source was not released after natural completion');
+  expect((playback.failures||[]).length===0,'Renee playback reported failures: '+JSON.stringify(playback.failures));
+
   expect(errors.length===0,'browser errors: '+errors.join(' | '));
   expect(remote.length===0,'remote requests escaped local runtime: '+[...new Set(remote)].join(', '));
-  console.log(JSON.stringify({pass:true,...result,bootCharacterAudioRequests,remoteRequests:0,browserErrors:0},null,2));
+  console.log(JSON.stringify({pass:true,...result,playback,bootCharacterAudioRequests,remoteRequests:0,browserErrors:0},null,2));
 }finally{await page.close();await browser.close();}
