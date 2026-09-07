@@ -4,9 +4,9 @@ Pre-rendered, repository-local dialogue for Audio Direction v27.
 
 ## Renee Ward
 
-Renee uses the user-approved **AI Voice Generator Crisp, Take 1** performance direction: a professional overnight dispatcher maintaining control while fear increasingly leaks through her cadence. Her final files use restrained walkie-talkie processing: narrow speech bandwidth, communications compression, light presence emphasis, extremely mild transmission grit, and low-level deterministic radio noise. The processing deliberately avoids robotic tremolo, heavy bitcrushing, or pitch effects that would make her resemble PCAS.
+Renee uses the user-approved **AI Voice Generator Crisp, Take 1** performance direction: a professional overnight dispatcher maintaining control while fear increasingly leaks through her cadence. Her final files now use a more pronounced handheld walkie-talkie treatment: tighter communications bandwidth, stronger dispatch compression/presence, modest transmission grit, and clearly audible but still low-level deterministic radio noise. Her integrated level is also reduced from the first neural production pass so she sits more naturally inside the mall soundscape instead of riding above it.
 
-Fake-Renee lines begin from the same Crisp neural voice so the imitation is recognizably Renee before receiving more aggressive corruption. Chapter 6 keeps Renee's neural performance in the foreground while a separately rendered counterfeit transmission overlaps it.
+The radio treatment remains deliberately lighter than the supernatural processing on fake-Renee and distinctly more human than PCAS. Fake-Renee lines begin from the same Crisp neural voice so the imitation is recognizably Renee before receiving more aggressive corruption. Chapter 6 keeps Renee's neural performance in the foreground while a separately rendered counterfeit transmission overlaps it.
 
 Jo Alvarez and Eli Mercer remain distinct local archival-recording voices.
 
