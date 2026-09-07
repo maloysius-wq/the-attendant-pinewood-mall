@@ -1,17 +1,18 @@
 {
   "version": 27,
   "character": "Renee Ward",
-  "status": "approved performance direction; production audio replacement pending local pre-render and radio processing",
+  "status": "approved production direction; Crisp Take 1 neural performances replace the legacy Renee voice set and receive restrained dispatch-radio processing",
   "source": {
     "provider": "AI Voice Generator",
     "voiceId": "crisp",
-    "approvedTake": 2,
-    "referenceLine": "Fourteen... Ward on dispatch. I have you at Pinewood. Restore emergency circuits A through C. Verify the east freight elevator... then clear the property. Keep this channel open."
+    "approvedTake": 1,
+    "referenceLine": "Fourteen... Ward on dispatch. I have you at Pinewood. Restore emergency circuits A through C. Verify the east freight elevator. Then... clear the property. Keep this channel open."
   },
   "performance": {
     "core": "professional overnight dispatcher maintaining control while increasingly frightened",
     "cadence": "hesitant pauses and short controlled breaks; fear should leak through composure rather than become panic",
     "intensity": "tense and scared, restrained rather than theatrical",
+    "arc": "begin grounded and procedural, then let pauses and urgency increase as Renee realizes Pinewood is responding to her and imitating her voice",
     "avoid": [
       "announcer cadence",
       "robotic timing",
@@ -24,8 +25,9 @@
     "targets": [
       "narrow speech bandwidth",
       "moderate communications compression",
-      "very light transmission grit",
-      "subtle low-level radio noise or squelch only where it does not mask words"
+      "light presence emphasis",
+      "extremely mild transmission grit",
+      "subtle low-level radio noise that does not mask words"
     ],
     "avoid": [
       "heavy bitcrushing",
@@ -33,5 +35,12 @@
       "robotic tremolo",
       "processing strong enough to make Renee resemble PCAS"
     ]
+  },
+  "runtime": {
+    "policy": "repository-local pre-rendered OGG only",
+    "remoteTts": false,
+    "browserSpeechSynthesis": false,
+    "productionRenderer": "scripts/render-renee-neural-v27.mjs",
+    "sourceManifest": "story/renee-voice-sources-v27.json"
   }
 }
