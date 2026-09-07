@@ -11,7 +11,11 @@ const charManifest=JSON.parse(await readFile(path.join(root,'assets','audio','ch
 const fail=m=>{throw new Error('Audio Direction v27 audit failed: '+m);};
 
 if(pcasSpec.version!==27)fail('PCAS v27 spec missing');
+if(pcasSpec.voice?.engine!=='flite'||pcasSpec.voice?.voice!=='rms'||pcasSpec.voice?.profile!=='pcas-b-deep-mechanical')fail('approved PCAS B source profile missing');
 if(pcasManifest.version!==19||pcasManifest.audioDirectionRevision!==27)fail('deep PCAS manifest revision missing');
+if(pcasManifest.voice?.engine!=='flite'||pcasManifest.voice?.voice!=='rms'||pcasManifest.voice?.profile!=='pcas-b-deep-mechanical')fail('approved PCAS B manifest profile missing');
+if(!String(pcasManifest.engine?.name||'').includes('Flite RMS'))fail('approved PCAS B Flite RMS engine provenance missing');
+if(!String(pcasManifest.processing?.description||'').includes('approved PCAS B deep-mechanical revision'))fail('approved PCAS B processing provenance missing');
 if(charManifest.version!==27)fail('character manifest v27 missing');
 for(const id of ['ch1_start','ch2_start','ch3_start','ch4_start','ch5_start','ch4_fake_route','ch4_fake_auth','ch6_radio_overlap','recording_jo_ls06','recording_eli_ls08'])if(!charManifest.files[id])fail('character voice missing '+id);
 for(const entry of Object.values({...pcasManifest.files,...charManifest.files}))if(!entry.file||!entry.duration||!entry.sha256)fail('invalid generated voice manifest entry');
@@ -29,7 +33,6 @@ if(legacyCadenceMentions!==1||!patch.includes("if(source.includes('this.nextAnno
 const speechGuard="if(/speechSynthesis|SpeechSynthesisUtterance/.test(source))fail('runtime browser speech synthesis is forbidden');";
 if(!patch.includes(speechGuard))fail('runtime speech-synthesis rejection guard missing');
 if(/speechSynthesis|SpeechSynthesisUtterance/.test(patch.replace(speechGuard,'')))fail('runtime speech synthesis appears outside its explicit rejection guard');
-if(!/"voice": "en-us\+m3"/.test(await readFile(path.join(root,'story','pa-lines-v27.json'),'utf8')))fail('PCAS is not using the deep male base voice');
 
 for(const auditPath of ['scripts/audit-chapter3-security-readability-v22d.mjs','scripts/audit-chapter6-last-shift-v25.mjs']){
   const audit=await readFile(path.join(root,auditPath),'utf8');
@@ -43,4 +46,4 @@ for(const auditPath of ['scripts/audit-chapter3-security-readability-v22d.mjs','
 }
 
 const temp='/tmp/pinewood-audio-direction-v27.mjs';await writeFile(temp,patch);execFileSync('node',['--check',temp],{stdio:'inherit'});
-console.log(`Audio Direction v27 audit passed: ${Object.keys(charManifest.files).length} lazy-loaded character clips, ${Object.keys(pcasManifest.files).length} PCAS clips; character playback reserves its channel before first-load decode, rapid cadence and browser TTS tokens exist only inside explicit rejection guards, and historical loader audits feed forward through v27.`);
+console.log(`Audio Direction v27 audit passed: approved PCAS B Flite RMS profile with ${Object.keys(pcasManifest.files).length} local PCAS clips, ${Object.keys(charManifest.files).length} lazy-loaded character clips; character playback reserves its channel before first-load decode, rapid cadence and browser TTS tokens exist only inside explicit rejection guards, and historical loader audits feed forward through v27.`);
