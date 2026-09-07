@@ -1,0 +1,67 @@
+name: Freight Elevator Reliability v28
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/freight-elevator-v28.yml'
+      - 'patches/freight-elevator-reliability-v28.js.txt'
+      - 'scripts/apply-freight-elevator-v28.mjs'
+      - 'scripts/audit-freight-elevator-v28.mjs'
+      - 'scripts/smoke-freight-elevator-v28.mjs'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: freight-elevator-v28
+  cancel-in-progress: true
+
+jobs:
+  wire-test-commit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Wire v28 into live loader
+        run: node scripts/apply-freight-elevator-v28.mjs
+      - name: Audit v28 source contract
+        run: node scripts/audit-freight-elevator-v28.mjs
+      - name: Install Playwright
+        run: |
+          npm install --no-save playwright@1.55.0
+          npx playwright install --with-deps chromium
+      - name: Start local Pinewood server
+        run: |
+          python3 -m http.server 4173 --directory "$GITHUB_WORKSPACE" >/tmp/pinewood-elevator-v28-http.log 2>&1 &
+          echo $! >/tmp/pinewood-elevator-v28-http.pid
+          for i in {1..30}; do curl -fsS http://127.0.0.1:4173/ >/dev/null && exit 0; sleep 1; done
+          cat /tmp/pinewood-elevator-v28-http.log
+          exit 1
+      - name: Smoke closed open and reclosed freight elevator
+        run: node scripts/smoke-freight-elevator-v28.mjs
+      - name: Commit live loader wiring
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add game.js
+          if git diff --cached --quiet; then
+            echo "Freight Elevator Reliability v28 loader already wired."
+            exit 0
+          fi
+          git commit -m "Wire Freight Elevator Reliability v28"
+          git pull --rebase origin main
+          git push origin HEAD:main
+      - name: Upload elevator evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: freight-elevator-v28
+          path: elevator-v28-artifacts/
+          if-no-files-found: warn
+          retention-days: 14
