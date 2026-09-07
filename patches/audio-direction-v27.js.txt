@@ -29,7 +29,7 @@ function applyAudioDirectionV27(source,manifest){
     this.voiceLoadingV27=true;
     const buffer=await this.loadCharacterV27(id);this.voiceLoadingV27=false;if(!buffer||!this.ctx)return unavailable();
     if(this.voiceBusyV27()){setTimeout(()=>this.characterV27(id,onStart,onUnavailable),Math.max(180,(this.voiceRemainingV27()+.45)*1000));return null;}
-    this.radio();const src=this.ctx.createBufferSource(),g=this.ctx.createGain();src.buffer=buffer;g.gain.value=.90;src.connect(g);g.connect(this.voice);
+    this.radio();const src=this.ctx.createBufferSource(),g=this.ctx.createGain();src.buffer=buffer;g.gain.value=.78;src.connect(g);g.connect(this.voice);
     const startDelay=.11,total=startDelay+buffer.duration,scheduledAt=this.ctx.currentTime+startDelay;this.reserveVoiceV27(total,.42);
     this.activeCharacterSourcesV27??=new Set();this.activeCharacterSourcesV27.add(src);
     const telemetry=window.__PINEWOOD_AUDIO_V27__;telemetry.activeCharacters=this.activeCharacterSourcesV27.size;telemetry.lastCharacter={id,expectedDuration:buffer.duration,scheduledAt,ended:false,endedNaturally:false,minMaster:Number(this.master?.gain?.value??1),minVoice:Number(this.voice?.gain?.value??1)};
@@ -134,7 +134,7 @@ function applyAudioDirectionV27(source,manifest){
     'endedNaturally',
     'playCharacterTest',
     'spokenDuration=Math.max(3400,(timing.total+.65)*1000)',
-    'g.gain.value=.90',
+    'g.gain.value=.78',
     'this.storyVoiceUntilV27',
     "line.medium==='intercom'||line.medium==='radio'",
     'this.time<45',
