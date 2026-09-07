@@ -114,7 +114,10 @@ execFileSync('espeak-ng',[
   '-v','en-us+m3','-s','132','-p','16','-a','170','-g','2','-w',overlapUnknownWav,
   'Fourteen, Ward on dispatch. Return to assigned station. Return to assigned station.'
 ]);
-const overlapFx='[0:a]adelay=0,volume=1.0[a];[1:a]adelay=1650,asetrate=40100,aresample=44100,highpass=f=135,lowpass=f=2750,acompressor=threshold=0.055:ratio=7:attack=4:release=90,acrusher=bits=9:mode=lin:aa=1:mix=0.23,tremolo=f=11:d=0.12,aecho=0.72:0.28:49|117:0.18|0.08,volume=0.56[b];[2:a]highpass=f=550,lowpass=f=4000,volume=0.12[n];[a][b][n]amix=inputs=3:duration=longest:normalize=0,loudnorm=I=-18.5:LRA=4:TP=-1.8,alimiter=limit=0.94,apad=pad_dur=0.15[out]';
+// Mix the two finite voice layers first. Then use that finite mix as the duration master
+// when adding the intentionally infinite noise generator. This prevents the final FFmpeg
+// process from waiting forever for the noise input to end.
+const overlapFx='[0:a]adelay=0,volume=1.0[a];[1:a]adelay=1650,asetrate=40100,aresample=44100,highpass=f=135,lowpass=f=2750,acompressor=threshold=0.055:ratio=7:attack=4:release=90,acrusher=bits=9:mode=lin:aa=1:mix=0.23,tremolo=f=11:d=0.12,aecho=0.72:0.28:49|117:0.18|0.08,volume=0.56[b];[a][b]amix=inputs=2:duration=longest:normalize=0[voices];[2:a]highpass=f=550,lowpass=f=4000,volume=0.12[n];[voices][n]amix=inputs=2:duration=first:normalize=0,loudnorm=I=-18.5:LRA=4:TP=-1.8,alimiter=limit=0.94,apad=pad_dur=0.15[out]';
 execFileSync('ffmpeg',[
   '-hide_banner','-loglevel','error','-y','-i',overlapReneeWav,'-i',overlapUnknownWav,
   '-f','lavfi','-i',`anoisesrc=color=pink:amplitude=0.006:r=44100:seed=${stableSeed('ch6_radio_overlap')}`,
@@ -144,7 +147,7 @@ manifest.engine={
 };
 manifest.processing={
   name:'FFmpeg',
-  description:'approved Renee Take 1 natural dispatch-radio chain; deterministic low-level radio noise; corrupted neural-base fake Renee; layered Chapter 6 overlap; archival recording chains retained'
+  description:'approved Renee Take 1 natural dispatch-radio chain; deterministic low-level radio noise; corrupted neural-base fake Renee; finite layered Chapter 6 overlap; archival recording chains retained'
 };
 
 await writeFile(manifestPath,JSON.stringify(manifest,null,2)+'\n');
