@@ -1,0 +1,28 @@
+name: Renee source hash control
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/renee-source-hash-control.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  compare:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - name: Compare provider preview and full bytes
+        shell: bash
+        run: |
+          set -euxo pipefail
+          preview='https://storage.googleapis.com/adm--audio-playback--7d--public/mcp-preview/6179e3c7-5c72-462c-bebc-99088d3daf87.mp3'
+          full='https://www.aidocmaker.com/g0/audio?name=626a0652e0e24d13b88c6597143acd85'
+          curl -fL --retry 2 "$preview" -o /tmp/preview.mp3
+          curl -fL --retry 2 "$full" -o /tmp/full.mp3
+          stat -c '%n %s bytes' /tmp/preview.mp3 /tmp/full.mp3
+          sha256sum /tmp/preview.mp3 /tmp/full.mp3
+          cmp -s /tmp/preview.mp3 /tmp/full.mp3 && echo 'BYTE_IDENTICAL=yes' || echo 'BYTE_IDENTICAL=no'
