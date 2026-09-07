@@ -14,6 +14,8 @@ page.on('request',r=>{try{const u=new URL(r.url());if((u.protocol==='http:'||u.p
 try{
   await page.goto(pageUrl.toString(),{waitUntil:'domcontentloaded',timeout:90000});
   await page.waitForFunction(()=>window.__PINEWOOD_VISUAL_READY__===true&&window.__PINEWOOD_AUDIO_V27__?.version===27,null,{timeout:120000});
+  const bootCharacterAudioRequests=await page.evaluate(()=>performance.getEntriesByType('resource').map(entry=>entry.name).filter(name=>/\/assets\/audio\/characters\/[^/?]+\.ogg(?:\?|$)/.test(name)));
+  expect(bootCharacterAudioRequests.length===0,'character OGG files fetched during deterministic boot instead of lazy-loading: '+bootCharacterAudioRequests.join(', '));
   const result=await page.evaluate(async()=>{
     const telemetry={...window.__PINEWOOD_AUDIO_V27__};
     const [pcasResponse,charResponse]=await Promise.all([fetch('./assets/audio/pa/manifest.json',{cache:'no-store'}),fetch('./assets/audio/characters/manifest.json',{cache:'no-store'})]);
@@ -41,11 +43,12 @@ try{
   expect(result.telemetry?.version===27,'runtime telemetry v27 missing');
   expect(result.telemetry.sparsePcas===true&&result.telemetry.serializedVoices===true&&result.telemetry.radioVoices===true&&result.telemetry.deepPcas===true,'v27 runtime flags incomplete');
   expect(result.telemetry.ambientMin===72&&result.telemetry.ambientMax===118&&result.telemetry.openingQuiet===45,'sparse PCAS timing telemetry changed');
+  expect(result.telemetry.loaded===0,'character voices decoded during deterministic boot instead of lazy-loading');
   expect(Array.isArray(result.telemetry.failures)&&result.telemetry.failures.length===0,'character voice preload reported failures: '+JSON.stringify(result.telemetry.failures));
   expect(result.pcasRevision===27&&result.pcasCount===25,`PCAS manifest mismatch: revision ${result.pcasRevision}, count ${result.pcasCount}`);
   expect(result.characterVersion===27&&result.characterCount===47,`character manifest mismatch: version ${result.characterVersion}, count ${result.characterCount}`);
   for(const asset of result.assets)expect(asset.ok&&asset.size>1000,`${asset.label} local OGG failed: ${JSON.stringify(asset)}`);
   expect(errors.length===0,'browser errors: '+errors.join(' | '));
   expect(remote.length===0,'remote requests escaped local runtime: '+[...new Set(remote)].join(', '));
-  console.log(JSON.stringify({pass:true,...result,remoteRequests:0,browserErrors:0},null,2));
+  console.log(JSON.stringify({pass:true,...result,bootCharacterAudioRequests,remoteRequests:0,browserErrors:0},null,2));
 }finally{await page.close();await browser.close();}
