@@ -1,6 +1,6 @@
 {
   "version": 27,
-  "generatedAt": "2026-09-07T06:08:49.827Z",
+  "generatedAt": "2026-09-07T18:39:39.182Z",
   "source": "story/dialogue.js + story/renee-voice-sources-v27.json + authored recorded evidence",
   "engine": {
     "name": "Mixed pre-rendered voices",
@@ -9,7 +9,7 @@
   },
   "processing": {
     "name": "FFmpeg",
-    "description": "approved Renee Take 1 pronounced dispatch-radio chain at reduced level; duration-safe 44.1 kHz normalization/mix boundary with source/output duration guard; deterministic radio noise; corrupted neural-base fake Renee; finite layered Chapter 6 overlap; archival recording chains retained"
+    "description": "approved Renee Take 1 extreme handheld walkie-talkie post-pass; 650-2150 Hz communications band, 12:1 hard compression, strong small-speaker midrange, 9-bit transmission grit, persistent deterministic filtered hiss and obvious edge squelch; runtime Renee playback gain is 75 percent of the previous level; duration-safe neural source pipeline retained; fake-Renee corruption and archival recording chains retained"
   },
   "files": {
     "ch1_start": {
@@ -19,8 +19,9 @@
       "profile": "renee",
       "sourceVoice": "AI Voice Generator Crisp / approved Take 1",
       "sourceDuration": 10.464,
-      "sha256": "e2c15975402b09e6f37d301fd35837248a1c403e25601af66ef67145b8fa77a0",
-      "duration": 10.64
+      "sha256": "24c6ad5562cd4abc3e9f2b132c6e86d8bca58b92f5d149c1c14063521175425f",
+      "duration": 10.926,
+      "walkiePostProcess": "v29-extreme-handheld"
     },
     "ch1_first_power": {
       "file": "ch1_first_power.ogg",
@@ -29,8 +30,9 @@
       "profile": "renee",
       "sourceVoice": "AI Voice Generator Crisp / approved Take 1",
       "sourceDuration": 7.512,
-      "sha256": "7041e20e0240e6b9bbc6d9372e4e2848d3ce4c1545dc5c3527bd970261b6cbe5",
-      "duration": 7.74
+      "sha256": "8ee96648378ce50bc5f0d4a9fa8255015ccbb2574999aa159c2a1b7856b02df2",
+      "duration": 7.968,
+      "walkiePostProcess": "v29-extreme-handheld"
     },
     "ch1_second_power": {
       "file": "ch1_second_power.ogg",
@@ -39,8 +41,9 @@
       "profile": "renee",
       "sourceVoice": "AI Voice Generator Crisp / approved Take 1",
       "sourceDuration": 12.984,
-      "sha256": "7f79c9fe41bd094e361bc182eb63b6730888cbfc41c20f726b1510aa07aa303d",
-      "duration": 13.14
+      "sha256": "ec15d2de072057a3bc9adb21d0f3337d06fb2ee92e3ed6b88c43a965c5a41502",
+      "duration": 13.396,
+      "walkiePostProcess": "v29-extreme-handheld"
     },
     "ch1_power_complete": {
       "file": "ch1_power_complete.ogg",
@@ -49,8 +52,9 @@
       "profile": "renee",
       "sourceVoice": "AI Voice Generator Crisp / approved Take 1",
       "sourceDuration": 7.104,
-      "sha256": "9a5f6538db7d421339161b6dabb5c35a4ae43ed91f02a482fe5a77237ead21ce",
-      "duration": 7.34
+      "sha256": "f95c58035c014063ac08662275012295544fe0749ed5ec3acbc60674a3f2e131",
+      "duration": 7.576,
+      "walkiePostProcess": "v29-extreme-handheld"
     },
     "ch1_key_reaction": {
       "file": "ch1_key_reaction.ogg",
@@ -59,8 +63,9 @@
       "profile": "renee",
       "sourceVoice": "AI Voice Generator Crisp / approved Take 1",
       "sourceDuration": 8.064,
-      "sha256": "652c2c4ad12edbfc71d17ba225f149d34b0429f29b5e783a01dacad583f8c545",
-      "duration": 8.24
+      "sha256": "88bff49548673bfc632b043f02fcdf2cbc042ce560016208cd8c5d45596da9c8",
+      "duration": 8.516,
+      "walkiePostProcess": "v29-extreme-handheld"
     },
     "ch1_elevator_reaction": {
       "file": "ch1_elevator_reaction.ogg",
@@ -69,8 +74,9 @@
       "profile": "renee",
       "sourceVoice": "AI Voice Generator Crisp / approved Take 1",
       "sourceDuration": 7.368,
-      "sha256": "d217cb0ef8787b51f9c00d674cd3b8a4e735ec2ac3e84b56c1f4468faf415578",
-      "duration": 7.54
+      "sha256": "1b5db1f3db4b66e983bdac6b987c149a83e5fae7d8d62a30eb438ea3adab1285",
+      "duration": 7.812,
+      "walkiePostProcess": "v29-extreme-handheld"
     },
     "ch2_start": {
       "file": "ch2_start.ogg",
@@ -79,8 +85,9 @@
       "profile": "renee",
       "sourceVoice": "AI Voice Generator Crisp / approved Take 1",
       "sourceDuration": 10.776,
-      "sha256": "aa86323dc4e53a282b147e71f9373ffa8517464567d327955503aacc87ad1d16",
-      "duration": 10.94
+      "sha256": "e76d1afa0f1d39f94106b60685ec9435c2702fec08be28f1509df33aa7a27397",
+      "duration": 11.214,
+      "walkiePostProcess": "v29-extreme-handheld"
     },
     "ch2_feeder_found": {
       "file": "ch2_feeder_found.ogg",
@@ -89,8 +96,9 @@
       "profile": "renee",
       "sourceVoice": "AI Voice Generator Crisp / approved Take 1",
       "sourceDuration": 11.184,
-      "sha256": "d76ed6c19c3979951abc38914fe72fdb486088fc78484864a0aa21d2c3036979",
-      "duration": 11.34
+      "sha256": "22fa3ee221d755b950aa15fc3db0752c293958d1bae7efc3b540781715905070",
+      "duration": 11.596,
+      "walkiePostProcess": "v29-extreme-handheld"
     },
     "ch2_relay_d": {
       "file": "ch2_relay_d.ogg",
@@ -99,8 +107,9 @@
       "profile": "renee",
       "sourceVoice": "AI Voice Generator Crisp / approved Take 1",
       "sourceDuration": 9.024,
-      "sha256": "8e1dbd6e30835401ced935906ffdcf6d177b217c67584db5bf064d7543e2bc21",
-      "duration": 9.24
+      "sha256": "5b8d92504cb93e0d3e7bd2f51d05ec43fb0f6e2667197f414b332db9ed0f299c",
+      "duration": 9.456,
+      "walkiePostProcess": "v29-extreme-handheld"
     },
     "ch2_1997_ticket": {
       "file": "ch2_1997_ticket.ogg",
@@ -109,8 +118,9 @@
       "profile": "renee",
       "sourceVoice": "AI Voice Generator Crisp / approved Take 1",
       "sourceDuration": 13.2,
-      "sha256": "56383400c3fc58302cf5062e13315e05db7fe5169d7c7e9f237b713b563a07de",
-      "duration": 13.34
+      "sha256": "888ec46b31d0410203cd5a049a8752c724d85ebd94371c5863510b6b7679ada9",
+      "duration": 13.58,
+      "walkiePostProcess": "v29-extreme-handheld"
     },
     "ch2_pump_ready": {
       "file": "ch2_pump_ready.ogg",
@@ -119,8 +129,9 @@
       "profile": "renee",
       "sourceVoice": "AI Voice Generator Crisp / approved Take 1",
       "sourceDuration": 9.792,
-      "sha256": "582c761e7b99d1ba119f810b5d9e0435d842dde3bf1037df643796643f135815",
-      "duration": 9.94
+      "sha256": "5d48d57b4ca8989f6ea79e70e63c6c8f42d2ffa156770f4e4339cff2dcc2c4d0",
+      "duration": 10.188,
+      "walkiePostProcess": "v29-extreme-handheld"
     },
     "ch2_mask_tutorial": {
       "file": "ch2_mask_tutorial.ogg",
@@ -129,8 +140,9 @@
       "profile": "renee",
       "sourceVoice": "AI Voice Generator Crisp / approved Take 1",
       "sourceDuration": 8.16,
-      "sha256": "f623cc8aa32b81fb1c0304ae410adc478779d1010f50fa7b8b3e217225161c0f",
-      "duration": 8.34
+      "sha256": "18cf4750401a0b70f9eee05d91b15191bed2c3ca792608296dfb9db68d8956d3",
+      "duration": 8.62,
+      "walkiePostProcess": "v29-extreme-handheld"
     },
     "ch2_gavin_body": {
       "file": "ch2_gavin_body.ogg",
@@ -139,8 +151,9 @@
       "profile": "renee",
       "sourceVoice": "AI Voice Generator Crisp / approved Take 1",
       "sourceDuration": 8.352,
-      "sha256": "8f2f5a62c79a84ec61fb9fde4a557ce987cc3db6d56aa0e1a87279a1569c57cb",
-      "duration": 8.54
+      "sha256": "c0cc7f72e8fb65440a9789520e4f369cbe2e1496a91fe61c3f20a6167286e0c2",
+      "duration": 8.828,
+      "walkiePostProcess": "v29-extreme-handheld"
     },
     "ch2_gavin_ticket": {
       "file": "ch2_gavin_ticket.ogg",
@@ -149,8 +162,9 @@
       "profile": "renee",
       "sourceVoice": "AI Voice Generator Crisp / approved Take 1",
       "sourceDuration": 12.384,
-      "sha256": "6c73a606121587231480b1a16ece8efc668815e96d08d894309b236b1f0b8290",
-      "duration": 12.54
+      "sha256": "1f26924df85c636d475acefa6c904facbe5b1100ec7ea50d92d18b1c71f0a99e",
+      "duration": 12.796,
+      "walkiePostProcess": "v29-extreme-handheld"
     },
     "ch2_contractor13": {
       "file": "ch2_contractor13.ogg",
@@ -159,8 +173,9 @@
       "profile": "renee",
       "sourceVoice": "AI Voice Generator Crisp / approved Take 1",
       "sourceDuration": 10.296,
-      "sha256": "0ca21071405179871b9b20e2adcd19bba706acda99e1fc26e0e000fcb40b562b",
-      "duration": 10.44
+      "sha256": "36b9fee2bc95355051e4b527a9e90605cb33491717b39823e7529e68b67624e0",
+      "duration": 10.684,
+      "walkiePostProcess": "v29-extreme-handheld"
     },
     "ch2_relay_e": {
       "file": "ch2_relay_e.ogg",
@@ -169,8 +184,9 @@
       "profile": "renee",
       "sourceVoice": "AI Voice Generator Crisp / approved Take 1",
       "sourceDuration": 13.92,
-      "sha256": "10ce4086e2fe63cbaf5133f08010d6e3136fe5b7481f20e40cd13dbc3d2a8f5a",
-      "duration": 14.14
+      "sha256": "96492208500095677e8c54aefb264d3ccfdcaf9190365a4430d583d72de36886",
+      "duration": 14.36,
+      "walkiePostProcess": "v29-extreme-handheld"
     },
     "ch2_exit": {
       "file": "ch2_exit.ogg",
@@ -179,8 +195,9 @@
       "profile": "renee",
       "sourceVoice": "AI Voice Generator Crisp / approved Take 1",
       "sourceDuration": 6.936,
-      "sha256": "e52f6306922a3673353d8dfdf7a82358073ce82c8897666ce3cc7222b134cb46",
-      "duration": 7.14
+      "sha256": "690eb04830fbeeb990e8c992a9e67513a43d9b2cba9b023b98aaeb3194181084",
+      "duration": 7.344,
+      "walkiePostProcess": "v29-extreme-handheld"
     },
     "ch3_start": {
       "file": "ch3_start.ogg",
@@ -189,8 +206,9 @@
       "profile": "renee",
       "sourceVoice": "AI Voice Generator Crisp / approved Take 1",
       "sourceDuration": 14.952,
-      "sha256": "509584e191dea810e1d1d18f05c7776dd3465585c6087861a75c7709086d4659",
-      "duration": 15.14
+      "sha256": "8d0e5d0ff2b7e342edea3a7a24a6ccc8f1e0b1a88d5bbf5a9e03ca05af0fbb15",
+      "duration": 15.428,
+      "walkiePostProcess": "v29-extreme-handheld"
     },
     "ch3_cctv_online": {
       "file": "ch3_cctv_online.ogg",
@@ -199,8 +217,9 @@
       "profile": "renee",
       "sourceVoice": "AI Voice Generator Crisp / approved Take 1",
       "sourceDuration": 11.472,
-      "sha256": "7753559d282156768eea256490fa7bf248e871cefca166a7b825951fd68abdd5",
-      "duration": 11.64
+      "sha256": "920ce17c867379ea96b1d57b43697e88b762e033ac994e5897c1eb0117b83112",
+      "duration": 11.908,
+      "walkiePostProcess": "v29-extreme-handheld"
     },
     "ch3_shutter_interlock": {
       "file": "ch3_shutter_interlock.ogg",
@@ -209,8 +228,9 @@
       "profile": "renee",
       "sourceVoice": "AI Voice Generator Crisp / approved Take 1",
       "sourceDuration": 9.384,
-      "sha256": "5aae6eff3b52031b9ad5f6bdf942249c4db39d96ab9c9927852fd14f38c0c107",
-      "duration": 9.54
+      "sha256": "8b1ac2ecbe362734795305d6fcfe0ae531f140d5af934f20525f4c56d2bd818e",
+      "duration": 9.796,
+      "walkiePostProcess": "v29-extreme-handheld"
     },
     "ch3_auth": {
       "file": "ch3_auth.ogg",
@@ -219,8 +239,9 @@
       "profile": "renee",
       "sourceVoice": "AI Voice Generator Crisp / approved Take 1",
       "sourceDuration": 10.416,
-      "sha256": "a427a685f6ed8da27406c0e689816cb4dc64580bc9b45f8af1e6c9b4510e81df",
-      "duration": 10.64
+      "sha256": "f43abb08044159c822c4722b1c4bbadbdbb4d3fe65c1cf2bd166a3779ae622d9",
+      "duration": 10.864,
+      "walkiePostProcess": "v29-extreme-handheld"
     },
     "ch3_luis_body": {
       "file": "ch3_luis_body.ogg",
@@ -229,8 +250,9 @@
       "profile": "renee",
       "sourceVoice": "AI Voice Generator Crisp / approved Take 1",
       "sourceDuration": 8.208,
-      "sha256": "2e88852c2bc1e52f81f0189fcd9f1c63fb31f9ba7dff6fcaef4092b41262a710",
-      "duration": 8.44
+      "sha256": "b296fed84add073bd0e2fc059a1e58911baea59a2aa66d96e7a7ef4392254d05",
+      "duration": 8.672,
+      "walkiePostProcess": "v29-extreme-handheld"
     },
     "ch3_luis_pattern": {
       "file": "ch3_luis_pattern.ogg",
@@ -239,8 +261,9 @@
       "profile": "renee",
       "sourceVoice": "AI Voice Generator Crisp / approved Take 1",
       "sourceDuration": 10.416,
-      "sha256": "5fa9893756a55f16bccc2dce89ab3ab71231a8fbdbb22c6fb0da62d508079ba7",
-      "duration": 10.64
+      "sha256": "1771f8e8fff0742aab38fe3f610a60b252e0e1a021ec56b11a7908a8a0c0dd4a",
+      "duration": 10.864,
+      "walkiePostProcess": "v29-extreme-handheld"
     },
     "ch3_exit": {
       "file": "ch3_exit.ogg",
@@ -249,8 +272,9 @@
       "profile": "renee",
       "sourceVoice": "AI Voice Generator Crisp / approved Take 1",
       "sourceDuration": 8.88,
-      "sha256": "a31f6494213c35756557d06040496e54a11bd528133bb80b08343f18ee6cbe16",
-      "duration": 9.04
+      "sha256": "e37257432a5464af7eaa4ce175c8c34437a301f6cadd5e22a2b0d5c574c0c3af",
+      "duration": 9.3,
+      "walkiePostProcess": "v29-extreme-handheld"
     },
     "ch4_start": {
       "file": "ch4_start.ogg",
@@ -259,8 +283,9 @@
       "profile": "renee",
       "sourceVoice": "AI Voice Generator Crisp / approved Take 1",
       "sourceDuration": 12.864,
-      "sha256": "0f855f79956f3085dfdbde133ba1c0a26275095cb22a5d374707b32ae4391233",
-      "duration": 13.04
+      "sha256": "ced0f098aa359ae733697884939311667afe338037ab09f9b1daae4b6287c1d6",
+      "duration": 13.316,
+      "walkiePostProcess": "v29-extreme-handheld"
     },
     "ch4_map_confirmed": {
       "file": "ch4_map_confirmed.ogg",
@@ -269,8 +294,9 @@
       "profile": "renee",
       "sourceVoice": "AI Voice Generator Crisp / approved Take 1",
       "sourceDuration": 12.024,
-      "sha256": "9658bd97b2b4e94d8a4c2882456d8533771c73e827545285ebdb4cab353d7ef4",
-      "duration": 12.24
+      "sha256": "cc26e9041049e354c96fa97c06ad760615a5afded9af5d280422f7bbf69e11f2",
+      "duration": 12.456,
+      "walkiePostProcess": "v29-extreme-handheld"
     },
     "ch4_fake_route": {
       "file": "ch4_fake_route.ogg",
@@ -279,7 +305,7 @@
       "profile": "fake-renee",
       "sourceVoice": "AI Voice Generator Crisp / approved Take 1",
       "sourceDuration": 6.984,
-      "sha256": "96cb65d3a5308b8df4a89db1e69f86ce1794f7366a9e412a7a4eed9bf2e6295b",
+      "sha256": "512a3b7f68a8bfa42ec08818221c23904f65a8a7c6aa95f2c4e7c96746066429",
       "duration": 7.54
     },
     "ch4_real_return": {
@@ -289,8 +315,9 @@
       "profile": "renee",
       "sourceVoice": "AI Voice Generator Crisp / approved Take 1",
       "sourceDuration": 11.616,
-      "sha256": "97b0c3532cebefc509cef352ba4c2e782a00db7a5998806d280c865b62622936",
-      "duration": 11.84
+      "sha256": "1ce2ee366ff6920de6fcb4b705124a0c90366b9a2de47b0dda67d7c43ef50fc3",
+      "duration": 12.064,
+      "walkiePostProcess": "v29-extreme-handheld"
     },
     "ch4_tessa_locker": {
       "file": "ch4_tessa_locker.ogg",
@@ -299,8 +326,9 @@
       "profile": "renee",
       "sourceVoice": "AI Voice Generator Crisp / approved Take 1",
       "sourceDuration": 12.384,
-      "sha256": "11220dc9c61451bd1811fc61a8c92f342e5cba7aa4c73eecf2061b281dd6c280",
-      "duration": 12.54
+      "sha256": "76be1a1556d13f00fdec413bb0973b6c0a2de642396e7aedd928db5e5a87febc",
+      "duration": 12.796,
+      "walkiePostProcess": "v29-extreme-handheld"
     },
     "ch4_staff_photo": {
       "file": "ch4_staff_photo.ogg",
@@ -309,8 +337,9 @@
       "profile": "renee",
       "sourceVoice": "AI Voice Generator Crisp / approved Take 1",
       "sourceDuration": 12.024,
-      "sha256": "7494a0bd25c36844c76514c8613a8893f382bf7c66254167d101a47cb625102f",
-      "duration": 12.24
+      "sha256": "8b1b4f5430ad2ce75e486bcef092c4c8cc80ff867d8c0bc7e1488f7153457012",
+      "duration": 12.456,
+      "walkiePostProcess": "v29-extreme-handheld"
     },
     "ch4_ls06": {
       "file": "ch4_ls06.ogg",
@@ -319,8 +348,9 @@
       "profile": "renee",
       "sourceVoice": "AI Voice Generator Crisp / approved Take 1",
       "sourceDuration": 14.184,
-      "sha256": "5c5cb1fb61f085e36f17d38c1d495bad359fd6172c3a53dbe10c21206ca08b68",
-      "duration": 14.34
+      "sha256": "79ff73345ce683418f5db9b5cc8356e733f5f0c3ca2fda45149240c8e52acc2b",
+      "duration": 14.596,
+      "walkiePostProcess": "v29-extreme-handheld"
     },
     "ch4_pre1986": {
       "file": "ch4_pre1986.ogg",
@@ -329,8 +359,9 @@
       "profile": "renee",
       "sourceVoice": "AI Voice Generator Crisp / approved Take 1",
       "sourceDuration": 13.008,
-      "sha256": "6308debf84970f0af4227b381064f4909dbfa908fe650424a1bf6cb455e33013",
-      "duration": 13.24
+      "sha256": "8a6ad80ef886db2ce210c743c92b72650a7c48ec05856f3654a73154fd8970eb",
+      "duration": 13.482,
+      "walkiePostProcess": "v29-extreme-handheld"
     },
     "ch4_fake_auth": {
       "file": "ch4_fake_auth.ogg",
@@ -339,7 +370,7 @@
       "profile": "fake-renee",
       "sourceVoice": "AI Voice Generator Crisp / approved Take 1",
       "sourceDuration": 7.2,
-      "sha256": "46fe97c7063ccea1fefd95cdd5c6da8aeacbe6ef522660d7e9de7cbff45e0676",
+      "sha256": "0e99e453db3b46285005112278edeedda3641a8479cc71a91136271c7214ab9c",
       "duration": 7.74
     },
     "ch4_auth_broken": {
@@ -349,8 +380,9 @@
       "profile": "renee",
       "sourceVoice": "AI Voice Generator Crisp / approved Take 1",
       "sourceDuration": 12.192,
-      "sha256": "92d49059bad428b369a6451d0af352ef4706cb4b23a4f151e6ca550eb67bf714",
-      "duration": 12.34
+      "sha256": "159967e0820a53d1a9f0b91f63244f4fe61c057bad3b14de31c0eb8a2ff43afa",
+      "duration": 12.588,
+      "walkiePostProcess": "v29-extreme-handheld"
     },
     "ch4_exit": {
       "file": "ch4_exit.ogg",
@@ -359,8 +391,9 @@
       "profile": "renee",
       "sourceVoice": "AI Voice Generator Crisp / approved Take 1",
       "sourceDuration": 10.728,
-      "sha256": "c6c71e09f3417f4cf4b01cd2ae41d66206f35d152a21548ac828118eb62b0862",
-      "duration": 10.94
+      "sha256": "e4b83ea2719f3ffb8954f172e25090f7661abd8624a65f548c5ae02d6beb573d",
+      "duration": 11.152,
+      "walkiePostProcess": "v29-extreme-handheld"
     },
     "ch5_start": {
       "file": "ch5_start.ogg",
@@ -369,8 +402,9 @@
       "profile": "renee",
       "sourceVoice": "AI Voice Generator Crisp / approved Take 1",
       "sourceDuration": 13.344,
-      "sha256": "c9838f6edd77cb37221e74a9957619949a7cb44cb310a4d98ddebd02a16065ec",
-      "duration": 13.54
+      "sha256": "d0837a26032694175ac6d48fae681f706eb59f817409349fff804060cd0fbb4a",
+      "duration": 13.836,
+      "walkiePostProcess": "v29-extreme-handheld"
     },
     "ch5_jo_statement": {
       "file": "ch5_jo_statement.ogg",
@@ -379,8 +413,9 @@
       "profile": "renee",
       "sourceVoice": "AI Voice Generator Crisp / approved Take 1",
       "sourceDuration": 15.504,
-      "sha256": "c016f09a2b47153c3087bd15ddf1fa830d6648e3a8b8f10cca935737655fe6a5",
-      "duration": 15.74
+      "sha256": "f47ee23b63f17f8c5512124b14ad8e95534b196afc8dc8d24e40ae99c217e5a3",
+      "duration": 15.976,
+      "walkiePostProcess": "v29-extreme-handheld"
     },
     "ch5_roster_ready": {
       "file": "ch5_roster_ready.ogg",
@@ -389,8 +424,9 @@
       "profile": "renee",
       "sourceVoice": "AI Voice Generator Crisp / approved Take 1",
       "sourceDuration": 14.424,
-      "sha256": "44515c3493db36c8a36cd125ea6e945f7401be9c5f1f054342c29a594d2a367c",
-      "duration": 14.64
+      "sha256": "d7c55596ddf13e21dc74f3f7c8244ff21854c6efc68ac7aa7aa8be2dd093505f",
+      "duration": 14.866,
+      "walkiePostProcess": "v29-extreme-handheld"
     },
     "ch5_roster_reconciled": {
       "file": "ch5_roster_reconciled.ogg",
@@ -399,8 +435,9 @@
       "profile": "renee",
       "sourceVoice": "AI Voice Generator Crisp / approved Take 1",
       "sourceDuration": 12.864,
-      "sha256": "b799f09ab3316ed7a8e956fae3b3229f32c10c70b098dc6107ef69ab1a314afe",
-      "duration": 13.04
+      "sha256": "741aef34958ba4bca5f7e93beb66f7798e5bfbae263c656793472995e479f637",
+      "duration": 13.316,
+      "walkiePostProcess": "v29-extreme-handheld"
     },
     "ch5_override": {
       "file": "ch5_override.ogg",
@@ -409,8 +446,9 @@
       "profile": "renee",
       "sourceVoice": "AI Voice Generator Crisp / approved Take 1",
       "sourceDuration": 15.144,
-      "sha256": "122c2e966e9fc664c1f7d6b57dfce25a5ddfa9686efed4f631dfa0d661cf586c",
-      "duration": 15.34
+      "sha256": "527ca4f554c46ee4f41b19bc111fed5266f9df9fcde58265da51072d07a75d4e",
+      "duration": 15.636,
+      "walkiePostProcess": "v29-extreme-handheld"
     },
     "ch5_eli_body": {
       "file": "ch5_eli_body.ogg",
@@ -419,8 +457,9 @@
       "profile": "renee",
       "sourceVoice": "AI Voice Generator Crisp / approved Take 1",
       "sourceDuration": 13.272,
-      "sha256": "fcedb1943ea688d3ca154b11ef9fbfcb549b2c03050a87bd0968f8c2053d4177",
-      "duration": 13.44
+      "sha256": "a273830fb6a62bf0e84e7e0b515f8f331c9f022996c4c75f6a6b0f18dd5b8500",
+      "duration": 13.708,
+      "walkiePostProcess": "v29-extreme-handheld"
     },
     "ch5_eli_recorder": {
       "file": "ch5_eli_recorder.ogg",
@@ -429,8 +468,9 @@
       "profile": "renee",
       "sourceVoice": "AI Voice Generator Crisp / approved Take 1",
       "sourceDuration": 13.008,
-      "sha256": "8695f58205ff11f34430889ab3a04905dac912542e2beeeac2141f9be51ecd03",
-      "duration": 13.24
+      "sha256": "161c481d64b77e3044d7ae10cb6a8b1ec914e6cb3c06e9eeefa8406592f0bea1",
+      "duration": 13.482,
+      "walkiePostProcess": "v29-extreme-handheld"
     },
     "ch5_sessions": {
       "file": "ch5_sessions.ogg",
@@ -439,8 +479,9 @@
       "profile": "renee",
       "sourceVoice": "AI Voice Generator Crisp / approved Take 1",
       "sourceDuration": 15.96,
-      "sha256": "fc1c0956c5fc320df46c2e26dbf1adc071a14c220f5b0873e3b760f3f1be0475",
-      "duration": 16.14
+      "sha256": "bc59caf0625c1eeedbad1d46199f62f2be1ecfaf6071466dea5653ca2b3bf30c",
+      "duration": 16.43,
+      "walkiePostProcess": "v29-extreme-handheld"
     },
     "ch5_exit": {
       "file": "ch5_exit.ogg",
@@ -449,8 +490,9 @@
       "profile": "renee",
       "sourceVoice": "AI Voice Generator Crisp / approved Take 1",
       "sourceDuration": 13.92,
-      "sha256": "80b6499f4ad8f5f659ebc1d324e5c17dc47d9ecc4fde6512362a99f7c1960d5c",
-      "duration": 14.14
+      "sha256": "46f1fe6c1d957282b888df2587e4e87eefcae14de0a5f67e0e5f84b4192e81c9",
+      "duration": 14.36,
+      "walkiePostProcess": "v29-extreme-handheld"
     },
     "ch6_radio_overlap": {
       "file": "ch6_radio_overlap.ogg",
@@ -459,8 +501,9 @@
       "profile": "overlap",
       "sourceVoice": "AI Voice Generator Crisp / approved Take 1 foreground + local counterfeit layer",
       "sourceDuration": 4.968,
-      "sha256": "24b1c9f160bcbe99e6ad7d086e3ca172519cbc5ce3be9aa78cd10f6be8b11302",
-      "duration": 5.55
+      "sha256": "e4fb5989c4d84bc5cf20dd7c630b7e5c11152a2d2a51e1a4281082387ba2da45",
+      "duration": 5.78,
+      "walkiePostProcess": "v29-extreme-handheld"
     },
     "recording_jo_ls06": {
       "file": "recording_jo_ls06.ogg",

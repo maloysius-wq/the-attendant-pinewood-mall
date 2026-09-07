@@ -26,3 +26,7 @@ Renee source performances were generated with AI Voice Generator by Level 2 Labs
 - Development-time source manifest: `story/renee-voice-sources-v27.json`
 - Production renderer: `scripts/render-renee-neural-v27.mjs`
 
+
+## Walkie hardening v29
+
+Renee now receives an intentionally extreme handheld-radio post-pass after the approved neural render: a 650-2150 Hz communications band, 12:1 compression, strong small-speaker midrange, much heavier transmission grit, a persistent filtered hiss bed, and obvious squelch bursts at both transmission edges. Runtime playback is separately reduced to 75 percent of the previous Renee gain. Character audio URLs are hash-versioned so browsers cannot continue replaying stale pre-hardening OGG files after a production re-render.
