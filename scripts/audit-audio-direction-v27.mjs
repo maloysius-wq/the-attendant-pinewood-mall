@@ -17,6 +17,8 @@ if(pcasManifest.voice?.engine!=='flite'||pcasManifest.voice?.voice!=='rms'||pcas
 if(!String(pcasManifest.engine?.name||'').includes('Flite RMS'))fail('approved PCAS B Flite RMS engine provenance missing');
 if(!String(pcasManifest.processing?.description||'').includes('approved PCAS B deep-mechanical revision'))fail('approved PCAS B processing provenance missing');
 if(charManifest.version!==27)fail('character manifest v27 missing');
+if(!String(charManifest.engine?.renee||'').includes('Crisp / approved Take 1'))fail('approved Renee Crisp Take 1 provenance missing');
+if(!String(charManifest.processing?.description||'').includes('pronounced dispatch-radio chain at reduced level'))fail('strengthened Renee radio processing provenance missing');
 for(const id of ['ch1_start','ch2_start','ch3_start','ch4_start','ch5_start','ch4_fake_route','ch4_fake_auth','ch6_radio_overlap','recording_jo_ls06','recording_eli_ls08'])if(!charManifest.files[id])fail('character voice missing '+id);
 for(const entry of Object.values({...pcasManifest.files,...charManifest.files}))if(!entry.file||!entry.duration||!entry.sha256)fail('invalid generated voice manifest entry');
 for(const marker of [
@@ -26,7 +28,25 @@ for(const marker of [
   'audioDirectionV27Source',
   "const source=audioDirectionV27Source+'\\n//# sourceURL=pinewood-runtime.js\\n';"
 ])if(!game.includes(marker))fail('loader marker missing '+marker);
-for(const marker of ['rand(72,118)','this.time<45','voiceBusyV27()','loadCharacterV27(id)','this.reserveVoiceV27(Number(entry.duration||0),.42);','this.voiceBusyUntilV27=Math.max(this.voiceBusyUntilV27||0,this.ctx.currentTime+buffer.duration+.42);','recording_jo_ls06','recording_eli_ls08','serializedVoices:true','deepPcas:true'])if(!patch.includes(marker))fail('patch marker missing '+marker);
+for(const marker of [
+  'rand(72,118)',
+  'this.time<45',
+  'voiceBusyV27()',
+  'voiceLoadingV27',
+  'loadCharacterV27(id)',
+  'characterV27(id,onStart=null,onUnavailable=null)',
+  'this.reserveVoiceV27(total,.42);',
+  'onStart?.({duration:buffer.duration,startDelay,total,source:src});',
+  'subtitleTracksVoice:true',
+  'spokenDuration=Math.max(3400,(timing.total+.65)*1000)',
+  'g.gain.value=.90',
+  'recording_jo_ls06',
+  'recording_eli_ls08',
+  'serializedVoices:true',
+  'deepPcas:true'
+])if(!patch.includes(marker))fail('patch marker missing '+marker);
+if(patch.includes('this.reserveVoiceV27(Number(entry.duration||0),.42);'))fail('character voice lifetime may not start before lazy load completes');
+if(patch.includes('this.voiceBusyUntilV27=Math.max(this.voiceBusyUntilV27||0,this.ctx.currentTime+buffer.duration+.42);'))fail('legacy character timer survived after actual-start synchronization');
 if(patch.includes('Object.keys(CHARACTER_VOICE_V27.files).map(id=>this.loadCharacterV27(id))'))fail('character voices must lazy-load on demand, not decode all 47 clips during boot');
 const legacyCadenceMentions=(patch.match(/rand\(18,30\)/g)||[]).length;
 if(legacyCadenceMentions!==1||!patch.includes("if(source.includes('this.nextAnnouncement=this.time+rand(18,30)'))fail('legacy rapid PCAS cadence survived v27');"))fail('legacy cadence may exist outside its explicit rejection guard');
@@ -46,4 +66,4 @@ for(const auditPath of ['scripts/audit-chapter3-security-readability-v22d.mjs','
 }
 
 const temp='/tmp/pinewood-audio-direction-v27.mjs';await writeFile(temp,patch);execFileSync('node',['--check',temp],{stdio:'inherit'});
-console.log(`Audio Direction v27 audit passed: approved PCAS B Flite RMS profile with ${Object.keys(pcasManifest.files).length} local PCAS clips, ${Object.keys(charManifest.files).length} lazy-loaded character clips; character playback reserves its channel before first-load decode, rapid cadence and browser TTS tokens exist only inside explicit rejection guards, and historical loader audits feed forward through v27.`);
+console.log(`Audio Direction v27 audit passed: approved PCAS B Flite RMS profile with ${Object.keys(pcasManifest.files).length} local PCAS clips, ${Object.keys(charManifest.files).length} lazy-loaded character clips; Renee uses the strengthened reduced-level Crisp Take 1 radio render, character loading is serialized, subtitle lifetime begins at actual voice playback, rapid cadence and browser TTS tokens exist only inside explicit rejection guards, and historical loader audits feed forward through v27.`);
