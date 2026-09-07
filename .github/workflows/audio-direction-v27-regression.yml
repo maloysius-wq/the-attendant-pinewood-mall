@@ -15,6 +15,7 @@ on:
       - 'scripts/audit-chapter3-security-readability-v22d.mjs'
       - 'scripts/audit-chapter6-last-shift-v25.mjs'
       - 'scripts/audit-production-readability-v26.mjs'
+      - 'scripts/diagnose-base-subtitle-v27.mjs'
       - 'scripts/smoke-audio-direction-v27.mjs'
       - 'scripts/simulate-chapter6-finale-v25.mjs'
       - '.github/workflows/audio-direction-v27-regression.yml'
@@ -32,6 +33,7 @@ on:
       - 'scripts/audit-chapter3-security-readability-v22d.mjs'
       - 'scripts/audit-chapter6-last-shift-v25.mjs'
       - 'scripts/audit-production-readability-v26.mjs'
+      - 'scripts/diagnose-base-subtitle-v27.mjs'
       - 'scripts/smoke-audio-direction-v27.mjs'
       - 'scripts/simulate-chapter6-finale-v25.mjs'
       - '.github/workflows/audio-direction-v27-regression.yml'
@@ -49,6 +51,8 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
+      - name: Inspect base subtitle and audio lifecycle
+        run: node scripts/diagnose-base-subtitle-v27.mjs
       - name: Verify v27 source, manifests, cadence and loader chain
         run: |
           node scripts/audit-audio-direction-v27.mjs
