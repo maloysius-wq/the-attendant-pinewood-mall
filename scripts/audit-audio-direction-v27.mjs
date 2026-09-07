@@ -45,7 +45,10 @@ for(const marker of [
   'serializedVoices:true',
   'deepPcas:true'
 ])if(!patch.includes(marker))fail('patch marker missing '+marker);
-if(patch.includes('this.reserveVoiceV27(Number(entry.duration||0),.42);'))fail('character voice lifetime may not start before lazy load completes');
+const preloadReservation="this.reserveVoiceV27(Number(entry.duration||0),.42);";
+const preloadReservationGuard=`if(source.includes('${preloadReservation}'))fail('character voice lifetime may not begin before lazy load completes');`;
+const preloadReservationMentions=patch.split(preloadReservation).length-1;
+if(preloadReservationMentions!==1||!patch.includes(preloadReservationGuard))fail('legacy pre-load character reservation exists outside its explicit rejection guard');
 if(patch.includes('this.voiceBusyUntilV27=Math.max(this.voiceBusyUntilV27||0,this.ctx.currentTime+buffer.duration+.42);'))fail('legacy character timer survived after actual-start synchronization');
 if(patch.includes('Object.keys(CHARACTER_VOICE_V27.files).map(id=>this.loadCharacterV27(id))'))fail('character voices must lazy-load on demand, not decode all 47 clips during boot');
 const legacyCadenceMentions=(patch.match(/rand\(18,30\)/g)||[]).length;
