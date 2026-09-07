@@ -11,6 +11,10 @@ on:
 permissions:
   contents: write
 
+concurrency:
+  group: renee-neural-production
+  cancel-in-progress: true
+
 jobs:
   render-and-commit:
     runs-on: ubuntu-latest
