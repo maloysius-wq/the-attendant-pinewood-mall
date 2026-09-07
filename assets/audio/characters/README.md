@@ -1,5 +1,26 @@
 # Pinewood Character Voice Assets
 
-Pre-rendered, repository-local human dialogue for Audio Direction v27. Renee uses a narrow-band dispatch-radio treatment; fake Renee uses the same recognizable base voice with degraded timing/pitch artifacts; Jo and Eli use distinct archival-recording treatments. No runtime cloud or browser speech synthesis is used.
+Pre-rendered, repository-local dialogue for Audio Direction v27.
 
-Generator: `scripts/generate-character-voices-v27.mjs`
+## Renee Ward
+
+Renee uses the user-approved **AI Voice Generator Crisp, Take 1** performance direction: a professional overnight dispatcher maintaining control while fear increasingly leaks through her cadence. Her final files use restrained walkie-talkie processing: narrow speech bandwidth, communications compression, light presence emphasis, extremely mild transmission grit, and low-level deterministic radio noise. The processing deliberately avoids robotic tremolo, heavy bitcrushing, or pitch effects that would make her resemble PCAS.
+
+Fake-Renee lines begin from the same Crisp neural voice so the imitation is recognizably Renee before receiving more aggressive corruption. Chapter 6 keeps Renee's neural performance in the foreground while a separately rendered counterfeit transmission overlaps it.
+
+Jo Alvarez and Eli Mercer remain distinct local archival-recording voices.
+
+## Runtime and provenance
+
+All game playback uses local OGG files from this directory. There are no runtime cloud TTS calls, browser speech synthesis calls, or remote audio requests.
+
+Renee source performances were generated with AI Voice Generator by Level 2 Labs / AI Doc Maker. Their Terms of Service state that users retain rights to content they generate. Attribution is included here to satisfy the provider's published free-tier commercial-use attribution requirement as a conservative baseline.
+
+- Provider: AI Doc Maker / Level 2 Labs
+- Voice tool: AI Voice Generator
+- Approved voice: Crisp, Take 1
+- Terms: https://www.aidocmaker.com/terms-of-service
+- Pricing / attribution note: https://www.aidocmaker.com/pricing
+- Development-time source manifest: `story/renee-voice-sources-v27.json`
+- Production renderer: `scripts/render-renee-neural-v27.mjs`
+

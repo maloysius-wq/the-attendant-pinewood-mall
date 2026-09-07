@@ -1,14 +1,15 @@
 {
   "version": 27,
-  "generatedAt": "2026-09-06T04:05:20.352Z",
-  "source": "story/dialogue.js + authored recorded evidence",
+  "generatedAt": "2026-09-07T04:44:12.900Z",
+  "source": "story/dialogue.js + story/renee-voice-sources-v27.json + authored recorded evidence",
   "engine": {
-    "name": "eSpeak NG",
-    "license": "GPL-3.0-or-later build-time tool"
+    "name": "Mixed pre-rendered voices",
+    "renee": "AI Voice Generator Crisp / approved Take 1",
+    "archivalAndCounterfeit": "eSpeak NG retained only for Jo/Eli archival recordings and the Chapter 6 counterfeit layer"
   },
   "processing": {
     "name": "FFmpeg",
-    "description": "distinct radio, corrupted-radio, cassette and work-recorder voice chains"
+    "description": "approved Renee Take 1 natural dispatch-radio chain; deterministic low-level radio noise; corrupted neural-base fake Renee; finite layered Chapter 6 overlap; archival recording chains retained"
   },
   "files": {
     "ch1_start": {
@@ -16,360 +17,405 @@
       "text": "Fourteen, Ward on dispatch. I have you at Pinewood. Restore emergency circuits A through C, verify the east freight elevator, then clear the property. Keep this channel open.",
       "speaker": "RENEE WARD",
       "profile": "renee",
-      "sha256": "9764ce15874b07c330c8f6e87270980d3576164f9d3864b8dadbc80f1f4b875d",
-      "duration": 13.72
+      "sourceVoice": "AI Voice Generator Crisp / approved Take 1",
+      "sha256": "ba0ccee0d07f838a5b7b39caa3715d511a3c257594f061182280e306d794506f",
+      "duration": 7.62
     },
     "ch1_first_power": {
       "file": "ch1_first_power.ogg",
       "text": "Good. One leg is back. I’m also getting activity from a camera that is listed as decommissioned. I’m checking that now.",
       "speaker": "RENEE WARD",
       "profile": "renee",
-      "sha256": "bee3efd86a6431688e1628152a945e9930d503461e88f8cdcf72df9488921f87",
-      "duration": 9.42
+      "sourceVoice": "AI Voice Generator Crisp / approved Take 1",
+      "sha256": "33662f6557f0c973deb645f7f9fce1a252bffcf5326ccfb9748a89c817356e39",
+      "duration": 4.732
     },
     "ch1_second_power": {
       "file": "ch1_second_power.ogg",
       "text": "Fourteen, Ward on dispatch. Stop a second. I did not give Pinewood your contractor number. That ticket should not be able to register you with anything in the building. Keep moving, but do not follow the PA.",
       "speaker": "RENEE WARD",
       "profile": "renee",
-      "sha256": "df8c0de81b0c76836cae742d9c000fde4611debb0f44076c23c926eeaf25e647",
-      "duration": 15.82
+      "sourceVoice": "AI Voice Generator Crisp / approved Take 1",
+      "sha256": "10cd19880fc157ba5a60a6408bc269a5d1fe88f1b5a8d044b4ea3c0fcb375d28",
+      "duration": 10.12
     },
     "ch1_power_complete": {
       "file": "ch1_power_complete.ogg",
       "text": "All three circuits are stable. Freight elevator should answer. Get out of there. Do not stop for another announcement.",
       "speaker": "RENEE WARD",
       "profile": "renee",
-      "sha256": "44e67d69c57a1f15b73ef338d63eef819ca5cc1f82e97dc2bed60e66de34fe8f",
-      "duration": 9.02
+      "sourceVoice": "AI Voice Generator Crisp / approved Take 1",
+      "sha256": "9b0db7216f8f0df29777c11e08d154e50cb7c35d34894259de2844d1ed09ebf2",
+      "duration": 4.324
     },
     "ch1_key_reaction": {
       "file": "ch1_key_reaction.ogg",
       "text": "Fourteen, Ward on dispatch. It saw that key come off the hook. Do not answer it. You have what you need. Get to the freight elevator.",
       "speaker": "RENEE WARD",
       "profile": "renee",
-      "sha256": "fd51a5aa524edad8c4fcbab7685ee94ea499bfd5d96b4fa7e92f5ce82f01c348",
-      "duration": 10.82
+      "sourceVoice": "AI Voice Generator Crisp / approved Take 1",
+      "sha256": "e36ffa504fdafbb8ff4f659bfcc0e9d417895c00d9c5cc96938c5595e96e2ee7",
+      "duration": 5.22
     },
     "ch1_elevator_reaction": {
       "file": "ch1_elevator_reaction.ogg",
       "text": "Fourteen, Ward on dispatch. No. Ignore that. The elevator is yours. Get inside and do not wait for another instruction.",
       "speaker": "RENEE WARD",
       "profile": "renee",
-      "sha256": "e878644015e889457b700bb7c22fc1d8c067b41bfa7ff7c1ce0cf05837c346a5",
-      "duration": 10.62
+      "sourceVoice": "AI Voice Generator Crisp / approved Take 1",
+      "sha256": "aaddd0f31d8e1247e89107257d42b84edb3c87d0f82419b7ab3824280898123a",
+      "duration": 4.52
     },
     "ch2_start": {
       "file": "ch2_start.ogg",
       "text": "Fourteen, Ward on dispatch. I have you below grade. That freight car was not supposed to go down. Find a safe route and give me anything with a panel number or room label.",
       "speaker": "RENEE WARD",
       "profile": "renee",
-      "sha256": "89207db1df8bc17a8a711a4062ded4c759802dd653347c95fa08b856042b847b",
-      "duration": 13.62
+      "sourceVoice": "AI Voice Generator Crisp / approved Take 1",
+      "sha256": "4a62b870d389637d9f8455fcb1f768871f8ea67dbd91cf1e3dda3a7fcde24f9d",
+      "duration": 7.92
     },
     "ch2_feeder_found": {
       "file": "ch2_feeder_found.ogg",
       "text": "Fourteen, Ward on dispatch. That feeder isolation is local. Lock it out before you reset Relay D. I would rather lose thirty seconds than watch you energize a dead branch blind.",
       "speaker": "RENEE WARD",
       "profile": "renee",
-      "sha256": "f596356638f4d193da21fc31bb9ac8bcc4834996df5c507c7ae6cf25cc5a1f0c",
-      "duration": 13.12
+      "sourceVoice": "AI Voice Generator Crisp / approved Take 1",
+      "sha256": "da034a1590bc906cd64bd86c6d02e5be95497b049b0e3223c5f94fbf191a3572",
+      "duration": 8.32
     },
     "ch2_relay_d": {
       "file": "ch2_relay_d.ogg",
       "text": "Fourteen, Ward on dispatch. Relay D is carrying load. I have the service branch on my side now. Give me a second while I follow the ticket history.",
       "speaker": "RENEE WARD",
       "profile": "renee",
-      "sha256": "e2dbb2d0c13a2b7b607552716cf0581493dfddff551afef13318caa70c560c53",
-      "duration": 11.92
+      "sourceVoice": "AI Voice Generator Crisp / approved Take 1",
+      "sha256": "539efd2a68869b43c2865a6859d4fdf47a4518c1da9e5cfe0a72158c2cbd5227",
+      "duration": 6.244
     },
     "ch2_1997_ticket": {
       "file": "ch2_1997_ticket.ogg",
       "text": "Fourteen, Ward on dispatch. I found the original ticket record. I need you to hear me before I say this: it was created November 14, 1997. Same work-order family. Same property. I am not hanging up.",
       "speaker": "RENEE WARD",
       "profile": "renee",
-      "sha256": "07b18bbd94c1db063f9729188b921919ef3d8415e7ddb73653f4dff9ab653623",
-      "duration": 18.82
+      "sourceVoice": "AI Voice Generator Crisp / approved Take 1",
+      "sha256": "749c55899cd73ee960352c1859c3fe0cf707317cbb6fc75cbb9ecd1bd225335b",
+      "duration": 10.42
     },
     "ch2_pump_ready": {
       "file": "ch2_pump_ready.ogg",
       "text": "Fourteen, Ward on dispatch. Relay D brought the sump controller back. The east low corridor is flooded. Start the pump and let it clear before you try to cross.",
       "speaker": "RENEE WARD",
       "profile": "renee",
-      "sha256": "be9bd5b34a6ecd986222f5567120bb33f8590ed5df10c32c3938cd830e6e12de",
-      "duration": 12.92
+      "sourceVoice": "AI Voice Generator Crisp / approved Take 1",
+      "sha256": "8bcb6b3856cc96dc4a21aa8681a71f3ea5d9f2485c7261c9ca18132c1ce53380",
+      "duration": 6.92
     },
     "ch2_mask_tutorial": {
       "file": "ch2_mask_tutorial.ogg",
       "text": "Fourteen, Ward on dispatch. That pump is loud enough to cover your footsteps. Remember it covers anything coming toward you, too.",
       "speaker": "RENEE WARD",
       "profile": "renee",
-      "sha256": "b8de8ff7fdeadd3e1e3c2cace337732bfbf6948c3cd8c13512d152760eab2b2a",
-      "duration": 10.52
+      "sourceVoice": "AI Voice Generator Crisp / approved Take 1",
+      "sha256": "aa0a28bb596c51ffaf2cde21ad58d730cfc61089d2afdb48e61eaaecd5008ed4",
+      "duration": 5.32
     },
     "ch2_gavin_body": {
       "file": "ch2_gavin_body.ogg",
       "text": "Fourteen, Ward on dispatch. I heard you. Stay with me. I am searching the name Gavin Cole now. Do not move his things until I tell you what I find.",
       "speaker": "RENEE WARD",
       "profile": "renee",
-      "sha256": "97e06f85b9bfd1bd53c618e7fcd425107c9958bb0588b5468ce8bd379b22a691",
-      "duration": 12.42
+      "sourceVoice": "AI Voice Generator Crisp / approved Take 1",
+      "sha256": "8c53803f966100074b568d9493df1d360b6715e6af22d32e81a9a008be0c85d6",
+      "duration": 5.52
     },
     "ch2_gavin_ticket": {
       "file": "ch2_gavin_ticket.ogg",
       "text": "Fourteen, Ward on dispatch. Gavin Cole was a property inspector. He disappeared in 2023 after accepting a facilities ticket for Pinewood. The police report says he never came back out.",
       "speaker": "RENEE WARD",
       "profile": "renee",
-      "sha256": "7f3f78d3c083aaf8448ad4cb7f3203f8e1c99658582650731131a4935144ab31",
-      "duration": 15.72
+      "sourceVoice": "AI Voice Generator Crisp / approved Take 1",
+      "sha256": "aa99abfb5abb4f39684ee0ab5896ef191ba6fda571ce3357755b5ea262502b91",
+      "duration": 9.52
     },
     "ch2_contractor13": {
       "file": "ch2_contractor13.ogg",
       "text": "His ticket says CONTRACTOR 13. Yours says CONTRACTOR 14. Fourteen, this building did not choose that number tonight. You are not the first person it called back.",
       "speaker": "RENEE WARD",
       "profile": "renee",
-      "sha256": "7d4fd484bb0d81c50f87f1658a73c2fddc6428de73c65b3c7af80640b1672f36",
-      "duration": 13.32
+      "sourceVoice": "AI Voice Generator Crisp / approved Take 1",
+      "sha256": "6b5f17beeca722b6a776a28c1d9e301521a224a7ab1a35a41caceb9e8ad380cb",
+      "duration": 7.42
     },
     "ch2_relay_e": {
       "file": "ch2_relay_e.ogg",
       "text": "Fourteen, Ward on dispatch. Relay E is stable. I found two names attached to the 1997 closing file: Jo Alvarez, closing manager, and Luis Ortega, night security. Security is ahead of you. That is where we go next.",
       "speaker": "RENEE WARD",
       "profile": "renee",
-      "sha256": "b9dd15a1ea4611a05d98ede13fa3901dce77c21d5faa6d81955bb05debac818a",
-      "duration": 20.32
+      "sourceVoice": "AI Voice Generator Crisp / approved Take 1",
+      "sha256": "654f1243e6947aa7a02157b1faceeefca71aa40c5c7adf907aba18379dc5e4f6",
+      "duration": 11.14
     },
     "ch2_exit": {
       "file": "ch2_exit.ogg",
       "text": "Fourteen, Ward on dispatch. North service route feeds directly into Security. Go. I am staying on this channel.",
       "speaker": "RENEE WARD",
       "profile": "renee",
-      "sha256": "01a1b58f61d348e205fccaa651e442b9c3fe6aa780d96fffd33d5206998881c5",
-      "duration": 9.52
+      "sourceVoice": "AI Voice Generator Crisp / approved Take 1",
+      "sha256": "3e40e6459822a4a2956bd6c333579766090f9e8152c1b940b66f708a303aa084",
+      "duration": 4.156
     },
     "ch3_start": {
       "file": "ch3_start.ogg",
       "text": "Fourteen, Ward on dispatch. You are in Security. Four camera groups just powered themselves. Use them to map the halls, but treat every feed as incomplete. Find Luis Ortega’s station. His name is all over the 1997 incident file.",
       "speaker": "RENEE WARD",
       "profile": "renee",
-      "sha256": "ebd3e09a86574117694d31a9e673d570803928c4b2c02cbdcdb10bcdc9d697f6",
-      "duration": 20.42
+      "sourceVoice": "AI Voice Generator Crisp / approved Take 1",
+      "sha256": "055bed4adcce478c159d7f31ecbfb56f99dfe8fe539468bc74ff7daa643896d0",
+      "duration": 12.12
     },
     "ch3_cctv_online": {
       "file": "ch3_cctv_online.ogg",
       "text": "Fourteen, Ward on dispatch. I can see the camera IDs from outside, not the pictures. If a feed catches something, use the hall label. Do not assume a blank screen means an empty mall.",
       "speaker": "RENEE WARD",
       "profile": "renee",
-      "sha256": "c7297a5fe37ea43fb633c5acb10d735d70ad287369eb729313b5d7570cde70e7",
-      "duration": 14.92
+      "sourceVoice": "AI Voice Generator Crisp / approved Take 1",
+      "sha256": "a02f36beab2e025e9f9c80e2c3b0d5b45f5b3b0fc2b6297367f59b3e48b10cd2",
+      "duration": 8.62
     },
     "ch3_shutter_interlock": {
       "file": "ch3_shutter_interlock.ogg",
       "text": "Fourteen, Ward on dispatch. Those Security shutters are interlocked. One route open means the other closes. Check the camera names before you commit.",
       "speaker": "RENEE WARD",
       "profile": "renee",
-      "sha256": "1bbc5f227121e88ff694942d8ba20235945cf398d3eb9ca29b34f4dc5395b350",
-      "duration": 11.72
+      "sourceVoice": "AI Voice Generator Crisp / approved Take 1",
+      "sha256": "2bec973f5229d3789f9be7eb6e038714dcb729bfc6380653168afd993259d4e3",
+      "duration": 6.52
     },
     "ch3_auth": {
       "file": "ch3_auth.ogg",
       "text": "Fourteen, Ward on dispatch. Interference is getting worse. From now on, important calls from me start exactly like that. If you hear directions without it, verify before you move.",
       "speaker": "RENEE WARD",
       "profile": "renee",
-      "sha256": "2c675cb3d433df66864864a861ef28bac0fb27748a3d9cadc44c4f813577501e",
-      "duration": 14.82
+      "sourceVoice": "AI Voice Generator Crisp / approved Take 1",
+      "sha256": "5915e23273e076803d5e1fc98c17eb09573625a88725fb87ee12fe0d8ba34224",
+      "duration": 7.636
     },
     "ch3_luis_body": {
       "file": "ch3_luis_body.ogg",
       "text": "Fourteen, Ward on dispatch. That barricade is Luis’s secondary station. I found his personnel photo. The man in that room is Luis Ortega.",
       "speaker": "RENEE WARD",
       "profile": "renee",
-      "sha256": "a2906dc5458954307d3b549b84f32be2e904e54d9c2a88f56aa37395589206dd",
-      "duration": 11.42
+      "sourceVoice": "AI Voice Generator Crisp / approved Take 1",
+      "sha256": "0c76dae1fb991c7d9d4f7dc2e98e089fae8fa675f83bf84b59e86c1c63789e26",
+      "duration": 5.428
     },
     "ch3_luis_pattern": {
       "file": "ch3_luis_pattern.ogg",
       "text": "Fourteen, Ward on dispatch. The VHS timestamps show the PA page first, then the figure changes halls toward the called location. Pinewood calls. The Attendant answers.",
       "speaker": "RENEE WARD",
       "profile": "renee",
-      "sha256": "9d56f267091ce7fd677e00edb5c8a74ac998b3733f5aae22496342595d0eb2b5",
-      "duration": 14.32
+      "sourceVoice": "AI Voice Generator Crisp / approved Take 1",
+      "sha256": "1fb3770a143665d9ca829a61ce4f999c92f2301b6bad29cd01089c47996cb990",
+      "duration": 7.636
     },
     "ch3_exit": {
       "file": "ch3_exit.ogg",
       "text": "Fourteen, Ward on dispatch. Luis marked an employee route out of Security into the East Wing. Take it. Keep the authentication phrase in your head.",
       "speaker": "RENEE WARD",
       "profile": "renee",
-      "sha256": "985134f0d2dbcbe42af7abfed1a42e64df19b3bd3cac35af1214d760857c2e2a",
-      "duration": 11.82
+      "sourceVoice": "AI Voice Generator Crisp / approved Take 1",
+      "sha256": "e1c682326bc436be5d0398c1df5ba797ac969d8f4536c9dd08579c30a6546586",
+      "duration": 6.02
     },
     "ch4_start": {
       "file": "ch4_start.ogg",
       "text": "Fourteen, Ward on dispatch. East Wing drawings are incomplete on my side. Find an employee route map and give me room numbers. From here on, paper and door labels outrank anything you hear over this radio.",
       "speaker": "RENEE WARD",
       "profile": "renee",
-      "sha256": "72744be30c63c918ca59653fc610b15d891e6f2fb90649186c0646886b8c8a0a",
-      "duration": 16.52
+      "sourceVoice": "AI Voice Generator Crisp / approved Take 1",
+      "sha256": "ad968561aa6234183a9f845d93b31742332bc01117110ab1341b7730a4db0f83",
+      "duration": 10.02
     },
     "ch4_map_confirmed": {
       "file": "ch4_map_confirmed.ogg",
       "text": "Fourteen, Ward on dispatch. I have it. Green R-12 runs through Receiving toward Records. Blue E-17 ends at a fire closure by the old anchor floor. Keep those labels in front of you.",
       "speaker": "RENEE WARD",
       "profile": "renee",
-      "sha256": "e7a16e6040a2725cf8ed349a0485811833ac63a40f70d912cc2d8dbe0a45d374",
-      "duration": 15.72
+      "sourceVoice": "AI Voice Generator Crisp / approved Take 1",
+      "sha256": "958d90bf3fc7d376aa36894f59b4f4a470b087e9b7625b3a093e7c6be0dd1c04",
+      "duration": 9.244
     },
     "ch4_fake_route": {
       "file": "ch4_fake_route.ogg",
       "text": "Contractor Fourteen, Dispatch. Blue E-17 has reopened. Proceed through Training. Receiving R-12 is sealed.",
       "speaker": "RENEE?",
       "profile": "fake-renee",
-      "sha256": "4b3872fbb5876aefb5ed81ad12c36d4cf190ffd912f94b1b5247e85090cf4cfb",
-      "duration": 10.55
+      "sourceVoice": "AI Voice Generator Crisp / approved Take 1",
+      "sha256": "f255eae3e7cd3c37c47a3af957c8d43ab6b055f835ad64cd4f442802d88f09c4",
+      "duration": 4.54
     },
     "ch4_real_return": {
       "file": "ch4_real_return.ogg",
       "text": "Fourteen, Ward on dispatch. Stop. I have not transmitted to you since you read me the route map. Whatever just gave you directions was not me. E-17 is still listed as a fire closure.",
       "speaker": "RENEE WARD",
       "profile": "renee",
-      "sha256": "27c927a6fca20748b9c84bac7de74aee859d7c3d6bc1f31ade498249e07b5936",
-      "duration": 15.32
+      "sourceVoice": "AI Voice Generator Crisp / approved Take 1",
+      "sha256": "0fd42121a4b8e2a6042110ea3fb5ebfeea50c047209f030c95e16238680bea32",
+      "duration": 8.836
     },
     "ch4_tessa_locker": {
       "file": "ch4_tessa_locker.ogg",
       "text": "Fourteen, Ward on dispatch. Tessa Kim. Nineteen years old, Cassette Castle closing clerk. Her name is on Jo Alvarez’s handwritten count. That locker makes this file a person, not a line in a report.",
       "speaker": "RENEE WARD",
       "profile": "renee",
-      "sha256": "a2bdacdfd1017ce32d093082d2cf21643f724130660c56e190004c2d4d0c2674",
-      "duration": 16.72
+      "sourceVoice": "AI Voice Generator Crisp / approved Take 1",
+      "sha256": "9f6bf576486487e57b0ecd1a8717b5bacf288edbf16fb606af6caa86035325ae",
+      "duration": 9.52
     },
     "ch4_staff_photo": {
       "file": "ch4_staff_photo.ogg",
       "text": "Fourteen, Ward on dispatch. I found the same staff photo in an archived tenant packet. Tessa is front left. Jo is behind her. Luis is at the edge in the Security jacket. They all knew each other.",
       "speaker": "RENEE WARD",
       "profile": "renee",
-      "sha256": "733f5f3dbde1aaff46b1cf73610e75e70764d840a8b1dd35bda4178b8d63c54b",
-      "duration": 16.12
+      "sourceVoice": "AI Voice Generator Crisp / approved Take 1",
+      "sha256": "3e33f38fdedf45a444ec2f5476d39046478de476c5829a0e8793eb79be44938b",
+      "duration": 9.244
     },
     "ch4_ls06": {
       "file": "ch4_ls06.ogg",
       "text": "Fourteen, Ward on dispatch. That Side B recording catches Jo getting Tessa out through Receiving while Pinewood keeps calling Tessa back. She survived. The system was wrong and the thing in the halls obeyed the system anyway.",
       "speaker": "RENEE WARD",
       "profile": "renee",
-      "sha256": "43d5580d04b826d74d7b8478640c2256b9e0a93d0a29a1a33dabe07bd35fc552",
-      "duration": 16.62
+      "sourceVoice": "AI Voice Generator Crisp / approved Take 1",
+      "sha256": "05ea214a6d3967881659e3eab2b80bfeaa9a1a11911f7b0ef1cb3a5af82397d0",
+      "duration": 11.32
     },
     "ch4_pre1986": {
       "file": "ch4_pre1986.ogg",
       "text": "Fourteen, Ward on dispatch. That janitorial log is from 1986. PCAS did not exist yet. Whatever employees meant by “the night man,” Pinewood had a closing story before the accountability software.",
       "speaker": "RENEE WARD",
       "profile": "renee",
-      "sha256": "26dff26d921a14bc1bcc19cef654b47ccfba31dccec1c25a84a5685d7777fd8f",
-      "duration": 17.02
+      "sourceVoice": "AI Voice Generator Crisp / approved Take 1",
+      "sha256": "7186d63b89b118680dd75dc255ce41f2519e2a13180871d88e997fbafe275c71",
+      "duration": 10.228
     },
     "ch4_fake_auth": {
       "file": "ch4_fake_auth.ogg",
       "text": "Fourteen, Ward on dispatch. Records access has moved to Training T-04. Leave Receiving and follow the red management line.",
       "speaker": "RENEE?",
       "profile": "fake-renee",
-      "sha256": "8faa3598f3f89b6c535c0eb5be6e957ce6918bab18b2ff75fadf29a52325c028",
-      "duration": 11.55
+      "sourceVoice": "AI Voice Generator Crisp / approved Take 1",
+      "sha256": "24a55c380ad038c4778e1a2e402b93737a92630d39872664880501ab01e00d0d",
+      "duration": 4.74
     },
     "ch4_auth_broken": {
       "file": "ch4_auth_broken.ogg",
       "text": "Fourteen, Ward on dispatch. It used the phrase. That phrase is dead now. Voice is not proof. I will give you facts you can verify: Records is beyond R-12 Receiving. The paper map has not changed.",
       "speaker": "RENEE WARD",
       "profile": "renee",
-      "sha256": "d3249bf78fb035c348d725d8b0da5db70605d149dab5c5e15ab1d12618fef847",
-      "duration": 17.02
+      "sourceVoice": "AI Voice Generator Crisp / approved Take 1",
+      "sha256": "6084a9664882ac57784ef646f120f0b5abd663a666418e138d4b7956799625f2",
+      "duration": 9.32
     },
     "ch4_exit": {
       "file": "ch4_exit.ogg",
       "text": "Fourteen, Ward on dispatch. You have enough to prove the 1997 count was wrong. Take R-12 toward Records and Management. I am done giving you blind turns.",
       "speaker": "RENEE WARD",
       "profile": "renee",
-      "sha256": "4ca37c32640e34f0682b3473085a5bb30dc9c84741b5f6a1f7b77624a59eece0",
-      "duration": 14.42
+      "sourceVoice": "AI Voice Generator Crisp / approved Take 1",
+      "sha256": "9e7dab1be503bf7961e41e6eb07d82fcbe06ac2a17a10617f7fc545b1b29aebc",
+      "duration": 7.92
     },
     "ch5_start": {
       "file": "ch5_start.ogg",
       "text": "Fourteen, Ward on dispatch. Records is ahead. I found a litigation index, but your side has the physical books. Start with Jo Alvarez’s pages, payroll and the punch records. Do not trust a single source by itself.",
       "speaker": "RENEE WARD",
       "profile": "renee",
-      "sha256": "596a0b947d6cf90edd693e1cd57be0617f9d324a4ba9dd47b8d6b1a4101317e9",
-      "duration": 17.52
+      "sourceVoice": "AI Voice Generator Crisp / approved Take 1",
+      "sha256": "f05008a952ab08085bd5399c79dbe69b76f148510ba3f3e8a9b4468c36c8fe1e",
+      "duration": 10.52
     },
     "ch5_jo_statement": {
       "file": "ch5_jo_statement.ogg",
       "text": "Fourteen, Ward on dispatch. I found Jo Alvarez’s suppressed statement. She says she watched seven people leave and started writing names by hand when the terminals disagreed. If your payroll and punch records match, we can rebuild the real roster.",
       "speaker": "RENEE WARD",
       "profile": "renee",
-      "sha256": "f0fce443acd84327944537a9d035e9029cc098ab39ed8be7e95904123b20f48a",
-      "duration": 18.62
+      "sourceVoice": "AI Voice Generator Crisp / approved Take 1",
+      "sha256": "ba2210b0d2ea4439a279fb1fdce0a10dcde92dec62c905454f053722771dbafd",
+      "duration": 12.724
     },
     "ch5_roster_ready": {
       "file": "ch5_roster_ready.ogg",
       "text": "Fourteen, Ward on dispatch. I have the same nine names across the outside archive. Seven people made it out. Luis and Eli have no valid exit. Put those sources against the roster terminal and make Pinewood show you its mismatch.",
       "speaker": "RENEE WARD",
       "profile": "renee",
-      "sha256": "b62ae0349650b670db5d8bc09cf133b425619ae424afbeb6115bf745b1cd9680",
-      "duration": 17.72
+      "sourceVoice": "AI Voice Generator Crisp / approved Take 1",
+      "sha256": "f5bcc696f0e36d5f88b2cac5ae31513710d65d3989e7735390ef40dde141d2a0",
+      "duration": 11.644
     },
     "ch5_roster_reconciled": {
       "file": "ch5_roster_reconciled.ogg",
       "text": "The final roster is solid. Jo, Tessa, Andre, Denise, Marcus, Nina and Caleb out. Luis and Eli, no valid exit. That is not a story somebody remembered wrong. That is the closing state Pinewood refused to finish.",
       "speaker": "RENEE WARD",
       "profile": "renee",
-      "sha256": "0a4aadc8d964161d763c8865d13340e9ce046fd1757d54a0532eee6fd6470ed0",
-      "duration": 18.12
+      "sourceVoice": "AI Voice Generator Crisp / approved Take 1",
+      "sha256": "a5ae83eb6f9c99330224224f9e6b68a66e450add736914a5f9c5817b582c86cd",
+      "duration": 10.02
     },
     "ch5_override": {
       "file": "ch5_override.ogg",
       "text": "Fourteen, Ward on dispatch. I found Kessler’s signature on the reopening packet. He certified all clear the next morning while the contractor exception was still open. No occult plan. He wanted the liability closed and the mall reopened.",
       "speaker": "RENEE WARD",
       "profile": "renee",
-      "sha256": "16f823a84e41df6c99ddf339e046337d0cb8612497a5ff0424d436811e04e6a1",
-      "duration": 18.42
+      "sourceVoice": "AI Voice Generator Crisp / approved Take 1",
+      "sha256": "e23a4c9aca3c3c9e104d6dd902bc2341d8e3bfeb26091e677f93d9a23587185e",
+      "duration": 12.32
     },
     "ch5_eli_body": {
       "file": "ch5_eli_body.ogg",
       "text": "Fourteen, Ward on dispatch. Read me the badge. Eli Mercer. That is the 1997 contractor. If Eli is physically in front of you and the Attendant is moving elsewhere in Records, they are not the same thing.",
       "speaker": "RENEE WARD",
       "profile": "renee",
-      "sha256": "a3eb6cb33bde6a2d87b063d60c58ca743ebec17768e850a886666aae1bf84ac6",
-      "duration": 16.82
+      "sourceVoice": "AI Voice Generator Crisp / approved Take 1",
+      "sha256": "2f75dd28938021d0ab5294d48608c1b8bf296e6b15876e8ca3fb4939302f78a8",
+      "duration": 10.42
     },
     "ch5_eli_recorder": {
       "file": "ch5_eli_recorder.ogg",
       "text": "Fourteen, Ward on dispatch. Eli figured out power was only pausing the routine. He was trying to reach PA control and finish the shift in order when he died. His contractor session never received an exit.",
       "speaker": "RENEE WARD",
       "profile": "renee",
-      "sha256": "8e9460550b4f13398d43a97c57f2300e28e8e50d56504f5942b82ce80ba4a2e9",
-      "duration": 15.72
+      "sourceVoice": "AI Voice Generator Crisp / approved Take 1",
+      "sha256": "879bdb06bc05fcd03533d7a9ba49b9ae811d4ffc18a99e486f3e1ff54e827a5a",
+      "duration": 10.228
     },
     "ch5_sessions": {
       "file": "ch5_sessions.ogg",
       "text": "I have the legacy contractor table. Eli is Session 01. Two through twelve are a mess of cancelled and partial descendants. Gavin Cole is 13. You are 14. Pinewood has been reopening the same unresolved work-order family for twenty-nine years.",
       "speaker": "RENEE WARD",
       "profile": "renee",
-      "sha256": "f8b167738f6f4241c32909c1a3b4a6140f74ab679723596abccb9b1e2363faa1",
-      "duration": 19.52
+      "sourceVoice": "AI Voice Generator Crisp / approved Take 1",
+      "sha256": "809df61d29a234303bbf7c423ef9a5081b4de400aa4dea76aeffd304bb8f36ed",
+      "duration": 13.12
     },
     "ch5_exit": {
       "file": "ch5_exit.ogg",
       "text": "Fourteen, Ward on dispatch. We know what Pinewood expects now: the real roster, the unresolved service states, then accountability control. The route ahead is PA control. You are going to finish the shift Eli could not.",
       "speaker": "RENEE WARD",
       "profile": "renee",
-      "sha256": "e4ab3768d9be599d171614b0884dd105d3504f66965a03e3fd140432ef1eb50a",
-      "duration": 17.62
+      "sourceVoice": "AI Voice Generator Crisp / approved Take 1",
+      "sha256": "c686f66deee8775ea196890d56084e12f3972edfc312bc34c0cd2f503a5f300c",
+      "duration": 11.14
     },
     "ch6_radio_overlap": {
       "file": "ch6_radio_overlap.ogg",
       "text": "Fourteen, Ward on dispatch. Employee exit is east— Fourteen, Ward on dispatch. Return to assigned station— east exit, physical signs only— return to assigned station.",
       "speaker": "RENEE / UNKNOWN",
       "profile": "overlap",
-      "sha256": "4e8481272fd881098a2d7c769cdda8e329c518933b2859624450c87a02c4e1f2",
-      "duration": 13.55
+      "sourceVoice": "AI Voice Generator Crisp / approved Take 1 foreground + local counterfeit layer",
+      "sha256": "7817d16355e9fb5a2ccd4d6ee809399dee9a7b0e723286065fe6acc91c16cbca",
+      "duration": 5.55
     },
     "recording_jo_ls06": {
       "file": "recording_jo_ls06.ogg",
