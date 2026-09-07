@@ -37,7 +37,20 @@ try{
       const ogg=bytes.length>=4&&String.fromCharCode(...bytes.slice(0,4))==='OggS';
       assets.push({label,file,ok:response.ok&&ogg,size:bytes.length});
     }
-    return {telemetry,pcasRevision:pcas.audioDirectionRevision,pcasCount:Object.keys(pcas.files||{}).length,characterVersion:characters.version,characterCount:Object.keys(characters.files||{}).length,reneeEngine:characters.engine?.renee||'',characterProcessing:characters.processing?.description||'',reneeDuration:Number(characters.files?.ch1_start?.duration||0),assets};
+    return {
+      telemetry,
+      pcasRevision:pcas.audioDirectionRevision,
+      pcasCount:Object.keys(pcas.files||{}).length,
+      characterVersion:characters.version,
+      characterCount:Object.keys(characters.files||{}).length,
+      reneeEngine:characters.engine?.renee||'',
+      characterProcessing:characters.processing?.description||'',
+      reneeSourceDuration:Number(characters.files?.ch1_start?.sourceDuration||0),
+      reneeDuration:Number(characters.files?.ch1_start?.duration||0),
+      firstPowerSourceDuration:Number(characters.files?.ch1_first_power?.sourceDuration||0),
+      firstPowerDuration:Number(characters.files?.ch1_first_power?.duration||0),
+      assets
+    };
   });
   expect(!result.error,result.error||'manifest fetch failed');
   expect(result.telemetry?.version===27,'runtime telemetry v27 missing');
@@ -51,11 +64,16 @@ try{
   expect(result.characterVersion===27&&result.characterCount===47,`character manifest mismatch: version ${result.characterVersion}, count ${result.characterCount}`);
   expect(result.reneeEngine.includes('Crisp / approved Take 1'),'approved Renee Crisp Take 1 provenance missing from served character manifest');
   expect(result.characterProcessing.includes('pronounced dispatch-radio chain at reduced level'),'served Renee master does not contain the strengthened reduced-level radio treatment');
+  expect(result.characterProcessing.includes('duration-safe 44.1 kHz normalization/mix boundary with source/output duration guard'),'served Renee master does not advertise the duration-safe render boundary');
+  expect(result.reneeSourceDuration>10&&result.reneeDuration>10,'opening Renee line is still the historical truncated render');
+  expect(result.reneeDuration+.05>=result.reneeSourceDuration,`opening Renee render ${result.reneeDuration}s is shorter than ${result.reneeSourceDuration}s source`);
+  expect(result.firstPowerSourceDuration>7&&result.firstPowerDuration>7,'first-power Renee line is still the historical truncated render');
+  expect(result.firstPowerDuration+.05>=result.firstPowerSourceDuration,`first-power Renee render ${result.firstPowerDuration}s is shorter than ${result.firstPowerSourceDuration}s source`);
   for(const asset of result.assets)expect(asset.ok&&asset.size>1000,`${asset.label} local OGG failed: ${JSON.stringify(asset)}`);
 
-  // Actually run a representative Renee buffer through the production WebAudio graph.
-  // This is intentionally stronger than merely fetching the OGG: it proves the source remains
-  // retained and reaches its natural onended event instead of being cut by subtitle/UI timing.
+  // Actually run the full restored opening Renee buffer through the production WebAudio graph.
+  // This proves the local OGG remains retained and reaches its natural onended event after the
+  // duration-safe render, rather than merely proving that the file can be fetched.
   const testStarted=await page.evaluate(()=>{
     const t=window.__PINEWOOD_AUDIO_V27__;
     if(typeof t?.playCharacterTest!=='function')return false;
