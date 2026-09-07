@@ -5,6 +5,7 @@ import path from 'node:path';
 const root=process.cwd();
 const game=await readFile(path.join(root,'game.js'),'utf8');
 const patch=await readFile(path.join(root,'patches','audio-direction-v27.js.txt'),'utf8');
+const reneeRenderer=await readFile(path.join(root,'scripts','render-renee-neural-v27.mjs'),'utf8');
 const pcasSpec=JSON.parse(await readFile(path.join(root,'story','pa-lines-v27.json'),'utf8'));
 const pcasManifest=JSON.parse(await readFile(path.join(root,'assets','audio','pa','manifest.json'),'utf8'));
 const charManifest=JSON.parse(await readFile(path.join(root,'assets','audio','characters','manifest.json'),'utf8'));
@@ -19,8 +20,28 @@ if(!String(pcasManifest.processing?.description||'').includes('approved PCAS B d
 if(charManifest.version!==27)fail('character manifest v27 missing');
 if(!String(charManifest.engine?.renee||'').includes('Crisp / approved Take 1'))fail('approved Renee Crisp Take 1 provenance missing');
 if(!String(charManifest.processing?.description||'').includes('pronounced dispatch-radio chain at reduced level'))fail('strengthened Renee radio processing provenance missing');
+if(!String(charManifest.processing?.description||'').includes('duration-safe 44.1 kHz normalization/mix boundary with source/output duration guard'))fail('duration-safe Renee render provenance missing');
 for(const id of ['ch1_start','ch2_start','ch3_start','ch4_start','ch5_start','ch4_fake_route','ch4_fake_auth','ch6_radio_overlap','recording_jo_ls06','recording_eli_ls08'])if(!charManifest.files[id])fail('character voice missing '+id);
 for(const entry of Object.values({...pcasManifest.files,...charManifest.files}))if(!entry.file||!entry.duration||!entry.sha256)fail('invalid generated voice manifest entry');
+
+const neuralEntries=Object.entries(charManifest.files).filter(([,entry])=>['renee','fake-renee','overlap'].includes(entry.profile));
+if(neuralEntries.length!==45)fail(`expected 45 neural Renee-derived entries, found ${neuralEntries.length}`);
+for(const [id,entry] of neuralEntries){
+  if(!(Number(entry.sourceDuration)>0))fail(`neural source duration missing for ${id}`);
+  if(Number(entry.duration)+.05<Number(entry.sourceDuration))fail(`neural production render is truncated for ${id}: ${entry.duration}s < ${entry.sourceDuration}s source`);
+}
+if(Number(charManifest.files.ch1_start?.sourceDuration)<10||Number(charManifest.files.ch1_start?.duration)<10)fail('opening Renee line regressed to the historical truncated render');
+if(Number(charManifest.files.ch1_first_power?.sourceDuration)<7||Number(charManifest.files.ch1_first_power?.duration)<7)fail('first-power Renee line regressed to the historical truncated render');
+
+for(const marker of [
+  "loudnorm=I=-20.0:LRA=4.5:TP=-2.0,aresample=44100[voice]",
+  "loudnorm=I=-18.5:LRA=4:TP=-1.8,aresample=44100[voice]",
+  'amix=inputs=2:duration=first:dropout_transition=0:normalize=0',
+  'assertDurationSafe(',
+  'sourceDuration:roundedDuration(sourceDuration)',
+  "duration-safe 44.1 kHz normalization/mix boundary with source/output duration guard"
+])if(!reneeRenderer.includes(marker))fail('duration-safe Renee renderer marker missing '+marker);
+
 for(const marker of [
   "const AUDIO_DIRECTION_V27_PATCH='./patches/audio-direction-v27.js.txt';",
   "const CHARACTER_VOICE_MANIFEST='./assets/audio/characters/manifest.json';",
@@ -38,6 +59,9 @@ for(const marker of [
   'this.reserveVoiceV27(total,.42);',
   'onStart?.({duration:buffer.duration,startDelay,total,source:src});',
   'subtitleTracksVoice:true',
+  'retainedCharacterSources:true',
+  'activeCharacterSourcesV27',
+  'endedNaturally',
   'spokenDuration=Math.max(3400,(timing.total+.65)*1000)',
   'g.gain.value=.90',
   'recording_jo_ls06',
@@ -69,4 +93,4 @@ for(const auditPath of ['scripts/audit-chapter3-security-readability-v22d.mjs','
 }
 
 const temp='/tmp/pinewood-audio-direction-v27.mjs';await writeFile(temp,patch);execFileSync('node',['--check',temp],{stdio:'inherit'});
-console.log(`Audio Direction v27 audit passed: approved PCAS B Flite RMS profile with ${Object.keys(pcasManifest.files).length} local PCAS clips, ${Object.keys(charManifest.files).length} lazy-loaded character clips; Renee uses the strengthened reduced-level Crisp Take 1 radio render, character loading is serialized, subtitle lifetime begins at actual voice playback, rapid cadence and browser TTS tokens exist only inside explicit rejection guards, and historical loader audits feed forward through v27.`);
+console.log(`Audio Direction v27 audit passed: approved PCAS B Flite RMS profile with ${Object.keys(pcasManifest.files).length} local PCAS clips, ${Object.keys(charManifest.files).length} lazy-loaded character clips; all ${neuralEntries.length} Renee-derived neural radio renders preserve their source duration across the duration-safe 44.1 kHz loudnorm/amix boundary, character loading is serialized and retained through natural completion, subtitle lifetime begins at actual voice playback, rapid cadence and browser TTS tokens exist only inside explicit rejection guards, and historical loader audits feed forward through v27.`);
