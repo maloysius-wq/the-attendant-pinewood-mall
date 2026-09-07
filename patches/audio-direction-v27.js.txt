@@ -6,7 +6,7 @@ function applyAudioDirectionV27(source,manifest){
 
   replaceOnce('character voice manifest injection',
     "const PCAS_AUDIO_BASE=new URL('./assets/audio/pa/',location.href).href;",
-    "const PCAS_AUDIO_BASE=new URL('./assets/audio/pa/',location.href).href;\nconst CHARACTER_VOICE_V27="+JSON.stringify(manifest)+";\nconst CHARACTER_AUDIO_BASE_V27=new URL('./assets/audio/characters/',location.href).href;\nwindow.__PINEWOOD_AUDIO_V27__={version:27,sparsePcas:true,serializedVoices:true,radioVoices:true,deepPcas:true,subtitleTracksVoice:true,retainedCharacterSources:true,hashedCharacterAudio:true,characterGain:.585,ambientMin:72,ambientMax:118,openingQuiet:45,loaded:0,failures:[],activeCharacters:0,lastCharacter:null};"
+    "const PCAS_AUDIO_BASE=new URL('./assets/audio/pa/',location.href).href;\nconst CHARACTER_VOICE_V27="+JSON.stringify(manifest)+";\nconst CHARACTER_AUDIO_BASE_V27=new URL('./assets/audio/characters/',location.href).href;\nwindow.__PINEWOOD_AUDIO_V27__={version:27,sparsePcas:true,serializedVoices:true,radioVoices:true,deepPcas:true,subtitleTracksVoice:true,retainedCharacterSources:true,hashedCharacterAudio:true,reneeGain:.585,otherCharacterGain:.78,ambientMin:72,ambientMax:118,openingQuiet:45,loaded:0,failures:[],activeCharacters:0,lastCharacter:null};"
   );
 
   replaceOnce('v27 voice helpers',
@@ -30,10 +30,10 @@ function applyAudioDirectionV27(source,manifest){
     this.voiceLoadingV27=true;
     const buffer=await this.loadCharacterV27(id);this.voiceLoadingV27=false;if(!buffer||!this.ctx)return unavailable();
     if(this.voiceBusyV27()){setTimeout(()=>this.characterV27(id,onStart,onUnavailable),Math.max(180,(this.voiceRemainingV27()+.45)*1000));return null;}
-    this.radio();const src=this.ctx.createBufferSource(),g=this.ctx.createGain();src.buffer=buffer;g.gain.value=.585;src.connect(g);g.connect(this.voice);
+    this.radio();const src=this.ctx.createBufferSource(),g=this.ctx.createGain();src.buffer=buffer;const characterGain=(entry.profile==='renee'||entry.profile==='overlap')?.585:.78;g.gain.value=characterGain;src.connect(g);g.connect(this.voice);
     const startDelay=.11,total=startDelay+buffer.duration,scheduledAt=this.ctx.currentTime+startDelay;this.reserveVoiceV27(total,.42);
     this.activeCharacterSourcesV27??=new Set();this.activeCharacterSourcesV27.add(src);
-    const telemetry=window.__PINEWOOD_AUDIO_V27__;telemetry.activeCharacters=this.activeCharacterSourcesV27.size;telemetry.lastCharacter={id,expectedDuration:buffer.duration,scheduledAt,ended:false,endedNaturally:false,minMaster:Number(this.master?.gain?.value??1),minVoice:Number(this.voice?.gain?.value??1),characterGain:.585,assetVersion:version};
+    const telemetry=window.__PINEWOOD_AUDIO_V27__;const assetVersion=String(entry.sha256||'v27').slice(0,16);telemetry.activeCharacters=this.activeCharacterSourcesV27.size;telemetry.lastCharacter={id,expectedDuration:buffer.duration,scheduledAt,ended:false,endedNaturally:false,minMaster:Number(this.master?.gain?.value??1),minVoice:Number(this.voice?.gain?.value??1),characterGain,assetVersion};
     const monitor=setInterval(()=>{const t=window.__PINEWOOD_AUDIO_V27__?.lastCharacter;if(!t||t.id!==id||t.ended)return;t.minMaster=Math.min(t.minMaster,Number(this.master?.gain?.value??1));t.minVoice=Math.min(t.minVoice,Number(this.voice?.gain?.value??1));},50);
     src.onended=()=>{clearInterval(monitor);this.activeCharacterSourcesV27?.delete(src);telemetry.activeCharacters=this.activeCharacterSourcesV27?.size||0;const t=telemetry.lastCharacter;if(t?.id===id){t.ended=true;t.endedAt=this.ctx?.currentTime??scheduledAt;t.elapsed=Math.max(0,t.endedAt-scheduledAt);t.endedNaturally=t.elapsed>=buffer.duration-.15;t.masterAtEnd=Number(this.master?.gain?.value??1);t.voiceAtEnd=Number(this.voice?.gain?.value??1);}};
     src.start(scheduledAt);onStart?.({duration:buffer.duration,startDelay,total,source:src});return src;
@@ -132,14 +132,16 @@ function applyAudioDirectionV27(source,manifest){
     'subtitleTracksVoice:true',
     'retainedCharacterSources:true',
     'hashedCharacterAudio:true',
-    'characterGain:.585',
+    'reneeGain:.585',
+    'otherCharacterGain:.78',
     "entry.file+'?v='+encodeURIComponent(version)",
     "fetch(url,{cache:'default'})",
+    "const characterGain=(entry.profile==='renee'||entry.profile==='overlap')?.585:.78",
+    'g.gain.value=characterGain',
     'activeCharacterSourcesV27',
     'endedNaturally',
     'playCharacterTest',
     'spokenDuration=Math.max(3400,(timing.total+.65)*1000)',
-    'g.gain.value=.585',
     'this.storyVoiceUntilV27',
     "line.medium==='intercom'||line.medium==='radio'",
     'this.time<45',

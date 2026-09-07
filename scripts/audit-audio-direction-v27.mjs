@@ -20,8 +20,9 @@ if(!String(pcasManifest.engine?.name||'').includes('Flite RMS'))fail('approved P
 if(!String(pcasManifest.processing?.description||'').includes('approved PCAS B deep-mechanical revision'))fail('approved PCAS B processing provenance missing');
 if(charManifest.version!==27)fail('character manifest v27 missing');
 if(!String(charManifest.engine?.renee||'').includes('Crisp / approved Take 1'))fail('approved Renee Crisp Take 1 provenance missing');
-if(!String(charManifest.processing?.description||'').includes('hard handheld walkie-talkie post-pass at substantially reduced level'))fail('hard Renee walkie processing provenance missing');
-if(!String(charManifest.processing?.description||'').includes('480-2450 Hz communications band'))fail('Renee communications-band provenance missing');
+if(!String(charManifest.processing?.description||'').includes('extreme handheld walkie-talkie post-pass'))fail('extreme Renee walkie processing provenance missing');
+if(!String(charManifest.processing?.description||'').includes('650-2150 Hz communications band'))fail('Renee extreme communications-band provenance missing');
+if(!String(charManifest.processing?.description||'').includes('runtime Renee playback gain is 75 percent'))fail('Renee 75 percent runtime gain provenance missing');
 if(!String(charManifest.processing?.description||'').includes('edge squelch'))fail('Renee squelch provenance missing');
 for(const id of ['ch1_start','ch2_start','ch3_start','ch4_start','ch5_start','ch4_fake_route','ch4_fake_auth','ch6_radio_overlap','recording_jo_ls06','recording_eli_ls08'])if(!charManifest.files[id])fail('character voice missing '+id);
 for(const entry of Object.values({...pcasManifest.files,...charManifest.files}))if(!entry.file||!entry.duration||!entry.sha256)fail('invalid generated voice manifest entry');
@@ -33,8 +34,8 @@ for(const [id,entry] of neuralEntries){
   if(Number(entry.duration)+.05<Number(entry.sourceDuration))fail(`neural production render is truncated for ${id}: ${entry.duration}s < ${entry.sourceDuration}s source`);
 }
 const hardened=Object.entries(charManifest.files).filter(([,entry])=>['renee','overlap'].includes(entry.profile));
-if(hardened.length!==43)fail(`expected 43 hard-walkie Renee/overlap entries, found ${hardened.length}`);
-for(const [id,entry] of hardened)if(entry.walkiePostProcess!=='v28-hard-handheld')fail(`hard walkie post-process marker missing for ${id}`);
+if(hardened.length!==43)fail(`expected 43 extreme-walkie Renee/overlap entries, found ${hardened.length}`);
+for(const [id,entry] of hardened)if(entry.walkiePostProcess!=='v29-extreme-handheld')fail(`extreme walkie post-process marker missing for ${id}`);
 if(Number(charManifest.files.ch1_start?.sourceDuration)<10||Number(charManifest.files.ch1_start?.duration)<10)fail('opening Renee line regressed to the historical truncated render');
 if(Number(charManifest.files.ch1_first_power?.sourceDuration)<7||Number(charManifest.files.ch1_first_power?.duration)<7)fail('first-power Renee line regressed to the historical truncated render');
 
@@ -44,18 +45,19 @@ for(const marker of [
   'amix=inputs=2:duration=first:dropout_transition=0:normalize=0',
   'assertDurationSafe(',
   'sourceDuration:roundedDuration(sourceDuration)',
-  "duration-safe 44.1 kHz normalization/mix boundary with source/output duration guard"
+  'duration-safe 44.1 kHz normalization/mix boundary with source/output duration guard'
 ])if(!reneeRenderer.includes(marker))fail('duration-safe Renee renderer marker missing '+marker);
 for(const marker of [
-  'highpass=f=480,lowpass=f=2450',
-  'ratio=8.2',
-  'acrusher=bits=11',
+  'highpass=f=650,lowpass=f=2150',
+  'ratio=12',
+  'acrusher=bits=9',
+  'mix=.28',
   'loudnorm=I=-22.5',
   'anoisesrc=color=pink:amplitude=',
-  'anoisesrc=color=white:amplitude=.035',
-  "walkiePostProcess='v28-hard-handheld'",
-  'hard handheld walkie-talkie post-pass at substantially reduced level'
-])if(!walkiePost.includes(marker))fail('hard Renee walkie post-process marker missing '+marker);
+  'anoisesrc=color=white:amplitude=.080',
+  "walkiePostProcess='v29-extreme-handheld'",
+  'extreme handheld walkie-talkie post-pass'
+])if(!walkiePost.includes(marker))fail('extreme Renee walkie post-process marker missing '+marker);
 
 for(const marker of [
   "const AUDIO_DIRECTION_V27_PATCH='./patches/audio-direction-v27.js.txt';",
@@ -75,15 +77,22 @@ for(const marker of [
   'onStart?.({duration:buffer.duration,startDelay,total,source:src});',
   'subtitleTracksVoice:true',
   'retainedCharacterSources:true',
+  'hashedCharacterAudio:true',
+  'reneeGain:.585',
+  'otherCharacterGain:.78',
+  "entry.file+'?v='+encodeURIComponent(version)",
+  "fetch(url,{cache:'default'})",
+  "const characterGain=(entry.profile==='renee'||entry.profile==='overlap')?.585:.78",
+  'g.gain.value=characterGain',
   'activeCharacterSourcesV27',
   'endedNaturally',
   'spokenDuration=Math.max(3400,(timing.total+.65)*1000)',
-  'g.gain.value=.78',
   'recording_jo_ls06',
   'recording_eli_ls08',
   'serializedVoices:true',
   'deepPcas:true'
 ])if(!patch.includes(marker))fail('patch marker missing '+marker);
+if(patch.includes("fetch(CHARACTER_AUDIO_BASE_V27+entry.file,{cache:'force-cache'})"))fail('stale force-cache character loader survived cache versioning');
 const preloadReservation="this.reserveVoiceV27(Number(entry.duration||0),.42);";
 const preloadReservationGuard=`if(source.includes('${preloadReservation}'))fail('character voice lifetime may not begin before lazy load completes');`;
 const preloadReservationMentions=patch.split(preloadReservation).length-1;
@@ -108,4 +117,4 @@ for(const auditPath of ['scripts/audit-chapter3-security-readability-v22d.mjs','
 }
 
 const temp='/tmp/pinewood-audio-direction-v27.mjs';await writeFile(temp,patch);execFileSync('node',['--check',temp],{stdio:'inherit'});
-console.log(`Audio Direction v27 audit passed: approved PCAS B remains intact; ${hardened.length} Renee/overlap clips carry the v28 hard handheld walkie post-pass, the runtime voice gain is reduced, all neural renders preserve source duration, character loading is serialized and retained through natural completion, subtitle lifetime begins at actual voice playback, and browser TTS remains forbidden.`);
+console.log(`Audio Direction v27 audit passed: approved PCAS B remains intact; ${hardened.length} Renee/overlap clips carry the v29 extreme handheld walkie post-pass, Renee playback is 75 percent of the prior runtime gain, character audio is hash-versioned to defeat stale browser caches, all neural renders preserve source duration, character loading is serialized and retained through natural completion, subtitle lifetime begins at actual voice playback, and browser TTS remains forbidden.`);
