@@ -30,6 +30,16 @@ const manifestPath=path.join(outDir,'manifest.json');
 const manifest=JSON.parse(await readFile(manifestPath,'utf8'));
 const sha256=data=>createHash('sha256').update(data).digest('hex');
 const stableSeed=id=>Math.max(1,Number.parseInt(createHash('sha256').update(id).digest('hex').slice(0,7),16));
+const probeDuration=file=>{
+  const probe=JSON.parse(execFileSync('ffprobe',['-v','error','-show_entries','format=duration','-of','json',file],{encoding:'utf8'}));
+  const duration=Number(probe?.format?.duration||0);
+  if(!Number.isFinite(duration)||duration<=0)throw new Error(`Could not determine positive duration for ${file}.`);
+  return duration;
+};
+const roundedDuration=value=>Number(Number(value).toFixed(3));
+const assertDurationSafe=(label,sourceDuration,outputDuration)=>{
+  if(outputDuration+.05<sourceDuration)throw new Error(`${label} render truncated source audio: source ${sourceDuration.toFixed(3)}s, output ${outputDuration.toFixed(3)}s.`);
+};
 
 const genuine=Object.values(dialogue).filter(line=>line.medium==='radio'&&line.speaker==='RENEE');
 const fake=Object.values(dialogue).filter(line=>line.medium==='radio'&&line.speaker==='RENEE?');
@@ -63,14 +73,13 @@ async function download(url,dest,label){
   throw new Error(`Failed to download ${label} after 3 attempts: ${lastError?.message||lastError}`);
 }
 
-// Renee should remain recognizably human, but now read clearly as a handheld dispatch radio.
-// Compared with the first neural production pass this narrows the speech band, pushes the
-// communications presence harder, adds a little more low-bit transmission texture/static,
-// and lowers the integrated level so she sits behind close-up gameplay sounds instead of
-// feeling pasted on top of them.
+// Renee should remain recognizably human, but read clearly as a handheld dispatch radio.
+// IMPORTANT: dynamic loudnorm internally changes sample rate. Always resample its output
+// back to 44.1 kHz before feeding it into amix with the 44.1 kHz radio-noise stream.
+// Without this explicit boundary FFmpeg shortens the finite voice timeline by ~2.8 seconds.
 const reneeCore='aresample=44100,highpass=f=340,lowpass=f=2950,acompressor=threshold=0.070:ratio=5.4:attack=3:release=70,equalizer=f=900:t=q:w=1.0:g=1.8,equalizer=f=1850:t=q:w=0.9:g=4.4,acrusher=bits=13:mode=lin:aa=1:mix=0.040';
-const realFx=`[0:a]${reneeCore},loudnorm=I=-20.0:LRA=4.5:TP=-2.0[voice];[1:a]highpass=f=600,lowpass=f=3800,volume=0.16[noise];[voice][noise]amix=inputs=2:duration=first:normalize=0,alimiter=limit=0.92,apad=pad_dur=0.14[out]`;
-const fakeFx='[0:a]aresample=44100,asetrate=42600,aresample=44100,highpass=f=250,lowpass=f=3150,acompressor=threshold=0.06:ratio=6.2:attack=4:release=80,equalizer=f=1750:t=q:w=1.0:g=3.0,acrusher=bits=10:mode=lin:aa=1:mix=0.19,tremolo=f=12:d=0.085,aecho=0.70:0.24:43|107:0.16|0.07,loudnorm=I=-18.5:LRA=4:TP=-1.8[voice];[1:a]highpass=f=500,lowpass=f=4200,volume=0.15[noise];[voice][noise]amix=inputs=2:duration=first:normalize=0,alimiter=limit=0.94,apad=pad_dur=0.14[out]';
+const realFx=`[0:a]${reneeCore},loudnorm=I=-20.0:LRA=4.5:TP=-2.0,aresample=44100[voice];[1:a]aresample=44100,highpass=f=600,lowpass=f=3800,volume=0.16[noise];[voice][noise]amix=inputs=2:duration=first:dropout_transition=0:normalize=0,alimiter=limit=0.92,apad=pad_dur=0.14[out]`;
+const fakeFx='[0:a]aresample=44100,asetrate=42600,aresample=44100,highpass=f=250,lowpass=f=3150,acompressor=threshold=0.06:ratio=6.2:attack=4:release=80,equalizer=f=1750:t=q:w=1.0:g=3.0,acrusher=bits=10:mode=lin:aa=1:mix=0.19,tremolo=f=12:d=0.085,aecho=0.70:0.24:43|107:0.16|0.07,loudnorm=I=-18.5:LRA=4:TP=-1.8,aresample=44100[voice];[1:a]aresample=44100,highpass=f=500,lowpass=f=4200,volume=0.15[noise];[voice][noise]amix=inputs=2:duration=first:dropout_transition=0:normalize=0,alimiter=limit=0.94,apad=pad_dur=0.14[out]';
 
 function renderRadio(source,output,fx,id,noiseAmplitude=0.007){
   execFileSync('ffmpeg',[
@@ -86,17 +95,20 @@ async function updateEntry(line,profile,sourceUrl){
   const source=path.join(tempDir,`${line.id}.mp3`);
   const output=path.join(outDir,`${line.id}.ogg`);
   await download(sourceUrl,source,line.id);
+  const sourceDuration=probeDuration(source);
   renderRadio(source,output,profile==='renee'?realFx:fakeFx,line.id,profile==='renee'?0.007:0.006);
+  const outputDuration=probeDuration(output);
+  assertDurationSafe(line.id,sourceDuration,outputDuration);
   const bytes=await readFile(output);
-  const probe=JSON.parse(execFileSync('ffprobe',['-v','error','-show_entries','format=duration','-of','json',output],{encoding:'utf8'}));
   manifest.files[line.id]={
     file:`${line.id}.ogg`,
     text:line.text,
     speaker:profile==='renee'?'RENEE WARD':'RENEE?',
     profile,
     sourceVoice:'AI Voice Generator Crisp / approved Take 1',
+    sourceDuration:roundedDuration(sourceDuration),
     sha256:sha256(bytes),
-    duration:Number(Number(probe?.format?.duration||0).toFixed(3))
+    duration:roundedDuration(outputDuration)
   };
 }
 
@@ -111,35 +123,39 @@ const overlapReneeWav=path.join(tempDir,'ch6-radio-overlap-renee.wav');
 const overlapUnknownWav=path.join(tempDir,'ch6-radio-overlap-unknown.wav');
 const overlapOut=path.join(outDir,'ch6_radio_overlap.ogg');
 await download(sources.sources.ch6_radio_overlap_renee,overlapReneeMp3,'ch6_radio_overlap_renee');
+const overlapSourceDuration=probeDuration(overlapReneeMp3);
 execFileSync('ffmpeg',[
   '-hide_banner','-loglevel','error','-y','-i',overlapReneeMp3,
-  '-af',`${reneeCore},loudnorm=I=-20.0:LRA=4.5:TP=-2.0`,
+  '-af',`${reneeCore},loudnorm=I=-20.0:LRA=4.5:TP=-2.0,aresample=44100`,
   '-ac','1','-ar','44100',overlapReneeWav
 ]);
+assertDurationSafe('ch6_radio_overlap_renee intermediate',overlapSourceDuration,probeDuration(overlapReneeWav));
 execFileSync('espeak-ng',[
   '-v','en-us+m3','-s','132','-p','16','-a','170','-g','2','-w',overlapUnknownWav,
   'Fourteen, Ward on dispatch. Return to assigned station. Return to assigned station.'
 ]);
 // Mix the two finite voice layers first. Then use that finite mix as the duration master
-// when adding the intentionally infinite noise generator. This prevents the final FFmpeg
-// process from waiting forever for the noise input to end.
-const overlapFx='[0:a]adelay=0,volume=0.90[a];[1:a]adelay=1650,asetrate=40100,aresample=44100,highpass=f=135,lowpass=f=2750,acompressor=threshold=0.055:ratio=7:attack=4:release=90,acrusher=bits=9:mode=lin:aa=1:mix=0.23,tremolo=f=11:d=0.12,aecho=0.72:0.28:49|117:0.18|0.08,volume=0.52[b];[a][b]amix=inputs=2:duration=longest:normalize=0[voices];[2:a]highpass=f=550,lowpass=f=3900,volume=0.15[n];[voices][n]amix=inputs=2:duration=first:normalize=0,loudnorm=I=-19.5:LRA=4:TP=-2.0,alimiter=limit=0.92,apad=pad_dur=0.15[out]';
+// when adding the intentionally infinite noise generator. The final loudnorm is followed
+// by an explicit 44.1 kHz resample before limiting, keeping timestamps and duration stable.
+const overlapFx='[0:a]adelay=0,volume=0.90[a];[1:a]adelay=1650,asetrate=40100,aresample=44100,highpass=f=135,lowpass=f=2750,acompressor=threshold=0.055:ratio=7:attack=4:release=90,acrusher=bits=9:mode=lin:aa=1:mix=0.23,tremolo=f=11:d=0.12,aecho=0.72:0.28:49|117:0.18|0.08,volume=0.52[b];[a][b]amix=inputs=2:duration=longest:dropout_transition=0:normalize=0[voices];[2:a]aresample=44100,highpass=f=550,lowpass=f=3900,volume=0.15[n];[voices][n]amix=inputs=2:duration=first:dropout_transition=0:normalize=0,loudnorm=I=-19.5:LRA=4:TP=-2.0,aresample=44100,alimiter=limit=0.92,apad=pad_dur=0.15[out]';
 execFileSync('ffmpeg',[
   '-hide_banner','-loglevel','error','-y','-i',overlapReneeWav,'-i',overlapUnknownWav,
   '-f','lavfi','-i',`anoisesrc=color=pink:amplitude=0.007:r=44100:seed=${stableSeed('ch6_radio_overlap')}`,
   '-filter_complex',overlapFx,'-map','[out]','-ac','1','-ar','44100','-c:a','libvorbis','-q:a','5',overlapOut
 ]);
 {
+  const outputDuration=probeDuration(overlapOut);
+  assertDurationSafe('ch6_radio_overlap',overlapSourceDuration,outputDuration);
   const bytes=await readFile(overlapOut);
-  const probe=JSON.parse(execFileSync('ffprobe',['-v','error','-show_entries','format=duration','-of','json',overlapOut],{encoding:'utf8'}));
   manifest.files.ch6_radio_overlap={
     file:'ch6_radio_overlap.ogg',
     text:overlap.text,
     speaker:'RENEE / UNKNOWN',
     profile:'overlap',
     sourceVoice:'AI Voice Generator Crisp / approved Take 1 foreground + local counterfeit layer',
+    sourceDuration:roundedDuration(overlapSourceDuration),
     sha256:sha256(bytes),
-    duration:Number(Number(probe?.format?.duration||0).toFixed(3))
+    duration:roundedDuration(outputDuration)
   };
 }
 
@@ -153,7 +169,7 @@ manifest.engine={
 };
 manifest.processing={
   name:'FFmpeg',
-  description:'approved Renee Take 1 pronounced dispatch-radio chain at reduced level; deterministic radio noise; corrupted neural-base fake Renee; finite layered Chapter 6 overlap; archival recording chains retained'
+  description:'approved Renee Take 1 pronounced dispatch-radio chain at reduced level; duration-safe 44.1 kHz normalization/mix boundary with source/output duration guard; deterministic radio noise; corrupted neural-base fake Renee; finite layered Chapter 6 overlap; archival recording chains retained'
 };
 
 await writeFile(manifestPath,JSON.stringify(manifest,null,2)+'\n');
@@ -163,7 +179,9 @@ Pre-rendered, repository-local dialogue for Audio Direction v27.
 
 ## Renee Ward
 
-Renee uses the user-approved **AI Voice Generator Crisp, Take 1** performance direction: a professional overnight dispatcher maintaining control while fear increasingly leaks through her cadence. Her final files now use a more pronounced handheld walkie-talkie treatment: tighter communications bandwidth, stronger dispatch compression/presence, modest transmission grit, and clearly audible but still low-level deterministic radio noise. Her integrated level is also reduced from the first neural production pass so she sits more naturally inside the mall soundscape instead of riding above it.
+Renee uses the user-approved **AI Voice Generator Crisp, Take 1** performance direction: a professional overnight dispatcher maintaining control while fear increasingly leaks through her cadence. Her final files use a pronounced handheld walkie-talkie treatment: tighter communications bandwidth, stronger dispatch compression/presence, modest transmission grit, and clearly audible but still low-level deterministic radio noise. Her integrated level is reduced from the first neural production pass so she sits more naturally inside the mall soundscape instead of riding above it.
+
+The production renderer explicitly returns dynamic loudness-normalization output to 44.1 kHz before mixing the radio-noise stream. This prevents FFmpeg's internal loudnorm sample-rate change from shortening the finite voice timeline. Every neural Renee/fake-Renee render is also rejected if its final duration is shorter than its downloaded source, so a clipped production line cannot silently ship again.
 
 The radio treatment remains deliberately lighter than the supernatural processing on fake-Renee and distinctly more human than PCAS. Fake-Renee lines begin from the same Crisp neural voice so the imitation is recognizably Renee before receiving more aggressive corruption. Chapter 6 keeps Renee's neural performance in the foreground while a separately rendered counterfeit transmission overlaps it.
 
@@ -185,4 +203,4 @@ Renee source performances were generated with AI Voice Generator by Level 2 Labs
 
 `);
 await rm(tempDir,{recursive:true,force:true});
-console.log(`Rendered ${genuine.length} genuine Renee clips, ${fake.length} fake-Renee clips, and the Chapter 6 overlap.`);
+console.log(`Rendered ${genuine.length} genuine Renee clips, ${fake.length} fake-Renee clips, and the Chapter 6 overlap with duration-safe radio processing.`);
