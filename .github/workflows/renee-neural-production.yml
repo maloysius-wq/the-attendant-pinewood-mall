@@ -1,0 +1,53 @@
+name: Render approved Renee neural production audio
+
+on:
+  push:
+    paths:
+      - '.github/workflows/renee-neural-production.yml'
+      - 'scripts/render-renee-neural-v27.mjs'
+      - 'story/renee-voice-sources-v27.json'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  render-and-commit:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out Pinewood
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+
+      - name: Install FFmpeg and eSpeak NG
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ffmpeg espeak-ng
+          ffmpeg -version
+          espeak-ng --version
+
+      - name: Render approved Renee Crisp Take 1 voice set
+        run: node scripts/render-renee-neural-v27.mjs
+
+      - name: Verify generated character assets
+        run: |
+          node scripts/audit-audio-direction-v27.mjs
+          node scripts/audit-runtime.mjs
+
+      - name: Commit production Renee assets
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add assets/audio/characters
+          if git diff --cached --quiet; then
+            echo "Renee assets already match the approved neural renderer."
+            exit 0
+          fi
+          git commit -m "Render approved Renee Crisp Take 1 production voice set"
+          git push origin HEAD:main
