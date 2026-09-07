@@ -1,6 +1,6 @@
 {
   "version": 27,
-  "generatedAt": "2026-09-07T05:10:59.110Z",
+  "generatedAt": "2026-09-07T06:08:49.827Z",
   "source": "story/dialogue.js + story/renee-voice-sources-v27.json + authored recorded evidence",
   "engine": {
     "name": "Mixed pre-rendered voices",
@@ -9,7 +9,7 @@
   },
   "processing": {
     "name": "FFmpeg",
-    "description": "approved Renee Take 1 pronounced dispatch-radio chain at reduced level; deterministic radio noise; corrupted neural-base fake Renee; finite layered Chapter 6 overlap; archival recording chains retained"
+    "description": "approved Renee Take 1 pronounced dispatch-radio chain at reduced level; duration-safe 44.1 kHz normalization/mix boundary with source/output duration guard; deterministic radio noise; corrupted neural-base fake Renee; finite layered Chapter 6 overlap; archival recording chains retained"
   },
   "files": {
     "ch1_start": {
@@ -18,8 +18,9 @@
       "speaker": "RENEE WARD",
       "profile": "renee",
       "sourceVoice": "AI Voice Generator Crisp / approved Take 1",
-      "sha256": "0afaa276030d18f63fe99a1506a8308a4f2ba2ad41b4b1677e76986a7af94702",
-      "duration": 7.64
+      "sourceDuration": 10.464,
+      "sha256": "e2c15975402b09e6f37d301fd35837248a1c403e25601af66ef67145b8fa77a0",
+      "duration": 10.64
     },
     "ch1_first_power": {
       "file": "ch1_first_power.ogg",
@@ -27,8 +28,9 @@
       "speaker": "RENEE WARD",
       "profile": "renee",
       "sourceVoice": "AI Voice Generator Crisp / approved Take 1",
-      "sha256": "c85e41e83a0ba22a39a8e847c0ceb4425d3eb74622f612450e6563c43b1ad49d",
-      "duration": 4.752
+      "sourceDuration": 7.512,
+      "sha256": "7041e20e0240e6b9bbc6d9372e4e2848d3ce4c1545dc5c3527bd970261b6cbe5",
+      "duration": 7.74
     },
     "ch1_second_power": {
       "file": "ch1_second_power.ogg",
@@ -36,8 +38,9 @@
       "speaker": "RENEE WARD",
       "profile": "renee",
       "sourceVoice": "AI Voice Generator Crisp / approved Take 1",
-      "sha256": "097ef7e18199824585e45a698cab8ba481c80c46903325c566afb2022b874f5a",
-      "duration": 10.14
+      "sourceDuration": 12.984,
+      "sha256": "7f79c9fe41bd094e361bc182eb63b6730888cbfc41c20f726b1510aa07aa303d",
+      "duration": 13.14
     },
     "ch1_power_complete": {
       "file": "ch1_power_complete.ogg",
@@ -45,8 +48,9 @@
       "speaker": "RENEE WARD",
       "profile": "renee",
       "sourceVoice": "AI Voice Generator Crisp / approved Take 1",
-      "sha256": "28eb5a8409b40330bbe228d56bc1c34a5cfe1a430e8618c31c5887eab61ec021",
-      "duration": 4.344
+      "sourceDuration": 7.104,
+      "sha256": "9a5f6538db7d421339161b6dabb5c35a4ae43ed91f02a482fe5a77237ead21ce",
+      "duration": 7.34
     },
     "ch1_key_reaction": {
       "file": "ch1_key_reaction.ogg",
@@ -54,8 +58,9 @@
       "speaker": "RENEE WARD",
       "profile": "renee",
       "sourceVoice": "AI Voice Generator Crisp / approved Take 1",
-      "sha256": "82237d3343a1f3783088b773d3435a64c1acf427f17c360e0f8974426409a3cc",
-      "duration": 5.24
+      "sourceDuration": 8.064,
+      "sha256": "652c2c4ad12edbfc71d17ba225f149d34b0429f29b5e783a01dacad583f8c545",
+      "duration": 8.24
     },
     "ch1_elevator_reaction": {
       "file": "ch1_elevator_reaction.ogg",
@@ -63,8 +68,9 @@
       "speaker": "RENEE WARD",
       "profile": "renee",
       "sourceVoice": "AI Voice Generator Crisp / approved Take 1",
-      "sha256": "0b092beea0c2a87f916301001509787f1eae6ba01a8010b1651aff7eb7d19b71",
-      "duration": 4.54
+      "sourceDuration": 7.368,
+      "sha256": "d217cb0ef8787b51f9c00d674cd3b8a4e735ec2ac3e84b56c1f4468faf415578",
+      "duration": 7.54
     },
     "ch2_start": {
       "file": "ch2_start.ogg",
@@ -72,8 +78,9 @@
       "speaker": "RENEE WARD",
       "profile": "renee",
       "sourceVoice": "AI Voice Generator Crisp / approved Take 1",
-      "sha256": "6fcd395ae005ed6b5fd13c3c5513ba2be3c0a1e1bf303f10300349f4d5fab58b",
-      "duration": 7.94
+      "sourceDuration": 10.776,
+      "sha256": "aa86323dc4e53a282b147e71f9373ffa8517464567d327955503aacc87ad1d16",
+      "duration": 10.94
     },
     "ch2_feeder_found": {
       "file": "ch2_feeder_found.ogg",
@@ -81,8 +88,9 @@
       "speaker": "RENEE WARD",
       "profile": "renee",
       "sourceVoice": "AI Voice Generator Crisp / approved Take 1",
-      "sha256": "8e09d1c57ca304eed2767f49ec20e5e88f1583c32547ba679cd5cc87c0c4d6f7",
-      "duration": 8.34
+      "sourceDuration": 11.184,
+      "sha256": "d76ed6c19c3979951abc38914fe72fdb486088fc78484864a0aa21d2c3036979",
+      "duration": 11.34
     },
     "ch2_relay_d": {
       "file": "ch2_relay_d.ogg",
@@ -90,8 +98,9 @@
       "speaker": "RENEE WARD",
       "profile": "renee",
       "sourceVoice": "AI Voice Generator Crisp / approved Take 1",
-      "sha256": "b32edce215507495f06cfa8995a41c4e224ab7c19a075eee127aafa6b1127121",
-      "duration": 6.264
+      "sourceDuration": 9.024,
+      "sha256": "8e1dbd6e30835401ced935906ffdcf6d177b217c67584db5bf064d7543e2bc21",
+      "duration": 9.24
     },
     "ch2_1997_ticket": {
       "file": "ch2_1997_ticket.ogg",
@@ -99,8 +108,9 @@
       "speaker": "RENEE WARD",
       "profile": "renee",
       "sourceVoice": "AI Voice Generator Crisp / approved Take 1",
-      "sha256": "24886e5b0e1ffd4aac28e9b8641ace0b82d581df11ce6c603752bb0ea440c3da",
-      "duration": 10.44
+      "sourceDuration": 13.2,
+      "sha256": "56383400c3fc58302cf5062e13315e05db7fe5169d7c7e9f237b713b563a07de",
+      "duration": 13.34
     },
     "ch2_pump_ready": {
       "file": "ch2_pump_ready.ogg",
@@ -108,8 +118,9 @@
       "speaker": "RENEE WARD",
       "profile": "renee",
       "sourceVoice": "AI Voice Generator Crisp / approved Take 1",
-      "sha256": "33a415969f9a15a8c74849755abee09fe6c04f8c18f8338a4b4f4237b00004f7",
-      "duration": 6.94
+      "sourceDuration": 9.792,
+      "sha256": "582c761e7b99d1ba119f810b5d9e0435d842dde3bf1037df643796643f135815",
+      "duration": 9.94
     },
     "ch2_mask_tutorial": {
       "file": "ch2_mask_tutorial.ogg",
@@ -117,8 +128,9 @@
       "speaker": "RENEE WARD",
       "profile": "renee",
       "sourceVoice": "AI Voice Generator Crisp / approved Take 1",
-      "sha256": "c82f09b2dd7ad723a957da9d0313f3ed294916a31a5f0a7f2bdbe01d8307ac48",
-      "duration": 5.34
+      "sourceDuration": 8.16,
+      "sha256": "f623cc8aa32b81fb1c0304ae410adc478779d1010f50fa7b8b3e217225161c0f",
+      "duration": 8.34
     },
     "ch2_gavin_body": {
       "file": "ch2_gavin_body.ogg",
@@ -126,8 +138,9 @@
       "speaker": "RENEE WARD",
       "profile": "renee",
       "sourceVoice": "AI Voice Generator Crisp / approved Take 1",
-      "sha256": "b1f909d076f85fdc458cc6de3eab82ec63fa92d258efa3e3dc60858d7380075d",
-      "duration": 5.54
+      "sourceDuration": 8.352,
+      "sha256": "8f2f5a62c79a84ec61fb9fde4a557ce987cc3db6d56aa0e1a87279a1569c57cb",
+      "duration": 8.54
     },
     "ch2_gavin_ticket": {
       "file": "ch2_gavin_ticket.ogg",
@@ -135,8 +148,9 @@
       "speaker": "RENEE WARD",
       "profile": "renee",
       "sourceVoice": "AI Voice Generator Crisp / approved Take 1",
-      "sha256": "b7a3aa26c59630a9316658a7923234a3aac504314aeece85931f5897fc53389b",
-      "duration": 9.54
+      "sourceDuration": 12.384,
+      "sha256": "6c73a606121587231480b1a16ece8efc668815e96d08d894309b236b1f0b8290",
+      "duration": 12.54
     },
     "ch2_contractor13": {
       "file": "ch2_contractor13.ogg",
@@ -144,8 +158,9 @@
       "speaker": "RENEE WARD",
       "profile": "renee",
       "sourceVoice": "AI Voice Generator Crisp / approved Take 1",
-      "sha256": "63d6ab4dde830cc4324832c7e6d6d5a99ff7b8314697eafc82b9505739f6a387",
-      "duration": 7.44
+      "sourceDuration": 10.296,
+      "sha256": "0ca21071405179871b9b20e2adcd19bba706acda99e1fc26e0e000fcb40b562b",
+      "duration": 10.44
     },
     "ch2_relay_e": {
       "file": "ch2_relay_e.ogg",
@@ -153,8 +168,9 @@
       "speaker": "RENEE WARD",
       "profile": "renee",
       "sourceVoice": "AI Voice Generator Crisp / approved Take 1",
-      "sha256": "087e0468162bf52a15d4b27d06a222b737f69ac1263d223434d149a9d53d8d7b",
-      "duration": 11.16
+      "sourceDuration": 13.92,
+      "sha256": "10ce4086e2fe63cbaf5133f08010d6e3136fe5b7481f20e40cd13dbc3d2a8f5a",
+      "duration": 14.14
     },
     "ch2_exit": {
       "file": "ch2_exit.ogg",
@@ -162,8 +178,9 @@
       "speaker": "RENEE WARD",
       "profile": "renee",
       "sourceVoice": "AI Voice Generator Crisp / approved Take 1",
-      "sha256": "be01d35b322f9b8d55d82d33e98fe8961111650ffa645ae13b58b96eb5b3d9bd",
-      "duration": 4.176
+      "sourceDuration": 6.936,
+      "sha256": "e52f6306922a3673353d8dfdf7a82358073ce82c8897666ce3cc7222b134cb46",
+      "duration": 7.14
     },
     "ch3_start": {
       "file": "ch3_start.ogg",
@@ -171,8 +188,9 @@
       "speaker": "RENEE WARD",
       "profile": "renee",
       "sourceVoice": "AI Voice Generator Crisp / approved Take 1",
-      "sha256": "4092f100a3abf9024b6a426a1d36939e3d84a28effe64a8dad7bc32b736f781f",
-      "duration": 12.14
+      "sourceDuration": 14.952,
+      "sha256": "509584e191dea810e1d1d18f05c7776dd3465585c6087861a75c7709086d4659",
+      "duration": 15.14
     },
     "ch3_cctv_online": {
       "file": "ch3_cctv_online.ogg",
@@ -180,8 +198,9 @@
       "speaker": "RENEE WARD",
       "profile": "renee",
       "sourceVoice": "AI Voice Generator Crisp / approved Take 1",
-      "sha256": "ef521a19070fbd07784ea8d55e2b717498349f1642fc68f7671b295d31b6cf04",
-      "duration": 8.64
+      "sourceDuration": 11.472,
+      "sha256": "7753559d282156768eea256490fa7bf248e871cefca166a7b825951fd68abdd5",
+      "duration": 11.64
     },
     "ch3_shutter_interlock": {
       "file": "ch3_shutter_interlock.ogg",
@@ -189,8 +208,9 @@
       "speaker": "RENEE WARD",
       "profile": "renee",
       "sourceVoice": "AI Voice Generator Crisp / approved Take 1",
-      "sha256": "d39865b8bd6d383a75e1b2023eb0be87d46fafe6678d20b843c30003312714c5",
-      "duration": 6.54
+      "sourceDuration": 9.384,
+      "sha256": "5aae6eff3b52031b9ad5f6bdf942249c4db39d96ab9c9927852fd14f38c0c107",
+      "duration": 9.54
     },
     "ch3_auth": {
       "file": "ch3_auth.ogg",
@@ -198,8 +218,9 @@
       "speaker": "RENEE WARD",
       "profile": "renee",
       "sourceVoice": "AI Voice Generator Crisp / approved Take 1",
-      "sha256": "9d123213b385ce1db4c4aeee26205b66a8b10c1114512058072e19f38d50fd9a",
-      "duration": 7.656
+      "sourceDuration": 10.416,
+      "sha256": "a427a685f6ed8da27406c0e689816cb4dc64580bc9b45f8af1e6c9b4510e81df",
+      "duration": 10.64
     },
     "ch3_luis_body": {
       "file": "ch3_luis_body.ogg",
@@ -207,8 +228,9 @@
       "speaker": "RENEE WARD",
       "profile": "renee",
       "sourceVoice": "AI Voice Generator Crisp / approved Take 1",
-      "sha256": "7967a2e05a1615cd1a1d2a0243e5b834a69b3ef59f1c38be1a870ee735c9f30c",
-      "duration": 5.448
+      "sourceDuration": 8.208,
+      "sha256": "2e88852c2bc1e52f81f0189fcd9f1c63fb31f9ba7dff6fcaef4092b41262a710",
+      "duration": 8.44
     },
     "ch3_luis_pattern": {
       "file": "ch3_luis_pattern.ogg",
@@ -216,8 +238,9 @@
       "speaker": "RENEE WARD",
       "profile": "renee",
       "sourceVoice": "AI Voice Generator Crisp / approved Take 1",
-      "sha256": "71a695664b7570adc80fa194c181e512efdff7c1ee5eee53eecefcb632d0bc37",
-      "duration": 7.656
+      "sourceDuration": 10.416,
+      "sha256": "5fa9893756a55f16bccc2dce89ab3ab71231a8fbdbb22c6fb0da62d508079ba7",
+      "duration": 10.64
     },
     "ch3_exit": {
       "file": "ch3_exit.ogg",
@@ -225,8 +248,9 @@
       "speaker": "RENEE WARD",
       "profile": "renee",
       "sourceVoice": "AI Voice Generator Crisp / approved Take 1",
-      "sha256": "b95b0d8ca91b51e2ff7930ac5d33748fceaa3403f1cb7b664aa47beadb075deb",
-      "duration": 6.04
+      "sourceDuration": 8.88,
+      "sha256": "a31f6494213c35756557d06040496e54a11bd528133bb80b08343f18ee6cbe16",
+      "duration": 9.04
     },
     "ch4_start": {
       "file": "ch4_start.ogg",
@@ -234,8 +258,9 @@
       "speaker": "RENEE WARD",
       "profile": "renee",
       "sourceVoice": "AI Voice Generator Crisp / approved Take 1",
-      "sha256": "08841f1788b899eb4184a7c5f94ba16e5d5d102e9047571dffbff3a6c292a2c4",
-      "duration": 10.04
+      "sourceDuration": 12.864,
+      "sha256": "0f855f79956f3085dfdbde133ba1c0a26275095cb22a5d374707b32ae4391233",
+      "duration": 13.04
     },
     "ch4_map_confirmed": {
       "file": "ch4_map_confirmed.ogg",
@@ -243,8 +268,9 @@
       "speaker": "RENEE WARD",
       "profile": "renee",
       "sourceVoice": "AI Voice Generator Crisp / approved Take 1",
-      "sha256": "df9557df69b1ae69fd94a8feb321e3effea2281d75b1763f17b11e90374871c0",
-      "duration": 9.264
+      "sourceDuration": 12.024,
+      "sha256": "9658bd97b2b4e94d8a4c2882456d8533771c73e827545285ebdb4cab353d7ef4",
+      "duration": 12.24
     },
     "ch4_fake_route": {
       "file": "ch4_fake_route.ogg",
@@ -252,8 +278,9 @@
       "speaker": "RENEE?",
       "profile": "fake-renee",
       "sourceVoice": "AI Voice Generator Crisp / approved Take 1",
-      "sha256": "6bb87d319ae7d6845f9745b363f4a89783d90b90f2adf1478e9c1cf3296aa323",
-      "duration": 4.54
+      "sourceDuration": 6.984,
+      "sha256": "96cb65d3a5308b8df4a89db1e69f86ce1794f7366a9e412a7a4eed9bf2e6295b",
+      "duration": 7.54
     },
     "ch4_real_return": {
       "file": "ch4_real_return.ogg",
@@ -261,8 +288,9 @@
       "speaker": "RENEE WARD",
       "profile": "renee",
       "sourceVoice": "AI Voice Generator Crisp / approved Take 1",
-      "sha256": "7245dfe5503520460ee75c70ac0c1acfcd02065998bc00a0599f754d8c2aa818",
-      "duration": 8.856
+      "sourceDuration": 11.616,
+      "sha256": "97b0c3532cebefc509cef352ba4c2e782a00db7a5998806d280c865b62622936",
+      "duration": 11.84
     },
     "ch4_tessa_locker": {
       "file": "ch4_tessa_locker.ogg",
@@ -270,8 +298,9 @@
       "speaker": "RENEE WARD",
       "profile": "renee",
       "sourceVoice": "AI Voice Generator Crisp / approved Take 1",
-      "sha256": "8feb3e5232bae36c53bc7d703fe73a8f0c0234776fae4d4dc3039edd3743a948",
-      "duration": 9.54
+      "sourceDuration": 12.384,
+      "sha256": "11220dc9c61451bd1811fc61a8c92f342e5cba7aa4c73eecf2061b281dd6c280",
+      "duration": 12.54
     },
     "ch4_staff_photo": {
       "file": "ch4_staff_photo.ogg",
@@ -279,8 +308,9 @@
       "speaker": "RENEE WARD",
       "profile": "renee",
       "sourceVoice": "AI Voice Generator Crisp / approved Take 1",
-      "sha256": "767f79124ba1b8a09370be520cfa265a6486ec6804b053b06386b1e4f3663bd1",
-      "duration": 9.264
+      "sourceDuration": 12.024,
+      "sha256": "7494a0bd25c36844c76514c8613a8893f382bf7c66254167d101a47cb625102f",
+      "duration": 12.24
     },
     "ch4_ls06": {
       "file": "ch4_ls06.ogg",
@@ -288,8 +318,9 @@
       "speaker": "RENEE WARD",
       "profile": "renee",
       "sourceVoice": "AI Voice Generator Crisp / approved Take 1",
-      "sha256": "d8d42526d16a5a95c2e5717d500f3bc33d2a7f56fa239356ea9595cbe9ed243f",
-      "duration": 11.34
+      "sourceDuration": 14.184,
+      "sha256": "5c5cb1fb61f085e36f17d38c1d495bad359fd6172c3a53dbe10c21206ca08b68",
+      "duration": 14.34
     },
     "ch4_pre1986": {
       "file": "ch4_pre1986.ogg",
@@ -297,8 +328,9 @@
       "speaker": "RENEE WARD",
       "profile": "renee",
       "sourceVoice": "AI Voice Generator Crisp / approved Take 1",
-      "sha256": "c875fb5c0f26ef7ae66d60161255d46340247b15d6d211b9e8c41cd05667cb77",
-      "duration": 10.248
+      "sourceDuration": 13.008,
+      "sha256": "6308debf84970f0af4227b381064f4909dbfa908fe650424a1bf6cb455e33013",
+      "duration": 13.24
     },
     "ch4_fake_auth": {
       "file": "ch4_fake_auth.ogg",
@@ -306,8 +338,9 @@
       "speaker": "RENEE?",
       "profile": "fake-renee",
       "sourceVoice": "AI Voice Generator Crisp / approved Take 1",
-      "sha256": "b7319424e42d88a19e815ff49321a8fcc9f6a3cf3537aa56ecbe6ed5373ae2aa",
-      "duration": 4.74
+      "sourceDuration": 7.2,
+      "sha256": "46fe97c7063ccea1fefd95cdd5c6da8aeacbe6ef522660d7e9de7cbff45e0676",
+      "duration": 7.74
     },
     "ch4_auth_broken": {
       "file": "ch4_auth_broken.ogg",
@@ -315,8 +348,9 @@
       "speaker": "RENEE WARD",
       "profile": "renee",
       "sourceVoice": "AI Voice Generator Crisp / approved Take 1",
-      "sha256": "1772f9e066f69c5886cd0c9c61041f7af7aa70566736ee861a3d76999998ecf9",
-      "duration": 9.34
+      "sourceDuration": 12.192,
+      "sha256": "92d49059bad428b369a6451d0af352ef4706cb4b23a4f151e6ca550eb67bf714",
+      "duration": 12.34
     },
     "ch4_exit": {
       "file": "ch4_exit.ogg",
@@ -324,8 +358,9 @@
       "speaker": "RENEE WARD",
       "profile": "renee",
       "sourceVoice": "AI Voice Generator Crisp / approved Take 1",
-      "sha256": "a752decc43e0d92df4ddaf8f73d9f9fbd5df458dc2e80255f741c343d4cf39b1",
-      "duration": 7.94
+      "sourceDuration": 10.728,
+      "sha256": "c6c71e09f3417f4cf4b01cd2ae41d66206f35d152a21548ac828118eb62b0862",
+      "duration": 10.94
     },
     "ch5_start": {
       "file": "ch5_start.ogg",
@@ -333,8 +368,9 @@
       "speaker": "RENEE WARD",
       "profile": "renee",
       "sourceVoice": "AI Voice Generator Crisp / approved Take 1",
-      "sha256": "9c14a7722fecbdc184c129a013eb148dc4cdb5dc290ea3474e5295224de61dbf",
-      "duration": 10.54
+      "sourceDuration": 13.344,
+      "sha256": "c9838f6edd77cb37221e74a9957619949a7cb44cb310a4d98ddebd02a16065ec",
+      "duration": 13.54
     },
     "ch5_jo_statement": {
       "file": "ch5_jo_statement.ogg",
@@ -342,8 +378,9 @@
       "speaker": "RENEE WARD",
       "profile": "renee",
       "sourceVoice": "AI Voice Generator Crisp / approved Take 1",
-      "sha256": "de7f54b235ac4bfd962ab5460b52ef7e7d6a0a5aef903a15feb7e73d97ebd7a9",
-      "duration": 12.744
+      "sourceDuration": 15.504,
+      "sha256": "c016f09a2b47153c3087bd15ddf1fa830d6648e3a8b8f10cca935737655fe6a5",
+      "duration": 15.74
     },
     "ch5_roster_ready": {
       "file": "ch5_roster_ready.ogg",
@@ -351,8 +388,9 @@
       "speaker": "RENEE WARD",
       "profile": "renee",
       "sourceVoice": "AI Voice Generator Crisp / approved Take 1",
-      "sha256": "d90c558ea33d6a3964aafda9e52e83db0eb8f17dd184814262df8e48e40364cd",
-      "duration": 11.664
+      "sourceDuration": 14.424,
+      "sha256": "44515c3493db36c8a36cd125ea6e945f7401be9c5f1f054342c29a594d2a367c",
+      "duration": 14.64
     },
     "ch5_roster_reconciled": {
       "file": "ch5_roster_reconciled.ogg",
@@ -360,8 +398,9 @@
       "speaker": "RENEE WARD",
       "profile": "renee",
       "sourceVoice": "AI Voice Generator Crisp / approved Take 1",
-      "sha256": "9aea8425bed318055d592e364dcac795e484c46c040a53f199d5310e6dafa42c",
-      "duration": 10.04
+      "sourceDuration": 12.864,
+      "sha256": "b799f09ab3316ed7a8e956fae3b3229f32c10c70b098dc6107ef69ab1a314afe",
+      "duration": 13.04
     },
     "ch5_override": {
       "file": "ch5_override.ogg",
@@ -369,8 +408,9 @@
       "speaker": "RENEE WARD",
       "profile": "renee",
       "sourceVoice": "AI Voice Generator Crisp / approved Take 1",
-      "sha256": "16b7626381b3fb4216c9284fecab57eccf3208703337ec89a1bdb3c0d78e25c4",
-      "duration": 12.34
+      "sourceDuration": 15.144,
+      "sha256": "122c2e966e9fc664c1f7d6b57dfce25a5ddfa9686efed4f631dfa0d661cf586c",
+      "duration": 15.34
     },
     "ch5_eli_body": {
       "file": "ch5_eli_body.ogg",
@@ -378,8 +418,9 @@
       "speaker": "RENEE WARD",
       "profile": "renee",
       "sourceVoice": "AI Voice Generator Crisp / approved Take 1",
-      "sha256": "12514a1c3a09de963e5d7197f59adc35493f45fad70d2245d49d61034df4d2ba",
-      "duration": 10.44
+      "sourceDuration": 13.272,
+      "sha256": "fcedb1943ea688d3ca154b11ef9fbfcb549b2c03050a87bd0968f8c2053d4177",
+      "duration": 13.44
     },
     "ch5_eli_recorder": {
       "file": "ch5_eli_recorder.ogg",
@@ -387,8 +428,9 @@
       "speaker": "RENEE WARD",
       "profile": "renee",
       "sourceVoice": "AI Voice Generator Crisp / approved Take 1",
-      "sha256": "46e4e3bde6a4db6268ab31ad0765cf404f4a9da50b86faa56a657e716c722202",
-      "duration": 10.248
+      "sourceDuration": 13.008,
+      "sha256": "8695f58205ff11f34430889ab3a04905dac912542e2beeeac2141f9be51ecd03",
+      "duration": 13.24
     },
     "ch5_sessions": {
       "file": "ch5_sessions.ogg",
@@ -396,8 +438,9 @@
       "speaker": "RENEE WARD",
       "profile": "renee",
       "sourceVoice": "AI Voice Generator Crisp / approved Take 1",
-      "sha256": "a84b8714f675297acbcb73a3982d1a1a09b457b97849fcd3316d8895382e970e",
-      "duration": 13.14
+      "sourceDuration": 15.96,
+      "sha256": "fc1c0956c5fc320df46c2e26dbf1adc071a14c220f5b0873e3b760f3f1be0475",
+      "duration": 16.14
     },
     "ch5_exit": {
       "file": "ch5_exit.ogg",
@@ -405,8 +448,9 @@
       "speaker": "RENEE WARD",
       "profile": "renee",
       "sourceVoice": "AI Voice Generator Crisp / approved Take 1",
-      "sha256": "23dd3e6e2a63cd8a787185003e2a02acbe95f170daec78b64996b5ce0cf674f0",
-      "duration": 11.16
+      "sourceDuration": 13.92,
+      "sha256": "80b6499f4ad8f5f659ebc1d324e5c17dc47d9ecc4fde6512362a99f7c1960d5c",
+      "duration": 14.14
     },
     "ch6_radio_overlap": {
       "file": "ch6_radio_overlap.ogg",
@@ -414,7 +458,8 @@
       "speaker": "RENEE / UNKNOWN",
       "profile": "overlap",
       "sourceVoice": "AI Voice Generator Crisp / approved Take 1 foreground + local counterfeit layer",
-      "sha256": "88416bfb43b041d3a9284620c761d7fb2855feddd7b3d89dd800e6457a004c95",
+      "sourceDuration": 4.968,
+      "sha256": "24b1c9f160bcbe99e6ad7d086e3ca172519cbc5ce3be9aa78cd10f6be8b11302",
       "duration": 5.55
     },
     "recording_jo_ls06": {

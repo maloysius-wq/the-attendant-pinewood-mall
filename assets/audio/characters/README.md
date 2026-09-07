@@ -4,7 +4,9 @@ Pre-rendered, repository-local dialogue for Audio Direction v27.
 
 ## Renee Ward
 
-Renee uses the user-approved **AI Voice Generator Crisp, Take 1** performance direction: a professional overnight dispatcher maintaining control while fear increasingly leaks through her cadence. Her final files now use a more pronounced handheld walkie-talkie treatment: tighter communications bandwidth, stronger dispatch compression/presence, modest transmission grit, and clearly audible but still low-level deterministic radio noise. Her integrated level is also reduced from the first neural production pass so she sits more naturally inside the mall soundscape instead of riding above it.
+Renee uses the user-approved **AI Voice Generator Crisp, Take 1** performance direction: a professional overnight dispatcher maintaining control while fear increasingly leaks through her cadence. Her final files use a pronounced handheld walkie-talkie treatment: tighter communications bandwidth, stronger dispatch compression/presence, modest transmission grit, and clearly audible but still low-level deterministic radio noise. Her integrated level is reduced from the first neural production pass so she sits more naturally inside the mall soundscape instead of riding above it.
+
+The production renderer explicitly returns dynamic loudness-normalization output to 44.1 kHz before mixing the radio-noise stream. This prevents FFmpeg's internal loudnorm sample-rate change from shortening the finite voice timeline. Every neural Renee/fake-Renee render is also rejected if its final duration is shorter than its downloaded source, so a clipped production line cannot silently ship again.
 
 The radio treatment remains deliberately lighter than the supernatural processing on fake-Renee and distinctly more human than PCAS. Fake-Renee lines begin from the same Crisp neural voice so the imitation is recognizably Renee before receiving more aggressive corruption. Chapter 6 keeps Renee's neural performance in the foreground while a separately rendered counterfeit transmission overlaps it.
 
