@@ -6,7 +6,7 @@ function applyAudioDirectionV27(source,manifest){
 
   replaceOnce('character voice manifest injection',
     "const PCAS_AUDIO_BASE=new URL('./assets/audio/pa/',location.href).href;",
-    "const PCAS_AUDIO_BASE=new URL('./assets/audio/pa/',location.href).href;\nconst CHARACTER_VOICE_V27="+JSON.stringify(manifest)+";\nconst CHARACTER_AUDIO_BASE_V27=new URL('./assets/audio/characters/',location.href).href;\nwindow.__PINEWOOD_AUDIO_V27__={version:27,sparsePcas:true,serializedVoices:true,radioVoices:true,deepPcas:true,subtitleTracksVoice:true,retainedCharacterSources:true,ambientMin:72,ambientMax:118,openingQuiet:45,loaded:0,failures:[],activeCharacters:0,lastCharacter:null};"
+    "const PCAS_AUDIO_BASE=new URL('./assets/audio/pa/',location.href).href;\nconst CHARACTER_VOICE_V27="+JSON.stringify(manifest)+";\nconst CHARACTER_AUDIO_BASE_V27=new URL('./assets/audio/characters/',location.href).href;\nwindow.__PINEWOOD_AUDIO_V27__={version:27,sparsePcas:true,serializedVoices:true,radioVoices:true,deepPcas:true,subtitleTracksVoice:true,retainedCharacterSources:true,hashedCharacterAudio:true,characterGain:.585,ambientMin:72,ambientMax:118,openingQuiet:45,loaded:0,failures:[],activeCharacters:0,lastCharacter:null};"
   );
 
   replaceOnce('v27 voice helpers',
@@ -19,7 +19,8 @@ function applyAudioDirectionV27(source,manifest){
   async loadCharacterV27(id){
     const entry=CHARACTER_VOICE_V27.files[id];if(!entry)return null;const key='character:'+id;
     if(this.buffers.has(key))return this.buffers.get(key);if(this.loads.has(key))return this.loads.get(key);
-    const promise=fetch(CHARACTER_AUDIO_BASE_V27+entry.file,{cache:'force-cache'}).then(r=>{if(!r.ok)throw new Error('HTTP '+r.status);return r.arrayBuffer();}).then(b=>this.ctx.decodeAudioData(b)).then(buffer=>{this.buffers.set(key,buffer);this.loads.delete(key);window.__PINEWOOD_AUDIO_V27__.loaded=[...this.buffers.keys()].filter(k=>k.startsWith('character:')).length;return buffer;}).catch(err=>{this.loads.delete(key);if(!window.__PINEWOOD_AUDIO_V27__.failures.includes(id))window.__PINEWOOD_AUDIO_V27__.failures.push(id);console.warn('Character voice failed to load; subtitles remain available.',id,err);return null;});
+    const version=String(entry.sha256||'v27').slice(0,16);const url=CHARACTER_AUDIO_BASE_V27+entry.file+'?v='+encodeURIComponent(version);
+    const promise=fetch(url,{cache:'default'}).then(r=>{if(!r.ok)throw new Error('HTTP '+r.status);return r.arrayBuffer();}).then(b=>this.ctx.decodeAudioData(b)).then(buffer=>{this.buffers.set(key,buffer);this.loads.delete(key);window.__PINEWOOD_AUDIO_V27__.loaded=[...this.buffers.keys()].filter(k=>k.startsWith('character:')).length;return buffer;}).catch(err=>{this.loads.delete(key);if(!window.__PINEWOOD_AUDIO_V27__.failures.includes(id))window.__PINEWOOD_AUDIO_V27__.failures.push(id);console.warn('Character voice failed to load; subtitles remain available.',id,err);return null;});
     this.loads.set(key,promise);return promise;
   }
   async characterV27(id,onStart=null,onUnavailable=null){
@@ -29,10 +30,10 @@ function applyAudioDirectionV27(source,manifest){
     this.voiceLoadingV27=true;
     const buffer=await this.loadCharacterV27(id);this.voiceLoadingV27=false;if(!buffer||!this.ctx)return unavailable();
     if(this.voiceBusyV27()){setTimeout(()=>this.characterV27(id,onStart,onUnavailable),Math.max(180,(this.voiceRemainingV27()+.45)*1000));return null;}
-    this.radio();const src=this.ctx.createBufferSource(),g=this.ctx.createGain();src.buffer=buffer;g.gain.value=.78;src.connect(g);g.connect(this.voice);
+    this.radio();const src=this.ctx.createBufferSource(),g=this.ctx.createGain();src.buffer=buffer;g.gain.value=.585;src.connect(g);g.connect(this.voice);
     const startDelay=.11,total=startDelay+buffer.duration,scheduledAt=this.ctx.currentTime+startDelay;this.reserveVoiceV27(total,.42);
     this.activeCharacterSourcesV27??=new Set();this.activeCharacterSourcesV27.add(src);
-    const telemetry=window.__PINEWOOD_AUDIO_V27__;telemetry.activeCharacters=this.activeCharacterSourcesV27.size;telemetry.lastCharacter={id,expectedDuration:buffer.duration,scheduledAt,ended:false,endedNaturally:false,minMaster:Number(this.master?.gain?.value??1),minVoice:Number(this.voice?.gain?.value??1)};
+    const telemetry=window.__PINEWOOD_AUDIO_V27__;telemetry.activeCharacters=this.activeCharacterSourcesV27.size;telemetry.lastCharacter={id,expectedDuration:buffer.duration,scheduledAt,ended:false,endedNaturally:false,minMaster:Number(this.master?.gain?.value??1),minVoice:Number(this.voice?.gain?.value??1),characterGain:.585,assetVersion:version};
     const monitor=setInterval(()=>{const t=window.__PINEWOOD_AUDIO_V27__?.lastCharacter;if(!t||t.id!==id||t.ended)return;t.minMaster=Math.min(t.minMaster,Number(this.master?.gain?.value??1));t.minVoice=Math.min(t.minVoice,Number(this.voice?.gain?.value??1));},50);
     src.onended=()=>{clearInterval(monitor);this.activeCharacterSourcesV27?.delete(src);telemetry.activeCharacters=this.activeCharacterSourcesV27?.size||0;const t=telemetry.lastCharacter;if(t?.id===id){t.ended=true;t.endedAt=this.ctx?.currentTime??scheduledAt;t.elapsed=Math.max(0,t.endedAt-scheduledAt);t.endedNaturally=t.elapsed>=buffer.duration-.15;t.masterAtEnd=Number(this.master?.gain?.value??1);t.voiceAtEnd=Number(this.voice?.gain?.value??1);}};
     src.start(scheduledAt);onStart?.({duration:buffer.duration,startDelay,total,source:src});return src;
@@ -130,11 +131,15 @@ function applyAudioDirectionV27(source,manifest){
     'characterV27(id,onStart=null,onUnavailable=null)',
     'subtitleTracksVoice:true',
     'retainedCharacterSources:true',
+    'hashedCharacterAudio:true',
+    'characterGain:.585',
+    "entry.file+'?v='+encodeURIComponent(version)",
+    "fetch(url,{cache:'default'})",
     'activeCharacterSourcesV27',
     'endedNaturally',
     'playCharacterTest',
     'spokenDuration=Math.max(3400,(timing.total+.65)*1000)',
-    'g.gain.value=.78',
+    'g.gain.value=.585',
     'this.storyVoiceUntilV27',
     "line.medium==='intercom'||line.medium==='radio'",
     'this.time<45',
@@ -145,6 +150,7 @@ function applyAudioDirectionV27(source,manifest){
     'window.__PINEWOOD_AUDIO_V27__'
   ])if(!source.includes(marker))fail('required v27 marker missing: '+marker);
   if(source.includes('this.reserveVoiceV27(Number(entry.duration||0),.42);'))fail('character voice lifetime may not begin before lazy load completes');
+  if(source.includes("fetch(CHARACTER_AUDIO_BASE_V27+entry.file,{cache:'force-cache'})"))fail('character voice cache must be hash-versioned so regenerated Renee audio cannot remain stale');
   if(source.includes('this.nextAnnouncement=this.time+rand(18,30)'))fail('legacy rapid PCAS cadence survived v27');
   if(/speechSynthesis|SpeechSynthesisUtterance/.test(source))fail('runtime browser speech synthesis is forbidden');
   return source;
