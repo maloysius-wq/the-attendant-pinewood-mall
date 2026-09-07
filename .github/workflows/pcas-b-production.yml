@@ -1,0 +1,50 @@
+name: Render approved PCAS B production audio
+
+on:
+  push:
+    paths:
+      - '.github/workflows/pcas-b-production.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  render-and-commit:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out Pinewood
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+
+      - name: Install FFmpeg and Flite
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ffmpeg flite
+          ffmpeg -hide_banner -h filter=flite
+
+      - name: Render approved PCAS B voice set
+        run: node scripts/generate-pcas-voice-v27.mjs
+
+      - name: Verify generated PCAS assets
+        run: |
+          node scripts/audit-pcas-voice-v19.mjs
+          node scripts/audit-audio-direction-v27.mjs
+
+      - name: Commit production PCAS B assets
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add assets/audio/pa
+          if git diff --cached --quiet; then
+            echo "PCAS B assets already match the approved generator."
+            exit 0
+          fi
+          git commit -m "Render approved PCAS B production voice set"
+          git push origin HEAD:main
