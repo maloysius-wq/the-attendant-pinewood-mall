@@ -1,0 +1,75 @@
+function applyFreightElevatorReliabilityV28(source){
+  const fail=msg=>{throw new Error('Freight Elevator Reliability v28 patch failed: '+msg);};
+  const replaceOnce=(label,needle,replacement)=>{
+    const first=source.indexOf(needle);if(first<0)fail(label+': marker missing');
+    if(source.indexOf(needle,first+needle.length)>=0)fail(label+': marker is not unique');
+    source=source.slice(0,first)+replacement+source.slice(first+needle.length);
+  };
+
+  // Make the two moving leaves immediate authored geometry rather than asynchronous model
+  // children. The panels are always present before the state machine can move them.
+  replaceOnce('left freight door leaf',
+    "  attachElevatorPiece(left,'elevatorWall',new THREE.Vector3(.09,2.80,.92),new THREE.Vector3(0,1.40,0),new THREE.Euler(0,Math.PI/2,0));",
+`  const elevatorDoorSteelV28=new THREE.MeshStandardMaterial({color:0x444a50,roughness:.36,metalness:.68});
+  const elevatorDoorInsetV28=new THREE.MeshStandardMaterial({color:0x20252a,roughness:.52,metalness:.48});
+  const leftDoorVisualV28=addBox(left,new THREE.Vector3(0,1.40,0),new THREE.Vector3(.10,2.80,.90),elevatorDoorSteelV28);leftDoorVisualV28.userData.freightDoorLeafV28='left';
+  addBox(left,new THREE.Vector3(-.056,1.40,0),new THREE.Vector3(.018,2.52,.72),elevatorDoorInsetV28);
+  for(let y=.30;y<2.58;y+=.33)addBox(left,new THREE.Vector3(-.068,y,0),new THREE.Vector3(.012,.025,.68),elevatorDoorSteelV28);`
+  );
+  replaceOnce('right freight door leaf',
+    "  attachElevatorPiece(right,'elevatorWall',new THREE.Vector3(.09,2.80,.92),new THREE.Vector3(0,1.40,0),new THREE.Euler(0,Math.PI/2,0));",
+`  const rightDoorVisualV28=addBox(right,new THREE.Vector3(0,1.40,0),new THREE.Vector3(.10,2.80,.90),elevatorDoorSteelV28);rightDoorVisualV28.userData.freightDoorLeafV28='right';
+  addBox(right,new THREE.Vector3(-.056,1.40,0),new THREE.Vector3(.018,2.52,.72),elevatorDoorInsetV28);
+  for(let y=.30;y<2.58;y+=.33)addBox(right,new THREE.Vector3(-.068,y,0),new THREE.Vector3(.012,.025,.68),elevatorDoorSteelV28);`
+  );
+
+  replaceOnce('explicit physical freight door blocker',
+    "eu.doorBlocker=world.addCollider(27.01,0,.16,1.78,{navBlock:false,owner:elevator,pad:.01});",
+    "eu.doorBlocker=world.addCollider(27.01,0,.18,1.82,{navBlock:false,physicalBlock:true,owner:elevator,pad:.01});"
+  );
+  replaceOnce('door collision follows visible openness',
+    "      eu.doorBlocker.disabled=eu.state==='waiting'||(eu.state==='opening'&&openness>=.985);",
+`      eu.doorOpenFraction=openness;
+      eu.doorBlocker.disabled=openness>=.985;`
+  );
+  replaceOnce('idle freight doors are exactly closed',
+    "    if(u.state==='idle'){u.syncDoorCollision?.();return;}",
+    "    if(u.state==='idle'){u.left.position.z=u.closedL;u.right.position.z=u.closedR;u.syncDoorCollision?.();return;}"
+  );
+  replaceOnce('opening completes at exact visible endpoints',
+    "      if(t>=1){u.state='waiting';u.timer=0;u.syncDoorCollision?.();this.attendant.stunUntil=Math.max(this.attendant.stunUntil,this.time+3.0);audio.confirm();UI.hint('Freight elevator open. Step fully inside.');}",
+    "      if(t>=1){u.left.position.z=u.openL;u.right.position.z=u.openR;u.state='waiting';u.timer=0;u.syncDoorCollision?.();this.attendant.stunUntil=Math.max(this.attendant.stunUntil,this.time+3.0);audio.confirm();UI.hint('Freight elevator open. Step fully inside.');}"
+  );
+  replaceOnce('waiting freight doors remain visibly open',
+    "    }else if(u.state==='waiting'){\n      u.syncDoorCollision?.();",
+    "    }else if(u.state==='waiting'){\n      u.left.position.z=u.openL;u.right.position.z=u.openR;u.syncDoorCollision?.();"
+  );
+  replaceOnce('closing completes at exact visible endpoints',
+    "      if(t>=1){u.state='ride';u.timer=0;audio.impact(.24);UI.static(320);}",
+    "      if(t>=1){u.left.position.z=u.closedL;u.right.position.z=u.closedR;u.syncDoorCollision?.();u.state='ride';u.timer=0;audio.impact(.24);UI.static(320);}"
+  );
+
+  // Belt-and-suspenders player gate: even if a future collider refactor goes wrong, a closed
+  // visible freight door cannot be walked through. Lateral movement along the facade remains free.
+  replaceOnce('closed door movement gate',
+    "    const p=this.controls.yaw.position,nx=p.x+dx,nz=p.z+dz;\n    if(this.world.canStand(nx,p.z))p.x=nx;if(this.world.canStand(p.x,nz))p.z=nz;p.y=1.7;",
+`    const p=this.controls.yaw.position,nx=p.x+dx,nz=p.z+dz,e=this.exitObject,u=e?.userData;
+    if(e?.userData?.type==='exit'&&Number(u.doorOpenFraction??0)<.985){
+      const nextLocal=e.worldToLocal(new THREE.Vector3(nx,p.y,nz));
+      if(Math.abs(nextLocal.x)<.20&&Math.abs(nextLocal.z)<.94){if(this.world.canStand(p.x,nz))p.z=nz;p.y=1.7;return;}
+    }
+    if(this.world.canStand(nx,p.z))p.x=nx;if(this.world.canStand(p.x,nz))p.z=nz;p.y=1.7;`
+  );
+
+  replaceOnce('deterministic elevator telemetry',
+    "    eu.syncDoorCollision();",
+`    eu.syncDoorCollision();
+    if(new URL(location.href).searchParams.has('visualTest')){
+      const probeFreightElevatorV28=()=>({version:28,state:eu.state,openFraction:Number(eu.doorOpenFraction??0),leftZ:eu.left.position.z,rightZ:eu.right.position.z,closedL:eu.closedL,closedR:eu.closedR,openL:eu.openL,openR:eu.openR,blockerDisabled:!!eu.doorBlocker.disabled,leftVisuals:eu.left.children.length,rightVisuals:eu.right.children.length,doorwayCanStand:world.canStand(27.01,0)});
+      window.__PINEWOOD_ELEVATOR_V28__={version:28,probe:probeFreightElevatorV28,open:()=>{eu.state='opening';eu.timer=1.05;GAME.updateElevator(.02);return probeFreightElevatorV28();},close:()=>{eu.state='closing';eu.timer=.78;GAME.updateElevator(.02);return probeFreightElevatorV28();}};
+    }`
+  );
+
+  for(const marker of ['freightDoorLeafV28','doorOpenFraction=openness','physicalBlock:true','window.__PINEWOOD_ELEVATOR_V28__','Number(u.doorOpenFraction??0)<.985'])if(!source.includes(marker))fail('required marker missing '+marker);
+  return source;
+}
