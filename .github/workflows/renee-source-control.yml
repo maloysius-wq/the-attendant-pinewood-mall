@@ -1,0 +1,33 @@
+name: Renee source control
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/renee-source-control.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  compare:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install FFmpeg
+        run: sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg
+      - name: Compare provider preview and full output
+        shell: bash
+        run: |
+          set -euxo pipefail
+          preview='https://storage.googleapis.com/adm--audio-playback--7d--public/mcp-preview/6179e3c7-5c72-462c-bebc-99088d3daf87.mp3'
+          full='https://www.aidocmaker.com/g0/audio?name=626a0652e0e24d13b88c6597143acd85'
+          curl -fL --retry 2 "$preview" -o /tmp/preview.mp3
+          curl -fL --retry 2 "$full" -o /tmp/full.mp3
+          echo "preview_bytes=$(stat -c%s /tmp/preview.mp3)"
+          echo "full_bytes=$(stat -c%s /tmp/full.mp3)"
+          echo "preview_duration=$(ffprobe -v error -show_entries format=duration -of default=nw=1:nk=1 /tmp/preview.mp3)"
+          echo "full_duration=$(ffprobe -v error -show_entries format=duration -of default=nw=1:nk=1 /tmp/full.mp3)"
+          sha256sum /tmp/preview.mp3 /tmp/full.mp3
