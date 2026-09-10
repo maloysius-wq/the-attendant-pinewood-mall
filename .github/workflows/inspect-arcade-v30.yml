@@ -4,6 +4,7 @@ on:
   push:
     paths:
       - 'scripts/inspect-arcade-v30.mjs'
+      - 'scripts/inspect-arcade-pack-v30.mjs'
       - 'scripts/vendor-arcade-assets-v30.mjs'
       - '.github/workflows/inspect-arcade-v30.yml'
   workflow_dispatch:
@@ -29,6 +30,8 @@ jobs:
         run: node scripts/inspect-arcade-v30.mjs
       - name: Vendor free CC0 full-scale arcade assets
         run: node scripts/vendor-arcade-assets-v30.mjs
+      - name: Measure real-world arcade props
+        run: node scripts/inspect-arcade-pack-v30.mjs
       - name: Verify free local asset provenance
         run: |
           node -e "const m=require('./assets/vendor/arcade-v30/manifest.json');const n=(m.glbScenes||[]).reduce((a,s)=>a+(s.nodeCount||0),0);if(m.license!=='CC0 1.0'||m.archive!=='token-gesture-retro-arcade-props-free.zip'||n<17)process.exit(1)"
@@ -37,8 +40,8 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add diagnostics/arcade-current-source.txt assets/vendor/arcade-v30
+          git add diagnostics/arcade-current-source.txt diagnostics/arcade-v30-geometry.json assets/vendor/arcade-v30
           if git diff --cached --quiet; then exit 0; fi
-          git commit -m "Vendor full-scale CC0 Sunburst Arcade asset set"
+          git commit -m "Measure full-scale CC0 Sunburst Arcade asset set"
           git pull --rebase origin main
           git push origin HEAD:main
