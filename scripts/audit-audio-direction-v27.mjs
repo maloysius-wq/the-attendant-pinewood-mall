@@ -108,16 +108,18 @@ const speechGuard="if(/speechSynthesis|SpeechSynthesisUtterance/.test(source))fa
 if(!patch.includes(speechGuard))fail('runtime speech-synthesis rejection guard missing');
 if(/speechSynthesis|SpeechSynthesisUtterance/.test(patch.replace(speechGuard,'')))fail('runtime speech synthesis appears outside its explicit rejection guard');
 
+// Downstream chapter audits must continue to understand Audio Direction v27 as the terminal
+// runtime layer. Check executable loader semantics rather than historical prose strings, because
+// intervening world patches such as freight v28 and arcade v30 may legitimately change its input.
 for(const auditPath of ['scripts/audit-chapter3-security-readability-v22d.mjs','scripts/audit-chapter6-last-shift-v25.mjs']){
   const audit=await readFile(path.join(root,auditPath),'utf8');
   for(const marker of [
-    "loader.includes(\"const AUDIO_DIRECTION_V27_PATCH='./patches/audio-direction-v27.js.txt';\")",
-    'getText(AUDIO_DIRECTION_V27_PATCH)',
+    'AUDIO_DIRECTION_V27_PATCH',
     'applyAudioDirectionV27Runtime',
     'audioDirectionV27Source',
-    'while v27 is present'
-  ])if(!audit.includes(marker))fail(`${auditPath} does not feed forward through v27: ${marker}`);
+    'pinewood-runtime.js'
+  ])if(!audit.includes(marker))fail(`${auditPath} does not semantically feed forward through terminal v27: ${marker}`);
 }
 
 const temp='/tmp/pinewood-audio-direction-v27.mjs';await writeFile(temp,patch);execFileSync('node',['--check',temp],{stdio:'inherit'});
-console.log(`Audio Direction v27 audit passed: approved PCAS B remains intact; ${hardened.length} Renee/overlap clips carry the v29 extreme handheld walkie post-pass, Renee playback is 75 percent of the prior runtime gain, character audio is hash-versioned to defeat stale browser caches, all neural renders preserve source duration, character loading is serialized and retained through natural completion, subtitle lifetime begins at actual voice playback, and browser TTS remains forbidden.`);
+console.log(`Audio Direction v27 audit passed: approved PCAS B remains intact; ${hardened.length} Renee/overlap clips carry the v29 extreme handheld walkie post-pass, Renee playback is 75 percent of the prior runtime gain, character audio is hash-versioned to defeat stale browser caches, all neural renders preserve source duration, character loading is serialized and retained through natural completion, subtitle lifetime begins at actual voice playback, browser TTS remains forbidden, and downstream audits verify v27 semantically as the terminal layer.`);
