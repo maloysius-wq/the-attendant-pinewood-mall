@@ -31,7 +31,7 @@ jobs:
         run: node scripts/vendor-arcade-assets-v30.mjs
       - name: Verify free local asset provenance
         run: |
-          node -e "const m=require('./assets/vendor/arcade-v30/manifest.json');if(m.license!=='CC0 1.0'||m.archive!=='token-gesture-retro-arcade-props-free.zip'||m.files.length<10)process.exit(1)"
+          node -e "const m=require('./assets/vendor/arcade-v30/manifest.json');const n=(m.glbScenes||[]).reduce((a,s)=>a+(s.nodeCount||0),0);if(m.license!=='CC0 1.0'||m.archive!=='token-gesture-retro-arcade-props-free.zip'||n<17)process.exit(1)"
           if grep -R "colourways.zip" assets/vendor/arcade-v30 --exclude=PINEWOOD_PROVENANCE.md; then exit 1; fi
       - name: Commit arcade diagnostics and local assets
         run: |
