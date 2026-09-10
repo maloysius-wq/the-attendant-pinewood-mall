@@ -38,13 +38,18 @@ const v24=loader.includes("const CHAPTER5_V24_PATCH='./patches/chapter5-accounta
 const v25=loader.includes("const CHAPTER6_V25_PATCH='./patches/chapter6-last-shift-v25.js.txt';");
 const v26=loader.includes("const PRODUCTION_READABILITY_V26_PATCH='./patches/production-readability-v26.js.txt';");
 const v27=loader.includes("const AUDIO_DIRECTION_V27_PATCH='./patches/audio-direction-v27.js.txt';");
+const v28=loader.includes("const FREIGHT_ELEVATOR_V28_PATCH='./patches/freight-elevator-reliability-v28.js.txt';");
+const v30=loader.includes("const ARCADE_V30_PATCH='./patches/arcade-rebuild-v30.js.txt';");
 if(live){
   for(const marker of ['async function applyChapter3SecurityReadabilityV22DRuntime(source,patchText)','getText(CHAPTER3_V22D_PATCH)','const chapter3V22DSource=await applyChapter3SecurityReadabilityV22DRuntime(chapter3V22CSource,chapter3V22DPatch);'])if(!loader.includes(marker))fail('game.js partial/incorrect live v22d marker: '+marker);
   if(v23b&&!v23)fail('game.js cannot wire v23b without v23');
   if(v24&&!v23b)fail('game.js cannot wire v24 without v23b');
   if(v25&&!v24)fail('game.js cannot wire v25 without v24');
   if(v26&&!v25)fail('game.js cannot wire v26 without v25');
-  if(v27&&!v26)fail('game.js cannot wire v27 without v26');
+  if(v28&&!v26)fail('game.js cannot wire freight v28 without v26');
+  if(v30&&!v28)fail('game.js cannot wire arcade v30 without freight v28');
+  if(v27&&!v26)fail('game.js cannot wire audio v27 without v26');
+  if(v30&&!v27)fail('game.js cannot wire arcade v30 without terminal audio v27');
   if(v23){
     for(const marker of ['async function applyChapter4EastWingV23Runtime(source,patchText)','getText(CHAPTER4_V23_PATCH)','const chapter4V23Source=await applyChapter4EastWingV23Runtime(chapter3V22DSource,chapter4V23Patch);'])if(!loader.includes(marker))fail('game.js invalid v22d→v23 feed-forward marker: '+marker);
     if(loader.includes("const source=chapter3V22DSource+'\\n//# sourceURL=pinewood-runtime.js\\n';"))fail('game.js still boots terminal v22d while v23 is present');
@@ -60,14 +65,26 @@ if(live){
           if(v26){
             for(const marker of ['async function applyProductionReadabilityV26Runtime(source,patchText)','getText(PRODUCTION_READABILITY_V26_PATCH)','const productionReadabilityV26Source=await applyProductionReadabilityV26Runtime(chapter6V25Source,productionReadabilityV26Patch);'])if(!loader.includes(marker))fail('game.js invalid v25→v26 feed-forward marker: '+marker);
             if(loader.includes("const source=chapter6V25Source+'\\n//# sourceURL=pinewood-runtime.js\\n';"))fail('game.js still boots terminal v25 while v26 is present');
+
+            let audioInput='productionReadabilityV26Source';
+            if(v28){
+              for(const marker of ['async function applyFreightElevatorReliabilityV28Runtime(source,patchText)','getText(FREIGHT_ELEVATOR_V28_PATCH)','const freightElevatorV28Source=await applyFreightElevatorReliabilityV28Runtime(productionReadabilityV26Source,freightElevatorV28Patch);'])if(!loader.includes(marker))fail('game.js invalid v26→freight-v28 feed-forward marker: '+marker);
+              if(loader.includes("const source=productionReadabilityV26Source+'\\n//# sourceURL=pinewood-runtime.js\\n';"))fail('game.js still boots terminal v26 while freight v28 is present');
+              audioInput='freightElevatorV28Source';
+            }
+            if(v30){
+              for(const marker of ['async function applyArcadeRebuildV30Runtime(source,patchText)','getText(ARCADE_V30_PATCH)','const arcadeV30Source=await applyArcadeRebuildV30Runtime(freightElevatorV28Source,arcadeV30Patch);'])if(!loader.includes(marker))fail('game.js invalid freight-v28→arcade-v30 feed-forward marker: '+marker);
+              if(loader.includes("const source=freightElevatorV28Source+'\\n//# sourceURL=pinewood-runtime.js\\n';"))fail('game.js still boots terminal freight v28 while arcade v30 is present');
+              audioInput='arcadeV30Source';
+            }
             if(v27){
-              for(const marker of ['async function applyAudioDirectionV27Runtime(source,patchText,manifest)','getText(AUDIO_DIRECTION_V27_PATCH)','const audioDirectionV27Source=await applyAudioDirectionV27Runtime(productionReadabilityV26Source,audioDirectionV27Patch,characterVoiceManifest);',"const source=audioDirectionV27Source+'\\n//# sourceURL=pinewood-runtime.js\\n';"])if(!loader.includes(marker))fail('game.js invalid v26→v27 feed-forward marker: '+marker);
-              if(loader.includes("const source=productionReadabilityV26Source+'\\n//# sourceURL=pinewood-runtime.js\\n';"))fail('game.js still boots terminal v26 while v27 is present');
-            }else if(!loader.includes("const source=productionReadabilityV26Source+'\\n//# sourceURL=pinewood-runtime.js\\n';"))fail('game.js missing terminal v26 source marker');
+              for(const marker of ['async function applyAudioDirectionV27Runtime(source,patchText,manifest)','getText(AUDIO_DIRECTION_V27_PATCH)',`const audioDirectionV27Source=await applyAudioDirectionV27Runtime(${audioInput},audioDirectionV27Patch,characterVoiceManifest);`,"const source=audioDirectionV27Source+'\\n//# sourceURL=pinewood-runtime.js\\n';"])if(!loader.includes(marker))fail('game.js invalid terminal world→audio-v27 feed-forward marker: '+marker);
+              if(loader.includes(`const source=${audioInput}+'\\n//# sourceURL=pinewood-runtime.js\\n';`))fail('game.js boots a world tail directly while audio v27 is present');
+            }else if(!loader.includes(`const source=${audioInput}+'\\n//# sourceURL=pinewood-runtime.js\\n';`))fail('game.js missing terminal post-v26 source marker');
           }else if(!loader.includes("const source=chapter6V25Source+'\\n//# sourceURL=pinewood-runtime.js\\n';"))fail('game.js missing terminal v25 source marker');
         }else if(!loader.includes("const source=chapter5V24Source+'\\n//# sourceURL=pinewood-runtime.js\\n';"))fail('game.js missing terminal v24 source marker');
       }else if(!loader.includes("const source=chapter4V23BSource+'\\n//# sourceURL=pinewood-runtime.js\\n';"))fail('game.js missing terminal v23b source marker');
     }else if(!loader.includes("const source=chapter4V23Source+'\\n//# sourceURL=pinewood-runtime.js\\n';"))fail('game.js missing terminal v23 source marker');
   }else if(!loader.includes("const source=chapter3V22DSource+'\\n//# sourceURL=pinewood-runtime.js\\n';"))fail('game.js missing terminal v22d source marker');
 }else if(loader.includes('applyChapter3SecurityReadabilityV22DRuntime')||loader.includes('chapter3V22DSource'))fail('game.js contains partial v22d wiring');
-console.log(`Chapter 3 Security readability v22d PASS (${live?'LIVE':'STAGED'}${v23?'→V23':''}${v23b?'→V23B':''}${v24?'→V24':''}${v25?'→V25':''}${v26?'→V26':''}${v27?'→V27':''}): Security readability, navigation/story invariants, local-only media, and ordered loader feed-forward all survive.`);
+console.log(`Chapter 3 Security readability v22d PASS (${live?'LIVE':'STAGED'}${v23?'→V23':''}${v23b?'→V23B':''}${v24?'→V24':''}${v25?'→V25':''}${v26?'→V26':''}${v28?'→V28':''}${v30?'→V30':''}${v27?'→V27':''}): Security readability, navigation/story invariants, local-only media, and ordered loader feed-forward all survive.`);
