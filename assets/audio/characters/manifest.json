@@ -1,6 +1,6 @@
 {
   "version": 27,
-  "generatedAt": "2026-09-07T18:39:39.182Z",
+  "generatedAt": "2026-09-10T15:57:47.180Z",
   "source": "story/dialogue.js + story/renee-voice-sources-v27.json + authored recorded evidence",
   "engine": {
     "name": "Mixed pre-rendered voices",
@@ -19,7 +19,7 @@
       "profile": "renee",
       "sourceVoice": "AI Voice Generator Crisp / approved Take 1",
       "sourceDuration": 10.464,
-      "sha256": "24c6ad5562cd4abc3e9f2b132c6e86d8bca58b92f5d149c1c14063521175425f",
+      "sha256": "73d4579d9c2ab440f7eb906ec62becde4f874c89abc868dea3f1aa05153801b9",
       "duration": 10.926,
       "walkiePostProcess": "v29-extreme-handheld"
     },
@@ -30,7 +30,7 @@
       "profile": "renee",
       "sourceVoice": "AI Voice Generator Crisp / approved Take 1",
       "sourceDuration": 7.512,
-      "sha256": "8ee96648378ce50bc5f0d4a9fa8255015ccbb2574999aa159c2a1b7856b02df2",
+      "sha256": "c19da9958b3ef03addceaf260e3073d3e6373401d118132923d75dd55fa11a9f",
       "duration": 7.968,
       "walkiePostProcess": "v29-extreme-handheld"
     },
@@ -41,7 +41,7 @@
       "profile": "renee",
       "sourceVoice": "AI Voice Generator Crisp / approved Take 1",
       "sourceDuration": 12.984,
-      "sha256": "ec15d2de072057a3bc9adb21d0f3337d06fb2ee92e3ed6b88c43a965c5a41502",
+      "sha256": "133a86096ccde3470503402f37168fcd1537199915f556b05da2dc56d84a1f67",
       "duration": 13.396,
       "walkiePostProcess": "v29-extreme-handheld"
     },
@@ -52,7 +52,7 @@
       "profile": "renee",
       "sourceVoice": "AI Voice Generator Crisp / approved Take 1",
       "sourceDuration": 7.104,
-      "sha256": "f95c58035c014063ac08662275012295544fe0749ed5ec3acbc60674a3f2e131",
+      "sha256": "8f7dba6afcd5fbfeea0326f3b72ae21ae7d181cb1db0855e50735a7ab55a91b4",
       "duration": 7.576,
       "walkiePostProcess": "v29-extreme-handheld"
     },
@@ -63,7 +63,7 @@
       "profile": "renee",
       "sourceVoice": "AI Voice Generator Crisp / approved Take 1",
       "sourceDuration": 8.064,
-      "sha256": "88bff49548673bfc632b043f02fcdf2cbc042ce560016208cd8c5d45596da9c8",
+      "sha256": "03f698ae73713f99cafd935e490eb750171691d59b67d8083c87b7d41c1ef4be",
       "duration": 8.516,
       "walkiePostProcess": "v29-extreme-handheld"
     },
@@ -74,7 +74,7 @@
       "profile": "renee",
       "sourceVoice": "AI Voice Generator Crisp / approved Take 1",
       "sourceDuration": 7.368,
-      "sha256": "1b5db1f3db4b66e983bdac6b987c149a83e5fae7d8d62a30eb438ea3adab1285",
+      "sha256": "092d100efd5ef4aaa903f4f84ea40225bd8a49005104ccc359428d3352592dc9",
       "duration": 7.812,
       "walkiePostProcess": "v29-extreme-handheld"
     },
@@ -85,7 +85,7 @@
       "profile": "renee",
       "sourceVoice": "AI Voice Generator Crisp / approved Take 1",
       "sourceDuration": 10.776,
-      "sha256": "e76d1afa0f1d39f94106b60685ec9435c2702fec08be28f1509df33aa7a27397",
+      "sha256": "23545cbe927cc8c2e4c9c0fcf42c94699ecb5b187a5ec8e8fe85309fb78a6a87",
       "duration": 11.214,
       "walkiePostProcess": "v29-extreme-handheld"
     },
@@ -96,7 +96,7 @@
       "profile": "renee",
       "sourceVoice": "AI Voice Generator Crisp / approved Take 1",
       "sourceDuration": 11.184,
-      "sha256": "22fa3ee221d755b950aa15fc3db0752c293958d1bae7efc3b540781715905070",
+      "sha256": "b1b76a42c4e135b5260524ed6cd5057ad532766da14d7095a9062b521d686297",
       "duration": 11.596,
       "walkiePostProcess": "v29-extreme-handheld"
     },
@@ -107,7 +107,7 @@
       "profile": "renee",
       "sourceVoice": "AI Voice Generator Crisp / approved Take 1",
       "sourceDuration": 9.024,
-      "sha256": "5b8d92504cb93e0d3e7bd2f51d05ec43fb0f6e2667197f414b332db9ed0f299c",
+      "sha256": "e34c2522ad518a5eff7fe251a8e114521a0b309b62953e29614615eb87ed5ab4",
       "duration": 9.456,
       "walkiePostProcess": "v29-extreme-handheld"
     },
@@ -118,7 +118,7 @@
       "profile": "renee",
       "sourceVoice": "AI Voice Generator Crisp / approved Take 1",
       "sourceDuration": 13.2,
-      "sha256": "888ec46b31d0410203cd5a049a8752c724d85ebd94371c5863510b6b7679ada9",
+      "sha256": "a432b8bb069b5659e680fad930101dcf55df8aaef3769067554f2557726ffdb3",
       "duration": 13.58,
       "walkiePostProcess": "v29-extreme-handheld"
     },
@@ -129,7 +129,7 @@
       "profile": "renee",
       "sourceVoice": "AI Voice Generator Crisp / approved Take 1",
       "sourceDuration": 9.792,
-      "sha256": "5d48d57b4ca8989f6ea79e70e63c6c8f42d2ffa156770f4e4339cff2dcc2c4d0",
+      "sha256": "5bd210491e32b97f0a1f916eeb2a1d760c18ded47c0cdb3dcbc5adfaa0b35e98",
       "duration": 10.188,
       "walkiePostProcess": "v29-extreme-handheld"
     },
@@ -140,7 +140,7 @@
       "profile": "renee",
       "sourceVoice": "AI Voice Generator Crisp / approved Take 1",
       "sourceDuration": 8.16,
-      "sha256": "18cf4750401a0b70f9eee05d91b15191bed2c3ca792608296dfb9db68d8956d3",
+      "sha256": "8c753add9d41fa06a6e490cc068505c2a1d303c7a467eacfeda2684efceaeca8",
       "duration": 8.62,
       "walkiePostProcess": "v29-extreme-handheld"
     },
@@ -151,7 +151,7 @@
       "profile": "renee",
       "sourceVoice": "AI Voice Generator Crisp / approved Take 1",
       "sourceDuration": 8.352,
-      "sha256": "c0cc7f72e8fb65440a9789520e4f369cbe2e1496a91fe61c3f20a6167286e0c2",
+      "sha256": "40048fee88213a7c1b464941b78c117d75740c17dd8fff8b6bc844947f628925",
       "duration": 8.828,
       "walkiePostProcess": "v29-extreme-handheld"
     },
@@ -162,7 +162,7 @@
       "profile": "renee",
       "sourceVoice": "AI Voice Generator Crisp / approved Take 1",
       "sourceDuration": 12.384,
-      "sha256": "1f26924df85c636d475acefa6c904facbe5b1100ec7ea50d92d18b1c71f0a99e",
+      "sha256": "dce8775648ec9c342ec74b31ecb121fef22b2513d5a246a33b8d450218520df9",
       "duration": 12.796,
       "walkiePostProcess": "v29-extreme-handheld"
     },
@@ -173,7 +173,7 @@
       "profile": "renee",
       "sourceVoice": "AI Voice Generator Crisp / approved Take 1",
       "sourceDuration": 10.296,
-      "sha256": "36b9fee2bc95355051e4b527a9e90605cb33491717b39823e7529e68b67624e0",
+      "sha256": "9e083dcc36de77565db58a4642e4692eaa3cbfafa4a8d6457999c2dda354efde",
       "duration": 10.684,
       "walkiePostProcess": "v29-extreme-handheld"
     },
@@ -184,7 +184,7 @@
       "profile": "renee",
       "sourceVoice": "AI Voice Generator Crisp / approved Take 1",
       "sourceDuration": 13.92,
-      "sha256": "96492208500095677e8c54aefb264d3ccfdcaf9190365a4430d583d72de36886",
+      "sha256": "eb3ffdb3bb7ce6f066a9e54ef9cbe96c213fee388aff0e688bb7fab67ee00357",
       "duration": 14.36,
       "walkiePostProcess": "v29-extreme-handheld"
     },
@@ -195,7 +195,7 @@
       "profile": "renee",
       "sourceVoice": "AI Voice Generator Crisp / approved Take 1",
       "sourceDuration": 6.936,
-      "sha256": "690eb04830fbeeb990e8c992a9e67513a43d9b2cba9b023b98aaeb3194181084",
+      "sha256": "9712bdf1d7dae9534a7d4e4a7c6f9c78e729478ef33aa038c90b94b1ee3b2cde",
       "duration": 7.344,
       "walkiePostProcess": "v29-extreme-handheld"
     },
@@ -206,7 +206,7 @@
       "profile": "renee",
       "sourceVoice": "AI Voice Generator Crisp / approved Take 1",
       "sourceDuration": 14.952,
-      "sha256": "8d0e5d0ff2b7e342edea3a7a24a6ccc8f1e0b1a88d5bbf5a9e03ca05af0fbb15",
+      "sha256": "d868548d41b789e0f27626e9b46ba2b72c002b0acfe59d68ab1d1758dd6e9e31",
       "duration": 15.428,
       "walkiePostProcess": "v29-extreme-handheld"
     },
@@ -217,7 +217,7 @@
       "profile": "renee",
       "sourceVoice": "AI Voice Generator Crisp / approved Take 1",
       "sourceDuration": 11.472,
-      "sha256": "920ce17c867379ea96b1d57b43697e88b762e033ac994e5897c1eb0117b83112",
+      "sha256": "5b63a02ec9faabc6fb6680248949aebb7a4aaf253e94d9568aa818960c5cb8f5",
       "duration": 11.908,
       "walkiePostProcess": "v29-extreme-handheld"
     },
@@ -228,7 +228,7 @@
       "profile": "renee",
       "sourceVoice": "AI Voice Generator Crisp / approved Take 1",
       "sourceDuration": 9.384,
-      "sha256": "8b1ac2ecbe362734795305d6fcfe0ae531f140d5af934f20525f4c56d2bd818e",
+      "sha256": "e9c308c99c898f19e4e5c9e24df48b8120a2ab81d2ff829efc4cbb3565fd38f4",
       "duration": 9.796,
       "walkiePostProcess": "v29-extreme-handheld"
     },
@@ -239,7 +239,7 @@
       "profile": "renee",
       "sourceVoice": "AI Voice Generator Crisp / approved Take 1",
       "sourceDuration": 10.416,
-      "sha256": "f43abb08044159c822c4722b1c4bbadbdbb4d3fe65c1cf2bd166a3779ae622d9",
+      "sha256": "0aedbfd3951202edbd9b23afe3a92b55f612bd108579ac632d6892c16b63ea2e",
       "duration": 10.864,
       "walkiePostProcess": "v29-extreme-handheld"
     },
@@ -250,7 +250,7 @@
       "profile": "renee",
       "sourceVoice": "AI Voice Generator Crisp / approved Take 1",
       "sourceDuration": 8.208,
-      "sha256": "b296fed84add073bd0e2fc059a1e58911baea59a2aa66d96e7a7ef4392254d05",
+      "sha256": "e26748fbc23fe09be6448be256dde7197c914fc646e648190f5059bb9ccefc8b",
       "duration": 8.672,
       "walkiePostProcess": "v29-extreme-handheld"
     },
@@ -261,7 +261,7 @@
       "profile": "renee",
       "sourceVoice": "AI Voice Generator Crisp / approved Take 1",
       "sourceDuration": 10.416,
-      "sha256": "1771f8e8fff0742aab38fe3f610a60b252e0e1a021ec56b11a7908a8a0c0dd4a",
+      "sha256": "d1087b89ce690f8286f9d0cc2f6811e56128c66473a28b5809d707f5ce946588",
       "duration": 10.864,
       "walkiePostProcess": "v29-extreme-handheld"
     },
@@ -272,7 +272,7 @@
       "profile": "renee",
       "sourceVoice": "AI Voice Generator Crisp / approved Take 1",
       "sourceDuration": 8.88,
-      "sha256": "e37257432a5464af7eaa4ce175c8c34437a301f6cadd5e22a2b0d5c574c0c3af",
+      "sha256": "1ddec57c36071fa575044da12a3a769e1c9d44a9a1d5c06a083544bc1d4deae0",
       "duration": 9.3,
       "walkiePostProcess": "v29-extreme-handheld"
     },
@@ -283,7 +283,7 @@
       "profile": "renee",
       "sourceVoice": "AI Voice Generator Crisp / approved Take 1",
       "sourceDuration": 12.864,
-      "sha256": "ced0f098aa359ae733697884939311667afe338037ab09f9b1daae4b6287c1d6",
+      "sha256": "e50f17d792c5f5af916e853d630415bd88885bf8150230ef3f1c9ed1b75c1072",
       "duration": 13.316,
       "walkiePostProcess": "v29-extreme-handheld"
     },
@@ -294,7 +294,7 @@
       "profile": "renee",
       "sourceVoice": "AI Voice Generator Crisp / approved Take 1",
       "sourceDuration": 12.024,
-      "sha256": "cc26e9041049e354c96fa97c06ad760615a5afded9af5d280422f7bbf69e11f2",
+      "sha256": "1ebb6370d4aad69ca2457d366e517d4c29290a951e3323b4e92903a78959959d",
       "duration": 12.456,
       "walkiePostProcess": "v29-extreme-handheld"
     },
@@ -305,7 +305,7 @@
       "profile": "fake-renee",
       "sourceVoice": "AI Voice Generator Crisp / approved Take 1",
       "sourceDuration": 6.984,
-      "sha256": "512a3b7f68a8bfa42ec08818221c23904f65a8a7c6aa95f2c4e7c96746066429",
+      "sha256": "39ff81da5234cc9dce55cdeabcce6d1457c3900382c3e059324a284c27c37125",
       "duration": 7.54
     },
     "ch4_real_return": {
@@ -315,7 +315,7 @@
       "profile": "renee",
       "sourceVoice": "AI Voice Generator Crisp / approved Take 1",
       "sourceDuration": 11.616,
-      "sha256": "1ce2ee366ff6920de6fcb4b705124a0c90366b9a2de47b0dda67d7c43ef50fc3",
+      "sha256": "55f5041e80aeb73edeef4257e21cec7a15293fb5709b095caa5bde999c2631d4",
       "duration": 12.064,
       "walkiePostProcess": "v29-extreme-handheld"
     },
@@ -326,7 +326,7 @@
       "profile": "renee",
       "sourceVoice": "AI Voice Generator Crisp / approved Take 1",
       "sourceDuration": 12.384,
-      "sha256": "76be1a1556d13f00fdec413bb0973b6c0a2de642396e7aedd928db5e5a87febc",
+      "sha256": "3f6c710320d6dd2256e0c12a6472d8a287244b4e3d056c32335e5f00afdca00c",
       "duration": 12.796,
       "walkiePostProcess": "v29-extreme-handheld"
     },
@@ -337,7 +337,7 @@
       "profile": "renee",
       "sourceVoice": "AI Voice Generator Crisp / approved Take 1",
       "sourceDuration": 12.024,
-      "sha256": "8b1b4f5430ad2ce75e486bcef092c4c8cc80ff867d8c0bc7e1488f7153457012",
+      "sha256": "58e20718c79b323cf0a0d36728b3704ef69fc3a2a48e9b9f69fcfbeadea929af",
       "duration": 12.456,
       "walkiePostProcess": "v29-extreme-handheld"
     },
@@ -348,7 +348,7 @@
       "profile": "renee",
       "sourceVoice": "AI Voice Generator Crisp / approved Take 1",
       "sourceDuration": 14.184,
-      "sha256": "79ff73345ce683418f5db9b5cc8356e733f5f0c3ca2fda45149240c8e52acc2b",
+      "sha256": "1ea19ebd9759aee1119daad30699c1862715cfcb523f2096e411bf5af3a841db",
       "duration": 14.596,
       "walkiePostProcess": "v29-extreme-handheld"
     },
@@ -359,7 +359,7 @@
       "profile": "renee",
       "sourceVoice": "AI Voice Generator Crisp / approved Take 1",
       "sourceDuration": 13.008,
-      "sha256": "8a6ad80ef886db2ce210c743c92b72650a7c48ec05856f3654a73154fd8970eb",
+      "sha256": "481812c301b59a4c9de41133a65e958b1d389dff2a05d6b1a97c11527425dedc",
       "duration": 13.482,
       "walkiePostProcess": "v29-extreme-handheld"
     },
@@ -370,7 +370,7 @@
       "profile": "fake-renee",
       "sourceVoice": "AI Voice Generator Crisp / approved Take 1",
       "sourceDuration": 7.2,
-      "sha256": "0e99e453db3b46285005112278edeedda3641a8479cc71a91136271c7214ab9c",
+      "sha256": "3771fd4e7728be419c1ca5e9bf4e126d0a7742b7fea188869cb23e32e9575fb1",
       "duration": 7.74
     },
     "ch4_auth_broken": {
@@ -380,7 +380,7 @@
       "profile": "renee",
       "sourceVoice": "AI Voice Generator Crisp / approved Take 1",
       "sourceDuration": 12.192,
-      "sha256": "159967e0820a53d1a9f0b91f63244f4fe61c057bad3b14de31c0eb8a2ff43afa",
+      "sha256": "6849f79b12b73f4a4c30b23a4dc51fbf369e0133a6334d48dc06062e49cb0c9b",
       "duration": 12.588,
       "walkiePostProcess": "v29-extreme-handheld"
     },
@@ -391,7 +391,7 @@
       "profile": "renee",
       "sourceVoice": "AI Voice Generator Crisp / approved Take 1",
       "sourceDuration": 10.728,
-      "sha256": "e4b83ea2719f3ffb8954f172e25090f7661abd8624a65f548c5ae02d6beb573d",
+      "sha256": "cdd356e3a0ffcc46ccd36c527bb844a6a23c6cc3555826db01cd2fb76bf800b1",
       "duration": 11.152,
       "walkiePostProcess": "v29-extreme-handheld"
     },
@@ -402,7 +402,7 @@
       "profile": "renee",
       "sourceVoice": "AI Voice Generator Crisp / approved Take 1",
       "sourceDuration": 13.344,
-      "sha256": "d0837a26032694175ac6d48fae681f706eb59f817409349fff804060cd0fbb4a",
+      "sha256": "5d067ae761dc056c1effb48d53ca617d154a911349606f2bb830d3806c7c2b8d",
       "duration": 13.836,
       "walkiePostProcess": "v29-extreme-handheld"
     },
@@ -413,7 +413,7 @@
       "profile": "renee",
       "sourceVoice": "AI Voice Generator Crisp / approved Take 1",
       "sourceDuration": 15.504,
-      "sha256": "f47ee23b63f17f8c5512124b14ad8e95534b196afc8dc8d24e40ae99c217e5a3",
+      "sha256": "4d6cece12c4e33b54764d05533cc2b79c916ce43df19d8ea570a9653b0e0a9b7",
       "duration": 15.976,
       "walkiePostProcess": "v29-extreme-handheld"
     },
@@ -424,7 +424,7 @@
       "profile": "renee",
       "sourceVoice": "AI Voice Generator Crisp / approved Take 1",
       "sourceDuration": 14.424,
-      "sha256": "d7c55596ddf13e21dc74f3f7c8244ff21854c6efc68ac7aa7aa8be2dd093505f",
+      "sha256": "70bfd6a863840b5e77b09b8037a396206ba583b343198d9f203c46ab3fe62824",
       "duration": 14.866,
       "walkiePostProcess": "v29-extreme-handheld"
     },
@@ -435,7 +435,7 @@
       "profile": "renee",
       "sourceVoice": "AI Voice Generator Crisp / approved Take 1",
       "sourceDuration": 12.864,
-      "sha256": "741aef34958ba4bca5f7e93beb66f7798e5bfbae263c656793472995e479f637",
+      "sha256": "2028801985e247c0f5b545871164d75c12754de8b2216d1c852918740c206ffe",
       "duration": 13.316,
       "walkiePostProcess": "v29-extreme-handheld"
     },
@@ -446,7 +446,7 @@
       "profile": "renee",
       "sourceVoice": "AI Voice Generator Crisp / approved Take 1",
       "sourceDuration": 15.144,
-      "sha256": "527ca4f554c46ee4f41b19bc111fed5266f9df9fcde58265da51072d07a75d4e",
+      "sha256": "c072df06580f269b6e1e91179eeeaceeb10bde036ce0c7aec9d161e3fa2d9d42",
       "duration": 15.636,
       "walkiePostProcess": "v29-extreme-handheld"
     },
@@ -457,7 +457,7 @@
       "profile": "renee",
       "sourceVoice": "AI Voice Generator Crisp / approved Take 1",
       "sourceDuration": 13.272,
-      "sha256": "a273830fb6a62bf0e84e7e0b515f8f331c9f022996c4c75f6a6b0f18dd5b8500",
+      "sha256": "625a189403b5bf4d3fc59bb1e8c1678c16a881f06f893efa9348ee865549deb2",
       "duration": 13.708,
       "walkiePostProcess": "v29-extreme-handheld"
     },
@@ -468,7 +468,7 @@
       "profile": "renee",
       "sourceVoice": "AI Voice Generator Crisp / approved Take 1",
       "sourceDuration": 13.008,
-      "sha256": "161c481d64b77e3044d7ae10cb6a8b1ec914e6cb3c06e9eeefa8406592f0bea1",
+      "sha256": "a1b9cae0fe3df37d320ef6f34da7e053c77113bbf318c611023a4630e4fef385",
       "duration": 13.482,
       "walkiePostProcess": "v29-extreme-handheld"
     },
@@ -479,7 +479,7 @@
       "profile": "renee",
       "sourceVoice": "AI Voice Generator Crisp / approved Take 1",
       "sourceDuration": 15.96,
-      "sha256": "bc59caf0625c1eeedbad1d46199f62f2be1ecfaf6071466dea5653ca2b3bf30c",
+      "sha256": "6fb906a3057f0582b3133eaaafc6321ad1edebed9c8da1437efa422663348cd5",
       "duration": 16.43,
       "walkiePostProcess": "v29-extreme-handheld"
     },
@@ -490,7 +490,7 @@
       "profile": "renee",
       "sourceVoice": "AI Voice Generator Crisp / approved Take 1",
       "sourceDuration": 13.92,
-      "sha256": "46f1fe6c1d957282b888df2587e4e87eefcae14de0a5f67e0e5f84b4192e81c9",
+      "sha256": "7b4f630ccd9e093a7e5b5a32c7deccdfc6e0b478f91b487b29e266aa2eeb7306",
       "duration": 14.36,
       "walkiePostProcess": "v29-extreme-handheld"
     },
@@ -501,7 +501,7 @@
       "profile": "overlap",
       "sourceVoice": "AI Voice Generator Crisp / approved Take 1 foreground + local counterfeit layer",
       "sourceDuration": 4.968,
-      "sha256": "e4fb5989c4d84bc5cf20dd7c630b7e5c11152a2d2a51e1a4281082387ba2da45",
+      "sha256": "a2caac12581c47b3ad82df329e18fb86ce1f9b20855d24b2625d2bd41a3b5483",
       "duration": 5.78,
       "walkiePostProcess": "v29-extreme-handheld"
     },
