@@ -40,6 +40,7 @@ const CHAPTER6_V25_PATCH='./patches/chapter6-last-shift-v25.js.txt';
 const PRODUCTION_READABILITY_V26_PATCH='./patches/production-readability-v26.js.txt';
 const AUDIO_DIRECTION_V27_PATCH='./patches/audio-direction-v27.js.txt';
 const FREIGHT_ELEVATOR_V28_PATCH='./patches/freight-elevator-reliability-v28.js.txt';
+const ARCADE_V30_PATCH='./patches/arcade-rebuild-v30.js.txt';
 const PCAS_VOICE_MANIFEST='./assets/audio/pa/manifest.json';
 const CHARACTER_VOICE_MANIFEST='./assets/audio/characters/manifest.json';
 const LOCAL_ASSETS_MANIFEST='./assets/vendor/runtime/manifest.json';
@@ -218,6 +219,11 @@ async function applyFreightElevatorReliabilityV28Runtime(source,patchText){
   try{const mod=await import(patchUrl);if(typeof mod.applyFreightElevatorReliabilityV28!=='function')throw new Error('Freight Elevator Reliability v28 patch did not export its patch function.');return mod.applyFreightElevatorReliabilityV28(source);}finally{URL.revokeObjectURL(patchUrl);}
 }
 
+async function applyArcadeRebuildV30Runtime(source,patchText){
+  const patchUrl=URL.createObjectURL(new Blob([patchText+'\nexport { applyArcadeRebuildV30 };\n'],{type:'text/javascript'}));
+  try{const mod=await import(patchUrl);if(typeof mod.applyArcadeRebuildV30!=='function')throw new Error('Sunburst Arcade v30 patch did not export its patch function.');return mod.applyArcadeRebuildV30(source);}finally{URL.revokeObjectURL(patchUrl);}
+}
+
 
 function replaceFoodCourt(source,replacement){
   const start=source.indexOf('async function buildFoodCourt(world){');
@@ -246,8 +252,8 @@ async function preflightThree(){
 
 try{
   await preflightThree();
-  const [base,worldPatch,industrialPatch,visualFixPatch,storePatch,systemsPatch,reliabilityPatch,statusPatch,audioPatch,elevatorPatch,fountainPatch,cassettePatch,foodPatch,posterPatch,footstepPatch,posterDiversityPatch,cassetteV13Patch,cassetteV14Patch,localAssetsPatch,retailV16Patch,storyV17Patch,chapter1V18Patch,pcasV19Patch,chapter1V20Patch,chapter2V21Patch,chapter3V22Patch,chapter3V22BPatch,chapter3V22CPatch,chapter3V22DPatch,chapter4V23Patch,chapter4V23BPatch,chapter5V24Patch,chapter6V25Patch,productionReadabilityV26Patch,audioDirectionV27Patch,freightElevatorV28Patch,pcasVoiceManifestText,characterVoiceManifestText,localAssetsManifestText,storyModule]=await Promise.all([
-    decodeSource(),getText(WORLD_PATCH),getText(INDUSTRIAL_PATCH),getText(VISUAL_FIX_PATCH),getText(STORE_PATCH),getText(SYSTEMS_PATCH),getText(RELIABILITY_PATCH),getText(STATUS_PATCH),getText(AUDIO_PATCH),getText(ELEVATOR_PATCH),getText(FOUNTAIN_PATCH),getText(CASSETTE_PATCH),getText(FOOD_PATCH),getText(POSTER_PATCH),getText(FOOTSTEP_PATCH),getText(POSTER_DIVERSITY_PATCH),getText(CASSETTE_V13_PATCH),getText(CASSETTE_V14_PATCH),getText(LOCAL_ASSETS_PATCH),getText(RETAIL_V16_PATCH),getText(STORY_V17_PATCH),getText(CHAPTER1_V18_PATCH),getText(PCAS_V19_PATCH),getText(CHAPTER1_V20_PATCH),getText(CHAPTER2_V21_PATCH),getText(CHAPTER3_V22_PATCH),getText(CHAPTER3_V22B_PATCH),getText(CHAPTER3_V22C_PATCH),getText(CHAPTER3_V22D_PATCH),getText(CHAPTER4_V23_PATCH),getText(CHAPTER4_V23B_PATCH),getText(CHAPTER5_V24_PATCH),getText(CHAPTER6_V25_PATCH),getText(PRODUCTION_READABILITY_V26_PATCH),getText(AUDIO_DIRECTION_V27_PATCH),getText(FREIGHT_ELEVATOR_V28_PATCH),getText(PCAS_VOICE_MANIFEST),getText(CHARACTER_VOICE_MANIFEST),getText(LOCAL_ASSETS_MANIFEST),import('./story/story-data.js')
+  const [base,worldPatch,industrialPatch,visualFixPatch,storePatch,systemsPatch,reliabilityPatch,statusPatch,audioPatch,elevatorPatch,fountainPatch,cassettePatch,foodPatch,posterPatch,footstepPatch,posterDiversityPatch,cassetteV13Patch,cassetteV14Patch,localAssetsPatch,retailV16Patch,storyV17Patch,chapter1V18Patch,pcasV19Patch,chapter1V20Patch,chapter2V21Patch,chapter3V22Patch,chapter3V22BPatch,chapter3V22CPatch,chapter3V22DPatch,chapter4V23Patch,chapter4V23BPatch,chapter5V24Patch,chapter6V25Patch,productionReadabilityV26Patch,audioDirectionV27Patch,freightElevatorV28Patch,arcadeV30Patch,pcasVoiceManifestText,characterVoiceManifestText,localAssetsManifestText,storyModule]=await Promise.all([
+    decodeSource(),getText(WORLD_PATCH),getText(INDUSTRIAL_PATCH),getText(VISUAL_FIX_PATCH),getText(STORE_PATCH),getText(SYSTEMS_PATCH),getText(RELIABILITY_PATCH),getText(STATUS_PATCH),getText(AUDIO_PATCH),getText(ELEVATOR_PATCH),getText(FOUNTAIN_PATCH),getText(CASSETTE_PATCH),getText(FOOD_PATCH),getText(POSTER_PATCH),getText(FOOTSTEP_PATCH),getText(POSTER_DIVERSITY_PATCH),getText(CASSETTE_V13_PATCH),getText(CASSETTE_V14_PATCH),getText(LOCAL_ASSETS_PATCH),getText(RETAIL_V16_PATCH),getText(STORY_V17_PATCH),getText(CHAPTER1_V18_PATCH),getText(PCAS_V19_PATCH),getText(CHAPTER1_V20_PATCH),getText(CHAPTER2_V21_PATCH),getText(CHAPTER3_V22_PATCH),getText(CHAPTER3_V22B_PATCH),getText(CHAPTER3_V22C_PATCH),getText(CHAPTER3_V22D_PATCH),getText(CHAPTER4_V23_PATCH),getText(CHAPTER4_V23B_PATCH),getText(CHAPTER5_V24_PATCH),getText(CHAPTER6_V25_PATCH),getText(PRODUCTION_READABILITY_V26_PATCH),getText(AUDIO_DIRECTION_V27_PATCH),getText(FREIGHT_ELEVATOR_V28_PATCH),getText(ARCADE_V30_PATCH),getText(PCAS_VOICE_MANIFEST),getText(CHARACTER_VOICE_MANIFEST),getText(LOCAL_ASSETS_MANIFEST),import('./story/story-data.js')
   ]);
   const worldSource=await applyWorldProps(normalizeImports(base),worldPatch);
   const industrialSource=await applyIndustrialCc0(worldSource,industrialPatch);
@@ -286,7 +292,8 @@ try{
   const chapter6V25Source=await applyChapter6LastShiftV25Runtime(chapter5V24Source,chapter6V25Patch);
   const productionReadabilityV26Source=await applyProductionReadabilityV26Runtime(chapter6V25Source,productionReadabilityV26Patch);
   const freightElevatorV28Source=await applyFreightElevatorReliabilityV28Runtime(productionReadabilityV26Source,freightElevatorV28Patch);
-  const audioDirectionV27Source=await applyAudioDirectionV27Runtime(freightElevatorV28Source,audioDirectionV27Patch,characterVoiceManifest);
+  const arcadeV30Source=await applyArcadeRebuildV30Runtime(freightElevatorV28Source,arcadeV30Patch);
+  const audioDirectionV27Source=await applyAudioDirectionV27Runtime(arcadeV30Source,audioDirectionV27Patch,characterVoiceManifest);
   const source=audioDirectionV27Source+'\n//# sourceURL=pinewood-runtime.js\n';
   const moduleUrl=URL.createObjectURL(new Blob([source],{type:'text/javascript'}));
   try{await import(moduleUrl);}finally{URL.revokeObjectURL(moduleUrl);}

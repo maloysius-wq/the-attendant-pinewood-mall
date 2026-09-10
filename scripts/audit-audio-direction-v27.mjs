@@ -61,7 +61,10 @@ for(const marker of [
 
 for(const marker of [
   "const AUDIO_DIRECTION_V27_PATCH='./patches/audio-direction-v27.js.txt';",
+  "const ARCADE_V30_PATCH='./patches/arcade-rebuild-v30.js.txt';",
   "const CHARACTER_VOICE_MANIFEST='./assets/audio/characters/manifest.json';",
+  'applyArcadeRebuildV30Runtime',
+  'arcadeV30Source',
   'applyAudioDirectionV27Runtime',
   'audioDirectionV27Source',
   "const source=audioDirectionV27Source+'\\n//# sourceURL=pinewood-runtime.js\\n';"

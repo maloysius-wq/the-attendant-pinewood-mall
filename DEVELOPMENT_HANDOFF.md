@@ -440,3 +440,17 @@ Unless the user supplies a more specific request:
 6. keep this handoff synchronized whenever the shipping baseline or development frontier changes.
 
 Do not create Chapter 7, new lore, or a new mystery layer unless the user explicitly asks for more story.
+
+<!-- SUNBURST_ARCADE_V30_BEGIN -->
+## Sunburst Arcade v30 — full-scale rebuild
+
+Current Level 1 Sunburst Arcade direction replaces the Kenney Mini Arcade floor with the free **Token Gesture: Retro Arcade Props** base pack. The pack is CC0 1.0, vendored locally under `assets/vendor/arcade-v30/token_gesture/`, and its own README confirms 1 Blender unit = 1 metre / real-world scale. Runtime must never fetch the itch.io provenance URL.
+
+The rebuilt floor uses 13 full-scale Token Gesture fixtures. Collision verification covers 15 total protected fixtures after adding the existing v16 compound checkout and the preserved gameplay cabinet: three 1.85–1.95 m uprights, claw, prize wall, skee-ball, driving cab, pinball, full-size air hockey, dance stage, cocktail cabinet, ticket eater, token changer, checkout, and the original interactive cabinet. The Noise Maker pickup remains in its original arcade gameplay role. The old `ASSETS.arcadeMachine`, `ASSETS.airHockey`, `ASSETS.basketballGame`, `ASSETS.clawMachine`, and randomized `ASSETS.prize` floor are retired from Sunburst Arcade and must not be reintroduced.
+
+`patches/arcade-rebuild-v30.js.txt` loads the combined local `pack.glb` at native 1.0 scale. It measures actual THREE.Box3 bounds after placement, enforces an 8 cm fixture clearance, protects the south entrance, validates the real-world heights, and throws on any fixture/checkout intersection. Runtime telemetry is `window.__PINEWOOD_ARCADE_V30__`. The three existing arcade marketing posters and the v16 4.18 m shared checkout are preserved.
+
+The v30 patch also carries a narrow Video Planet compatibility repair discovered by the full-mall browser gate: Store Polish v2's rental shelf still called a missing `makeVHSCase` symbol. v30 injects the uniquely named deterministic `makeVHSCaseV30` helper and explicitly rewrites that shelf call to the v30 helper. Do not revert it to symbol-detection logic. The browser gate is the authoritative end-to-end proof that Video Planet and Sunburst both complete boot.
+
+Loader order is: Production Readability v26 -> Freight Elevator Reliability v28 -> Sunburst Arcade v30 -> terminal Audio Direction v27. Keep Audio Direction v27 terminal. Verification lives in `scripts/audit-arcade-v30.mjs` and `scripts/smoke-arcade-v30.mjs`; source/asset diagnostics live in `diagnostics/arcade-current-source.txt` and `diagnostics/arcade-v30-geometry.json`. Asset acquisition/provenance is reproducible through `scripts/vendor-arcade-assets-v30.mjs`.
+<!-- SUNBURST_ARCADE_V30_END -->
