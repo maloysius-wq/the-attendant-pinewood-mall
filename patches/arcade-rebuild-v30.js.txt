@@ -1,14 +1,16 @@
 function applyArcadeRebuildV30(source){
   const fail=msg=>{throw new Error('Sunburst Arcade v30 patch failed: '+msg);};
 
-  // Store Polish v2 still builds Video Planet rental shelves with makeVHSCase(), but that helper
-  // no longer survives the assembled production source. Restore the tiny original-style case
-  // primitive here so a healthy arcade cannot be blocked by the unrelated Video Planet boot path.
-  if(!source.includes('function makeVHSCase(')){
-    const vhsMarker='function makeVideoRentalShelf(seed=0,{width=1.65,height=1.95,depth=.54,doubleSided=true}={}){';
-    const vhsAt=source.indexOf(vhsMarker);
-    if(vhsAt<0)fail('Video Planet rental shelf marker missing while makeVHSCase is undefined');
-    const helper=`function makeVHSCase(seed=0,faceOut=false){
+  // Store Polish v2 still builds Video Planet rental shelves with makeVHSCase(), but that symbol
+  // is not callable in the assembled production source. Avoid symbol-detection ambiguity: inject
+  // a uniquely named compatibility helper and rewrite the shelf call to target it explicitly.
+  const vhsMarker='function makeVideoRentalShelf(seed=0,{width=1.65,height=1.95,depth=.54,doubleSided=true}={}){';
+  const vhsAt=source.indexOf(vhsMarker);
+  if(vhsAt<0)fail('Video Planet rental shelf marker missing');
+  const oldVhsCall='makeVHSCase(tapeSeed++,faceOut)';
+  const callAt=source.indexOf(oldVhsCall,vhsAt);
+  if(callAt<0||source.indexOf(oldVhsCall,callAt+oldVhsCall.length)>=0)fail('Video Planet VHS case call missing or non-unique');
+  const helper=`function makeVHSCaseV30(seed=0,faceOut=false){
   const g=new THREE.Group(),palette=[0xd85d92,0x5f8fc7,0x6fa46c,0xd29a4c,0x8068ac,0xb85f50,0x54a2a2,0xc8b85a];
   const pick=palette[Math.abs(Math.trunc(seed))%palette.length];
   const shell=new THREE.MeshStandardMaterial({color:0x17191c,roughness:.72,metalness:.05});
@@ -21,8 +23,10 @@ function applyArcadeRebuildV30(source){
   g.userData.vhsCaseCompatV30=true;g.userData.vhsSeed=seed;return g;
 }
 `;
-    source=source.slice(0,vhsAt)+helper+source.slice(vhsAt);
-  }
+  source=source.slice(0,vhsAt)+helper+source.slice(vhsAt);
+  const rewrittenCallAt=source.indexOf(oldVhsCall,vhsAt+helper.length);
+  if(rewrittenCallAt<0)fail('Video Planet VHS case call moved unexpectedly');
+  source=source.slice(0,rewrittenCallAt)+'makeVHSCaseV30(tapeSeed++,faceOut)'+source.slice(rewrittenCallAt+oldVhsCall.length);
 
   const startMarker='async function buildArcade(world){';
   const endMarker='\nasync function buildVHS(world){';
@@ -98,7 +102,7 @@ function applyArcadeRebuildV30(source){
   window.__PINEWOOD_ARCADE_V30__={
     version:30,assetPack:'Token Gesture: Retro Arcade Props',license:'CC0 1.0',localOnly:true,unit:'metre',fixtureCount:placed.length,
     machineCount:layout.length,realWorldScale:true,clearanceMetres:clearance,intersections,entranceClear:entranceBlocked.length===0,
-    protectedInteractables:['arcade-cabinet','noise-maker'],videoPlanetCompat:'makeVHSCase-v30',
+    protectedInteractables:['arcade-cabinet','noise-maker'],videoPlanetCompat:'makeVHSCaseV30-v30',
     fixtures:placed.map(p=>({id:p.id,height:Number(p.size.y.toFixed(3)),width:Number(p.size.x.toFixed(3)),depth:Number(p.size.z.toFixed(3))}))
   };
 }
@@ -107,6 +111,7 @@ function applyArcadeRebuildV30(source){
   const section=source.slice(start,start+replacement.length+32);
   for(const retired of ['ASSETS.arcadeMachine','ASSETS.airHockey','ASSETS.basketballGame','ASSETS.clawMachine','ASSETS.prize'])if(section.includes(retired))fail('retired Mini Arcade asset survived: '+retired);
   for(const guessed of ['world.createStoreShell','world.addLight(','world.addColliderFromObject','world.registerProp'])if(section.includes(guessed))fail('unproven world API survived: '+guessed);
-  for(const marker of ["./assets/vendor/arcade-v30/token_gesture/pack.glb","arcade_upright_alpha","arcade_upright_beta","arcade_upright_gamma","skee_ball","air_hockey_table","__PINEWOOD_ARCADE_V30__","realWorldScale:true","intersections.length","addStorefront(world,{name:'SUNBURST ARCADE'","makeCabinet(new THREE.Vector3(-24.35,0,-28.9),0)","makePickup('decoy',new THREE.Vector3(-19.7,.16,-28.1),'Noise Maker')","videoPlanetCompat:'makeVHSCase-v30'"])if(!section.includes(marker))fail('required v30 marker missing: '+marker);
+  for(const marker of ["./assets/vendor/arcade-v30/token_gesture/pack.glb","arcade_upright_alpha","arcade_upright_beta","arcade_upright_gamma","skee_ball","air_hockey_table","__PINEWOOD_ARCADE_V30__","realWorldScale:true","intersections.length","addStorefront(world,{name:'SUNBURST ARCADE'","makeCabinet(new THREE.Vector3(-24.35,0,-28.9),0)","makePickup('decoy',new THREE.Vector3(-19.7,.16,-28.1),'Noise Maker')","videoPlanetCompat:'makeVHSCaseV30-v30'"])if(!section.includes(marker))fail('required v30 marker missing: '+marker);
+  if(!source.includes('function makeVHSCaseV30(seed=0,faceOut=false)')||!source.includes('makeVHSCaseV30(tapeSeed++,faceOut)'))fail('Video Planet explicit v30 VHS helper binding missing');
   return source;
 }
