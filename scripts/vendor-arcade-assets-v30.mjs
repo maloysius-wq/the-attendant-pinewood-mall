@@ -44,6 +44,21 @@ async function resolveFreeDownload(){
 }
 async function walk(dir,base=dir,out=[]){for(const name of await readdir(dir)){const full=path.join(dir,name),s=await stat(full);if(s.isDirectory())await walk(full,base,out);else out.push({full,rel:path.relative(base,full)});}return out;}
 const sha=buf=>createHash('sha256').update(buf).digest('hex');
+function inspectGlb(buf){
+  if(buf.length<20||buf.readUInt32LE(0)!==0x46546c67||buf.readUInt32LE(4)!==2)throw new Error('Invalid GLB v2 header');
+  const jsonLen=buf.readUInt32LE(12),jsonType=buf.readUInt32LE(16);
+  if(jsonType!==0x4e4f534a||20+jsonLen>buf.length)throw new Error('GLB JSON chunk missing');
+  const gltf=JSON.parse(buf.subarray(20,20+jsonLen).toString('utf8').replace(/\u0000+$/,''));
+  return {
+    asset:gltf.asset||{},
+    sceneCount:(gltf.scenes||[]).length,
+    nodeCount:(gltf.nodes||[]).length,
+    meshCount:(gltf.meshes||[]).length,
+    nodeNames:(gltf.nodes||[]).map((n,i)=>n.name||`node_${i}`),
+    meshNames:(gltf.meshes||[]).map((m,i)=>m.name||`mesh_${i}`),
+    roots:(gltf.scenes||[]).flatMap((s)=>s.nodes||[])
+  };
+}
 
 await rm(tmp,{recursive:true,force:true});await mkdir(tmp,{recursive:true});
 const resolved=await resolveFreeDownload();
@@ -53,16 +68,20 @@ const zip=path.join(tmp,expected);await writeFile(zip,bytes);
 const extract=path.join(tmp,'extract');await mkdir(extract,{recursive:true});
 const unzip=spawnSync('unzip',['-q',zip,'-d',extract],{encoding:'utf8'});if(unzip.status!==0)throw new Error('unzip failed: '+(unzip.stderr||unzip.stdout));
 const files=await walk(extract);const glbs=files.filter(f=>/\.glb$/i.test(f.rel));
-if(glbs.length<10)throw new Error(`Expected a substantial GLB arcade set, found ${glbs.length}`);
+if(glbs.length<1)throw new Error('Token Gesture archive contains no GLB scene.');
 await rm(outRoot,{recursive:true,force:true});await mkdir(outRoot,{recursive:true});
-const manifest={version:30,source:project,archive:expected,archiveSha256:sha(bytes),uploadId:resolved.uploadId,license:'CC0 1.0',scale:'real-world metres, base-centred pivots',runtimePolicy:'Repository-local files only; source URL is provenance only.',files:[]};
+const manifest={version:30,source:project,archive:expected,archiveSha256:sha(bytes),uploadId:resolved.uploadId,license:'CC0 1.0',scale:'real-world metres, base-centred pivots',runtimePolicy:'Repository-local files only; source URL is provenance only.',files:[],glbScenes:[]};
 for(const f of files){
   if(!/\.(?:glb|png|jpe?g|webp|txt|md|license)$/i.test(f.rel))continue;
   const safe=f.rel.replace(/\\/g,'/');const dest=path.join(outRoot,safe);await mkdir(path.dirname(dest),{recursive:true});await copyFile(f.full,dest);
   const b=await readFile(dest);manifest.files.push({path:'./assets/vendor/arcade-v30/'+safe,sha256:sha(b),bytes:b.length});
+  if(/\.glb$/i.test(safe))manifest.glbScenes.push({path:'./assets/vendor/arcade-v30/'+safe,...inspectGlb(b)});
 }
+const totalNodes=manifest.glbScenes.reduce((n,s)=>n+s.nodeCount,0),totalMeshes=manifest.glbScenes.reduce((n,s)=>n+s.meshCount,0);
+if(totalNodes<17||totalMeshes<10)throw new Error(`Combined Token Gesture GLB looks incomplete: ${totalNodes} nodes / ${totalMeshes} meshes.`);
 manifest.files.sort((a,b)=>a.path.localeCompare(b.path));
 await writeFile(path.join(outRoot,'manifest.json'),JSON.stringify(manifest,null,2)+'\n');
-await writeFile(path.join(outRoot,'PINEWOOD_PROVENANCE.md'),`# Token Gesture: Retro Arcade Props\n\nVendored for Sunburst Arcade v30.\n\n- Source: ${project}\n- Archive: ${expected}\n- License: CC0 1.0 / public domain\n- Scale: real-world metres, base-centred pivots\n- Runtime: local repository files only\n- Archive SHA-256: ${manifest.archiveSha256}\n\nThe paid colourways archive is not downloaded or redistributed.\n`);
+await writeFile(path.join(outRoot,'PINEWOOD_PROVENANCE.md'),`# Token Gesture: Retro Arcade Props\n\nVendored for Sunburst Arcade v30.\n\n- Source: ${project}\n- Archive: ${expected}\n- License: CC0 1.0 / public domain\n- Scale: real-world metres, base-centred pivots\n- Runtime: local repository files only\n- Archive SHA-256: ${manifest.archiveSha256}\n- GLB structure: ${totalNodes} nodes / ${totalMeshes} meshes across ${glbs.length} scene file(s)\n\nThe paid colourways archive is not downloaded or redistributed.\n`);
 await rm(tmp,{recursive:true,force:true});
-console.log(`Vendored Token Gesture v30: ${glbs.length} GLB files, ${manifest.files.length} retained files.`);
+console.log(`Vendored Token Gesture v30: ${glbs.length} combined GLB scene(s), ${totalNodes} nodes, ${totalMeshes} meshes.`);
+for(const scene of manifest.glbScenes)console.log(scene.path+' nodes: '+scene.nodeNames.join(', '));
