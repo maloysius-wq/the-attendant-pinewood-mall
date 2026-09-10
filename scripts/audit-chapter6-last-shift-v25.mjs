@@ -37,17 +37,29 @@ if(source.includes('voiceImitation:true'))fail('legacy voiceImitation literal su
 for(const forbidden of ['speechSynthesis','SpeechSynthesisUtterance','https://api.elevenlabs','https://api.openai.com','https://translate.google'])if(source.includes(forbidden))fail('runtime speech/network path survived: '+forbidden);
 const externalMedia=(source.match(/https:\/\/[^'"`\\s)]+\.(?:glb|gltf|bin|png|jpe?g|webp|ogg|mp3|wav)(?:[?#][^'"`\\s)]*)?/gi)||[]);if(externalMedia.length)fail('external runtime media survived: '+[...new Set(externalMedia)].join(', '));
 await syntaxCheck(source);
-const loader=await readFile('game.js','utf8'),live=loader.includes("const CHAPTER6_V25_PATCH='./patches/chapter6-last-shift-v25.js.txt';"),v26=loader.includes("const PRODUCTION_READABILITY_V26_PATCH='./patches/production-readability-v26.js.txt';"),v27=loader.includes("const AUDIO_DIRECTION_V27_PATCH='./patches/audio-direction-v27.js.txt';");
+const loader=await readFile('game.js','utf8'),live=loader.includes("const CHAPTER6_V25_PATCH='./patches/chapter6-last-shift-v25.js.txt';"),v26=loader.includes("const PRODUCTION_READABILITY_V26_PATCH='./patches/production-readability-v26.js.txt';"),v27=loader.includes("const AUDIO_DIRECTION_V27_PATCH='./patches/audio-direction-v27.js.txt';"),v28=loader.includes("const FREIGHT_ELEVATOR_V28_PATCH='./patches/freight-elevator-reliability-v28.js.txt';"),v30=loader.includes("const ARCADE_V30_PATCH='./patches/arcade-rebuild-v30.js.txt';");
 if(live){
   for(const marker of ['applyChapter6LastShiftV25Runtime','getText(CHAPTER6_V25_PATCH)','const chapter6V25Source=await applyChapter6LastShiftV25Runtime(chapter5V24Source,chapter6V25Patch);'])if(!loader.includes(marker))fail('game.js partial/incorrect live v25 marker: '+marker);
   if(loader.includes("const source=chapter5V24Source+'\\n//# sourceURL=pinewood-runtime.js\\n';"))fail('game.js still boots terminal v24 while v25 is present');
   if(v26){
     for(const marker of ['applyProductionReadabilityV26Runtime','getText(PRODUCTION_READABILITY_V26_PATCH)','const productionReadabilityV26Source=await applyProductionReadabilityV26Runtime(chapter6V25Source,productionReadabilityV26Patch);'])if(!loader.includes(marker))fail('game.js invalid v25→v26 feed-forward marker: '+marker);
     if(loader.includes("const source=chapter6V25Source+'\\n//# sourceURL=pinewood-runtime.js\\n';"))fail('game.js still boots terminal v25 while v26 is present');
+    let worldTail='productionReadabilityV26Source';
+    if(v28){
+      for(const marker of ['applyFreightElevatorReliabilityV28Runtime','getText(FREIGHT_ELEVATOR_V28_PATCH)','const freightElevatorV28Source=await applyFreightElevatorReliabilityV28Runtime(productionReadabilityV26Source,freightElevatorV28Patch);'])if(!loader.includes(marker))fail('game.js invalid v26→v28 feed-forward marker: '+marker);
+      if(loader.includes("const source=productionReadabilityV26Source+'\\n//# sourceURL=pinewood-runtime.js\\n';"))fail('game.js still boots terminal v26 while freight v28 is present');
+      worldTail='freightElevatorV28Source';
+    }
+    if(v30){
+      if(!v28)fail('game.js cannot wire arcade v30 without freight v28');
+      for(const marker of ['applyArcadeRebuildV30Runtime','getText(ARCADE_V30_PATCH)','const arcadeV30Source=await applyArcadeRebuildV30Runtime(freightElevatorV28Source,arcadeV30Patch);'])if(!loader.includes(marker))fail('game.js invalid v28→v30 feed-forward marker: '+marker);
+      if(loader.includes("const source=freightElevatorV28Source+'\\n//# sourceURL=pinewood-runtime.js\\n';"))fail('game.js still boots terminal freight v28 while arcade v30 is present');
+      worldTail='arcadeV30Source';
+    }
     if(v27){
-      for(const marker of ['applyAudioDirectionV27Runtime','getText(AUDIO_DIRECTION_V27_PATCH)','const audioDirectionV27Source=await applyAudioDirectionV27Runtime(productionReadabilityV26Source,audioDirectionV27Patch,characterVoiceManifest);',"const source=audioDirectionV27Source+'\\n//# sourceURL=pinewood-runtime.js\\n';"])if(!loader.includes(marker))fail('game.js invalid v26→v27 feed-forward marker: '+marker);
-      if(loader.includes("const source=productionReadabilityV26Source+'\\n//# sourceURL=pinewood-runtime.js\\n';"))fail('game.js still boots terminal v26 while v27 is present');
-    }else if(!loader.includes("const source=productionReadabilityV26Source+'\\n//# sourceURL=pinewood-runtime.js\\n';"))fail('game.js missing terminal v26 source marker');
+      for(const marker of ['applyAudioDirectionV27Runtime','getText(AUDIO_DIRECTION_V27_PATCH)',`const audioDirectionV27Source=await applyAudioDirectionV27Runtime(${worldTail},audioDirectionV27Patch,characterVoiceManifest);`,"const source=audioDirectionV27Source+'\\n//# sourceURL=pinewood-runtime.js\\n';"])if(!loader.includes(marker))fail('game.js invalid world-tail→v27 feed-forward marker: '+marker);
+      if(loader.includes(`const source=${worldTail}+'\\n//# sourceURL=pinewood-runtime.js\\n';`))fail('game.js still boots world tail directly while v27 is present');
+    }else if(!loader.includes(`const source=${worldTail}+'\\n//# sourceURL=pinewood-runtime.js\\n';`))fail('game.js missing terminal post-v26 world-tail source marker');
   }else if(!loader.includes("const source=chapter6V25Source+'\\n//# sourceURL=pinewood-runtime.js\\n';"))fail('game.js missing terminal v25 source marker');
 }else if(loader.includes('applyChapter6LastShiftV25Runtime')||loader.includes('chapter6V25Source'))fail('game.js contains partial v25 wiring');
-console.log(`Chapter 6 Last Shift v25 PASS (${live?'LIVE-CANDIDATE':'STAGED'}${v26?'→V26':''}${v27?'→V27':''}): memory reconstruction, ordered closing ritual, ACCOUNTABILITY: 1, Contractor 14 clock-out, predictable PCAS recall routing, employee exit, decoy counterplay and standard/true ending selection are assembled and syntax-valid without any finale speed boost.`);
+console.log(`Chapter 6 Last Shift v25 PASS (${live?'LIVE-CANDIDATE':'STAGED'}${v26?'→V26':''}${v28?'→V28':''}${v30?'→V30':''}${v27?'→V27':''}): memory reconstruction, ordered closing ritual, ACCOUNTABILITY: 1, Contractor 14 clock-out, predictable PCAS recall routing, employee exit, decoy counterplay, standard/true ending selection, and ordered world-tail feed-forward are syntax-valid without any finale speed boost.`);
