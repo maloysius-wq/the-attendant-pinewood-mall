@@ -1,3 +1,4 @@
+// Sunburst Arcade v30: vendor the free CC0 real-world-scale Token Gesture pack locally.
 import {mkdir,rm,readFile,writeFile,readdir,copyFile,stat} from 'node:fs/promises';
 import {spawnSync} from 'node:child_process';
 import {createHash} from 'node:crypto';
