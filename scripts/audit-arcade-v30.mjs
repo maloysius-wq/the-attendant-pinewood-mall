@@ -38,9 +38,11 @@ for(const marker of [
   "makePickup('decoy',new THREE.Vector3(-19.7,.16,-28.1),'Noise Maker')",
   "protectedInteractables:['arcade-cabinet','noise-maker']",
   "const vhsMarker='function makeVideoRentalShelf(seed=0,{width=1.65,height=1.95,depth=.54,doubleSided=true}={}){'",
-  "function makeVHSCase(seed=0,faceOut=false)",
+  "const oldVhsCall='makeVHSCase(tapeSeed++,faceOut)'",
+  "function makeVHSCaseV30(seed=0,faceOut=false)",
+  "makeVHSCaseV30(tapeSeed++,faceOut)",
   "vhsCaseCompatV30=true",
-  "videoPlanetCompat:'makeVHSCase-v30'"
+  "videoPlanetCompat:'makeVHSCaseV30-v30'"
 ])if(!patch.includes(marker))fail('patch marker missing '+marker);
 for(const guessed of ['world.createStoreShell','world.addLight(','world.addColliderFromObject','world.registerProp']){
   const occurrences=patch.split(guessed).length-1;if(occurrences!==1)fail('unproven API may exist outside explicit rejection guard: '+guessed);
@@ -56,17 +58,16 @@ for(const marker of [
   'applyAudioDirectionV27Runtime(arcadeV30Source,audioDirectionV27Patch,characterVoiceManifest)'
 ])if(!game.includes(marker))fail('game loader marker missing '+marker);
 
-// Keep a lightweight synthetic rebuild only for the arcade-section replacement contract. The
-// actual Video Planet compatibility insertion is intentionally verified by the rendered browser
-// smoke, because an artificial source fragment cannot faithfully model the full v2->v30 patch chain.
 const old=await readFile('diagnostics/arcade-current-source.txt','utf8');
-const fake=`function makeVHSCase(seed=0,faceOut=false){return null;}\nfunction makeVideoRentalShelf(seed=0,{width=1.65,height=1.95,depth=.54,doubleSided=true}={}){return null;}\n${old}\nasync function buildVHS(world){}\n`;
+const fake=`function makeVideoRentalShelf(seed=0,{width=1.65,height=1.95,depth=.54,doubleSided=true}={}){let tapeSeed=seed,faceOut=false;return makeVHSCase(tapeSeed++,faceOut);}\n${old}\nasync function buildVHS(world){}\n`;
 const context=vm.createContext({console});vm.runInContext(`${patch}\nthis.apply=applyArcadeRebuildV30;`,context);
 const rebuilt=context.apply(fake);const start=rebuilt.indexOf('async function buildArcade(world){'),end=rebuilt.indexOf('\nasync function buildVHS(world){',start),section=rebuilt.slice(start,end);
 if(start<0||end<0)fail('rebuilt arcade section missing');
+if(!rebuilt.includes('function makeVHSCaseV30(seed=0,faceOut=false)')||!rebuilt.includes('return makeVHSCaseV30(tapeSeed++,faceOut);'))fail('explicit Video Planet v30 helper binding missing after patch application');
+if(rebuilt.includes('return makeVHSCase(tapeSeed++,faceOut);'))fail('legacy undefined Video Planet VHS helper call survived patch application');
 for(const retired of ['ASSETS.arcadeMachine','ASSETS.airHockey','ASSETS.basketballGame','ASSETS.clawMachine','ASSETS.prize'])if(section.includes(retired))fail('retired miniature asset survived rebuilt arcade: '+retired);
 for(const guessed of ['world.createStoreShell','world.addLight(','world.addColliderFromObject','world.registerProp'])if(section.includes(guessed))fail('unproven API survived rebuilt arcade: '+guessed);
 if((section.match(/node:'/g)||[]).length!==13)fail('expected 13 full-scale layout fixtures');
 for(const preserved of ["addStorefront(world,{name:'SUNBURST ARCADE'","GALAXY STRIKE","TOKEN FRENZY","PRIZE VAULT","makeSharedRetailCheckoutV16(world,-14.1,-29","makeCabinet(new THREE.Vector3(-24.35,0,-28.9),0)","makePickup('decoy',new THREE.Vector3(-19.7,.16,-28.1),'Noise Maker')"])if(!section.includes(preserved))fail('preserved arcade behavior missing: '+preserved);
 const temp='/tmp/pinewood-arcade-v30-patch.mjs';await writeFile(temp,patch);execFileSync('node',['--check',temp],{stdio:'inherit'});
-console.log('Sunburst Arcade v30 audit passed: 13 real-world-scale CC0 fixtures replace the Mini Arcade set; the established storefront, posters, neon, checkout, cabinet interaction and Noise Maker pickup are preserved; the Video Planet compatibility helper and insertion target are present for browser verification; only proven Pinewood world APIs are used; local-only provenance, scale guards, entrance clearance and no-intersection runtime checks are present; v30 feeds into terminal Audio Direction v27.');
+console.log('Sunburst Arcade v30 audit passed: 13 real-world-scale CC0 fixtures replace the Mini Arcade set; the established storefront, posters, neon, checkout, cabinet interaction and Noise Maker pickup are preserved; Video Planet is explicitly rebound to makeVHSCaseV30; only proven Pinewood world APIs are used; local-only provenance, scale guards, entrance clearance and no-intersection runtime checks are present; v30 feeds into terminal Audio Direction v27.');
