@@ -63,8 +63,10 @@ try{
   expect(result.pcasRevision===27&&result.pcasCount===25,`PCAS manifest mismatch: revision ${result.pcasRevision}, count ${result.pcasCount}`);
   expect(result.characterVersion===27&&result.characterCount===47,`character manifest mismatch: version ${result.characterVersion}, count ${result.characterCount}`);
   expect(result.reneeEngine.includes('Crisp / approved Take 1'),'approved Renee Crisp Take 1 provenance missing from served character manifest');
-  expect(result.characterProcessing.includes('pronounced dispatch-radio chain at reduced level'),'served Renee master does not contain the strengthened reduced-level radio treatment');
-  expect(result.characterProcessing.includes('duration-safe 44.1 kHz normalization/mix boundary with source/output duration guard'),'served Renee master does not advertise the duration-safe render boundary');
+  expect(result.characterProcessing.includes('extreme handheld walkie-talkie post-pass'),'served Renee master does not contain the approved v29 extreme handheld walkie treatment');
+  expect(result.characterProcessing.includes('650-2150 Hz communications band'),'served Renee master does not advertise the v29 communications band');
+  expect(result.characterProcessing.includes('runtime Renee playback gain is 75 percent'),'served Renee master does not advertise the approved reduced runtime gain');
+  expect(result.characterProcessing.includes('duration-safe neural source pipeline retained'),'served Renee master does not advertise the retained duration-safe neural source pipeline');
   expect(result.reneeSourceDuration>10&&result.reneeDuration>10,'opening Renee line is still the historical truncated render');
   expect(result.reneeDuration+.05>=result.reneeSourceDuration,`opening Renee render ${result.reneeDuration}s is shorter than ${result.reneeSourceDuration}s source`);
   expect(result.firstPowerSourceDuration>7&&result.firstPowerDuration>7,'first-power Renee line is still the historical truncated render');
