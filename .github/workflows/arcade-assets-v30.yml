@@ -1,0 +1,41 @@
+name: Vendor Sunburst Arcade v30 assets
+
+on:
+  push:
+    paths:
+      - 'scripts/vendor-arcade-assets-v30.mjs'
+      - '.github/workflows/arcade-assets-v30.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: arcade-assets-v30
+  cancel-in-progress: true
+
+jobs:
+  vendor:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Vendor free CC0 Token Gesture pack
+        run: node scripts/vendor-arcade-assets-v30.mjs
+      - name: Verify only free CC0 archive provenance
+        run: |
+          node -e "const m=require('./assets/vendor/arcade-v30/manifest.json');if(m.license!=='CC0 1.0'||m.archive!=='token-gesture-retro-arcade-props-free.zip'||m.files.length<10)process.exit(1)"
+          if grep -R "colourways.zip" assets/vendor/arcade-v30 --exclude=PINEWOOD_PROVENANCE.md; then exit 1; fi
+      - name: Commit local arcade assets
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add assets/vendor/arcade-v30
+          if git diff --cached --quiet; then exit 0; fi
+          git commit -m "Vendor full-scale CC0 Sunburst Arcade asset set"
+          git pull --rebase origin main
+          git push origin HEAD:main
