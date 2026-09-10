@@ -39,3 +39,5 @@ jobs:
           git commit -m "Vendor full-scale CC0 Sunburst Arcade asset set"
           git pull --rebase origin main
           git push origin HEAD:main
+
+# v30 activation marker: full-scale human-proportion arcade assets only.
