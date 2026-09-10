@@ -1,11 +1,18 @@
-name: Inspect Sunburst Arcade v30
+name: Sunburst Arcade v30 production gate
 
 on:
   push:
+    branches: [main]
     paths:
+      - 'patches/arcade-rebuild-v30.js.txt'
+      - 'scripts/apply-arcade-v30-loader.mjs'
+      - 'scripts/audit-arcade-v30.mjs'
+      - 'scripts/smoke-arcade-v30.mjs'
+      - 'scripts/update-handoff-arcade-v30.mjs'
       - 'scripts/inspect-arcade-v30.mjs'
       - 'scripts/inspect-arcade-pack-v30.mjs'
       - 'scripts/vendor-arcade-assets-v30.mjs'
+      - 'assets/vendor/arcade-v30/**'
       - '.github/workflows/inspect-arcade-v30.yml'
   workflow_dispatch:
 
@@ -13,12 +20,13 @@ permissions:
   contents: write
 
 concurrency:
-  group: inspect-arcade-v30
+  group: sunburst-arcade-v30
   cancel-in-progress: true
 
 jobs:
-  inspect:
+  arcade-v30:
     runs-on: ubuntu-latest
+    timeout-minutes: 18
     steps:
       - uses: actions/checkout@v4
         with:
@@ -26,22 +34,43 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '24'
-      - name: Extract current assembled arcade builder
-        run: node scripts/inspect-arcade-v30.mjs
-      - name: Vendor free CC0 full-scale arcade assets
+      - name: Reproduce free CC0 local arcade assets
         run: node scripts/vendor-arcade-assets-v30.mjs
       - name: Measure real-world arcade props
         run: node scripts/inspect-arcade-pack-v30.mjs
-      - name: Verify free local asset provenance
+      - name: Extract pre-v30 arcade for regression comparison
+        run: node scripts/inspect-arcade-v30.mjs
+      - name: Wire v30 after freight v28 and before terminal audio v27
+        run: node scripts/apply-arcade-v30-loader.mjs
+      - name: Refresh development handoff
+        run: node scripts/update-handoff-arcade-v30.mjs
+      - name: Verify v30 scale, local assets, intersections and feed-forward chain
         run: |
-          node -e "const m=require('./assets/vendor/arcade-v30/manifest.json');const n=(m.glbScenes||[]).reduce((a,s)=>a+(s.nodeCount||0),0);if(m.license!=='CC0 1.0'||m.archive!=='token-gesture-retro-arcade-props-free.zip'||n<17)process.exit(1)"
-          if grep -R "colourways.zip" assets/vendor/arcade-v30 --exclude=PINEWOOD_PROVENANCE.md; then exit 1; fi
-      - name: Commit arcade diagnostics and local assets
+          node scripts/audit-arcade-v30.mjs
+          node scripts/audit-audio-direction-v27.mjs
+          node scripts/audit-runtime.mjs
+      - name: Install Playwright
+        run: |
+          npm install --no-save playwright@1.55.0
+          npx playwright install --with-deps chromium
+      - name: Start local Pinewood server
+        run: |
+          python3 -m http.server 4173 --bind 127.0.0.1 > /tmp/pinewood-arcade-v30-http.log 2>&1 &
+          echo $! > /tmp/pinewood-arcade-v30-http.pid
+          for i in {1..30}; do curl -fsS http://127.0.0.1:4173/ >/dev/null && exit 0; sleep 1; done
+          cat /tmp/pinewood-arcade-v30-http.log
+          exit 1
+      - name: Smoke rendered full-scale non-intersecting arcade
+        run: node scripts/smoke-arcade-v30.mjs
+      - name: Commit verified v30 runtime wiring and local diagnostics
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add diagnostics/arcade-current-source.txt diagnostics/arcade-v30-geometry.json assets/vendor/arcade-v30
-          if git diff --cached --quiet; then exit 0; fi
-          git commit -m "Measure full-scale CC0 Sunburst Arcade asset set"
+          git add game.js scripts/audit-audio-direction-v27.mjs DEVELOPMENT_HANDOFF.md diagnostics/arcade-current-source.txt diagnostics/arcade-v30-geometry.json assets/vendor/arcade-v30
+          if git diff --cached --quiet; then
+            echo "Sunburst Arcade v30 production output already current."
+            exit 0
+          fi
+          git commit -m "Ship full-scale non-intersecting Sunburst Arcade v30"
           git pull --rebase origin main
           git push origin HEAD:main
