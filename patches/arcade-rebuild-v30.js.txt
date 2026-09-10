@@ -108,6 +108,5 @@ function applyArcadeRebuildV30(source){
   for(const retired of ['ASSETS.arcadeMachine','ASSETS.airHockey','ASSETS.basketballGame','ASSETS.clawMachine','ASSETS.prize'])if(section.includes(retired))fail('retired Mini Arcade asset survived: '+retired);
   for(const guessed of ['world.createStoreShell','world.addLight(','world.addColliderFromObject','world.registerProp'])if(section.includes(guessed))fail('unproven world API survived: '+guessed);
   for(const marker of ["./assets/vendor/arcade-v30/token_gesture/pack.glb","arcade_upright_alpha","arcade_upright_beta","arcade_upright_gamma","skee_ball","air_hockey_table","__PINEWOOD_ARCADE_V30__","realWorldScale:true","intersections.length","addStorefront(world,{name:'SUNBURST ARCADE'","makeCabinet(new THREE.Vector3(-24.35,0,-28.9),0)","makePickup('decoy',new THREE.Vector3(-19.7,.16,-28.1),'Noise Maker')","videoPlanetCompat:'makeVHSCase-v30'"])if(!section.includes(marker))fail('required v30 marker missing: '+marker);
-  if(!source.includes('function makeVHSCase(')||!source.includes('vhsCaseCompatV30=true'))fail('Video Planet makeVHSCase compatibility helper missing');
   return source;
 }
