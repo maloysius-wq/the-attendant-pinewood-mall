@@ -1,0 +1,43 @@
+async function buildArcade(world){
+  addStorefront(world,{name:'SUNBURST ARCADE',theme:'arcade',x:-18,z:-18.48,face:'south'});
+  addWallPoster(world,makeMarketingPoster('arcade','GALAXY STRIKE','TOURNAMENT • SAT 8PM','TOP SCORE WINS 100 TOKENS',0),new THREE.Vector3(-26.44,1.55,-24),Math.PI/2);
+  addWallPoster(world,makeMarketingPoster('arcade','TOKEN FRENZY','2 FOR 1 • AFTER 6PM','TONIGHT ONLY',1),new THREE.Vector3(-10.56,1.55,-25),-Math.PI/2);
+  addWallPoster(world,makeMarketingPoster('arcade','PRIZE VAULT','TRADE TICKETS • CLAIM GLORY','NEW PRIZES THIS WEEK',2),new THREE.Vector3(-23,1.55,-30.44),0);
+  addNeonTube(world,new THREE.Vector3(-25.4,2.35,-20),new THREE.Vector3(-25.4,2.35,-28),0xff58c8);
+  addNeonTube(world,new THREE.Vector3(-11.6,2.35,-20),new THREE.Vector3(-11.6,2.35,-28),0x77ffe1);
+  const games=[[-24,-22,.18],[-23.3,-25,.28],[-21.5,-27.7,-.12],[-16,-27.5,.16],[-13,-25,-.25],[-12.3,-22,-.18]];
+  for(const[x,z,r]of games)await placeModel(world.root,'arcade',new THREE.Vector3(x,0,z),{targetHeight:1.78,targetLongest:.92,rot:r,collide:true,fallback:'arcade'});
+  await placeModel(world.root,'airHockey',new THREE.Vector3(-18.8,0,-23.6),{targetHeight:.82,targetLongest:2.05,rot:.12,collide:true,fallback:'table'});
+  await placeModel(world.root,'basketball',new THREE.Vector3(-15.2,0,-21.5),{targetHeight:2.15,targetLongest:2.35,rot:Math.PI,collide:true,fallback:'arcade'});
+  await placeModel(world.root,'claw',new THREE.Vector3(-22,0,-20.7),{targetHeight:1.85,targetLongest:1.0,rot:Math.PI,collide:true,fallback:'arcade'});
+  await makeSharedRetailCheckoutV16(world,-14.1,-29,0,'arcadeCash',Math.PI);
+  const prizeMat=[0xff7b98,0x78d9ff,0xffce6d,0x7cffb6,0xb388ff].map(c=>new THREE.MeshStandardMaterial({color:c,roughness:.7}));for(let i=0;i<30;i++){const m=new THREE.Mesh(i%3?new THREE.BoxGeometry(.16,.14,.12):new THREE.SphereGeometry(.08,8,8),prizeMat[i%prizeMat.length]);m.position.set(-12.1+rand(-.35,.35),.35+(i%6)*.22,-29.25+rand(-.04,.04));world.root.add(m);}
+  const cab=makeCabinet(new THREE.Vector3(-24.35,0,-28.9),0);world.root.add(cab);world.addCollider(-24.35,-28.9,.82,.46,{navBlock:true,owner:cab});world.interactables.push(cab);
+  const dec=makePickup('decoy',new THREE.Vector3(-19.7,.16,-28.1),'Noise Maker');world.root.add(dec);world.interactables.push(dec);
+}
+
+function seededUnit(seed,n=0){const x=Math.sin((seed+1)*12.9898+n*78.233)*43758.5453;return x-Math.floor(x);}
+function makeVHSCase(seed=0,faceOut=false){
+  const titles=['DEAD AIR','NIGHT LINE','VIOLET RUN','STATIC SUMMER','LAST EXIT','MIDNIGHT MALL','RED SIGNAL','BLUE ROOM','AFTER HOURS','THE CALLER','CLOSING TIME','DARK AISLE'];
+  const palette=['#15151b','#61263b','#284e73','#5b4b1e','#315d52','#513568','#7a342c','#ddd4bd'];
+  const shell=palette[Math.floor(seededUnit(seed,1)*palette.length)%palette.length],accent=palette[Math.floor(seededUnit(seed,2)*palette.length)%palette.length];
+  const title=titles[seed%titles.length];const g=new THREE.Group();
+  if(faceOut){
+    const body=new THREE.Mesh(new THREE.BoxGeometry(.112,.188,.027),new THREE.MeshStandardMaterial({color:shell,roughness:.68}));body.position.y=.094;g.add(body);
+    const tex=makeCanvasTexture((ctx,c)=>{ctx.fillStyle=shell;ctx.fillRect(0,0,c.width,c.height);const hue=Math.floor(seededUnit(seed,3)*360);ctx.fillStyle=`hsl(${hue} 48% 32%)`;ctx.fillRect(12,12,c.width-24,c.height*.48);ctx.strokeStyle=accent;ctx.lineWidth=8;ctx.strokeRect(8,8,c.width-16,c.height-16);ctx.fillStyle='#f5efe8';ctx.font='900 42px Arial';ctx.textAlign='center';ctx.fillText(title,c.width/2,c.height*.72);ctx.font='700 19px Arial';ctx.fillStyle='#d9d2cc';ctx.fillText(choose(['VIDEO PLANET','NEW RELEASE','2 NIGHT RENTAL']),c.width/2,c.height*.83);},256,384);
+    const cover=new THREE.Mesh(new THREE.PlaneGeometry(.104,.178),new THREE.MeshStandardMaterial({map:tex,roughness:.72}));cover.position.set(0,.096,.0145);g.add(cover);
+  }else{
+    const body=new THREE.Mesh(new THREE.BoxGeometry(.038,.188,.116),new THREE.MeshStandardMaterial({color:shell,roughness:.7}));body.position.y=.094;g.add(body);
+    const tex=makeCanvasTexture((ctx,c)=>{ctx.fillStyle=shell;ctx.fillRect(0,0,c.width,c.height);ctx.fillStyle=accent;ctx.fillRect(0,0,c.width,24);ctx.fillStyle='#f4eee6';ctx.font='900 22px Arial';ctx.save();ctx.translate(c.width/2,c.height/2);ctx.rotate(-Math.PI/2);ctx.textAlign='center';ctx.fillText(title,0,7);ctx.restore();},96,384);
+    const spine=new THREE.Mesh(new THREE.PlaneGeometry(.034,.178),new THREE.MeshStandardMaterial({map:tex,roughness:.74}));spine.position.set(0,.096,.059);g.add(spine);
+  }
+  return g;
+}
+async function stockVHSDisplay(world,x,z,rot=0,cols=14,rows=4,doubleSided=true){
+  const rack=new THREE.Group();rack.position.set(x,0,z);rack.rotation.y=rot;let seed=(Math.abs(Math.round(x*13+z*19))%1000);
+  const sides=doubleSided?[1,-1]:[1];
+  for(const side of sides){for(let row=0;row<rows;row++){
+    const y=.29+row*.36;let slot=0;
+    while(slot<cols){const faceOut=(slot===cols-3&&row%2===0);const v=makeVHSCase(seed++,faceOut);if(faceOut){v.position.set(-.62+slot*(1.24/(cols-1)),y,side*.31);v.rotation.y=side<0?Math.PI:0;slot+=3;}else{v.position.set(-.62+slot*(1.24/(cols-1)),y,side*.31);v.rotation.y=(side<0?Math.PI:0)+rand(-.035,.035);v.rotation.z=rand(-.025,.025);slot++;}rack.add(v);}
+  }}world.root.add(rack);
+}
