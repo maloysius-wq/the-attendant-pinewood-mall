@@ -22,16 +22,25 @@ for(const marker of [
   "./assets/vendor/arcade-v30/token_gesture/pack.glb",
   "obj.scale.set(1,1,1)",
   "realWorldScale=1",
-  "world.addColliderFromObject(obj,{shrink:.92})",
+  "world.addColliderFrom(obj,{navBlock:true,pad:.03})",
   "clearance=.08",
   "intersections.length",
   "entranceBlocked.length",
   "window.__PINEWOOD_ARCADE_V30__",
   "makeSharedRetailCheckoutV16(world,-14.1,-29,0,'arcadeCash',Math.PI)",
-  "makeMarketingPoster('arcade','GALAXY STRIKE'",
-  "makeMarketingPoster('arcade','TOKEN FRENZY'",
-  "makeMarketingPoster('arcade','PRIZE VAULT'"
+  "addStorefront(world,{name:'SUNBURST ARCADE',theme:'arcade',x:-18,z:-18.48,face:'south'})",
+  "addWallPoster(world,makeMarketingPoster('arcade','GALAXY STRIKE'",
+  "addWallPoster(world,makeMarketingPoster('arcade','TOKEN FRENZY'",
+  "addWallPoster(world,makeMarketingPoster('arcade','PRIZE VAULT'",
+  "addNeonTube(world,new THREE.Vector3(-25.4,2.35,-20)",
+  "addNeonTube(world,new THREE.Vector3(-11.6,2.35,-20)",
+  "makeCabinet(new THREE.Vector3(-24.35,0,-28.9),0)",
+  "makePickup('decoy',new THREE.Vector3(-19.7,.16,-28.1),'Noise Maker')",
+  "protectedInteractables:['arcade-cabinet','noise-maker']"
 ])if(!patch.includes(marker))fail('patch marker missing '+marker);
+for(const guessed of ['world.createStoreShell','world.addLight(','world.addColliderFromObject','world.registerProp']){
+  const occurrences=patch.split(guessed).length-1;if(occurrences!==1)fail('unproven API may exist outside explicit rejection guard: '+guessed);
+}
 for(const retired of ['ASSETS.arcadeMachine','ASSETS.airHockey','ASSETS.basketballGame','ASSETS.clawMachine','ASSETS.prize']){
   const occurrences=patch.split(retired).length-1;if(occurrences!==1)fail('retired Mini Arcade marker may exist outside rejection guard: '+retired);
 }
@@ -49,6 +58,8 @@ const context=vm.createContext({console});vm.runInContext(`${patch}\nthis.apply=
 const rebuilt=context.apply(fake);const start=rebuilt.indexOf('async function buildArcade(world){'),end=rebuilt.indexOf('\nasync function buildVHS(world){',start),section=rebuilt.slice(start,end);
 if(start<0||end<0)fail('rebuilt arcade section missing');
 for(const retired of ['ASSETS.arcadeMachine','ASSETS.airHockey','ASSETS.basketballGame','ASSETS.clawMachine','ASSETS.prize'])if(section.includes(retired))fail('retired miniature asset survived rebuilt arcade: '+retired);
+for(const guessed of ['world.createStoreShell','world.addLight(','world.addColliderFromObject','world.registerProp'])if(section.includes(guessed))fail('unproven API survived rebuilt arcade: '+guessed);
 if((section.match(/node:'/g)||[]).length!==13)fail('expected 13 full-scale layout fixtures');
+for(const preserved of ["addStorefront(world,{name:'SUNBURST ARCADE'","GALAXY STRIKE","TOKEN FRENZY","PRIZE VAULT","makeSharedRetailCheckoutV16(world,-14.1,-29","makeCabinet(new THREE.Vector3(-24.35,0,-28.9),0)","makePickup('decoy',new THREE.Vector3(-19.7,.16,-28.1),'Noise Maker')"])if(!section.includes(preserved))fail('preserved arcade behavior missing: '+preserved);
 const temp='/tmp/pinewood-arcade-v30-patch.mjs';await writeFile(temp,patch);execFileSync('node',['--check',temp],{stdio:'inherit'});
-console.log('Sunburst Arcade v30 audit passed: 13 real-world-scale CC0 fixtures replace the Mini Arcade set; checkout/posters are preserved; local-only provenance, scale guards, entrance clearance and no-intersection runtime checks are present; v30 feeds into terminal Audio Direction v27.');
+console.log('Sunburst Arcade v30 audit passed: 13 real-world-scale CC0 fixtures replace the Mini Arcade set; the established storefront, posters, neon, checkout, cabinet interaction and Noise Maker pickup are preserved; only proven Pinewood world APIs are used; local-only provenance, scale guards, entrance clearance and no-intersection runtime checks are present; v30 feeds into terminal Audio Direction v27.');
