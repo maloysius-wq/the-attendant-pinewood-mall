@@ -1,0 +1,101 @@
+{
+  "version": 30,
+  "source": "https://thesidequestshop.itch.io/token-gesture-retro-arcade-props",
+  "archive": "token-gesture-retro-arcade-props-free.zip",
+  "archiveSha256": "e2a508cd6283909120cdf2bce3b5a6d35e415a7ba4ad23f65e4e19fb97ab674a",
+  "uploadId": "18741970",
+  "license": "CC0 1.0",
+  "scale": "real-world metres, base-centred pivots",
+  "runtimePolicy": "Repository-local files only; source URL is provenance only.",
+  "files": [
+    {
+      "path": "./assets/vendor/arcade-v30/token_gesture/atlas.png",
+      "sha256": "2d59a1c8433ce96bf285fa6612728fa5aca775092cafb1ce56b7afff60bad09e",
+      "bytes": 24411
+    },
+    {
+      "path": "./assets/vendor/arcade-v30/token_gesture/LICENSE.txt",
+      "sha256": "20daf4d9950ab25d31db523128e0a844089040ea7adc74f3bf67e03214b16b49",
+      "bytes": 7262
+    },
+    {
+      "path": "./assets/vendor/arcade-v30/token_gesture/pack.glb",
+      "sha256": "52d71e90341d89e628330c65716669c46a110b6a6cadf96b28c5477d9865201e",
+      "bytes": 1838968
+    },
+    {
+      "path": "./assets/vendor/arcade-v30/token_gesture/README.md",
+      "sha256": "0f32cf14579119bbcc5a98ca83942d94fe958b3341e74182dd5f0bcf5dc824a3",
+      "bytes": 1491
+    }
+  ],
+  "glbScenes": [
+    {
+      "path": "./assets/vendor/arcade-v30/token_gesture/pack.glb",
+      "asset": {
+        "generator": "Khronos glTF Blender I/O v5.2.39",
+        "version": "2.0"
+      },
+      "sceneCount": 1,
+      "nodeCount": 17,
+      "meshCount": 17,
+      "nodeNames": [
+        "air_hockey_gear",
+        "air_hockey_table",
+        "arcade_bin",
+        "arcade_cocktail",
+        "arcade_upright_alpha",
+        "arcade_upright_beta",
+        "arcade_upright_gamma",
+        "claw_machine",
+        "dance_stage",
+        "driving_cab",
+        "pinball",
+        "play_sign",
+        "prize_wall",
+        "skee_ball",
+        "ticket_eater",
+        "token_changer",
+        "token_gear"
+      ],
+      "meshNames": [
+        "air_hockey_gear",
+        "air_hockey_table",
+        "arcade_bin",
+        "arcade_cocktail",
+        "arcade_upright_alpha",
+        "arcade_upright_beta",
+        "arcade_upright_gamma",
+        "claw_machine",
+        "dance_stage",
+        "driving_cab",
+        "pinball",
+        "play_sign",
+        "prize_wall",
+        "skee_ball",
+        "ticket_eater",
+        "token_changer",
+        "token_gear"
+      ],
+      "roots": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16
+      ]
+    }
+  ]
+}
