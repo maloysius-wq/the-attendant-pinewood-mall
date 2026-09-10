@@ -1,0 +1,83 @@
+function applyArcadeRebuildV30(source){
+  const fail=msg=>{throw new Error('Sunburst Arcade v30 patch failed: '+msg);};
+  const startMarker='async function buildArcade(world){';
+  const endMarker='\nasync function buildVHS(world){';
+  const start=source.indexOf(startMarker),end=source.indexOf(endMarker,start);
+  if(start<0||end<0)fail('arcade builder markers missing');
+
+  const replacement=`async function buildArcade(world){
+  world.createStoreShell('arcade','SUNBURST ARCADE',-17,-24,12,11,{
+    wallColor:0x190f24,accentColor:0xff36d5,signColor:0xff4bd8,signBg:0x18002a,
+    openSide:'south',trimColor:0x2d1b3a
+  });
+  const neon=new THREE.PointLight(0xff33ff,1.7,10,2);neon.position.set(-17,2.2,-21.5);scene.add(neon);world.addLight(neon,0.22);
+
+  const ARCADE_V30_PACK='./assets/vendor/arcade-v30/token_gesture/pack.glb';
+  const layout=[
+    {id:'upright-alpha',node:'arcade_upright_alpha',x:-21.50,z:-19.55,rot:0,height:1.85},
+    {id:'upright-beta',node:'arcade_upright_beta',x:-20.00,z:-19.55,rot:0,height:1.85},
+    {id:'upright-gamma',node:'arcade_upright_gamma',x:-18.45,z:-19.55,rot:0,height:1.95},
+    {id:'claw-machine',node:'claw_machine',x:-16.90,z:-19.55,rot:0,height:1.90},
+    {id:'prize-wall',node:'prize_wall',x:-13.00,z:-19.25,rot:0,height:1.88},
+    {id:'skee-ball',node:'skee_ball',x:-21.35,z:-23.75,rot:0,height:2.05},
+    {id:'driving-cab',node:'driving_cab',x:-19.60,z:-23.60,rot:0,height:1.59},
+    {id:'pinball',node:'pinball',x:-18.05,z:-23.60,rot:0,height:1.285},
+    {id:'air-hockey',node:'air_hockey_table',x:-15.45,z:-23.60,rot:Math.PI/2,height:.80},
+    {id:'dance-stage',node:'dance_stage',x:-12.65,z:-23.60,rot:0,height:1.89},
+    {id:'cocktail-cabinet',node:'arcade_cocktail',x:-21.00,z:-27.25,rot:0,height:.756},
+    {id:'ticket-eater',node:'ticket_eater',x:-19.45,z:-27.25,rot:0,height:1.115},
+    {id:'token-changer',node:'token_changer',x:-12.00,z:-26.50,rot:Math.PI/2,height:1.475}
+  ];
+  const pack=await new GLTFLoader().loadAsync(ARCADE_V30_PACK);
+  if(!pack?.scene)throw new Error('Sunburst Arcade v30 local CC0 pack failed to load.');
+  const floor=new THREE.Group();floor.userData.arcadeV30=true;floor.userData.assetPack='token-gesture-retro-arcade-props-free';floor.userData.realWorldMetres=true;world.root.add(floor);
+  const placed=[];
+  const cloneProp=(name)=>{
+    const src=pack.scene.getObjectByName(name);if(!src)throw new Error('Sunburst Arcade v30 missing prop '+name);
+    const obj=src.clone(true);obj.position.set(0,0,0);obj.quaternion.identity();obj.scale.set(1,1,1);
+    obj.traverse(o=>{if(!o.isMesh)return;o.castShadow=true;o.receiveShadow=true;});
+    return obj;
+  };
+  for(const spec of layout){
+    const obj=cloneProp(spec.node);obj.position.set(spec.x,0,spec.z);obj.rotation.y=spec.rot;obj.userData.arcadeV30=true;obj.userData.arcadeFixtureId=spec.id;obj.userData.assetModel=spec.node;obj.userData.realWorldScale=1;floor.add(obj);obj.updateWorldMatrix(true,true);
+    const box=new THREE.Box3().setFromObject(obj),size=box.getSize(new THREE.Vector3());
+    if(Math.abs(size.y-spec.height)>.08)throw new Error('Sunburst Arcade v30 scale validation failed for '+spec.id+': '+size.y.toFixed(3)+'m tall');
+    if(box.min.y<-.035||box.max.y<.72)throw new Error('Sunburst Arcade v30 grounding/scale invalid for '+spec.id);
+    world.addColliderFromObject(obj,{shrink:.92});world.registerProp('arcade',obj);placed.push({id:spec.id,obj,box,size});
+  }
+
+  const checkout=await makeSharedRetailCheckoutV16(world,-14.1,-29,0,'arcadeCash',Math.PI);checkout.userData.arcadeV30Compound=true;checkout.updateWorldMatrix(true,true);
+  placed.push({id:'checkout',obj:checkout,box:new THREE.Box3().setFromObject(checkout),size:new THREE.Box3().setFromObject(checkout).getSize(new THREE.Vector3()),compound:true});
+
+  const clearance=.08;
+  const footprints=placed.map(p=>({id:p.id,minX:p.box.min.x-clearance,maxX:p.box.max.x+clearance,minZ:p.box.min.z-clearance,maxZ:p.box.max.z+clearance}));
+  const intersections=[];
+  for(let i=0;i<footprints.length;i++)for(let j=i+1;j<footprints.length;j++){
+    const a=footprints[i],b=footprints[j];
+    if(a.minX<b.maxX&&a.maxX>b.minX&&a.minZ<b.maxZ&&a.maxZ>b.minZ)intersections.push(a.id+' x '+b.id);
+  }
+  if(intersections.length)throw new Error('Sunburst Arcade v30 fixture intersection(s): '+intersections.join(', '));
+  const room={minX:-22.72,maxX:-11.28,minZ:-29.48,maxZ:-18.82};
+  const outOfBounds=placed.filter(p=>p.id!=='checkout'&&(p.box.min.x<room.minX||p.box.max.x>room.maxX||p.box.min.z<room.minZ||p.box.max.z>room.maxZ)).map(p=>p.id);
+  if(outOfBounds.length)throw new Error('Sunburst Arcade v30 fixture outside interior bounds: '+outOfBounds.join(', '));
+  const entrance={minX:-18.45,maxX:-16.25,minZ:-29.45,maxZ:-26.60};
+  const entranceBlocked=placed.filter(p=>p.id!=='checkout'&&p.box.min.x<entrance.maxX&&p.box.max.x>entrance.minX&&p.box.min.z<entrance.maxZ&&p.box.max.z>entrance.minZ).map(p=>p.id);
+  if(entranceBlocked.length)throw new Error('Sunburst Arcade v30 entrance clearance blocked: '+entranceBlocked.join(', '));
+
+  makeMarketingPoster('arcade','GALAXY STRIKE','1 TOKEN = 1 CREDIT','NEW CABINET',-21.5,1.25,-28.78,0xff3ccf,Math.PI);
+  makeMarketingPoster('arcade','TOKEN FRENZY','DOUBLE TOKEN TUESDAYS','AFTER 8 PM',-17.0,1.25,-19.22,0xff5ce1,0);
+  makeMarketingPoster('arcade','PRIZE VAULT','TRADE TICKETS HERE','NO CASH VALUE',-12.5,1.25,-28.78,0xff52ab,Math.PI);
+
+  window.__PINEWOOD_ARCADE_V30__={
+    version:30,assetPack:'Token Gesture: Retro Arcade Props',license:'CC0 1.0',localOnly:true,unit:'metre',fixtureCount:placed.length,
+    machineCount:layout.length,realWorldScale:true,clearanceMetres:clearance,intersections,entranceClear:entranceBlocked.length===0,
+    fixtures:placed.map(p=>({id:p.id,height:Number(p.size.y.toFixed(3)),width:Number(p.size.x.toFixed(3)),depth:Number(p.size.z.toFixed(3))}))
+  };
+}
+`;
+  source=source.slice(0,start)+replacement+source.slice(end);
+  const section=source.slice(start,start+replacement.length+32);
+  for(const retired of ['ASSETS.arcadeMachine','ASSETS.airHockey','ASSETS.basketballGame','ASSETS.clawMachine','ASSETS.prize'])if(section.includes(retired))fail('retired Mini Arcade asset survived: '+retired);
+  for(const marker of ["./assets/vendor/arcade-v30/token_gesture/pack.glb","arcade_upright_alpha","arcade_upright_beta","arcade_upright_gamma","skee_ball","air_hockey_table","__PINEWOOD_ARCADE_V30__","realWorldScale:true","intersections.length"])if(!section.includes(marker))fail('required v30 marker missing: '+marker);
+  return source;
+}
