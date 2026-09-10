@@ -45,12 +45,28 @@ if(new Set(profiles).size!==6)fail('surface identity profiles are not unique acr
 
 const loader=await readFile('game.js','utf8');
 const live=loader.includes("const PRODUCTION_READABILITY_V26_PATCH='./patches/production-readability-v26.js.txt';");
+const v28=loader.includes("const FREIGHT_ELEVATOR_V28_PATCH='./patches/freight-elevator-reliability-v28.js.txt';");
+const v30=loader.includes("const ARCADE_V30_PATCH='./patches/arcade-rebuild-v30.js.txt';");
+const v27=loader.includes("const AUDIO_DIRECTION_V27_PATCH='./patches/audio-direction-v27.js.txt';");
 if(live){
   for(const marker of ['applyProductionReadabilityV26Runtime','getText(PRODUCTION_READABILITY_V26_PATCH)','const productionReadabilityV26Source=await applyProductionReadabilityV26Runtime(chapter6V25Source,productionReadabilityV26Patch);'])if(!loader.includes(marker))fail('game.js partial/incorrect live v26 marker: '+marker);
   if(loader.includes("const source=chapter6V25Source+'\\n//# sourceURL=pinewood-runtime.js\\n';"))fail('game.js still terminates at v25 while v26 is present');
-  const v27=loader.includes("const AUDIO_DIRECTION_V27_PATCH='./patches/audio-direction-v27.js.txt';");
-  if(v27){for(const marker of ['applyAudioDirectionV27Runtime','getText(AUDIO_DIRECTION_V27_PATCH)','const audioDirectionV27Source=await applyAudioDirectionV27Runtime(productionReadabilityV26Source,audioDirectionV27Patch,characterVoiceManifest);',"const source=audioDirectionV27Source+'\\n//# sourceURL=pinewood-runtime.js\\n';"])if(!loader.includes(marker))fail('game.js partial/incorrect v27 feed-forward marker: '+marker);}
-  else if(!loader.includes("const source=productionReadabilityV26Source+'\\n//# sourceURL=pinewood-runtime.js\\n';"))fail('v26 must terminate the loader when no later patch is present');
+
+  let worldTail='productionReadabilityV26Source';
+  if(v28){
+    for(const marker of ['applyFreightElevatorReliabilityV28Runtime','getText(FREIGHT_ELEVATOR_V28_PATCH)','const freightElevatorV28Source=await applyFreightElevatorReliabilityV28Runtime(productionReadabilityV26Source,freightElevatorV28Patch);'])if(!loader.includes(marker))fail('game.js invalid v26→v28 feed-forward: '+marker);
+    worldTail='freightElevatorV28Source';
+    if(v30){
+      for(const marker of ['applyArcadeRebuildV30Runtime','getText(ARCADE_V30_PATCH)','const arcadeV30Source=await applyArcadeRebuildV30Runtime(freightElevatorV28Source,arcadeV30Patch);'])if(!loader.includes(marker))fail('game.js invalid v28→v30 feed-forward: '+marker);
+      worldTail='arcadeV30Source';
+    }else if(loader.includes('arcadeV30Source'))fail('game.js contains partial v30 wiring');
+  }else if(v30||loader.includes('freightElevatorV28Source'))fail('game.js contains partial v28/v30 wiring');
+
+  if(v27){
+    const expectedAudio=`const audioDirectionV27Source=await applyAudioDirectionV27Runtime(${worldTail},audioDirectionV27Patch,characterVoiceManifest);`;
+    for(const marker of ['applyAudioDirectionV27Runtime','getText(AUDIO_DIRECTION_V27_PATCH)',expectedAudio,"const source=audioDirectionV27Source+'\\n//# sourceURL=pinewood-runtime.js\\n';"])if(!loader.includes(marker))fail('game.js invalid world-tail→v27 feed-forward: '+marker);
+    if(loader.includes(`const source=${worldTail}+'\\n//# sourceURL=pinewood-runtime.js\\n';`))fail('game.js boots a nonterminal world layer while v27 exists');
+  }else if(!loader.includes(`const source=${worldTail}+'\\n//# sourceURL=pinewood-runtime.js\\n';`))fail('game.js missing expected terminal world source marker');
 }else if(loader.includes('applyProductionReadabilityV26Runtime')||loader.includes('productionReadabilityV26Source'))fail('game.js contains partial v26 wiring');
 
-console.log(`Production readability v26 PASS (${live?'LIVE-CANDIDATE':'STAGED'}): final pixel-reviewed dark-scene correction is locked; all six chapters retain distinct mechanics/set pieces and unique wall/floor identities; critical retail, Below Grade, Records and PA surfaces remain readable without flattening Security/East Wing; texture repeat and loader consistency remain controlled.`);
+console.log(`Production readability v26 PASS (${live?'LIVE-CANDIDATE':'STAGED'}${v28?'→V28':''}${v30?'→V30':''}${v27?'→V27':''}): final pixel-reviewed dark-scene correction is locked; all six chapters retain distinct mechanics/set pieces and unique wall/floor identities; critical retail, Below Grade, Records and PA surfaces remain readable without flattening Security/East Wing; texture repeat and ordered world-tail/audio loader consistency remain controlled.`);
