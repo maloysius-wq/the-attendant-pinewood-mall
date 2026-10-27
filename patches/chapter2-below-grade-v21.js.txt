@@ -84,7 +84,7 @@ async function buildBelowGradeV21(world){
     gavinFound:!!SAVE.story.flags[STORY_DATA_V17.flags.gavinFound],contractor13:!!SAVE.story.flags[STORY_DATA_V17.flags.contractor13],
     water:null,floodBlocker:null,feederControl:null,pumpControl:null,gavinRoot:null,securityKey:null
   };
-  const serviceFloor=new THREE.MeshStandardMaterial({color:0x14181a,roughness:.94,metalness:.015}),waterMat=new THREE.MeshStandardMaterial({color:0x243a40,emissive:0x071116,emissiveIntensity:.32,transparent:true,opacity:.48,roughness:.28,metalness:.12,side:THREE.DoubleSide});
+  // Mount Relay D's legacy breaker cabinet on the real X-wall segment at x=-20.50, z=-11.0.\n  const breakerD=world.interactables.find(o=>o.userData?.type==='breaker'&&o.userData?.id==='D');\n  if(breakerD)breakerD.position.z=-11.0;\n  const serviceFloor=new THREE.MeshStandardMaterial({color:0x14181a,roughness:.94,metalness:.015}),waterMat=new THREE.MeshStandardMaterial({color:0x243a40,emissive:0x071116,emissiveIntensity:.32,transparent:true,opacity:.48,roughness:.28,metalness:.12,side:THREE.DoubleSide});
   const lowFloor=new THREE.Mesh(new THREE.PlaneGeometry(4.35,12.45),serviceFloor);lowFloor.rotation.x=-Math.PI/2;lowFloor.position.set(9,.009,-11.45);world.root.add(lowFloor);
   const water=new THREE.Mesh(new THREE.PlaneGeometry(4.28,12.25),waterMat);water.rotation.x=-Math.PI/2;water.position.set(9,.035,-11.45);water.userData.chapter2Setpiece='flooded-east-corridor-v21';world.root.add(water);s.water=water;
   s.floodBlocker=world.addCollider(9,-5.15,4.85,1.12,{navBlock:true,owner:water,pad:.02});
