@@ -21,6 +21,15 @@ try{
    }
    console.log('[WALL_BOXES] '+chapter+' '+JSON.stringify(x.walls).slice(0,2300));
    await writeFile(dir+'/'+chapter+'.json',JSON.stringify(x,null,2));
+   const exact=await page.evaluate(()=>window.__PINEWOOD_WALL_CONTACT_V33__?.());
+   if(!exact?.ready)throw Error('Instanced wall contact probe failed');
+   await writeFile(dir+'/'+chapter+'-wall-contacts.json',JSON.stringify(exact,null,2));
+   console.log('[ACTUAL_WALLS] '+chapter+' '+exact.instanceWalls);
+   for(const m of exact.fixtures.filter(o=>o.expectedMount)){
+     console.log('[MOUNT] '+chapter+' '+(m.type||m.label||JSON.stringify(m.userData)).slice(0,80)+' at '+m.position.join(',')+' gap='+m.nearest?.gap+'m, center='+m.nearest?.centerDist+'m, facing='+m.facingAlignment+' wall='+JSON.stringify(m.nearest).slice(0,270));
+     if(!m.nearest||m.nearest.gap>.18||m.facingAlignment<.70)console.log('[DETACHED] '+chapter+' '+(m.type||m.label||JSON.stringify(m.userData)).slice(0,80)+' gap='+m.nearest?.gap+' facing='+m.facingAlignment);
+   }
+
    if(!x.ready||x.chapter!==idx)throw Error('scene/world unavailable '+JSON.stringify(x).slice(0,400));
    const walls=x.walls.filter(w=>w.vertical);
    console.log('[SCENE] '+chapter+' wallMeshes='+x.wallCount+' vertical='+walls.length+' fixtureCandidates='+x.fixtureCount);
