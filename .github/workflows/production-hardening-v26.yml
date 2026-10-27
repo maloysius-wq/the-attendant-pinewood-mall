@@ -100,6 +100,9 @@ jobs:
       - name: Exercise menus saves migrations and six chapter HUDs
         run: node scripts/smoke-production-v26.mjs
 
+      - name: Verify desktop/mobile menu accessibility and keyboard focus
+        run: node scripts/smoke-menu-accessibility-v31.mjs
+
       - name: Capture Chapters 1 through 4 deterministic suite
         run: node scripts/capture-store-visuals.mjs
 
