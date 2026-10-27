@@ -27,6 +27,8 @@ try{
    await page.waitForFunction(()=>window.__PINEWOOD_VISUAL_READY__===true,null,{timeout:120000});
    await page.waitForFunction(()=>typeof window.__PINEWOOD_GEOMETRY_AUDIT_V32__==='function',null,{timeout:120000});
    const info=await page.evaluate(()=>window.__PINEWOOD_GEOMETRY_AUDIT_V32__());
+   const nav=await page.evaluate(()=>window.__PINEWOOD_NAV_PROBE_V32__?.());
+   console.log('[NAV_PROBE] '+chapter+' '+view+' '+JSON.stringify(nav).slice(0,1600));
    await writeFile(root+'/'+view+'.json',JSON.stringify(info,null,2));
    if(!info.ready){mark('FAIL',chapter,view,'NO_WORLD','World not exposed: '+JSON.stringify(info).slice(0,500));continue;}
    if(info.levelIndex!==expectedIndex)mark('FAIL',chapter,view,'WRONG_CHAPTER','Expected '+expectedIndex+', got '+info.levelIndex);
