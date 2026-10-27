@@ -68,8 +68,55 @@ function makeAudioCassetteV23(pos,label,text){
   const g=pickupFallback('tape');g.position.copy(pos);g.userData={type:'tape',label,text,collected:false,floatBase:pos.y,phase:rand(0,TAU),assetModel:'procedural-audio-cassette-v23'};const sticker=new THREE.Mesh(new THREE.PlaneGeometry(.18,.07),new THREE.MeshStandardMaterial({map:eastWingPanelTextureV23('SIDE B',['TESSA KIM'],'#d96caa'),roughness:.75}));sticker.rotation.x=-Math.PI/2;sticker.position.set(0,.081,0);g.add(sticker);return g;
 }
 function makeStaffPhotoV23(pos){
-  const g=new THREE.Group();g.position.copy(pos);g.userData={type:'journal',label:'STAFF-PHOTO-1997',text:'PINEWOOD EAST WING STAFF PHOTO — Holiday closing crew, 1997. Tessa Kim is front left in a Cassette Castle vest. Jo Alvarez stands behind her with a clipboard. Luis Ortega is at the edge of frame in his Security jacket.',collected:false,floatBase:pos.y,phase:rand(0,TAU),assetModel:'procedural-staff-photo-v23'};
-  const tex=makeCanvasTexture((ctx,c)=>{ctx.fillStyle='#d9cfb6';ctx.fillRect(0,0,c.width,c.height);ctx.fillStyle='#776e5e';ctx.fillRect(24,24,c.width-48,c.height-80);for(let i=0;i<9;i++){const x=68+(i%5)*92,y=86+Math.floor(i/5)*106;ctx.fillStyle=['#354451','#6c403b','#405944','#493a63','#5c5639'][i%5];ctx.fillRect(x-26,y,52,70);ctx.fillStyle='#bca28e';ctx.beginPath();ctx.arc(x,y-18,22,0,Math.PI*2);ctx.fill();}ctx.fillStyle='#312d28';ctx.font='700 22px Arial';ctx.textAlign='center';ctx.fillText('PINEWOOD EAST WING • HOLIDAY 1997',c.width/2,c.height-28);},512,320);const frame=new THREE.Mesh(new THREE.BoxGeometry(.46,.32,.025),new THREE.MeshStandardMaterial({color:0x3e352d,roughness:.72}));g.add(frame);const face=new THREE.Mesh(new THREE.PlaneGeometry(.43,.29),new THREE.MeshStandardMaterial({map:tex,roughness:.82}));face.position.z=.014;g.add(face);return g;
+  const g=new THREE.Group();g.position.copy(pos);g.userData={chapter4VisualV32:'named-staff-photo-1997',type:'journal',label:'STAFF-PHOTO-1997',text:'PINEWOOD EAST WING STAFF PHOTO — Holiday closing crew, 1997. Tessa Kim is front left in a Cassette Castle vest. Jo Alvarez stands behind her with a clipboard. Luis Ortega is at the edge of frame in his Security jacket.',collected:false,floatBase:pos.y,phase:rand(0,TAU),assetModel:'procedural-staff-photo-v23'};
+  // Period staff photograph with role-readable uniforms rather than nine interchangeable blocks.
+  // Jo stands behind front-left Tessa with a clipboard; Luis is at the right edge in Security blue.
+  const tex=makeCanvasTexture((ctx,c)=>{
+    ctx.fillStyle='#d6ceb9';ctx.fillRect(0,0,c.width,c.height);
+    ctx.fillStyle='#3f5554';ctx.fillRect(20,20,c.width-40,c.height-75);
+    ctx.fillStyle='#687877';ctx.fillRect(23,65,c.width-46,163);
+    ctx.fillStyle='#3d4b4b';ctx.fillRect(23,212,c.width-46,41);
+    const crew=[
+      {x:68,y:91,shirt:'#65634f',skin:'#a77555',hair:'#2a2422',role:'jo'},
+      {x:158,y:89,shirt:'#6c5147',skin:'#d2a17f',hair:'#402c23'},
+      {x:252,y:90,shirt:'#426c61',skin:'#b98968',hair:'#352b29'},
+      {x:348,y:89,shirt:'#846945',skin:'#8a6248',hair:'#191d22'},
+      {x:435,y:90,shirt:'#233b55',skin:'#aa7b61',hair:'#343331',role:'luis'},
+      {x:68,y:189,shirt:'#dc83a6',skin:'#c38e74',hair:'#533125',role:'tessa'},
+      {x:161,y:189,shirt:'#687775',skin:'#9d6c54',hair:'#34312a'},
+      {x:260,y:189,shirt:'#53586c',skin:'#ba8e73',hair:'#392c2e'},
+      {x:358,y:189,shirt:'#80644e',skin:'#d2a784',hair:'#4a3533'}
+    ];
+    for(const p of crew){
+      ctx.fillStyle='#202c2e';ctx.fillRect(p.x-29,p.y+22,58,52);
+      ctx.fillStyle=p.shirt;ctx.fillRect(p.x-25,p.y+25,50,46);
+      ctx.fillStyle=p.skin;ctx.fillRect(p.x-7,p.y+10,15,22);
+      ctx.beginPath();ctx.arc(p.x,p.y-7,19,0,Math.PI*2);ctx.fill();
+      ctx.fillStyle=p.hair;ctx.beginPath();ctx.arc(p.x,p.y-18,20,Math.PI,Math.PI*2);ctx.fill();
+      ctx.fillStyle='#40332f';ctx.fillRect(p.x-9,p.y-8,3,2);ctx.fillRect(p.x+6,p.y-8,3,2);
+      if(p.role==='tessa'){
+        ctx.fillStyle='#f1c5d5';ctx.fillRect(p.x-19,p.y+29,38,8);
+        ctx.fillStyle='#754a74';ctx.fillRect(p.x-9,p.y+41,18,12);
+        ctx.fillStyle='#f9e0ef';ctx.fillRect(p.x-4,p.y+42,8,9);
+      }
+      if(p.role==='jo'){
+        ctx.fillStyle='#c5ac70';ctx.fillRect(p.x+18,p.y+36,21,31);
+        ctx.fillStyle='#e7dfc7';ctx.fillRect(p.x+20,p.y+38,17,25);
+        ctx.fillStyle='#503c2f';ctx.fillRect(p.x+23,p.y+43,12,2);ctx.fillRect(p.x+23,p.y+49,10,2);
+      }
+      if(p.role==='luis'){
+        ctx.fillStyle='#d2bb78';ctx.beginPath();ctx.arc(p.x+17,p.y+38,5,0,Math.PI*2);ctx.fill();
+        ctx.fillStyle='#b7a586';ctx.fillRect(p.x-2,p.y+34,5,21);
+      }
+    }
+    ctx.fillStyle='#f2e9cb';ctx.fillRect(26,236,460,18);
+    ctx.fillStyle='#34423c';ctx.font='bold 11px Arial';ctx.textAlign='left';
+    ctx.fillText('TESSA • FRONT LEFT',31,249);
+    ctx.fillText('JO • BACK LEFT',201,249);
+    ctx.fillText('LUIS • SECURITY',352,249);
+    ctx.fillStyle='#302b25';ctx.textAlign='center';ctx.font='bold 21px Arial';
+    ctx.fillText('PINEWOOD EAST WING • 1997',c.width/2,c.height-26);
+  },512,320);const frame=new THREE.Mesh(new THREE.BoxGeometry(.46,.32,.025),new THREE.MeshStandardMaterial({color:0x3e352d,roughness:.72}));g.add(frame);const face=new THREE.Mesh(new THREE.PlaneGeometry(.43,.29),new THREE.MeshStandardMaterial({map:tex,roughness:.82}));face.position.z=.014;g.add(face);return g;
 }
 function triggerEastWingFalseRouteV23(game){const s=game.ch4V23;if(!s||s.falseRouteConsequence)return;s.falseRouteConsequence=true;audio.slam();UI.static(150);game.emitSound(new THREE.Vector3(15,0,-15),.92,'east-wing-false-route');game.attendant.awaken();game.attendant.hear(new THREE.Vector3(15,0,-15),.82,'route-error');game.playPcasLineV19('ambient_ch3_east_wing');UI.hint('E-17 FIRE CLOSURE • the paper map was right');}
 function handleEastWingMapV23(game,o){const s=game.ch4V23;if(!s)return;if(!s.mapRead){s.mapRead=true;s.mapReadAt=game.time;SAVE.story.completedEvents.ch4_map_read=true;save();game.storyV17.queueDialogue('ch4_map_confirmed',.35);audio.pickup();UI.subtitle('EMPLOYEE ROUTE MAP','GREEN R-12 → RECEIVING → RECORDS\\nBLUE E-17 → FIRE CLOSURE\\nRED T-04 → TRAINING','log',6200);}else UI.subtitle('EMPLOYEE ROUTE MAP','GREEN R-12 → RECEIVING → RECORDS\\nBLUE E-17 → FIRE CLOSURE\\nRED T-04 → TRAINING','log',5200);}
