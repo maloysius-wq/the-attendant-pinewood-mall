@@ -1,0 +1,167 @@
+name: Pinewood complete game audit v32 (SELF-HOSTED ONLY)
+
+on:
+  push:
+    branches: [audit/self-hosted-game-review-v32]
+    paths:
+      - '.github/workflows/self-hosted-game-audit-v32.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  full-game-audit:
+    name: Local six-chapter audit (no GitHub artifact uploads)
+    runs-on: [self-hosted]
+    timeout-minutes: 120
+    steps:
+      - name: Checkout audit branch on self-hosted machine
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Identify execution machine and create LOCAL report folder
+        shell: bash
+        run: |
+          set -eu
+          echo "RUNNER_NAME=$RUNNER_NAME RUNNER_OS=$RUNNER_OS RUNNER_ARCH=$RUNNER_ARCH"
+          test "$RUNNER_ENVIRONMENT" = "self-hosted"
+          node --version
+          python3 --version
+          root="$HOME/pinewood-local-audits/$GITHUB_RUN_ID"
+          mkdir -p "$root/logs" "$root/screenshots"
+          printf '%s\n' "Reports will stay on this machine at: $root"
+      - name: Canon, placement and source asset consistency
+        shell: bash
+        run: |
+          node --input-type=module <<'NODE'
+          import fs from 'node:fs';
+          import path from 'node:path';
+          const root=path.join(process.env.HOME,'pinewood-local-audits',process.env.GITHUB_RUN_ID);
+          const file=p=>fs.readFileSync(p,'utf8');
+          const ch2=file('patches/chapter2-below-grade-v21.js.txt');
+          const ch3=file('patches/chapter3-eyes-security-v22.js.txt');
+          const ch4=file('patches/chapter4-east-wing-v23.js.txt');
+          const ch5=file('patches/chapter5-accountability-v24.js.txt');
+          const ch6=file('patches/chapter6-last-shift-v25.js.txt');
+          const bible=file('STORY_BIBLE.md');
+          const evidence=file('story/evidence.js');
+          const findings=[];
+          const issue=(id,severity,chapter,description,proof)=>findings.push({id,severity,chapter,description,proof});
+          const mandatory=(okay,id,desc)=>{if(!okay)issue(id,'BLOCKER','GLOBAL',desc,'source/manifest missing or inconsistent')};
+          mandatory(bible.includes('9:54 PM') && bible.includes('Jo gets Tessa outside'),'MISSING_CANON','canonical Last Shift timeline');
+          mandatory(ch6.includes('completeLastShiftV25')&&ch6.includes('storyLastShiftCompleteV17'),'MISSING_ENDING','standard and true endings');
+          mandatory((evidence.match(/'LS-0[1-9]':/g)||[]).length===9,'EVIDENCE_CATALOG','exactly nine historical evidence entries');
+          if(ch2.includes("[-18,-16,'LS-05'") && ch2.includes("[10,-16,'LS-06'"))issue('EARLY_EVIDENCE_CH2','CRITICAL','2','Chapter 2 spawns legacy LS-05 and LS-06, potentially crediting future chapter evidence before their authored reveals.','patches/chapter2-below-grade-v21.js.txt: retain LS-05/06 during transition');
+          if(ch2.includes("9:08 PM. Tessa out"))issue('TESSA_TIMELINE','CRITICAL','2','LS-04 roster says Tessa had exited at 9:08 PM but story bible places Jo getting her outside at 9:54 PM.','patches/chapter2-below-grade-v21.js.txt vs STORY_BIBLE.md Last Shift');
+          const aabb=(p,s)=>p.map((v,i)=>[v-s[i]/2,v+s[i]/2]);
+          const overlap=(a,b)=>a.map((r,i)=>Math.max(0,Math.min(r[1],b[i][1])-Math.max(r[0],b[i][0])));
+          const desk=aabb([22.7,.44,25.05],[2.6,.88,.72]);
+          const lower=aabb([24.25,.26,24.72],[.78,.26,.52]);
+          const upper=aabb([24.25,.91,24.67],[1.02,.85,.70]);
+          if(ch3.includes('22.7,.44,25.05') && ch3.includes('24.25,.08,24.72')){
+            for(const [label,box] of [['lower',lower],['upper',upper]]){
+              const v=overlap(desk,box);
+              if(v.every(x=>x>0))issue('SECURITY_VCR_'+label.toUpperCase(),'HIGH','3','VCR '+label+' intersects the existing Luis Security desk.','overlap X/Y/Z metres: '+v.map(x=>x.toFixed(3)).join(', '));
+            }
+          }
+          if(ch4.includes("new THREE.Vector3(-21.0,.72,10.65),'LS-06'"))issue('CASSETTE_UNSUPPORTED','HIGH','4','LS-06 cassette floats near lockers with no authored support at its position; verify rendered surface and move onto tangible furniture.','Ch4: (-21.0, 0.72, 10.65), distant from table centers');
+          if(ch4.includes("for(let i=0;i<9;i++)")&&ch4.includes("'STAFF-PHOTO-1997'"))issue('STAFF_PHOTO_GENERIC','MEDIUM','4','Important historical named staff photo is constructed as generic geometric silhouettes; cannot visually establish Tessa, Jo, Luis.','makeStaffPhotoV23()');
+          if(ch4.includes('A resignation note dated after Thanksgiving') && !ch4.includes('makeResignationNote'))issue('LOCKER_CONTENT_ONLY_TEXT','MEDIUM','4','Named locker keepsakes and post-Thanksgiving resignation note are described in popup rather than visibly staged props.','handleTessaLockerV23 vs makeTessaLockerV23');
+          if(ch2.includes("new THREE.Vector3(24.72,.14,-11.42),'Security Keycard'")&&ch2.includes("new THREE.Vector3(24.72,.18,-11.42),'GAVIN-TICKET'"))issue('GAVIN_PICKUP_OVERLAP','HIGH','2','Security keycard and Gavin ticket share the same X/Z location with only four cm Y separation.','patches/chapter2-below-grade-v21.js.txt');
+          if(!ch5.includes('ch5_jo_pages')||!ch5.includes('ch5_sessions'))issue('CH5_PROGRESS','HIGH','5','Chapter 5 evidence-to-sessions chain markers missing.','Chapter 5 source');
+          for(const [name,manifest] of [['asset',JSON.parse(file('assets/vendor/runtime/manifest.json'))],['voice_pa',JSON.parse(file('assets/audio/pa/manifest.json'))],['voice_character',JSON.parse(file('assets/audio/characters/manifest.json'))]]){
+            const list=name==='asset'?Object.values(manifest.assets).flatMap(x=>[x,...(x.dependencies||[])]) : Object.values(manifest.files).map(x=>({local:name==='voice_pa'?'assets/audio/pa/'+x.file:'assets/audio/characters/'+x.file,bytes:0}));
+            for(const x of list){
+              const p=x.local.replace(/^\.\//,'');
+              if(!fs.existsSync(p))issue('MISSING_FILE','BLOCKER','GLOBAL',name+' file missing',p);
+              else if(x.bytes>0&&fs.statSync(p).size!==x.bytes)issue('SIZE_MISMATCH','HIGH','GLOBAL',name+' size mismatch',p);
+            }
+          }
+          const report={date:new Date().toISOString(),commit:process.env.GITHUB_SHA,scope:'canonical story + source placement + local asset inventory',findings};
+          fs.writeFileSync(path.join(root,'source-findings.json'),JSON.stringify(report,null,2));
+          console.log('Source / physical placement findings ('+findings.length+')');
+          for(const f of findings)console.log('['+f.severity+'] ['+f.chapter+'] '+f.id+': '+f.description);
+          if(findings.some(x=>x.severity==='BLOCKER'))process.exitCode=1;
+          NODE
+      - name: Execute every nonmutating static audit
+        shell: bash
+        run: |
+          set +e
+          root="$HOME/pinewood-local-audits/$GITHUB_RUN_ID"
+          for script in scripts/audit-*.mjs; do
+            label="$(basename "$script" .mjs)"
+            node "$script" > "$root/logs/$label.log" 2>&1
+            code=$?
+            printf '%s\t%s\t%s\n' "$label" "$code" "static" | tee -a "$root/cases.tsv"
+            tail -n 2 "$root/logs/$label.log" | cut -c 1-250
+          done
+          echo "Static audits finished. Results retained locally."
+      - name: Install browser dependencies on local machine
+        shell: bash
+        run: |
+          set -eu
+          npm install --no-save --package-lock=false --no-audit --no-fund playwright@1.55.0
+          npx playwright install chromium
+      - name: Six chapters, interactions, assets, saves, visuals, and both endings
+        shell: bash
+        env:
+          PINEWOOD_BASE_URL: http://127.0.0.1:4173/
+        run: |
+          set +e
+          root="$HOME/pinewood-local-audits/$GITHUB_RUN_ID"
+          python3 -m http.server 4173 --bind 127.0.0.1 > "$root/server.log" 2>&1 &
+          server_pid=$!
+          trap 'kill "$server_pid" 2>/dev/null || true' EXIT
+          sleep 3
+          for script in \
+            scripts/smoke-production-v26.mjs \
+            scripts/smoke-menu-accessibility-v31.mjs \
+            scripts/smoke-audio-direction-v27.mjs \
+            scripts/smoke-freight-elevator-v28.mjs \
+            scripts/smoke-arcade-v30.mjs \
+            scripts/simulate-chapter6-finale-v25.mjs \
+            scripts/capture-store-visuals.mjs \
+            scripts/capture-security-v22.mjs \
+            scripts/capture-east-wing-v23.mjs \
+            scripts/capture-accountability-v24.mjs \
+            scripts/capture-last-shift-v25.mjs; do
+            label="$(basename "$script" .mjs)"
+            echo "::group::Local $label"
+            node "$script" > "$root/logs/$label.log" 2>&1
+            code=$?
+            printf '%s\t%s\t%s\n' "$label" "$code" "browser" | tee -a "$root/cases.tsv"
+            tail -n 5 "$root/logs/$label.log" | cut -c 1-300
+            echo "::endgroup::"
+          done
+          for dir in production-smoke-artifacts menu-accessibility-artifacts audio-direction-artifacts arcade-artifacts security-artifacts east-wing-artifacts accountability-artifacts last-shift-artifacts store-visual-artifacts visual-artifacts; do
+            if test -d "$dir"; then cp -r "$dir" "$root/screenshots/"; fi
+          done
+          echo "Browser audit finished. All captures retained on self-hosted machine at $root"
+      - name: Final local audit summary (no artifact upload)
+        if: always()
+        shell: bash
+        run: |
+          root="$HOME/pinewood-local-audits/$GITHUB_RUN_ID"
+          if test -f "$root/cases.tsv"; then
+            echo "Audits run: $(wc -l < "$root/cases.tsv")"
+            echo "Failure counts:"
+            awk -F '\t' '$2!=0{print $1" (exit "$2")"}' "$root/cases.tsv"
+            node --input-type=module <<'NODE'
+          import fs from 'node:fs';
+          import path from 'node:path';
+          const root=path.join(process.env.HOME,'pinewood-local-audits',process.env.GITHUB_RUN_ID);
+          const lines=fs.readFileSync(path.join(root,'cases.tsv'),'utf8').trim().split('\n').filter(Boolean);
+          const cases=lines.map(x=>{let [name,exit,kind]=x.split('\t');return {name,exit:Number(exit),kind};});
+          const issues=fs.existsSync(path.join(root,'source-findings.json'))?JSON.parse(fs.readFileSync(path.join(root,'source-findings.json'),'utf8')).findings:[];
+          let report=['# Pinewood Mall comprehensive game audit','', 'Run: '+process.env.GITHUB_RUN_ID,'Branch: '+process.env.GITHUB_REF_NAME,'', 'Executed: '+cases.length,'Passed: '+cases.filter(x=>x.exit===0).length,'Failed: '+cases.filter(x=>x.exit!==0).length,'Source findings: '+issues.length,'','## Tests'];
+          for(const c of cases)report.push('- '+(c.exit===0?'PASS':'FAIL')+' '+c.name+' ('+c.kind+')');
+          report.push('','## Physical and narrative findings');
+          for(const f of issues)report.push('- '+f.severity+' ['+f.chapter+'] '+f.id+': '+f.description);
+          report.push('','Screenshot files and test logs are in this runner-local folder. GitHub artifact upload intentionally disabled.');
+          fs.writeFileSync(path.join(root,'FULL_GAME_AUDIT.md'),report.join('\n')+'\n');
+          console.log('LOCAL SUMMARY '+root);
+          console.log(report.join('\n').slice(0,13000));
+          NODE
+          fi
+          echo "No upload-artifact step was run."
