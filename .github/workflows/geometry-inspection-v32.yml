@@ -1,0 +1,40 @@
+name: Pinewood six-chapter geometry inspection v32 (public runner)
+on:
+  push:
+    branches: [audit/self-hosted-game-review-v32]
+    paths:
+      - '.github/workflows/geometry-inspection-v32.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  scene-inspection:
+    name: Eight deterministic scene and object inspections, no uploads
+    runs-on: ubuntu-latest
+    timeout-minutes: 70
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Install pinned local inspection dependencies
+        shell: bash
+        run: |
+          node --version
+          npm install --no-save --package-lock=false --no-audit --no-fund playwright@1.55.0
+          npx playwright install chromium
+      - name: Start local game and inspect 3D geometry
+        shell: bash
+        env:
+          PINEWOOD_BASE_URL: http://127.0.0.1:4173/
+        run: |
+          root="$HOME/pinewood-local-audits/$GITHUB_RUN_ID"
+          mkdir -p "$root"
+          python3 -m http.server 4173 --bind 127.0.0.1 > "$root/server.log" 2>&1 &
+          server_pid=$!
+          trap 'kill "$server_pid" 2>/dev/null || true' EXIT
+          sleep 3
+          node scripts/smoke-world-geometry-v32.mjs 2>&1 | tee "$root/geometry.log"
+      - name: Explicitly skip artifact uploads
+        if: always()
+        shell: bash
+        run: echo 'Detailed geometry snapshots stayed in temporary runner filesystem. Only ordinary workflow logs are retained.'
