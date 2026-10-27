@@ -6,6 +6,7 @@ on:
       - '.github/workflows/navigation-reachability-v32.yml'
   workflow_dispatch:
 # v32 scripted gate semantics + nearest tile diagnostic rerun
+# Validate accessible Maintenance Buzzer at proven grid tile and scripted Eli gate
 permissions:
   contents: read
 jobs:
