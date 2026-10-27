@@ -457,7 +457,7 @@ Loader order is: Production Readability v26 -> Freight Elevator Reliability v28 
 
 
 <!-- MENU_ACCESSIBILITY_V31_BEGIN -->
-## Menu accessibility / responsive regression v31 — IN PROGRESS (2026-10-27)
+## Menu accessibility / responsive regression v31 — IMPLEMENTED, CI VALIDATION IN PROGRESS (2026-10-27)
 
 **Reason:** The six Settings sliders/selects currently show visual labels that are not linked to their controls. The production smoke verifies the controls exist, but does not protect accessible names, keyboard focus visibility, or narrow-screen menu layout.
 
@@ -467,5 +467,11 @@ Loader order is: Production Readability v26 -> Freight Elevator Reliability v28 
 3. Add a deterministic Playwright browser smoke for desktop and 390px mobile menus covering accessible names, label click focusing, keyboard focus styling, narrow-screen column layout, touch-target size, reduced motion, and local-only/no-error runtime behavior.
 4. Run the new smoke as part of the existing permanent six-chapter production hardening workflow. Do not alter the six-chapter story or v27 terminal audio layer.
 
-**Status:** Work started after confirming main `fd110fed8e32887047305bef13d0700a494da281` was green (audio v27 regression, six-chapter hardening, and Pages deployment). Implement and verify before marking complete.
+**Implementation (committed to main):**
+- `88e8194e`: `index.html` now associates all six Settings labels, adds menu-specific keyboard focus outlines, 44px minimum screen button heights, and reduced-motion support.
+- `76279b9d`: `scripts/smoke-menu-accessibility-v31.mjs` adds deterministic Chromium checks at 1280x720 and 390x844 for keyboard order, accessible labels, label-click focus, layout, touch targets, reduced motion and local-only assets.
+- `8e512bc6`: `.github/workflows/production-hardening-v26.yml` now executes the v31 menu smoke during comprehensive hardening.
+- `2bd860fd`: `.github/workflows/menu-accessibility-v31-regression.yml` adds a focused, faster CI gate and preserves a JSON report.
+
+**Verification status at handoff update:** The runtime audit passed after the HTML change, and GitHub Pages deployment for `8e512bc6` passed. The focused v31 run [40534019334](https://github.com/maloysius-wq/the-attendant-pinewood-mall/actions/runs/40534019334) and comprehensive hardening run [40533660015](https://github.com/maloysius-wq/the-attendant-pinewood-mall/actions/runs/40533660015) were in progress. Inspect their terminal outcomes before marking v31 fully complete. Keep the existing audio, narrative, local-asset and no-manual-WASD invariants.
 <!-- MENU_ACCESSIBILITY_V31_END -->
