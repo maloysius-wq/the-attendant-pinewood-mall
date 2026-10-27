@@ -8,6 +8,7 @@ on:
 # Final v32 source retest after handoff anchor and freight audit repair
 # Validate latest Ch2 walk-grid relocation and Ch4 illustrated staff / locker props
 # Final canon and source audit with grounded CCTV stand and named personnel photo
+# Source and story suite retest after mounted signage and breaker position repairs
 permissions:
   contents: read
 jobs:
