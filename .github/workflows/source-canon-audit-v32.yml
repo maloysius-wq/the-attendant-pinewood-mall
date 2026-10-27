@@ -1,0 +1,63 @@
+name: Pinewood narrative/physical source regression v32
+on:
+  push:
+    branches: [audit/self-hosted-game-review-v32]
+    paths:
+      - '.github/workflows/source-canon-audit-v32.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  static-audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Validate all existing nonmutating runtime and chapter audits
+        shell: bash
+        run: |
+          failures=0
+          for script in scripts/audit-*.mjs; do
+            echo "::group::$(basename "$script")"
+            node "$script" > /tmp/pinewood-test.log 2>&1
+            code=$?
+            tail -n 2 /tmp/pinewood-test.log | cut -c 1-300
+            echo "::endgroup::"
+            if test "$code" -ne 0; then
+              failures=$((failures+1))
+              echo "::error file=$script::Static audit failed"
+              tail -n 25 /tmp/pinewood-test.log
+            fi
+          done
+          echo "Existing authored audit failures: $failures"
+          test "$failures" -eq 0
+      - name: Verify chronology, evidence ownership, and grounded repairs
+        shell: bash
+        run: |
+          node --input-type=module <<'NODE'
+          import fs from 'node:fs';
+          const read=p=>fs.readFileSync(p,'utf8');
+          const ch2=read('patches/chapter2-below-grade-v21.js.txt');
+          const ch3=read('patches/chapter3-eyes-security-v22.js.txt');
+          const ch4=read('patches/chapter4-east-wing-v23.js.txt');
+          const bible=read('STORY_BIBLE.md');
+          function verify(ok,label){if(!ok)throw Error(label);console.log('PASS '+label)}
+          verify(bible.includes('9:54 PM — Jo gets Tessa outside'),'Tessa canon exit 9:54');
+          verify(!ch2.includes('9:08 PM. Tessa out'),'Chapter 2 does not predate Tessa exit');
+          verify(!ch2.includes("[-18,-16,'LS-05'")&&!ch2.includes("[10,-16,'LS-06'"),'LS-05/06 no Chapter 2 surrogate pickups');
+          verify(ch3.includes("new THREE.Vector3(24.15,.16,26.15),'LS-05'"),'LS-05 remains Chapter 3 VHS');
+          verify(ch4.includes("new THREE.Vector3(-21.0,.72,10.65),'LS-06'"),'LS-06 remains Chapter 4 Side B cassette');
+          verify(ch2.includes("new THREE.Vector3(25.62,.14,-11.42),'Security Keycard'"),'Keycard physically separated from Gavin ticket');
+          verify(ch3.includes('vcr.position.set(24.90,0,24.72)'), 'Luis VCR moved clear of desk and grounded');
+          verify(ch3.includes('new THREE.Vector3(0,.15,0),new THREE.Vector3(.78,.30,.52)'), 'Luis VCR bottom sits on floor');
+          verify(ch3.includes('new THREE.Vector3(0,.75,-.05),new THREE.Vector3(1.02,.90,.70)'), 'Luis VCR top rests on lower cabinet');
+          verify(ch4.includes("chapter4Setpiece='tessa-personal-effects-bench-v32'"),'Cassette has 3D support bench');
+          verify(ch4.includes('world.addCollider(-21.0,10.65,1.02,.63'),'Support bench has physical collider');
+          const foot=read('game.js');
+          verify(foot.includes('geometryAuditHookV32'),'Audit-only scene hook available only on review branch');
+          console.log('All targeted v32 canon and fixture checks passed.');
+          NODE
+      - name: No artifacts are uploaded
+        run: echo 'Audit results exist only in ordinary job log, no ZIP/screenshot uploads.'
