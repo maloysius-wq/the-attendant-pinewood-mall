@@ -1,0 +1,34 @@
+name: Pinewood six-chapter reachability diagnostic v32
+on:
+  push:
+    branches: [audit/self-hosted-game-review-v32]
+    paths:
+      - '.github/workflows/navigation-reachability-v32.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  nav-audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 70
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Install Playwright
+        run: |
+          npm install --no-save --package-lock=false --no-audit --no-fund playwright@1.55.0
+          npx playwright install chromium
+      - name: Run six-chapter dynamic door and walk-grid diagnostic
+        env:
+          PINEWOOD_BASE_URL: http://127.0.0.1:4173/
+        shell: bash
+        run: |
+          python3 -m http.server 4173 --bind 127.0.0.1 >/tmp/pinewood-nav-http.log 2>&1 &
+          pid=$!
+          trap 'kill "$pid" 2>/dev/null || true' EXIT
+          sleep 3
+          node scripts/smoke-navigation-reachability-v32.mjs
+      - name: Confirm no artifact upload
+        if: always()
+        run: echo 'Only regular job logs retain path results. No artifact uploads.'
