@@ -5,6 +5,7 @@ on:
     paths:
       - '.github/workflows/wall-mount-inspection-v33.yml'
   workflow_dispatch:
+# Audit merged wall topology to support measured switch mounting
 permissions:
   contents: read
 jobs:
