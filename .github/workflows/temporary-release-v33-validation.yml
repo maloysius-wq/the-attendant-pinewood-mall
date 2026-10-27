@@ -33,6 +33,7 @@ jobs:
           }
           console.log('PASS: No diagnostic loader instrumentation; all nine source patches remain local.');
           NODE
+          git fetch --no-tags --depth=1 origin main
           git diff --name-only origin/main..HEAD | tee /tmp/changed-release-files.txt
           if grep -E '^(game\.js|assets/|story/|scripts/smoke-|\.github/workflows/(geometry|navigation|self-hosted|wall-mount|source-canon))' /tmp/changed-release-files.txt; then
             echo "::error::Review-only diagnostic content included in release"
