@@ -9,6 +9,7 @@ on:
 # Validate accessible Maintenance Buzzer at proven grid tile and scripted Eli gate
 # Require zero permanently stranded pickups in all six chapters
 # Six-chapter reachability retest after moving mounted controls and route map
+# Check six-chapter navigation and interactable reach after bolting controls and maps to walls
 permissions:
   contents: read
 jobs:
