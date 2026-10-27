@@ -75,6 +75,17 @@ async function buildEastWingV23(world){
   await placeModel(world.root,'counterDesk',new THREE.Vector3(10.5,0,11.8),{targetLongest:1.9,fallback:'table'});
   const photo=makeStaffPhotoV23(new THREE.Vector3(-5.25,.86,10.45));world.root.add(photo);world.interactables.push(photo);
   const jo=makePickup('journal',new THREE.Vector3(-16.7,.82,-9.9),'JO-CLOSING-NOTES','JO ALVAREZ — TRAINING PAD, 11/14/97: Tessa out through Receiving. Denise out. Marcus out. Nina out. Caleb out. If the terminal disagrees with a person I watched leave, the terminal is wrong. Stop sending people back to stations.');world.root.add(jo);world.interactables.push(jo);
+  // Ground Tessa's Side B on a tangible staff-effects bench beside her locker.
+  // Earlier builds placed this cassette at y=0.72 without any support.
+  const effectsBench=new THREE.Group();effectsBench.position.set(-21.0,0,10.65);
+  effectsBench.userData.chapter4Setpiece='tessa-personal-effects-bench-v32';world.root.add(effectsBench);
+  const benchSurface=new THREE.MeshStandardMaterial({color:0x625448,roughness:.91}),
+        benchSteel=new THREE.MeshStandardMaterial({color:0x434b49,roughness:.76,metalness:.34});
+  addBox(effectsBench,new THREE.Vector3(0,.68,0),new THREE.Vector3(.94,.08,.55),benchSurface);
+  for(const sx of[-.38,.38])for(const sz of[-.19,.19])
+    addBox(effectsBench,new THREE.Vector3(sx,.34,sz),new THREE.Vector3(.07,.68,.07),benchSteel);
+  addBox(effectsBench,new THREE.Vector3(.28,.77,-.05),new THREE.Vector3(.22,.10,.15),benchSteel);
+  world.addCollider(-21.0,10.65,1.02,.63,{navBlock:true,owner:effectsBench,pad:.03});
   const ls06=makeAudioCassetteV23(new THREE.Vector3(-21.0,.72,10.65),'LS-06','TESSA KIM — SIDE B: The cassette keeps recording inside a tote as Jo moves Tessa through Receiving. Jo says, “You are outside when I say you are outside, not when that machine says it.” Behind them, Pinewood calls Tessa Kim back to Cassette Castle.');world.root.add(ls06);world.interactables.push(ls06);
   const oldLog=makePickup('journal',new THREE.Vector3(-1.0,.18,-12.4),'PRE-1986-LOG','JANITORIAL LOG — 1986: East Wing sweep delayed again. Saw that night employee by the anchor gate after Security said the floor was clear. He never answers when spoken to. Going around through Receiving.');world.root.add(oldLog);world.interactables.push(oldLog);
   const cab=makeCabinet(new THREE.Vector3(5.1,0,-13.5),Math.PI);world.root.add(cab);world.addCollider(5.1,-13.5,.82,.46,{navBlock:true,owner:cab});world.interactables.push(cab);
