@@ -5,6 +5,7 @@ on:
     paths:
       - '.github/workflows/source-canon-audit-v32.yml'
   workflow_dispatch:
+# Final v32 source retest after handoff anchor and freight audit repair
 permissions:
   contents: read
 jobs:
