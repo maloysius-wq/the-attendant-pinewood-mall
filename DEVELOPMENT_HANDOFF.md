@@ -518,4 +518,23 @@ Run the comprehensive static/browser suite, collect reports exclusively in the r
 **Required next production gate:** review actual screenshots/assets through a permitted local means, add interaction-aware traversal under real gating changes, verify actual movement around narrow colliders and pixel appearance, review the v32 fixes, then promote only accepted production patches (NOT \`game.js\` diagnostic instrumentation). No Chapter 7, no Cassette Castle retired shelving, no off-origin runtime assets.
 
 
+
+
+### v33 six-chapter wall-mount inspection and correction (2026-10-27)
+
+**Purpose:** Confirm true wall-affixed switches, breaker cabinets, route signs/maps, wall posters, and Records placards touch a real structural wall surface, not just exist within a reachable scene. All fixes on \`audit/self-hosted-game-review-v32\`. The \`main\` release remains unchanged.
+
+**Method:** The level walls are two \`THREE.InstancedMesh\` objects per level with hundreds of 1m wall sections; a mesh-global AABB is NOT a valid wall proximity metric. Audit-only \`__PINEWOOD_WALL_CONTACT_V33__\` expands each instance transform, computes individual wall AABBs, checks mounted-fixture AABB-to-wall gap no more than 0.06 metres, and demands wall-normal alignment >=0.90. Every chapter is visited by the deterministic Playwright script \`scripts/smoke-wall-mounts-v33.mjs\`. Additional explicit assertions require four East Wing wall-fixed wayfinding signs and the present-day Chapter 6 PA wall sign. All wall scan snapshots remain ephemeral on the standard free GitHub-hosted runner; no artifact upload. Detector checks flagged/typed wall fixtures; not every untagged decorative plane is a wall mount. Some are product/frontage signs, console screens, locker labels, gate signs or memory-overlay labels mounted to *other* supporting structures, not structural walls.
+
+**Confirmed original defects and fixes:**
+- Ch2 Feeder 4 and Sump 2 control boxes originally ~1.04m and ~1.02m from walls. Now ~0.01m from individual oriented service wall segments. Relay D breaker rotated into its existing axis-aligned structural wall (0m gap); Relay E was already correct.
+- Ch3 East Wing access sign was ~1.42m out. Now ~0.03m from an actual X-wall section.
+- Ch4 route map was ~1.30m from nearest segment with incorrect facing. Relocated to a compatible Z-wall, added four rear cleats, now within 0m AABB contact with correct facing. Four East Wing wayfinding/training signs use explicit nearest actual wall-instance mounting brackets and passed 0m contact.
+- Ch5 five Records signs were ~0.44–0.89m detached and faced the wrong wall axis. They now have wall fixtures, screws, correct facing, and 0.042m sign-face-to-wall gap.
+- Ch1 three Food Court posters were ~0.09m out; moved close to the walls and all posters now pass 0m geometry contact. Other checked Chapter 1 breaker cabinets and tagged posters were already aligned.
+- Ch6 the present-day PA placard was 0.73m out; relocated to back wall and measured 0.03m wall gap. The period-shift placard is an overlay against the *authored memory wall mesh*, the exit sign is attached to the moving gate, and the staff-desk label is held by independent posts, so none is correctly expected to intersect the instanced permanent walls.
+- Patch assembly was reverified after carefully preserving original \`replaceOnce\` string needles for Food Court posters. Dedicated browser wall checks are named \`smoke-\` so they don't enter the dependency-free \`audit-*.mjs\` glob.
+
+**Latest PASS results:** \`wall-mount-inspection-v33\` run [40575163496](https://github.com/maloysius-wq/the-attendant-pinewood-mall/actions/runs/40575163496) passed strict six-chapter contact and facing checks, including 4/4 East Wing wayfinding signs and Chapter 6 PA placard. [40575171523](https://github.com/maloysius-wq/the-attendant-pinewood-mall/actions/runs/40575171523) passed all 25 authored source/canon audits and targeted v32 checks. The earlier [40574112460](https://github.com/maloysius-wq/the-attendant-pinewood-mall/actions/runs/40574112460) six-chapter route inspection passed 56/56 reachable interactables *before* the final noncolliding sign/bracket adjustments; rerun navigation once more at the latest branch HEAD. Do not represent AABB contact alone as actual screenshot inspection or universal pixel-perfect proof, especially for signage attached to non-wall supports.
+
 <!-- FULL_GAME_SELF_HOSTED_AUDIT_V32_END -->
