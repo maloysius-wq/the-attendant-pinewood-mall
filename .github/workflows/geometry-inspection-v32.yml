@@ -8,6 +8,7 @@ on:
   workflow_dispatch:
 # Final v32 geometry retest after chained patch anchor repair
 # v32 optional nav topology probe across each chapter (no artifacts)
+# Final scene geometry audit after Chapter 2 buzzer and Chapter 3 monitor stand repairs
 permissions:
   contents: read
 jobs:
