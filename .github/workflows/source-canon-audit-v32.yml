@@ -6,6 +6,7 @@ on:
       - '.github/workflows/source-canon-audit-v32.yml'
   workflow_dispatch:
 # Final v32 source retest after handoff anchor and freight audit repair
+# Validate latest Ch2 walk-grid relocation and Ch4 illustrated staff / locker props
 permissions:
   contents: read
 jobs:
