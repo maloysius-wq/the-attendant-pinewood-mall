@@ -9,6 +9,7 @@ on:
 # Exact instanced wall-tile contact and fixture facing validation
 # Targeted compatible-wall lookup for detached fixtures
 # Final six-chapter 6cm contact and facing-angle physical wall mounting gate
+# Require contact for all wayfinding and PA wall signs
 permissions:
   contents: read
 jobs:
