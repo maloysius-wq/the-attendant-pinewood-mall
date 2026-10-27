@@ -24,8 +24,11 @@ try{
    await writeFile(dir+'/'+chapter+'.json',JSON.stringify(x,null,2));
    const exact=await page.evaluate(()=>window.__PINEWOOD_WALL_CONTACT_V33__?.());
    if(!exact?.ready)throw Error('Instanced wall contact probe failed');
+   const detached=exact.fixtures.filter(m=>m.expectedMount&&(!m.nearest||m.nearest.gap>.06||m.facingAlignment<.90));
+   if(detached.length)console.log('[STRICT_MOUNT_FAILURES] '+chapter+' '+JSON.stringify(detached.map(m=>({type:m.type,label:m.label,userData:m.userData,pos:m.position,gap:m.nearest?.gap,facing:m.facingAlignment}))));
    await writeFile(dir+'/'+chapter+'-wall-contacts.json',JSON.stringify(exact,null,2));
    console.log('[ACTUAL_WALLS] '+chapter+' '+exact.instanceWalls);
+   for(const m of exact.fixtures.filter(x=>x.reason==='print-plane'&&x.position[1]>1.15))console.log('[PLANE] '+chapter+' at '+m.position.join(',')+' nearest='+m.nearest?.gap+'m facing='+m.facingAlignment);
    for(const m of exact.fixtures.filter(o=>o.expectedMount)){
      console.log('[MOUNT] '+chapter+' '+(m.type||m.label||JSON.stringify(m.userData)).slice(0,80)+' at '+m.position.join(',')+' gap='+m.nearest?.gap+'m, center='+m.nearest?.centerDist+'m, facing='+m.facingAlignment+' wall='+JSON.stringify(m.nearest).slice(0,270));
      if(!m.nearest||m.nearest.gap>.18||m.facingAlignment<.70)console.log('[DETACHED] '+chapter+' '+(m.type||m.label||JSON.stringify(m.userData)).slice(0,80)+' gap='+m.nearest?.gap+' facing='+m.facingAlignment);
@@ -45,6 +48,7 @@ try{
    console.log('[PRINTS] '+chapter+' '+planes.length+' potential wall/printed planes; '+far.length+' more than 0.4m from nearest wall box, requiring semantic classification');
    for(const f of far.slice(0,24))console.log('[FAR_PRINT] '+chapter+' '+JSON.stringify({name:f.name,pos:f.p,bounds:f.bounds,near:f.closest[0]||null}));
    if(!x.wallCount)console.log('[WARNING] '+chapter+' wallMeshes array empty; must derive actual walls from world scene geometry or source.');
+   if(detached.length)throw Error('Wall-mounted fixtures failed 6cm contact/90% normal alignment gate: '+detached.length);
    if(errors.length)throw Error('Browser errors '+errors.join(' | '));
    summary.push({chapter,wallCount:x.wallCount,verticalWalls:walls.length,candidates:x.fixtureCount,tagged:target.length,printPlanes:planes.length,farPrintPlanes:far.length});
   }catch(e){failures++;console.log('[FAIL] '+chapter+' '+String(e.stack||e).slice(0,900));}
