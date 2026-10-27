@@ -47,6 +47,43 @@ function makeEastWingRouteMapV23(){
 function makeEastWingSignV23(title,sub,pos,rot=0,accent='#c9b96c'){
   const g=new THREE.Group();g.position.copy(pos);g.rotation.y=rot;const panel=new THREE.Mesh(new THREE.PlaneGeometry(1.75,.72),new THREE.MeshStandardMaterial({map:eastWingPanelTextureV23(title,[sub],accent),emissive:0x171710,emissiveIntensity:.18,roughness:.66}));g.add(panel);return g;
 }
+function mountEastWingSignToWallV33(world,sign){
+  // Snap true wayfinding signs to the nearest instanced structural wall section,
+  // preserving the face visible from the originally authored sign position.
+  const original=sign.position.clone();const sample=new THREE.Matrix4(),matrix=new THREE.Matrix4();
+  let winner=null;
+  for(const mesh of world.wallMeshes||[]){
+    const geo=mesh.geometry;if(!geo.boundingBox)geo.computeBoundingBox();
+    const local=geo.boundingBox;if(!local)continue;
+    for(let i=0;i<(mesh.isInstancedMesh?mesh.count:1);i++){
+      if(mesh.isInstancedMesh)mesh.getMatrixAt(i,sample);else sample.identity();
+      matrix.copy(mesh.matrixWorld).multiply(sample);
+      const bound=local.clone().applyMatrix4(matrix);
+      if(original.y<bound.min.y||original.y>bound.max.y)continue;
+      const distance=bound.distanceToPoint(original);
+      if(!winner||distance<winner.distance)winner={bound,distance};
+    }
+  }
+  if(!winner||winner.distance>4.5)return false;
+  const wall=winner.bound,thinX=wall.max.x-wall.min.x<wall.max.z-wall.min.z;
+  const backplate=new THREE.MeshStandardMaterial({color:0x515c56,metalness:.42,roughness:.69});
+  if(thinX){
+    const wallCenterX=(wall.min.x+wall.max.x)*.5;
+    const normalX=original.x>=wallCenterX?1:-1;
+    sign.position.x=normalX>0?wall.max.x+.028:wall.min.x-.028;
+    sign.position.z=THREE.MathUtils.clamp(original.z,wall.min.z+.09,wall.max.z-.09);
+    sign.rotation.y=normalX>0?Math.PI/2:-Math.PI/2;
+  }else{
+    const wallCenterZ=(wall.min.z+wall.max.z)*.5;
+    const normalZ=original.z>=wallCenterZ?1:-1;
+    sign.position.z=normalZ>0?wall.max.z+.028:wall.min.z-.028;
+    sign.position.x=THREE.MathUtils.clamp(original.x,wall.min.x+.09,wall.max.x-.09);
+    sign.rotation.y=normalZ>0?0:Math.PI;
+  }
+  addBox(sign,new THREE.Vector3(0,0,-.047),new THREE.Vector3(.74,.40,.087),backplate);
+  sign.userData.chapter4WallMountV33='structural-wall';
+  return true;
+}
 function makeTessaLockerV23(){
   const root=new THREE.Group();root.position.set(-22.8,.04,10.4);root.rotation.y=Math.PI/2;root.userData={type:'ch4_locker_v23',label:'Tessa Kim — Locker 27',opened:false};
   const steel=new THREE.MeshStandardMaterial({color:0x57605e,roughness:.78,metalness:.28}),dark=new THREE.MeshStandardMaterial({color:0x242827,roughness:.72,metalness:.20}),paper=new THREE.MeshStandardMaterial({color:0xd8cda9,roughness:.85});
@@ -150,6 +187,8 @@ async function buildEastWingV23(world){
   const r12=makeEastWingSignV23('R-12','RECEIVING → RECORDS',new THREE.Vector3(21.7,1.75,7.65),0,'#4b8f64');world.root.add(r12);
   const e17=makeEastWingSignV23('E-17','FIRE CLOSURE',new THREE.Vector3(15.0,1.75,-15.6),Math.PI,'#a34f45');world.root.add(e17);
   const t04=makeEastWingSignV23('T-04','TRAINING',new THREE.Vector3(-17.0,1.75,-5.75),0,'#7a5c9a');world.root.add(t04);
+  mountEastWingSignToWallV33(world,r12);mountEastWingSignToWallV33(world,e17);mountEastWingSignToWallV33(world,t04);
+  if(typeof trainingBoard!=='undefined')mountEastWingSignToWallV33(world,trainingBoard);
   const falseGate=makeShutter(new THREE.Vector3(15,0,-18),'z',true,'E-17 Fire Closure');falseGate.userData.chapter4FalseRouteV23=true;falseGate.userData.collider=world.addCollider(15,-18,5.15,.28,{navBlock:true,owner:falseGate,pad:.01});world.root.add(falseGate);world.dynamicDoors.push(falseGate);world.interactables.push(falseGate);
   const exitGate=makeShutter(new THREE.Vector3(22,0,20),'z',false,'R-12 Records Gate');exitGate.userData.chapter4ExitV23=true;exitGate.userData.collider=world.addCollider(22,20,5.15,.28,{navBlock:true,owner:exitGate,pad:.01});world.root.add(exitGate);world.dynamicDoors.push(exitGate);world.interactables.push(exitGate);s.recordsExit=exitGate;GAME.exitObject=exitGate;
   const fill=new THREE.HemisphereLight(0x7b726b,0x090707,.13);fill.userData.chapter4LightV23='east-wing-fill';world.root.add(fill);for(const[x,z,color,intensity,range,tag]of[[-20,9,0xc7bba5,.82,6.2,'lockers'],[-5,11,0xffc98d,.72,6.2,'break-room'],[-17,-10,0xc7d2bd,.68,5.8,'training'],[11,11,0xb8a6c9,.74,7.0,'anchor'],[22,12,0xa4c4ad,.92,7.2,'receiving'],[15,-15,0xd27c68,.52,4.7,'e17']]){const l=new THREE.PointLight(color,intensity,range,2);l.position.set(x,2.25,z);l.userData.chapter4LightV23=tag;world.root.add(l);}
