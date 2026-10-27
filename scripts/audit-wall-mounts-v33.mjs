@@ -15,6 +15,11 @@ try{
    await page.goto(url.href,{waitUntil:'domcontentloaded',timeout:90000});
    await page.waitForFunction(()=>window.__PINEWOOD_VISUAL_READY__===true&&typeof window.__PINEWOOD_WALL_AUDIT_V33__==='function',null,{timeout:120000});
    const x=await page.evaluate(()=>window.__PINEWOOD_WALL_AUDIT_V33__());
+   if(chapter==='CH2'||chapter==='CH4'){
+     const structure=await page.evaluate(()=>window.__PINEWOOD_WALL_SURFACE_V33__());
+     console.log('[WALL_STRUCTURE] '+chapter+' '+JSON.stringify(structure).slice(0,16000));
+   }
+   console.log('[WALL_BOXES] '+chapter+' '+JSON.stringify(x.walls).slice(0,2300));
    await writeFile(dir+'/'+chapter+'.json',JSON.stringify(x,null,2));
    if(!x.ready||x.chapter!==idx)throw Error('scene/world unavailable '+JSON.stringify(x).slice(0,400));
    const walls=x.walls.filter(w=>w.vertical);
