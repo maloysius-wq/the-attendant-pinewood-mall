@@ -31,7 +31,7 @@ jobs:
           pid=$!
           trap 'kill "$pid" 2>/dev/null || true' EXIT
           sleep 3
-          node scripts/audit-wall-mounts-v33.mjs
+          node scripts/smoke-wall-mounts-v33.mjs
       - name: No storage/artifact uploads
         if: always()
         run: echo 'Only normal GitHub workflow logs are kept, not screenshots or uploaded artifacts.'
