@@ -96,8 +96,8 @@ async function buildBelowGradeV21(world){
   addPipeRunV21(world,new THREE.Vector3(-4.0,1.05,24.0),new THREE.Vector3(-4.0,1.05,18.2),.085,0x596165);
   addPipeRunV21(world,new THREE.Vector3(9,2.38,-17.0),new THREE.Vector3(9,2.38,-5.6),.07,0x6a5950);
 
-  const feeder=makeServiceControlV21(new THREE.Vector3(-27.0,.08,-9.32),0,'feeder','FEEDER 4','ISOLATION');world.root.add(feeder);world.interactables.push(feeder);s.feederControl=feeder;
-  const pump=makeServiceControlV21(new THREE.Vector3(-8.0,.08,28.34),Math.PI,'pump','SUMP 2','MANUAL RUN');world.root.add(pump);world.interactables.push(pump);s.pumpControl=pump;
+  const feeder=makeServiceControlV21(new THREE.Vector3(-27.0,.08,-10.35),0,'feeder','FEEDER 4','ISOLATION');world.root.add(feeder);world.interactables.push(feeder);s.feederControl=feeder;
+  const pump=makeServiceControlV21(new THREE.Vector3(-8.0,.08,29.35),Math.PI,'pump','SUMP 2','MANUAL RUN');world.root.add(pump);world.interactables.push(pump);s.pumpControl=pump;
 
   s.gavinRoot=makeGavinRemainsV21(world);await bloodDecal(world,{surface:'floor',x:25.62,z:-12.83,w:.72,h:.48,roll:-.34,index:0,opacity:.52});
   const ticket=makePickup('journal',new THREE.Vector3(24.72,.18,-11.42),'GAVIN-TICKET','GAVIN COLE — PINEWOOD PROPERTY INSPECTION, 2023. FACILITIES SESSION: CONTRACTOR 13. Scope: verify recurring overnight electrical activation below grade. Status: OPEN. Handwritten beneath the printout: “Elevator went down. Heard somebody walking before I got the lights on.”');world.root.add(ticket);world.interactables.push(ticket);ticket.userData.chapter2Setpiece='gavin-ticket-v21';
