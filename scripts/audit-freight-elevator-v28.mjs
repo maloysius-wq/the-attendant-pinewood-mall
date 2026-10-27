@@ -9,7 +9,8 @@ for(const marker of [
   'applyFreightElevatorReliabilityV28Runtime',
   'freightElevatorV28Patch',
   'freightElevatorV28Source',
-  'applyAudioDirectionV27Runtime(freightElevatorV28Source'
+  'applyArcadeRebuildV30Runtime(freightElevatorV28Source',
+  'applyAudioDirectionV27Runtime(arcadeV30Source'
 ])if(!game.includes(marker))fail('loader marker missing '+marker);
 for(const marker of [
   'freightDoorLeafV28',
@@ -23,4 +24,4 @@ for(const marker of [
 ])if(!patch.includes(marker))fail('patch marker missing '+marker);
 if(!game.includes("const source=audioDirectionV27Source+'\\n//# sourceURL=pinewood-runtime.js\\n';"))fail('Audio Direction v27 must remain terminal after elevator reliability feed-forward');
 const tmp='/tmp/pinewood-freight-elevator-v28.mjs';await writeFile(tmp,patch);execFileSync('node',['--check',tmp],{stdio:'inherit'});
-console.log('Freight Elevator Reliability v28 audit passed: immediate moving leaves, visible-fraction collision coupling, explicit physical blocker, closed-door movement guard, deterministic telemetry, and v27 terminal feed-forward are protected.');
+console.log('Freight Elevator Reliability v28 audit passed: immediate moving leaves, v30 arcade then terminal v27 audio, visible-fraction collision coupling, explicit physical blocker, closed-door movement guard, deterministic telemetry, and v27 terminal feed-forward are protected.');
