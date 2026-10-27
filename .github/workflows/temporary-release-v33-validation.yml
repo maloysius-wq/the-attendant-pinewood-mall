@@ -1,0 +1,107 @@
+name: Pinewood v33 production loader release verification (TEMPORARY)
+
+on:
+  push:
+    branches: [release/pinewood-v33-verified-mounts]
+    paths: ['.github/workflows/temporary-release-v33-validation.yml']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  static-source:
+    name: Production loader plus all authored static audits
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Verify release isolation and production-ready loader
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --input-type=module <<'NODE'
+          import fs from 'node:fs';
+          const load=fs.readFileSync('game.js','utf8');
+          const h=fs.readFileSync('DEVELOPMENT_HANDOFF.md','utf8');
+          if(load.includes('geometryAuditHookV32')||load.includes('wallContactHookV33')||load.includes('__PINEWOOD_WALL_CONTACT_V33__'))throw Error('Nonshipping diagnostic hook leaked into production loader');
+          if(!h.includes('v33 production release handoff'))throw Error('Missing release handoff');
+          for(const file of ['patches/chapter2-below-grade-v21.js.txt','patches/chapter3-eyes-security-v22.js.txt','patches/chapter4-east-wing-v23.js.txt','patches/chapter5-accountability-v24.js.txt','patches/chapter6-last-shift-v25.js.txt']){
+            if(!fs.existsSync(file))throw Error('Missing production patch '+file);
+          }
+          console.log('PASS: No diagnostic loader instrumentation; all nine source patches remain local.');
+          NODE
+          git diff --name-only origin/main..HEAD | tee /tmp/changed-release-files.txt
+          if grep -E '^(game\.js|assets/|story/|scripts/smoke-|\.github/workflows/(geometry|navigation|self-hosted|wall-mount|source-canon))' /tmp/changed-release-files.txt; then
+            echo "::error::Review-only diagnostic content included in release"
+            exit 1
+          fi
+      - name: Audit every dependency-free source script
+        shell: bash
+        run: |
+          set +e
+          failures=0
+          total=0
+          for script in scripts/audit-*.mjs; do
+            total=$((total+1))
+            node "$script" > /tmp/pinewood-v33-source-audit.log 2>&1
+            code=$?
+            printf '[%s] %s\n' "$([ "$code" -eq 0 ] && echo PASS || echo FAIL)" "$script"
+            if [ "$code" -ne 0 ]; then
+              failures=$((failures+1))
+              tail -n 35 /tmp/pinewood-v33-source-audit.log
+            fi
+          done
+          echo "SOURCE_AUDITS: $((total-failures))/$total passed."
+          test "$failures" -eq 0
+
+  browser-regression:
+    name: Six chapters, controls, audio, endings, and visual scene captures
+    runs-on: ubuntu-latest
+    timeout-minutes: 100
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Install Playwright on standard public runner
+        run: |
+          npm install --no-save --package-lock=false --no-audit --no-fund playwright@1.55.0
+          npx playwright install chromium
+      - name: Run browser regression on production (unmodified) loader
+        shell: bash
+        env:
+          PINEWOOD_BASE_URL: http://127.0.0.1:4173/
+        run: |
+          set +e
+          python3 -m http.server 4173 --bind 127.0.0.1 >/tmp/pinewood-v33-http.log 2>&1 &
+          pid=$!
+          trap 'kill "$pid" 2>/dev/null || true' EXIT
+          sleep 4
+          total=0
+          failures=0
+          for script in \
+            scripts/smoke-production-v26.mjs \
+            scripts/smoke-menu-accessibility-v31.mjs \
+            scripts/smoke-audio-direction-v27.mjs \
+            scripts/smoke-freight-elevator-v28.mjs \
+            scripts/smoke-arcade-v30.mjs \
+            scripts/simulate-chapter6-finale-v25.mjs \
+            scripts/capture-store-visuals.mjs \
+            scripts/capture-security-v22.mjs \
+            scripts/capture-east-wing-v23.mjs \
+            scripts/capture-accountability-v24.mjs \
+            scripts/capture-last-shift-v25.mjs; do
+              total=$((total+1))
+              echo "::group::$script"
+              node "$script" >/tmp/pinewood-v33-browser-case.log 2>&1
+              code=$?
+              printf '[%s] %s (exit %s)\n' "$([ "$code" -eq 0 ] && echo PASS || echo FAIL)" "$script" "$code"
+              tail -n 6 /tmp/pinewood-v33-browser-case.log | cut -c 1-300
+              echo "::endgroup::"
+              if [ "$code" -ne 0 ]; then failures=$((failures+1)); fi
+          done
+          echo "BROWSER_CASES: $((total-failures))/$total passed."
+          echo "No screenshot/test artifact uploaded to GitHub. Ephemeral files removed by runner cleanup."
+          test "$failures" -eq 0
