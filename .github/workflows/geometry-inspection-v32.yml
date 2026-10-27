@@ -1,4 +1,5 @@
 name: Pinewood six-chapter geometry inspection v32 (public runner)
+# Source placement fixes validation: Ch2 chronology, Ch3 VCR, Ch4 cassette
 on:
   push:
     branches: [audit/self-hosted-game-review-v32]
