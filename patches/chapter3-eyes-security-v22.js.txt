@@ -45,7 +45,11 @@ function makeSecurityMonitorBankV22(world,feeds){
   const root=new THREE.Group();root.position.set(-24.4,.08,-28.35);root.rotation.y=0;root.userData.chapter3Setpiece='primary-security-cctv-v22';world.root.add(root);
   const shell=new THREE.MeshStandardMaterial({color:0x171b1c,roughness:.64,metalness:.36});const monitors=[];
   feeds.forEach((feed,i)=>{const x=(i%2)*1.32-.66,y=Math.floor(i/2)*.86+.68;addBox(root,new THREE.Vector3(x,y,0),new THREE.Vector3(1.18,.72,.48),shell);const mat=new THREE.MeshStandardMaterial({map:securityLabelTextureV22(feed.id,feed.label),emissive:0x153a2d,emissiveIntensity:.58,roughness:.29});const screen=new THREE.Mesh(new THREE.PlaneGeometry(.96,.48),mat);screen.position.set(x,y,.247);root.add(screen);const lampMat=new THREE.MeshStandardMaterial({color:0x1b3325,emissive:0x3fd982,emissiveIntensity:.28,roughness:.28});const lamp=new THREE.Mesh(new THREE.SphereGeometry(.035,10,10),lampMat);lamp.position.set(x+.49,y-.30,.27);root.add(lamp);monitors.push({feed,screen,lamp});});
-  addBox(root,new THREE.Vector3(0,.28,-.18),new THREE.Vector3(2.75,.18,.74),shell);world.addCollider(-24.4,-28.35,2.95,.82,{navBlock:true,owner:root,pad:.03});return monitors;
+  // The monitor array needs a real load-bearing stand, not a suspended tabletop.
+  addBox(root,new THREE.Vector3(0,.28,-.18),new THREE.Vector3(2.75,.18,.74),shell);
+  for(const sx of[-1.08,1.08])addBox(root,new THREE.Vector3(sx,.14,-.18),new THREE.Vector3(.16,.44,.54),shell);
+  addBox(root,new THREE.Vector3(0,.065,-.38),new THREE.Vector3(2.45,.13,.12),shell);
+  world.addCollider(-24.4,-28.35,2.95,.82,{navBlock:true,owner:root,pad:.03});return monitors;
 }
 function setSecurityRouteV22(game,route,quiet=false){
   const s=game.ch3V22;if(!s)return;s.route=route;
