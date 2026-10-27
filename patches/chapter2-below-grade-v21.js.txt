@@ -132,7 +132,7 @@ async function decorateLevel(world,idx){`
 
   replaceOnce('build Below Grade after legacy fixtures',
     "const dec=makePickup('decoy',new THREE.Vector3(-11,.18,16),'Maintenance Buzzer');world.root.add(dec);world.interactables.push(dec);",
-    "const dec=makePickup('decoy',new THREE.Vector3(-11,.18,16),'Maintenance Buzzer');world.root.add(dec);world.interactables.push(dec);await buildBelowGradeV21(world);"
+    "const dec=makePickup('decoy',new THREE.Vector3(-8,.18,18),'Maintenance Buzzer');world.root.add(dec);world.interactables.push(dec);await buildBelowGradeV21(world);"
   );
 
   replaceOnce('Chapter 2 control interaction prompt',
