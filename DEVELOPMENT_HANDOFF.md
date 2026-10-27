@@ -491,4 +491,31 @@ Run the comprehensive static/browser suite, collect reports exclusively in the r
 **Updated runner decision:** On 2026-10-27 the user verified the repository is public and explicitly authorized standard GitHub-hosted Actions (free for public repositories), rather than waiting for the offline self-hosted runner. Use `ubuntu-latest` only. Run logs may contain the audit summaries, but do not upload screenshot, audit JSON or ZIP artifacts. Standard hosted runner filesystem is disposable, so source of findings must be printed to logs and/or captured in version-controlled audit notes.
 
 **Audit-branch corrections (NOT promoted to main):** `851cc6e2` corrects the LS-04 9:08 timestamp to unnamed early departures, eliminates early LS-05/LS-06 surrogate pickups, and separates the Gavin keycard from the inspection ticket. `366d237c` clears Chapter 3 Security VCR/desk intersection and grounds both stacked VCR console parts. `f358d139` builds a support bench and collider at the Chapter 4 Side B cassette pickup. Baseline geometry inspection run `40558961373` passed 8 views and showed all six worlds present; second geometry inspection run `40560339216` validates the changed scenes and exposes nav/world metadata. Full-game baseline hardening run `40557164624` was still running at this update. No files were uploaded as GitHub artifacts.
+
+### v32 audit findings and implemented candidate repairs (2026-10-27)
+
+**Repository state and promotion rule:** All v32 changes are confined to review branch \`audit/self-hosted-game-review-v32\`, not deployed \`main\`. Do not merge the audit-only hooks in \`game.js\` or the review workflows into production. To ship accepted repairs, cherry-pick or apply only corrected patches / story assets and maintain clean production game loader.
+
+**Verified authored story / gameplay corrections:**
+- Chapter 2 \`LS-04\` at 9:08 now describes two observed early departures, NOT Tessa; 1997 bible places Tessa's physical receiving exit at 9:54.
+- Removed premature Ch2 surrogate \`LS-05\` and \`LS-06\` pickups. Luis's security VHS remains in Ch3; Tessa's Side B stays in Ch4.
+- Moved Gavin's keycard away from the inspector ticket so the two collectible hits no longer overlap.
+- Chapter 2 Maintenance Buzzer placed at (-8,18), a reachable authored walk-grid tile, rather than a nonwalkable gap at (-11,16).
+- Chapter 3 Luis's VCR station moved/grounded clear of the Security desk; changed the chained v22b patch exact anchor to preserve startup.
+- Chapter 3 primary CCTV station now has supports down to the floor, rather than an unsupported suspended worktop.
+- Chapter 4 Side B cassette has a tangible prop bench and navigation collider beneath it.
+- Chapter 4 Tessa locker now includes recognizable physical Top 40 sheet, unsigned future resignation draft, two photo strips and closing checklist, rather than text-only mementos; the postdated-after-incident letter issue is resolved.
+- Chapter 4 1997 staff photo now depicts visually different uniforms/roles, placing Tessa in Cassette Castle pink front left, Jo directly behind with clipboard, Luis at edge in Security uniform, plus other crew.
+
+**Validation and audit coverage:**
+- Public repo standard \`ubuntu-latest\` runner only, no uploaded GitHub artifact files. Normal workflow logs retain summaries.
+- Baseline full-game audit run [40557164624](https://github.com/maloysius-wq/the-attendant-pinewood-mall/actions/runs/40557164624): 36 tests, 35 passed; 1 stale v28 script loader-order assertion failed (actual v28 browser smoke passed), and the v28 assertion was corrected on this branch.
+- Final corrected source regression [40566616670](https://github.com/maloysius-wq/the-attendant-pinewood-mall/actions/runs/40566616670): all 25 authored source audits passed; all targeted canon/fixture invariants passed.
+- Six-chapter 8-scene geometry inspection [40563123709](https://github.com/maloysius-wq/the-attendant-pinewood-mall/actions/runs/40563123709) passed; source/scene update run 40566621211 must be checked before declaring final geometry green.
+- Chapter traversal grid probe [40566189556](https://github.com/maloysius-wq/the-attendant-pinewood-mall/actions/runs/40566189556) found 56/56 accessible interactables across all six chapters with authorized dynamic gates open, and confirmed Eli's remains and \`LS-08\` are intentionally gated. A strict no-unreachable-items regression run 40566332251 is also green. This uses BFS over walk-grid with nav-blocking AABB colliders, not continuous human WASD play, and cannot certify all potential corner-edge bugs.
+- Browser smoke suite successfully exercised menus, 6 chapter HUDs, save migration, voiced dialogue, lift reliability, arcade, standard + true endings, and screenshot generation, but screenshots were never uploaded or visually reviewed in this chat. Thus visual perfection and 100% playable should NOT be asserted.
+
+**Required next production gate:** review actual screenshots/assets through a permitted local means, add interaction-aware traversal under real gating changes, verify actual movement around narrow colliders and pixel appearance, review the v32 fixes, then promote only accepted production patches (NOT \`game.js\` diagnostic instrumentation). No Chapter 7, no Cassette Castle retired shelving, no off-origin runtime assets.
+
+
 <!-- FULL_GAME_SELF_HOSTED_AUDIT_V32_END -->
