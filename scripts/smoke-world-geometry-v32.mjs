@@ -46,6 +46,7 @@ try{
     if(o.min[1]<-.35)mark('WARN',chapter,view,'SUBFLOOR_MODEL',o.tag+' min Y='+o.min[1].toFixed(3));
     if(o.size.some(x=>x>30))mark('WARN',chapter,view,'EXTREME_BOUNDS',o.tag+' size='+o.size.map(x=>x.toFixed(1)).join('/'));
    }
+   console.log('[GEOMETRY_KEYS] '+chapter+' '+view+' worldKeys='+JSON.stringify(info.worldKeys)+' gameKeys='+JSON.stringify(info.gameKeys));
    scans.push({chapter,view,level:info.levelIndex,objectCount:info.objects.length,interactables:info.interactables.length,colliderLists:info.colliderKeys,sceneTags:sceneBoxes.map(x=>({tag:x.tag,pos:x.position.map(n=>+n.toFixed(2)),minY:+x.min[1].toFixed(2),maxY:+x.max[1].toFixed(2)})).slice(0,40),overlapPairs,errors});
    if(errors.length)mark('FAIL',chapter,view,'BROWSER_ERROR',errors.join(' | ').slice(0,450));
    console.log('[GEOMETRY] '+chapter+' '+view+' objects='+info.objects.length+' interactables='+info.interactables.length+' '+JSON.stringify(info.colliderKeys).slice(0,350));
