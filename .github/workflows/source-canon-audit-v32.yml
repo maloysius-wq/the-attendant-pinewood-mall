@@ -18,6 +18,7 @@ jobs:
       - name: Validate all existing nonmutating runtime and chapter audits
         shell: bash
         run: |
+          set +e
           failures=0
           for script in scripts/audit-*.mjs; do
             echo "::group::$(basename "$script")"
