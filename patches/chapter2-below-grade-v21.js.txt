@@ -18,19 +18,16 @@ function applyChapter2BelowGradeV21(source){
 
   replaceOnce('Security key moved to Gavin set piece',
     "const keyp=makePickup('key',new THREE.Vector3(25,.18,-12),'Security Keycard');world.root.add(keyp);world.interactables.push(keyp);",
-    "const keyp=makePickup('key',new THREE.Vector3(24.72,.14,-11.42),'Security Keycard');world.root.add(keyp);world.interactables.push(keyp);"
+    "const keyp=makePickup('key',new THREE.Vector3(25.62,.14,-11.42),'Security Keycard');world.root.add(keyp);world.interactables.push(keyp);"
   );
 
   replaceOnce('Chapter 2 Last Shift evidence correction',
     "const notes=[[-22,-6,'LS-04','LAST SHIFT 04\\nDispatch said my name before I gave it. I stopped answering the radio after that.'],[-6,23,'LS-05','LAST SHIFT 05\\nThe thing in the halls is wearing the idea of an employee. Do not let the eyes convince you there is a face behind them.'],[18,8,'LS-06','LAST SHIFT 06\\nI threw my pager down the loading hall. It followed the beeping. Bought me maybe six seconds.']];for(const[x,z,id,text]of notes){const n=makePickup('journal',new THREE.Vector3(x,.18,z),id,text);world.root.add(n);world.interactables.push(n);}",
-    "const notes=[[-6.3,23.4,'LS-04','JO ALVAREZ — CLOSING ROSTER FRAGMENT: 9:08 PM. Tessa out through Receiving. Marcus out. Nina out. PCAS still shows two unresolved. I watched them leave. From here on I count people, not the terminal. — J.A.']];for(const[x,z,id,text]of notes){const n=makePickup('journal',new THREE.Vector3(x,.18,z),id,text);world.root.add(n);world.interactables.push(n);}"
+    "const notes=[[-6.3,23.4,'LS-04','JO ALVAREZ — CLOSING ROSTER FRAGMENT: 9:08 PM. I watched two employees leave by the public exit. PCAS still shows them inside. The electronic count is wrong. From here on I count people, not the terminal. — J.A.']];for(const[x,z,id,text]of notes){const n=makePickup('journal',new THREE.Vector3(x,.18,z),id,text);world.root.add(n);world.interactables.push(n);}"
   );
 
-  replaceOnce('retain LS-05 and LS-06 during transition',
-    "const dec=makePickup('decoy',new THREE.Vector3(-20,.18,-23),'Dead Pager');world.root.add(dec);world.interactables.push(dec);",
-    "const dec=makePickup('decoy',new THREE.Vector3(-20,.18,-23),'Dead Pager');world.root.add(dec);world.interactables.push(dec);for(const[x,z,id,text]of[[-18,-16,'LS-05','LUIS ORTEGA — SECURITY NOTE: The figure is not an employee. It arrives after the page and follows the hall route to wherever Pinewood called.'],[10,-16,'LS-06','TESSA KIM — CASSETTE LABEL: Jo got me outside. The speakers kept calling my name after the doors were locked behind us.']]){if(SAVE.story.evidence[id]||SAVE.journal[id])continue;const legacy=makePickup('journal',new THREE.Vector3(x,.18,z),id,text);world.root.add(legacy);world.interactables.push(legacy);}"
-  );
-
+  // Keep Luis's VHS (LS-05) and Tessa's Side B (LS-06) in their authored Chapters 3 and 4.
+  // Chapter 2 no longer plants surrogate copies that spoil or pre-credit those discoveries.
   replaceOnce('Below Grade helper insertion','\nasync function decorateLevel(world,idx){',
 `\nfunction serviceStencilTextureV21(title,sub=''){
   return makeCanvasTexture((ctx,c)=>{
