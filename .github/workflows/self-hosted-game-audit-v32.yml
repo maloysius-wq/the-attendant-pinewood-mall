@@ -1,4 +1,4 @@
-name: Pinewood complete game audit v32 (SELF-HOSTED ONLY)
+name: Pinewood complete game audit v32 (PUBLIC STANDARD HOSTED ONLY)
 
 on:
   push:
@@ -12,25 +12,25 @@ permissions:
 
 jobs:
   full-game-audit:
-    name: Local six-chapter audit (no GitHub artifact uploads)
-    runs-on: [self-hosted]
+    name: Free public-repo six-chapter audit (no uploads)
+    runs-on: ubuntu-latest
     timeout-minutes: 120
     steps:
-      - name: Checkout audit branch on self-hosted machine
+      - name: Checkout isolated audit branch
         uses: actions/checkout@v4
         with:
           persist-credentials: false
-      - name: Identify execution machine and create LOCAL report folder
+      - name: Verify standard hosted runner and create ephemeral local report folder
         shell: bash
         run: |
           set -eu
           echo "RUNNER_NAME=$RUNNER_NAME RUNNER_OS=$RUNNER_OS RUNNER_ARCH=$RUNNER_ARCH"
-          test "$RUNNER_ENVIRONMENT" = "self-hosted"
+          test "$RUNNER_ENVIRONMENT" = "github-hosted"
           node --version
           python3 --version
           root="$HOME/pinewood-local-audits/$GITHUB_RUN_ID"
           mkdir -p "$root/logs" "$root/screenshots"
-          printf '%s\n' "Reports will stay on this machine at: $root"
+          printf '%s\n' "Reports remain on ephemeral hosted runner; final findings printed to logs: $root"
       - name: Canon, placement and source asset consistency
         shell: bash
         run: |
@@ -137,7 +137,7 @@ jobs:
           for dir in production-smoke-artifacts menu-accessibility-artifacts audio-direction-artifacts arcade-artifacts security-artifacts east-wing-artifacts accountability-artifacts last-shift-artifacts store-visual-artifacts visual-artifacts; do
             if test -d "$dir"; then cp -r "$dir" "$root/screenshots/"; fi
           done
-          echo "Browser audit finished. All captures retained on self-hosted machine at $root"
+          echo "Browser audit finished. Captures remain on ephemeral runner and are NOT uploaded"
       - name: Final local audit summary (no artifact upload)
         if: always()
         shell: bash
@@ -158,7 +158,7 @@ jobs:
           for(const c of cases)report.push('- '+(c.exit===0?'PASS':'FAIL')+' '+c.name+' ('+c.kind+')');
           report.push('','## Physical and narrative findings');
           for(const f of issues)report.push('- '+f.severity+' ['+f.chapter+'] '+f.id+': '+f.description);
-          report.push('','Screenshot files and test logs are in this runner-local folder. GitHub artifact upload intentionally disabled.');
+          report.push('','Screenshots and full logs were kept on the ephemeral runner only (not uploaded). Findings are summarized here in the standard workflow log.');
           fs.writeFileSync(path.join(root,'FULL_GAME_AUDIT.md'),report.join('\n')+'\n');
           console.log('LOCAL SUMMARY '+root);
           console.log(report.join('\n').slice(0,13000));
