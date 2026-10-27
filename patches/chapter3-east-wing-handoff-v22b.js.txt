@@ -7,8 +7,8 @@ function applyChapter3EastWingHandoffV22B(source){
   };
 
   replaceOnce('East Wing physical exit',
-    "world.addCollider(24.25,24.72,1.12,.82,{navBlock:true,owner:vcr});\n  window.__PINEWOOD_CH3_V22__.sceneBuilt=true;",
-    "world.addCollider(24.25,24.72,1.12,.82,{navBlock:true,owner:vcr});\n  const exitGate=makeShutter(new THREE.Vector3(29.35,0,26.0),'x',false,'East Wing Fire Door');exitGate.userData.chapter3ExitV22=true;exitGate.userData.collider=world.addCollider(29.35,26.0,.28,5.15,{navBlock:true,owner:exitGate,pad:.01});world.root.add(exitGate);world.dynamicDoors.push(exitGate);world.interactables.push(exitGate);GAME.exitObject=exitGate;s.exitGate=exitGate;\n  window.__PINEWOOD_CH3_V22__.sceneBuilt=true;"
+    "world.addCollider(24.90,24.72,1.12,.82,{navBlock:true,owner:vcr});\n  window.__PINEWOOD_CH3_V22__.sceneBuilt=true;",
+    "world.addCollider(24.90,24.72,1.12,.82,{navBlock:true,owner:vcr});\n  const exitGate=makeShutter(new THREE.Vector3(29.35,0,26.0),'x',false,'East Wing Fire Door');exitGate.userData.chapter3ExitV22=true;exitGate.userData.collider=world.addCollider(29.35,26.0,.28,5.15,{navBlock:true,owner:exitGate,pad:.01});world.root.add(exitGate);world.dynamicDoors.push(exitGate);world.interactables.push(exitGate);GAME.exitObject=exitGate;s.exitGate=exitGate;\n  window.__PINEWOOD_CH3_V22__.sceneBuilt=true;"
   );
 
   replaceOnce('East Wing evidence gate',
