@@ -7,6 +7,7 @@ on:
       - '.github/workflows/geometry-inspection-v32.yml'
   workflow_dispatch:
 # Final v32 geometry retest after chained patch anchor repair
+# v32 optional nav topology probe across each chapter (no artifacts)
 permissions:
   contents: read
 jobs:
