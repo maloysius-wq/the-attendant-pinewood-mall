@@ -1,0 +1,33 @@
+name: Pinewood wall-mount verification v33 (six chapters)
+on:
+  push:
+    branches: [audit/self-hosted-game-review-v32]
+    paths:
+      - '.github/workflows/wall-mount-inspection-v33.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  mounted-fixture-inspection:
+    runs-on: ubuntu-latest
+    timeout-minutes: 80
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Set up Chromium on free public runner
+        run: |
+          npm install --no-save --package-lock=false --no-audit --no-fund playwright@1.55.0
+          npx playwright install chromium
+      - name: Inspect six chapters against authored wall geometry
+        env:
+          PINEWOOD_BASE_URL: http://127.0.0.1:4173/
+        run: |
+          python3 -m http.server 4173 --bind 127.0.0.1 >/tmp/pinewood-walls-http.log 2>&1 &
+          pid=$!
+          trap 'kill "$pid" 2>/dev/null || true' EXIT
+          sleep 3
+          node scripts/audit-wall-mounts-v33.mjs
+      - name: No storage/artifact uploads
+        if: always()
+        run: echo 'Only normal GitHub workflow logs are kept, not screenshots or uploaded artifacts.'
