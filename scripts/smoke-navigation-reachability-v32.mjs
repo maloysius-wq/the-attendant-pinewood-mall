@@ -30,7 +30,7 @@ try{
    const openAndReachable=all.filter(o=>o.visible!==false&&o.reachable);
    console.log('[PATH] '+spec.id+' floor='+r.optimistic.walkCount+' cells, closed-reachable='+r.physical.reachCount+', gates-open-reachable='+r.optimistic.reachCount+', objectives='+openAndReachable.length+'/'+all.filter(x=>x.visible!==false).length+', blocked-colliders='+r.blockedCount+', dynamic-doors='+r.doors);
    for(const o of behindGate)console.log('[GATED] '+spec.id+' '+o.type+' '+o.label+' '+o.x+','+o.z+' closedDist='+r.physical.interactables.find(x=>x.type===o.type&&x.label===o.label)?.minReach+'m');
-   for(const o of noPath)console.log('[UNREACHABLE] '+spec.id+' '+o.type+' '+o.label+' @ '+o.x+','+o.z+' nearest reachable '+o.minReach+'m, nearest walk '+o.minWalk+'m');
+   for(const o of noPath)console.log('[UNREACHABLE] '+spec.id+' '+o.type+' '+o.label+' @ '+o.x+','+o.z+' nearest reachable '+o.minReach+'m at '+JSON.stringify(o.minReachPos)+', nearest walk '+o.minWalk+'m at '+JSON.stringify(o.minWalkPos));
    if(r.optimistic.seedDistance>4)console.log('[START_WARNING] '+spec.id+' spawn starts '+r.optimistic.seedDistance+'m from free walk grid');
    if(consoleErrors.length)throw Error('Browser errors '+consoleErrors.join(' | '));
   }catch(e){failed++;console.log('[FAIL] '+spec.id+' '+(e.stack||e));}
