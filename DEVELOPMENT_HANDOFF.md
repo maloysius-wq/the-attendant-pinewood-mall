@@ -475,3 +475,18 @@ Loader order is: Production Readability v26 -> Freight Elevator Reliability v28 
 
 **Verification status at handoff update:** The runtime audit passed after the HTML change, and GitHub Pages deployment for `8e512bc6` passed. The focused v31 run [40534019334](https://github.com/maloysius-wq/the-attendant-pinewood-mall/actions/runs/40534019334) and comprehensive hardening run [40533660015](https://github.com/maloysius-wq/the-attendant-pinewood-mall/actions/runs/40533660015) were in progress. The production-hardening job has already passed the complete authored runtime audit, v27 voice smoke, six-chapter HUD/save smoke, and the new desktop/mobile v31 accessibility smoke. The remaining visuals/endings and dedicated focused workflow were still in progress at this update. Inspect their terminal outcomes before marking the entire validation run fully green. Keep the existing audio, narrative, local-asset and no-manual-WASD invariants.
 <!-- MENU_ACCESSIBILITY_V31_END -->
+
+
+## v33 production release handoff (2026-10-27)
+
+**Status: IN PROGRESS, staged and source validated; NOT merged into main yet.** User explicitly authorized updating live main after v32 narrative/physical and v33 instanced-wall audits. Release branch: `release/pinewood-v33-verified-mounts`, based on main commit `e2564bb0d7ca73b59d4654d40089b2c470cb9f99`.
+
+Scope: promote only the 9 revised production patch files and 2 existing source-audit corrections from `audit/self-hosted-game-review-v32`. This includes Ch2 canonical LS-04 chronology and LS-05/LS-06 ownership, Gavin keycard spacing and Buzzer reachability; Ch3 CCTV support and Luis VCR/patch-chain anchor; Ch4 wall-grounded route map and wayfinding, cassette bench, physical locker keepsakes, named staff photo; Ch5 actual wall-secured directory signs; Ch6 PA sign and physical staff desk signage; v10 food posters. Preserve six-chapter canon, original local vendored assets, Cassette Castle shelf ban, and no-WASD test policy.
+
+**Absolute release exclusion:** The audit branch's `game.js` is instrumented with nonshipping `geometryAuditV32` and `wallAuditV33` query hooks. Do not merge or copy this file; main's untouched `game.js` is the production loader. Exclude all `.github/workflows/*v32`, `*v33` and new `scripts/smoke-*v32/v33` audit-only files unless deliberately installing a production-safe test harness. Do not merge the entire audit branch. Run authored source audits + six-chapter browser compatibility smoke on staging release branch, then promote via PR, verify main HEAD, checks and Pages. No paid large runners or artifact uploads.
+
+Relevant audit-only evidence: [wall mount v33 PASS](https://github.com/maloysius-wq/the-attendant-pinewood-mall/actions/runs/40575163496) (audited mounted objects <=6cm wall gap, correct normals), [story/static PASS](https://github.com/maloysius-wq/the-attendant-pinewood-mall/actions/runs/40575171523), [navigation PASS](https://github.com/maloysius-wq/the-attendant-pinewood-mall/actions/runs/40578108018) (56/56 targets reachable). These runs used the audit instrumented loader; the **production-loader** release branch must be retested separately.
+
+Release state tracking: PLANNED -> IN PROGRESS -> VERIFIED -> MERGED / DEPLOYED (or BLOCKED).
+
+**Release staging validation:** 25/25 authored static audits passed on the unchanged production loader in standard hosted workflow [40579976341](https://github.com/maloysius-wq/the-attendant-pinewood-mall/actions/runs/40579976341). Browser regression for the same staging release was still executing when this note was recorded. The temporary verification workflow is removed from the final PR diff before merge. All nonproduction diagnostic hooks and v32/v33 temporary test utilities remain excluded from main.
