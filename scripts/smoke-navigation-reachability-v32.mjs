@@ -32,6 +32,7 @@ try{
    for(const o of behindGate)console.log('[GATED] '+spec.id+' '+o.type+' '+o.label+' '+o.x+','+o.z+' closedDist='+r.physical.interactables.find(x=>x.type===o.type&&x.label===o.label)?.minReach+'m');
    for(const o of noPath)console.log('[UNREACHABLE] '+spec.id+' '+o.type+' '+o.label+' @ '+o.x+','+o.z+' nearest reachable '+o.minReach+'m at '+JSON.stringify(o.minReachPos)+', nearest walk '+o.minWalk+'m at '+JSON.stringify(o.minWalkPos));
    if(r.optimistic.seedDistance>4)console.log('[START_WARNING] '+spec.id+' spawn starts '+r.optimistic.seedDistance+'m from free walk grid');
+   if(noPath.length)throw Error('Permanently unreachable interactables: '+noPath.map(o=>(o.label||o.type)+' @ '+o.x+','+o.z+' ('+o.minReach+'m)').join('; '));
    if(consoleErrors.length)throw Error('Browser errors '+consoleErrors.join(' | '));
   }catch(e){failed++;console.log('[FAIL] '+spec.id+' '+(e.stack||e));}
   finally{await page.close()}
