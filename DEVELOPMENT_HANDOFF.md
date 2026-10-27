@@ -475,3 +475,16 @@ Loader order is: Production Readability v26 -> Freight Elevator Reliability v28 
 
 **Verification status at handoff update:** The runtime audit passed after the HTML change, and GitHub Pages deployment for `8e512bc6` passed. The focused v31 run [40534019334](https://github.com/maloysius-wq/the-attendant-pinewood-mall/actions/runs/40534019334) and comprehensive hardening run [40533660015](https://github.com/maloysius-wq/the-attendant-pinewood-mall/actions/runs/40533660015) were in progress. The production-hardening job has already passed the complete authored runtime audit, v27 voice smoke, six-chapter HUD/save smoke, and the new desktop/mobile v31 accessibility smoke. The remaining visuals/endings and dedicated focused workflow were still in progress at this update. Inspect their terminal outcomes before marking the entire validation run fully green. Keep the existing audio, narrative, local-asset and no-manual-WASD invariants.
 <!-- MENU_ACCESSIBILITY_V31_END -->
+
+
+<!-- FULL_GAME_SELF_HOSTED_AUDIT_V32_BEGIN -->
+## Full-game physical / narrative production audit v32 — IN PROGRESS (2026-10-27)
+
+User request: comprehensively verify every inch of all six chapters against the canonical STORY_BIBLE.md, including authored story, evidence timing, object scale/grounding/support, texture/model loading, interactive reachability, collision/navigation, checkpoint and standard/true ending integrity. Run audits on the user's **self-hosted GitHub runner only**, never GitHub-hosted runners or artifact storage. Workflow logs necessarily remain on GitHub; screenshots and detailed reports remain on the runner's local disk. Do not upload them. No manual WASD gameplay.
+
+Audit branch: `audit/self-hosted-game-review-v32` (do not merge to main before findings are reviewed). An isolated workflow triggered by its own branch-specific workflow-file change is planned; all its jobs must use `runs-on: [self-hosted]` exclusively. This avoids triggering main-branch hosted-runs and leaves deployed main unchanged.
+
+Confirmed source-review findings to validate and fix separately: Chapter 2 fallback legacy LS-05/LS-06 pickups appear before their authored Chapter 3/4 reveals; Chapter 2 LS-04 wording places Tessa's departure at 9:08 instead of the 9:54 canon; Chapter 3 Security VCR geometry intersects the Luis desk; Chapter 4 Tessa Side B cassette at y=0.72 lacks an evident supporting surface; generic Chapter 4 staff photo fails to visually represent recognizable named staff. Non-critical placement plausibility also needs rendered review. Source inventory: all 89 vendor manifest referenced files exist and have matching byte lengths, and all 72 declared voice files exist; appearance and playability not certified.
+
+Run the comprehensive static/browser suite, collect reports exclusively in the runner's home directory, inspect final job state and logs via the GitHub connector. The suite's screenshots alone do not prove all navigation paths; report remaining gaps honestly. Do not re-introduce retired Cassette shelves or remote-runtime assets.
+<!-- FULL_GAME_SELF_HOSTED_AUDIT_V32_END -->
