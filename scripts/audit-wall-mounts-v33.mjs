@@ -8,6 +8,7 @@ const browser=await chromium.launch({headless:true,args:['--enable-webgl','--ign
 const summary=[];let failures=0;
 try{
  for(const [chapter,view,idx] of scenes){
+  if(process.env.WALL_AUDIT_SCENES&&!process.env.WALL_AUDIT_SCENES.split(',').includes(chapter))continue;
   const page=await browser.newPage({viewport:{width:1280,height:720},deviceScaleFactor:1});
   const errors=[];page.on('pageerror',e=>errors.push(e.message));
   try{
@@ -28,6 +29,7 @@ try{
    for(const m of exact.fixtures.filter(o=>o.expectedMount)){
      console.log('[MOUNT] '+chapter+' '+(m.type||m.label||JSON.stringify(m.userData)).slice(0,80)+' at '+m.position.join(',')+' gap='+m.nearest?.gap+'m, center='+m.nearest?.centerDist+'m, facing='+m.facingAlignment+' wall='+JSON.stringify(m.nearest).slice(0,270));
      if(!m.nearest||m.nearest.gap>.18||m.facingAlignment<.70)console.log('[DETACHED] '+chapter+' '+(m.type||m.label||JSON.stringify(m.userData)).slice(0,80)+' gap='+m.nearest?.gap+' facing='+m.facingAlignment);
+     if(!m.nearest||m.nearest.gap>.18||m.facingAlignment<.70)console.log('[ALIGNED] '+chapter+' '+(m.type||m.label||JSON.stringify(m.userData)).slice(0,65)+' pos='+m.position+' front='+m.front+' walls='+JSON.stringify(m.aligned?.slice(0,4)));
    }
 
    if(!x.ready||x.chapter!==idx)throw Error('scene/world unavailable '+JSON.stringify(x).slice(0,400));
