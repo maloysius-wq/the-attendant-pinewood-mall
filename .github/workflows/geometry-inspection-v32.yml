@@ -6,6 +6,7 @@ on:
     paths:
       - '.github/workflows/geometry-inspection-v32.yml'
   workflow_dispatch:
+# Final v32 geometry retest after chained patch anchor repair
 permissions:
   contents: read
 jobs:
