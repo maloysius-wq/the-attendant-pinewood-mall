@@ -11,6 +11,7 @@ on:
 # Source and story suite retest after mounted signage and breaker position repairs
 # Full story/source audit after restoring exact historical poster replacement markers
 # Rerun 25 source audits after moving Playwright-only checks outside static glob
+# Recheck story and patch-chain after East Wing and PA mounting edits
 permissions:
   contents: read
 jobs:
