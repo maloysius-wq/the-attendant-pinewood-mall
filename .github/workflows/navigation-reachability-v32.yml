@@ -5,6 +5,7 @@ on:
     paths:
       - '.github/workflows/navigation-reachability-v32.yml'
   workflow_dispatch:
+# v32 scripted gate semantics + nearest tile diagnostic rerun
 permissions:
   contents: read
 jobs:
