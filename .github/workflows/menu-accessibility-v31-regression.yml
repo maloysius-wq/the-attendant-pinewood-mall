@@ -1,0 +1,53 @@
+name: Menu accessibility v31 regression
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'index.html'
+      - 'game.js'
+      - 'scripts/smoke-menu-accessibility-v31.mjs'
+      - '.github/workflows/menu-accessibility-v31-regression.yml'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'index.html'
+      - 'game.js'
+      - 'scripts/smoke-menu-accessibility-v31.mjs'
+      - '.github/workflows/menu-accessibility-v31-regression.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  menu-accessibility:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install deterministic Chromium runner
+        run: |
+          npm install --no-save playwright@1.55.0
+          npx playwright install --with-deps chromium
+      - name: Serve the fully vendored game locally
+        run: |
+          test -f vendor/three/build/three.module.js
+          test -f vendor/pako/pako.esm.mjs
+          python3 -m http.server 4173 --bind 127.0.0.1 >/tmp/pinewood-menu-v31-http.log 2>&1 &
+          for i in {1..30}; do curl -fsS http://127.0.0.1:4173/ >/dev/null && exit 0; sleep 1; done
+          cat /tmp/pinewood-menu-v31-http.log
+          exit 1
+      - name: Exercise accessible labels keyboard navigation and mobile responsiveness
+        run: node scripts/smoke-menu-accessibility-v31.mjs
+      - name: Preserve diagnostic report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: menu-accessibility-v31
+          path: production-smoke-artifacts/menu-accessibility-v31.json
+          if-no-files-found: warn
+          retention-days: 7
