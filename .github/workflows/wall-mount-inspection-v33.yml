@@ -8,6 +8,7 @@ on:
 # Audit merged wall topology to support measured switch mounting
 # Exact instanced wall-tile contact and fixture facing validation
 # Targeted compatible-wall lookup for detached fixtures
+# Final six-chapter 6cm contact and facing-angle physical wall mounting gate
 permissions:
   contents: read
 jobs:
@@ -25,7 +26,6 @@ jobs:
       - name: Inspect six chapters against authored wall geometry
         env:
           PINEWOOD_BASE_URL: http://127.0.0.1:4173/
-          WALL_AUDIT_SCENES: CH2,CH3,CH4,CH5
         run: |
           python3 -m http.server 4173 --bind 127.0.0.1 >/tmp/pinewood-walls-http.log 2>&1 &
           pid=$!
