@@ -25,6 +25,16 @@ try{
    const exact=await page.evaluate(()=>window.__PINEWOOD_WALL_CONTACT_V33__?.());
    if(!exact?.ready)throw Error('Instanced wall contact probe failed');
    const detached=exact.fixtures.filter(m=>m.expectedMount&&(!m.nearest||m.nearest.gap>.06||m.facingAlignment<.90));
+   if(chapter==='CH4'){
+     const mounted=exact.fixtures.filter(m=>m.userData?.chapter4WallMountV33==='structural-wall');
+     console.log('[WAYFINDING_COUNT] CH4 '+mounted.length+' wall-supported East Wing signs');
+     if(mounted.length!==4)throw Error('Missing East Wing wall-mounted wayfinding sign(s): '+mounted.length+'/4');
+   }
+   if(chapter==='CH6'){
+     const pa=exact.fixtures.find(m=>m.reason==='print-plane'&&Math.abs(m.position[0])<.1&&Math.abs(m.position[1]-2)<.1&&Math.abs(m.position[2]-19.42)<.1);
+     if(!pa||!pa.nearest||pa.nearest.gap>.06)throw Error('Present-day PA control sign is not seated on structural back wall');
+     console.log('[PA_SIGN] CH6 wall gap '+pa.nearest.gap+'m');
+   }
    if(detached.length)console.log('[STRICT_MOUNT_FAILURES] '+chapter+' '+JSON.stringify(detached.map(m=>({type:m.type,label:m.label,userData:m.userData,pos:m.position,gap:m.nearest?.gap,facing:m.facingAlignment}))));
    await writeFile(dir+'/'+chapter+'-wall-contacts.json',JSON.stringify(exact,null,2));
    console.log('[ACTUAL_WALLS] '+chapter+' '+exact.instanceWalls);
