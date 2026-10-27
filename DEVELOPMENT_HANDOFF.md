@@ -454,3 +454,18 @@ The v30 patch also carries a narrow Video Planet compatibility repair discovered
 
 Loader order is: Production Readability v26 -> Freight Elevator Reliability v28 -> Sunburst Arcade v30 -> terminal Audio Direction v27. Keep Audio Direction v27 terminal. Verification lives in `scripts/audit-arcade-v30.mjs` and `scripts/smoke-arcade-v30.mjs`; source/asset diagnostics live in `diagnostics/arcade-current-source.txt` and `diagnostics/arcade-v30-geometry.json`. Asset acquisition/provenance is reproducible through `scripts/vendor-arcade-assets-v30.mjs`.
 <!-- SUNBURST_ARCADE_V30_END -->
+
+
+<!-- MENU_ACCESSIBILITY_V31_BEGIN -->
+## Menu accessibility / responsive regression v31 — IN PROGRESS (2026-10-27)
+
+**Reason:** The six Settings sliders/selects currently show visual labels that are not linked to their controls. The production smoke verifies the controls exist, but does not protect accessible names, keyboard focus visibility, or narrow-screen menu layout.
+
+**Planned implementation:**
+1. Associate each Settings label explicitly with its slider/select using `for`/`id` while preserving its existing live-value span and behavior.
+2. Show a high-contrast `:focus-visible` keyboard outline for menu controls, give screen buttons 44px minimum hit height, and disable menu-only motion when `prefers-reduced-motion: reduce` is active.
+3. Add a deterministic Playwright browser smoke for desktop and 390px mobile menus covering accessible names, label click focusing, keyboard focus styling, narrow-screen column layout, touch-target size, reduced motion, and local-only/no-error runtime behavior.
+4. Run the new smoke as part of the existing permanent six-chapter production hardening workflow. Do not alter the six-chapter story or v27 terminal audio layer.
+
+**Status:** Work started after confirming main `fd110fed8e32887047305bef13d0700a494da281` was green (audio v27 regression, six-chapter hardening, and Pages deployment). Implement and verify before marking complete.
+<!-- MENU_ACCESSIBILITY_V31_END -->
