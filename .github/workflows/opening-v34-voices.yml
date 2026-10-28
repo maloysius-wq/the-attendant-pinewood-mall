@@ -1,0 +1,42 @@
+name: Produce local Renee opening voices v34
+on:
+  push:
+    branches: [feature/opening-cinematic-v34]
+    paths:
+      - '.github/workflows/opening-v34-voices.yml'
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  vendor-voices:
+    runs-on: ubuntu-latest
+    timeout-minutes: 75
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - name: Render 11 individually generated Crisp recordings into local OGG
+        shell: bash
+        run: |
+          node scripts/vendor-opening-voices-v34.mjs
+      - name: Validate local audio inventory then commit on review branch
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --input-type=module <<'NODE'
+          import fs from 'node:fs';
+          const src=JSON.parse(fs.readFileSync('opening/script.json'));
+          const man=JSON.parse(fs.readFileSync('opening/audio/manifest.json'));
+          if(src.lines.length!==11||Object.keys(man.files).length!==11)throw Error('Voice clip inventory must contain eleven cues');
+          for(const line of src.lines){
+            const x=man.files[line.id];if(!x||x.text!==line.text||!fs.statSync('opening/audio/'+x.file).size)throw Error('Missing valid audio '+line.id);
+          }
+          console.log('Eleven locally rendered dialogue files present, subtitle texts match');
+          NODE
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git config user.name "github-actions[bot]"
+          git add opening/audio/
+          if ! git diff --cached --quiet; then
+            git commit -m "Vendor 11 approved Renee Crisp v34 cinematic voice cues as local mastered OGG"
+            git push origin HEAD:feature/opening-cinematic-v34
+          fi
