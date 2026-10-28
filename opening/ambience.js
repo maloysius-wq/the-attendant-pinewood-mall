@@ -29,7 +29,7 @@ export class OpeningAmbience{
   if(this.paused)return;
   const current=region(shot),duck=voicePlaying?.72:1;
   const desired={
-   car:current==='car'?.55*duck:0,
+   car:current==='car'?.48*duck:0,
    outside:current==='outside'?.62*duck:0
   };
   for(const [name,audio] of Object.entries(this.players)){
