@@ -1,0 +1,63 @@
+name: Pinewood cinematic v34 browser preview
+on:
+  push:
+    branches: [feature/opening-cinematic-v34]
+    paths:
+      - '.github/workflows/opening-v34-preview.yml'
+      - 'opening/intro.js'
+      - 'opening/scene.js'
+      - 'opening/opening.css'
+      - 'opening/script.json'
+      - 'opening/audio/**'
+      - 'scripts/smoke-opening-v34.mjs'
+      - 'index.html'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  preview:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Validate new modules and script contract
+        shell: bash
+        run: |
+          node --check opening/scene.js
+          node --check opening/intro.js
+          node --check scripts/smoke-opening-v34.mjs
+          node --input-type=module <<'NODE'
+          import fs from 'node:fs';
+          const s=JSON.parse(fs.readFileSync('opening/script.json','utf8'));
+          if(s.version!==34||s.lines.length!==11)throw Error('Wrong opening cue contract');
+          const html=fs.readFileSync('index.html','utf8');
+          if(!html.includes('./opening/intro.js')||!html.includes('id="pwm-opening"'))throw Error('Opening not wired into original page');
+          if(fs.readFileSync('game.js','utf8').includes('opening-v34'))throw Error('Do not modify production runtime loader for cinematic');
+          for(const file of ['opening/intro.js','opening/scene.js','opening/opening.css']){
+            const source=fs.readFileSync(file,'utf8');
+            if(/https?:\/\/|speechSynthesis|cdn\.|unpkg\./.test(source))throw Error('External runtime URL forbidden in '+file);
+          }
+          console.log('PASS: standalone local model rendering, script and entrypoint checks');
+          NODE
+      - name: Install pinned browser automation
+        run: |
+          npm install --no-save --package-lock=false --no-audit --no-fund playwright@1.55.0
+          npx playwright install chromium
+      - name: Run deterministic 3D camera walkthrough and skip test
+        shell: bash
+        run: |
+          python3 -m http.server 4173 --bind 127.0.0.1 >/tmp/pinewood-opening-server.log 2>&1 &
+          pid=$!
+          trap 'kill "$pid" 2>/dev/null || true' EXIT
+          sleep 3
+          node scripts/smoke-opening-v34.mjs
+      - name: Save five lightweight review frames
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pinewood-v34-opening-review-frames
+          path: opening/review/*.png
+          if-no-files-found: warn
+          retention-days: 3
