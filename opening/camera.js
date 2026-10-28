@@ -10,13 +10,13 @@ const lerp=(a,b,t)=>a.clone().lerp(b,t);
 const clamp=(v,a,b)=>Math.min(b,Math.max(a,v));
 const smooth=t=>{t=clamp(t,0,1);return t*t*(3-2*t)};
 const E={
- driver:[-10.54,1.60,18.08],phoneLean:[-10.39,1.59,17.96],
+ driver:[-10.54,1.60,18.08],phoneLean:[-10.35,1.57,17.86],
  doorLean:[-11.13,1.58,18.02],doorOutside:[-11.83,1.72,17.70],
  parking:[-9.0,1.73,13.0],pavement:[0,1.73,.0],underCanopy:[8.05,1.73,-13.0],
  access:[12.35,1.67,-19.6],threshold:[12.07,1.71,-23.4],concourse:[9.0,1.72,-26.3]
 };
 const G={
- ahead:[2,2.9,-22],sign:[0,7.55,-22],phone:[-9.62,1.54,16.97],
+ ahead:[2,2.9,-22],sign:[0,7.55,-22],phone:[-9.62,1.48,16.97],
  mirror:[-12,2.06,16.1],door:[-14,1.62,17.8],mall:[12,2,-22],
  posters:[-17,3.0,-22],entrance:[12,1.5,-22],keypad:[13.65,1.37,-21.72],
  inside:[0,2.5,-39],directory:[0,2.5,-31.2],
