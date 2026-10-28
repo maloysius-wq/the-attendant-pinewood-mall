@@ -114,7 +114,8 @@ export function makeOpeningScene(){
  // Hollow cab: four pillars and a thin roof. Never place an opaque cabin cube around the camera.
  box(car,0,2.08,.16,2.07,.14,2.45,paint);
  for(const sx of[-.91,.91])for(const sz of[-.91,1.13])box(car,sx,1.65,sz,.13,.76,.13,paint);
- box(car,0,1.57,1.28,2.03,.92,.11,paint);
+ // The rear frame sits below eye level so the first-person camera can see the windshield.
+ box(car,0,1.12,1.28,2.03,.20,.11,paint);
  for(const x of[-1.04,1.04])for(const z of[-1.42,1.40]){const p=cyl(car,x,.47,z,.49,.25,seat);p.rotation.z=Math.PI/2;}
  box(car,0,1.47,-1.09,1.78,.77,.03,windowMat);
  box(car,0,1.03,-.78,2.1,.26,.72,seat);
