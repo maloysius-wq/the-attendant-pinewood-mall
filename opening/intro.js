@@ -1,6 +1,7 @@
 import * as THREE from '../vendor/three/build/three.module.js';
-import {makeOpeningScene,shots} from './scene.js?v=34b';
-import {OpeningAmbience} from './ambience.js?v=34b';
+import {makeOpeningScene} from './scene.js?v=35';
+import {HumanCameraRig} from './camera.js?v=35';
+import {OpeningAmbience} from './ambience.js?v=35';
 const $=id=>document.getElementById(id);
 const query=new URLSearchParams(location.search);
 const clamp=(x,a,b)=>Math.min(b,Math.max(a,x));
@@ -24,6 +25,7 @@ class Intro{
   this.reduced=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   this.canvasSlot=this.root.querySelector('.pwm-render');this.last=performance.now();
   this.ambience=new OpeningAmbience();
+  this.eyeRig=new HumanCameraRig();this.lastCameraPose=null;
   this.resize=()=>{if(!this.renderer)return;const w=this.root.clientWidth||innerWidth,h=this.root.clientHeight||innerHeight;this.renderer.setSize(w,h,false);this.camera.aspect=w/h;this.camera.updateProjectionMatrix()};
   this.keydown=e=>{
    if(e.code==='Escape'){e.preventDefault();e.stopImmediatePropagation();this.togglePause();}
@@ -70,7 +72,8 @@ class Intro{
   }
   if(this.stage)this.stage.phoneUi.update(this.index>=8?'entry':this.index>=1?'checkin':'ticket');
   this.root.dataset.shot=this.line.shot;
-  this.root.querySelector('.pwm-phone-sheet').hidden=!['closed','work','safety'].includes(this.line.id);
+  // The work phone now lives on a real dashboard bracket and never pops up as an HTML card.
+  this.root.querySelector('.pwm-phone-sheet').hidden=true;
   $('pwm-location').textContent=this.index>=9?'INTERIOR / PUBLIC CONCOURSE':this.index>=6?'EAST SERVICE ENTRANCE':'PINEWOOD MALL / AFTER HOURS';
   this.renderCaption();
  }
@@ -84,14 +87,14 @@ class Intro{
   const delta=clamp((now-this.last)/1000,0,.12);this.last=now;
   if(!this.paused){
    this.elapsed+=delta;this.renderCaption();
-   this.ambience.update(delta,this.line.shot,!!this.audio&&!this.audio.ended&&!this.audio.paused);
+   // Blocked like a real person's eyes: quick glances, attentive holds and footstep-driven travel.
+   const pose=this.eyeRig.sample(this.line.id,this.elapsed,this.wait,delta,{reducedMotion:this.reduced});
+   this.lastCameraPose=pose;
+   this.ambience.update(delta,this.line.shot,!!this.audio&&!this.audio.ended&&!this.audio.paused,pose.rain);
    if(this.stage&&this.renderer){
-    const shot=shots[this.line.shot]||shots.car;
-    const t=smooth(this.reduced?0:clamp(this.elapsed/Math.max(this.wait-1,1),0,1));
-    this.camera.position.copy(shot.pos).lerp(shot.end,t);
-    if(!this.reduced)this.camera.position.y+=Math.sin(now*.0017)*.012;
-    this.camera.lookAt(shot.look.clone().lerp(shot.endLook,t));
-    this.stage.pivot.rotation.y=['inside','interiorWide'].includes(this.line.shot)?-Math.PI*.48*smooth(clamp(this.elapsed/2.8,0,1)):0;
+    this.camera.position.copy(pose.position);
+    this.camera.lookAt(pose.lookAt);
+    this.stage.pivot.rotation.y=-Math.PI*.48*pose.doorOpen;
     if(!this.reduced){const a=this.stage.rain.geometry.attributes.position.array;for(let i=1;i<a.length;i+=3){a[i]-=delta*5.2;if(a[i]<.1)a[i]+=12.9;}this.stage.rain.geometry.attributes.position.needsUpdate=true;}
     this.renderer.render(this.stage.scene,this.camera);
    }
@@ -168,6 +171,8 @@ window.__PINEWOOD_OPENING_V34__={
  get total(){return active?.lines?.length||0;},
  get audioStatus(){return {available:!!active?.audio,paused:active?.audio?.paused??true,muted:active?.audio?.muted??false,time:active?.audio?.currentTime??0,ambient:active?.ambience?.status||null};},
  get cameraPosition(){return active?.camera?.position.toArray()||null;},
+ get eyeMotion(){const p=active?.lastCameraPose;return p?{cue:p.cue,phase:p.phase,gaze:p.gazeTarget,walking:p.isWalking,rain:p.rain,doorOpen:p.doorOpen}:null;},
+ get dashboardPhone(){if(!active?.stage?.phoneMount)return null;const p=new THREE.Vector3();active.stage.phoneMount.getWorldPosition(p);return p.toArray();},
  get sceneStats(){
   if(!active?.stage)return null;
   let meshes=0,signs=[],phoneTexture=active.stage.phoneUi.texture?.image;
@@ -176,6 +181,7 @@ window.__PINEWOOD_OPENING_V34__={
  },
  async preview(){if(active&&!active.finished)return;const [script,voices]=await loadResources();active=new Intro(script,voices,{preview:true});},
  seek(index){return active?.seek(index)||false;},
+ scrub(fraction){if(!active?.line)return false;active.elapsed=clamp(fraction,0,.97)*active.wait;active.eyeRig=new HumanCameraRig();return true;},
  skip(){active?.finish(true);},
  mute(){active?.toggleVoice();}
 };

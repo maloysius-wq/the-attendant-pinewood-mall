@@ -129,13 +129,28 @@ export function makeOpeningScene(){
  box(car,-.56,1.38,1.12,.66,.55,.10,seat);
  box(car,.55,1.38,1.12,.66,.55,.10,seat);
  box(car,0,2.01,-1.10,1.99,.10,.12,paint);
- // Work phone is a real 3D plane with a live CanvasTexture, not an image overlay.
- const phoneUi=phoneTexture(),phone=new THREE.Group();
- // A real handheld-size phone sitting on the passenger-side seat, never a giant billboard obscuring the windshield.
- phone.position.set(-9.30,1.08,17.56);phone.scale.setScalar(.38);phone.rotation.x=-.36;world.add(phone);
- box(phone,0,0,-.025,.64,1.16,.095,seat);
- const face=new THREE.Mesh(new THREE.PlaneGeometry(.58,1.08),new THREE.MeshBasicMaterial({map:phoneUi.texture}));
- face.position.z=.031;phone.add(face);
+ // Physical dash-mounted phone: bracket, adjustable neck, spring clips and lit LCD.
+ // The driver's camera sees this through the windshield. It never floats in the seat.
+ const phoneUi=phoneTexture(),holder=new THREE.Group();
+ holder.position.set(.36,1.32,-.53);holder.scale.setScalar(.42);car.add(holder);
+ const rubber=mat(0x171b1d,.96),mount=mat(0x353c40,.51,.4);
+ const mountBase=box(holder,0,0,-.005,.37,.085,.30,rubber);
+ const stem=box(holder,0,.17,-.10,.075,.29,.075,mount);
+ stem.rotation.x=-.14;
+ const socket=box(holder,0,.30,-.18,.18,.12,.12,mount);
+ const cradle=new THREE.Group();cradle.position.set(0,.38,.09);
+ cradle.rotation.y=-.28;cradle.rotation.x=-.06;holder.add(cradle);
+ box(cradle,0,0,-.050,.50,.88,.075,mount);
+ for(const x of[-.256,.256])for(const y of[-.28,.28]){
+  box(cradle,x,y,.005,.058,.17,.075,rubber);
+ }
+ box(cradle,0,-.433,.02,.36,.067,.09,rubber);
+ // The work order is the literal mesh texture, not the old floating HTML sheet.
+ const phone=new THREE.Group();phone.position.set(0,0,.027);cradle.add(phone);
+ box(phone,0,0,-.028,.437,.813,.047,rubber);
+ const face=new THREE.Mesh(new THREE.PlaneGeometry(.411,.775),new THREE.MeshBasicMaterial({map:phoneUi.texture}));
+ face.position.set(0,0,.009);phone.add(face);
+ box(phone,0,.386,.020,.094,.012,.014,mat(0x050a0c));
  box(world,-9.2,.45,18.75,1.1,.5,.84,mat(0x5a5549));
  // Parking fixtures.
  for(const [x,z] of[[-21,9],[28,5],[0,28]]){cyl(world,x,3.9,z,.09,7.8,steel);box(world,x,7.75,z,.8,.2,.5,concrete);lamp(scene,x,7.3,z,0xd9c6a3,3.2,19);}
@@ -151,5 +166,5 @@ export function makeOpeningScene(){
  for(let i=0;i<rainCount;i++){positions[i*3]=((i*41.71)%108)-54;positions[i*3+1]=((i*17.23)%13)+.3;positions[i*3+2]=((i*29.31)%55)-11;}
  const geom=new THREE.BufferGeometry();geom.setAttribute('position',new THREE.BufferAttribute(positions,3));
  const rain=new THREE.Points(geom,new THREE.PointsMaterial({color:0x93aec0,size:.055,transparent:true,opacity:.52,depthWrite:false}));world.add(rain);
- return{scene,pivot,rain,phoneUi};
+ return{scene,pivot,rain,phoneUi,phoneMount:holder};
 }

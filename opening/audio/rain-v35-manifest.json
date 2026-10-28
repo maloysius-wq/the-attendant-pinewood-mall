@@ -1,0 +1,43 @@
+{
+  "version": 35,
+  "source": "User supplied car-rain and outside-rain, previously normalized as local v34b OGG",
+  "method": "adaptive only-edge trim + periodic overlap crossfade + uncompressed browser PCM buffer loop",
+  "files": {
+    "car": {
+      "file": "car-rain-v35.ogg",
+      "input": "car-rain.ogg",
+      "sourceDuration": 18.0065,
+      "duration": 17.3,
+      "originalEdgeTrim": {
+        "start": 0,
+        "end": 0.06899999999999906
+      },
+      "overlapSeconds": 0.68,
+      "boundarySampleDelta": 0.012634,
+      "edgeRMS": {
+        "first": 0.035655,
+        "last": 0.046492
+      },
+      "sha256": "a3cdd91b132a64193696d622405fe21a79af9653ecc14ed5faf1c8e60b6643c6",
+      "size": 305712
+    },
+    "outside": {
+      "file": "outside-rain-v35.ogg",
+      "input": "outside-rain.ogg",
+      "sourceDuration": 9.4065,
+      "duration": 9,
+      "originalEdgeTrim": {
+        "start": 0,
+        "end": 0.07699999999999996
+      },
+      "overlapSeconds": 0.41982749999999996,
+      "boundarySampleDelta": 0.038201,
+      "edgeRMS": {
+        "first": 0.030464,
+        "last": 0.03071
+      },
+      "sha256": "a7e5b7002768d2eeb6a19993a619e4ba2dc15802fbc87bbe4ce87f4577bafcdd",
+      "size": 170669
+    }
+  }
+}
