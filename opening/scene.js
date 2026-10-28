@@ -56,8 +56,8 @@ function phoneTexture(){
  update();return{texture:tx,update};
 }
 export const shots={
- car:{pos:v(-10,1.66,19.35),end:v(-10,1.65,19.25),look:v(-3,2.7,-22),endLook:v(0,2.9,-22)},
- phone:{pos:v(-9.98,1.65,19.12),end:v(-9.56,1.57,18.25),look:v(-9.3,1.13,17.05),endLook:v(-9.3,1.13,17.05)},
+ car:{pos:v(-10.54,1.59,18.08),end:v(-10.53,1.57,18.04),look:v(-7,2.45,-22),endLook:v(0,2.85,-22)},
+ phone:{pos:v(-10.54,1.57,18.08),end:v(-9.95,1.42,18.01),look:v(-9.30,1.08,17.56),endLook:v(-9.30,1.08,17.56)},
  lot:{pos:v(-9,1.72,15),end:v(-6,1.72,12),look:v(12,2,-22),endLook:v(12,1.5,-22)},
  walk:{pos:v(-5,1.71,11),end:v(5,1.71,-9),look:v(12,1.5,-22),endLook:v(12,1.6,-22)},
  entrance:{pos:v(5,1.7,-9),end:v(9,1.7,-15.8),look:v(12,1.6,-22),endLook:v(13.65,1.4,-22)},
@@ -110,20 +110,29 @@ export function makeOpeningScene(){
  // The vehicle is a complete procedural model, not an inaccessible remote download.
  const car=new THREE.Group();car.position.set(-10,0,17.5);world.add(car);
  const paint=mat(0x3f4648,.5,.4),seat=mat(0x2c3031,.98);
- box(car,0,.86,0,2.28,1.07,4.6,paint);
+ // Hollow cockpit: the original solid body intersected POV and hid the windshield.
+ box(car,0,.58,0,2.28,.74,4.6,paint);
+ box(car,0,1.00,-1.72,2.16,.42,1.13,paint);
+ for(const side of [-1,1])box(car,side*1.08,1.07,.10,.10,.58,2.45,paint);
+ box(car,0,.88,1.27,2.03,.25,.09,paint);
  // Hollow cab: four pillars and a thin roof. Never place an opaque cabin cube around the camera.
  box(car,0,2.08,.16,2.07,.14,2.45,paint);
- for(const sx of[-.91,.91])for(const sz of[-.91,1.13])box(car,sx,1.65,sz,.13,.76,.13,paint);
+ // Narrow pillars and low crossbraces, avoiding solid door geometry at eye height.
+ for(const sx of[-.97,.97])for(const sz of[-1.08,1.08])box(car,sx,1.68,sz,.11,.65,.11,paint);
  // The rear frame sits below eye level so the first-person camera can see the windshield.
- box(car,0,1.12,1.28,2.03,.20,.11,paint);
+ box(car,0,1.02,1.28,2.03,.12,.10,paint);
  for(const x of[-1.04,1.04])for(const z of[-1.42,1.40]){const p=cyl(car,x,.47,z,.49,.25,seat);p.rotation.z=Math.PI/2;}
  box(car,0,1.47,-1.09,1.78,.77,.03,windowMat);
  box(car,0,1.03,-.78,2.1,.26,.72,seat);
  const wheel=new THREE.Mesh(new THREE.TorusGeometry(.34,.055,8,30),seat);wheel.position.set(-.57,1.23,-.55);wheel.rotation.x=.33;car.add(wheel);
  box(car,.55,1.12,-.59,.61,.22,.05,lit(0x2b5664,.28));
- box(car,-.56,1.5,1.14,.63,.71,.12,seat);
+ box(car,-.56,1.38,1.12,.66,.55,.10,seat);
+ box(car,.55,1.38,1.12,.66,.55,.10,seat);
+ box(car,0,2.01,-1.10,1.99,.10,.12,paint);
  // Work phone is a real 3D plane with a live CanvasTexture, not an image overlay.
- const phoneUi=phoneTexture(),phone=new THREE.Group();phone.position.set(-9.30,1.13,17.05);phone.rotation.x=-.25;world.add(phone);
+ const phoneUi=phoneTexture(),phone=new THREE.Group();
+ // A real handheld-size phone sitting on the passenger-side seat, never a giant billboard obscuring the windshield.
+ phone.position.set(-9.30,1.08,17.56);phone.scale.setScalar(.38);phone.rotation.x=-.36;world.add(phone);
  box(phone,0,0,-.025,.64,1.16,.095,seat);
  const face=new THREE.Mesh(new THREE.PlaneGeometry(.58,1.08),new THREE.MeshBasicMaterial({map:phoneUi.texture}));
  face.position.z=.031;phone.add(face);
