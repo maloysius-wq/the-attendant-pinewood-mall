@@ -132,12 +132,12 @@ export function makeOpeningScene(){
  // Physical dash-mounted phone: bracket, adjustable neck, spring clips and lit LCD.
  // The driver's camera sees this through the windshield. It never floats in the seat.
  const phoneUi=phoneTexture(),holder=new THREE.Group();
- holder.position.set(.36,1.17,-.53);car.add(holder);
+ holder.position.set(.36,1.32,-.53);holder.scale.setScalar(.42);car.add(holder);
  const rubber=mat(0x171b1d,.96),mount=mat(0x353c40,.51,.4);
  const mountBase=box(holder,0,0,-.005,.37,.085,.30,rubber);
- const stem=box(holder,0,.17,.035,.075,.29,.075,mount);
+ const stem=box(holder,0,.17,-.10,.075,.29,.075,mount);
  stem.rotation.x=-.14;
- const socket=box(holder,0,.30,.095,.18,.12,.12,mount);
+ const socket=box(holder,0,.30,-.18,.18,.12,.12,mount);
  const cradle=new THREE.Group();cradle.position.set(0,.38,.09);
  cradle.rotation.y=-.28;cradle.rotation.x=-.06;holder.add(cradle);
  box(cradle,0,0,-.050,.50,.88,.075,mount);
