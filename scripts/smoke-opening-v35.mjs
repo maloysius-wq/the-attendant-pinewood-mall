@@ -30,7 +30,7 @@ try{
  console.log('[CAR_VIEW] '+JSON.stringify({pos:initial.camera,mount:initial.mount,voice:initial.audio?.available,ambience:initial.audio.ambient}));
  const pics=[
   [1,.23,'02-dashboard-mounted-phone.png','clock'],
-  [3,.49,'03-return-eyes-to-windshield.png','work'],
+  [3,.43,'03-return-eyes-to-windshield.png','work'],
   [5,.35,'04-physically-exiting-vehicle.png','owner'],
   [6,.48,'05-walking-toward-mall.png','entrance'],
   [8,.70,'06-look-at-service-keypad.png','inside'],
