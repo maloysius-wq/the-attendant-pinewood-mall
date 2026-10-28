@@ -37,7 +37,7 @@ jobs:
           ref: feature/opening-cinematic-v34
           path: review
           persist-credentials: false
-      - name: Assemble public Pages site: unchanged main and isolated cinematic directory
+      - name: Assemble public Pages site with unchanged root and isolated review directory
         shell: bash
         run: |
           set -euo pipefail
