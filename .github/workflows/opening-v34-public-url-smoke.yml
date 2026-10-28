@@ -1,0 +1,66 @@
+name: Verify live hosted The Call cinematic preview
+
+on:
+  push:
+    branches: [feature/opening-cinematic-v34]
+    paths: ['.github/workflows/opening-v34-public-url-smoke.yml']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  hosted-preview:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Verify real public Pages preview and unmodified production homepage
+        shell: bash
+        run: |
+          set -euo pipefail
+          base=https://maloysius-wq.github.io/the-attendant-pinewood-mall/
+          preview=${base}review/the-call-v34/
+          for i in $(seq 1 20); do
+            if curl -fsSL --max-time 20 "$preview" -o /tmp/pinewood-v34-public.html && grep -q 'id="pwm-opening"' /tmp/pinewood-v34-public.html; then
+              echo "Public preview HTML is live on attempt $i"
+              break
+            fi
+            if [[ "$i" == "20" ]]; then echo 'Public preview did not become available'; exit 1; fi
+            sleep 10
+          done
+          grep -Fq '<base href="../../" />' /tmp/pinewood-v34-public.html
+          curl -fsSL --max-time 25 "${base}opening/intro.js" -o /tmp/pinewood-v34-intro.js
+          curl -fsSL --max-time 25 "${base}opening/scene.js" -o /tmp/pinewood-v34-scene.js
+          curl -fsSL --max-time 25 "${base}opening/audio/arrival.ogg" -o /tmp/pinewood-v34-arrival.ogg
+          test $(wc -c </tmp/pinewood-v34-arrival.ogg) -gt 20000
+          curl -fsSL --max-time 25 "${base}opening/audio/car-rain.ogg" -o /tmp/pinewood-v34-car-rain.ogg
+          curl -fsSL --max-time 25 "${base}opening/audio/outside-rain.ogg" -o /tmp/pinewood-v34-outside-rain.ogg
+          curl -fsSL --max-time 25 "${base}opening/ambience.js" -o /tmp/pinewood-v34-ambience.js
+          curl -fsSL --max-time 25 "${base}opening/audio/manifest.json" -o /tmp/pinewood-v34-voices.json
+          test $(wc -c </tmp/pinewood-v34-car-rain.ogg) -gt 50000
+          test $(wc -c </tmp/pinewood-v34-outside-rain.ogg) -gt 25000
+          grep -q 'v29-extreme-handheld' /tmp/pinewood-v34-voices.json
+          curl -fsSL --max-time 25 "$base" -o /tmp/pinewood-original-homepage.html
+          if grep -q 'id="pwm-opening"' /tmp/pinewood-original-homepage.html; then
+            echo 'ERROR: Intro leaked onto live game homepage'; exit 1
+          fi
+          echo 'PASS: hosted car rain, exterior rain, v29 filtered Renee, scene and scripts; production homepage remains original.'
+      - name: Install remote-browser regression runtime
+        run: |
+          npm install --no-save --package-lock=false --no-audit --no-fund playwright@1.55.0
+          npx playwright install chromium
+      - name: Play actual public web URL with deterministic browser
+        env:
+          PINEWOOD_BASE_URL: https://maloysius-wq.github.io/the-attendant-pinewood-mall/review/the-call-v34/
+        run: node scripts/smoke-opening-v34.mjs
+      - name: Save public screenshot frames
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: the-call-v34-PUBLIC-LINK-screen-captures
+          path: opening/review/*.png
+          retention-days: 3
+          if-no-files-found: ignore

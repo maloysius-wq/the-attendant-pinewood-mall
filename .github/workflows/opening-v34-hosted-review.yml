@@ -1,0 +1,69 @@
+name: Pinewood The Call v34 hosted preview (keep live game root intact)
+
+on:
+  push:
+    branches:
+      - feature/opening-cinematic-v34
+    paths:
+      - .github/workflows/opening-v34-hosted-review.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  publish-review:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    environment:
+      name: pinewood-review
+      url: ${{ steps.deployment.outputs.page_url }}review/the-call-v34/
+    steps:
+      - name: Checkout untouched production site
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          path: live
+          persist-credentials: false
+      - name: Checkout owner's private review branch
+        uses: actions/checkout@v4
+        with:
+          ref: feature/opening-cinematic-v34
+          path: review
+          persist-credentials: false
+      - name: Assemble public Pages site with unchanged root and isolated review directory
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p publish/review/the-call-v34
+          cp -a live/. publish/
+          cp -a review/. publish/review/the-call-v34/
+          rm -rf publish/.git publish/review/the-call-v34/.git
+          test -s publish/index.html
+          test -s publish/game.js
+          test -s publish/review/the-call-v34/index.html
+          test -s publish/review/the-call-v34/opening/audio/arrival.ogg
+          python3 - <<'PY'
+          from pathlib import Path
+          import hashlib
+          a=Path('live/game.js').read_bytes()
+          b=Path('publish/game.js').read_bytes()
+          assert hashlib.sha256(a).digest()==hashlib.sha256(b).digest(), "Production root game changed"
+          assert Path('publish/review/the-call-v34/opening/intro.js').exists()
+          print('Ready: original main root byte-identical; distinct v34 review at /review/the-call-v34/')
+          PY
+      - name: Configure Pages
+        uses: actions/configure-pages@v5
+      - name: Stage both public root and review subfolder
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: publish
+      - name: Publish review
+        id: deployment
+        uses: actions/deploy-pages@v4

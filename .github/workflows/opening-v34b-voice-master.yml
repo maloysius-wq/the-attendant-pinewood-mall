@@ -1,0 +1,44 @@
+name: Master Renee opening radio v34b (original v29 walkie chain)
+on:
+  push:
+    branches: [feature/opening-cinematic-v34]
+    paths: ['.github/workflows/opening-v34b-voice-master.yml']
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  master:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - name: Install FFmpeg
+        run: sudo apt-get update -qq && sudo apt-get install -y ffmpeg
+      - name: Apply existing production Renee v29 extreme radio treatment
+        run: |
+          node scripts/reprocess-opening-renee-v34b.mjs
+          node --input-type=module <<'NODE'
+          import fs from 'node:fs';
+          import {createHash} from 'node:crypto';
+          const manifest=JSON.parse(fs.readFileSync('opening/audio/manifest.json'));
+          for(const [id,e] of Object.entries(manifest.files)){
+            const bytes=fs.readFileSync('opening/audio/'+e.file);
+            if(e.walkiePostProcess!=='v29-extreme-handheld')throw Error('Missing walkie filter '+id);
+            if(e.sha256!==createHash('sha256').update(bytes).digest('hex'))throw Error('Bad clip hash '+id);
+          }
+          if(Object.keys(manifest.files).length!==11)throw Error('Expected 11 complete local Renee cues');
+          console.log('PASS: all 11 opening Renee clips match v29 radio profile and sha256');
+          NODE
+      - name: Commit local radio-mastered OGG back to review branch
+        run: |
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git config user.name 'github-actions[bot]'
+          git add opening/audio/*.ogg opening/audio/manifest.json
+          if ! git diff --cached --quiet; then
+            git commit -m 'Apply exact Renee v29 static walkie FX to eleven opening cues'
+            git fetch origin feature/opening-cinematic-v34
+            git rebase origin/feature/opening-cinematic-v34
+            git push origin HEAD:feature/opening-cinematic-v34
+          fi

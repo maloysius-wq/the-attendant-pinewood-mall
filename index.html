@@ -33,6 +33,7 @@ canvas{display:block;position:fixed;inset:0}
 @media(max-width:700px){.menu-grid,.settingsGrid{grid-template-columns:1fr}.panel{padding:17px}.bar{width:150px}}
 @media(prefers-reduced-motion:reduce){.screen button,#hint,#loadFill{transition:none!important}.screen button:hover:not(:disabled){transform:none}}
 </style>
+<link rel="stylesheet" href="./opening/opening.css" />
 </head>
 <body class="modal-open">
 <div id="fx"><div id="vignette"></div><div id="scanlines"></div><div id="static"></div><div id="flash"></div></div>
@@ -52,6 +53,41 @@ canvas{display:block;position:fixed;inset:0}
 <section id="loadingScreen" class="screen"><div class="panel"><div class="kicker">PLEASE WAIT BEHIND THE YELLOW LINE</div><div class="title" style="font-size:34px">Loading Pinewood</div><div class="copy" id="loadText">Restoring emergency lighting…</div><div id="loadBar"><div id="loadFill"></div></div></div></section>
 
 <script type="importmap">{"imports":{"three":"./vendor/three/build/three.module.js","three/addons/":"./vendor/three/examples/jsm/"}}</script>
+
+<!-- Opening vignette v34. Real geometry is procedural; all on-wall papers and phone text are local CanvasTextures. -->
+<section id="pwm-opening" hidden aria-label="The Call opening cinematic">
+  <div class="pwm-render" aria-hidden="true"></div>
+  <div class="pwm-vignette" aria-hidden="true"></div><div class="pwm-grain" aria-hidden="true"></div>
+  <div class="pwm-letterbox top" aria-hidden="true"></div><div class="pwm-letterbox bottom" aria-hidden="true"></div>
+  <header class="pwm-head"><div class="pwm-mark">THE ATTENDANT <span style="opacity:.5">/</span> THE CALL</div><div class="pwm-clock" id="pwm-location">PINEWOOD MALL / AFTER HOURS</div></header>
+  <div class="pwm-transport" aria-label="Cinematic controls">
+    <button type="button" data-intro-pause>Pause</button>
+    <button type="button" data-intro-voice>Voice on</button>
+    <button type="button" data-intro-captions>Captions on</button>
+    <button type="button" class="pwm-skip" data-intro-skip>Skip intro</button>
+  </div>
+  <aside class="pwm-phone-sheet" aria-label="Work phone service ticket" hidden>
+    <div class="pwm-phone-header">FIELD SERVICE DISPATCH<br>WORK ORDER  /  00:47</div>
+    <div class="pwm-phone-body">
+      <span class="pwm-phone-tag">PRIORITY SERVICE · ACCEPTED</span>
+      <h3>PINEWOOD MALL</h3>
+      <div class="pwm-phone-ref">WO-28417 · EMERGENCY ELECTRICAL</div>
+      <div class="pwm-phone-status">A · CONCOURSE LIGHTS <b>OFFLINE</b></div>
+      <div class="pwm-phone-status">B · RETAIL / PA BRANCH <b>OFFLINE</b></div>
+      <div class="pwm-phone-status">C · SERVICE / FREIGHT <b>OFFLINE</b></div>
+      <div class="pwm-phone-footer">PROPERTY CLOSED TO PUBLIC · AUTHORIZED ENTRY<br>AFTER-HOURS PREMIUM APPROVED<br>VERIFY ALL CIRCUITS BEFORE RESET</div>
+    </div>
+  </aside>
+  <div class="pwm-caption-area" aria-live="polite" aria-atomic="true">
+    <div class="pwm-caption-label">RENEE WARD · DISPATCH RADIO</div>
+    <div id="pwm-caption" class="pwm-caption"></div>
+  </div>
+  <div class="pwm-preview-note">NEW SHIFT / PROPERTY ACCESS GRANTED</div>
+  <div class="pwm-footer">ALT + S TO SKIP · ESC TO PAUSE</div>
+  <div class="pwm-timebar"><div class="pwm-progress"></div></div>
+</section>
+
+<script type="module" src="./opening/intro.js"></script>
 <script type="module" src="./game.js"></script>
 </body>
 </html>
