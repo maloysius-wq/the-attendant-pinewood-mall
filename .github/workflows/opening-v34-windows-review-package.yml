@@ -1,0 +1,70 @@
+name: Downloadable Windows cinematic preview v34
+
+on:
+  push:
+    branches: [feature/opening-cinematic-v34]
+    paths:
+      - '.github/workflows/opening-v34-windows-review-package.yml'
+      - 'opening/serve-preview.ps1'
+      - 'PLAY THE CALL.cmd'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  package:
+    name: Verify Windows click-to-play launcher and package playable branch
+    runs-on: windows-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Test bundled local HTTP server and OGG partial requests
+        shell: pwsh
+        run: |
+          $server=Start-Process -FilePath powershell.exe -ArgumentList @('-NoProfile','-ExecutionPolicy','Bypass','-File','opening/serve-preview.ps1') -PassThru -WindowStyle Hidden
+          try {
+            $ok=$false
+            for($i=0;$i -lt 18;$i++){
+              Start-Sleep -Seconds 1
+              try { $page=Invoke-WebRequest -Uri 'http://127.0.0.1:8765/?openingPreview=1' -TimeoutSec 5; if($page.StatusCode -eq 200){$ok=$true;break} }catch{}
+            }
+            if(!$ok){throw 'The one-click preview did not start a local server'}
+            if(!$page.Content.Contains('id="pwm-opening"')){throw 'Wrong index served'}
+            $module=Invoke-WebRequest -Uri 'http://127.0.0.1:8765/opening/intro.js' -TimeoutSec 12
+            if($module.StatusCode -ne 200 -or !$module.Headers['Content-Type'].Contains('text/javascript')){throw 'ES module MIME issue'}
+            $audio=Invoke-WebRequest -Uri 'http://127.0.0.1:8765/opening/audio/arrival.ogg' -Headers @{Range='bytes=0-255'} -TimeoutSec 12
+            if($audio.StatusCode -ne 206){throw "Audio range request expected HTTP 206 but was $($audio.StatusCode)"}
+            $travel=Invoke-WebRequest -Uri 'http://127.0.0.1:8765/opening/scene.js' -TimeoutSec 12
+            if(!$travel.Content.Contains('makeOpeningScene')){throw 'Original 3D scenes not served'}
+            Write-Host 'PASS: 200 HTML, 200 JS with module MIME, 206 local OGG range, 200 original 3D scene. Windows review launcher ready.'
+          } finally { if($server -and !$server.HasExited){Stop-Process -Id $server.Id -Force -ErrorAction SilentlyContinue} }
+      - name: ZIP full playable branch for easy offline review
+        shell: pwsh
+        run: |
+          @'
+          from pathlib import Path
+          import subprocess, zipfile
+          root=Path.cwd()
+          names=subprocess.check_output(['git','ls-files','-z']).decode().split('\0')
+          names=[n for n in names if n and not n.startswith('.github/') and not n.startswith('opening/review/')]
+          out=root/'pinewood-the-call-v34-windows-preview.zip'
+          with zipfile.ZipFile(out,'w',compression=zipfile.ZIP_DEFLATED,compresslevel=5) as z:
+              for name in names:
+                  file=root/name
+                  if not file.is_file(): raise FileNotFoundError(str(file))
+                  z.write(file,name)
+          print('Packaged',len(names),'local files,',round(out.stat().st_size/1048576,1),'MiB.')
+          assert 'PLAY THE CALL.cmd' in names
+          assert 'opening/serve-preview.ps1' in names
+          assert 'opening/audio/arrival.ogg' in names
+          '@ | python -
+      - name: Upload one ZIP for owner review
+        uses: actions/upload-artifact@v4
+        with:
+          name: PINEWOOD-THE-CALL-v34-CLICK-TO-PLAY
+          path: pinewood-the-call-v34-windows-preview.zip
+          if-no-files-found: error
+          retention-days: 7
