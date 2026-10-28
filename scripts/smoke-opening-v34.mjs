@@ -42,6 +42,15 @@ try{
  assert(props.rainParticles===650,'Rain geometry missing');
  console.log('[INTRO_GEOMETRY] '+JSON.stringify(props));
  await page.screenshot({path:'opening/review/01-parking-arrival.png'});
+ // An automatic ?openingPreview=1 launch has no user gesture, so Chromium may
+ // suspend all media until the first click. Pause+Resume exercises the real audio
+ // activation path before asserting rain playback.
+ await page.locator('[data-intro-pause]').click();
+ await page.locator('[data-intro-pause]').click();
+ await page.waitForTimeout(300);
+ const unlocked=await page.evaluate(()=>window.__PINEWOOD_OPENING_V34__.audioStatus.ambient);
+ assert(unlocked?.car?.playing&&unlocked?.outside?.playing,'Click-to-play preview failed to unlock user rain audio');
+
  const timeline=[
   {index:2,name:'02-physical-work-phone',cue:'closed',phone:true},
   {index:6,name:'03-walk-to-service-entrance',cue:'entrance'},
@@ -79,7 +88,8 @@ try{
  assert(intro?.length>12,'New Game intro not visible');
  const audio=await play.evaluate(()=>window.__PINEWOOD_OPENING_V34__.audioStatus);
  assert(audio.available,'Eleven generated local Renee lines not connected to the cinematic');
- console.log('[RENEE_AUDIO] '+JSON.stringify(audio));
+ assert(audio.ambient?.car?.playing&&audio.ambient?.outside?.playing,'Clicking New Game did not start both local rain loops');
+  console.log('[RENEE_AUDIO] '+JSON.stringify(audio));
  await play.locator('[data-intro-skip]').click();
  await play.waitForFunction(()=>window.__PINEWOOD_OPENING_V34__?.active===false,null,{timeout:15000});
  await play.waitForFunction(()=>!document.querySelector('#titleScreen')?.classList.contains('show'),null,{timeout:60000});
