@@ -23,6 +23,7 @@ jobs:
           set -euo pipefail
           command -v ffmpeg
           command -v ffprobe
+          node --check scripts/reloop-opening-rain-v35.mjs
           node scripts/reloop-opening-rain-v35.mjs
           node --input-type=module <<'NODE'
           import fs from 'node:fs';
