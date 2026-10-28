@@ -147,6 +147,12 @@ window.__PINEWOOD_OPENING_V34__={
  get index(){return active?.index??-1;},
  get total(){return active?.lines?.length||0;},
  get cameraPosition(){return active?.camera?.position.toArray()||null;},
+ get sceneStats(){
+  if(!active?.stage)return null;
+  let meshes=0,signs=[],phoneTexture=active.stage.phoneUi.texture?.image;
+  active.stage.scene.traverse(o=>{if(o.isMesh)meshes++;if(o.userData?.openingWallPaper)signs.push({text:o.userData.openingWallPaper,position:o.position.toArray()});});
+  return {meshCount:meshes,wallNotices:signs,phoneTexture:[phoneTexture?.width||0,phoneTexture?.height||0],rainParticles:active.stage.rain.geometry.attributes.position.count,doorAngle:active.stage.pivot.rotation.y};
+ },
  async preview(){if(active&&!active.finished)return;const [script,voices]=await loadResources();active=new Intro(script,voices,{preview:true});},
  seek(index){return active?.seek(index)||false;},
  skip(){active?.finish(true);},
