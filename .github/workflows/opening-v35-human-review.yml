@@ -21,6 +21,7 @@ jobs:
           node --check opening/scene.js
           node --check opening/intro.js
           node --check opening/ambience.js
+          node --check scripts/reloop-opening-rain-v35.mjs
           node --check scripts/smoke-opening-v35.mjs
           node --input-type=module <<'NODE'
           import fs from 'node:fs';
