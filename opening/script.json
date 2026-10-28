@@ -1,0 +1,73 @@
+{
+  "version": 34,
+  "title": "THE CALL",
+  "speaker": "RENEE",
+  "lines": [
+    {
+      "id": "arrival",
+      "text": "Pinewood service, Ward on dispatch. I've got you at the property. Go ahead and check in when you're parked.",
+      "shot": "car",
+      "pause": 1.6
+    },
+    {
+      "id": "clock",
+      "text": "Got it. You're officially on the clock. And before you ask, yes, I know what time it is. Sorry about this one. Management pushed it through as urgent right when I was about to leave. After-hours rate's approved, at least. There's that.",
+      "shot": "car",
+      "pause": 1.5
+    },
+    {
+      "id": "closed",
+      "text": "So, here's what I have. Pinewood closed to the public in 2020. They never completely shut down the utilities. Alarms, emergency lights, some mechanical systems. Just enough to keep the building from falling apart faster than it already is.",
+      "shot": "phone",
+      "pause": 1.5
+    },
+    {
+      "id": "work",
+      "text": "Monitoring picked up a fault on the emergency distribution ring tonight. Three circuits aren't reporting correctly. A, B and C. I need you to check the panels, get those circuits back online if they're safe to reset, and verify the east freight elevator responds. That's the whole ticket.",
+      "shot": "phone",
+      "pause": 2
+    },
+    {
+      "id": "safety",
+      "text": "If you find scorched wiring, standing water around live equipment, anything that makes you nervous, you stop and tell me. I'm not asking you to get yourself hurt over somebody's abandoned shopping mall.",
+      "shot": "phone",
+      "pause": 2
+    },
+    {
+      "id": "owner",
+      "text": "The owner wants it signed off before the morning facilities inspection. Apparently that's cheaper than replacing the monitoring equipment. And no, there's no on-site security tonight. I checked. You've got permission to enter alone. I'll be on the radio. Keep it on you.",
+      "shot": "lot",
+      "pause": 1.6
+    },
+    {
+      "id": "entrance",
+      "text": "You should have a service entrance just east of the main doors. There'll be a contractor access box beside it. Your entry code's on the ticket.",
+      "shot": "walk",
+      "pause": 1.6
+    },
+    {
+      "id": "lights",
+      "text": "Did they leave the outside lights on? Of course they did. All right. Watch your footing. Half the exterior cameras are out, so I can't see what you're walking into.",
+      "shot": "entrance",
+      "pause": 2
+    },
+    {
+      "id": "inside",
+      "text": "Okay. I have your entry confirmation. You should be somewhere near the public concourse. The circuit locations are on the job sheet. Check your first panel and send me the reading before you reset anything.",
+      "shot": "keypad",
+      "pause": 1.5
+    },
+    {
+      "id": "promise",
+      "text": "For the record, I don't love that they sent one person out here. But it should be straightforward. A few checks, three circuits, elevator test, and you're done. I'll be right here.",
+      "shot": "inside",
+      "pause": 2.3
+    },
+    {
+      "id": "direction",
+      "text": "If you lose your way, check the directory. I know they changed the store layouts a few times, but the main service markings should still be there. You don't have to rush. I'd rather get one good reading than three guesses.",
+      "shot": "interiorWide",
+      "pause": 2.2
+    }
+  ]
+}

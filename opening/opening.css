@@ -1,0 +1,50 @@
+/* THE CALL: scoped pre-game cinematic HUD; no style changes to the live runtime. */
+#pwm-opening{position:fixed;inset:0;z-index:2000;overflow:hidden;background:#071018;color:#ebe9df;font-family:Arial,Helvetica,sans-serif;isolation:isolate}
+#pwm-opening[hidden],#pwm-opening [hidden]{display:none!important}
+#pwm-opening .pwm-render,#pwm-opening .pwm-render canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
+#pwm-opening .pwm-vignette{position:absolute;inset:0;pointer-events:none;background:radial-gradient(ellipse at center,transparent 18%,rgba(0,0,0,.34) 75%,rgba(0,0,0,.78));mix-blend-mode:multiply}
+#pwm-opening .pwm-grain{position:absolute;inset:0;pointer-events:none;opacity:.20;background-image:repeating-linear-gradient(0deg,transparent 0 3px,rgba(0,0,0,.33) 4px);background-size:100% 5px}
+#pwm-opening .pwm-letterbox{position:absolute;left:0;right:0;height:6.5vh;background:#020408;pointer-events:none}
+#pwm-opening .pwm-letterbox.top{top:0}#pwm-opening .pwm-letterbox.bottom{bottom:0}
+#pwm-opening .pwm-head{position:absolute;z-index:2;top:8vh;left:4.5vw;right:4.5vw;display:flex;gap:12px;align-items:center;justify-content:space-between;pointer-events:none}
+#pwm-opening .pwm-mark{font-size:clamp(11px,1.2vw,16px);letter-spacing:.23em;font-weight:700;color:#ece9dc;text-shadow:0 2px 12px black}
+#pwm-opening .pwm-clock{color:#c2c8bb;font:12px monospace;letter-spacing:.1em;text-shadow:0 2px 10px black}
+#pwm-opening .pwm-transport{position:absolute;z-index:3;top:calc(9vh + 22px);right:4.5vw;display:flex;gap:7px;flex-wrap:wrap;justify-content:flex-end;max-width:60vw}
+#pwm-opening .pwm-transport button{background:rgba(8,19,23,.81);border:1px solid rgba(211,224,217,.35);color:#eeeae0;font:12px Arial;padding:10px 13px;min-height:36px;border-radius:3px;cursor:pointer}
+#pwm-opening .pwm-transport button:hover,#pwm-opening .pwm-transport button:focus-visible{background:#324c48;outline:2px solid #e4c787;outline-offset:2px}
+#pwm-opening .pwm-transport .pwm-skip{border-color:#cfc2a5;color:#fff1ca;background:rgba(25,24,20,.92)}
+#pwm-opening .pwm-caption-area{position:absolute;z-index:3;bottom:11.2vh;left:50%;transform:translateX(-50%);width:min(820px,88%);text-align:center;pointer-events:none}
+#pwm-opening .pwm-caption-label{display:inline-block;padding:6px 12px;margin-bottom:2px;border:1px solid rgba(189,227,207,.25);border-bottom:0;background:rgba(8,20,23,.82);font-size:11px;font-weight:700;letter-spacing:.17em;color:#b1d9ca}
+#pwm-opening .pwm-caption{min-height:66px;padding:12px 24px 15px;background:rgba(2,8,10,.84);border:1px solid rgba(189,227,207,.25);font-size:clamp(16px,2vw,22px);line-height:1.45;color:#f5f0e6;text-shadow:0 1px 2px black}
+#pwm-opening.pwm-hide-captions .pwm-caption-area{display:none}
+#pwm-opening .pwm-timebar{position:absolute;z-index:4;bottom:6.5vh;left:0;right:0;height:4px;background:rgba(195,192,168,.15)}
+#pwm-opening .pwm-progress{height:100%;width:0;background:#a5c9b2;transition:width .12s linear}
+#pwm-opening .pwm-footer{position:absolute;z-index:2;bottom:8.5vh;right:4.5vw;text-align:right;color:#c4c2b5;font-size:11px;letter-spacing:.11em;opacity:.77}
+#pwm-opening .pwm-phone-sheet{position:absolute;z-index:3;top:23%;right:6.2%;width:min(320px,32vw);background:linear-gradient(165deg,#233942,#0e1a23);border:4px solid #0e1217;border-radius:18px;box-shadow:0 18px 70px rgba(0,0,0,.9),0 0 0 1px #4c575c inset;overflow:hidden;pointer-events:none;transform:rotate(2.5deg)}
+#pwm-opening .pwm-phone-header{background:#395665;padding:16px 19px;color:#e8f0e9;font-size:12px;line-height:1.55;letter-spacing:.11em}
+#pwm-opening .pwm-phone-body{padding:15px 19px 19px}
+#pwm-opening .pwm-phone-tag{display:block;background:#dfc17a;padding:9px 7px;text-align:center;font-size:11px;letter-spacing:.08em;color:#1b2730;font-weight:800}
+#pwm-opening .pwm-phone-body h3{margin:15px 0 6px;font-size:18px;letter-spacing:.04em}
+#pwm-opening .pwm-phone-ref{font-size:10px;color:#b4cad1;margin-bottom:14px}
+#pwm-opening .pwm-phone-status{margin:8px 0;border:1px solid #38505b;background:#1c2d37;padding:9px 10px;font-size:12px;line-height:1.4}
+#pwm-opening .pwm-phone-status b{display:inline-block;color:#f0aa9f;float:right}
+#pwm-opening .pwm-phone-footer{font-size:11px;line-height:1.55;color:#bacfce;margin-top:11px}
+#pwm-opening .pwm-preview-note{position:absolute;z-index:3;top:17%;left:4.5vw;padding:9px 13px;background:rgba(0,0,0,.56);border-left:3px solid #b6b39c;color:#e4e2d6;font-size:11px;letter-spacing:.1em}
+#pwm-opening.pwm-no-webgl{background:radial-gradient(circle at 70% 60%,#1d343a,#080e13 55%,#020508)}
+#pwm-opening.pwm-no-webgl .pwm-render:after{content:'PINEWOOD MALL';position:absolute;top:42%;left:50%;transform:translate(-50%,-50%);color:#9c9f89;font-size:clamp(36px,7vw,95px);letter-spacing:.15em;text-align:center;text-shadow:0 0 30px #455a58}
+#pwm-opening[data-paused=true]:before{content:'PAUSED';position:absolute;z-index:6;top:50%;left:50%;transform:translate(-50%,-50%);font-size:clamp(28px,5vw,64px);letter-spacing:.23em;text-shadow:0 1px 30px black;pointer-events:none}
+@media(max-width:690px){
+ #pwm-opening .pwm-head{top:7vh;left:5vw;right:5vw}
+ #pwm-opening .pwm-transport{top:calc(8vh + 22px);right:5vw;left:5vw;max-width:none}
+ #pwm-opening .pwm-transport button{font-size:11px;padding:9px 7px;min-height:36px;flex:1}
+ #pwm-opening .pwm-phone-sheet{top:30%;right:5%;width:44vw;font-size:90%}
+ #pwm-opening .pwm-phone-status{font-size:10px;padding:6px}
+ #pwm-opening .pwm-phone-body{padding:9px}
+ #pwm-opening .pwm-phone-body h3{font-size:13px}
+ #pwm-opening .pwm-phone-header{padding:7px;font-size:9px}
+ #pwm-opening .pwm-preview-note{display:none}
+ #pwm-opening .pwm-caption-area{bottom:11%;width:91%}
+ #pwm-opening .pwm-caption{min-height:65px;padding:9px 12px;font-size:16px}
+ #pwm-opening .pwm-footer{display:none}
+}
+@media(prefers-reduced-motion:reduce){#pwm-opening .pwm-grain{display:none}#pwm-opening .pwm-progress{transition:none}}
