@@ -1,0 +1,59 @@
+name: The Call v35 human POV and seamless rain preview
+on:
+  push:
+    branches: [feature/the-call-v35-human-camera-gapless-rain]
+    paths: ['.github/workflows/opening-v35-human-review.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  camera-rain-browser:
+    runs-on: ubuntu-latest
+    timeout-minutes: 48
+    steps:
+      - uses: actions/checkout@v4
+        with: {persist-credentials: false}
+      - name: Verify standalone cinematic files and mastered rain inventory
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --check opening/camera.js
+          node --check opening/scene.js
+          node --check opening/intro.js
+          node --check opening/ambience.js
+          node --check scripts/smoke-opening-v35.mjs
+          node --input-type=module <<'NODE'
+          import fs from 'node:fs';
+          const rain=JSON.parse(fs.readFileSync('opening/audio/rain-v35-manifest.json','utf8'));
+          if(rain.version!==35)throw Error('Missing v35 rain mastering');
+          for(const id of ['car','outside']){
+            const x=rain.files[id];
+            if(!x?.file?.endsWith('-rain-v35.ogg')||x.duration<2||x.edgeRMS.first<=0||x.edgeRMS.last<=0)throw Error('Dead air / invalid v35 '+id);
+            if(!fs.statSync('opening/audio/'+x.file).size)throw Error('Empty local loop '+id);
+            console.log('[SEAMLESS] '+id,JSON.stringify({duration:x.duration,trim:x.originalEdgeTrim,overlap:x.overlapSeconds,edgeRMS:x.edgeRMS,click:x.boundarySampleDelta}));
+          }
+          const root=fs.readFileSync('index.html','utf8');
+          const preview=fs.readFileSync('review/the-call-v34/index.html','utf8');
+          if(root.includes('pwm-opening'))throw Error('Root game accidentally modified');
+          if(!preview.includes('intro.js?v=35'))throw Error('Hosted preview not pointing to v35');
+          NODE
+      - name: Install headless Chromium and Playwright
+        run: |
+          npm install --no-save --package-lock=false --no-audit --no-fund playwright@1.55.0
+          npx playwright install chromium
+      - name: Exercise the actual 3D camera and Web Audio behavior
+        shell: bash
+        run: |
+          python3 -m http.server 4173 --bind 127.0.0.1 >/tmp/pinewood-v35.log 2>&1 &
+          pid=$!
+          trap 'kill "$pid" 2>/dev/null || true' EXIT
+          sleep 3
+          node scripts/smoke-opening-v35.mjs
+      - name: Upload seven screenshot review frames
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: the-call-v35-human-eyes-and-dashboard-preview
+          path: opening/review-v35/*.png
+          if-no-files-found: warn
+          retention-days: 3
