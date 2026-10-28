@@ -17,7 +17,7 @@
     },
     {
       "id": "closed",
-      "text": "So, here's what I have. Pinewood closed to the public in 2020. They never completely shut the utilities down. Alarms, emergency lights, some mechanical systems. Just enough to keep the building from falling apart faster than it already is.",
+      "text": "So, here's what I have. Pinewood closed to the public in 2020. They never completely shut down the utilities. Alarms, emergency lights, some mechanical systems. Just enough to keep the building from falling apart faster than it already is.",
       "shot": "phone",
       "pause": 1.5
     },
@@ -47,7 +47,7 @@
     },
     {
       "id": "lights",
-      "text": "Did they at least leave the outside lights on? Of course they did. All right. Just watch your footing. Half the exterior cameras aren't working, and I can't see what's directly in front of you.",
+      "text": "Did they leave the outside lights on? Of course they did. All right. Watch your footing. Half the exterior cameras are out, so I can't see what you're walking into.",
       "shot": "entrance",
       "pause": 2
     },
