@@ -1,5 +1,6 @@
 import * as THREE from '../vendor/three/build/three.module.js';
 import {makeOpeningScene,shots} from './scene.js';
+import {OpeningAmbience} from './ambience.js';
 const $=id=>document.getElementById(id);
 const query=new URLSearchParams(location.search);
 const clamp=(x,a,b)=>Math.min(b,Math.max(a,x));
@@ -22,6 +23,7 @@ class Intro{
   this.index=-1;this.elapsed=0;this.wait=0;this.finished=false;this.paused=false;this.muted=false;this.captioned=true;
   this.reduced=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   this.canvasSlot=this.root.querySelector('.pwm-render');this.last=performance.now();
+  this.ambience=new OpeningAmbience();
   this.resize=()=>{if(!this.renderer)return;const w=this.root.clientWidth||innerWidth,h=this.root.clientHeight||innerHeight;this.renderer.setSize(w,h,false);this.camera.aspect=w/h;this.camera.updateProjectionMatrix()};
   this.keydown=e=>{
    if(e.code==='Escape'){e.preventDefault();e.stopImmediatePropagation();this.togglePause();}
@@ -41,13 +43,14 @@ class Intro{
    this.canvasSlot.append(this.renderer.domElement);this.resize();
   }catch(e){this.root.classList.add('pwm-no-webgl');console.warn('Opening in accessible fallback:',e);}
   this.next();
+  this.ambience.start();
   this.frame=this.frame.bind(this);
   this.raf=requestAnimationFrame(this.frame);
  }
  lineAudio(id){
   const file=this.voices?.files?.[id]?.file;
   if(typeof file!=='string'||!/^[a-z][a-z0-9-]*\.ogg$/.test(file))return null;
-  const a=new Audio(new URL('./audio/'+file,import.meta.url).href);a.preload='auto';a.volume=.9;a.muted=this.muted;
+  const a=new Audio(new URL('./audio/'+file,import.meta.url).href);a.preload='auto';a.volume=.75;a.muted=this.muted;
   return a;
  }
  next(){
@@ -79,6 +82,7 @@ class Intro{
   const delta=clamp((now-this.last)/1000,0,.12);this.last=now;
   if(!this.paused){
    this.elapsed+=delta;this.renderCaption();
+   this.ambience.update(delta,this.line.shot,!!this.audio&&!this.audio.ended&&!this.audio.paused);
    if(this.stage&&this.renderer){
     const shot=shots[this.line.shot]||shots.car;
     const t=smooth(this.reduced?0:clamp(this.elapsed/Math.max(this.wait-1,1),0,1));
@@ -97,6 +101,7 @@ class Intro{
  }
  togglePause(){
   this.paused=!this.paused;if(this.audio){if(this.paused)this.audio.pause();else this.audio.play().catch(()=>{});}
+  if(this.paused)this.ambience.pause();else this.ambience.resume();
   this.root.querySelector('[data-intro-pause]').textContent=this.paused?'Resume':'Pause';
   this.root.dataset.paused=String(this.paused);
  }
@@ -114,6 +119,7 @@ class Intro{
   if(this.finished)return;this.finished=true;cancelAnimationFrame(this.raf);
   document.removeEventListener('keydown',this.keydown,true);removeEventListener('resize',this.resize);
   if(this.audio){this.audio.pause();this.audio.removeAttribute('src');this.audio.load();}
+  this.ambience.destroy();
   this.stage?.scene.traverse(o=>{
    o.geometry?.dispose?.();
    for(const m of o.material?(Array.isArray(o.material)?o.material:[o.material]):[]){m.map?.dispose?.();m.dispose?.();}
@@ -158,7 +164,7 @@ window.__PINEWOOD_OPENING_V34__={
  get cue(){return active?.line?.id||null;},
  get index(){return active?.index??-1;},
  get total(){return active?.lines?.length||0;},
- get audioStatus(){return {available:!!active?.audio,paused:active?.audio?.paused??true,muted:active?.audio?.muted??false,time:active?.audio?.currentTime??0};},
+ get audioStatus(){return {available:!!active?.audio,paused:active?.audio?.paused??true,muted:active?.audio?.muted??false,time:active?.audio?.currentTime??0,ambient:active?.ambience?.status||null};},
  get cameraPosition(){return active?.camera?.position.toArray()||null;},
  get sceneStats(){
   if(!active?.stage)return null;
