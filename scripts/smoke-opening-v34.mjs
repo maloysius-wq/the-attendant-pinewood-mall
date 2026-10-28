@@ -18,6 +18,14 @@ try{
  assert(starter.index===0&&starter.total===11&&starter.cue==='arrival','wrong 11-cue start '+JSON.stringify(starter));
  assert(starter.caption?.includes('Pinewood service'),'missing real subtitle');
  assert(starter.canvas,'3D scene canvas missing');
+ const props=await page.evaluate(()=>window.__PINEWOOD_OPENING_V34__.sceneStats);
+ assert(props?.meshCount>100,'Not enough authored 3D scene meshes: '+JSON.stringify(props));
+ assert(props.wallNotices?.length>=5,'Missing real wall-mounted papers: '+JSON.stringify(props));
+ assert(props.wallNotices.some(p=>p.text.includes('AUTHORIZED')),'Contractor notice not modeled on wall');
+ assert(props.wallNotices.some(p=>p.text.includes('SERVICE MAP')),'Real service directory sign missing');
+ assert(props.phoneTexture?.[0]===560&&props.phoneTexture?.[1]===1000,'Physical work phone texture missing');
+ assert(props.rainParticles===650,'Rain geometry missing');
+ console.log('[INTRO_GEOMETRY] '+JSON.stringify(props));
  await page.screenshot({path:'opening/review/01-parking-arrival.png'});
  const timeline=[
   {index:2,name:'02-physical-work-phone',cue:'closed',phone:true},
@@ -47,6 +55,9 @@ try{
  await play.waitForFunction(()=>window.__PINEWOOD_OPENING_V34__?.active===true,null,{timeout:30000});
  const intro=await play.locator('#pwm-opening .pwm-caption').textContent();
  assert(intro?.length>12,'New Game intro not visible');
+ const audio=await play.evaluate(()=>window.__PINEWOOD_OPENING_V34__.audioStatus);
+ assert(audio.available,'Eleven generated local Renee lines not connected to the cinematic');
+ console.log('[RENEE_AUDIO] '+JSON.stringify(audio));
  await play.locator('[data-intro-skip]').click();
  await play.waitForFunction(()=>window.__PINEWOOD_OPENING_V34__?.active===false,null,{timeout:15000});
  await play.waitForFunction(()=>!document.querySelector('#titleScreen')?.classList.contains('show'),null,{timeout:60000});
