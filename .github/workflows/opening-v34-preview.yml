@@ -5,6 +5,7 @@ on:
     paths:
       - '.github/workflows/opening-v34-preview.yml'
       - 'opening/intro.js'
+      - 'opening/ambience.js'
       - 'opening/scene.js'
       - 'opening/opening.css'
       - 'opening/script.json'
