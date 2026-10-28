@@ -38,6 +38,18 @@ export class OpeningAmbience{
    const buffer=await ctx.decodeAudioData(bytes);
    if(this.disposed||!this.ctx)return;
    if(buffer.duration<2)throw Error('Rain bed too short '+id);
+   // Vorbis decoding can leave a few endpoint samples misaligned. Correct that
+   // residual over a 6ms curve so the LAST sample equals the FIRST exactly.
+   // This eliminates the final potential discontinuity even after re-encoding.
+   const endSamples=Math.min(256,Math.max(1,Math.floor(buffer.length*.02)));
+   for(let channel=0;channel<buffer.numberOfChannels;channel++){
+    const samples=buffer.getChannelData(channel),last=samples.length-1;
+    const correction=samples[0]-samples[last];
+    for(let n=0;n<endSamples;n++){
+     const t=(n+1)/endSamples,shape=t*t*(3-2*t);
+     samples[samples.length-endSamples+n]+=correction*shape;
+    }
+   }
    const volume=ctx.createGain();volume.gain.setValueAtTime(0,ctx.currentTime);volume.connect(ctx.destination);
    const source=ctx.createBufferSource();source.buffer=buffer;
    source.loop=true;source.loopStart=0;source.loopEnd=buffer.duration;
