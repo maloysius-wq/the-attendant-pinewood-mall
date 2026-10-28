@@ -18,6 +18,21 @@ try{
  assert(starter.index===0&&starter.total===11&&starter.cue==='arrival','wrong 11-cue start '+JSON.stringify(starter));
  assert(starter.caption?.includes('Pinewood service'),'missing real subtitle');
  assert(starter.canvas,'3D scene canvas missing');
+ const initialAudio=await page.evaluate(()=>window.__PINEWOOD_OPENING_V34__.audioStatus);
+ assert(initialAudio.ambient?.car?.loop&&initialAudio.ambient?.outside?.loop,'Rain ambience is not locally looped');
+ assert(initialAudio.ambient?.car?.source==='car-rain.ogg','Owner car-rain asset not connected');
+ assert(initialAudio.ambient?.outside?.source==='outside-rain.ogg','Owner outside-rain asset not connected');
+ assert(starter.index===0,'Opening no longer starts inside car');
+ const carCamera=await page.evaluate(()=>window.__PINEWOOD_OPENING_V34__.cameraPosition);
+ assert(carCamera[0]<-10.35&&carCamera[2]>17.8&&carCamera[2]<18.4,'Car camera returned to the occluded rear body location '+JSON.stringify(carCamera));
+ for(const file of ['car-rain.ogg','outside-rain.ogg']){
+  const response=await page.evaluate(async filename=>{
+   const r=await fetch(new URL('opening/audio/'+filename,document.baseURI),{method:'GET'});
+   return {ok:r.ok,status:r.status,contentType:r.headers.get('content-type')};
+  },file);
+  assert(response.ok,'User rain not online '+file+' '+JSON.stringify(response));
+ }
+ console.log('[INTRO_RAIN] '+JSON.stringify(initialAudio.ambient));
  const props=await page.evaluate(()=>window.__PINEWOOD_OPENING_V34__.sceneStats);
  assert(props?.meshCount>100,'Not enough authored 3D scene meshes: '+JSON.stringify(props));
  assert(props.wallNotices?.length>=5,'Missing real wall-mounted papers: '+JSON.stringify(props));
@@ -42,6 +57,13 @@ try{
   if(spec.phone)assert(state.phone,'work-order phone display hidden');
   await page.screenshot({path:'opening/review/'+spec.name+'.png'});
   console.log('[INTRO_SCENE] '+spec.cue+' camera='+JSON.stringify(state.camera));
+  if(spec.cue==='entrance'){
+   await page.waitForTimeout(600);
+   const outside=await page.evaluate(()=>window.__PINEWOOD_OPENING_V34__.audioStatus.ambient);
+   assert(outside?.outside?.playing,'Outside rain not playing at entrance');
+   assert(outside.outside.volume>0,'Outside rain not fading up at entrance');
+   console.log('[INTRO_EXTERIOR_RAIN] '+JSON.stringify(outside));
+  }
  }
  await page.evaluate(()=>window.__PINEWOOD_OPENING_V34__.skip());
  await page.waitForFunction(()=>window.__PINEWOOD_OPENING_V34__.active===false);
