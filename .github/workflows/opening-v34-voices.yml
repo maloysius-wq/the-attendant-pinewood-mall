@@ -15,6 +15,10 @@ jobs:
       - uses: actions/checkout@v4
         with:
           persist-credentials: true
+      - name: Install audio mastering tools
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y ffmpeg
       - name: Render 11 individually generated Crisp recordings into local OGG
         shell: bash
         run: |
