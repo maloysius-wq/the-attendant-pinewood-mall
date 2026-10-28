@@ -124,7 +124,19 @@ class Intro{
   const clone=this.root.cloneNode(true);this.root.replaceWith(clone);
   document.dispatchEvent(new CustomEvent('pinewood-intro-finished',{detail:{skipped,preview:this.preview}}));
   if(this.preview)return;
-  bypass=true;try{$('newBtn')?.click();}finally{bypass=false;}
+  // The full game loader assembles the six-chapter runtime asynchronously.
+  // A fast skip may finish before the classic New Game click handler is attached.
+  // Retry the native click until its existing title screen actually transitions.
+  const button=$('newBtn');
+  let retries=0;
+  const deliver=()=>{
+   const title=$('titleScreen'),chapter=$('chapterScreen'),loading=$('loadingScreen');
+   if(!button||!title||!title.classList.contains('show')||chapter?.classList.contains('show')||loading?.classList.contains('show'))return;
+   if(retries++>=100){console.error('[Opening] Native game did not acknowledge New Game within handoff budget');return;}
+   bypass=true;try{button.click();}finally{bypass=false;}
+   if(title.classList.contains('show'))setTimeout(deliver,1200);
+  };
+  deliver();
  }
 }
 function intercept(e){
