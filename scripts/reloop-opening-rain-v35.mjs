@@ -15,7 +15,7 @@ const root=process.cwd();
 const folder=path.join(root,'opening/audio');
 for(const name of ['ffmpeg','ffprobe'])if(spawnSync(name,['-version'],{stdio:'ignore'}).status!==0)throw Error(name+' missing');
 
-const describe=file=>JSON.parse(execFileSync('ffprobe',['-v','error','-show_entries','format=duration','-of','json',file],{encoding:'utf8'})).format);
+const describe=file=>JSON.parse(execFileSync('ffprobe',['-v','error','-show_entries','format=duration','-of','json',file],{encoding:'utf8'})).format;
 function decode(file){
  const binary=execFileSync('ffmpeg',['-hide_banner','-loglevel','error','-i',file,'-vn','-ac','1','-ar','22050','-f','f32le','pipe:1'],{maxBuffer:20_000_000});
  return new Float32Array(binary.buffer.slice(binary.byteOffset,binary.byteOffset+binary.byteLength));
