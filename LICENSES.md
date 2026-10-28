@@ -235,3 +235,10 @@ Pinewood's named storefront signs are generated locally because their lettering 
 - License: CC0 1.0
 - Original source-file URL (provenance only; runtime copy is vendored locally): `https://lpc.opengameart.org/sites/default/files/Insistent.ogg`
 - Used as the darker threat layer. It fades in progressively with The Attendant's navigation-distance proximity while the mall loop recedes.
+
+## Opening cinematic v34: THE CALL
+
+- **Visual models, signage, exterior/interior locations, keypad, vehicle, work phone:** original procedural Three.js geometry and CanvasTexture illustrations made for Pinewood. No third-party 3D models or texture downloads in this prelude; the existing local Three.js module supplies the renderer.
+- **Renee Ward dialogue:** 11 new performances generated at the user's request with AI Voice Generator (Level 2 Labs / AI Doc Maker), using the Crisp voice style established for Renee. All eleven are mastered with FFmpeg and vendored as local OGG files under opening/audio/. The matching manifest contains exact text, duration, and SHA-256 per clip.
+- **Voice source and rights:** user-generated voice outputs under the provider's terms (https://www.aidocmaker.com/terms-of-service). Provider attribution is retained consistently with Renee's existing voice production. Development-only source links are documented in opening/voice-sources-v34.json, never fetched at runtime.
+- **Audio production:** scripts/vendor-opening-voices-v34.mjs; no runtime voice cloud calls or speech synthesis. Ambient music and SFX remain deferred pending cinematic review.
