@@ -1,0 +1,44 @@
+name: Master gapless user-supplied rain v35
+on:
+  push:
+    branches: [feature/the-call-v35-human-camera-gapless-rain]
+    paths: ['.github/workflows/opening-v35-loop-master.yml']
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  master:
+    runs-on: ubuntu-latest
+    timeout-minutes: 22
+    steps:
+      - uses: actions/checkout@v4
+        with: {persist-credentials: true}
+      - name: Rebuild both local rain assets without a silent loop boundary
+        shell: bash
+        run: |
+          set -euo pipefail
+          command -v ffmpeg
+          command -v ffprobe
+          node scripts/reloop-opening-rain-v35.mjs
+          node --input-type=module <<'NODE'
+          import fs from 'node:fs';
+          const m=JSON.parse(fs.readFileSync('opening/audio/rain-v35-manifest.json','utf8'));
+          for(const k of ['car','outside']){
+            const x=m.files[k];
+            if(!x||!(x.duration>=2)||!fs.statSync('opening/audio/'+x.file).size)throw Error(k+' missing');
+            if(x.edgeRMS.first<=0||x.edgeRMS.last<=0)throw Error(k+' silent at boundary');
+            console.log(k+' is seamless-ready:',x.duration,'s, gapless loop edge rms',x.edgeRMS);
+          }
+          NODE
+      - name: Commit both local loop-master assets to review branch
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add opening/audio/car-rain-v35.ogg opening/audio/outside-rain-v35.ogg opening/audio/rain-v35-manifest.json
+          git diff --cached --quiet && { echo "already mastered"; exit 0; }
+          git commit -m "Add relooped and normalized zero-gap owner rain beds for Web Audio v35"
+          git fetch origin feature/the-call-v35-human-camera-gapless-rain
+          git rebase origin/feature/the-call-v35-human-camera-gapless-rain
+          git push origin HEAD:feature/the-call-v35-human-camera-gapless-rain
