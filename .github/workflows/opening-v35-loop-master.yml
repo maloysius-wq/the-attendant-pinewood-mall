@@ -25,6 +25,7 @@ jobs:
           command -v ffprobe
           node --check scripts/reloop-opening-rain-v35.mjs
           node scripts/reloop-opening-rain-v35.mjs
+          echo 'PCM overlap seam mastering complete'
           node --input-type=module <<'NODE'
           import fs from 'node:fs';
           const m=JSON.parse(fs.readFileSync('opening/audio/rain-v35-manifest.json','utf8'));
