@@ -49,17 +49,37 @@ for(const name of ['car','outside']){
  const tailBegin=b.end-overlap,headEnd=b.start+overlap;
  const coreBegin=headEnd,coreEnd=tailBegin;
  if(coreEnd<=coreBegin)throw Error(name+' overlap eats main clip');
- const fx=[
-  '[0:a]asplit=3[s0][s1][s2]',
-  '[s0]atrim=start='+coreBegin.toFixed(5)+':end='+coreEnd.toFixed(5)+',asetpts=PTS-STARTPTS[center]',
-  '[s1]atrim=start='+tailBegin.toFixed(5)+':end='+b.end.toFixed(5)+',asetpts=PTS-STARTPTS[last]',
-  '[s2]atrim=start='+b.start.toFixed(5)+':end='+headEnd.toFixed(5)+',asetpts=PTS-STARTPTS[first]',
-  '[last][first]acrossfade=d='+overlap.toFixed(5)+':c1=tri:c2=tri[seam]',
-  '[center][seam]concat=n=2:v=0:a=1,aresample=44100,loudnorm=I=-26:LRA=8:TP=-2.5,alimiter=limit=.90[out]'
- ].join(';');
- execFileSync('ffmpeg',['-hide_banner','-loglevel','error','-y','-i',input,'-filter_complex',fx,'-map','[out]','-c:a','libvorbis','-q:a','5','-ac','2','-ar','44100',output],{maxBuffer:5_000_000});
+ // Construct the periodic overlap in actual PCM. FFmpeg's acrossfade can silently
+ // drop one branch when both excerpts come from the same source graph.
+ // Here the last output sample is the input sample just BEFORE the first output
+ // sample, with a constant-power blend over the original recording's seam.
+ const stereoBuffer=execFileSync('ffmpeg',['-hide_banner','-loglevel','error','-i',input,'-vn','-ac','2','-ar','44100','-f','f32le','pipe:1'],{maxBuffer:30_000_000});
+ const stereo=new Float32Array(stereoBuffer.buffer.slice(stereoBuffer.byteOffset,stereoBuffer.byteOffset+stereoBuffer.byteLength));
+ const sampleRate=44100,totalFrames=Math.floor(stereo.length/2);
+ const sFrame=Math.max(0,Math.round(b.start*sampleRate));
+ const eFrame=Math.min(totalFrames,Math.round(b.end*sampleRate));
+ const overlapFrames=Math.round(overlap*sampleRate);
+ const coreFrames=eFrame-sFrame-2*overlapFrames;
+ if(coreFrames<sampleRate*1.5)throw Error(name+' no room for a natural loop');
+ const raw=new Float32Array((coreFrames+overlapFrames)*2);
+ raw.set(stereo.subarray((sFrame+overlapFrames)*2,(eFrame-overlapFrames)*2),0);
+ for(let i=0;i<overlapFrames;i++){
+  const angle=((i+1)/(overlapFrames+1))*Math.PI*.5;
+  const tail=Math.cos(angle)**2,head=Math.sin(angle)**2;
+  for(let ch=0;ch<2;ch++){
+   raw[(coreFrames+i)*2+ch]=stereo[(eFrame-overlapFrames+i)*2+ch]*tail+
+     stereo[(sFrame+i)*2+ch]*head;
+  }
+ }
+ const proc=spawnSync('ffmpeg',['-hide_banner','-loglevel','error','-y',
+  '-f','f32le','-ar','44100','-ac','2','-i','pipe:0',
+  '-af','loudnorm=I=-26:LRA=8:TP=-2.5,alimiter=limit=.90',
+  '-c:a','libvorbis','-q:a','5','-ar','44100',output],
+ {input:Buffer.from(raw.buffer),maxBuffer:5_000_000});
+ if(proc.status!==0)throw Error(name+' audio encode failed: '+String(proc.stderr));
  const finalSamples=decode(output);const duration=Number(describe(output).duration);
- if(duration<2||duration>full+.1)throw Error(name+' unexpected duration '+duration);
+ const expectedSeconds=raw.length/2/44100;
+ if(duration<2||Math.abs(duration-expectedSeconds)>.11)throw Error(name+' seam render not included: '+duration+' expected '+expectedSeconds);
  const window=Math.floor(22050*.12);
  const first=rmsAt(finalSamples,0,window),last=rmsAt(finalSamples,finalSamples.length-window,window);
  if(!first||!last||first<b.median*.06||last<b.median*.06)throw Error(name+' still has dead air near seam: '+first+', '+last);
