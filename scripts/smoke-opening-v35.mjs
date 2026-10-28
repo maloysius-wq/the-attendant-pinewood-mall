@@ -17,7 +17,7 @@ try{
  await page.goto(base,{waitUntil:'domcontentloaded',timeout:90000});
  await page.locator('#newBtn').click({timeout:45000});
  await page.waitForFunction(()=>window.__PINEWOOD_OPENING_V34__?.active===true,null,{timeout:25000});
- await page.waitForFunction(()=>window.__PINEWOOD_OPENING_V34__?.audioStatus?.ambient?.car?.readyState===4,null,{timeout:30000});
+ await page.waitForFunction(()=>window.__PINEWOOD_OPENING_V34__?.audioStatus?.ambient?.car?.readyState===4 && window.__PINEWOOD_OPENING_V34__?.audioStatus?.ambient?.outside?.readyState===4,null,{timeout:30000});
  await page.waitForTimeout(850);
  let initial=await track();
  assert(initial.audio?.ambient?.car?.gapless===true,'car is not sample-accurate Web Audio');
