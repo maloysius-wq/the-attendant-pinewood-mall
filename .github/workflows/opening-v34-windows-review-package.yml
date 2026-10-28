@@ -34,7 +34,7 @@ jobs:
             if(!$ok){throw 'The one-click preview did not start a local server'}
             if(!$page.Content.Contains('id="pwm-opening"')){throw 'Wrong index served'}
             $module=Invoke-WebRequest -Uri 'http://127.0.0.1:8765/opening/intro.js' -TimeoutSec 12
-            if($module.StatusCode -ne 200 -or !$module.Headers['Content-Type'].Contains('text/javascript')){throw 'ES module MIME issue'}
+            if($module.StatusCode -ne 200 -or ([string]::Join(',', $module.Headers['Content-Type']) -notmatch 'text/javascript')){throw ('ES module MIME issue: '+$module.StatusCode+' '+[string]::Join(',', $module.Headers['Content-Type']))}
             $audio=Invoke-WebRequest -Uri 'http://127.0.0.1:8765/opening/audio/arrival.ogg' -Headers @{Range='bytes=0-255'} -TimeoutSec 12
             if($audio.StatusCode -ne 206){throw "Audio range request expected HTTP 206 but was $($audio.StatusCode)"}
             $travel=Invoke-WebRequest -Uri 'http://127.0.0.1:8765/opening/scene.js' -TimeoutSec 12
