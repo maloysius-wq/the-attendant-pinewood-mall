@@ -7,37 +7,37 @@
       "file": "car-rain-v35.ogg",
       "input": "car-rain.ogg",
       "sourceDuration": 18.0065,
-      "duration": 16.6,
+      "duration": 17.3,
       "originalEdgeTrim": {
         "start": 0,
         "end": 0.06899999999999906
       },
       "overlapSeconds": 0.68,
-      "boundarySampleDelta": 0.02879,
+      "boundarySampleDelta": 0.012634,
       "edgeRMS": {
         "first": 0.035655,
-        "last": 0.022082
+        "last": 0.046492
       },
-      "sha256": "1d2d16ab2d12db902f0dc26efe0d395884c2d3ead84e85093142c8c629843afe",
-      "size": 292435
+      "sha256": "a3cdd91b132a64193696d622405fe21a79af9653ecc14ed5faf1c8e60b6643c6",
+      "size": 305712
     },
     "outside": {
       "file": "outside-rain-v35.ogg",
       "input": "outside-rain.ogg",
       "sourceDuration": 9.4065,
-      "duration": 8.570499,
+      "duration": 9,
       "originalEdgeTrim": {
         "start": 0,
         "end": 0.07699999999999996
       },
       "overlapSeconds": 0.41982749999999996,
-      "boundarySampleDelta": 0.005002,
+      "boundarySampleDelta": 0.038201,
       "edgeRMS": {
-        "first": 0.030657,
-        "last": 0.032649
+        "first": 0.030464,
+        "last": 0.03071
       },
-      "sha256": "ca9d3b169f8458e93a03ec48f0adbf524722dac0e90f833a13dfb4993c347397",
-      "size": 161916
+      "sha256": "a7e5b7002768d2eeb6a19993a619e4ba2dc15802fbc87bbe4ce87f4577bafcdd",
+      "size": 170669
     }
   }
 }
