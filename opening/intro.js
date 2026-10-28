@@ -181,6 +181,7 @@ window.__PINEWOOD_OPENING_V34__={
  },
  async preview(){if(active&&!active.finished)return;const [script,voices]=await loadResources();active=new Intro(script,voices,{preview:true});},
  seek(index){return active?.seek(index)||false;},
+ scrub(fraction){if(!active?.line)return false;active.elapsed=clamp(fraction,0,.97)*active.wait;active.eyeRig=new HumanCameraRig();return true;},
  skip(){active?.finish(true);},
  mute(){active?.toggleVoice();}
 };
