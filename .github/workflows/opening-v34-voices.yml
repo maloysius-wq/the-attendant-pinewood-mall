@@ -42,5 +42,7 @@ jobs:
           git add opening/audio/
           if ! git diff --cached --quiet; then
             git commit -m "Vendor 11 approved Renee Crisp v34 cinematic voice cues as local mastered OGG"
+            git fetch origin feature/opening-cinematic-v34
+            git rebase origin/feature/opening-cinematic-v34
             git push origin HEAD:feature/opening-cinematic-v34
           fi
