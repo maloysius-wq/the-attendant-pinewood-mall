@@ -36,11 +36,18 @@ jobs:
           curl -fsSL --max-time 25 "${base}opening/scene.js" -o /tmp/pinewood-v34-scene.js
           curl -fsSL --max-time 25 "${base}opening/audio/arrival.ogg" -o /tmp/pinewood-v34-arrival.ogg
           test $(wc -c </tmp/pinewood-v34-arrival.ogg) -gt 20000
+          curl -fsSL --max-time 25 "${base}opening/audio/car-rain.ogg" -o /tmp/pinewood-v34-car-rain.ogg
+          curl -fsSL --max-time 25 "${base}opening/audio/outside-rain.ogg" -o /tmp/pinewood-v34-outside-rain.ogg
+          curl -fsSL --max-time 25 "${base}opening/ambience.js" -o /tmp/pinewood-v34-ambience.js
+          curl -fsSL --max-time 25 "${base}opening/audio/manifest.json" -o /tmp/pinewood-v34-voices.json
+          test $(wc -c </tmp/pinewood-v34-car-rain.ogg) -gt 50000
+          test $(wc -c </tmp/pinewood-v34-outside-rain.ogg) -gt 25000
+          grep -q 'v29-extreme-handheld' /tmp/pinewood-v34-voices.json
           curl -fsSL --max-time 25 "$base" -o /tmp/pinewood-original-homepage.html
           if grep -q 'id="pwm-opening"' /tmp/pinewood-original-homepage.html; then
             echo 'ERROR: Intro leaked onto live game homepage'; exit 1
           fi
-          echo 'PASS: public review HTML, scene, scripts and Renee OGG live; production homepage still original.'
+          echo 'PASS: hosted car rain, exterior rain, v29 filtered Renee, scene and scripts; production homepage remains original.'
       - name: Install remote-browser regression runtime
         run: |
           npm install --no-save --package-lock=false --no-audit --no-fund playwright@1.55.0
