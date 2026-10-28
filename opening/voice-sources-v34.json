@@ -1,0 +1,51 @@
+{
+  "version": 34,
+  "voice": "Crisp / Renee Ward",
+  "productionNote": "Development-time AI Voice Generator sources only. Vendor and process into local .ogg before browser playback; NEVER load the urls from game runtime.",
+  "lines": {
+    "arrival": {
+      "transcript": "Pinewood service, Ward on dispatch. I've got you at the property. Go ahead and check in when you're parked.",
+      "source": "https://www.aidocmaker.com/g0/audio?name=0be1f222b41943f18eb8ead14278431c"
+    },
+    "clock": {
+      "transcript": "Got it. You're officially on the clock. And before you ask, yes, I know what time it is. Sorry about this one. Management pushed it through as urgent right when I was about to leave. After-hours rate's approved, at least. There's that.",
+      "source": "https://www.aidocmaker.com/g0/audio?name=d138dcc89818422a88034dc9d8711b9d"
+    },
+    "closed": {
+      "transcript": "So, here's what I have. Pinewood closed to the public in 2020. They never completely shut the utilities down. Alarms, emergency lights, some mechanical systems. Just enough to keep the building from falling apart faster than it already is.",
+      "source": "https://www.aidocmaker.com/g0/audio?name=30c3585f69464f32862fb0fdfff6039c"
+    },
+    "work": {
+      "transcript": "Monitoring picked up a fault on the emergency distribution ring tonight. Three circuits aren't reporting correctly. A, B and C. I need you to check the panels, get those circuits back online if they're safe to reset, and verify the east freight elevator responds. That's the whole ticket.",
+      "source": "https://www.aidocmaker.com/g0/audio?name=429e42b58caf45cfa368a8fa9074ebc9"
+    },
+    "safety": {
+      "transcript": "If you find scorched wiring, standing water around live equipment, anything that makes you nervous, you stop and tell me. I'm not asking you to get yourself hurt over somebody's abandoned shopping mall.",
+      "source": "https://www.aidocmaker.com/g0/audio?name=80e0ddd7044a4422ac0a8d8809749910"
+    },
+    "owner": {
+      "transcript": "The owner wants it signed off before the morning facilities inspection. Apparently that's cheaper than replacing the monitoring equipment. And no, there's no on-site security tonight. I checked. You've got permission to enter alone. I'll be on the radio. Keep it on you.",
+      "source": "https://www.aidocmaker.com/g0/audio?name=d30b4fe1a5e74e09bab8e4468f3846eb"
+    },
+    "entrance": {
+      "transcript": "You should have a service entrance just east of the main doors. There'll be a contractor access box beside it. Your entry code's on the ticket.",
+      "source": "https://www.aidocmaker.com/g0/audio?name=b8db0f7f440d48e28a60a9f2d23a65f0"
+    },
+    "lights": {
+      "transcript": "Did they at least leave the outside lights on? Of course they did. All right. Just watch your footing. Half the exterior cameras aren't working, and I can't see what's directly in front of you.",
+      "source": "https://www.aidocmaker.com/g0/audio?name=e6824dc615fe4d44bdf7effe90065939"
+    },
+    "inside": {
+      "transcript": "Okay. I have your entry confirmation. You should be somewhere near the public concourse. The circuit locations are on the job sheet. Check your first panel and send me the reading before you reset anything.",
+      "source": "https://www.aidocmaker.com/g0/audio?name=8d62ba92832b4079924f3e50166dbfae"
+    },
+    "promise": {
+      "transcript": "For the record, I don't love that they sent one person out here. But it should be straightforward. A few checks, three circuits, elevator test, and you're done. I'll be right here.",
+      "source": "https://www.aidocmaker.com/g0/audio?name=e2772baaef4843cab20bf92f249662f1"
+    },
+    "direction": {
+      "transcript": "If you lose your way, check the directory. I know they changed the store layouts a few times, but the main service markings should still be there. You don't have to rush. I'd rather get one good reading than three guesses.",
+      "source": "https://www.aidocmaker.com/g0/audio?name=422565a3af3a4516a9317d99468bf846"
+    }
+  }
+}
