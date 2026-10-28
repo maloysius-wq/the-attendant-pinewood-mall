@@ -1,6 +1,6 @@
 import * as THREE from '../vendor/three/build/three.module.js';
-import {makeOpeningScene,shots} from './scene.js';
-import {OpeningAmbience} from './ambience.js';
+import {makeOpeningScene,shots} from './scene.js?v=34b';
+import {OpeningAmbience} from './ambience.js?v=34b';
 const $=id=>document.getElementById(id);
 const query=new URLSearchParams(location.search);
 const clamp=(x,a,b)=>Math.min(b,Math.max(a,x));
@@ -48,9 +48,11 @@ class Intro{
   this.raf=requestAnimationFrame(this.frame);
  }
  lineAudio(id){
-  const file=this.voices?.files?.[id]?.file;
+  const entry=this.voices?.files?.[id],file=entry?.file;
   if(typeof file!=='string'||!/^[a-z][a-z0-9-]*\.ogg$/.test(file))return null;
-  const a=new Audio(new URL('./audio/'+file,import.meta.url).href);a.preload='auto';a.volume=.75;a.muted=this.muted;
+  const clipUrl=new URL('./audio/'+file,import.meta.url);
+  if(typeof entry.sha256==='string'&&/^[a-f0-9]{64}$/.test(entry.sha256))clipUrl.searchParams.set('v',entry.sha256.slice(0,14));
+  const a=new Audio(clipUrl.href);a.preload='auto';a.volume=.75;a.muted=this.muted;
   return a;
  }
  next(){
