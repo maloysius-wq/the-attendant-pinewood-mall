@@ -66,9 +66,9 @@ export const shots={
  interiorWide:{pos:v(10,1.73,-26.1),end:v(6.7,1.73,-28.1),look:v(0,2.5,-39),endLook:v(0,2.5,-39)}
 };
 export function makeOpeningScene(){
- const scene=new THREE.Scene();scene.background=new THREE.Color(0x091017);scene.fog=new THREE.FogExp2(0x0a121a,.013);
+ const scene=new THREE.Scene();scene.background=new THREE.Color(0x111a22);scene.fog=new THREE.FogExp2(0x18242a,.010);
  const world=new THREE.Group();scene.add(world);
- const concrete=mat(0x67645d,.98),steel=mat(0x3b4548,.72,.37),facade=mat(0x394347,.96),dark=mat(0x111a1e,.92),windowMat=glass();
+ const concrete=mat(0x727069,.96),steel=mat(0x48545a,.72,.37),facade=mat(0x586367,.96),dark=mat(0x1d292d,.92),windowMat=glass();
  box(world,0,-.22,16,115,.43,105,mat(0x171e20,.99));box(world,0,-.07,-17.7,103,.22,10.2,concrete);
  box(world,0,.07,-13.75,103,.24,.35,concrete);
  for(let x=-39;x<45;x+=6){const p=box(world,x,.012,13,2.6,.018,.1,mat(0x898779));p.rotation.y=-.1;}
@@ -110,7 +110,11 @@ export function makeOpeningScene(){
  // The vehicle is a complete procedural model, not an inaccessible remote download.
  const car=new THREE.Group();car.position.set(-10,0,17.5);world.add(car);
  const paint=mat(0x3f4648,.5,.4),seat=mat(0x2c3031,.98);
- box(car,0,.86,0,2.28,1.07,4.6,paint);box(car,0,1.62,.16,2.05,.89,2.4,paint);
+ box(car,0,.86,0,2.28,1.07,4.6,paint);
+ // Hollow cab: four pillars and a thin roof. Never place an opaque cabin cube around the camera.
+ box(car,0,2.08,.16,2.07,.14,2.45,paint);
+ for(const sx of[-.91,.91])for(const sz of[-.91,1.13])box(car,sx,1.65,sz,.13,.76,.13,paint);
+ box(car,0,1.57,1.28,2.03,.92,.11,paint);
  for(const x of[-1.04,1.04])for(const z of[-1.42,1.40]){const p=cyl(car,x,.47,z,.49,.25,seat);p.rotation.z=Math.PI/2;}
  box(car,0,1.47,-1.09,1.78,.77,.03,windowMat);
  box(car,0,1.03,-.78,2.1,.26,.72,seat);
@@ -127,8 +131,11 @@ export function makeOpeningScene(){
  for(const [x,z] of[[-21,9],[28,5],[0,28]]){cyl(world,x,3.9,z,.09,7.8,steel);box(world,x,7.75,z,.8,.2,.5,concrete);lamp(scene,x,7.3,z,0xd9c6a3,3.2,19);}
  for(let i=0;i<7;i++){const x=-32+i*10;box(world,x,.38,-13.7,4.2,.55,1.35,concrete);for(let k=-1;k<=1;k++)cyl(world,x+k*.9,.86,-13.7,.55,.7,mat(0x2a382e));}
  box(world,-37,.72,-17,2.8,1.4,1.7,mat(0x24423c,.8,.5));
- lamp(scene,12,3.0,-23,0xa9c8b5,.75,15);lamp(scene,0,4.3,-42,0xb9c6bb,.4,13);
- scene.add(new THREE.HemisphereLight(0x8694a5,0x24211d,1.35));
+ lamp(scene,12,3.0,-19.4,0xb9d9bc,3.2,22);lamp(scene,0,4.3,-42,0xb9c6bb,1.4,18);
+ lamp(scene,0,5,-15.0,0xc6c4b5,5.2,36);
+ lamp(scene,-17,3,-17.4,0x93b6c0,1.4,24);
+ lamp(scene,1,3.8,-33,0xd6d3c0,2.8,18);
+ scene.add(new THREE.HemisphereLight(0xb8cad4,0x373631,2.4));scene.add(new THREE.AmbientLight(0x8ba19b,.58));
  // Atmospheric rain dots. No ambience audio yet.
  const rainCount=650,positions=new Float32Array(rainCount*3);
  for(let i=0;i<rainCount;i++){positions[i*3]=((i*41.71)%108)-54;positions[i*3+1]=((i*17.23)%13)+.3;positions[i*3+2]=((i*29.31)%55)-11;}
