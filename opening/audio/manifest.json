@@ -1,0 +1,83 @@
+{
+  "version": 34,
+  "source": "Pre-rendered Renee Crisp user-requested cinematic voice clips, mastered into local radio transmission OGG.",
+  "files": {
+    "arrival": {
+      "file": "arrival.ogg",
+      "text": "Pinewood service, Ward on dispatch. I've got you at the property. Go ahead and check in when you're parked.",
+      "speaker": "RENEE WARD",
+      "duration": 6.6,
+      "sha256": "32b9d490ea8afef536af866703501bfca424a38b3eb888d3cba1a25fa2669ff3"
+    },
+    "clock": {
+      "file": "clock.ogg",
+      "text": "Got it. You're officially on the clock. And before you ask, yes, I know what time it is. Sorry about this one. Management pushed it through as urgent right when I was about to leave. After-hours rate's approved, at least. There's that.",
+      "speaker": "RENEE WARD",
+      "duration": 14.2,
+      "sha256": "c2d4c70bd775405a032e4ac26d8babe350e33bc2880218dd25ac5090a1c391a3"
+    },
+    "closed": {
+      "file": "closed.ogg",
+      "text": "So, here's what I have. Pinewood closed to the public in 2020. They never completely shut down the utilities. Alarms, emergency lights, some mechanical systems. Just enough to keep the building from falling apart faster than it already is.",
+      "speaker": "RENEE WARD",
+      "duration": 14.7,
+      "sha256": "b3bd4b11dc8a86f7a46ea82402e7d7cfc9f2a42b2fa2ad253b1b086104b2b5b7"
+    },
+    "work": {
+      "file": "work.ogg",
+      "text": "Monitoring picked up a fault on the emergency distribution ring tonight. Three circuits aren't reporting correctly. A, B and C. I need you to check the panels, get those circuits back online if they're safe to reset, and verify the east freight elevator responds. That's the whole ticket.",
+      "speaker": "RENEE WARD",
+      "duration": 17.2,
+      "sha256": "72c19dffc80a76e97ba056407bd08299747809b940c932a6f697f884e514dd48"
+    },
+    "safety": {
+      "file": "safety.ogg",
+      "text": "If you find scorched wiring, standing water around live equipment, anything that makes you nervous, you stop and tell me. I'm not asking you to get yourself hurt over somebody's abandoned shopping mall.",
+      "speaker": "RENEE WARD",
+      "duration": 12.1,
+      "sha256": "6aadee647a203ea75d7950a12893a055d121b0b8b6ad81e6e26a27f9f60d3742"
+    },
+    "owner": {
+      "file": "owner.ogg",
+      "text": "The owner wants it signed off before the morning facilities inspection. Apparently that's cheaper than replacing the monitoring equipment. And no, there's no on-site security tonight. I checked. You've got permission to enter alone. I'll be on the radio. Keep it on you.",
+      "speaker": "RENEE WARD",
+      "duration": 16.4,
+      "sha256": "cc77b29178cc929814ae8bc9a0f3d5c1d55b2772ef662a697250b3abe78ff331"
+    },
+    "entrance": {
+      "file": "entrance.ogg",
+      "text": "You should have a service entrance just east of the main doors. There'll be a contractor access box beside it. Your entry code's on the ticket.",
+      "speaker": "RENEE WARD",
+      "duration": 8.9,
+      "sha256": "01be0150c850da404acd98cc797e686b9fa783c4144e40cf1afffb9c0428296c"
+    },
+    "lights": {
+      "file": "lights.ogg",
+      "text": "Did they leave the outside lights on? Of course they did. All right. Watch your footing. Half the exterior cameras are out, so I can't see what you're walking into.",
+      "speaker": "RENEE WARD",
+      "duration": 9.8,
+      "sha256": "3bdec16285b0e024b17d8094a72f4f1047371a150a25c8e587f175971d1918ad"
+    },
+    "inside": {
+      "file": "inside.ogg",
+      "text": "Okay. I have your entry confirmation. You should be somewhere near the public concourse. The circuit locations are on the job sheet. Check your first panel and send me the reading before you reset anything.",
+      "speaker": "RENEE WARD",
+      "duration": 12.9,
+      "sha256": "bd2a3ecc0ae7de7e7fb17b9b42ef6a4409ee2266268dda52d44ff3a669015f3e"
+    },
+    "promise": {
+      "file": "promise.ogg",
+      "text": "For the record, I don't love that they sent one person out here. But it should be straightforward. A few checks, three circuits, elevator test, and you're done. I'll be right here.",
+      "speaker": "RENEE WARD",
+      "duration": 10.9,
+      "sha256": "86150d9a8d4b8f55fb367df7c48aeb37c6250aa48b4ce3189a2a5ecca705dfc9"
+    },
+    "direction": {
+      "file": "direction.ogg",
+      "text": "If you lose your way, check the directory. I know they changed the store layouts a few times, but the main service markings should still be there. You don't have to rush. I'd rather get one good reading than three guesses.",
+      "speaker": "RENEE WARD",
+      "duration": 13.5,
+      "sha256": "ece96a219fa8e1a147d7dd9e552851bcf1676f0fa1beb0a49f4bfde1b959c9f4"
+    }
+  }
+}
