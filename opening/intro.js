@@ -158,6 +158,7 @@ window.__PINEWOOD_OPENING_V34__={
  get cue(){return active?.line?.id||null;},
  get index(){return active?.index??-1;},
  get total(){return active?.lines?.length||0;},
+ get audioStatus(){return {available:!!active?.audio,paused:active?.audio?.paused??true,muted:active?.audio?.muted??false,time:active?.audio?.currentTime??0};},
  get cameraPosition(){return active?.camera?.position.toArray()||null;},
  get sceneStats(){
   if(!active?.stage)return null;
@@ -170,4 +171,6 @@ window.__PINEWOOD_OPENING_V34__={
  skip(){active?.finish(true);},
  mute(){active?.toggleVoice();}
 };
+// Prefetch authored local script/voice metadata before New Game is clicked, preserving user-gesture audio playback.
+loadResources().catch(()=>{});
 if(query.has('openingPreview'))window.__PINEWOOD_OPENING_V34__.preview().catch(console.error);
