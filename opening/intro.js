@@ -20,7 +20,11 @@ async function loadResources(){
 class Intro{
  constructor(script,voices,{preview=false}={}){
   this.lines=script.lines;this.voices=voices;this.preview=preview;
+  // Isolate the modal preview from underlying title/settings controls while active.
+  this.returnFocus=document.activeElement instanceof HTMLElement?document.activeElement:null;
   this.root=$('pwm-opening');this.root.hidden=false;this.root.classList.add('pwm-active');
+  this.backgroundScreens=[...document.querySelectorAll('.screen')].map(el=>({el,inert:el.inert}));
+  for(const {el} of this.backgroundScreens)el.inert=true;
   this.index=-1;this.elapsed=0;this.wait=0;this.finished=false;this.paused=false;this.muted=false;this.captioned=true;
   this.reduced=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   this.canvasSlot=this.root.querySelector('.pwm-render');this.last=performance.now();
@@ -28,6 +32,16 @@ class Intro{
   this.eyeRig=new HumanCameraRig();this.lastCameraPose=null;
   this.resize=()=>{if(!this.renderer)return;const w=this.root.clientWidth||innerWidth,h=this.root.clientHeight||innerHeight;this.renderer.setSize(w,h,false);this.camera.aspect=w/h;this.camera.updateProjectionMatrix()};
   this.keydown=e=>{
+   if(e.key==='Tab'){
+    const controls=[...this.root.querySelectorAll('.pwm-transport button:not([disabled])')];
+    const first=controls[0],last=controls[controls.length-1];
+    if(!controls.includes(document.activeElement)){
+     e.preventDefault();first?.focus();return;
+    }
+    if((e.shiftKey&&document.activeElement===first)||(!e.shiftKey&&document.activeElement===last)){
+     e.preventDefault();(e.shiftKey?last:first)?.focus();return;
+    }
+   }
    if(e.code==='Escape'){e.preventDefault();e.stopImmediatePropagation();this.togglePause();}
    else if(e.code==='KeyS'&&e.altKey){e.preventDefault();e.stopImmediatePropagation();this.finish(true);}
   };
@@ -36,6 +50,10 @@ class Intro{
   this.root.querySelector('[data-intro-pause]').addEventListener('click',()=>this.togglePause());
   this.root.querySelector('[data-intro-voice]').addEventListener('click',()=>this.toggleVoice());
   this.root.querySelector('[data-intro-captions]').addEventListener('click',()=>this.toggleCaptions());
+  this.root.querySelector('[data-intro-pause]').setAttribute('aria-pressed','false');
+  this.root.querySelector('[data-intro-voice]').setAttribute('aria-pressed','true');
+  this.root.querySelector('[data-intro-captions]').setAttribute('aria-pressed','true');
+  this.root.querySelector('[data-intro-pause]').focus({preventScroll:true});
   try{
    this.stage=makeOpeningScene();
    this.camera=new THREE.PerspectiveCamera(66,1,.08,230);
@@ -80,7 +98,9 @@ class Intro{
  renderCaption(){
   if(!this.captioned)return;
   const chunks=sentences(this.line.text),n=clamp(Math.floor(clamp(this.elapsed/Math.max(.1,this.wait-this.line.pause),0,.999)*chunks.length),0,chunks.length-1);
-  $('pwm-caption').textContent=chunks[n]||'';
+  // Identical writes every animation frame retrigger aria-live mutations.
+  const caption=chunks[n]||'';
+  if($('pwm-caption').textContent!==caption)$('pwm-caption').textContent=caption;
  }
  frame(now){
   if(this.finished)return;
@@ -108,15 +128,18 @@ class Intro{
   this.paused=!this.paused;if(this.audio){if(this.paused)this.audio.pause();else this.audio.play().catch(()=>{});}
   if(this.paused)this.ambience.pause();else this.ambience.resume();
   this.root.querySelector('[data-intro-pause]').textContent=this.paused?'Resume':'Pause';
+  this.root.querySelector('[data-intro-pause]').setAttribute('aria-pressed',String(this.paused));
   this.root.dataset.paused=String(this.paused);
  }
  toggleVoice(){
   this.muted=!this.muted;if(this.audio)this.audio.muted=this.muted;
   this.root.querySelector('[data-intro-voice]').textContent=this.muted?'Voice off':'Voice on';
+  this.root.querySelector('[data-intro-voice]').setAttribute('aria-pressed',String(!this.muted));
  }
  toggleCaptions(){
   this.captioned=!this.captioned;this.root.classList.toggle('pwm-hide-captions',!this.captioned);
   this.root.querySelector('[data-intro-captions]').textContent=this.captioned?'Captions on':'Captions off';
+  this.root.querySelector('[data-intro-captions]').setAttribute('aria-pressed',String(this.captioned));
   if(this.captioned)this.renderCaption();
  }
  seek(index){if(index<0||index>=this.lines.length)return false;this.index=index-1;this.next();return true;}
@@ -133,6 +156,8 @@ class Intro{
   this.renderer?.dispose();this.renderer?.domElement.remove();
   this.root.classList.remove('pwm-active');this.root.hidden=true;
   const clone=this.root.cloneNode(true);this.root.replaceWith(clone);
+  for(const {el,inert} of this.backgroundScreens)el.inert=inert;
+  if(this.returnFocus?.isConnected)this.returnFocus.focus({preventScroll:true});
   document.dispatchEvent(new CustomEvent('pinewood-intro-finished',{detail:{skipped,preview:this.preview}}));
   if(this.preview)return;
   // The full game loader assembles the six-chapter runtime asynchronously.
