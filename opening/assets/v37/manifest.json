@@ -1,0 +1,84 @@
+{
+  "version": 37,
+  "license": "CC0-1.0",
+  "runtime": "LOCAL ASSETS ONLY",
+  "assets": [
+    {
+      "file": "1990s-car-interior.glb",
+      "sha256": "d52987de9f451d30d0e052b81efd3ff664345868c4ac43d702ffe1a015287493",
+      "bytes": 1243860,
+      "source": "https://grab3d.com/dl/1990s-car-interior/1990s-car-interior-light.glb",
+      "license": "CC0-1.0"
+    },
+    {
+      "file": "asphalt_diff.jpg",
+      "sha256": "1aa5ce99f58a625c71d48cfc3e68b65ca85ccb00f39e045c0a928608a0ea25ed",
+      "bytes": 731707,
+      "source": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/asphalt_02/asphalt_02_diff_1k.jpg",
+      "license": "CC0-1.0"
+    },
+    {
+      "file": "asphalt_nor_gl.jpg",
+      "sha256": "42a1c381b53204e83a982db2864479a30bc127bbdeebb1006f8ee51bff099df3",
+      "bytes": 1240122,
+      "source": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/asphalt_02/asphalt_02_nor_gl_1k.jpg",
+      "license": "CC0-1.0"
+    },
+    {
+      "file": "asphalt_rough.jpg",
+      "sha256": "70ba3edc65525eb4dc366cf010ca7ae0bd34e0251ff0225c2dad627a873d0712",
+      "bytes": 544032,
+      "source": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/asphalt_02/asphalt_02_rough_1k.jpg",
+      "license": "CC0-1.0"
+    },
+    {
+      "file": "car-phone-holder.glb",
+      "sha256": "43696cf3e9d5dcc7b4293c3a3123eee0d6df8734cbc7c1e323b999eb89df0da9",
+      "bytes": 535780,
+      "source": "https://grab3d.com/dl/car-phone-holder/car-phone-holder.glb",
+      "license": "CC0-1.0"
+    },
+    {
+      "file": "rust_diff.jpg",
+      "sha256": "b532f22a08a9c36b5adf785373e213cd635a2d3769cb61196bbf5404cce7cd43",
+      "bytes": 577389,
+      "source": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/rusty_metal/rusty_metal_diff_1k.jpg",
+      "license": "CC0-1.0"
+    },
+    {
+      "file": "rust_nor_gl.jpg",
+      "sha256": "cf7c8d72c7b5e1923321762d47f91d59b5233cb5b3c456823c54a2403109ff6a",
+      "bytes": 420984,
+      "source": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/rusty_metal/rusty_metal_nor_gl_1k.jpg",
+      "license": "CC0-1.0"
+    },
+    {
+      "file": "rust_rough.jpg",
+      "sha256": "a1b382605b896f2ef591e58527747d3ea7f3f73b8c24d3cdd934dcd4111edfe7",
+      "bytes": 214991,
+      "source": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/rusty_metal/rusty_metal_rough_1k.jpg",
+      "license": "CC0-1.0"
+    },
+    {
+      "file": "wall_diff.jpg",
+      "sha256": "f910cbaff5a0fbd778a8c41947ac826f2313e70e9b4077bc39221a417fa8d5b4",
+      "bytes": 1073985,
+      "source": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/cracked_concrete_wall/cracked_concrete_wall_diff_1k.jpg",
+      "license": "CC0-1.0"
+    },
+    {
+      "file": "wall_nor_gl.jpg",
+      "sha256": "d247bdc21f3d37eb514d058aaa3c2193a6955d12191d1190cedf5285985f8604",
+      "bytes": 950747,
+      "source": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/cracked_concrete_wall/cracked_concrete_wall_nor_gl_1k.jpg",
+      "license": "CC0-1.0"
+    },
+    {
+      "file": "wall_rough.jpg",
+      "sha256": "0f18937de6a05b34797d2ddaac5a3996e922696431161d312b7304ac1b110312",
+      "bytes": 591307,
+      "source": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/cracked_concrete_wall/cracked_concrete_wall_rough_1k.jpg",
+      "license": "CC0-1.0"
+    }
+  ]
+}
