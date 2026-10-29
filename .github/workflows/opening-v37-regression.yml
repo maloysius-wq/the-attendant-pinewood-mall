@@ -1,0 +1,63 @@
+name: The Call v37 CC0 night atmosphere browser regression
+on:
+  push:
+    branches: [feature/the-call-v37-cc0-atmosphere, main]
+    paths:
+      - 'opening/assets/v37/**'
+      - 'opening/environment-v37.js'
+      - 'opening/scene.js'
+      - 'opening/intro.js'
+      - 'review/the-call-v34/**'
+      - 'scripts/smoke-opening-v37.mjs'
+      - '.github/workflows/opening-v37-regression.yml'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'opening/assets/v37/**'
+      - 'opening/environment-v37.js'
+      - 'opening/scene.js'
+      - 'opening/intro.js'
+      - 'review/the-call-v34/**'
+      - 'scripts/smoke-opening-v37.mjs'
+      - '.github/workflows/opening-v37-regression.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  cinematic:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify JS syntax and committed CC0 files
+        run: |
+          node --check opening/environment-v37.js
+          node --check opening/scene.js
+          node --check opening/intro.js
+          node --check scripts/smoke-opening-v37.mjs
+          test -s opening/assets/v37/1990s-car-interior.glb
+          test -s opening/assets/v37/car-phone-holder.glb
+          test -s opening/assets/v37/manifest.json
+      - name: Install deterministic browser
+        run: |
+          npm install --no-save playwright@1.55.0
+          npx playwright install --with-deps chromium
+      - name: Serve vendored game locally
+        run: |
+          python3 -m http.server 4173 --bind 127.0.0.1 >/tmp/pinewood-v37-http.log 2>&1 &
+          for i in {1..30}; do curl -fsS http://127.0.0.1:4173/review/the-call-v34/ >/dev/null && exit 0; sleep 1; done
+          cat /tmp/pinewood-v37-http.log
+          exit 1
+      - name: Exercise v37 CC0 cinematic in desktop/mobile Chromium
+        run: node scripts/smoke-opening-v37.mjs
+      - name: Preserve cinematic screenshots and telemetry
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pinewood-opening-v37
+          path: opening-v37-artifacts/
+          if-no-files-found: warn
+          retention-days: 7
