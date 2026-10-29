@@ -1,4 +1,5 @@
 import * as THREE from '../vendor/three/build/three.module.js';
+import {upgradeOpeningSceneV37} from './environment-v37.js';
 const v=(x,y,z)=>new THREE.Vector3(x,y,z);
 const mat=(color,roughness=.85,metalness=0)=>new THREE.MeshStandardMaterial({color,roughness,metalness});
 const lit=(color,intensity=.4)=>new THREE.MeshStandardMaterial({color,roughness:.73,emissive:color,emissiveIntensity:intensity});
@@ -69,7 +70,8 @@ export function makeOpeningScene(){
  const scene=new THREE.Scene();scene.background=new THREE.Color(0x111a22);scene.fog=new THREE.FogExp2(0x18242a,.010);
  const world=new THREE.Group();scene.add(world);
  const concrete=mat(0x727069,.96),steel=mat(0x48545a,.72,.37),facade=mat(0x586367,.96),dark=mat(0x1d292d,.92),windowMat=glass();
- box(world,0,-.22,16,115,.43,105,mat(0x171e20,.99));box(world,0,-.07,-17.7,103,.22,10.2,concrete);
+ const lotMaterial=mat(0x171e20,.99);
+ box(world,0,-.22,16,115,.43,105,lotMaterial);box(world,0,-.07,-17.7,103,.22,10.2,concrete);
  box(world,0,.07,-13.75,103,.24,.35,concrete);
  for(let x=-39;x<45;x+=6){const p=box(world,x,.012,13,2.6,.018,.1,mat(0x898779));p.rotation.y=-.1;}
  // Store facade has an actual two-metre opening.
@@ -110,6 +112,7 @@ export function makeOpeningScene(){
  // The vehicle is a complete procedural model, not an inaccessible remote download.
  const car=new THREE.Group();car.position.set(-10,0,17.5);world.add(car);
  const paint=mat(0x3f4648,.5,.4),seat=mat(0x2c3031,.98);
+ const legacyCabin=new THREE.Group();car.add(legacyCabin);
  // Hollow cockpit: the original solid body intersected POV and hid the windshield.
  box(car,0,.58,0,2.28,.74,4.6,paint);
  box(car,0,1.00,-1.72,2.16,.42,1.13,paint);
@@ -123,11 +126,11 @@ export function makeOpeningScene(){
  box(car,0,1.02,1.28,2.03,.12,.10,paint);
  for(const x of[-1.04,1.04])for(const z of[-1.42,1.40]){const p=cyl(car,x,.47,z,.49,.25,seat);p.rotation.z=Math.PI/2;}
  box(car,0,1.47,-1.09,1.78,.77,.03,windowMat);
- box(car,0,1.03,-.78,2.1,.26,.72,seat);
- const wheel=new THREE.Mesh(new THREE.TorusGeometry(.34,.055,8,30),seat);wheel.position.set(-.57,1.23,-.55);wheel.rotation.x=.33;car.add(wheel);
- box(car,.55,1.12,-.59,.61,.22,.05,lit(0x2b5664,.28));
- box(car,-.56,1.38,1.12,.66,.55,.10,seat);
- box(car,.55,1.38,1.12,.66,.55,.10,seat);
+ box(legacyCabin,0,1.03,-.78,2.1,.26,.72,seat);
+ const wheel=new THREE.Mesh(new THREE.TorusGeometry(.34,.055,8,30),seat);wheel.position.set(-.57,1.23,-.55);wheel.rotation.x=.33;legacyCabin.add(wheel);
+ box(legacyCabin,.55,1.12,-.59,.61,.22,.05,lit(0x2b5664,.28));
+ box(legacyCabin,-.56,1.38,1.12,.66,.55,.10,seat);
+ box(legacyCabin,.55,1.38,1.12,.66,.55,.10,seat);
  box(car,0,2.01,-1.10,1.99,.10,.12,paint);
  // Physical dash-mounted phone: bracket, adjustable neck, spring clips and lit LCD.
  // The driver's camera sees this through the windshield. It never floats in the seat.
@@ -166,5 +169,10 @@ export function makeOpeningScene(){
  for(let i=0;i<rainCount;i++){positions[i*3]=((i*41.71)%108)-54;positions[i*3+1]=((i*17.23)%13)+.3;positions[i*3+2]=((i*29.31)%55)-11;}
  const geom=new THREE.BufferGeometry();geom.setAttribute('position',new THREE.BufferAttribute(positions,3));
  const rain=new THREE.Points(geom,new THREE.PointsMaterial({color:0x93aec0,size:.055,transparent:true,opacity:.52,depthWrite:false}));world.add(rain);
- return{scene,pivot,rain,phoneUi,phoneMount:holder};
+ const stage={scene,pivot,rain,phoneUi,phoneMount:holder};
+ stage.assetReady=upgradeOpeningSceneV37({
+  scene,world,car,legacyCabin,holder,phoneUi,stage,
+  materials:{facade,steel},lotMaterial
+ });
+ return stage;
 }

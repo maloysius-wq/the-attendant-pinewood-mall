@@ -1,5 +1,5 @@
 import * as THREE from '../vendor/three/build/three.module.js';
-import {makeOpeningScene} from './scene.js?v=35';
+import {makeOpeningScene} from './scene.js?v=37';
 import {HumanCameraRig} from './camera.js?v=35';
 import {OpeningAmbience} from './ambience.js?v=35';
 const $=id=>document.getElementById(id);
@@ -172,6 +172,7 @@ window.__PINEWOOD_OPENING_V34__={
  get audioStatus(){return {available:!!active?.audio,paused:active?.audio?.paused??true,muted:active?.audio?.muted??false,time:active?.audio?.currentTime??0,ambient:active?.ambience?.status||null};},
  get cameraPosition(){return active?.camera?.position.toArray()||null;},
  get eyeMotion(){const p=active?.lastCameraPose;return p?{cue:p.cue,phase:p.phase,gaze:p.gazeTarget,walking:p.isWalking,rain:p.rain,doorOpen:p.doorOpen}:null;},
+ get environmentV37(){return active?.stage?.v37||null;},
  get dashboardPhone(){if(!active?.stage?.phoneMount)return null;const p=new THREE.Vector3();active.stage.phoneMount.getWorldPosition(p);return p.toArray();},
  get sceneStats(){
   if(!active?.stage)return null;
