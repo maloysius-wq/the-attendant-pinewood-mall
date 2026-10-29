@@ -1,0 +1,57 @@
+name: The Call preview accessibility v36
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'opening/**'
+      - 'review/the-call-v34/**'
+      - 'scripts/smoke-opening-accessibility-v36.mjs'
+      - '.github/workflows/opening-accessibility-v36.yml'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'opening/**'
+      - 'review/the-call-v34/**'
+      - 'scripts/smoke-opening-accessibility-v36.mjs'
+      - '.github/workflows/opening-accessibility-v36.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  preview-accessibility:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Parse opening modules
+        run: |
+          node --check opening/intro.js
+          node --check opening/camera.js
+          node --check opening/ambience.js
+      - name: Install headless Chromium
+        run: |
+          npm install --no-save playwright@1.55.0
+          npx playwright install --with-deps chromium
+      - name: Serve local Pinewood assets
+        run: |
+          test -f vendor/three/build/three.module.js
+          python3 -m http.server 4173 --bind 127.0.0.1 >/tmp/pinewood-opening-v36-http.log 2>&1 &
+          for i in {1..30}; do curl -fsS http://127.0.0.1:4173/review/the-call-v34/ >/dev/null && exit 0; sleep 1; done
+          cat /tmp/pinewood-opening-v36-http.log
+          exit 1
+      - name: Validate keyboard navigation live captions and accessible skip
+        run: node scripts/smoke-opening-accessibility-v36.mjs
+      - name: Preserve compact browser regression report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: opening-accessibility-v36
+          path: production-smoke-artifacts/opening-accessibility-v36.json
+          if-no-files-found: warn
+          retention-days: 7
