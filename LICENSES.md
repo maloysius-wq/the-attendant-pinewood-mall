@@ -249,3 +249,15 @@ Pinewood's named storefront signs are generated locally because their lettering 
 - Locally vendored delivery assets: `opening/audio/car-rain.ogg` (SHA-256 `9f074f1f437633d1301d79543529a831bf4178d03e257080d997864f579d3ee6`) and `opening/audio/outside-rain.ogg` (SHA-256 `102d1291f41c41ec98699ab1caf35e30b5ddd8bd6b88ece70bc8aec29ce1e314`). Both were normalized toward -26 LUFS, true-peak-limited, loop seam-crossfaded, encoded at 32 kbps Opus in OGG, and served from the repository root only.
 - Playback: car loop while seated, outside loop from exiting the vehicle to the service entrance, fade to silence after entry. Programmatic crossfades and voice-aware ducking keep Renee intelligible; pausing/skipping releases both sound streams.
 - Renee's eleven opening recordings reuse the same extreme v29 handheld-radio mastering as the live game (`scripts/reprocess-renee-walkie-v28.mjs`): band pass 650–2150 Hz, 12:1 compression, 9-bit grit, filtered pink-noise bed, beginning/end squelch, and -22.5 integrated LUFS target. The source rerecording is *not* required during playback; each clip remains local.
+
+
+## The Call v37: CC0 1990s car, mounted phone and weathered parking facade
+
+- **1990s Car Interior (light GLB):** Grab3D, CC0-1.0, https://grab3d.com/models/vehicles/1990s-car-interior/ . Original vendored file: `opening/assets/v37/1990s-car-interior.glb`. Contains the old cloth seating, analog gauge cluster and cassette-era cabin; locally tinted/desaturated for the horror opening.
+- **Car Phone Holder (GLB):** Grab3D, CC0-1.0, https://grab3d.com/models/vehicles/car-phone-holder/ . Local `opening/assets/v37/car-phone-holder.glb`; the authored Pinewood work-order CanvasTexture is still generated in-game, locally.
+- **Asphalt 02 PBR maps:** Poly Haven, CC0, https://polyhaven.com/a/asphalt_02 . Local 1K color/normal-GL/roughness maps `opening/assets/v37/asphalt_*.jpg`.
+- **Cracked Concrete Wall PBR maps:** Poly Haven, CC0, https://polyhaven.com/a/cracked_concrete_wall . Local 1K color/normal-GL/roughness maps `opening/assets/v37/wall_*.jpg`.
+- **Rusty Metal PBR maps:** Poly Haven, CC0, https://polyhaven.com/a/rusty_metal . Local 1K color/normal-GL/roughness maps `opening/assets/v37/rust_*.jpg`.
+- **Fog, lamp halos, lamp cones, wet-gloss patches and existing full-scale fixtures:** original Three.js authored presentation geometry/materials, not a third-party source. Poly Haven Street Lamp 01 was researched but not vendored; do not claim its mesh is in the build.
+
+The development-only acquisition script `scripts/vendor-opening-assets-v37.mjs` validates official source CC0 metadata, glTF binary headers, local image dependencies and provider file digests where present. Exact original download URLs, file sizes and SHA-256 digests are preserved in `opening/assets/v37/manifest.json`. **No runtime request is made to either asset source**. Original voice/audio provenance and story rights remain unchanged.
