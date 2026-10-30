@@ -19,7 +19,7 @@ export class RiggedPlayerHand {
   phoneRoot.add(this.holder);
   this.state='loading';this.meshCount=0;this.bones={};
   this.thumbTipDistance=null;this.lastTap=0;
-  this.target=v(-.060,-.133,.063);
+  this.target=v(-.061,-.135,.044);
  }
  async load(){
   try{
@@ -80,9 +80,20 @@ export class RiggedPlayerHand {
    const desired=this.phoneRoot.localToWorld(v(-.124,-.136,.070));
    model.position.add(desired.sub(current));
    model.updateWorldMatrix(true,true);
+   // Phone grip is constrained by the actual SOURCE thumb-tip vertex bone:
+   // align its idle hover just left/above CHECK IN. This prevents the
+   // 20-bone arm from reaching over the phone and missing the button.
+   const currentTip=bones.ThumbTip.getWorldPosition(new THREE.Vector3());
+   const hover=this.phoneRoot.localToWorld(v(-.086,-.098,.075));
+   model.position.add(hover.sub(currentTip));
+   model.updateWorldMatrix(true,true);
    this.model=model;this.bones=bones;this.meshCount=meshes;
    this.bindPoses={};
-   for(const name of ['PinkyA','RingA','FingerA','PointA','ThumbA','ThumbB','ThumbTip']){
+   for(const name of [
+    'PinkyA','PinkyB','PinkyTip',
+    'RingA','RingB','RingTip','FingerA','FingerB','FingerTip',
+    'PointA','PointB','PointTip','ThumbA','ThumbB','ThumbTip'
+   ]){
     if(bones[name])this.bindPoses[name]=bones[name].quaternion.clone();
    }
    // The forearm must remain physically continuous to the skinned hand.
@@ -104,9 +115,12 @@ export class RiggedPlayerHand {
   this.lastTap=clamp(tap,0,1);
   if(this.state!=='ready')return this.status;
   for(const [name,q] of Object.entries(this.bindPoses))this.bones[name].quaternion.copy(q);
-  // Keep the grip fingers gently curled around the near edge of the phone.
-  for(const name of ['PinkyA','RingA','FingerA','PointA']){
-   if(this.bones[name])this.bones[name].rotateZ(.13);
+  // Curl original weighted finger joints around the BACK/left side of the
+  // phone rather than leaving four long straight fingers over the app.
+  for(const base of ['Pinky','Ring','Finger','Point']){
+   if(this.bones[base+'A'])this.bones[base+'A'].rotateX(.72);
+   if(this.bones[base+'B'])this.bones[base+'B'].rotateX(.66);
+   if(this.bones[base+'Tip'])this.bones[base+'Tip'].rotateX(.22);
   }
   this.model.updateWorldMatrix(true,true);
   const start=this.thumbPos();
