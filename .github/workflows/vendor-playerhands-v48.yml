@@ -33,4 +33,6 @@ jobs:
           git add opening/assets/v48/playerhands-forearm.glb opening/assets/v48/manifest.json
           git diff --cached --quiet && exit 0
           git commit -m "Vendor CC0 OpenGameArt Playerhands forearm and rig"
+          git fetch origin feature/the-call-v48-cc0-playerhands-forearm
+          git rebase origin/feature/the-call-v48-cc0-playerhands-forearm
           git push origin HEAD:feature/the-call-v48-cc0-playerhands-forearm
