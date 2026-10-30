@@ -5,7 +5,7 @@ const origin=new URL(base).origin;
 const preview=new URL('review/the-call-v34/',base).href;
 const assert=(v,m)=>{if(!v)throw Error(m);};
 await mkdir('opening-v37-artifacts',{recursive:true});
-const report={version:42,preview,layouts:{},passed:false};
+const report={version:44,preview,layouts:{},passed:false};
 const browser=await chromium.launch({headless:true,args:[
  '--enable-webgl','--ignore-gpu-blocklist','--use-gl=swiftshader','--enable-unsafe-swiftshader','--disable-dev-shm-usage']});
 try{
@@ -18,6 +18,9 @@ try{
    await page.goto(preview,{waitUntil:'domcontentloaded',timeout:90000});
    await page.waitForFunction(()=>window.__PINEWOOD_STORY_V17__?.version===17
     && document.getElementById('titleScreen')?.classList.contains('show'),null,{timeout:150000});
+   // A removed UI must be absent from the actual DOM, not merely CSS-hidden.
+   assert(await page.locator('.pwm-phone-sheet,.pwm-phone-header,.pwm-phone-body,.pwm-phone-status').count()===0,
+     layout.name+' retired work-phone panel returned');
    await page.locator('#newBtn').click();
    await page.waitForFunction(()=>window.__PINEWOOD_OPENING_V34__?.active,null,{timeout:20000});
    await page.waitForFunction(()=>['ready','failed'].includes(window.__PINEWOOD_OPENING_V34__?.environmentV37?.state),null,{timeout:90000});
@@ -62,6 +65,8 @@ try{
    assert(st.maps?.length===3,layout.name+' weathering maps missing');
    assert(await page.evaluate(()=>window.__PINEWOOD_OPENING_V34__.dashboardPhone===null),
      layout.name+' old phone mount reappeared');
+   assert(await page.locator('.pwm-phone-sheet,.pwm-phone-header,.pwm-phone-body,.pwm-phone-status').count()===0,
+     layout.name+' retired phone overlay appeared during cinematic');
    assert(st.wet?.puddles>=15&&st.wet?.lamps>=3,'Missing wet-lot light treatment');
    // v39: the previously enormous service portal must hug the original
    // 1.95m x 2.27m hinged door, with real facade infill on all three sides.
@@ -126,7 +131,7 @@ try{
    await page.evaluate(()=>{window.__PINEWOOD_OPENING_V34__.seek(0);window.__PINEWOOD_OPENING_V34__.scrub(.40);});
    await page.waitForTimeout(250);
    await page.screenshot({path:'opening-v37-artifacts/'+layout.name+'-roofed-car.png'});
-   // Existing phone-labeled story beat now glances at the original hatchback dashboard, without phone.
+   // The work-order beat now glances at the actual hatchback dashboard, without any phone object.
    await page.evaluate(()=>{window.__PINEWOOD_OPENING_V34__.seek(2);window.__PINEWOOD_OPENING_V34__.scrub(.43);});
    await page.waitForTimeout(350);
    await page.screenshot({path:'opening-v37-artifacts/'+layout.name+'-dashboard-glance.png'});
