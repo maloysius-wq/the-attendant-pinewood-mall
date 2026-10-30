@@ -166,7 +166,14 @@ export class RiggedPlayerHand {
   return this.status;
  }
  get status(){
-  return {state:this.state,source:'OpenGameArt CC0 Playerhands (sandsound)',
+  // Read-only anatomical probe for deterministic visual regression checks.
+  const inPhone=bone=>this.phoneRoot.worldToLocal(bone.getWorldPosition(new THREE.Vector3()));
+  const fingerDirection=this.state==='ready'
+   ?inPhone(this.bones.PointTip).sub(inPhone(this.bones.Hand)).toArray():null;
+  const thumbDirection=this.state==='ready'
+   ?inPhone(this.bones.ThumbA).sub(inPhone(this.bones.Hand)).toArray():null;
+  return {gripFingerDirection:fingerDirection,gripThumbDirection:thumbDirection,
+   state:this.state,source:'OpenGameArt CC0 Playerhands (sandsound)',
    hasForearm:this.state==='ready'&&!!this.bones.ArmDown,
    skinnedMeshes:this.meshCount,boneCount:Object.keys(this.bones).length,
    thumbBones:['ThumbA','ThumbB','ThumbTip'].filter(n=>this.bones[n]).length,
