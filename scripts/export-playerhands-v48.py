@@ -11,8 +11,8 @@ print("SOURCE_BLEND",bpy.data.filepath,flush=True)
 for obj in bpy.data.objects:
     if obj.type in {'MESH','ARMATURE'}:
         print("SOURCE_OBJECT",obj.name,obj.type,
-              "verts",len(obj.data.vertices) if obj.type=='MESH' else
-              "bones",len(obj.data.bones),flush=True)
+              "verts" if obj.type=='MESH' else "bones",
+              len(obj.data.vertices) if obj.type=='MESH' else len(obj.data.bones),flush=True)
 meshes=[o for o in bpy.data.objects if o.type=='MESH' and len(o.data.vertices)>=80]
 rigs=[o for o in bpy.data.objects if o.type=='ARMATURE' and len(o.data.bones)>=2]
 if not meshes or not rigs:
