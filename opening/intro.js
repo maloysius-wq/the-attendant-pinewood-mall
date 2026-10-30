@@ -2,11 +2,12 @@ import * as THREE from '../vendor/three/build/three.module.js';
 import {makeOpeningScene} from './scene.js?v=43';
 import {HumanCameraRig} from './camera.js?v=43';
 import {OpeningAmbience} from './ambience.js?v=35';
+import {HandheldCheckInPhone} from './phone-v45.js?v=45';
+import {buildCaptionTrack,captionAt} from './caption-sync-v45.js?v=45';
 const $=id=>document.getElementById(id);
 const query=new URLSearchParams(location.search);
 const clamp=(x,a,b)=>Math.min(b,Math.max(a,x));
 const smooth=t=>{t=clamp(t,0,1);return t*t*(3-2*t)};
-const sentences=text=>text.match(/[^.!?]+[.!?]+|[^.!?]+$/g)?.map(x=>x.trim()).filter(Boolean)||[text];
 const scriptURL=new URL('./script.json',import.meta.url);
 const voiceManifestURL=new URL('./audio/manifest.json',import.meta.url);
 let bypass=false,active=null,resources=null;
@@ -26,6 +27,7 @@ class Intro{
   this.backgroundScreens=[...document.querySelectorAll('.screen')].map(el=>({el,inert:el.inert}));
   for(const {el} of this.backgroundScreens)el.inert=true;
   this.index=-1;this.elapsed=0;this.wait=0;this.finished=false;this.paused=false;this.muted=false;this.captioned=true;
+  this.scrubOverride=null;this.audioFailed=false;this.postroll=0;this.startupWait=0;
   this.reduced=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   this.canvasSlot=this.root.querySelector('.pwm-render');this.last=performance.now();
   this.ambience=new OpeningAmbience();
@@ -57,6 +59,8 @@ class Intro{
   try{
    this.stage=makeOpeningScene();
    this.camera=new THREE.PerspectiveCamera(66,1,.08,230);
+   this.stage.scene.add(this.camera);
+   this.handheld=new HandheldCheckInPhone(this.camera);
    this.renderer=new THREE.WebGLRenderer({antialias:true,alpha:false,powerPreference:'high-performance'});
    this.renderer.outputColorSpace=THREE.SRGBColorSpace;this.renderer.toneMapping=THREE.ACESFilmicToneMapping;
    this.renderer.toneMappingExposure=1.20;this.renderer.setPixelRatio(Math.min(devicePixelRatio||1,1.6));
@@ -77,48 +81,82 @@ class Intro{
  }
  next(){
   if(this.finished)return;
-  if(this.audio){this.audio.pause();this.audio.src='';this.audio=null;}
+  if(this.audio){this.audio.pause();this.audio.removeAttribute('src');this.audio.load();this.audio=null;}
   this.index++;
   if(this.index>=this.lines.length){this.finish(false);return;}
-  this.line=this.lines[this.index];this.elapsed=0;
-  this.wait=clamp(this.line.text.split(/\s+/).length/2.35,6,36)+(this.line.pause||1.5);
+  this.line=this.lines[this.index];
+  this.elapsed=0;this.postroll=0;this.startupWait=0;this.scrubOverride=null;this.audioFailed=false;
+  const voice=this.voices?.files?.[this.line.id];
+  const fallbackSeconds=clamp(this.line.text.split(/\s+/).length/2.35,6,36);
+  this.voiceSeconds=Number(voice?.duration)>0?Number(voice.duration):fallbackSeconds;
+  this.wait=this.voiceSeconds+(this.line.pause||1.5);
+  this.captionTrack=buildCaptionTrack(this.line.text,this.voiceSeconds);
+  this.captionSeconds=0;this.captionIndex=0;
   this.audio=this.lineAudio(this.line.id);
   if(this.audio){
    const ref=this.audio;
-   ref.addEventListener('loadedmetadata',()=>{if(Number.isFinite(ref.duration))this.wait=Math.max(this.wait,ref.duration+(this.line.pause||1.5));},{once:true});
-   ref.play().catch(()=>{});
+   ref.addEventListener('loadedmetadata',()=>{
+    if(!Number.isFinite(ref.duration)||ref.duration<=0)return;
+    this.voiceSeconds=ref.duration;
+    this.wait=this.voiceSeconds+(this.line.pause||1.5);
+    this.captionTrack=buildCaptionTrack(this.line.text,this.voiceSeconds);
+   },{once:true});
+   ref.addEventListener('error',()=>{if(this.audio===ref)this.audioFailed=true;},{once:true});
+   ref.play().catch(()=>{if(this.audio===ref)this.audioFailed=true;});
   }
-  // Dispatch is carried by local audio and subtitles; no phone UI is present.
   this.root.dataset.shot=this.line.shot;
   $('pwm-location').textContent=this.index>=9?'INTERIOR / PUBLIC CONCOURSE':this.index>=6?'EAST SERVICE ENTRANCE':'PINEWOOD MALL / AFTER HOURS';
+  this.handheld?.update(this.line.id,0,this.voiceSeconds,{reducedMotion:this.reduced});
   this.renderCaption();
  }
+ voiceTime(){
+  if(this.scrubOverride!==null)return Math.min(this.scrubOverride,this.voiceSeconds);
+  if(this.audio&&!this.audioFailed)return Math.min(this.voiceSeconds,this.audio.currentTime);
+  return Math.min(this.voiceSeconds,this.elapsed);
+ }
  renderCaption(){
-  if(!this.captioned)return;
-  const chunks=sentences(this.line.text),n=clamp(Math.floor(clamp(this.elapsed/Math.max(.1,this.wait-this.line.pause),0,.999)*chunks.length),0,chunks.length-1);
-  // Identical writes every animation frame retrigger aria-live mutations.
-  const caption=chunks[n]||'';
-  if($('pwm-caption').textContent!==caption)$('pwm-caption').textContent=caption;
+  if(!this.captioned||!this.captionTrack)return;
+  // The recording owns the caption clock, including load stalls, pauses and
+  // playback-rate changes. No wall-clock read-speed or scene-pause estimates.
+  this.captionSeconds=this.voiceTime();
+  const cue=captionAt(this.captionTrack,this.captionSeconds);
+  this.captionIndex=cue.index;
+  if($('pwm-caption').textContent!==cue.text)$('pwm-caption').textContent=cue.text;
  }
  frame(now){
   if(this.finished)return;
   const delta=clamp((now-this.last)/1000,0,.12);this.last=now;
   if(!this.paused){
-   this.elapsed+=delta;this.renderCaption();
-   // Blocked like a real person's eyes: quick glances, attentive holds and footstep-driven travel.
+   if(this.scrubOverride!==null){
+    this.elapsed=this.scrubOverride;
+   }else if(this.audio&&!this.audioFailed){
+    if(this.audio.ended){
+     this.postroll+=delta;
+     this.elapsed=this.voiceSeconds+this.postroll;
+    }else if(!this.audio.paused||this.audio.currentTime>.001){
+     this.elapsed=this.audio.currentTime;
+    }else{
+     // If the browser blocks autoplay, keep the text-only cinematic moving.
+     this.startupWait+=delta;
+     if(this.startupWait>2){this.audioFailed=true;this.elapsed+=delta;}
+    }
+   }else this.elapsed+=delta;
+   this.renderCaption();
+   // The camera, rain and phone all use the media-following shot timeline.
    const pose=this.eyeRig.sample(this.line.id,this.elapsed,this.wait,delta,{reducedMotion:this.reduced});
    this.lastCameraPose=pose;
    this.ambience.update(delta,this.line.shot,!!this.audio&&!this.audio.ended&&!this.audio.paused,pose.rain);
    if(this.stage&&this.renderer){
     this.camera.position.copy(pose.position);
     this.camera.lookAt(pose.lookAt);
+    this.handheld?.update(this.line.id,this.voiceTime(),this.voiceSeconds,{reducedMotion:this.reduced});
     this.stage.pivot.rotation.y=-Math.PI*.48*pose.doorOpen;
     if(!this.reduced){const a=this.stage.rain.geometry.attributes.position.array;for(let i=1;i<a.length;i+=3){a[i]-=delta*5.2;if(a[i]<.1)a[i]+=12.9;}this.stage.rain.geometry.attributes.position.needsUpdate=true;}
     this.renderer.render(this.stage.scene,this.camera);
    }
    const filled=(this.index+clamp(this.elapsed/Math.max(this.wait,.1),0,1))/this.lines.length;
    this.root.querySelector('.pwm-progress').style.width=(filled*100).toFixed(2)+'%';
-   if(this.elapsed>=this.wait&&(!this.audio||this.audio.ended||this.audio.paused||this.elapsed>57))this.next();
+   if(this.scrubOverride===null&&this.elapsed>=this.wait&&(!this.audio||this.audio.ended||this.audioFailed))this.next();
   }
   this.raf=requestAnimationFrame(this.frame);
  }
@@ -146,6 +184,7 @@ class Intro{
   document.removeEventListener('keydown',this.keydown,true);removeEventListener('resize',this.resize);
   if(this.audio){this.audio.pause();this.audio.removeAttribute('src');this.audio.load();}
   this.ambience.destroy();
+  this.handheld?.dispose();
   this.stage?.scene.traverse(o=>{
    o.geometry?.dispose?.();
    for(const m of o.material?(Array.isArray(o.material)?o.material:[o.material]):[]){m.map?.dispose?.();m.dispose?.();}
@@ -212,7 +251,13 @@ window.__PINEWOOD_OPENING_V34__={
    head:bbox(entry.head),sill:bbox(entry.sill),canopy:bbox(entry.canopy)
   };
  },
- get dashboardPhone(){return null;},
+ get dashboardPhone(){return null;}, // No dashboard mount; the prop is held in hand.
+ get handheldPhone(){return active?.handheld?.status||null;},
+ get captionTiming(){return active?{line:active.line?.id,voiceSeconds:active.voiceSeconds,
+   mediaSeconds:active.audio?.currentTime??null,captionSeconds:active.captionSeconds,
+   captionIndex:active.captionIndex,source:active.scrubOverride!==null?'preview-scrub':
+   active.audio&&!active.audioFailed?'media':'text-fallback',
+   waitSeconds:active.wait,paused:active.paused}:null;},
  qaCockpitProbe({x=-10.41,y=1.12,z=17.42,dx=0,dy=1.4,dz=-20}={}){
   if(!location.pathname.includes('/review/')||!active?.stage||!active.renderer)return false;
   active.paused=true;
@@ -244,7 +289,8 @@ window.__PINEWOOD_OPENING_V34__={
  },
  async preview(){if(active&&!active.finished)return;const [script,voices]=await loadResources();active=new Intro(script,voices,{preview:true});},
  seek(index){return active?.seek(index)||false;},
- scrub(fraction){if(!active?.line)return false;active.elapsed=clamp(fraction,0,.97)*active.wait;active.eyeRig=new HumanCameraRig();return true;},
+ scrub(fraction){if(!active?.line)return false;active.scrubOverride=clamp(fraction,0,.97)*active.wait;
+  active.elapsed=active.scrubOverride;active.audio?.pause();active.eyeRig=new HumanCameraRig();active.renderCaption();return true;},
  skip(){active?.finish(true);},
  mute(){active?.toggleVoice();}
 };
