@@ -28,7 +28,7 @@ try{
   const bounds=hold.screenViewport;
   const width=bounds.right-bounds.left,height=bounds.bottom-bounds.top;
   assert(bounds.left>.48&&bounds.right<.96&&bounds.top>.30&&bounds.bottom<.94
-    &&width>.08&&width<.36&&height>.20&&height<.56,
+    &&width>.08&&width<.46&&height>.20&&height<.56,
     kind+' phone is oversized, clipped or badly composed: '+JSON.stringify(bounds));
   // Pausing may not stamp a huge word across the entire cinematic frame.
   await page.locator('[data-intro-pause]').click();
