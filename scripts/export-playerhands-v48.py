@@ -27,6 +27,26 @@ print('RIG_BONES',json.dumps([b.name for b in rig.data.bones]),flush=True)
 for obj in weighted:
     dimensions=[round(float(v),4) for v in obj.dimensions]
     print('SKIN_MESH',obj.name,len(obj.data.vertices),dimensions,flush=True)
+# The original source includes skin art in hands.png, but the legacy
+# Blender material does not export as glTF PBR automatically. Embed the
+# original CC0 texture onto the existing UV coordinates, not a new skin mesh.
+texture_path=os.path.join(os.path.dirname(bpy.data.filepath),'hands.png')
+if not os.path.isfile(texture_path):
+    raise RuntimeError('Original CC0 hands.png texture missing alongside hand_rig.blend')
+skin_image=bpy.data.images.load(texture_path,check_existing=True)
+skin_mat=bpy.data.materials.new(name='OpenGameArt Playerhands source skin')
+skin_mat.use_nodes=True
+nodes=skin_mat.node_tree.nodes
+links=skin_mat.node_tree.links
+principled=next(n for n in nodes if n.type=='BSDF_PRINCIPLED')
+source_texture=nodes.new('ShaderNodeTexImage')
+source_texture.name='CC0 original hands.png'
+source_texture.image=skin_image
+links.new(source_texture.outputs['Color'],principled.inputs['Base Color'])
+for obj in weighted:
+    obj.data.materials.clear()
+    obj.data.materials.append(skin_mat)
+print('SOURCE_SKIN_TEXTURE',texture_path,flush=True)
 # Export armature and only its attached actual skin meshes.
 bpy.ops.object.select_all(action='DESELECT')
 for obj in weighted+[rig]:
