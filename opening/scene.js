@@ -35,7 +35,6 @@ function sign(g,words,x,y,z,w,h){
 function glass(){return new THREE.MeshPhysicalMaterial({color:0x354d5c,roughness:.13,metalness:0,transparent:true,opacity:.30,depthWrite:false,side:THREE.DoubleSide});}
 export const shots={
  car:{pos:v(-10.54,1.59,18.08),end:v(-10.53,1.57,18.04),look:v(-7,2.45,-22),endLook:v(0,2.85,-22)},
- phone:{pos:v(-10.53,1.42,17.95),end:v(-10.41,1.38,17.83),look:v(-10.32,1.17,16.53),endLook:v(-10.32,1.17,16.53)},
  lot:{pos:v(-9,1.72,15),end:v(-6,1.72,12),look:v(12,2,-22),endLook:v(12,1.5,-22)},
  walk:{pos:v(-5,1.71,11),end:v(5,1.71,-9),look:v(12,1.5,-22),endLook:v(12,1.6,-22)},
  entrance:{pos:v(5,1.7,-9),end:v(9,1.7,-15.8),look:v(12,1.6,-22),endLook:v(13.65,1.4,-22)},
