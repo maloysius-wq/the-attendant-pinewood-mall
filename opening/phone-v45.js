@@ -86,8 +86,12 @@ export class HandheldCheckInPhone {
   // been REMOVED, not hidden beneath the imported arm.
   this.playerHand=new RiggedPlayerHand(this.root);
   this.handLoad=this.playerHand.load().catch(()=>null);
-  // The handset renders in a separate foreground scene with normal depth
-  // testing, so real skinned fingers and the phone occlude each other.
+  // The handset has its own depth-cleared foreground pass. The app glass
+  // is a texture overlay drawn after the solid chassis; the source hand
+  // keeps true depth testing so rear fingers cannot show through the case.
+  this.screen.material.depthTest=false;
+  this.screen.material.depthWrite=false;
+  this.screen.renderOrder=10010;
   this.state='none';this.raised=false;this.tap=false;this.progress=0;this.root.visible=false;
   this.renderApp('pending');
  }
@@ -113,10 +117,11 @@ export class HandheldCheckInPhone {
   // Device lives BELOW the actual forward-looking driver camera, with no
   // dashboard attachment. Preserve a clear windshield when it is stowed.
   const compact=this.camera.aspect<1.15;
+  const portrait=this.camera.aspect<.7;
   // Keep the phone in the lower-right quarter, sized like a handheld prop
   // across 390px mobile, narrow windows, and normal widescreen desktops.
-  this.root.scale.setScalar(compact?.56:.71);
-  this.root.position.set(compact?.105:.20,
+  this.root.scale.setScalar(portrait?.48:compact?.56:.71);
+  this.root.position.set(portrait?.06:compact?.105:.20,
     (compact?-.11:-.095)-.49*(1-visibility),
     -.51+.06*(1-visibility));
   this.root.rotation.set(-.075+.05*(1-visibility),-.14,-.09-.23*(1-visibility));
