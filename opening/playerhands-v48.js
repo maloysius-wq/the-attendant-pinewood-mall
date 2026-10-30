@@ -98,6 +98,9 @@ export class RiggedPlayerHand {
    // The wrist and curled fingers support the BACK of the handset. Only
    // the thumb should travel in front of its glass during the check-in tap.
    model.position.z-=.055;
+   // Let the fingers wrap the LEFT chassis edge instead of hovering over
+   // the work-order text; the thumb alone reaches across to the app button.
+   model.position.x-=.040;
    model.updateWorldMatrix(true,true);
    this.model=model;this.bones=bones;this.meshCount=meshes;
    this.bindPoses={};
