@@ -1,6 +1,6 @@
 import * as THREE from '../vendor/three/build/three.module.js';
-import {makeOpeningScene} from './scene.js?v=42';
-import {HumanCameraRig} from './camera.js?v=42';
+import {makeOpeningScene} from './scene.js?v=43';
+import {HumanCameraRig} from './camera.js?v=43';
 import {OpeningAmbience} from './ambience.js?v=35';
 const $=id=>document.getElementById(id);
 const query=new URLSearchParams(location.search);
