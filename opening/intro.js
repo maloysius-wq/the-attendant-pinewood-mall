@@ -152,7 +152,8 @@ class Intro{
    o.geometry?.dispose?.();
    for(const m of o.material?(Array.isArray(o.material)?o.material:[o.material]):[]){m.map?.dispose?.();m.dispose?.();}
   });
-  this.stage?.phoneUi.texture.dispose();
+  // No phone exists in the vendor-only utility cabin. Clean up conditionally.
+  this.stage?.phoneUi?.texture?.dispose?.();
   this.renderer?.dispose();this.renderer?.domElement.remove();
   this.root.classList.remove('pwm-active');this.root.hidden=true;
   const clone=this.root.cloneNode(true);this.root.replaceWith(clone);
