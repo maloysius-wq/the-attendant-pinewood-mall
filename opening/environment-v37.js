@@ -129,7 +129,11 @@ export async function upgradeOpeningSceneV37({scene,world,car,legacyCabin,holder
   // are already oriented in -Z and must NOT rotate with the imported cabin.
   model.rotation.y=Math.PI;
   model.updateMatrixWorld(true);
-  const carDimensions=placeRealSize(model,1.82,.30,0,0);
+  // The source's original pivot put its driver's headrest at the camera eye.
+  // Seat the cabin slightly rearward inside the existing exterior shell rather
+  // than moving the approved first-person eye/camera choreography.
+  const carDimensions=placeRealSize(model,1.82,.30,0,.34);
+  status.cabinRearOffset=.34;
   status.carYawDeg=180;
   status.forwardAxis='-Z';
   model.traverse(o=>{
