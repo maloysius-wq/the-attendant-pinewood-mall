@@ -10,13 +10,15 @@ const lerp=(a,b,t)=>a.clone().lerp(b,t);
 const clamp=(v,a,b)=>Math.min(b,Math.max(a,v));
 const smooth=t=>{t=clamp(t,0,1);return t*t*(3-2*t)};
 const E={
- driver:[-10.25,1.13,17.82],phoneLean:[-10.19,1.09,17.69],
- doorLean:[-10.85,1.13,17.76],doorOutside:[-11.82,1.72,17.30],
+ // Driver eye is IN FRONT of the upholstery blocking v42 and far enough from
+ // the vendor steering wheel that it stays in the lower-left of the picture.
+ driver:[-10.20,1.24,17.60],dashLean:[-10.20,1.22,17.55],
+ doorLean:[-10.84,1.25,17.59],doorOutside:[-11.82,1.72,17.30],
  parking:[-9.0,1.73,13.0],pavement:[0,1.73,.0],underCanopy:[8.05,1.73,-13.0],
  access:[12.35,1.67,-19.6],threshold:[12.07,1.71,-23.4],concourse:[9.0,1.72,-26.3]
 };
 const G={
- ahead:[2,2.9,-22],sign:[0,7.55,-22],phone:[-10.08,.91,16.40],
+ ahead:[2,2.9,-22],sign:[0,7.55,-22],dash:[-9.9,.94,13.30],
  mirror:[-12,2.06,16.1],door:[-14,1.62,17.8],mall:[12,2,-22],
  posters:[-17,3.0,-22],entrance:[12,1.5,-22],keypad:[13.65,1.37,-21.72],
  inside:[0,2.5,-39],directory:[0,2.5,-31.2],
@@ -29,30 +31,30 @@ const f=(at,eye,gaze,mode='hold')=>({at,eye:vec(eye),gaze:vec(gaze),mode});
 const cues={
  arrival:[
   f(0,E.driver,G.ahead),f(.20,E.driver,[-9.0,2.2,-18]),
-  f(.38,E.driver,G.ahead),f(.64,E.driver,G.phone),
-  f(.76,E.driver,G.phone),f(1,E.driver,G.ahead)
+  f(.38,E.driver,G.ahead),f(.64,E.driver,G.dash),
+  f(.76,E.driver,G.dash),f(1,E.driver,G.ahead)
  ],
  clock:[
-  f(0,E.driver,G.ahead),f(.12,E.driver,G.phone),
-  f(.34,E.phoneLean,G.phone),f(.48,E.driver,G.mirror),
+  f(0,E.driver,G.ahead),f(.12,E.driver,G.dash),
+  f(.34,E.dashLean,G.dash),f(.48,E.driver,G.mirror),
   f(.56,E.driver,G.ahead),f(.80,E.driver,G.sign),
   f(1,E.driver,G.ahead)
  ],
  closed:[
-  f(0,E.driver,G.ahead),f(.08,E.phoneLean,G.phone),
-  f(.53,E.phoneLean,G.phone),f(.65,E.driver,G.ahead),
-  f(.76,E.driver,G.posters),f(.88,E.phoneLean,G.phone),
-  f(1,E.phoneLean,G.phone)
+  f(0,E.driver,G.ahead),f(.08,E.dashLean,G.dash),
+  f(.53,E.dashLean,G.dash),f(.65,E.driver,G.ahead),
+  f(.76,E.driver,G.posters),f(.88,E.dashLean,G.dash),
+  f(1,E.dashLean,G.dash)
  ],
  work:[
-  f(0,E.phoneLean,G.phone),f(.20,E.phoneLean,G.phone),
+  f(0,E.dashLean,G.dash),f(.20,E.dashLean,G.dash),
   f(.36,E.driver,G.ahead),f(.45,E.driver,G.sign),
-  f(.56,E.phoneLean,G.phone),f(.83,E.phoneLean,G.phone),
+  f(.56,E.dashLean,G.dash),f(.83,E.dashLean,G.dash),
   f(1,E.driver,G.ahead)
  ],
  safety:[
-  f(0,E.driver,G.ahead),f(.10,E.driver,G.phone),
-  f(.49,E.phoneLean,G.phone),f(.65,E.driver,G.ahead),
+  f(0,E.driver,G.ahead),f(.10,E.driver,G.dash),
+  f(.49,E.dashLean,G.dash),f(.65,E.driver,G.ahead),
   f(.83,E.driver,G.mirror),f(1,E.driver,G.ahead)
  ],
  owner:[
@@ -167,4 +169,5 @@ export class HumanCameraRig{
  }
 }
 export const humanCameraCues=Object.freeze(Object.keys(cues));
-export const dashboardPhoneTarget=Object.freeze([...G.phone]);
+export const driverSeatPose=Object.freeze([...E.driver]);
+export const dashboardGazeTarget=Object.freeze([...G.dash]);
