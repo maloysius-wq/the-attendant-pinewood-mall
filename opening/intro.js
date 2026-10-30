@@ -134,7 +134,17 @@ class Intro{
      this.postroll+=delta;
      this.elapsed=this.voiceSeconds+this.postroll;
     }else if(!this.audio.paused||this.audio.currentTime>.001){
-     this.elapsed=this.audio.currentTime;
+     // Never pretend the voice has advanced while the browser is still
+     // decoding or waiting for the first packet.
+     if(this.audio.currentTime<.01){
+      this.startupWait+=delta;
+      if(this.startupWait>8){
+       this.audio.pause();this.audioFailed=true;this.elapsed+=delta;
+      }else this.elapsed=0;
+     }else{
+      this.startupWait=0;
+      this.elapsed=this.audio.currentTime;
+     }
     }else{
      // If the browser blocks autoplay, keep the text-only cinematic moving.
      this.startupWait+=delta;
