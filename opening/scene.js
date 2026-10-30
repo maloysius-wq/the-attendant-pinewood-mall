@@ -1,5 +1,5 @@
 import * as THREE from '../vendor/three/build/three.module.js';
-import {upgradeOpeningSceneV37} from './environment-v37.js?v=42';
+import {upgradeOpeningSceneV37} from './environment-v37.js?v=43';
 const v=(x,y,z)=>new THREE.Vector3(x,y,z);
 const mat=(color,roughness=.85,metalness=0)=>new THREE.MeshStandardMaterial({color,roughness,metalness});
 const lit=(color,intensity=.4)=>new THREE.MeshStandardMaterial({color,roughness:.73,emissive:color,emissiveIntensity:intensity});
