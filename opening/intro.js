@@ -96,11 +96,21 @@ class Intro{
   if(this.audio){
    const ref=this.audio;
    ref.addEventListener('loadedmetadata',()=>{
-    if(!Number.isFinite(ref.duration)||ref.duration<=0)return;
+    if(this.audio!==ref||!Number.isFinite(ref.duration)||ref.duration<=0)return;
     this.voiceSeconds=ref.duration;
     this.wait=this.voiceSeconds+(this.line.pause||1.5);
     this.captionTrack=buildCaptionTrack(this.line.text,this.voiceSeconds);
+    this.renderCaption();
    },{once:true});
+   // A heavy WebGL render may throttle requestAnimationFrame independently
+   // of the OGG clock. Drive actual captions from media events instead.
+   // Each handler belongs to this particular clip, so stale outgoing clips
+   // cannot advance the new line after a seek or chapter transition.
+   const onMediaTick=()=>{
+    if(this.audio===ref&&!this.finished&&!this.paused)this.renderCaption();
+   };
+   for(const event of ['timeupdate','playing','seeked','ended'])
+    ref.addEventListener(event,onMediaTick);
    ref.addEventListener('error',()=>{if(this.audio===ref)this.audioFailed=true;},{once:true});
    ref.play().catch(()=>{if(this.audio===ref)this.audioFailed=true;});
   }
@@ -263,7 +273,7 @@ window.__PINEWOOD_OPENING_V34__={
  },
  get dashboardPhone(){return null;}, // No dashboard mount; the prop is held in hand.
  get handheldPhone(){return active?.handheld?.status||null;},
- get captionTiming(){return active?{line:active.line?.id,voiceSeconds:active.voiceSeconds,
+ get captionTiming(){if(active&&!active.paused)active.renderCaption();return active?{line:active.line?.id,voiceSeconds:active.voiceSeconds,
    mediaSeconds:active.audio?.currentTime??null,captionSeconds:active.captionSeconds,
    captionIndex:active.captionIndex,source:active.scrubOverride!==null?'preview-scrub':
    active.audio&&!active.audioFailed?'media':'text-fallback',
