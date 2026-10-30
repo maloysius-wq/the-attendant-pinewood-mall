@@ -170,6 +170,7 @@ class Intro{
     this.camera.position.copy(pose.position);
     this.camera.lookAt(pose.lookAt);
     this.handheld?.update(this.line.id,this.voiceTime(),this.voiceSeconds,{reducedMotion:this.reduced});
+    this.root.dataset.phoneRaised=this.handheld?.raised?'true':'false';
     this.stage.pivot.rotation.y=-Math.PI*.48*pose.doorOpen;
     if(!this.reduced){const a=this.stage.rain.geometry.attributes.position.array;for(let i=1;i<a.length;i+=3){a[i]-=delta*5.2;if(a[i]<.1)a[i]+=12.9;}this.stage.rain.geometry.attributes.position.needsUpdate=true;}
     this.renderer.render(this.stage.scene,this.camera);
