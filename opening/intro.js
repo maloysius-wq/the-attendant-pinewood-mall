@@ -217,7 +217,15 @@ window.__PINEWOOD_OPENING_V34__={
   };
  },
  get dashboardPhone(){return null;},
- qaExteriorCar(){
+ qaDriverView(height,z=17.15){
+  if(!location.pathname.includes('/review/')||!active?.stage||!active.renderer)return false;
+  active.paused=true;
+  active.camera.position.set(-10.41,height,z);
+  active.camera.lookAt(-10.15,1.45,-20);
+  active.renderer.render(active.stage.scene,active.camera);
+  return true;
+ },
+  qaExteriorCar(){
   if(!location.pathname.includes('/review/')||!active?.stage||!active.renderer)return false;
   active.paused=true;active.camera.position.set(-13.8,2.6,21.0);
   active.camera.lookAt(-10,1.0,17.5);
