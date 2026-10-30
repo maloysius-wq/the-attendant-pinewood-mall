@@ -260,3 +260,13 @@ Pinewood's named storefront signs are generated locally because their lettering 
 - **Fog, lamp halos, wet ground**: original authored Three.js scene lighting, no bundled third-party lamp mesh.
 
 **Retired from runtime and repository:** The prior open 1990s car interior, truck cabin interior, and separately mounted phone files were deliberately deleted in v42. Their prior review iterations are historical and should not be reintroduced without owner approval.
+
+## The Call v48 — OpenGameArt Playerhands forearm and hand (CC0)
+
+- Original creator: **sandsound**, OpenGameArt.org, `Playerhands`, 2013; source https://opengameart.org/content/playerhands. The author explicitly confirmed conversion to CC0 in the page comments on May 28, 2015.
+- Original ZIP: https://opengameart.org/sites/default/files/hand.zip (original rigged `hand_rig.blend`, other .blend and MD5 model/animation, `hands.png`).
+- License: **CC0 1.0 (public domain dedication)**, independent of the previously considered Innerscene model.
+- Export: Blender from original `hand_rig.blend` to a locally committed `opening/assets/v48/playerhands-forearm.glb` containing **the continuous source forearm and hand with weighted joints**, not an isolated palm model. The original bone names include `ArmUp`, `ArmDown`, `Hand`, `ThumbA`, `ThumbB`, `ThumbTip`.
+- Local runtime: reads only `opening/assets/v48/manifest.json` and `opening/assets/v48/playerhands-forearm.glb`; no OpenGameArt URL is requested in the game.
+- Conversion/reproducibility: `scripts/vendor-playerhands-v48.mjs`, `scripts/export-playerhands-v48.py` and `.github/workflows/vendor-playerhands-v48.yml`. SHA-256 of both upstream archive and committed GLB pinned in manifest.
+- Purpose: first-person phone-holding hand and joint-driven check-in tap in the preview-only opening cinematic. No use of procedural capsule hands or the discarded v47 hand-only asset.

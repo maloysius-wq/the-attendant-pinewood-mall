@@ -18,7 +18,7 @@ assert(!styleText.includes('.pwm-phone-')&&!previewText.includes('pwm-phone-'),
  'Retired phone overlay styles or markup returned');
 
 await mkdir('opening-v37-artifacts',{recursive:true});
-const report={version:46,preview,layouts:{},passed:false};
+const report={version:48,preview,layouts:{},passed:false};
 const browser=await chromium.launch({headless:true,args:[
  '--enable-webgl','--ignore-gpu-blocklist','--use-gl=swiftshader','--enable-unsafe-swiftshader','--disable-dev-shm-usage','--autoplay-policy=no-user-gesture-required']});
 try{
@@ -81,6 +81,17 @@ try{
    assert(await page.locator('.pwm-phone-sheet,.pwm-phone-header,.pwm-phone-body,.pwm-phone-status').count()===0,
      layout.name+' retired phone overlay appeared during cinematic');
    assert(st.wet?.puddles>=15&&st.wet?.lamps>=3,'Missing wet-lot light treatment');
+   // v48: the genuine source GLB (not a procedural capsule) must load with
+   // continuous forearm, source skin weights and all three thumb joints.
+   await page.waitForFunction(()=>{
+    const h=window.__PINEWOOD_OPENING_V34__?.handheldPhone?.hand;
+    return h?.state==='ready'||h?.state==='failed';
+   },null,{timeout:30000});
+   const rig=await page.evaluate(()=>window.__PINEWOOD_OPENING_V34__.handheldPhone.hand);
+   assert(rig.state==='ready'&&rig.hasForearm&&rig.skinnedMeshes>=1
+     &&rig.boneCount>=20&&rig.thumbBones===3
+     &&rig.source==='OpenGameArt CC0 Playerhands (sandsound)',
+     layout.name+' source CC0 arm/hand did not rig onto phone: '+JSON.stringify(rig));
    // v45: a literal first-person handheld app. It must animate CHECK IN,
    // show confirmation, then stow. No duplicate cabin or mounted phone.
    await page.evaluate(()=>window.__PINEWOOD_OPENING_V34__.seek(0));
@@ -110,21 +121,27 @@ try{
     assert(captionRight<layout.width*.58,
       layout.name+' subtitles still cover handheld check-in area: '+captionRight);
    }
-   await page.screenshot({path:'opening-v37-artifacts/'+layout.name+'-v45-check-in-pending.png'});
-   console.log((layout.name==='desktop'?'V45_PENDING_JPEG=':'V45_MOBILE_PENDING_JPEG=')
+   await page.screenshot({path:'opening-v37-artifacts/'+layout.name+'-v48-cc0-arm-holding-phone.png'});
+   console.log((layout.name==='desktop'?'V48_HOLD_JPEG=':'V48_MOBILE_HOLD_JPEG=')
      +(await page.screenshot({type:'jpeg',quality:46})).toString('base64'));
    await page.evaluate(()=>{window.__PINEWOOD_OPENING_V34__.seek(0);window.__PINEWOOD_OPENING_V34__.scrub(.62);});
    await page.waitForTimeout(140);
    phone=await page.evaluate(()=>window.__PINEWOOD_OPENING_V34__.handheldPhone);
-   assert(phone.visible&&phone.tap,layout.name+' no actual thumb tap on CHECK IN: '+JSON.stringify(phone));
-   await page.screenshot({path:'opening-v37-artifacts/'+layout.name+'-v45-check-in-tap.png'});
+   assert(phone.visible&&phone.tap&&phone.hand?.state==='ready'
+     &&phone.hand?.tapProgress>.08&&phone.hand?.thumbBones===3
+     &&phone.hand.thumbTipDistance!==null&&phone.hand.thumbTipDistance<.048,
+     layout.name+' actual rigged thumb misses the CHECK IN button: '+JSON.stringify(phone));
+   console.log('V48_THUMB_POSE='+JSON.stringify(phone.hand));
+   await page.screenshot({path:'opening-v37-artifacts/'+layout.name+'-v48-cc0-arm-thumb-tap.png'});
+   console.log((layout.name==='desktop'?'V48_RIGGED_TAP_JPEG=':'V48_MOBILE_RIGGED_TAP_JPEG=')
+    +(await page.screenshot({type:'jpeg',quality:50})).toString('base64'));
    await page.evaluate(()=>{window.__PINEWOOD_OPENING_V34__.seek(0);window.__PINEWOOD_OPENING_V34__.scrub(.74);});
    await page.waitForTimeout(140);
    phone=await page.evaluate(()=>window.__PINEWOOD_OPENING_V34__.handheldPhone);
    assert(phone.visible&&phone.screenState==='confirmed',
      layout.name+' app never acknowledges check-in: '+JSON.stringify(phone));
    await page.screenshot({path:'opening-v37-artifacts/'+layout.name+'-v45-check-in-confirmed.png'});
-   console.log((layout.name==='desktop'?'V45_CONFIRMED_JPEG=':'V45_MOBILE_CONFIRMED_JPEG=')
+   console.log((layout.name==='desktop'?'V48_CONFIRMED_JPEG=':'V48_MOBILE_CONFIRMED_JPEG=')
      +(await page.screenshot({type:'jpeg',quality:46})).toString('base64'));
    await page.evaluate(()=>{window.__PINEWOOD_OPENING_V34__.seek(1);window.__PINEWOOD_OPENING_V34__.scrub(.11);});
    await page.waitForTimeout(140);
