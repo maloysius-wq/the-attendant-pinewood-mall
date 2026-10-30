@@ -160,19 +160,20 @@ export async function upgradeOpeningSceneV37({scene,world,car,materials,lotMater
   if(glass<1)throw Error('GLB missing transparent windshield');
   car.add(model);car.updateWorldMatrix(true,true);
   if(car.children.length!==1||meshes<5)throw Error('A second car or empty car found');
-  const eye=car.localToWorld(new THREE.Vector3(-.41,1.10,-.35));
+  // Driver is inside the left front seat, under the real roof, behind windshield.
+  const eye=car.localToWorld(new THREE.Vector3(-.25,1.00,-.25));
   const roof=new THREE.Raycaster(eye,new THREE.Vector3(0,1,0),.04,.85)
     .intersectObject(model,true).filter(x=>!/windows/i.test(x.object.name||''))[0];
   // Test the roof from OUTSIDE, where source-facing surface normals exist.
   // A separate, controlled roof-height test avoids false negatives caused
   // by the deliberate one-sided interior view material.
   const topHit=new THREE.Raycaster(
-     car.localToWorld(new THREE.Vector3(-.41,2.1,-.35)),
+     car.localToWorld(new THREE.Vector3(-.25,2.1,-.25)),
      new THREE.Vector3(0,-1,0),.30,1.3)
     .intersectObject(model,true).find(h=>!/windows/i.test(h.object.name||''));
   const roofHeight=topHit?+(2.1-topHit.distance).toFixed(3):null;
   status.roofHeight=roofHeight;
-  const roofDistance=roofHeight===null?null:roofHeight-1.10;
+  const roofDistance=roofHeight===null?null:roofHeight-1.00;
   // Diagnostic grid: assess the actual GLB top surface before accepting the
   // first-person eye; do not mistake the published model description for proof.
   status.roofSamples=[];
@@ -184,6 +185,10 @@ export async function upgradeOpeningSceneV37({scene,world,car,materials,lotMater
   }
   const forwardHits=new THREE.Raycaster(eye,new THREE.Vector3(0,0,-1),.04,4)
     .intersectObject(model,true).slice(0,6).map(h=>({mesh:h.object.name,d:+h.distance.toFixed(3)}));
+  // Low, soft dashboard/overhead fill, not a handmade vehicle mesh.
+  // Exposes the vendor interior without flooding the foggy parking lot.
+  const dashGlow=new THREE.PointLight(0xb5c5c9,1.7,2.8,2);
+  dashGlow.position.set(-.18,1.12,-.10);car.add(dashGlow);
   status.car='loaded';status.carBounds=size;status.modelMeshes=meshes;
   status.carYawDeg=180;status.forwardAxis='-Z';
   status.roofRayDistance=roofDistance===null?null:+roofDistance.toFixed(3);status.windows=glass;status.forwardHits=forwardHits;

@@ -220,7 +220,7 @@ window.__PINEWOOD_OPENING_V34__={
  qaDriverView(height,z=17.15){
   if(!location.pathname.includes('/review/')||!active?.stage||!active.renderer)return false;
   active.paused=true;
-  active.camera.position.set(-10.41,height,z);
+  active.camera.position.set(-10.25,height,z);
   active.camera.lookAt(-10.15,1.45,-20);
   active.renderer.render(active.stage.scene,active.camera);
   return true;
