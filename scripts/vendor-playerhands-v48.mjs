@@ -13,7 +13,7 @@ const paths=[];async function walk(p){for(const d of await readdir(p,{withFileTy
 console.log('OGA_ARCHIVE_FILES',JSON.stringify(paths.map(x=>x.slice(dir.length+1))));
 const blends=paths.filter(x=>x.toLowerCase().endsWith('.blend'));
 if(!blends.length)throw Error('Original Playerhands .blend file absent from CC0 source archive');
-blends.sort((a,b)=>a.length-b.length);
+blends.sort((a,b)=>(basename(b).includes('rig')?1:0)-(basename(a).includes('rig')?1:0));
 const output=target+'/playerhands-forearm.glb';
 execFileSync('blender',['--background',blends[0],'--python','scripts/export-playerhands-v48.py'],{
  stdio:'inherit',env:{...process.env,PINEWOOD_HAND_OUTPUT:output},timeout:180000});
