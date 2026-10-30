@@ -1,5 +1,5 @@
 /**
- * V37 cinematic-only atmosphere. All model and PBR texture requests resolve
+ * V38 cinematic-only cockpit orientation fix atop the local v37 CC0 atmosphere. All model and PBR texture requests resolve
  * to manifest-verified, committed files in opening/assets/v37/ (NEVER remote).
  */
 import * as THREE from '../vendor/three/build/three.module.js';
@@ -122,7 +122,20 @@ export async function upgradeOpeningSceneV37({scene,world,car,legacyCabin,holder
   status.maps=['asphalt_02','cracked_concrete_wall','rusty_metal'];
   status.wet=mistAndLights(scene,world);
   const model=await promiseGLB(asURL('1990s-car-interior.glb'));
-  const carDimensions=placeRealSize(model,1.82,.30,0,0);
+  // Grab3D's source cabin faces +Z; Pinewood's established driver looks toward -Z.
+  // Rotate the interior BEFORE centering/scaling it so the front seats/dashboard
+  // are ahead of the driver and rear seating stays behind the eye position.
+  // The outer car shell, authored camera choreography and mounted work-phone
+  // are already oriented in -Z and must NOT rotate with the imported cabin.
+  model.rotation.y=Math.PI;
+  model.updateMatrixWorld(true);
+  // The source's original pivot put its driver's headrest at the camera eye.
+  // Seat the cabin slightly rearward inside the existing exterior shell rather
+  // than moving the approved first-person eye/camera choreography.
+  const carDimensions=placeRealSize(model,1.82,.30,0,.34);
+  status.cabinRearOffset=.34;
+  status.carYawDeg=180;
+  status.forwardAxis='-Z';
   model.traverse(o=>{
    if(o.isMesh){
     o.frustumCulled=false;
@@ -132,6 +145,17 @@ export async function upgradeOpeningSceneV37({scene,world,car,legacyCabin,holder
    }
   });
   car.add(model);
+  // A geometry-based forward-visibility check guards against placing an entire
+  // front seat directly in front of the first-person camera again.
+  car.updateMatrixWorld(true);
+  model.updateMatrixWorld(true);
+  const eye=car.localToWorld(new THREE.Vector3(-.54,1.60,.58));
+  status.cockpitViewRays=[-.16,0,.16].map(x=>{
+   const direction=new THREE.Vector3(x,0,-1).normalize();
+   const ray=new THREE.Raycaster(eye,direction,.08,1.25);
+   const first=ray.intersectObject(model,true)[0];
+   return first?Number(first.distance.toFixed(3)):null;
+  });
   legacyCabin.visible=false;
   status.car='loaded';
   status.carBounds=carDimensions;
