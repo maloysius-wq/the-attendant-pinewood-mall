@@ -90,6 +90,15 @@ export class HandheldCheckInPhone {
   this.thumb=new THREE.Group();this.thumb.position.set(-.118,-.109,.070);this.root.add(this.thumb);
   const digit=new THREE.Mesh(new THREE.CapsuleGeometry(.019,.077,5,10),glove);
   digit.rotation.z=-Math.PI*.37;digit.position.set(.039,.017,0);this.thumb.add(digit);
+  // An in-hand first-person viewmodel must draw in front of the original
+  // vendor car, not disappear behind its dashboard or steering-wheel depth.
+  this.root.traverse(obj=>{
+   if(!obj.isMesh)return;
+   obj.material.depthTest=false;obj.material.depthWrite=false;
+   obj.renderOrder=10000;
+  });
+  this.screen.renderOrder=10010;
+  speaker.renderOrder=10012;lens.renderOrder=10012;digit.renderOrder=10020;
   this.state='none';this.raised=false;this.tap=false;this.progress=0;this.root.visible=false;
   this.renderApp('pending');
  }
@@ -114,11 +123,12 @@ export class HandheldCheckInPhone {
   this.renderApp(state);
   // Device lives BELOW the actual forward-looking driver camera, with no
   // dashboard attachment. Preserve a clear windshield when it is stowed.
-  const mobile=this.root.parent.aspect<.80,scale=mobile?.73:1;
+  const mobile=this.root.parent.aspect<.80,scale=mobile?.67:.90;
   this.root.scale.setScalar(scale);
-  this.root.position.set(mobile?.044:.194,
-    (mobile?-.058:-.078)-.48*(1-visibility),
-    -.52+.06*(1-visibility));
+  // Foreground first-person framing with a full-size, readable display.
+  this.root.position.set(mobile?.028:.164,
+    (mobile?-.025:-.035)-.49*(1-visibility),
+    -.385+.06*(1-visibility));
   this.root.rotation.set(-.075+.05*(1-visibility),-.14,-.09-.23*(1-visibility));
   this.thumb.position.set(-.118+tap*.032,-.109-tap*.039,.07+tap*.016);
   if(!reducedMotion&&this.raised){
