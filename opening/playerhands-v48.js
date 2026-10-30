@@ -76,16 +76,17 @@ export class RiggedPlayerHand {
     model.quaternion.premultiply(q);
    }
    model.updateWorldMatrix(true,true);
-   const current=bones.Hand.getWorldPosition(new THREE.Vector3());
-   const desired=this.phoneRoot.localToWorld(v(-.124,-.136,.070));
-   model.position.add(desired.sub(current));
+   // All model translations are in PHONE-LOCAL coordinates. In particular,
+   // mobile scales the phone root to 0.57, so mixing a world delta here made
+   // thumb placement screen-size dependent.
+   const current=this.phoneRoot.worldToLocal(bones.Hand.getWorldPosition(new THREE.Vector3()));
+   model.position.add(v(-.124,-.136,.070).sub(current));
    model.updateWorldMatrix(true,true);
    // Phone grip is constrained by the actual SOURCE thumb-tip vertex bone:
    // align its idle hover just left/above CHECK IN. This prevents the
    // 20-bone arm from reaching over the phone and missing the button.
-   const currentTip=bones.ThumbTip.getWorldPosition(new THREE.Vector3());
-   const hover=this.phoneRoot.localToWorld(v(-.086,-.098,.075));
-   model.position.add(hover.sub(currentTip));
+   const currentTip=this.phoneRoot.worldToLocal(bones.ThumbTip.getWorldPosition(new THREE.Vector3()));
+   model.position.add(v(-.086,-.098,.075).sub(currentTip));
    model.updateWorldMatrix(true,true);
    this.model=model;this.bones=bones;this.meshCount=meshes;
    this.bindPoses={};
