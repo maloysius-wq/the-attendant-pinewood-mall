@@ -218,7 +218,7 @@ window.__PINEWOOD_OPENING_V34__={
  },
  get dashboardPhone(){return null;},
  qaExteriorCar(){
-  if(!active?.preview||!active.stage||!active.renderer)return false;
+  if(!location.pathname.includes('/review/')||!active?.stage||!active.renderer)return false;
   active.paused=true;active.camera.position.set(-13.8,2.6,21.0);
   active.camera.lookAt(-10,1.0,17.5);
   active.renderer.render(active.stage.scene,active.camera);
