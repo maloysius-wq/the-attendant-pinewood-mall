@@ -217,7 +217,15 @@ window.__PINEWOOD_OPENING_V34__={
   };
  },
  get dashboardPhone(){return null;},
- qaDriverView(height,z=17.15){
+ qaCockpitProbe({x=-10.41,y=1.12,z=17.42,dx=0,dy=1.4,dz=-20}={}){
+  if(!location.pathname.includes('/review/')||!active?.stage||!active.renderer)return false;
+  active.paused=true;
+  active.camera.position.set(x,y,z);
+  active.camera.lookAt(dx,dy,dz);
+  active.renderer.render(active.stage.scene,active.camera);
+  return true;
+ },
+  qaDriverView(height,z=17.15){
   if(!location.pathname.includes('/review/')||!active?.stage||!active.renderer)return false;
   active.paused=true;
   active.camera.position.set(-10.25,height,z);
