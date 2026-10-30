@@ -93,6 +93,25 @@ try{
    await page.waitForTimeout(500);
    await page.screenshot({path:'opening-v37-artifacts/'+layout.name+'-interior.png'});
    if(layout.name==='desktop'){
+    const poses=[
+      {label:'current_front',x:-10.25,y:1.13,z:17.82,dx:0,dy:1.45,dz:-20},
+      {label:'driver_forward_1695',x:-10.50,y:1.13,z:16.95,dx:0,dy:1.45,dz:-20},
+      {label:'driver_forward_1720',x:-10.50,y:1.16,z:17.20,dx:0,dy:1.45,dz:-20},
+      {label:'driver_middle_1745',x:-10.50,y:1.17,z:17.45,dx:0,dy:1.45,dz:-20},
+      {label:'driver_back_1765',x:-10.50,y:1.17,z:17.65,dx:0,dy:1.45,dz:-20},
+      {label:'driver_right_1740',x:-9.55,y:1.17,z:17.40,dx:0,dy:1.45,dz:-20},
+      {label:'rearward_1740',x:-10.50,y:1.15,z:17.40,dx:-10,dy:1.3,dz:25},
+      {label:'rearward_1685',x:-10.50,y:1.15,z:16.85,dx:-10,dy:1.3,dz:25}
+    ];
+    for(const pose of poses){
+      const ok=await page.evaluate(x=>window.__PINEWOOD_OPENING_V34__.qaCockpitProbe(x),pose);
+      assert(ok,'Cannot capture v43 camera probe '+pose.label);
+      await page.waitForTimeout(65);
+      const bytes=await page.screenshot({type:'jpeg',quality:30});
+      console.log('V43_PROBE_'+pose.label+'='+bytes.toString('base64'));
+    }
+   }
+   if(layout.name==='desktop'){
     const seated=await page.screenshot({type:'jpeg',quality:35});
     console.log('V42_QA_DRIVER_JPEG='+seated.toString('base64'));
    }
