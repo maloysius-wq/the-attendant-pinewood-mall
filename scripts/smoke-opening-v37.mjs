@@ -18,7 +18,7 @@ assert(!styleText.includes('.pwm-phone-')&&!previewText.includes('pwm-phone-'),
  'Retired phone overlay styles or markup returned');
 
 await mkdir('opening-v37-artifacts',{recursive:true});
-const report={version:44,preview,layouts:{},passed:false};
+const report={version:45,preview,layouts:{},passed:false};
 const browser=await chromium.launch({headless:true,args:[
  '--enable-webgl','--ignore-gpu-blocklist','--use-gl=swiftshader','--enable-unsafe-swiftshader','--disable-dev-shm-usage']});
 try{
@@ -81,6 +81,51 @@ try{
    assert(await page.locator('.pwm-phone-sheet,.pwm-phone-header,.pwm-phone-body,.pwm-phone-status').count()===0,
      layout.name+' retired phone overlay appeared during cinematic');
    assert(st.wet?.puddles>=15&&st.wet?.lamps>=3,'Missing wet-lot light treatment');
+   // v45: a literal first-person handheld app. It must animate CHECK IN,
+   // show confirmation, then stow. No duplicate cabin or mounted phone.
+   await page.evaluate(()=>window.__PINEWOOD_OPENING_V34__.seek(0));
+   await page.waitForTimeout(650);
+   const natural=await page.evaluate(()=>window.__PINEWOOD_OPENING_V34__.captionTiming);
+   assert(natural.source==='media'&&natural.mediaSeconds>.04
+     &&Math.abs(natural.captionSeconds-natural.mediaSeconds)<.10,
+     layout.name+' subtitle clock does not follow Renee audio: '+JSON.stringify(natural));
+   assert(natural.waitSeconds>8.3&&natural.waitSeconds<8.7,
+     layout.name+' still using slow estimated-reading timeline: '+JSON.stringify(natural));
+
+   await page.evaluate(()=>{window.__PINEWOOD_OPENING_V34__.seek(0);window.__PINEWOOD_OPENING_V34__.scrub(.44);});
+   await page.waitForTimeout(180);
+   let phone=await page.evaluate(()=>window.__PINEWOOD_OPENING_V34__.handheldPhone);
+   assert(phone?.visible&&phone.parent==='camera'&&phone.screenState==='pending'
+     &&phone.mounts===0&&phone.screenPixels[0]>=600,
+     layout.name+' handheld check-in screen not visible: '+JSON.stringify(phone));
+   await page.screenshot({path:'opening-v37-artifacts/'+layout.name+'-v45-check-in-pending.png'});
+   await page.evaluate(()=>{window.__PINEWOOD_OPENING_V34__.seek(0);window.__PINEWOOD_OPENING_V34__.scrub(.62);});
+   await page.waitForTimeout(140);
+   phone=await page.evaluate(()=>window.__PINEWOOD_OPENING_V34__.handheldPhone);
+   assert(phone.visible&&phone.tap,layout.name+' no actual thumb tap on CHECK IN: '+JSON.stringify(phone));
+   await page.screenshot({path:'opening-v37-artifacts/'+layout.name+'-v45-check-in-tap.png'});
+   await page.evaluate(()=>{window.__PINEWOOD_OPENING_V34__.seek(0);window.__PINEWOOD_OPENING_V34__.scrub(.74);});
+   await page.waitForTimeout(140);
+   phone=await page.evaluate(()=>window.__PINEWOOD_OPENING_V34__.handheldPhone);
+   assert(phone.visible&&phone.screenState==='confirmed',
+     layout.name+' app never acknowledges check-in: '+JSON.stringify(phone));
+   await page.screenshot({path:'opening-v37-artifacts/'+layout.name+'-v45-check-in-confirmed.png'});
+   await page.evaluate(()=>{window.__PINEWOOD_OPENING_V34__.seek(1);window.__PINEWOOD_OPENING_V34__.scrub(.11);});
+   await page.waitForTimeout(140);
+   phone=await page.evaluate(()=>window.__PINEWOOD_OPENING_V34__.handheldPhone);
+   assert(phone.screenState==='confirmed'&&phone.visible,
+     layout.name+' confirmed phone disappeared before Renee acknowledgement');
+   await page.evaluate(()=>{window.__PINEWOOD_OPENING_V34__.seek(1);window.__PINEWOOD_OPENING_V34__.scrub(.60);});
+   await page.waitForTimeout(140);
+   phone=await page.evaluate(()=>window.__PINEWOOD_OPENING_V34__.handheldPhone);
+   assert(!phone.visible,layout.name+' phone did not lower out of first-person view');
+   await page.evaluate(()=>{window.__PINEWOOD_OPENING_V34__.seek(3);window.__PINEWOOD_OPENING_V34__.scrub(.38);});
+   await page.waitForTimeout(140);
+   phone=await page.evaluate(()=>window.__PINEWOOD_OPENING_V34__.handheldPhone);
+   assert(phone.visible&&phone.screenState==='ticket',
+     layout.name+' work-order circuit list is not displayed in-hand');
+   await page.screenshot({path:'opening-v37-artifacts/'+layout.name+'-v45-work-order-in-hand.png'});
+
    // v39: the previously enormous service portal must hug the original
    // 1.95m x 2.27m hinged door, with real facade infill on all three sides.
    const entry=await page.evaluate(()=>window.__PINEWOOD_OPENING_V34__.serviceEntryGeometry);
