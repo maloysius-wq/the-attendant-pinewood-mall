@@ -2,7 +2,7 @@ import * as THREE from '../vendor/three/build/three.module.js';
 import {makeOpeningScene} from './scene.js?v=46';
 import {HumanCameraRig} from './camera.js?v=43';
 import {OpeningAmbience} from './ambience.js?v=35';
-import {HandheldCheckInPhone} from './phone-v45.js?v=48';
+import {HandheldCheckInPhone} from './phone-v45.js?v=49';
 import {buildCaptionTrack,captionAt} from './caption-sync-v45.js?v=45';
 const $=id=>document.getElementById(id);
 const query=new URLSearchParams(location.search);
@@ -32,7 +32,7 @@ class Intro{
   this.canvasSlot=this.root.querySelector('.pwm-render');this.last=performance.now();
   this.ambience=new OpeningAmbience();
   this.eyeRig=new HumanCameraRig();this.lastCameraPose=null;
-  this.resize=()=>{if(!this.renderer)return;const w=this.root.clientWidth||innerWidth,h=this.root.clientHeight||innerHeight;this.renderer.setSize(w,h,false);this.camera.aspect=w/h;this.camera.updateProjectionMatrix()};
+  this.resize=()=>{if(!this.renderer)return;const w=this.root.clientWidth||innerWidth,h=this.root.clientHeight||innerHeight;this.renderer.setSize(w,h,false);this.camera.aspect=w/h;this.camera.updateProjectionMatrix();if(this.phoneCamera){this.phoneCamera.aspect=w/h;this.phoneCamera.updateProjectionMatrix()}};
   this.keydown=e=>{
    if(e.key==='Tab'){
     const controls=[...this.root.querySelectorAll('.pwm-transport button:not([disabled])')];
@@ -60,7 +60,15 @@ class Intro{
    this.stage=makeOpeningScene();
    this.camera=new THREE.PerspectiveCamera(66,1,.08,230);
    this.stage.scene.add(this.camera);
-   this.handheld=new HandheldCheckInPhone(this.camera);
+   // The car and the handheld are rendered with separate depth buffers.
+   this.phoneScene=new THREE.Scene();
+   this.phoneCamera=new THREE.PerspectiveCamera(66,1,.08,230);
+   this.phoneScene.add(this.phoneCamera);
+   this.phoneScene.add(new THREE.AmbientLight(0xffffff,1.5));
+   const handsetKey=new THREE.DirectionalLight(0xffead5,1.9);
+   handsetKey.position.set(-1.5,2,3);
+   this.phoneScene.add(handsetKey);
+   this.handheld=new HandheldCheckInPhone(this.phoneCamera);
    this.renderer=new THREE.WebGLRenderer({antialias:true,alpha:false,powerPreference:'high-performance'});
    this.renderer.outputColorSpace=THREE.SRGBColorSpace;this.renderer.toneMapping=THREE.ACESFilmicToneMapping;
    this.renderer.toneMappingExposure=1.20;this.renderer.setPixelRatio(Math.min(devicePixelRatio||1,1.6));
@@ -174,6 +182,12 @@ class Intro{
     this.stage.pivot.rotation.y=-Math.PI*.48*pose.doorOpen;
     if(!this.reduced){const a=this.stage.rain.geometry.attributes.position.array;for(let i=1;i<a.length;i+=3){a[i]-=delta*5.2;if(a[i]<.1)a[i]+=12.9;}this.stage.rain.geometry.attributes.position.needsUpdate=true;}
     this.renderer.render(this.stage.scene,this.camera);
+    if(this.handheld?.raised){
+     this.renderer.autoClear=false;
+     this.renderer.clearDepth();
+     this.renderer.render(this.phoneScene,this.phoneCamera);
+     this.renderer.autoClear=true;
+    }
    }
    const filled=(this.index+clamp(this.elapsed/Math.max(this.wait,.1),0,1))/this.lines.length;
    this.root.querySelector('.pwm-progress').style.width=(filled*100).toFixed(2)+'%';
@@ -213,7 +227,7 @@ class Intro{
    if(this.audio){this.audio.pause();this.audio.removeAttribute('src');this.audio.load();}
    this.ambience.destroy();
    this.handheld?.dispose();
-   this.stage?.scene.traverse(o=>{
+   for(const scene of [this.stage?.scene,this.phoneScene])scene?.traverse(o=>{
     o.geometry?.dispose?.();
     for(const m of o.material?(Array.isArray(o.material)?o.material:[o.material]):[]){m.map?.dispose?.();m.dispose?.();}
    });
