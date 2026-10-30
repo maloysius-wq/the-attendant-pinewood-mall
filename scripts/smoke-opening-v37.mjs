@@ -25,6 +25,12 @@ try{
    if(layout.name==='desktop'&&!(st.roofRayDistance>.08&&st.roofRayDistance<.67)){
     console.log('V42_ROOF_GRID='+JSON.stringify(st.roofSamples||[]));
     console.log('V42_MODEL_SIZE='+JSON.stringify(st.measuredCarBounds||[]));
+    for(const z of [16.95,17.25,17.55,17.85]){
+      await page.evaluate(value=>window.__PINEWOOD_OPENING_V34__.qaDriverView(1.02,value),z);
+      await page.waitForTimeout(50);
+      const jpg=await page.screenshot({type:'jpeg',quality:34});
+      console.log('V42_QA_Z'+Math.round(z*100)+'_JPEG='+jpg.toString('base64'));
+    }
     for(const height of [.55,.70,.82,.98,1.10]){
       await page.evaluate(h=>window.__PINEWOOD_OPENING_V34__.qaDriverView(h),height);
       await page.waitForTimeout(50);
