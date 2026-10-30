@@ -76,12 +76,10 @@ try{
   assert(pixels.appTextPixels>12,kind+' app display is blank in actual Chromium pixels: '+JSON.stringify(pixels));
   assert(pixels.skinPixels>5,kind+' source CC0 fingers are invisible next to handset: '+JSON.stringify(pixels));
   // Regression: rejected v49 pointed the four fingers almost straight UP.
-  const fingerDirection=await page.evaluate(()=>{
-   const hand=window.__PINEWOOD_OPENING_V34__.handheldPhone.hand;
-   const local=bone=>hand.phoneRoot.worldToLocal(bone.getWorldPosition(new (hand.bones.Hand.position.constructor)()));
-   return local(hand.bones.PointTip).sub(local(hand.bones.Hand)).toArray();
-  });
+  const fingerDirection=hold.hand.gripFingerDirection;
   console.log('V50_'+kind.toUpperCase()+'_GRIP_DIRECTION='+JSON.stringify(fingerDirection));
+  console.log('V50_'+kind.toUpperCase()+'_ANATOMY='+JSON.stringify(hold.hand));
+  if(kind==='desktop')console.log('V50_PRECHECK_DESKTOP_JPEG='+(await page.screenshot({type:'jpeg',quality:52})).toString('base64'));
   assert(fingerDirection[0]<-.035&&Math.abs(fingerDirection[0])>Math.abs(fingerDirection[1])*.65,
    kind+' fingers are not turned horizontally LEFT: '+JSON.stringify(fingerDirection));
   await page.screenshot({path:'opening-v48-focus-artifacts/'+kind+'-hold.png'});
