@@ -1,5 +1,5 @@
 import * as THREE from '../vendor/three/build/three.module.js';
-import {makeOpeningScene} from './scene.js?v=43';
+import {makeOpeningScene} from './scene.js?v=46';
 import {HumanCameraRig} from './camera.js?v=43';
 import {OpeningAmbience} from './ambience.js?v=35';
 import {HandheldCheckInPhone} from './phone-v45.js?v=45';
@@ -274,7 +274,7 @@ window.__PINEWOOD_OPENING_V34__={
    return {min:b.min.toArray(),max:b.max.toArray(),size:b.getSize(new THREE.Vector3()).toArray()};
   };
   return {
-   opening:{...entry.opening},
+   opening:{...entry.opening},doorSpecs:{...entry.doorSpecs},
    door:bbox(entry.doorSlab),leftInfill:bbox(entry.leftInfill),
    rightInfill:bbox(entry.rightInfill),headerInfill:bbox(entry.headerInfill),
    leftJamb:bbox(entry.leftJamb),rightJamb:bbox(entry.rightJamb),
