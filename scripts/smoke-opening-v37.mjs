@@ -24,6 +24,13 @@ try{
    const st=await page.evaluate(()=>window.__PINEWOOD_OPENING_V34__.environmentV37);
    if(layout.name==='desktop'&&!(st.roofRayDistance>.08&&st.roofRayDistance<.67)){
     console.log('V42_ROOF_GRID='+JSON.stringify(st.roofSamples||[]));
+    console.log('V42_MODEL_SIZE='+JSON.stringify(st.measuredCarBounds||[]));
+    for(const height of [.55,.70,.82,.98,1.10]){
+      await page.evaluate(h=>window.__PINEWOOD_OPENING_V34__.qaDriverView(h),height);
+      await page.waitForTimeout(50);
+      const jpeg=await page.screenshot({type:'jpeg',quality:29});
+      console.log('V42_QA_H'+Math.round(height*100)+'_JPEG='+jpeg.toString('base64'));
+    }
     console.log('V42_QA_DRIVER_JPEG='+(await page.screenshot({type:'jpeg',quality:32})).toString('base64'));
     if(await page.evaluate(()=>window.__PINEWOOD_OPENING_V34__.qaExteriorCar())){
       await page.waitForTimeout(80);
