@@ -74,20 +74,36 @@ export function makeOpeningScene(){
  box(world,0,-.22,16,115,.43,105,lotMaterial);box(world,0,-.07,-17.7,103,.22,10.2,concrete);
  box(world,0,.07,-13.75,103,.24,.35,concrete);
  for(let x=-39;x<45;x+=6){const p=box(world,x,.012,13,2.6,.018,.1,mat(0x898779));p.rotation.y=-.1;}
- // Store facade has an actual two-metre opening.
+ // The service access aperture is sized to the REAL hinged slab below, not
+ // the original 3.5 m wide x 4.6 m tall loading-bay-sized hole.
+ // Existing facade ends at x=10.5 and resumes at x=14; infill both sides and
+ // the entire wall ABOVE the 2.39m door opening. Keep the doorway empty.
+ const serviceOpening={centerX:12,left:10.935,right:13.065,bottom:0,top:2.39,wallZ:-22.5};
  box(world,-17,4,-22.5,55,8.2,.9,facade);
  box(world,31,4,-22.5,34,8.2,.9,facade);
- box(world,12,6.35,-22.5,2.2,3.5,.9,facade);
+ const serviceLeftInfill=box(world,(10.5+serviceOpening.left)/2,4,-22.5,serviceOpening.left-10.5,8.2,.9,facade);
+ const serviceRightInfill=box(world,(14+serviceOpening.right)/2,4,-22.5,14-serviceOpening.right,8.2,.9,facade);
+ const serviceHeaderInfill=box(world,12,(8.1+serviceOpening.top)/2,-22.5,serviceOpening.right-serviceOpening.left,8.1-serviceOpening.top,.9,facade);
  box(world,0,8.55,-22.48,106,1.1,.96,mat(0x55615d));
  for(let x=-42;x<43;x+=8.4){box(world,x,4,-21.91,.22,6.7,.37,concrete);}
  for(let x=-40;x<43;x+=9){if(x>9&&x<16)continue;box(world,x,3.9,-21.89,5.9,4.3,.11,dark);box(world,x,3.9,-21.8,5.5,4,.035,windowMat);}
  sign(world,'PINEWOOD MALL',0,7.58,-21.86,20,1.55);
  notice(world,'A PLACE TO\nBELONG',['SHOP • EAT • MEET','PINEWOOD MALL','A PLACE FOR EVERYONE'],-17,3.1,-21.72,2.0,2.28,{bg:'#c4c2bc'});
  notice(world,'GRAND HOLIDAY\nSALE',['CASSETTE CASTLE','NOVEMBER 1997','EVERYTHING MUST GO'],-28,2.95,-21.72,2.05,2.20,{bg:'#bd9ba9'});
- // Service door with actual swinging hinge and display.
- box(world,12.15,3.15,-20.7,7.2,.30,3.15,concrete);
+ // Compact weather canopy: roughly 1.6x the door width, not a 7.2m awning.
+ const serviceCanopy=box(world,12,2.82,-21.25,3.10,.18,1.80,concrete);
+ const canopyFascia=box(world,12,2.72,-20.36,3.10,.15,.07,mat(0x283135,.82,.28));
+ // Tight metal jambs and header face the lot, around a ~9cm lateral and
+ // ~12cm vertical clearance. The center opening stays physically EMPTY.
+ const frameMat=mat(0x30383a,.72,.22);
+ const serviceLeftJamb=box(world,serviceOpening.left-.065,serviceOpening.top/2,-21.97,.13,serviceOpening.top,.115,frameMat);
+ const serviceRightJamb=box(world,serviceOpening.right+.065,serviceOpening.top/2,-21.97,.13,serviceOpening.top,.115,frameMat);
+ const serviceDoorHead=box(world,12,serviceOpening.top+.065,-21.97,2.39,.13,.115,frameMat);
+ const serviceSill=box(world,12,.024,-21.99,2.13,.048,.13,mat(0x515753,.89,.12));
+ // Retain the ORIGINAL pivot, door slab, glass, handle, keypad and swing.
  const pivot=new THREE.Group();pivot.position.set(11,0,-22.05);world.add(pivot);
- box(pivot,1.0,1.14,.08,1.95,2.27,.14,steel);box(pivot,1.0,1.59,.17,1.54,1.0,.032,windowMat);
+ const serviceDoorSlab=box(pivot,1.0,1.14,.08,1.95,2.27,.14,steel);
+ box(pivot,1.0,1.59,.17,1.54,1.0,.032,windowMat);
  box(pivot,1.7,1.06,.21,.12,.28,.05,concrete);
  box(world,13.65,1.38,-21.81,.46,.81,.18,steel);
  box(world,13.65,1.50,-21.67,.32,.25,.03,lit(0x648677,.45));
@@ -169,7 +185,15 @@ export function makeOpeningScene(){
  for(let i=0;i<rainCount;i++){positions[i*3]=((i*41.71)%108)-54;positions[i*3+1]=((i*17.23)%13)+.3;positions[i*3+2]=((i*29.31)%55)-11;}
  const geom=new THREE.BufferGeometry();geom.setAttribute('position',new THREE.BufferAttribute(positions,3));
  const rain=new THREE.Points(geom,new THREE.PointsMaterial({color:0x93aec0,size:.055,transparent:true,opacity:.52,depthWrite:false}));world.add(rain);
- const stage={scene,pivot,rain,phoneUi,phoneMount:holder};
+ const stage={scene,pivot,rain,phoneUi,phoneMount:holder,
+  serviceEntry:{
+   opening:serviceOpening,doorSlab:serviceDoorSlab,
+   leftInfill:serviceLeftInfill,rightInfill:serviceRightInfill,
+   headerInfill:serviceHeaderInfill,leftJamb:serviceLeftJamb,
+   rightJamb:serviceRightJamb,head:serviceDoorHead,sill:serviceSill,
+   canopy:serviceCanopy,canopyFascia
+  }
+ };
  stage.assetReady=upgradeOpeningSceneV37({
   scene,world,car,legacyCabin,holder,phoneUi,stage,
   materials:{facade,steel},lotMaterial
