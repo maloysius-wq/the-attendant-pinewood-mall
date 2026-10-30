@@ -1,0 +1,135 @@
+/**
+ * The Call v45: first-person, handheld FIELD SERVICE phone.
+ * Original scene prop and locally drawn CanvasTexture, NEVER a car mount or
+ * duplicate vehicle. Animated against Renee's voice clock for repeatable QA.
+ */
+import * as THREE from '../vendor/three/build/three.module.js';
+
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+const ease=t=>{t=clamp(t,0,1);return t*t*(3-2*t);};
+const paintRound=(c,x,y,w,h,r,color)=>{
+ c.fillStyle=color;c.beginPath();c.roundRect(x,y,w,h,r);c.fill();
+};
+function makePhoneFace(){
+ const canvas=document.createElement('canvas');canvas.width=600;canvas.height=1120;
+ const texture=new THREE.CanvasTexture(canvas);texture.colorSpace=THREE.SRGBColorSpace;
+ texture.anisotropy=8;
+ return {canvas,texture};
+}
+function drawApp(canvas,state){
+ const c=canvas.getContext('2d'),w=canvas.width,h=canvas.height;
+ c.fillStyle='#09151b';c.fillRect(0,0,w,h);
+ c.fillStyle='#152e37';c.fillRect(0,0,w,150);
+ c.fillStyle='#a3d2ca';c.font='bold 25px Arial';c.fillText('FIELD SERVICE',38,67);
+ c.fillStyle='#eaf3f1';c.font='bold 37px Arial';c.fillText('Dispatch',38,120);
+ c.fillStyle='#97aab0';c.font='23px Arial';c.fillText('AFTER-HOURS  /  WO-28417',36,203);
+ c.fillStyle='#ffffff';c.font='bold 39px Arial';c.fillText('PINEWOOD MALL',36,278);
+ c.fillStyle='#b3c2c6';c.font='24px Arial';c.fillText('EMERGENCY ELECTRICAL',36,325);
+ c.strokeStyle='#315058';c.lineWidth=2;c.beginPath();c.moveTo(36,361);c.lineTo(w-36,361);c.stroke();
+ if(state==='ticket'){
+  c.fillStyle='#a7d2c6';c.font='bold 27px Arial';c.fillText('ASSIGNED SERVICE WORK',36,420);
+  [['A','CONCOURSE LIGHTS'],['B','RETAIL / PA BRANCH'],['C','SERVICE / FREIGHT']].forEach(([id,label],i)=>{
+   const y=466+i*130;paintRound(c,32,y,w-64,112,14,'#193039');
+   c.fillStyle='#fad18c';c.font='bold 42px Arial';c.fillText(id,54,y+69);
+   c.fillStyle='#eaf3f1';c.font='bold 24px Arial';c.fillText(label,116,y+66);
+  });
+  c.fillStyle='#ccd8d7';c.font='bold 24px Arial';c.fillText('VERIFY EAST FREIGHT ELEVATOR',38,918);
+  paintRound(c,32,970,w-64,91,16,'#315f59');c.fillStyle='#e8fff7';c.font='bold 27px Arial';
+  c.textAlign='center';c.fillText('VIEW SERVICE NOTES',w/2,1027);c.textAlign='left';
+ }else{
+  paintRound(c,34,408,w-68,200,18,'#162d34');
+  c.fillStyle='#aabdc0';c.font='25px Arial';c.fillText('WORK ORDER STATUS',61,467);
+  c.font='bold 42px Arial';c.fillStyle=state==='confirmed'?'#aef4c6':'#f5d29b';
+  c.fillText(state==='confirmed'?'CHECKED IN':'AWAITING ARRIVAL',61,534);
+  c.fillStyle='#b3c7c8';c.font='26px Arial';c.fillText('Property access: authorized',39,685);
+  c.fillText('After-hours rate: approved',39,733);
+  c.fillText('Dispatcher: Renee Ward',39,781);
+  paintRound(c,32,873,w-64,130,20,state==='confirmed'?'#336357':'#c4a36d');
+  c.textAlign='center';
+  c.font='bold 35px Arial';c.fillStyle=state==='confirmed'?'#effff1':'#111c20';
+  c.fillText(state==='confirmed'?'✓  DISPATCH NOTIFIED':'CHECK IN',w/2,947);
+  c.textAlign='left';
+ }
+ c.fillStyle='#dce9e5';c.fillRect(246,1092,108,5);
+}
+function roundedSlab(w,h,depth,radius,material){
+ const s=new THREE.Shape(),x=-w/2,y=-h/2,r=radius;
+ s.moveTo(x+r,y);s.lineTo(x+w-r,y);s.quadraticCurveTo(x+w,y,x+w,y+r);
+ s.lineTo(x+w,y+h-r);s.quadraticCurveTo(x+w,y+h,x+w-r,y+h);
+ s.lineTo(x+r,y+h);s.quadraticCurveTo(x,y+h,x,y+h-r);
+ s.lineTo(x,y+r);s.quadraticCurveTo(x,y,x+r,y);
+ const geo=new THREE.ExtrudeGeometry(s,{depth,bevelEnabled:true,bevelSegments:2,steps:1,
+  bevelSize:.003,bevelThickness:.003,curveSegments:6});
+ const mesh=new THREE.Mesh(geo,material);mesh.position.z=-depth/2;return mesh;
+}
+export class HandheldCheckInPhone {
+ constructor(camera){
+  this.root=new THREE.Group();this.root.name='First-person handheld work-order phone';
+  // This is an independent first-person prop, never part of the hatchback.
+  camera.add(this.root);
+  const body=new THREE.MeshStandardMaterial({color:0x222b30,roughness:.37,metalness:.48});
+  const edge=new THREE.MeshStandardMaterial({color:0x61737a,roughness:.25,metalness:.75});
+  const glove=new THREE.MeshStandardMaterial({color:0x3a3b39,roughness:.94});
+  this.root.add(roundedSlab(.245,.447,.027,.025,edge));
+  const back=roundedSlab(.235,.435,.029,.021,body);back.position.z=.002;this.root.add(back);
+  const {canvas,texture}=makePhoneFace();this.canvas=canvas;this.texture=texture;
+  this.screen=new THREE.Mesh(new THREE.PlaneGeometry(.218,.386),
+    new THREE.MeshBasicMaterial({map:texture,side:THREE.DoubleSide,toneMapped:false}));
+  this.screen.position.set(0,-.005,.024);this.screen.name='Lit field service app screen';this.root.add(this.screen);
+  const speaker=new THREE.Mesh(new THREE.BoxGeometry(.052,.003,.002),
+    new THREE.MeshBasicMaterial({color:0x061115}));
+  speaker.position.set(0,.208,.029);this.root.add(speaker);
+  const lens=new THREE.Mesh(new THREE.SphereGeometry(.004,10,7),
+    new THREE.MeshBasicMaterial({color:0x0c1417}));
+  lens.position.set(-.070,.209,.027);this.root.add(lens);
+  // The sleeve/palm and articulated thumb convey that this phone is in HAND.
+  const wrist=new THREE.Mesh(new THREE.CapsuleGeometry(.045,.116,5,9),glove);
+  wrist.position.set(-.132,-.246,.009);wrist.rotation.z=-.23;this.root.add(wrist);
+  const palm=new THREE.Mesh(new THREE.SphereGeometry(.060,16,12),glove);
+  palm.scale.set(.62,1.25,.65);palm.position.set(-.119,-.132,.037);this.root.add(palm);
+  this.thumb=new THREE.Group();this.thumb.position.set(-.118,-.109,.070);this.root.add(this.thumb);
+  const digit=new THREE.Mesh(new THREE.CapsuleGeometry(.019,.077,5,10),glove);
+  digit.rotation.z=-Math.PI*.37;digit.position.set(.039,.017,0);this.thumb.add(digit);
+  this.state='none';this.raised=false;this.tap=false;this.progress=0;this.root.visible=false;
+  this.renderApp('pending');
+ }
+ renderApp(state){
+  if(this.state===state)return;
+  this.state=state;drawApp(this.canvas,state);this.texture.needsUpdate=true;
+ }
+ update(cue,seconds,voiceDuration,{reducedMotion=false}={}){
+  const f=clamp(seconds/Math.max(.1,voiceDuration),0,1);
+  let visibility=0,tap=0,state='pending';
+  if(cue==='arrival'){
+   visibility=ease((f-.24)/.19);
+   tap=ease((f-.69)/.075)*(1-ease((f-.79)/.10));
+   state=f>=.77?'confirmed':'pending';
+  }else if(cue==='clock'){
+   visibility=1-ease((f-.10)/.27);state='confirmed';
+  }else if(cue==='work'){
+   visibility=ease((f-.08)/.17)*(1-ease((f-.65)/.18));state='ticket';
+  }
+  this.progress=+visibility.toFixed(3);this.tap=tap>.08;this.raised=visibility>.05;
+  this.root.visible=this.raised;
+  this.renderApp(state);
+  // Device lives BELOW the actual forward-looking driver camera, with no
+  // dashboard attachment. Preserve a clear windshield when it is stowed.
+  const mobile=this.root.parent.aspect<.80,scale=mobile?.73:1;
+  this.root.scale.setScalar(scale);
+  this.root.position.set(mobile?.044:.194,
+    (mobile?-.058:-.078)-.48*(1-visibility),
+    -.52+.06*(1-visibility));
+  this.root.rotation.set(-.075+.05*(1-visibility),-.14,-.09-.23*(1-visibility));
+  this.thumb.position.set(-.118+tap*.032,-.109-tap*.039,.07+tap*.016);
+  if(!reducedMotion&&this.raised){
+   this.root.position.y+=Math.sin(seconds*2.1)*.0018*visibility;
+  }
+  return this.status;
+ }
+ get status(){
+  return {visible:this.root.visible,raised:this.raised,screenState:this.state,
+   tap:this.tap,visibility:this.progress,screenPixels:[this.canvas.width,this.canvas.height],
+   parent:this.root.parent?.isCamera?'camera':'unexpected',mounts:0};
+ }
+ dispose(){this.texture.dispose();}
+}
