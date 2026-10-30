@@ -61,8 +61,12 @@ export class RiggedPlayerHand {
    model.updateWorldMatrix(true,true);
    const box=new THREE.Box3().setFromObject(model);
    const sourceSize=box.getSize(new THREE.Vector3());
-   const sourceLong=Math.max(sourceSize.x,sourceSize.y,sourceSize.z);
-   if(!(sourceLong>0))throw Error('Empty Playerhands skinned forearm');
+   const sourceWorldLong=Math.max(sourceSize.x,sourceSize.y,sourceSize.z);
+   const phoneWorldScale=this.phoneRoot.getWorldScale(new THREE.Vector3()).x;
+   // Normalize in PHONE-LOCAL meters so a 0.57x mobile phone doesn't get a
+   // disproportionately gigantic fixed-world-size 0.37m arm.
+   const sourceLong=sourceWorldLong/phoneWorldScale;
+   if(!(sourceLong>0)||!(phoneWorldScale>0))throw Error('Empty Playerhands skinned forearm');
    model.scale.multiplyScalar(.37/sourceLong);
    model.updateWorldMatrix(true,true);
    // First align the source's knuckles toward the phone's left edge, then
