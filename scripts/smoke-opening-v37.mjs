@@ -122,6 +122,13 @@ try{
     await page.screenshot({path:'opening-v37-artifacts/'+layout.name+'-inside-threshold.png'});
    }
    if(layout.name==='desktop'){
+    for(const [height,z] of [[1.00,17.67],[1.13,17.67],[1.00,17.82],[1.13,17.82]]){
+      assert(await page.evaluate(value=>window.__PINEWOOD_OPENING_V34__.qaDriverView(value[0],value[1]),[height,z]),
+        'QA rearward seat visual probe failed');
+      await page.waitForTimeout(60);
+      const jpg=await page.screenshot({type:'jpeg',quality:32});
+      console.log('V42_QA_BACK_H'+Math.round(height*100)+'_Z'+Math.round(z*100)+'='+jpg.toString('base64'));
+    }
     for(const z of [17.34,17.42,17.50]){
       assert(await page.evaluate(value=>window.__PINEWOOD_OPENING_V34__.qaDriverView(1.04,value),z),
         'QA car seat visual probe failed');
