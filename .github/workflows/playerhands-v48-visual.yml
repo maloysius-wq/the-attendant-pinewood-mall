@@ -1,7 +1,7 @@
-name: The Call v49 handset framing and real skinned hand
+name: The Call v50 left-facing forearm grip
 on:
   push:
-    branches: [fix/the-call-v49-framing-and-skinned-hand, main]
+    branches: [fix/the-call-v50-left-facing-grip, main]
     paths:
       - 'opening/playerhands-v48.js'
       - 'opening/phone-v45.js'
