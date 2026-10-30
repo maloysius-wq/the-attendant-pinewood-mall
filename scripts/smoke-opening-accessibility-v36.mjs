@@ -102,10 +102,21 @@ try {
         layout.name + ': small or horizontally overflowing preview controls: ' + JSON.stringify(targets));
 
       await page.keyboard.press('Alt+s');
-      assert(await page.locator('#pwm-opening').evaluate(el => el.hidden) &&
-        await page.evaluate(() => !document.getElementById('titleScreen').inert &&
-          document.activeElement?.id === 'newBtn' && !window.__PINEWOOD_OPENING_V34__.active),
-        layout.name + ': skip did not restore title and keyboard focus');
+      // Skip must actually release the dialog, not merely change button text.
+      // Allow the browser one focus/paint turn before checking after WebGL.
+      await page.waitForFunction(() => {
+        const modal = document.getElementById('pwm-opening');
+        return modal?.hidden && !document.getElementById('titleScreen').inert &&
+          document.activeElement?.id === 'newBtn' && !window.__PINEWOOD_OPENING_V34__.active;
+      }, null, { timeout: 7000 }).catch(() => {});
+      const release = await page.evaluate(() => ({
+        overlayHidden:document.getElementById('pwm-opening').hidden,
+        titleInert:document.getElementById('titleScreen').inert,
+        focus:document.activeElement?.id,
+        active:window.__PINEWOOD_OPENING_V34__.active
+      }));
+      assert(release.overlayHidden && !release.titleInert && release.focus === 'newBtn' && !release.active,
+        layout.name + ': skip did not restore title and keyboard focus: ' + JSON.stringify(release));
       assert(remoteRequests.length === 0, layout.name + ': remote runtime assets: ' + remoteRequests.join(','));
       assert(pageErrors.length === 0, layout.name + ': browser errors: ' + pageErrors.join(' | '));
       report.cases[layout.name] = { passed: true, captionUpdates, controls: targets,
