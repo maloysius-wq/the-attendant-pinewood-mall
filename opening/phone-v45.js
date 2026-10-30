@@ -123,11 +123,11 @@ export class HandheldCheckInPhone {
   this.renderApp(state);
   // Device lives BELOW the actual forward-looking driver camera, with no
   // dashboard attachment. Preserve a clear windshield when it is stowed.
-  const mobile=this.root.parent.aspect<.80,scale=mobile?.67:.90;
+  const mobile=this.root.parent.aspect<.80,scale=mobile?.57:.77;
   this.root.scale.setScalar(scale);
-  // Foreground first-person framing with a full-size, readable display.
+  // Keep the entire app visible between transport controls and subtitles.
   this.root.position.set(mobile?.028:.164,
-    (mobile?-.025:-.035)-.49*(1-visibility),
+    (mobile?.026:-.015)-.49*(1-visibility),
     -.385+.06*(1-visibility));
   this.root.rotation.set(-.075+.05*(1-visibility),-.14,-.09-.23*(1-visibility));
   this.thumb.position.set(-.118+tap*.032,-.109-tap*.039,.07+tap*.016);
