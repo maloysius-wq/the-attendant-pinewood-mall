@@ -33,6 +33,33 @@ try{
    assert(st.carBounds?.[0]>1.5&&st.carBounds?.[0]<2.1,'Car geometry not full scale');
    assert(st.phoneBounds?.[0]>.08&&st.phoneBounds?.[0]<.14,'Phone mount out of scale');
    assert(st.wet?.puddles>=15&&st.wet?.lamps>=3,'Missing wet-lot light treatment');
+   // v39: the previously enormous service portal must hug the original
+   // 1.95m x 2.27m hinged door, with real facade infill on all three sides.
+   const entry=await page.evaluate(()=>window.__PINEWOOD_OPENING_V34__.serviceEntryGeometry);
+   assert(entry?.door&&entry?.opening,layout.name+' no service-entry geometry telemetry');
+   const ap=entry.opening,door=entry.door,eps=.025;
+   const apertureWidth=ap.right-ap.left,apertureHeight=ap.top-ap.bottom;
+   const doorWidth=door.size[0],doorHeight=door.size[1];
+   assert(doorWidth>1.90&&doorWidth<2.0&&doorHeight>2.2&&doorHeight<2.32,
+      layout.name+' original service door dimensions changed: '+JSON.stringify(door));
+   assert(apertureWidth>=doorWidth+.12&&apertureWidth<=doorWidth+.30,
+      layout.name+' service doorway too wide for door: '+JSON.stringify({ap,door}));
+   assert(apertureHeight>=doorHeight+.06&&apertureHeight<=doorHeight+.22,
+      layout.name+' service doorway too high for door: '+JSON.stringify({ap,door}));
+   assert(door.min[0]>ap.left+.04&&door.max[0]<ap.right-.04,
+      layout.name+' service door does not fit between jambs: '+JSON.stringify({ap,door}));
+   assert(Math.abs(entry.leftInfill.max[0]-ap.left)<eps
+     &&Math.abs(entry.rightInfill.min[0]-ap.right)<eps,
+      layout.name+' side gaps in original facade not closed: '+JSON.stringify(entry));
+   assert(Math.abs(entry.headerInfill.min[1]-ap.top)<eps
+     &&entry.headerInfill.max[1]>8.05,
+      layout.name+' giant gap above door has not been infilled: '+JSON.stringify(entry));
+   assert(Math.abs(entry.head.min[1]-ap.top)<eps
+     &&Math.abs(entry.leftJamb.max[0]-ap.left)<eps
+     &&Math.abs(entry.rightJamb.min[0]-ap.right)<eps,
+      layout.name+' visible service door frame does not match opening');
+   assert(entry.canopy.size[0]<3.35&&entry.canopy.size[2]<2.05,
+      layout.name+' original 7m oversized canopy still present: '+JSON.stringify(entry.canopy));
    await page.waitForTimeout(500);
    await page.screenshot({path:'opening-v37-artifacts/'+layout.name+'-interior.png'});
    // The phone is meant to be mounted in front of the driver, not in the back seat.
@@ -47,12 +74,20 @@ try{
     await page.evaluate(()=>{window.__PINEWOOD_OPENING_V34__.seek(8);window.__PINEWOOD_OPENING_V34__.scrub(.6);});
     await page.waitForTimeout(300);
     await page.screenshot({path:'opening-v37-artifacts/'+layout.name+'-entrance.png'});
+    // View the SAME scene the owner flagged, first with the door closed,
+    // then as the existing pivot opens, then from just past the threshold.
+    await page.evaluate(()=>{window.__PINEWOOD_OPENING_V34__.seek(8);window.__PINEWOOD_OPENING_V34__.scrub(.82);});
+    await page.waitForTimeout(350);
+    await page.screenshot({path:'opening-v37-artifacts/'+layout.name+'-door-opening.png'});
+    await page.evaluate(()=>{window.__PINEWOOD_OPENING_V34__.seek(9);window.__PINEWOOD_OPENING_V34__.scrub(.30);});
+    await page.waitForTimeout(350);
+    await page.screenshot({path:'opening-v37-artifacts/'+layout.name+'-inside-threshold.png'});
    }
    assert(remote.length===0,layout.name+' nonlocal browser requests '+remote.join(','));
    assert(errors.length===0,layout.name+' browser errors '+errors.join(' | '));
    await page.evaluate(()=>window.__PINEWOOD_OPENING_V34__.skip());
    assert(await page.locator('#pwm-opening').evaluate(e=>e.hidden),layout.name+' preview did not release its overlay');
-   report.layouts[layout.name]={passed:true,assetState:st,errors:[],remote:[]};
+   report.layouts[layout.name]={passed:true,assetState:st,serviceEntry:entry,errors:[],remote:[]};
    console.log('PASS '+layout.name+' CC0 geometry, wet lot, fog, local assets, skip');
   }catch(e){report.layouts[layout.name]={passed:false,error:e.stack||String(e),errors,remote};throw e;}
   finally{await context.close();}

@@ -1,5 +1,5 @@
 import * as THREE from '../vendor/three/build/three.module.js';
-import {makeOpeningScene} from './scene.js?v=38';
+import {makeOpeningScene} from './scene.js?v=39';
 import {HumanCameraRig} from './camera.js?v=35';
 import {OpeningAmbience} from './ambience.js?v=35';
 const $=id=>document.getElementById(id);
@@ -198,6 +198,23 @@ window.__PINEWOOD_OPENING_V34__={
  get cameraPosition(){return active?.camera?.position.toArray()||null;},
  get eyeMotion(){const p=active?.lastCameraPose;return p?{cue:p.cue,phase:p.phase,gaze:p.gazeTarget,walking:p.isWalking,rain:p.rain,doorOpen:p.doorOpen}:null;},
  get environmentV37(){return active?.stage?.v37||null;},
+ get serviceEntryGeometry(){
+  const entry=active?.stage?.serviceEntry;
+  if(!entry)return null;
+  // Report actual mesh world-space bounds for browser-side fit tests.
+  const bbox=mesh=>{
+   mesh.updateWorldMatrix(true,false);
+   const b=new THREE.Box3().setFromObject(mesh);
+   return {min:b.min.toArray(),max:b.max.toArray(),size:b.getSize(new THREE.Vector3()).toArray()};
+  };
+  return {
+   opening:{...entry.opening},
+   door:bbox(entry.doorSlab),leftInfill:bbox(entry.leftInfill),
+   rightInfill:bbox(entry.rightInfill),headerInfill:bbox(entry.headerInfill),
+   leftJamb:bbox(entry.leftJamb),rightJamb:bbox(entry.rightJamb),
+   head:bbox(entry.head),sill:bbox(entry.sill),canopy:bbox(entry.canopy)
+  };
+ },
  get dashboardPhone(){if(!active?.stage?.phoneMount)return null;const p=new THREE.Vector3();active.stage.phoneMount.getWorldPosition(p);return p.toArray();},
  get sceneStats(){
   if(!active?.stage)return null;
