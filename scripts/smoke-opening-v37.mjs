@@ -24,6 +24,21 @@ try{
    const st=await page.evaluate(()=>window.__PINEWOOD_OPENING_V34__.environmentV37);
    assert(st.state==='ready',layout.name+' v37 asset stage failed: '+JSON.stringify(st.errors));
    assert(st.car==='loaded'&&st.phone==='loaded',layout.name+' first-person models absent: '+JSON.stringify(st));
+   // v40: prevent both old AND imported car frames, multiple windscreens,
+   // unsupported roof or the tiny blank passenger-side work phone.
+   const cc=st.cockpit,screen=st.phoneScreen;
+   assert(cc?.construction==='single-CC0-cabin'&&cc.legacyGeometry===0,
+     layout.name+' ghost procedural car geometry is still being drawn: '+JSON.stringify(cc));
+   assert(cc.authoredRoofPanels===1&&cc.authoredWindshields===1,
+     layout.name+' car has duplicate windshield or no roof: '+JSON.stringify(cc));
+   assert(screen?.actualCanvasTexture&&screen?.lit&&screen?.legible,
+     layout.name+' dispatch phone lacks a bright local work-order screen: '+JSON.stringify(screen));
+   assert(screen.frontFacing>.99&&screen.driverDistance>=.55&&screen.driverDistance<1.15,
+     layout.name+' phone is facing away or out of reach: '+JSON.stringify(screen));
+   assert(screen.textureSize?.[0]===560&&screen.textureSize?.[1]===1000,
+     layout.name+' phone dispatch text texture not available: '+JSON.stringify(screen));
+   assert(screen.position[0]<0&&screen.position[0]>-.6,
+     layout.name+' phone on passenger side instead of beside driver: '+JSON.stringify(screen));
    // Regression for screenshot report: the CC0 car was loaded 180° backwards.
    assert(st.carYawDeg===180&&st.forwardAxis==='-Z',layout.name+' imported cabin is reversed: '+JSON.stringify(st));
    assert(st.cockpitViewRays?.length===3,layout.name+' cockpit first-person clearance telemetry missing');
@@ -31,7 +46,7 @@ try{
    assert(!nearSeat.length,layout.name+' object blocks driver eye within 46cm: '+JSON.stringify(st.cockpitViewRays));
    assert(st.maps?.length===3,layout.name+' PBR surfaces incomplete');
    assert(st.carBounds?.[0]>1.5&&st.carBounds?.[0]<2.1,'Car geometry not full scale');
-   assert(st.phoneBounds?.[0]>.08&&st.phoneBounds?.[0]<.14,'Phone mount out of scale');
+   assert(st.phoneBounds?.[0]>=.13&&st.phoneBounds?.[0]<=.155,'Phone mount out of scale');
    assert(st.wet?.puddles>=15&&st.wet?.lamps>=3,'Missing wet-lot light treatment');
    // v39: the previously enormous service portal must hug the original
    // 1.95m x 2.27m hinged door, with real facade infill on all three sides.
@@ -62,6 +77,11 @@ try{
       layout.name+' original 7m oversized canopy still present: '+JSON.stringify(entry.canopy));
    await page.waitForTimeout(500);
    await page.screenshot({path:'opening-v37-artifacts/'+layout.name+'-interior.png'});
+   // Capture actual windshield/roof and driver's LCD at the exact screenshot
+   // conditions the owner reported, on desktop and phone-size viewports.
+   await page.evaluate(()=>{window.__PINEWOOD_OPENING_V34__.seek(0);window.__PINEWOOD_OPENING_V34__.scrub(.40);});
+   await page.waitForTimeout(250);
+   await page.screenshot({path:'opening-v37-artifacts/'+layout.name+'-single-windshield.png'});
    // The phone is meant to be mounted in front of the driver, not in the back seat.
    await page.evaluate(()=>{window.__PINEWOOD_OPENING_V34__.seek(2);window.__PINEWOOD_OPENING_V34__.scrub(.43);});
    await page.waitForTimeout(350);

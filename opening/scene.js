@@ -1,5 +1,5 @@
 import * as THREE from '../vendor/three/build/three.module.js';
-import {upgradeOpeningSceneV37} from './environment-v37.js?v=38';
+import {upgradeOpeningSceneV37} from './environment-v37.js?v=40';
 const v=(x,y,z)=>new THREE.Vector3(x,y,z);
 const mat=(color,roughness=.85,metalness=0)=>new THREE.MeshStandardMaterial({color,roughness,metalness});
 const lit=(color,intensity=.4)=>new THREE.MeshStandardMaterial({color,roughness:.73,emissive:color,emissiveIntensity:intensity});
@@ -58,7 +58,7 @@ function phoneTexture(){
 }
 export const shots={
  car:{pos:v(-10.54,1.59,18.08),end:v(-10.53,1.57,18.04),look:v(-7,2.45,-22),endLook:v(0,2.85,-22)},
- phone:{pos:v(-10.54,1.57,18.08),end:v(-9.95,1.42,18.01),look:v(-9.30,1.08,17.56),endLook:v(-9.30,1.08,17.56)},
+ phone:{pos:v(-10.54,1.57,18.08),end:v(-10.41,1.55,17.99),look:v(-10.24,1.48,17.18),endLook:v(-10.24,1.48,17.18)},
  lot:{pos:v(-9,1.72,15),end:v(-6,1.72,12),look:v(12,2,-22),endLook:v(12,1.5,-22)},
  walk:{pos:v(-5,1.71,11),end:v(5,1.71,-9),look:v(12,1.5,-22),endLook:v(12,1.6,-22)},
  entrance:{pos:v(5,1.7,-9),end:v(9,1.7,-15.8),look:v(12,1.6,-22),endLook:v(13.65,1.4,-22)},
@@ -125,51 +125,15 @@ export function makeOpeningScene(){
  notice(world,'PINEWOOD\nSERVICE MAP',['A  CONCOURSE / EMERGENCY','B  RETAIL / PA','C  SERVICE / FREIGHT','EAST WING  AUTHORIZED'],0,2.2,-31.01,2.45,1.98,{h:700});
  notice(world,'STAFF\nNOTICE',['VERIFY DOORS','RETURN ALL KEYS','CLOCK OUT BEFORE LEAVING'],9.3,1.8,-55.73,1.14,1.39);
  for(const z of[-32,-43,-52])for(const x of[-8,8]){box(world,x,6.5,z,2.8,.14,.55,mat(0x646960));lamp(scene,x,6.25,z,0xb9c3b4,.8,9);}
- // The vehicle is a complete procedural model, not an inaccessible remote download.
+ // V40: the single locally vendored CC0 cabin supplies dashboard, seats and
+ // primary cockpit geometry. The matching roof/A-pillars and ONE windshield are
+ // created by the environment loader, *after* the model is measured.
+ // None of the old procedural hood, full-width windshield bars, faux seats,
+ // duplicate wheel, or second glass panel may be rendered.
  const car=new THREE.Group();car.position.set(-10,0,17.5);world.add(car);
- const paint=mat(0x3f4648,.5,.4),seat=mat(0x2c3031,.98);
- const legacyCabin=new THREE.Group();car.add(legacyCabin);
- // Hollow cockpit: the original solid body intersected POV and hid the windshield.
- box(car,0,.58,0,2.28,.74,4.6,paint);
- box(car,0,1.00,-1.72,2.16,.42,1.13,paint);
- for(const side of [-1,1])box(car,side*1.08,1.07,.10,.10,.58,2.45,paint);
- box(car,0,.88,1.27,2.03,.25,.09,paint);
- // Hollow cab: four pillars and a thin roof. Never place an opaque cabin cube around the camera.
- box(car,0,2.08,.16,2.07,.14,2.45,paint);
- // Narrow pillars and low crossbraces, avoiding solid door geometry at eye height.
- for(const sx of[-.97,.97])for(const sz of[-1.08,1.08])box(car,sx,1.68,sz,.11,.65,.11,paint);
- // The rear frame sits below eye level so the first-person camera can see the windshield.
- box(car,0,1.02,1.28,2.03,.12,.10,paint);
- for(const x of[-1.04,1.04])for(const z of[-1.42,1.40]){const p=cyl(car,x,.47,z,.49,.25,seat);p.rotation.z=Math.PI/2;}
- box(car,0,1.47,-1.09,1.78,.77,.03,windowMat);
- box(legacyCabin,0,1.03,-.78,2.1,.26,.72,seat);
- const wheel=new THREE.Mesh(new THREE.TorusGeometry(.34,.055,8,30),seat);wheel.position.set(-.57,1.23,-.55);wheel.rotation.x=.33;legacyCabin.add(wheel);
- box(legacyCabin,.55,1.12,-.59,.61,.22,.05,lit(0x2b5664,.28));
- box(legacyCabin,-.56,1.38,1.12,.66,.55,.10,seat);
- box(legacyCabin,.55,1.38,1.12,.66,.55,.10,seat);
- box(car,0,2.01,-1.10,1.99,.10,.12,paint);
- // Physical dash-mounted phone: bracket, adjustable neck, spring clips and lit LCD.
- // The driver's camera sees this through the windshield. It never floats in the seat.
- const phoneUi=phoneTexture(),holder=new THREE.Group();
- holder.position.set(.36,1.32,-.53);holder.scale.setScalar(.42);car.add(holder);
- const rubber=mat(0x171b1d,.96),mount=mat(0x353c40,.51,.4);
- const mountBase=box(holder,0,0,-.005,.37,.085,.30,rubber);
- const stem=box(holder,0,.17,-.10,.075,.29,.075,mount);
- stem.rotation.x=-.14;
- const socket=box(holder,0,.30,-.18,.18,.12,.12,mount);
- const cradle=new THREE.Group();cradle.position.set(0,.38,.09);
- cradle.rotation.y=-.28;cradle.rotation.x=-.06;holder.add(cradle);
- box(cradle,0,0,-.050,.50,.88,.075,mount);
- for(const x of[-.256,.256])for(const y of[-.28,.28]){
-  box(cradle,x,y,.005,.058,.17,.075,rubber);
- }
- box(cradle,0,-.433,.02,.36,.067,.09,rubber);
- // The work order is the literal mesh texture, not the old floating HTML sheet.
- const phone=new THREE.Group();phone.position.set(0,0,.027);cradle.add(phone);
- box(phone,0,0,-.028,.437,.813,.047,rubber);
- const face=new THREE.Mesh(new THREE.PlaneGeometry(.411,.775),new THREE.MeshBasicMaterial({map:phoneUi.texture}));
- face.position.set(0,0,.009);phone.add(face);
- box(phone,0,.386,.020,.094,.012,.014,mat(0x050a0c));
+ const phoneUi=phoneTexture();
+ const carStructure=new THREE.Group();carStructure.name='Pinewood unified car roof and glass';car.add(carStructure);
+ const holder=new THREE.Group();holder.name='Work phone mounting anchor';car.add(holder);
  box(world,-9.2,.45,18.75,1.1,.5,.84,mat(0x5a5549));
  // Parking fixtures.
  for(const [x,z] of[[-21,9],[28,5],[0,28]]){cyl(world,x,3.9,z,.09,7.8,steel);box(world,x,7.75,z,.8,.2,.5,concrete);lamp(scene,x,7.3,z,0xd9c6a3,3.2,19);}
@@ -195,7 +159,7 @@ export function makeOpeningScene(){
   }
  };
  stage.assetReady=upgradeOpeningSceneV37({
-  scene,world,car,legacyCabin,holder,phoneUi,stage,
+  scene,world,car,carStructure,holder,phoneUi,stage,
   materials:{facade,steel},lotMaterial
  });
  return stage;
