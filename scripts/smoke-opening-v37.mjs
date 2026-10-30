@@ -122,6 +122,15 @@ try{
     await page.screenshot({path:'opening-v37-artifacts/'+layout.name+'-inside-threshold.png'});
    }
    if(layout.name==='desktop'){
+    for(const z of [17.34,17.42,17.50]){
+      assert(await page.evaluate(value=>window.__PINEWOOD_OPENING_V34__.qaDriverView(1.04,value),z),
+        'QA car seat visual probe failed');
+      await page.waitForTimeout(70);
+      const jpg=await page.screenshot({type:'jpeg',quality:34});
+      console.log('V42_QA_SEAT_Z'+Math.round(z*100)+'='+jpg.toString('base64'));
+    }
+   }
+   if(layout.name==='desktop'){
     assert(await page.evaluate(()=>window.__PINEWOOD_OPENING_V34__.qaExteriorCar()),
       'No off-axis real roof review hook');
     await page.waitForTimeout(80);
