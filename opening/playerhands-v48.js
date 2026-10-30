@@ -50,6 +50,9 @@ export class RiggedPlayerHand {
       material.side=THREE.FrontSide;
       material.needsUpdate=true;
      }
+     // Draw the real finger mesh AFTER the flat LCD texture, while depth
+     // testing against the solid case so the grip stays physically layered.
+     obj.renderOrder=10030;
      obj.frustumCulled=false;
     }
    });
