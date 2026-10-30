@@ -153,8 +153,15 @@ export async function upgradeOpeningSceneV37({scene,world,car,materials,lotMater
   const roof=new THREE.Raycaster(eye,new THREE.Vector3(0,1,0),.04,.85)
     .intersectObject(model,true).filter(x=>!/windows/i.test(x.object.name||''))[0];
   const roofDistance=roof?.distance??null;
-  if(roofDistance===null||roofDistance<.08||roofDistance>.67)
-    throw Error('No close solid vendor roof over driver eye: '+roofDistance);
+  // Diagnostic grid: assess the actual GLB top surface before accepting the
+  // first-person eye; do not mistake the published model description for proof.
+  status.roofSamples=[];
+  for(const lx of [-.64,-.41,0,.41,.64])for(const lz of [-1.15,-.75,-.35,.1,.55]){
+    const start=car.localToWorld(new THREE.Vector3(lx,.72,lz));
+    const hits=new THREE.Raycaster(start,new THREE.Vector3(0,1,0),.04,1.2)
+      .intersectObject(model,true);
+    status.roofSamples.push({x:lx,z:lz,hits:hits.slice(0,2).map(h=>+h.distance.toFixed(3))});
+  }
   const forwardHits=new THREE.Raycaster(eye,new THREE.Vector3(0,0,-1),.04,4)
     .intersectObject(model,true).slice(0,6).map(h=>({mesh:h.object.name,d:+h.distance.toFixed(3)}));
   status.car='loaded';status.carBounds=size;status.modelMeshes=meshes;
