@@ -202,18 +202,27 @@ class Intro{
  finish(skipped){
   if(this.finished)return;this.finished=true;cancelAnimationFrame(this.raf);
   document.removeEventListener('keydown',this.keydown,true);removeEventListener('resize',this.resize);
-  if(this.audio){this.audio.pause();this.audio.removeAttribute('src');this.audio.load();}
-  this.ambience.destroy();
-  this.handheld?.dispose();
-  this.stage?.scene.traverse(o=>{
-   o.geometry?.dispose?.();
-   for(const m of o.material?(Array.isArray(o.material)?o.material:[o.material]):[]){m.map?.dispose?.();m.dispose?.();}
-  });
-  this.renderer?.dispose();this.renderer?.domElement.remove();
+  // Release keyboard focus and the modal BEFORE slow WebGL disposal. This
+  // guarantees accessible Skip works even on low-power mobile renderers.
   this.root.classList.remove('pwm-active');this.root.hidden=true;
   const clone=this.root.cloneNode(true);this.root.replaceWith(clone);
   for(const {el,inert} of this.backgroundScreens)el.inert=inert;
   if(this.returnFocus?.isConnected)this.returnFocus.focus({preventScroll:true});
+  try {
+   if(this.audio){this.audio.pause();this.audio.removeAttribute('src');this.audio.load();}
+   this.ambience.destroy();
+   this.handheld?.dispose();
+   this.stage?.scene.traverse(o=>{
+    o.geometry?.dispose?.();
+    for(const m of o.material?(Array.isArray(o.material)?o.material:[o.material]):[]){m.map?.dispose?.();m.dispose?.();}
+   });
+   this.renderer?.dispose();
+  } catch(error) {
+   // A resource cleanup failure must not leave the cinematic focus-trapped.
+   console.warn('[The Call] Resource cleanup after closing:',error);
+  } finally {
+   this.renderer?.domElement.remove();
+  }
   document.dispatchEvent(new CustomEvent('pinewood-intro-finished',{detail:{skipped,preview:this.preview}}));
   if(this.preview)return;
   // The full game loader assembles the six-chapter runtime asynchronously.
