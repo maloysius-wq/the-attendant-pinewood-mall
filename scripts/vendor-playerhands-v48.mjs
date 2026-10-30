@@ -23,6 +23,7 @@ const n=data.readUInt32LE(12),json=JSON.parse(data.subarray(20,20+n).toString('u
 const skins=json.skins||[],nodes=json.nodes||[],names=nodes.map(x=>x.name).filter(Boolean);
 console.log('EXPORTED_GLTF_NODES',JSON.stringify(nodes.map((x,i)=>({i,name:x.name,skin:x.skin,mesh:x.mesh,translation:x.translation,rotation:x.rotation,scale:x.scale,children:x.children}))));
 console.log('EXPORTED_GLTF_SKINS',JSON.stringify(skins.map(s=>({joints:s.joints.map(i=>nodes[i]?.name)}))));
+if(!json.images?.length||!json.textures?.length)throw Error('Original CC0 skin texture not embedded in forearm GLB');
 if(!skins.length||!nodes.some(x=>typeof x.mesh==='number'&&typeof x.skin==='number'))
  throw Error('Original forearm mesh was not skinned after conversion');
 const archiveHash=createHash('sha256').update(await readFile(zip)).digest('hex');
