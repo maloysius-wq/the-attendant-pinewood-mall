@@ -4,6 +4,7 @@
  * duplicate vehicle. Animated against Renee's voice clock for repeatable QA.
  */
 import * as THREE from '../vendor/three/build/three.module.js';
+import {RiggedPlayerHand} from './playerhands-v48.js?v=48';
 
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 const ease=t=>{t=clamp(t,0,1);return t*t*(3-2*t);};
@@ -69,7 +70,6 @@ export class HandheldCheckInPhone {
   camera.add(this.root);
   const body=new THREE.MeshStandardMaterial({color:0x222b30,roughness:.37,metalness:.48});
   const edge=new THREE.MeshStandardMaterial({color:0x61737a,roughness:.25,metalness:.75});
-  const glove=new THREE.MeshStandardMaterial({color:0x3a3b39,roughness:.94});
   this.root.add(roundedSlab(.245,.447,.027,.025,edge));
   const back=roundedSlab(.235,.435,.029,.021,body);back.position.z=.002;this.root.add(back);
   const {canvas,texture}=makePhoneFace();this.canvas=canvas;this.texture=texture;
@@ -82,14 +82,10 @@ export class HandheldCheckInPhone {
   const lens=new THREE.Mesh(new THREE.SphereGeometry(.004,10,7),
     new THREE.MeshBasicMaterial({color:0x0c1417}));
   lens.position.set(-.070,.209,.027);this.root.add(lens);
-  // The sleeve/palm and articulated thumb convey that this phone is in HAND.
-  const wrist=new THREE.Mesh(new THREE.CapsuleGeometry(.045,.116,5,9),glove);
-  wrist.position.set(-.132,-.246,.009);wrist.rotation.z=-.23;this.root.add(wrist);
-  const palm=new THREE.Mesh(new THREE.SphereGeometry(.060,16,12),glove);
-  palm.scale.set(.62,1.25,.65);palm.position.set(-.119,-.132,.037);this.root.add(palm);
-  this.thumb=new THREE.Group();this.thumb.position.set(-.118,-.109,.070);this.root.add(this.thumb);
-  const digit=new THREE.Mesh(new THREE.CapsuleGeometry(.019,.077,5,10),glove);
-  digit.rotation.z=-Math.PI*.37;digit.position.set(.039,.017,0);this.thumb.add(digit);
+  // Real CC0 rigged forearm and hand. The old capsule wrist/palm/thumb have
+  // been REMOVED, not hidden beneath the imported arm.
+  this.playerHand=new RiggedPlayerHand(this.root);
+  this.handLoad=this.playerHand.load().catch(()=>null);
   // An in-hand first-person viewmodel must draw in front of the original
   // vendor car, not disappear behind its dashboard or steering-wheel depth.
   this.root.traverse(obj=>{
@@ -98,7 +94,7 @@ export class HandheldCheckInPhone {
    obj.renderOrder=10000;
   });
   this.screen.renderOrder=10010;
-  speaker.renderOrder=10012;lens.renderOrder=10012;digit.renderOrder=10020;
+  speaker.renderOrder=10012;lens.renderOrder=10012;
   this.state='none';this.raised=false;this.tap=false;this.progress=0;this.root.visible=false;
   this.renderApp('pending');
  }
@@ -130,7 +126,7 @@ export class HandheldCheckInPhone {
     (mobile?.026:-.015)-.49*(1-visibility),
     -.385+.06*(1-visibility));
   this.root.rotation.set(-.075+.05*(1-visibility),-.14,-.09-.23*(1-visibility));
-  this.thumb.position.set(-.118+tap*.032,-.109-tap*.039,.07+tap*.016);
+  this.playerHand.update(tap);
   if(!reducedMotion&&this.raised){
    this.root.position.y+=Math.sin(seconds*2.1)*.0018*visibility;
   }
@@ -139,7 +135,8 @@ export class HandheldCheckInPhone {
  get status(){
   return {visible:this.root.visible,raised:this.raised,screenState:this.state,
    tap:this.tap,visibility:this.progress,screenPixels:[this.canvas.width,this.canvas.height],
-   parent:this.root.parent?.isCamera?'camera':'unexpected',mounts:0};
+   parent:this.root.parent?.isCamera?'camera':'unexpected',mounts:0,
+   hand:this.playerHand.status};
  }
  dispose(){this.texture.dispose();}
 }
