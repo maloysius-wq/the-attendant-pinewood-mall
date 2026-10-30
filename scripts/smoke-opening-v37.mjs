@@ -18,7 +18,7 @@ assert(!styleText.includes('.pwm-phone-')&&!previewText.includes('pwm-phone-'),
  'Retired phone overlay styles or markup returned');
 
 await mkdir('opening-v37-artifacts',{recursive:true});
-const report={version:45,preview,layouts:{},passed:false};
+const report={version:46,preview,layouts:{},passed:false};
 const browser=await chromium.launch({headless:true,args:[
  '--enable-webgl','--ignore-gpu-blocklist','--use-gl=swiftshader','--enable-unsafe-swiftshader','--disable-dev-shm-usage','--autoplay-policy=no-user-gesture-required']});
 try{
@@ -142,33 +142,40 @@ try{
      layout.name+' work-order circuit list is not displayed in-hand');
    await page.screenshot({path:'opening-v37-artifacts/'+layout.name+'-v45-work-order-in-hand.png'});
 
-   // v39: the previously enormous service portal must hug the original
-   // 1.95m x 2.27m hinged door, with real facade infill on all three sides.
+   // v46: the WOODEN DOOR and the FRONT FRAME must actually fit, not just
+   // appear in the same wall. Measure the real world-space mesh bounds.
    const entry=await page.evaluate(()=>window.__PINEWOOD_OPENING_V34__.serviceEntryGeometry);
-   assert(entry?.door&&entry?.opening,layout.name+' no service-entry geometry telemetry');
-   const ap=entry.opening,door=entry.door,eps=.025;
+   assert(entry?.door&&entry?.opening&&entry?.doorSpecs,
+     layout.name+' missing physical door-to-frame geometry');
+   const ap=entry.opening,door=entry.door,spec=entry.doorSpecs,eps=.025;
    const apertureWidth=ap.right-ap.left,apertureHeight=ap.top-ap.bottom;
-   const doorWidth=door.size[0],doorHeight=door.size[1];
-   assert(doorWidth>1.90&&doorWidth<2.0&&doorHeight>2.2&&doorHeight<2.32,
-      layout.name+' original service door dimensions changed: '+JSON.stringify(door));
-   assert(apertureWidth>=doorWidth+.12&&apertureWidth<=doorWidth+.30,
-      layout.name+' service doorway too wide for door: '+JSON.stringify({ap,door}));
-   assert(apertureHeight>=doorHeight+.06&&apertureHeight<=doorHeight+.22,
-      layout.name+' service doorway too high for door: '+JSON.stringify({ap,door}));
-   assert(door.min[0]>ap.left+.04&&door.max[0]<ap.right-.04,
-      layout.name+' service door does not fit between jambs: '+JSON.stringify({ap,door}));
+   assert(Math.abs(door.size[0]-1.78)<.008&&Math.abs(door.size[1]-2.27)<.008
+     &&Math.abs(door.size[2]-.095)<.008,
+     layout.name+' door was not narrowed and slimmed: '+JSON.stringify(door));
+   assert(Math.abs(apertureWidth-(spec.width+2*spec.sideClearance))<.008
+     &&Math.abs(apertureHeight-(spec.height+spec.base+spec.headClearance))<.008,
+     layout.name+' frame and door not dimensioned from same specification');
+   const leftGap=door.min[0]-ap.left,rightGap=ap.right-door.max[0],
+     topGap=ap.top-door.max[1];
+   assert(Math.abs(leftGap-.018)<.006&&Math.abs(rightGap-.018)<.006
+     &&Math.abs(topGap-.018)<.006,
+     layout.name+' frame does not snugly fit the door: '+
+      JSON.stringify({leftGap,rightGap,topGap,door,ap}));
+   assert(Math.abs(entry.leftJamb.max[0]-ap.left)<.006
+     &&Math.abs(entry.rightJamb.min[0]-ap.right)<.006
+     &&Math.abs(entry.head.min[1]-ap.top)<.006,
+     layout.name+' frame posts/header not flush to door aperture');
+   assert(Math.abs(entry.head.min[0]-entry.leftJamb.min[0])<.006
+     &&Math.abs(entry.head.max[0]-entry.rightJamb.max[0])<.006,
+     layout.name+' header does not align with the jamb outer corners');
    assert(Math.abs(entry.leftInfill.max[0]-ap.left)<eps
      &&Math.abs(entry.rightInfill.min[0]-ap.right)<eps,
-      layout.name+' side gaps in original facade not closed: '+JSON.stringify(entry));
+     layout.name+' wall infill leaves uncovered side gaps');
    assert(Math.abs(entry.headerInfill.min[1]-ap.top)<eps
      &&entry.headerInfill.max[1]>8.05,
-      layout.name+' giant gap above door has not been infilled: '+JSON.stringify(entry));
-   assert(Math.abs(entry.head.min[1]-ap.top)<eps
-     &&Math.abs(entry.leftJamb.max[0]-ap.left)<eps
-     &&Math.abs(entry.rightJamb.min[0]-ap.right)<eps,
-      layout.name+' visible service door frame does not match opening');
+     layout.name+' wall above fitted frame is not fully infilled');
    assert(entry.canopy.size[0]<3.35&&entry.canopy.size[2]<2.05,
-      layout.name+' original 7m oversized canopy still present: '+JSON.stringify(entry.canopy));
+     layout.name+' oversized canopy returned');
    await page.waitForTimeout(500);
    await page.screenshot({path:'opening-v37-artifacts/'+layout.name+'-interior.png'});
    if(layout.name==='desktop'){
@@ -221,6 +228,10 @@ try{
     await page.screenshot({path:'opening-v37-artifacts/'+layout.name+'-entrance.png'});
     // View the SAME scene the owner flagged, first with the door closed,
     // then as the existing pivot opens, then from just past the threshold.
+    await page.evaluate(()=>{window.__PINEWOOD_OPENING_V34__.seek(8);window.__PINEWOOD_OPENING_V34__.scrub(.34);});
+    await page.waitForTimeout(280);
+    await page.screenshot({path:'opening-v37-artifacts/'+layout.name+'-v46-door-frame-closed.png'});
+    console.log('V46_TIGHT_DOOR_JPEG='+(await page.screenshot({type:'jpeg',quality:50})).toString('base64'));
     await page.evaluate(()=>{window.__PINEWOOD_OPENING_V34__.seek(8);window.__PINEWOOD_OPENING_V34__.scrub(.82);});
     await page.waitForTimeout(350);
     await page.screenshot({path:'opening-v37-artifacts/'+layout.name+'-door-opening.png'});
