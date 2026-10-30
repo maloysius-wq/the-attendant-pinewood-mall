@@ -86,11 +86,11 @@ export class HandheldCheckInPhone {
   // been REMOVED, not hidden beneath the imported arm.
   this.playerHand=new RiggedPlayerHand(this.root);
   this.handLoad=this.playerHand.load().catch(()=>null);
-  // The handset has its own depth-cleared foreground pass. The app glass
-  // is a texture overlay drawn after the solid chassis; the source hand
-  // keeps true depth testing so rear fingers cannot show through the case.
-  this.screen.material.depthTest=false;
-  this.screen.material.depthWrite=false;
+  // The handset's separate foreground pass clears the CAR depth, but
+  // preserves the case, LCD and finger depths against one another. The
+  // glass is 4.5mm ahead of the solid case and renders after its chassis.
+  this.screen.material.depthTest=true;
+  this.screen.material.depthWrite=true;
   this.screen.renderOrder=10010;
   this.state='none';this.raised=false;this.tap=false;this.progress=0;this.root.visible=false;
   this.renderApp('pending');
