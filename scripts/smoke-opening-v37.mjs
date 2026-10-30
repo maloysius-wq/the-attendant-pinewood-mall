@@ -1,9 +1,22 @@
 import {chromium} from 'playwright';
-import {mkdir,writeFile} from 'node:fs/promises';
+import {mkdir,writeFile,readFile} from 'node:fs/promises';
 const base=process.env.PINEWOOD_BASE_URL||'http://127.0.0.1:4173/';
 const origin=new URL(base).origin;
 const preview=new URL('review/the-call-v34/',base).href;
 const assert=(v,m)=>{if(!v)throw Error(m);};
+// Protect the owner's retired-phone restriction even when only narrative
+// metadata, CSS or preview markup changes, not just in a rendered frame.
+const [scriptText,styleText,previewText]=await Promise.all([
+ readFile('opening/script.json','utf8'),
+ readFile('opening/opening.css','utf8'),
+ readFile('review/the-call-v34/index.html','utf8')
+]);
+const openingLines=JSON.parse(scriptText).lines;
+assert(openingLines.length>0&&!openingLines.some(line=>line.shot==='phone'),
+ 'Old phone camera cues returned in the opening script');
+assert(!styleText.includes('.pwm-phone-')&&!previewText.includes('pwm-phone-'),
+ 'Retired phone overlay styles or markup returned');
+
 await mkdir('opening-v37-artifacts',{recursive:true});
 const report={version:44,preview,layouts:{},passed:false};
 const browser=await chromium.launch({headless:true,args:[
@@ -133,6 +146,8 @@ try{
    await page.screenshot({path:'opening-v37-artifacts/'+layout.name+'-roofed-car.png'});
    // The work-order beat now glances at the actual hatchback dashboard, without any phone object.
    await page.evaluate(()=>{window.__PINEWOOD_OPENING_V34__.seek(2);window.__PINEWOOD_OPENING_V34__.scrub(.43);});
+   assert(await page.locator('#pwm-opening').getAttribute('data-shot')==='dash',
+     layout.name+' a retired phone shot tag returned during the work-order beat');
    await page.waitForTimeout(350);
    await page.screenshot({path:'opening-v37-artifacts/'+layout.name+'-dashboard-glance.png'});
    await page.evaluate(()=>{window.__PINEWOOD_OPENING_V34__.seek(0);window.__PINEWOOD_OPENING_V34__.scrub(.20);});
