@@ -128,8 +128,9 @@ try{
    await page.waitForTimeout(140);
    phone=await page.evaluate(()=>window.__PINEWOOD_OPENING_V34__.handheldPhone);
    assert(phone.visible&&phone.tap&&phone.hand?.state==='ready'
-     &&phone.hand?.tapProgress>.08&&phone.hand?.thumbBones===3,
-     layout.name+' original rigged thumb did not tap CHECK IN: '+JSON.stringify(phone));
+     &&phone.hand?.tapProgress>.08&&phone.hand?.thumbBones===3
+     &&phone.hand.thumbTipDistance!==null&&phone.hand.thumbTipDistance<.048,
+     layout.name+' actual rigged thumb misses the CHECK IN button: '+JSON.stringify(phone));
    console.log('V48_THUMB_POSE='+JSON.stringify(phone.hand));
    await page.screenshot({path:'opening-v37-artifacts/'+layout.name+'-v48-cc0-arm-thumb-tap.png'});
    console.log((layout.name==='desktop'?'V48_RIGGED_TAP_JPEG=':'V48_MOBILE_RIGGED_TAP_JPEG=')
