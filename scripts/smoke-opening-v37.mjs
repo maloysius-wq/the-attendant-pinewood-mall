@@ -46,7 +46,7 @@ try{
    assert(!nearSeat.length,layout.name+' object blocks driver eye within 46cm: '+JSON.stringify(st.cockpitViewRays));
    assert(st.maps?.length===3,layout.name+' PBR surfaces incomplete');
    assert(st.carBounds?.[0]>1.5&&st.carBounds?.[0]<2.1,'Car geometry not full scale');
-   assert(st.phoneBounds?.[0]>.08&&st.phoneBounds?.[0]<.14,'Phone mount out of scale');
+   assert(st.phoneBounds?.[0]>=.13&&st.phoneBounds?.[0]<=.155,'Phone mount out of scale');
    assert(st.wet?.puddles>=15&&st.wet?.lamps>=3,'Missing wet-lot light treatment');
    // v39: the previously enormous service portal must hug the original
    // 1.95m x 2.27m hinged door, with real facade infill on all three sides.
