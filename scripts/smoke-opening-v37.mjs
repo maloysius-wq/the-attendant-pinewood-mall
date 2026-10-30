@@ -103,8 +103,16 @@ try{
    assert(phone?.visible&&phone.parent==='camera'&&phone.screenState==='pending'
      &&phone.mounts===0&&phone.screenPixels[0]>=600,
      layout.name+' handheld check-in screen not visible: '+JSON.stringify(phone));
+   assert(await page.locator('#pwm-opening').getAttribute('data-phone-raised')==='true',
+     layout.name+' raised phone does not trigger readable subtitle framing');
+   if(layout.name==='desktop'){
+    const captionRight=await page.locator('.pwm-caption-area').evaluate(el=>el.getBoundingClientRect().right);
+    assert(captionRight<layout.width*.58,
+      layout.name+' subtitles still cover handheld check-in area: '+captionRight);
+   }
    await page.screenshot({path:'opening-v37-artifacts/'+layout.name+'-v45-check-in-pending.png'});
-   if(layout.name==='desktop')console.log('V45_PENDING_JPEG='+(await page.screenshot({type:'jpeg',quality:46})).toString('base64'));
+   console.log((layout.name==='desktop'?'V45_PENDING_JPEG=':'V45_MOBILE_PENDING_JPEG=')
+     +(await page.screenshot({type:'jpeg',quality:46})).toString('base64'));
    await page.evaluate(()=>{window.__PINEWOOD_OPENING_V34__.seek(0);window.__PINEWOOD_OPENING_V34__.scrub(.62);});
    await page.waitForTimeout(140);
    phone=await page.evaluate(()=>window.__PINEWOOD_OPENING_V34__.handheldPhone);
@@ -116,7 +124,8 @@ try{
    assert(phone.visible&&phone.screenState==='confirmed',
      layout.name+' app never acknowledges check-in: '+JSON.stringify(phone));
    await page.screenshot({path:'opening-v37-artifacts/'+layout.name+'-v45-check-in-confirmed.png'});
-   if(layout.name==='desktop')console.log('V45_CONFIRMED_JPEG='+(await page.screenshot({type:'jpeg',quality:46})).toString('base64'));
+   console.log((layout.name==='desktop'?'V45_CONFIRMED_JPEG=':'V45_MOBILE_CONFIRMED_JPEG=')
+     +(await page.screenshot({type:'jpeg',quality:46})).toString('base64'));
    await page.evaluate(()=>{window.__PINEWOOD_OPENING_V34__.seek(1);window.__PINEWOOD_OPENING_V34__.scrub(.11);});
    await page.waitForTimeout(140);
    phone=await page.evaluate(()=>window.__PINEWOOD_OPENING_V34__.handheldPhone);
