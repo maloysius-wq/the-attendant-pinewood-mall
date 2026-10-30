@@ -1,0 +1,239 @@
+{
+  "version": 42,
+  "model": "1990s-hatchback.glb",
+  "slug": "1990s-hatchback",
+  "source": "https://grab3d.com/dl/1990s-hatchback/1990s-hatchback.glb",
+  "license": "CC0-1.0",
+  "sha256": "5cd53b004909ae00192ebdb3d7a297022a63caecc55fa234dc42b1173596177b",
+  "bytes": 1161284,
+  "meshes": 6,
+  "materials": [
+    {
+      "index": 0,
+      "name": "1990s-hatchback_body_pbr",
+      "alphaMode": "OPAQUE",
+      "doubleSided": true
+    },
+    {
+      "index": 1,
+      "name": "1990s-hatchback_tire_x",
+      "alphaMode": "OPAQUE",
+      "doubleSided": true
+    },
+    {
+      "index": 2,
+      "name": "1990s-hatchback_rim_x",
+      "alphaMode": "OPAQUE",
+      "doubleSided": true
+    },
+    {
+      "index": 3,
+      "name": "1990s-hatchback_hubcap_x",
+      "alphaMode": "OPAQUE",
+      "doubleSided": true
+    },
+    {
+      "index": 4,
+      "name": "1990s-hatchback_trim_charcoal_x",
+      "alphaMode": "OPAQUE",
+      "doubleSided": true
+    },
+    {
+      "index": 5,
+      "name": "1990s-hatchback_tire_x.001",
+      "alphaMode": "OPAQUE",
+      "doubleSided": true
+    },
+    {
+      "index": 6,
+      "name": "1990s-hatchback_rim_x.001",
+      "alphaMode": "OPAQUE",
+      "doubleSided": true
+    },
+    {
+      "index": 7,
+      "name": "1990s-hatchback_hubcap_x.001",
+      "alphaMode": "OPAQUE",
+      "doubleSided": true
+    },
+    {
+      "index": 8,
+      "name": "1990s-hatchback_trim_charcoal_x.001",
+      "alphaMode": "OPAQUE",
+      "doubleSided": true
+    },
+    {
+      "index": 9,
+      "name": "1990s-hatchback_tire_x.002",
+      "alphaMode": "OPAQUE",
+      "doubleSided": true
+    },
+    {
+      "index": 10,
+      "name": "1990s-hatchback_rim_x.002",
+      "alphaMode": "OPAQUE",
+      "doubleSided": true
+    },
+    {
+      "index": 11,
+      "name": "1990s-hatchback_hubcap_x.002",
+      "alphaMode": "OPAQUE",
+      "doubleSided": true
+    },
+    {
+      "index": 12,
+      "name": "1990s-hatchback_trim_charcoal_x.002",
+      "alphaMode": "OPAQUE",
+      "doubleSided": true
+    },
+    {
+      "index": 13,
+      "name": "1990s-hatchback_tire_x.003",
+      "alphaMode": "OPAQUE",
+      "doubleSided": true
+    },
+    {
+      "index": 14,
+      "name": "1990s-hatchback_rim_x.003",
+      "alphaMode": "OPAQUE",
+      "doubleSided": true
+    },
+    {
+      "index": 15,
+      "name": "1990s-hatchback_hubcap_x.003",
+      "alphaMode": "OPAQUE",
+      "doubleSided": true
+    },
+    {
+      "index": 16,
+      "name": "1990s-hatchback_trim_charcoal_x.003",
+      "alphaMode": "OPAQUE",
+      "doubleSided": true
+    },
+    {
+      "index": 17,
+      "name": "1990s-hatchback_window_glass_x",
+      "alphaMode": "BLEND",
+      "doubleSided": true
+    }
+  ],
+  "meshList": [
+    {
+      "index": 0,
+      "name": "1990s-hatchback_body",
+      "materials": [
+        0
+      ]
+    },
+    {
+      "index": 1,
+      "name": "1990s-hatchback_wheel_fl",
+      "materials": [
+        1,
+        2,
+        3,
+        4
+      ]
+    },
+    {
+      "index": 2,
+      "name": "1990s-hatchback_wheel_fr",
+      "materials": [
+        5,
+        6,
+        7,
+        8
+      ]
+    },
+    {
+      "index": 3,
+      "name": "1990s-hatchback_wheel_rl",
+      "materials": [
+        9,
+        10,
+        11,
+        12
+      ]
+    },
+    {
+      "index": 4,
+      "name": "1990s-hatchback_wheel_rr",
+      "materials": [
+        13,
+        14,
+        15,
+        16
+      ]
+    },
+    {
+      "index": 5,
+      "name": "1990s-hatchback_windows",
+      "materials": [
+        17
+      ]
+    }
+  ],
+  "nodes": [
+    {
+      "i": 0,
+      "name": "1990s-hatchback_body",
+      "mesh": 0,
+      "translation": [
+        0,
+        0,
+        -0.008733510971069336
+      ]
+    },
+    {
+      "i": 1,
+      "name": "1990s-hatchback_wheel_fl",
+      "mesh": 1,
+      "translation": [
+        0.7199999094009399,
+        0.3100000023841858,
+        1.2112665176391602
+      ]
+    },
+    {
+      "i": 2,
+      "name": "1990s-hatchback_wheel_fr",
+      "mesh": 2,
+      "translation": [
+        -0.720000147819519,
+        0.3100000023841858,
+        1.2112665176391602
+      ]
+    },
+    {
+      "i": 3,
+      "name": "1990s-hatchback_wheel_rl",
+      "mesh": 3,
+      "translation": [
+        0.7200000286102295,
+        0.3100000023841858,
+        -1.2087335586547852
+      ]
+    },
+    {
+      "i": 4,
+      "name": "1990s-hatchback_wheel_rr",
+      "mesh": 4,
+      "translation": [
+        -0.7200000286102295,
+        0.3100000023841858,
+        -1.2087335586547852
+      ]
+    },
+    {
+      "i": 5,
+      "name": "1990s-hatchback_windows",
+      "mesh": 5,
+      "translation": [
+        0,
+        0,
+        -0.008733510971069336
+      ]
+    }
+  ],
+  "description": "Full covered 1990s five-door car with seats, steering wheel, roof, side/rear/windshield glass. Not an open cutaway."
+}
