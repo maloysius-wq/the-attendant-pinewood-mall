@@ -93,25 +93,30 @@ try{
    await page.waitForTimeout(500);
    await page.screenshot({path:'opening-v37-artifacts/'+layout.name+'-interior.png'});
    if(layout.name==='desktop'){
-    const poses=[
-      {label:'front_mid_x-10p45_z1730',x:-10.45,y:1.18,z:17.30,dx:2,dy:2.0,dz:-22},
-      {label:'front_mid_x-10p20_z1730',x:-10.20,y:1.18,z:17.30,dx:2,dy:2.0,dz:-22},
-      {label:'front_mid_x-9p95_z1730',x:-9.95,y:1.18,z:17.30,dx:2,dy:2.0,dz:-22},
-      {label:'front_mid_x-10p45_z1750',x:-10.45,y:1.18,z:17.50,dx:2,dy:2.0,dz:-22},
-      {label:'front_mid_x-10p20_z1750',x:-10.20,y:1.18,z:17.50,dx:2,dy:2.0,dz:-22},
-      {label:'front_mid_x-9p95_z1750',x:-9.95,y:1.18,z:17.50,dx:2,dy:2.0,dz:-22},
-      {label:'front_mid_x-10p45_z1760',x:-10.45,y:1.24,z:17.60,dx:2,dy:2.0,dz:-22},
-      {label:'front_mid_x-10p20_z1760',x:-10.20,y:1.24,z:17.60,dx:2,dy:2.0,dz:-22},
-      {label:'front_mid_x-9p95_z1760',x:-9.95,y:1.24,z:17.60,dx:2,dy:2.0,dz:-22},
-      {label:'driver_side_1745',x:-13.15,y:1.45,z:17.45,dx:-10,dy:1,dz:17.30}
-    ];
-    for(const pose of poses){
-      const ok=await page.evaluate(x=>window.__PINEWOOD_OPENING_V34__.qaCockpitProbe(x),pose);
-      assert(ok,'Cannot capture v43 camera probe '+pose.label);
-      await page.waitForTimeout(65);
-      const bytes=await page.screenshot({type:'jpeg',quality:30});
-      console.log('V43_PROBE_'+pose.label+'='+bytes.toString('base64'));
-    }
+    // Regression of the exact owner-reported v42 view. The camera used to
+    // sit behind the steering wheel/seat and stare at a near-field dashboard
+    // target. Verify actual authored camera rig geometry, not just GLB count.
+    const cameraCheck=await page.evaluate(async()=>{
+      const mod=await import(new URL('../../opening/camera.js?v=43',location.href).href);
+      const rig=new mod.HumanCameraRig();
+      const frame=rig.sample('clock',1,10,.016,{paused:true});
+      return {pose:mod.driverSeatPose,gaze:mod.dashboardGazeTarget,
+        framePosition:frame.position.toArray()};
+    });
+    assert(cameraCheck.pose[0]>-10.31&&cameraCheck.pose[0]<-10.09
+      &&cameraCheck.pose[1]>=1.20&&cameraCheck.pose[1]<=1.28
+      &&cameraCheck.pose[2]>=17.54&&cameraCheck.pose[2]<=17.66,
+      'v43 driver eye is back behind the seat/steering again: '+JSON.stringify(cameraCheck));
+    assert(cameraCheck.gaze[2]<14.0&&cameraCheck.gaze[2]>12.0,
+      'v43 near-field phone-era gaze returned: '+JSON.stringify(cameraCheck));
+    await page.evaluate(()=>{window.__PINEWOOD_OPENING_V34__.seek(1);window.__PINEWOOD_OPENING_V34__.scrub(.45);});
+    await page.waitForTimeout(300);
+    await page.screenshot({path:'opening-v37-artifacts/'+layout.name+'-clock-dashboard-v43.png'});
+    console.log('V43_FINAL_CLOCK_JPEG='+(await page.screenshot({type:'jpeg',quality:38})).toString('base64'));
+    await page.evaluate(()=>{window.__PINEWOOD_OPENING_V34__.seek(0);window.__PINEWOOD_OPENING_V34__.scrub(.20);});
+    await page.waitForTimeout(100);
+    await page.screenshot({path:'opening-v37-artifacts/'+layout.name+'-arrive-cockpit-v43.png'});
+    console.log('V43_FINAL_ARRIVAL_JPEG='+(await page.screenshot({type:'jpeg',quality:38})).toString('base64'));
    }
    if(layout.name==='desktop'){
     const seated=await page.screenshot({type:'jpeg',quality:35});
