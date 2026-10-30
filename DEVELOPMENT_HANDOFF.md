@@ -558,3 +558,6 @@ Branch feature/the-call-v42-enclosed-hatchback. Developer-side source script scr
 
 
 **v42 implementation:** Selected full 1990s hatchback CC0 GLB has a complete body, four wheels and dedicated transparent BLEND window mesh. Model dimensions 1.86m wide × 4.06m long × 1.53m tall. Camera is lowered to a true seated height under the imported roof, with automatic roof raycast. Preview-only browser QA saves driver and exterior off-angle screenshots and outputs JPEG data for actual visual inspection. No custom car body or phone. CI pending, owner visual review required.
+
+
+**v42 visual QA validated:** GH Actions actual GLB exterior screenshots show complete roof/windows. Early in-seat screenshots were black because vendor body material was double-sided; corrected to render original exterior faces from their proper side, retaining all original geometry and glass. Camera probes established proper cockpit positioning **world (-10.25,1.13,17.82)** behind the original steering wheel, showing windshield, gauges/dashboard and passenger-side glass. Reduced the temporary 1.7-intensity cabin fill to subtle 0.62. The earliest camera placed too far forward showed hood instead of wheel and was rejected. The revised eye also gets a roof-height/raycast check. Awaiting clean exact-head CI; no public deployment until it passes.
