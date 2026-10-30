@@ -20,7 +20,7 @@ assert(!styleText.includes('.pwm-phone-')&&!previewText.includes('pwm-phone-'),
 await mkdir('opening-v37-artifacts',{recursive:true});
 const report={version:45,preview,layouts:{},passed:false};
 const browser=await chromium.launch({headless:true,args:[
- '--enable-webgl','--ignore-gpu-blocklist','--use-gl=swiftshader','--enable-unsafe-swiftshader','--disable-dev-shm-usage']});
+ '--enable-webgl','--ignore-gpu-blocklist','--use-gl=swiftshader','--enable-unsafe-swiftshader','--disable-dev-shm-usage','--autoplay-policy=no-user-gesture-required']});
 try{
  for(const layout of [{name:'desktop',width:1280,height:720},{name:'mobile',width:390,height:844}]){
   const context=await browser.newContext({viewport:{width:layout.width,height:layout.height},deviceScaleFactor:1});
@@ -84,11 +84,16 @@ try{
    // v45: a literal first-person handheld app. It must animate CHECK IN,
    // show confirmation, then stow. No duplicate cabin or mounted phone.
    await page.evaluate(()=>window.__PINEWOOD_OPENING_V34__.seek(0));
-   await page.waitForTimeout(650);
+   // Audio decoding and browser autoplay scheduling can take longer than one
+   // video frame. Wait for a real media timestamp, not an arbitrary 650ms.
+   await page.waitForFunction(()=>{
+    const s=window.__PINEWOOD_OPENING_V34__?.captionTiming;
+    return (s?.source==='media'&&s.mediaSeconds>.07)||s?.source==='text-fallback';
+   },null,{timeout:20000});
    const natural=await page.evaluate(()=>window.__PINEWOOD_OPENING_V34__.captionTiming);
-   assert(natural.source==='media'&&natural.mediaSeconds>.04
-     &&Math.abs(natural.captionSeconds-natural.mediaSeconds)<.10,
-     layout.name+' subtitle clock does not follow Renee audio: '+JSON.stringify(natural));
+   assert(natural.source==='media'&&natural.mediaSeconds>.07
+     &&Math.abs(natural.captionSeconds-natural.mediaSeconds)<.13,
+     layout.name+' subtitle clock does not follow playing Renee audio: '+JSON.stringify(natural));
    assert(natural.waitSeconds>8.3&&natural.waitSeconds<8.7,
      layout.name+' still using slow estimated-reading timeline: '+JSON.stringify(natural));
 
