@@ -86,10 +86,12 @@ export class HandheldCheckInPhone {
   // been REMOVED, not hidden beneath the imported arm.
   this.playerHand=new RiggedPlayerHand(this.root);
   this.handLoad=this.playerHand.load().catch(()=>null);
-  // The handset's separate foreground pass clears the CAR depth, but
-  // preserves the case, LCD and finger depths against one another. The
-  // glass is 4.5mm ahead of the solid case and renders after its chassis.
+  // The app glass is 4.5mm in front of the chassis. Force the LCD pass
+  // AFTER the case, writing the real plane depth for the skinned fingers
+  // rendered afterward. Ordinary LEQUAL incorrectly hid the whole LCD
+  // behind the case in this imported/foreground composition.
   this.screen.material.depthTest=true;
+  this.screen.material.depthFunc=THREE.AlwaysDepth;
   this.screen.material.depthWrite=true;
   this.screen.renderOrder=10010;
   this.state='none';this.raised=false;this.tap=false;this.progress=0;this.root.visible=false;
