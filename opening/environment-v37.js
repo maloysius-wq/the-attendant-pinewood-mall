@@ -144,7 +144,17 @@ export async function upgradeOpeningSceneV37({scene,world,car,materials,lotMater
       if(/window_glass/i.test(m.name||'')){
         glass++;m.transparent=true;m.opacity=.17;
         m.depthWrite=false;m.side=THREE.DoubleSide;m.roughness=.08;m.needsUpdate=true;
-      }else if(m.color)m.color.multiplyScalar(.63);
+      }else if(m.color){
+        m.color.multiplyScalar(.63);
+        // The original GLB labels all body faces double-sided. From INSIDE,
+        // backfaces of exterior shell then render as giant black blockers.
+        // Keep the exact original geometry and real roof, but render only
+        // forward-facing original body surfaces (no handmade car shell).
+        if(/body_pbr/i.test(m.name||'')){
+          m.side=THREE.FrontSide;
+          m.needsUpdate=true;
+        }
+      }
     }
   });
   if(glass<1)throw Error('GLB missing transparent windshield');
@@ -153,7 +163,16 @@ export async function upgradeOpeningSceneV37({scene,world,car,materials,lotMater
   const eye=car.localToWorld(new THREE.Vector3(-.41,1.10,-.35));
   const roof=new THREE.Raycaster(eye,new THREE.Vector3(0,1,0),.04,.85)
     .intersectObject(model,true).filter(x=>!/windows/i.test(x.object.name||''))[0];
-  const roofDistance=roof?.distance??null;
+  // Test the roof from OUTSIDE, where source-facing surface normals exist.
+  // A separate, controlled roof-height test avoids false negatives caused
+  // by the deliberate one-sided interior view material.
+  const topHit=new THREE.Raycaster(
+     car.localToWorld(new THREE.Vector3(-.41,2.1,-.35)),
+     new THREE.Vector3(0,-1,0),.30,1.3)
+    .intersectObject(model,true).find(h=>!/windows/i.test(h.object.name||''));
+  const roofHeight=topHit?+(2.1-topHit.distance).toFixed(3):null;
+  status.roofHeight=roofHeight;
+  const roofDistance=roofHeight===null?null:roofHeight-1.10;
   // Diagnostic grid: assess the actual GLB top surface before accepting the
   // first-person eye; do not mistake the published model description for proof.
   status.roofSamples=[];
