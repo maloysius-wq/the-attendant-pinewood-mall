@@ -94,14 +94,16 @@ try{
    await page.screenshot({path:'opening-v37-artifacts/'+layout.name+'-interior.png'});
    if(layout.name==='desktop'){
     const poses=[
-      {label:'current_front',x:-10.25,y:1.13,z:17.82,dx:0,dy:1.45,dz:-20},
-      {label:'driver_forward_1695',x:-10.50,y:1.13,z:16.95,dx:0,dy:1.45,dz:-20},
-      {label:'driver_forward_1720',x:-10.50,y:1.16,z:17.20,dx:0,dy:1.45,dz:-20},
-      {label:'driver_middle_1745',x:-10.50,y:1.17,z:17.45,dx:0,dy:1.45,dz:-20},
-      {label:'driver_back_1765',x:-10.50,y:1.17,z:17.65,dx:0,dy:1.45,dz:-20},
-      {label:'driver_right_1740',x:-9.55,y:1.17,z:17.40,dx:0,dy:1.45,dz:-20},
-      {label:'rearward_1740',x:-10.50,y:1.15,z:17.40,dx:-10,dy:1.3,dz:25},
-      {label:'rearward_1685',x:-10.50,y:1.15,z:16.85,dx:-10,dy:1.3,dz:25}
+      {label:'front_mid_x-10p45_z1730',x:-10.45,y:1.18,z:17.30,dx:2,dy:2.0,dz:-22},
+      {label:'front_mid_x-10p20_z1730',x:-10.20,y:1.18,z:17.30,dx:2,dy:2.0,dz:-22},
+      {label:'front_mid_x-9p95_z1730',x:-9.95,y:1.18,z:17.30,dx:2,dy:2.0,dz:-22},
+      {label:'front_mid_x-10p45_z1750',x:-10.45,y:1.18,z:17.50,dx:2,dy:2.0,dz:-22},
+      {label:'front_mid_x-10p20_z1750',x:-10.20,y:1.18,z:17.50,dx:2,dy:2.0,dz:-22},
+      {label:'front_mid_x-9p95_z1750',x:-9.95,y:1.18,z:17.50,dx:2,dy:2.0,dz:-22},
+      {label:'front_mid_x-10p45_z1760',x:-10.45,y:1.24,z:17.60,dx:2,dy:2.0,dz:-22},
+      {label:'front_mid_x-10p20_z1760',x:-10.20,y:1.24,z:17.60,dx:2,dy:2.0,dz:-22},
+      {label:'front_mid_x-9p95_z1760',x:-9.95,y:1.24,z:17.60,dx:2,dy:2.0,dz:-22},
+      {label:'driver_side_1745',x:-13.15,y:1.45,z:17.45,dx:-10,dy:1,dz:17.30}
     ];
     for(const pose of poses){
       const ok=await page.evaluate(x=>window.__PINEWOOD_OPENING_V34__.qaCockpitProbe(x),pose);
