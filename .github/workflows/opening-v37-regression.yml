@@ -1,10 +1,12 @@
-name: The Call v42 enclosed car + atmospheric cinematic regression
+name: The Call v44 enclosed hatchback + retired-phone regression
 on:
   push:
     branches: [feature/the-call-v37-cc0-atmosphere, main]
     paths:
       - 'opening/assets/v37/**'
       - 'opening/assets/v42/**'
+      - 'opening/opening.css'
+      - 'opening/script.json'
       - 'opening/camera.js'
       - 'opening/environment-v37.js'
       - 'opening/scene.js'
@@ -17,6 +19,8 @@ on:
     paths:
       - 'opening/assets/v37/**'
       - 'opening/assets/v42/**'
+      - 'opening/opening.css'
+      - 'opening/script.json'
       - 'opening/camera.js'
       - 'opening/environment-v37.js'
       - 'opening/scene.js'
@@ -58,13 +62,13 @@ jobs:
           for i in {1..30}; do curl -fsS http://127.0.0.1:4173/review/the-call-v34/ >/dev/null && exit 0; sleep 1; done
           cat /tmp/pinewood-v37-http.log
           exit 1
-      - name: Exercise v42 real enclosed car cinematic in desktop/mobile Chromium
+      - name: Exercise v44 enclosed car and no-phone cinematic in desktop/mobile Chromium
         run: node scripts/smoke-opening-v37.mjs
       - name: Preserve cinematic screenshots and telemetry
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: pinewood-opening-v42
+          name: pinewood-opening-v44
           path: opening-v37-artifacts/
           if-no-files-found: warn
           retention-days: 7

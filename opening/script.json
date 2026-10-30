@@ -18,19 +18,19 @@
     {
       "id": "closed",
       "text": "So, here's what I have. Pinewood closed to the public in 2020. They never completely shut down the utilities. Alarms, emergency lights, some mechanical systems. Just enough to keep the building from falling apart faster than it already is.",
-      "shot": "phone",
+      "shot": "dash",
       "pause": 1.5
     },
     {
       "id": "work",
       "text": "Monitoring picked up a fault on the emergency distribution ring tonight. Three circuits aren't reporting correctly. A, B and C. I need you to check the panels, get those circuits back online if they're safe to reset, and verify the east freight elevator responds. That's the whole ticket.",
-      "shot": "phone",
+      "shot": "dash",
       "pause": 2
     },
     {
       "id": "safety",
       "text": "If you find scorched wiring, standing water around live equipment, anything that makes you nervous, you stop and tell me. I'm not asking you to get yourself hurt over somebody's abandoned shopping mall.",
-      "shot": "phone",
+      "shot": "dash",
       "pause": 2
     },
     {
