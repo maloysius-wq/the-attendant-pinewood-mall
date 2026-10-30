@@ -132,6 +132,15 @@ export async function upgradeOpeningSceneV37({scene,world,car,legacyCabin,holder
   const carDimensions=placeRealSize(model,1.82,.30,0,0);
   status.carYawDeg=180;
   status.forwardAxis='-Z';
+  model.traverse(o=>{
+   if(o.isMesh){
+    o.frustumCulled=false;
+    // Make the family-car finish dirty, not pastel toy-bright.
+    const materials=Array.isArray(o.material)?o.material:[o.material];
+    for(const m of materials)if(m?.color)m.color.multiplyScalar(.68);
+   }
+  });
+  car.add(model);
   // A geometry-based forward-visibility check guards against placing an entire
   // front seat directly in front of the first-person camera again.
   car.updateMatrixWorld(true);
@@ -143,15 +152,6 @@ export async function upgradeOpeningSceneV37({scene,world,car,legacyCabin,holder
    const first=ray.intersectObject(model,true)[0];
    return first?Number(first.distance.toFixed(3)):null;
   });
-  model.traverse(o=>{
-   if(o.isMesh){
-    o.frustumCulled=false;
-    // Make the family-car finish dirty, not pastel toy-bright.
-    const materials=Array.isArray(o.material)?o.material:[o.material];
-    for(const m of materials)if(m?.color)m.color.multiplyScalar(.68);
-   }
-  });
-  car.add(model);
   legacyCabin.visible=false;
   status.car='loaded';
   status.carBounds=carDimensions;
