@@ -4,13 +4,6 @@
   "runtime": "LOCAL ASSETS ONLY",
   "assets": [
     {
-      "file": "1990s-car-interior.glb",
-      "sha256": "d52987de9f451d30d0e052b81efd3ff664345868c4ac43d702ffe1a015287493",
-      "bytes": 1243860,
-      "source": "https://grab3d.com/dl/1990s-car-interior/1990s-car-interior-light.glb",
-      "license": "CC0-1.0"
-    },
-    {
       "file": "asphalt_diff.jpg",
       "sha256": "1aa5ce99f58a625c71d48cfc3e68b65ca85ccb00f39e045c0a928608a0ea25ed",
       "bytes": 731707,
@@ -29,13 +22,6 @@
       "sha256": "70ba3edc65525eb4dc366cf010ca7ae0bd34e0251ff0225c2dad627a873d0712",
       "bytes": 544032,
       "source": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/asphalt_02/asphalt_02_rough_1k.jpg",
-      "license": "CC0-1.0"
-    },
-    {
-      "file": "car-phone-holder.glb",
-      "sha256": "43696cf3e9d5dcc7b4293c3a3123eee0d6df8734cbc7c1e323b999eb89df0da9",
-      "bytes": 535780,
-      "source": "https://grab3d.com/dl/car-phone-holder/car-phone-holder.glb",
       "license": "CC0-1.0"
     },
     {

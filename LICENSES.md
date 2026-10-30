@@ -251,13 +251,12 @@ Pinewood's named storefront signs are generated locally because their lettering 
 - Renee's eleven opening recordings reuse the same extreme v29 handheld-radio mastering as the live game (`scripts/reprocess-renee-walkie-v28.mjs`): band pass 650–2150 Hz, 12:1 compression, 9-bit grit, filtered pink-noise bed, beginning/end squelch, and -22.5 integrated LUFS target. The source rerecording is *not* required during playback; each clip remains local.
 
 
-## The Call v37: CC0 1990s car, mounted phone and weathered parking facade
+## The Call v42: full, enclosed CC0 hatchback and weathered mall exterior
 
-- **1990s Car Interior (light GLB):** Grab3D, CC0-1.0, https://grab3d.com/models/vehicles/1990s-car-interior/ . Original vendored file: `opening/assets/v37/1990s-car-interior.glb`. Contains the old cloth seating, analog gauge cluster and cassette-era cabin; locally tinted/desaturated for the horror opening.
-- **Car Phone Holder (GLB):** Grab3D, CC0-1.0, https://grab3d.com/models/vehicles/car-phone-holder/ . Local `opening/assets/v37/car-phone-holder.glb`; the authored Pinewood work-order CanvasTexture is still generated in-game, locally.
-- **Asphalt 02 PBR maps:** Poly Haven, CC0, https://polyhaven.com/a/asphalt_02 . Local 1K color/normal-GL/roughness maps `opening/assets/v37/asphalt_*.jpg`.
-- **Cracked Concrete Wall PBR maps:** Poly Haven, CC0, https://polyhaven.com/a/cracked_concrete_wall . Local 1K color/normal-GL/roughness maps `opening/assets/v37/wall_*.jpg`.
-- **Rusty Metal PBR maps:** Poly Haven, CC0, https://polyhaven.com/a/rusty_metal . Local 1K color/normal-GL/roughness maps `opening/assets/v37/rust_*.jpg`.
-- **Fog, lamp halos, lamp cones, wet-gloss patches and existing full-scale fixtures:** original Three.js authored presentation geometry/materials, not a third-party source. Poly Haven Street Lamp 01 was researched but not vendored; do not claim its mesh is in the build.
+- **Complete 1990s Hatchback**: Grab3D, CC0-1.0, https://grab3d.com/models/vehicles/1990s-hatchback/ . Original vendored full-car GLB: `opening/assets/v42/1990s-hatchback.glb`. Actual source roof, front/rear seats, steering wheel, transparent window glass and exterior. Exact SHA-256 and source URL: `opening/assets/v42/manifest.json`. Browser renders this single model and no hand-authored car or phone mount.
+- **Asphalt 02**: Poly Haven CC0, https://polyhaven.com/a/asphalt_02. 1K color/normal/roughness `opening/assets/v37/asphalt_*.jpg`.
+- **Cracked Concrete Wall**: Poly Haven CC0, https://polyhaven.com/a/cracked_concrete_wall. `opening/assets/v37/wall_*.jpg`.
+- **Rusty Metal**: Poly Haven CC0, https://polyhaven.com/a/rusty_metal. `opening/assets/v37/rust_*.jpg`.
+- **Fog, lamp halos, wet ground**: original authored Three.js scene lighting, no bundled third-party lamp mesh.
 
-The development-only acquisition script `scripts/vendor-opening-assets-v37.mjs` validates official source CC0 metadata, glTF binary headers, local image dependencies and provider file digests where present. Exact original download URLs, file sizes and SHA-256 digests are preserved in `opening/assets/v37/manifest.json`. **No runtime request is made to either asset source**. Original voice/audio provenance and story rights remain unchanged.
+**Retired from runtime and repository:** The prior open 1990s car interior, truck cabin interior, and separately mounted phone files were deliberately deleted in v42. Their prior review iterations are historical and should not be reintroduced without owner approval.

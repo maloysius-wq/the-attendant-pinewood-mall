@@ -1,5 +1,5 @@
 import * as THREE from '../vendor/three/build/three.module.js';
-import {upgradeOpeningSceneV37} from './environment-v37.js?v=41';
+import {upgradeOpeningSceneV37} from './environment-v37.js?v=42';
 const v=(x,y,z)=>new THREE.Vector3(x,y,z);
 const mat=(color,roughness=.85,metalness=0)=>new THREE.MeshStandardMaterial({color,roughness,metalness});
 const lit=(color,intensity=.4)=>new THREE.MeshStandardMaterial({color,roughness:.73,emissive:color,emissiveIntensity:intensity});
@@ -102,10 +102,9 @@ export function makeOpeningScene(){
  notice(world,'PINEWOOD\nSERVICE MAP',['A  CONCOURSE / EMERGENCY','B  RETAIL / PA','C  SERVICE / FREIGHT','EAST WING  AUTHORIZED'],0,2.2,-31.01,2.45,1.98,{h:700});
  notice(world,'STAFF\nNOTICE',['VERIFY DOORS','RETURN ALL KEYS','CLOCK OUT BEFORE LEAVING'],9.3,1.8,-55.73,1.14,1.39);
  for(const z of[-32,-43,-52])for(const x of[-8,8]){box(world,x,6.5,z,2.8,.14,.55,mat(0x646960));lamp(scene,x,6.25,z,0xb9c3b4,.8,9);}
- // Owner-approved v41: a single unmodified CC0 utility/sleeper truck cabin.
- // There is ZERO authored car geometry: no roof, pillars, windshield, dashboard,
- // seats, tires, steering wheel, or phone mount/phone UI anywhere in this scene.
- const car=new THREE.Group();car.name='Sole CC0 utility cabin placement';car.position.set(-10,0,17.5);world.add(car);
+ // Complete enclosed CC0 1990s hatchback: real roof, seats, transparent glass.
+ // No procedural car shell, truck cutaway or phone mount.
+ const car=new THREE.Group();car.name='Sole full 1990s hatchback placement';car.position.set(-10,0,17.5);world.add(car);
  // Parking fixtures.
  for(const [x,z] of[[-21,9],[28,5],[0,28]]){cyl(world,x,3.9,z,.09,7.8,steel);box(world,x,7.75,z,.8,.2,.5,concrete);lamp(scene,x,7.3,z,0xd9c6a3,3.2,19);}
  for(let i=0;i<7;i++){const x=-32+i*10;box(world,x,.38,-13.7,4.2,.55,1.35,concrete);for(let k=-1;k<=1;k++)cyl(world,x+k*.9,.86,-13.7,.55,.7,mat(0x2a382e));}

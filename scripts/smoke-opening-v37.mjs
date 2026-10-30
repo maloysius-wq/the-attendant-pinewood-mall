@@ -5,7 +5,7 @@ const origin=new URL(base).origin;
 const preview=new URL('review/the-call-v34/',base).href;
 const assert=(v,m)=>{if(!v)throw Error(m);};
 await mkdir('opening-v37-artifacts',{recursive:true});
-const report={version:41,preview,layouts:{},passed:false};
+const report={version:42,preview,layouts:{},passed:false};
 const browser=await chromium.launch({headless:true,args:[
  '--enable-webgl','--ignore-gpu-blocklist','--use-gl=swiftshader','--enable-unsafe-swiftshader','--disable-dev-shm-usage']});
 try{
@@ -22,26 +22,46 @@ try{
    await page.waitForFunction(()=>window.__PINEWOOD_OPENING_V34__?.active,null,{timeout:20000});
    await page.waitForFunction(()=>['ready','failed'].includes(window.__PINEWOOD_OPENING_V34__?.environmentV37?.state),null,{timeout:90000});
    const st=await page.evaluate(()=>window.__PINEWOOD_OPENING_V34__.environmentV37);
+   if(layout.name==='desktop'&&!(st.roofRayDistance>.08&&st.roofRayDistance<.67)){
+    console.log('V42_ROOF_GRID='+JSON.stringify(st.roofSamples||[]));
+    console.log('V42_MODEL_SIZE='+JSON.stringify(st.measuredCarBounds||[]));
+    for(const z of [16.95,17.25,17.55,17.85]){
+      await page.evaluate(value=>window.__PINEWOOD_OPENING_V34__.qaDriverView(1.02,value),z);
+      await page.waitForTimeout(50);
+      const jpg=await page.screenshot({type:'jpeg',quality:34});
+      console.log('V42_QA_Z'+Math.round(z*100)+'_JPEG='+jpg.toString('base64'));
+    }
+    for(const height of [.55,.70,.82,.98,1.10]){
+      await page.evaluate(h=>window.__PINEWOOD_OPENING_V34__.qaDriverView(h),height);
+      await page.waitForTimeout(50);
+      const jpeg=await page.screenshot({type:'jpeg',quality:29});
+      console.log('V42_QA_H'+Math.round(height*100)+'_JPEG='+jpeg.toString('base64'));
+    }
+    console.log('V42_QA_DRIVER_JPEG='+(await page.screenshot({type:'jpeg',quality:32})).toString('base64'));
+    if(await page.evaluate(()=>window.__PINEWOOD_OPENING_V34__.qaExteriorCar())){
+      await page.waitForTimeout(80);
+      console.log('V42_QA_EXTERIOR_JPEG='+(await page.screenshot({type:'jpeg',quality:32})).toString('base64'));
+    }
+   }
    assert(st.state==='ready',layout.name+' v37 asset stage failed: '+JSON.stringify(st.errors));
-   assert(st.car==='loaded'&&st.phone==='removed',layout.name+' truck loading or phone removal failed: '+JSON.stringify(st));
+   assert(st.car==='loaded'&&st.phone==='removed',layout.name+' enclosed model failed to load: '+JSON.stringify(st));
    const cc=st.cockpit;
-   assert(cc?.construction==='single-GRAB3D-truck-cabin'&&cc.vendorOnly,
-     layout.name+' truck not the only car model: '+JSON.stringify(cc));
-   assert(cc.source==='truck-cabin-interior.glb'&&cc.authoredCarMeshes===0
-     &&cc.authoredRoofPanels===0&&cc.authoredWindshields===0
-     &&cc.phoneMounts===0&&cc.phoneScreens===0,
-     layout.name+' prohibited procedural car or mounted phone returned: '+JSON.stringify(cc));
-   assert(st.modelMeshes>=2&&st.carBounds?.[0]>=2.15&&st.carBounds?.[0]<2.5,
-     layout.name+' missing full-size genuine CC0 truck geometry: '+JSON.stringify(st));
-   assert(st.carYawDeg===180&&st.forwardAxis==='-Z',
-     layout.name+' truck not facing toward windshield: '+JSON.stringify(st));
-   assert(st.cockpitViewRays?.length===3,
-     layout.name+' missing first-person cab view measurements');
-   assert(st.cockpitViewRays.filter(x=>x!==null&&x<.25).length===0,
-     layout.name+' immediate obstruction ahead of driver: '+JSON.stringify(st.cockpitViewRays));
-   assert(st.maps?.length===3,layout.name+' lost CC0 parking/mall PBR surfaces');
+   assert(cc?.construction==='complete-GRAB3D-enclosed-hatchback'&&cc.vendorOnly,
+     layout.name+' wrong car or open cutaway: '+JSON.stringify(st));
+   assert(cc.originalRoof&&cc.transparentWindows&&st.windows>0,
+     layout.name+' missing real roof/window glass: '+JSON.stringify(st));
+   assert(st.roofRayDistance>.08&&st.roofRayDistance<.67,
+     layout.name+' no roof hit from driver eye: '+JSON.stringify(st));
+   assert(cc.source==='1990s-hatchback.glb'&&cc.authoredCarMeshes===0
+     &&cc.authoredWindshields===0&&cc.phoneMounts===0&&cc.phoneScreens===0,
+     layout.name+' duplicate shell, cutaway or phone mount: '+JSON.stringify(st));
+   assert(st.modelMeshes>=5&&st.carBounds?.[0]>=1.80&&st.carBounds?.[0]<1.93
+     &&st.carBounds?.[1]>1.40&&st.carBounds?.[2]>3.85,
+     layout.name+' wrong enclosed vehicle dimensions: '+JSON.stringify(st));
+   assert(st.carYawDeg===180&&st.forwardAxis==='-Z',layout.name+' nose not toward mall');
+   assert(st.maps?.length===3,layout.name+' weathering maps missing');
    assert(await page.evaluate(()=>window.__PINEWOOD_OPENING_V34__.dashboardPhone===null),
-     layout.name+' prohibited phone still attached to preview stage');
+     layout.name+' old phone mount reappeared');
    assert(st.wet?.puddles>=15&&st.wet?.lamps>=3,'Missing wet-lot light treatment');
    // v39: the previously enormous service portal must hug the original
    // 1.95m x 2.27m hinged door, with real facade infill on all three sides.
@@ -72,14 +92,18 @@ try{
       layout.name+' original 7m oversized canopy still present: '+JSON.stringify(entry.canopy));
    await page.waitForTimeout(500);
    await page.screenshot({path:'opening-v37-artifacts/'+layout.name+'-interior.png'});
-   // Capture the vendor truck windshield (no supplemental geometry) in the actual preview.
+   if(layout.name==='desktop'){
+    const seated=await page.screenshot({type:'jpeg',quality:35});
+    console.log('V42_QA_DRIVER_JPEG='+seated.toString('base64'));
+   }
+   // Capture the vendor hatchback windshield (no supplemental geometry) in the actual preview.
    await page.evaluate(()=>{window.__PINEWOOD_OPENING_V34__.seek(0);window.__PINEWOOD_OPENING_V34__.scrub(.40);});
    await page.waitForTimeout(250);
-   await page.screenshot({path:'opening-v37-artifacts/'+layout.name+'-truck-cabin.png'});
-   // Existing phone-labeled story beat now glances at the vendor truck dash, without phone.
+   await page.screenshot({path:'opening-v37-artifacts/'+layout.name+'-roofed-car.png'});
+   // Existing phone-labeled story beat now glances at the original hatchback dashboard, without phone.
    await page.evaluate(()=>{window.__PINEWOOD_OPENING_V34__.seek(2);window.__PINEWOOD_OPENING_V34__.scrub(.43);});
    await page.waitForTimeout(350);
-   await page.screenshot({path:'opening-v37-artifacts/'+layout.name+'-truck-dashboard-glance.png'});
+   await page.screenshot({path:'opening-v37-artifacts/'+layout.name+'-dashboard-glance.png'});
    await page.evaluate(()=>{window.__PINEWOOD_OPENING_V34__.seek(0);window.__PINEWOOD_OPENING_V34__.scrub(.20);});
    if(layout.name==='desktop'){
     await page.evaluate(()=>{window.__PINEWOOD_OPENING_V34__.seek(6);window.__PINEWOOD_OPENING_V34__.scrub(.5);});
@@ -96,6 +120,13 @@ try{
     await page.evaluate(()=>{window.__PINEWOOD_OPENING_V34__.seek(9);window.__PINEWOOD_OPENING_V34__.scrub(.30);});
     await page.waitForTimeout(350);
     await page.screenshot({path:'opening-v37-artifacts/'+layout.name+'-inside-threshold.png'});
+   }
+   if(layout.name==='desktop'){
+    assert(await page.evaluate(()=>window.__PINEWOOD_OPENING_V34__.qaExteriorCar()),
+      'No off-axis real roof review hook');
+    await page.waitForTimeout(80);
+    const exterior=await page.screenshot({type:'jpeg',quality:40});
+    console.log('V42_QA_EXTERIOR_JPEG='+exterior.toString('base64'));
    }
    assert(remote.length===0,layout.name+' nonlocal browser requests '+remote.join(','));
    assert(errors.length===0,layout.name+' browser errors '+errors.join(' | '));

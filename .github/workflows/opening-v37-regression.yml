@@ -1,9 +1,11 @@
-name: The Call v37 CC0 night atmosphere browser regression
+name: The Call v42 enclosed car + atmospheric cinematic regression
 on:
   push:
     branches: [feature/the-call-v37-cc0-atmosphere, main]
     paths:
       - 'opening/assets/v37/**'
+      - 'opening/assets/v42/**'
+      - 'opening/camera.js'
       - 'opening/environment-v37.js'
       - 'opening/scene.js'
       - 'opening/intro.js'
@@ -14,6 +16,8 @@ on:
     branches: [main]
     paths:
       - 'opening/assets/v37/**'
+      - 'opening/assets/v42/**'
+      - 'opening/camera.js'
       - 'opening/environment-v37.js'
       - 'opening/scene.js'
       - 'opening/intro.js'
@@ -38,9 +42,12 @@ jobs:
           node --check opening/scene.js
           node --check opening/intro.js
           node --check scripts/smoke-opening-v37.mjs
-          test -s opening/assets/v37/1990s-car-interior.glb
-          test -s opening/assets/v37/car-phone-holder.glb
+          test -s opening/assets/v42/1990s-hatchback.glb
+          test -s opening/assets/v42/manifest.json
           test -s opening/assets/v37/manifest.json
+          test ! -e opening/assets/v37/1990s-car-interior.glb
+          test ! -e opening/assets/v37/car-phone-holder.glb
+          test ! -e opening/assets/v41/truck-cabin-interior.glb
       - name: Install deterministic browser
         run: |
           npm install --no-save playwright@1.55.0
@@ -51,13 +58,13 @@ jobs:
           for i in {1..30}; do curl -fsS http://127.0.0.1:4173/review/the-call-v34/ >/dev/null && exit 0; sleep 1; done
           cat /tmp/pinewood-v37-http.log
           exit 1
-      - name: Exercise v37 CC0 cinematic in desktop/mobile Chromium
+      - name: Exercise v42 real enclosed car cinematic in desktop/mobile Chromium
         run: node scripts/smoke-opening-v37.mjs
       - name: Preserve cinematic screenshots and telemetry
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: pinewood-opening-v37
+          name: pinewood-opening-v42
           path: opening-v37-artifacts/
           if-no-files-found: warn
           retention-days: 7

@@ -1,6 +1,6 @@
 import * as THREE from '../vendor/three/build/three.module.js';
-import {makeOpeningScene} from './scene.js?v=41';
-import {HumanCameraRig} from './camera.js?v=41';
+import {makeOpeningScene} from './scene.js?v=42';
+import {HumanCameraRig} from './camera.js?v=42';
 import {OpeningAmbience} from './ambience.js?v=35';
 const $=id=>document.getElementById(id);
 const query=new URLSearchParams(location.search);
@@ -217,6 +217,21 @@ window.__PINEWOOD_OPENING_V34__={
   };
  },
  get dashboardPhone(){return null;},
+ qaDriverView(height,z=17.15){
+  if(!location.pathname.includes('/review/')||!active?.stage||!active.renderer)return false;
+  active.paused=true;
+  active.camera.position.set(-10.25,height,z);
+  active.camera.lookAt(-10.15,1.45,-20);
+  active.renderer.render(active.stage.scene,active.camera);
+  return true;
+ },
+  qaExteriorCar(){
+  if(!location.pathname.includes('/review/')||!active?.stage||!active.renderer)return false;
+  active.paused=true;active.camera.position.set(-13.8,2.6,21.0);
+  active.camera.lookAt(-10,1.0,17.5);
+  active.renderer.render(active.stage.scene,active.camera);
+  return true;
+ },
  get sceneStats(){
   if(!active?.stage)return null;
   let meshes=0,signs=[],phoneTexture=null;

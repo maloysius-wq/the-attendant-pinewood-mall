@@ -1,0 +1,33 @@
+name: Vendor fully enclosed CC0 hatchback v42
+
+on:
+  push:
+    branches: [feature/the-call-v42-enclosed-hatchback]
+    paths:
+      - scripts/vendor-enclosed-hatchback-v42.mjs
+      - .github/workflows/vendor-enclosed-hatchback-v42.yml
+  workflow_dispatch:
+
+permissions:
+  contents: write
+jobs:
+  vendor:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feature/the-call-v42-enclosed-hatchback
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Download and verify complete enclosed CC0 car
+        run: node scripts/vendor-enclosed-hatchback-v42.mjs
+      - name: Commit locally stored original model and provenance
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add opening/assets/v42
+          git diff --cached --quiet && exit 0
+          git commit -m "Vendor complete covered CC0 hatchback model"
+          git push origin HEAD:feature/the-call-v42-enclosed-hatchback

@@ -93,7 +93,7 @@ async function loadMaterial(prefix,files,repeat){
  return maps;
 }
 export async function upgradeOpeningSceneV37({scene,world,car,materials,lotMaterial,stage}){
- const status={version:41,state:'loading',car:'pending',phone:'removed',maps:[],lamp:'pending',errors:[],wet:null,source:'truck-cabin-interior.glb'};
+ const status={version:42,state:'loading',car:'pending',phone:'removed',maps:[],lamp:'pending',errors:[],wet:null,source:'1990s-hatchback.glb'};
  stage.v37=status;
  try{
   const response=await fetch(asURL('manifest.json'),{cache:'no-store',mode:'same-origin'});
@@ -101,11 +101,14 @@ export async function upgradeOpeningSceneV37({scene,world,car,materials,lotMater
   const manifest=await response.json();
   if(manifest.license!=='CC0-1.0'||manifest.version!==37)throw Error('Unexpected v37 manifest');
   const files=manifest.assets.map(x=>x.file);
-  const truckReply=await fetch(new URL('./assets/v41/manifest.json',import.meta.url),{cache:'no-store'});
-  if(!truckReply.ok)throw Error('Missing local v41 utility cabin manifest');
-  const truckMeta=await truckReply.json();
-  if(truckMeta.version!==41||truckMeta.license!=='CC0-1.0'||truckMeta.asset!=='truck-cabin-interior.glb')
-    throw Error('Unexpected truck model license / filename');
+  const metaResp=await fetch(new URL('./assets/v42/manifest.json',import.meta.url),{cache:'no-store'});
+  if(!metaResp.ok)throw Error('Enclosed car manifest missing');
+  const carMeta=await metaResp.json();
+  if(carMeta.version!==42||carMeta.license!=='CC0-1.0'||carMeta.model!=='1990s-hatchback.glb'
+    ||!carMeta.meshList?.some(x=>/body/.test(x.name))
+    ||!carMeta.meshList?.some(x=>/windows/.test(x.name))
+    ||!carMeta.materials?.some(x=>/window_glass/.test(x.name)&&x.alphaMode==='BLEND'))
+    throw Error('Missing complete body, real window glass, or CC0 license');
   // Update materials in place; all existing doorway and chapter boundaries stay.
   const [asphalt,wall,rust]=await Promise.all([
    loadMaterial('asphalt',files,[21,19]),
@@ -124,41 +127,80 @@ export async function upgradeOpeningSceneV37({scene,world,car,materials,lotMater
   for(const m of [lotMaterial,materials.facade,materials.steel])m.needsUpdate=true;
   status.maps=['asphalt_02','cracked_concrete_wall','rusty_metal'];
   status.wet=mistAndLights(scene,world);
-  // Exactly ONE model; no authored car roof, windshield, seats, phone,
-  // floating LCD or kitbashed frame. The vendor GLB supplies every surface.
-  const cabinURL=new URL('./assets/v41/truck-cabin-interior.glb',import.meta.url);
-  const model=await promiseGLB(cabinURL.href);
-  model.name='Grab3D CC0 Truck Cabin Interior (only car mesh)';
-  // Grab3D cabin convention faces +Z; cinematic driver looks toward -Z.
+  // FULL enclosed 1990s hatchback. Its GLB supplies the roof, windshield,
+  // cabin, seats, wheels and dashboard, not a second hand-built shell.
+  const model=await promiseGLB(new URL('./assets/v42/1990s-hatchback.glb',import.meta.url).href);
+  model.name='Complete Grab3D CC0 1990s Hatchback';
+  // Source front wheels +Z; nose toward Pinewood Mall must be -Z.
   model.rotation.y=Math.PI;model.updateMatrixWorld(true);
-  const size=placeRealSize(model,2.28,0,0,.20);
-  let meshes=0;
+  const size=placeRealSize(model,1.86,0,0,0);
+  status.measuredCarBounds=size;
+  let meshes=0,glass=0;
   model.traverse(o=>{
-   if(o.isMesh){
+    if(!o.isMesh)return;
     meshes++;
-    const ms=Array.isArray(o.material)?o.material:[o.material];
-    for(const m of ms)if(m?.color)m.color.multiplyScalar(.55);
-   }
+    for(const m of Array.isArray(o.material)?o.material:[o.material]){
+      if(!m)continue;
+      if(/window_glass/i.test(m.name||'')){
+        glass++;m.transparent=true;m.opacity=.17;
+        m.depthWrite=false;m.side=THREE.DoubleSide;m.roughness=.08;m.needsUpdate=true;
+      }else if(m.color){
+        m.color.multiplyScalar(.63);
+        // The original GLB labels all body faces double-sided. From INSIDE,
+        // backfaces of exterior shell then render as giant black blockers.
+        // Keep the exact original geometry and real roof, but render only
+        // forward-facing original body surfaces (no handmade car shell).
+        if(/body_pbr/i.test(m.name||'')){
+          m.side=THREE.FrontSide;
+          m.needsUpdate=true;
+        }
+      }
+    }
   });
-  car.add(model);
-  car.updateWorldMatrix(true,true);
-  if(car.children.length!==1||meshes<2)throw Error('Cabin is not a single self-contained vendor model');
-  status.car='loaded';
-  status.carBounds=size;
-  status.modelMeshes=meshes;
-  status.cockpit={construction:'single-GRAB3D-truck-cabin',vendorOnly:true,
-    authoredCarMeshes:0,authoredRoofPanels:0,authoredWindshields:0,
-    phoneMounts:0,phoneScreens:0,source:'truck-cabin-interior.glb',
-    sourceSha256:truckMeta.sha256};
-  // Detect geometry directly in front of the first-person eye, rather than
-  // claiming that mesh counts alone guarantee a convincing camera angle.
-  const eye=car.localToWorld(new THREE.Vector3(-.53,1.42,.45));
-  status.cockpitViewRays=[-.15,0,.15].map(x=>{
-   const ray=new THREE.Raycaster(eye,new THREE.Vector3(x,0,-1).normalize(),.08,.85);
-   const result=ray.intersectObject(model,true)[0];
-   return result?Number(result.distance.toFixed(3)):null;
-  });
+  if(glass<1)throw Error('GLB missing transparent windshield');
+  car.add(model);car.updateWorldMatrix(true,true);
+  if(car.children.length!==1||meshes<5)throw Error('A second car or empty car found');
+  // Driver is inside the left front seat, under the real roof, behind windshield.
+  const eye=car.localToWorld(new THREE.Vector3(-.25,1.13,.32));
+  const roof=new THREE.Raycaster(eye,new THREE.Vector3(0,1,0),.04,.85)
+    .intersectObject(model,true).filter(x=>!/windows/i.test(x.object.name||''))[0];
+  // Test the roof from OUTSIDE, where source-facing surface normals exist.
+  // A separate, controlled roof-height test avoids false negatives caused
+  // by the deliberate one-sided interior view material.
+  const topHit=new THREE.Raycaster(
+     car.localToWorld(new THREE.Vector3(-.25,2.1,.32)),
+     new THREE.Vector3(0,-1,0),.30,1.3)
+    .intersectObject(model,true).find(h=>!/windows/i.test(h.object.name||''));
+  const roofHeight=topHit?+(2.1-topHit.distance).toFixed(3):null;
+  status.roofHeight=roofHeight;
+  const roofDistance=roofHeight===null?null:roofHeight-1.13;
+  // Diagnostic grid: assess the actual GLB top surface before accepting the
+  // first-person eye; do not mistake the published model description for proof.
+  status.roofSamples=[];
+  for(const lx of [-.64,-.41,0,.41,.64])for(const lz of [-1.15,-.75,-.35,.1,.55]){
+    const start=car.localToWorld(new THREE.Vector3(lx,.72,lz));
+    const hits=new THREE.Raycaster(start,new THREE.Vector3(0,1,0),.04,1.2)
+      .intersectObject(model,true);
+    status.roofSamples.push({x:lx,z:lz,hits:hits.slice(0,2).map(h=>+h.distance.toFixed(3))});
+  }
+  const forwardHits=new THREE.Raycaster(eye,new THREE.Vector3(0,0,-1),.04,4)
+    .intersectObject(model,true).slice(0,6).map(h=>({mesh:h.object.name,d:+h.distance.toFixed(3)}));
+  // Low, soft dashboard/overhead fill, not a handmade vehicle mesh.
+  // Exposes the vendor interior without flooding the foggy parking lot.
+  const dashGlow=new THREE.PointLight(0xb5c5c9,.62,2.8,2);
+  dashGlow.position.set(-.18,1.12,-.10);car.add(dashGlow);
+  status.car='loaded';status.carBounds=size;status.modelMeshes=meshes;
   status.carYawDeg=180;status.forwardAxis='-Z';
+  status.roofRayDistance=roofDistance===null?null:+roofDistance.toFixed(3);status.windows=glass;status.forwardHits=forwardHits;
+  status.cockpit={construction:'complete-GRAB3D-enclosed-hatchback',
+    vendorOnly:true,originalRoof:true,transparentWindows:true,
+    authoredCarMeshes:0,authoredWindshields:0,phoneMounts:0,phoneScreens:0,
+    source:'1990s-hatchback.glb',sourceSha256:carMeta.sha256};
+  status.cockpitViewRays=[-.15,0,.15].map(x=>{
+    const hit=new THREE.Raycaster(eye,new THREE.Vector3(x,0,-1).normalize(),.03,.38)
+      .intersectObject(model,true)[0];
+    return hit?+hit.distance.toFixed(3):null;
+  });
   if(manifest.streetLamp){
    try{
     const lamp=await new Promise((resolve,reject)=>loader.load(asURL(manifest.streetLamp),x=>resolve(x.scene),undefined,reject));
