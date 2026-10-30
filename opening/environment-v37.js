@@ -134,6 +134,7 @@ export async function upgradeOpeningSceneV37({scene,world,car,materials,lotMater
   // Source front wheels +Z; nose toward Pinewood Mall must be -Z.
   model.rotation.y=Math.PI;model.updateMatrixWorld(true);
   const size=placeRealSize(model,1.86,0,0,0);
+  status.measuredCarBounds=size;
   let meshes=0,glass=0;
   model.traverse(o=>{
     if(!o.isMesh)return;
@@ -166,7 +167,7 @@ export async function upgradeOpeningSceneV37({scene,world,car,materials,lotMater
     .intersectObject(model,true).slice(0,6).map(h=>({mesh:h.object.name,d:+h.distance.toFixed(3)}));
   status.car='loaded';status.carBounds=size;status.modelMeshes=meshes;
   status.carYawDeg=180;status.forwardAxis='-Z';
-  status.roofRayDistance=+roofDistance.toFixed(3);status.windows=glass;status.forwardHits=forwardHits;
+  status.roofRayDistance=roofDistance===null?null:+roofDistance.toFixed(3);status.windows=glass;status.forwardHits=forwardHits;
   status.cockpit={construction:'complete-GRAB3D-enclosed-hatchback',
     vendorOnly:true,originalRoof:true,transparentWindows:true,
     authoredCarMeshes:0,authoredWindshields:0,phoneMounts:0,phoneScreens:0,
