@@ -22,6 +22,14 @@ try{
    await page.waitForFunction(()=>window.__PINEWOOD_OPENING_V34__?.active,null,{timeout:20000});
    await page.waitForFunction(()=>['ready','failed'].includes(window.__PINEWOOD_OPENING_V34__?.environmentV37?.state),null,{timeout:90000});
    const st=await page.evaluate(()=>window.__PINEWOOD_OPENING_V34__.environmentV37);
+   if(layout.name==='desktop'&&!(st.roofRayDistance>.08&&st.roofRayDistance<.67)){
+    console.log('V42_ROOF_GRID='+JSON.stringify(st.roofSamples||[]));
+    console.log('V42_QA_DRIVER_JPEG='+(await page.screenshot({type:'jpeg',quality:32})).toString('base64'));
+    if(await page.evaluate(()=>window.__PINEWOOD_OPENING_V34__.qaExteriorCar())){
+      await page.waitForTimeout(80);
+      console.log('V42_QA_EXTERIOR_JPEG='+(await page.screenshot({type:'jpeg',quality:32})).toString('base64'));
+    }
+   }
    assert(st.state==='ready',layout.name+' v37 asset stage failed: '+JSON.stringify(st.errors));
    assert(st.car==='loaded'&&st.phone==='removed',layout.name+' enclosed model failed to load: '+JSON.stringify(st));
    const cc=st.cockpit;
