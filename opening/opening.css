@@ -14,6 +14,8 @@
 #pwm-opening .pwm-transport button:hover,#pwm-opening .pwm-transport button:focus-visible{background:#324c48;outline:2px solid #e4c787;outline-offset:2px}
 #pwm-opening .pwm-transport .pwm-skip{border-color:#cfc2a5;color:#fff1ca;background:rgba(25,24,20,.92)}
 #pwm-opening .pwm-caption-area{position:absolute;z-index:3;bottom:11.2vh;left:50%;transform:translateX(-50%);width:min(820px,88%);text-align:center;pointer-events:none}
+/* Shift dialogue aside while the player actually uses the handheld app. */
+#pwm-opening[data-phone-raised="true"] .pwm-caption-area{left:29%;width:min(650px,53vw)}
 #pwm-opening .pwm-caption-label{display:inline-block;padding:6px 12px;margin-bottom:2px;border:1px solid rgba(189,227,207,.25);border-bottom:0;background:rgba(8,20,23,.82);font-size:11px;font-weight:700;letter-spacing:.17em;color:#b1d9ca}
 #pwm-opening .pwm-caption{min-height:66px;padding:12px 24px 15px;background:rgba(2,8,10,.84);border:1px solid rgba(189,227,207,.25);font-size:clamp(16px,2vw,22px);line-height:1.45;color:#f5f0e6;text-shadow:0 1px 2px black}
 #pwm-opening.pwm-hide-captions .pwm-caption-area{display:none}
@@ -30,6 +32,7 @@
  #pwm-opening .pwm-transport button{font-size:11px;padding:9px 7px;min-height:44px;flex:1}
  #pwm-opening .pwm-preview-note{display:none}
  #pwm-opening .pwm-caption-area{bottom:11%;width:91%}
+ #pwm-opening[data-phone-raised="true"] .pwm-caption-area{left:50%;bottom:10.6%;width:91%}
  #pwm-opening .pwm-caption{min-height:65px;padding:9px 12px;font-size:16px}
  #pwm-opening .pwm-footer{display:none}
 }
