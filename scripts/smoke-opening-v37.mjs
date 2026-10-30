@@ -5,7 +5,7 @@ const origin=new URL(base).origin;
 const preview=new URL('review/the-call-v34/',base).href;
 const assert=(v,m)=>{if(!v)throw Error(m);};
 await mkdir('opening-v37-artifacts',{recursive:true});
-const report={version:37,preview,layouts:{},passed:false};
+const report={version:41,preview,layouts:{},passed:false};
 const browser=await chromium.launch({headless:true,args:[
  '--enable-webgl','--ignore-gpu-blocklist','--use-gl=swiftshader','--enable-unsafe-swiftshader','--disable-dev-shm-usage']});
 try{
@@ -23,30 +23,25 @@ try{
    await page.waitForFunction(()=>['ready','failed'].includes(window.__PINEWOOD_OPENING_V34__?.environmentV37?.state),null,{timeout:90000});
    const st=await page.evaluate(()=>window.__PINEWOOD_OPENING_V34__.environmentV37);
    assert(st.state==='ready',layout.name+' v37 asset stage failed: '+JSON.stringify(st.errors));
-   assert(st.car==='loaded'&&st.phone==='loaded',layout.name+' first-person models absent: '+JSON.stringify(st));
-   // v40: prevent both old AND imported car frames, multiple windscreens,
-   // unsupported roof or the tiny blank passenger-side work phone.
-   const cc=st.cockpit,screen=st.phoneScreen;
-   assert(cc?.construction==='single-CC0-cabin'&&cc.legacyGeometry===0,
-     layout.name+' ghost procedural car geometry is still being drawn: '+JSON.stringify(cc));
-   assert(cc.authoredRoofPanels===1&&cc.authoredWindshields===1,
-     layout.name+' car has duplicate windshield or no roof: '+JSON.stringify(cc));
-   assert(screen?.actualCanvasTexture&&screen?.lit&&screen?.legible,
-     layout.name+' dispatch phone lacks a bright local work-order screen: '+JSON.stringify(screen));
-   assert(screen.frontFacing>.99&&screen.driverDistance>=.55&&screen.driverDistance<1.15,
-     layout.name+' phone is facing away or out of reach: '+JSON.stringify(screen));
-   assert(screen.textureSize?.[0]===560&&screen.textureSize?.[1]===1000,
-     layout.name+' phone dispatch text texture not available: '+JSON.stringify(screen));
-   assert(screen.position[0]<0&&screen.position[0]>-.6,
-     layout.name+' phone on passenger side instead of beside driver: '+JSON.stringify(screen));
-   // Regression for screenshot report: the CC0 car was loaded 180° backwards.
-   assert(st.carYawDeg===180&&st.forwardAxis==='-Z',layout.name+' imported cabin is reversed: '+JSON.stringify(st));
-   assert(st.cockpitViewRays?.length===3,layout.name+' cockpit first-person clearance telemetry missing');
-   const nearSeat=st.cockpitViewRays.filter(d=>d!==null&&d<.46);
-   assert(!nearSeat.length,layout.name+' object blocks driver eye within 46cm: '+JSON.stringify(st.cockpitViewRays));
-   assert(st.maps?.length===3,layout.name+' PBR surfaces incomplete');
-   assert(st.carBounds?.[0]>1.5&&st.carBounds?.[0]<2.1,'Car geometry not full scale');
-   assert(st.phoneBounds?.[0]>=.13&&st.phoneBounds?.[0]<=.155,'Phone mount out of scale');
+   assert(st.car==='loaded'&&st.phone==='removed',layout.name+' truck loading or phone removal failed: '+JSON.stringify(st));
+   const cc=st.cockpit;
+   assert(cc?.construction==='single-GRAB3D-truck-cabin'&&cc.vendorOnly,
+     layout.name+' truck not the only car model: '+JSON.stringify(cc));
+   assert(cc.source==='truck-cabin-interior.glb'&&cc.authoredCarMeshes===0
+     &&cc.authoredRoofPanels===0&&cc.authoredWindshields===0
+     &&cc.phoneMounts===0&&cc.phoneScreens===0,
+     layout.name+' prohibited procedural car or mounted phone returned: '+JSON.stringify(cc));
+   assert(st.modelMeshes>=2&&st.carBounds?.[0]>=2.15&&st.carBounds?.[0]<2.5,
+     layout.name+' missing full-size genuine CC0 truck geometry: '+JSON.stringify(st));
+   assert(st.carYawDeg===180&&st.forwardAxis==='-Z',
+     layout.name+' truck not facing toward windshield: '+JSON.stringify(st));
+   assert(st.cockpitViewRays?.length===3,
+     layout.name+' missing first-person cab view measurements');
+   assert(st.cockpitViewRays.filter(x=>x!==null&&x<.25).length===0,
+     layout.name+' immediate obstruction ahead of driver: '+JSON.stringify(st.cockpitViewRays));
+   assert(st.maps?.length===3,layout.name+' lost CC0 parking/mall PBR surfaces');
+   assert(await page.evaluate(()=>window.__PINEWOOD_OPENING_V34__.dashboardPhone===null),
+     layout.name+' prohibited phone still attached to preview stage');
    assert(st.wet?.puddles>=15&&st.wet?.lamps>=3,'Missing wet-lot light treatment');
    // v39: the previously enormous service portal must hug the original
    // 1.95m x 2.27m hinged door, with real facade infill on all three sides.
@@ -77,15 +72,14 @@ try{
       layout.name+' original 7m oversized canopy still present: '+JSON.stringify(entry.canopy));
    await page.waitForTimeout(500);
    await page.screenshot({path:'opening-v37-artifacts/'+layout.name+'-interior.png'});
-   // Capture actual windshield/roof and driver's LCD at the exact screenshot
-   // conditions the owner reported, on desktop and phone-size viewports.
+   // Capture the vendor truck windshield (no supplemental geometry) in the actual preview.
    await page.evaluate(()=>{window.__PINEWOOD_OPENING_V34__.seek(0);window.__PINEWOOD_OPENING_V34__.scrub(.40);});
    await page.waitForTimeout(250);
-   await page.screenshot({path:'opening-v37-artifacts/'+layout.name+'-single-windshield.png'});
-   // The phone is meant to be mounted in front of the driver, not in the back seat.
+   await page.screenshot({path:'opening-v37-artifacts/'+layout.name+'-truck-cabin.png'});
+   // Existing phone-labeled story beat now glances at the vendor truck dash, without phone.
    await page.evaluate(()=>{window.__PINEWOOD_OPENING_V34__.seek(2);window.__PINEWOOD_OPENING_V34__.scrub(.43);});
    await page.waitForTimeout(350);
-   await page.screenshot({path:'opening-v37-artifacts/'+layout.name+'-phone-glance.png'});
+   await page.screenshot({path:'opening-v37-artifacts/'+layout.name+'-truck-dashboard-glance.png'});
    await page.evaluate(()=>{window.__PINEWOOD_OPENING_V34__.seek(0);window.__PINEWOOD_OPENING_V34__.scrub(.20);});
    if(layout.name==='desktop'){
     await page.evaluate(()=>{window.__PINEWOOD_OPENING_V34__.seek(6);window.__PINEWOOD_OPENING_V34__.scrub(.5);});

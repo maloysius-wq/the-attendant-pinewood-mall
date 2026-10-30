@@ -1,5 +1,5 @@
 import * as THREE from '../vendor/three/build/three.module.js';
-import {upgradeOpeningSceneV37} from './environment-v37.js?v=40';
+import {upgradeOpeningSceneV37} from './environment-v37.js?v=41';
 const v=(x,y,z)=>new THREE.Vector3(x,y,z);
 const mat=(color,roughness=.85,metalness=0)=>new THREE.MeshStandardMaterial({color,roughness,metalness});
 const lit=(color,intensity=.4)=>new THREE.MeshStandardMaterial({color,roughness:.73,emissive:color,emissiveIntensity:intensity});
@@ -33,32 +33,9 @@ function sign(g,words,x,y,z,w,h){
  o.position.set(x,y,z);g.add(o);return o;
 }
 function glass(){return new THREE.MeshPhysicalMaterial({color:0x354d5c,roughness:.13,metalness:0,transparent:true,opacity:.30,depthWrite:false,side:THREE.DoubleSide});}
-function phoneTexture(){
- const cv=document.createElement('canvas');cv.width=560;cv.height=1000;const c=cv.getContext('2d');
- const tx=new THREE.CanvasTexture(cv);tx.colorSpace=THREE.SRGBColorSpace;const draw=(x,y,t,sz=23,color='#d9e5dd',bold=false)=>{c.fillStyle=color;c.font=(bold?'bold ':'')+sz+'px Arial';c.fillText(t,x,y);};
- function update(mode='ticket'){
-  c.fillStyle='#101a23';c.fillRect(0,0,560,1000);
-  c.fillStyle='#2f505c';c.fillRect(0,0,560,105);
-  draw(30,43,'FIELD SERVICE',29,'#f0e9db',true);draw(30,78,'DISPATCH / WORK ORDER',21,'#afcad0');
-  c.fillStyle='#e2c778';c.fillRect(30,130,500,54);draw(54,166,'PRIORITY  •  ACCEPTED',25,'#182027',true);
-  draw(29,246,'PINEWOOD MALL',43,'#f0f0e5',true);draw(30,288,'WO-28417 / EMERGENCY ELECTRICAL',19);
-  c.fillStyle='#263c48';c.fillRect(28,316,504,88);draw(46,353,'PROPERTY CLOSED',28,'#d8b89d',true);draw(46,385,'AUTHORIZED SERVICE ENTRY',20);
-  draw(32,472,'CIRCUIT STATUS',29,'#c1cfcb',true);
-  ['CONCOURSE / LIGHTING','RETAIL / PA BRANCH','SERVICE / FREIGHT'].forEach((name,i)=>{
-    const y=491+87*i;c.fillStyle='#20303b';c.fillRect(29,y,504,77);
-    c.fillStyle='#d3a873';c.fillRect(43,y+17,41,39);draw(55,y+44,'ABC'[i],23,'#1e2120',true);
-    draw(102,y+30,name,22);draw(103,y+59,'OFFLINE / INSPECT',18,'#f1a8a3');
-  });
-  draw(33,815,mode==='entry'?'CONTRACTOR ACCESS':mode==='checkin'?'ARRIVAL CONFIRMED':'ASSIGNED TASKS',25,'#c5d9d3',true);
-  draw(33,854,mode==='entry'?'ENTRY PIN 2841':mode==='checkin'?'STATUS / ON SITE':'RESTORE A-C / TEST FREIGHT',22);
-  c.fillStyle='#31534c';c.fillRect(30,901,499,68);draw(72,946,mode==='entry'?'CODE ACCEPTED':mode==='checkin'?'CHECK-IN COMPLETE':'OPEN SITE DIRECTORY',26,'#edf2e7',true);
-  tx.needsUpdate=true;
- }
- update();return{texture:tx,update};
-}
 export const shots={
  car:{pos:v(-10.54,1.59,18.08),end:v(-10.53,1.57,18.04),look:v(-7,2.45,-22),endLook:v(0,2.85,-22)},
- phone:{pos:v(-10.54,1.57,18.08),end:v(-10.41,1.55,17.99),look:v(-10.24,1.48,17.18),endLook:v(-10.24,1.48,17.18)},
+ phone:{pos:v(-10.53,1.42,17.95),end:v(-10.41,1.38,17.83),look:v(-10.32,1.17,16.53),endLook:v(-10.32,1.17,16.53)},
  lot:{pos:v(-9,1.72,15),end:v(-6,1.72,12),look:v(12,2,-22),endLook:v(12,1.5,-22)},
  walk:{pos:v(-5,1.71,11),end:v(5,1.71,-9),look:v(12,1.5,-22),endLook:v(12,1.6,-22)},
  entrance:{pos:v(5,1.7,-9),end:v(9,1.7,-15.8),look:v(12,1.6,-22),endLook:v(13.65,1.4,-22)},
@@ -125,16 +102,10 @@ export function makeOpeningScene(){
  notice(world,'PINEWOOD\nSERVICE MAP',['A  CONCOURSE / EMERGENCY','B  RETAIL / PA','C  SERVICE / FREIGHT','EAST WING  AUTHORIZED'],0,2.2,-31.01,2.45,1.98,{h:700});
  notice(world,'STAFF\nNOTICE',['VERIFY DOORS','RETURN ALL KEYS','CLOCK OUT BEFORE LEAVING'],9.3,1.8,-55.73,1.14,1.39);
  for(const z of[-32,-43,-52])for(const x of[-8,8]){box(world,x,6.5,z,2.8,.14,.55,mat(0x646960));lamp(scene,x,6.25,z,0xb9c3b4,.8,9);}
- // V40: the single locally vendored CC0 cabin supplies dashboard, seats and
- // primary cockpit geometry. The matching roof/A-pillars and ONE windshield are
- // created by the environment loader, *after* the model is measured.
- // None of the old procedural hood, full-width windshield bars, faux seats,
- // duplicate wheel, or second glass panel may be rendered.
- const car=new THREE.Group();car.position.set(-10,0,17.5);world.add(car);
- const phoneUi=phoneTexture();
- const carStructure=new THREE.Group();carStructure.name='Pinewood unified car roof and glass';car.add(carStructure);
- const holder=new THREE.Group();holder.name='Work phone mounting anchor';car.add(holder);
- box(world,-9.2,.45,18.75,1.1,.5,.84,mat(0x5a5549));
+ // Owner-approved v41: a single unmodified CC0 utility/sleeper truck cabin.
+ // There is ZERO authored car geometry: no roof, pillars, windshield, dashboard,
+ // seats, tires, steering wheel, or phone mount/phone UI anywhere in this scene.
+ const car=new THREE.Group();car.name='Sole CC0 utility cabin placement';car.position.set(-10,0,17.5);world.add(car);
  // Parking fixtures.
  for(const [x,z] of[[-21,9],[28,5],[0,28]]){cyl(world,x,3.9,z,.09,7.8,steel);box(world,x,7.75,z,.8,.2,.5,concrete);lamp(scene,x,7.3,z,0xd9c6a3,3.2,19);}
  for(let i=0;i<7;i++){const x=-32+i*10;box(world,x,.38,-13.7,4.2,.55,1.35,concrete);for(let k=-1;k<=1;k++)cyl(world,x+k*.9,.86,-13.7,.55,.7,mat(0x2a382e));}
@@ -149,7 +120,7 @@ export function makeOpeningScene(){
  for(let i=0;i<rainCount;i++){positions[i*3]=((i*41.71)%108)-54;positions[i*3+1]=((i*17.23)%13)+.3;positions[i*3+2]=((i*29.31)%55)-11;}
  const geom=new THREE.BufferGeometry();geom.setAttribute('position',new THREE.BufferAttribute(positions,3));
  const rain=new THREE.Points(geom,new THREE.PointsMaterial({color:0x93aec0,size:.055,transparent:true,opacity:.52,depthWrite:false}));world.add(rain);
- const stage={scene,pivot,rain,phoneUi,phoneMount:holder,
+ const stage={scene,pivot,rain,
   serviceEntry:{
    opening:serviceOpening,doorSlab:serviceDoorSlab,
    leftInfill:serviceLeftInfill,rightInfill:serviceRightInfill,
@@ -159,8 +130,7 @@ export function makeOpeningScene(){
   }
  };
  stage.assetReady=upgradeOpeningSceneV37({
-  scene,world,car,carStructure,holder,phoneUi,stage,
-  materials:{facade,steel},lotMaterial
+  scene,world,car,stage,materials:{facade,steel},lotMaterial
  });
  return stage;
 }
