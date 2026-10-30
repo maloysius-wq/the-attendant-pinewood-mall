@@ -75,6 +75,15 @@ try{
   console.log('V49_VISUAL_PIXELS_'+kind.toUpperCase()+'='+JSON.stringify(pixels));
   assert(pixels.appTextPixels>12,kind+' app display is blank in actual Chromium pixels: '+JSON.stringify(pixels));
   assert(pixels.skinPixels>5,kind+' source CC0 fingers are invisible next to handset: '+JSON.stringify(pixels));
+  // Regression: rejected v49 pointed the four fingers almost straight UP.
+  const fingerDirection=await page.evaluate(()=>{
+   const hand=window.__PINEWOOD_OPENING_V34__.handheldPhone.hand;
+   const local=bone=>hand.phoneRoot.worldToLocal(bone.getWorldPosition(new (hand.bones.Hand.position.constructor)()));
+   return local(hand.bones.PointTip).sub(local(hand.bones.Hand)).toArray();
+  });
+  console.log('V50_'+kind.toUpperCase()+'_GRIP_DIRECTION='+JSON.stringify(fingerDirection));
+  assert(fingerDirection[0]<-.035&&Math.abs(fingerDirection[0])>Math.abs(fingerDirection[1])*.65,
+   kind+' fingers are not turned horizontally LEFT: '+JSON.stringify(fingerDirection));
   await page.screenshot({path:'opening-v48-focus-artifacts/'+kind+'-hold.png'});
   console.log('V49_HOLD_'+kind.toUpperCase()+'_BOUNDS='+JSON.stringify(bounds));
   console.log((kind==='desktop'?'V48_FOCUSED_HOLD_DESKTOP_JPEG=':'V48_FOCUSED_HOLD_MOBILE_JPEG=')
@@ -86,6 +95,13 @@ try{
   assert(tap.tap&&tap.hand.thumbTipDistance!==null&&tap.hand.thumbTipDistance<.048,
    kind+' original thumb fails physical button contact: '+JSON.stringify(tap.hand));
   await page.screenshot({path:'opening-v48-focus-artifacts/'+kind+'-tap.png'});
+  // User's screenshot: PAUSED after CHECKED IN; verify the same shot.
+  await page.evaluate(()=>{const s=window.__PINEWOOD_OPENING_V34__;s.seek(0);s.scrub(.82)});
+  await page.waitForTimeout(230);
+  await page.locator('[data-intro-pause]').click();
+  await page.screenshot({path:'opening-v48-focus-artifacts/'+kind+'-checked-in-paused.png'});
+  if(kind==='desktop')console.log('V50_CHECKED_IN_DESKTOP_JPEG='+(await page.screenshot({type:'jpeg',quality:52})).toString('base64'));
+  await page.locator('[data-intro-pause]').click();
   console.log((kind==='desktop'?'V48_FOCUSED_TAP_DESKTOP_JPEG=':'V48_FOCUSED_TAP_MOBILE_JPEG=')
     +(await page.screenshot({type:'jpeg',quality:48})).toString('base64'));
   assert(!remote.length,'Remote assets loaded: '+remote);
