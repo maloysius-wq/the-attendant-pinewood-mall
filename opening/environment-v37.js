@@ -208,10 +208,13 @@ export async function upgradeOpeningSceneV37({scene,world,car,carStructure,holde
    if(o.isMesh){const mm=Array.isArray(o.material)?o.material:[o.material];
     for(const m of mm)if(m?.color)m.color.multiplyScalar(.67);}
   });
-  car.add(mount);
-  holder.position.set(-.24,1.48,-.32);
+  // Measure the mount BEFORE parenting it under the translated world car.
+  // A world-space bounding box used as a local position sends the LCD
+  // seventeen metres away from the cockpit.
   const phoneBox=new THREE.Box3().setFromObject(mount);
   const phoneCenter=phoneBox.getCenter(new THREE.Vector3());
+  car.add(mount);
+  holder.position.set(-.24,1.48,-.32);
   const eyeLocal=new THREE.Vector3(-.54,1.60,.58);
   const phonePosition=new THREE.Vector3(phoneCenter.x,Math.max(1.46,phoneCenter.y),phoneBox.max.z+.024);
   // Face +Z of PlaneGeometry directly at the driver so the LCD can never show
@@ -247,7 +250,7 @@ export async function upgradeOpeningSceneV37({scene,world,car,carStructure,holde
   };
   // Prevent accidentally shipping the far-away, tiny, blank-screen behavior.
   if(frontFacing<.99||phoneDistance>1.15||phoneDistance<.55)
-   throw Error('Cockpit phone is not driver-facing and within arm reach');
+   throw Error('Cockpit phone placement invalid: facing='+frontFacing.toFixed(3)+', driverDistance='+phoneDistance.toFixed(3));
   if(manifest.streetLamp){
    try{
     const lamp=await new Promise((resolve,reject)=>loader.load(asURL(manifest.streetLamp),x=>resolve(x.scene),undefined,reject));
