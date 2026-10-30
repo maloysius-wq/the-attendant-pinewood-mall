@@ -24,12 +24,22 @@ try{
    const st=await page.evaluate(()=>window.__PINEWOOD_OPENING_V34__.environmentV37);
    assert(st.state==='ready',layout.name+' v37 asset stage failed: '+JSON.stringify(st.errors));
    assert(st.car==='loaded'&&st.phone==='loaded',layout.name+' first-person models absent: '+JSON.stringify(st));
+   // Regression for screenshot report: the CC0 car was loaded 180° backwards.
+   assert(st.carYawDeg===180&&st.forwardAxis==='-Z',layout.name+' imported cabin is reversed: '+JSON.stringify(st));
+   assert(st.cockpitViewRays?.length===3,layout.name+' cockpit first-person clearance telemetry missing');
+   const nearSeat=st.cockpitViewRays.filter(d=>d!==null&&d<.46);
+   assert(!nearSeat.length,layout.name+' object blocks driver eye within 46cm: '+JSON.stringify(st.cockpitViewRays));
    assert(st.maps?.length===3,layout.name+' PBR surfaces incomplete');
    assert(st.carBounds?.[0]>1.5&&st.carBounds?.[0]<2.1,'Car geometry not full scale');
    assert(st.phoneBounds?.[0]>.08&&st.phoneBounds?.[0]<.14,'Phone mount out of scale');
    assert(st.wet?.puddles>=15&&st.wet?.lamps>=3,'Missing wet-lot light treatment');
    await page.waitForTimeout(500);
    await page.screenshot({path:'opening-v37-artifacts/'+layout.name+'-interior.png'});
+   // The phone is meant to be mounted in front of the driver, not in the back seat.
+   await page.evaluate(()=>{window.__PINEWOOD_OPENING_V34__.seek(2);window.__PINEWOOD_OPENING_V34__.scrub(.43);});
+   await page.waitForTimeout(350);
+   await page.screenshot({path:'opening-v37-artifacts/'+layout.name+'-phone-glance.png'});
+   await page.evaluate(()=>{window.__PINEWOOD_OPENING_V34__.seek(0);window.__PINEWOOD_OPENING_V34__.scrub(.20);});
    if(layout.name==='desktop'){
     await page.evaluate(()=>{window.__PINEWOOD_OPENING_V34__.seek(6);window.__PINEWOOD_OPENING_V34__.scrub(.5);});
     await page.waitForTimeout(300);
