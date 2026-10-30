@@ -1,4 +1,4 @@
-name: The Call v45 handheld check-in + synced subtitles
+name: The Call v46 accurately framed service door + cinematic
 on:
   push:
     branches: [feature/the-call-v37-cc0-atmosphere, main]
@@ -71,13 +71,13 @@ jobs:
           for i in {1..30}; do curl -fsS http://127.0.0.1:4173/review/the-call-v34/ >/dev/null && exit 0; sleep 1; done
           cat /tmp/pinewood-v37-http.log
           exit 1
-      - name: Exercise v45 handheld check-in, subtitle sync and enclosed car in Chromium
+      - name: Exercise v46 precise service-door fit and complete cinematic in Chromium
         run: node scripts/smoke-opening-v37.mjs
       - name: Preserve cinematic screenshots and telemetry
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: pinewood-opening-v45
+          name: pinewood-opening-v46
           path: opening-v37-artifacts/
           if-no-files-found: warn
           retention-days: 7
