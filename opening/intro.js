@@ -1,6 +1,6 @@
 import * as THREE from '../vendor/three/build/three.module.js';
-import {makeOpeningScene} from './scene.js?v=40';
-import {HumanCameraRig} from './camera.js?v=40';
+import {makeOpeningScene} from './scene.js?v=41';
+import {HumanCameraRig} from './camera.js?v=41';
 import {OpeningAmbience} from './ambience.js?v=35';
 const $=id=>document.getElementById(id);
 const query=new URLSearchParams(location.search);
@@ -88,7 +88,7 @@ class Intro{
    ref.addEventListener('loadedmetadata',()=>{if(Number.isFinite(ref.duration))this.wait=Math.max(this.wait,ref.duration+(this.line.pause||1.5));},{once:true});
    ref.play().catch(()=>{});
   }
-  if(this.stage)this.stage.phoneUi.update(this.index>=8?'entry':this.index>=1?'checkin':'ticket');
+  // v41: no phone/UI object. Dispatch remains audio-only over the truck radio.
   this.root.dataset.shot=this.line.shot;
   // The work phone now lives on a real dashboard bracket and never pops up as an HTML card.
   this.root.querySelector('.pwm-phone-sheet').hidden=true;
@@ -152,7 +152,8 @@ class Intro{
    o.geometry?.dispose?.();
    for(const m of o.material?(Array.isArray(o.material)?o.material:[o.material]):[]){m.map?.dispose?.();m.dispose?.();}
   });
-  this.stage?.phoneUi.texture.dispose();
+  // No phone exists in the vendor-only utility cabin. Clean up conditionally.
+  this.stage?.phoneUi?.texture?.dispose?.();
   this.renderer?.dispose();this.renderer?.domElement.remove();
   this.root.classList.remove('pwm-active');this.root.hidden=true;
   const clone=this.root.cloneNode(true);this.root.replaceWith(clone);
@@ -215,10 +216,10 @@ window.__PINEWOOD_OPENING_V34__={
    head:bbox(entry.head),sill:bbox(entry.sill),canopy:bbox(entry.canopy)
   };
  },
- get dashboardPhone(){if(!active?.stage?.phoneMount)return null;const p=new THREE.Vector3();active.stage.phoneMount.getWorldPosition(p);return p.toArray();},
+ get dashboardPhone(){return null;},
  get sceneStats(){
   if(!active?.stage)return null;
-  let meshes=0,signs=[],phoneTexture=active.stage.phoneUi.texture?.image;
+  let meshes=0,signs=[],phoneTexture=null;
   active.stage.scene.traverse(o=>{if(o.isMesh)meshes++;if(o.userData?.openingWallPaper)signs.push({text:o.userData.openingWallPaper,position:o.position.toArray()});});
   return {meshCount:meshes,wallNotices:signs,phoneTexture:[phoneTexture?.width||0,phoneTexture?.height||0],rainParticles:active.stage.rain.geometry.attributes.position.count,doorAngle:active.stage.pivot.rotation.y};
  },

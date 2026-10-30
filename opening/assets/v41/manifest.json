@@ -1,0 +1,12 @@
+{
+  "version": 41,
+  "asset": "truck-cabin-interior.glb",
+  "license": "CC0-1.0",
+  "source": "https://grab3d.com/dl/truck-cabin-interior/truck-cabin-interior-light.glb",
+  "info": "https://grab3d.com/models/vehicles/truck-cabin-interior/",
+  "sha256": "55fd49389f6e7573a3ad95650cd161d5777e8b507bfa7d58cf3ddc8dd3a1f4cd",
+  "bytes": 1104372,
+  "meshes": 6,
+  "materials": 10,
+  "note": "Only source truck cabin; no procedural or mounted phone models"
+}

@@ -9,40 +9,6 @@ const loader=new GLTFLoader();
 const textureLoader=new THREE.TextureLoader();
 const asURL=name=>new URL(name,base).href;
 const finite=(x,min,max)=>Math.max(min,Math.min(max,x));
-// Used ONLY for thin matching bodywork. The CC0 GLB remains the sole cockpit.
-function beam(group,from,to,radius,material){
- const a=new THREE.Vector3(...from),b=new THREE.Vector3(...to);
- const delta=b.clone().sub(a),m=new THREE.Mesh(new THREE.CylinderGeometry(radius,radius,delta.length(),10),material);
- m.position.copy(a).add(b).multiplyScalar(.5);
- m.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),delta.normalize());
- group.add(m);return m;
-}
-function unifiedCabinShell(group){
- // The authored original overdraw was the real bug: multiple windscreens,
- // oversized horizontal bars, old seats, dashboard, wheels and a ghost roof.
- // Build ONE low-profile weatherproof shell around the measured GLB instead.
- const paint=new THREE.MeshStandardMaterial({color:0x252f35,roughness:.65,metalness:.30});
- const edge=new THREE.MeshStandardMaterial({color:0x202b31,roughness:.67,metalness:.22});
- const roof=new THREE.Mesh(new THREE.BoxGeometry(2.00,.095,3.38),paint);
- roof.position.set(0,2.055,.23);group.add(roof);
- // The A pillars meet the imported dashboard at the front corners. No broad
- // horizontal roll bar crosses the driver's line of sight.
- for(const side of [-1,1]){
-  beam(group,[side*.97,1.25,-1.48],[side*.97,2.01,-1.19],.041,edge);
-  beam(group,[side*.98,1.29,1.41],[side*.98,2.01,1.50],.046,edge);
- }
- const topTrim=new THREE.Mesh(new THREE.BoxGeometry(1.91,.038,.055),edge);
- topTrim.position.set(0,2.015,-1.245);group.add(topTrim);
- // One single, very lightly tinted windshield panel. No other authored glass.
- const wind=new THREE.Mesh(new THREE.PlaneGeometry(1.88,.80),new THREE.MeshPhysicalMaterial({
-  color:0x8dabb8,transparent:true,opacity:.075,roughness:.12,metalness:0,
-  depthWrite:false,side:THREE.DoubleSide
- }));
- wind.position.set(0,1.635,-1.405);wind.rotation.x=-.24;group.add(wind);
- const roofRear=new THREE.Mesh(new THREE.BoxGeometry(1.98,.045,.07),edge);
- roofRear.position.set(0,2.007,1.45);group.add(roofRear);
- return{roof,wind};
-}
 function placeRealSize(model,width,ground,cx,cz){
  model.updateMatrixWorld(true);
  const bounds=new THREE.Box3().setFromObject(model),sz=bounds.getSize(new THREE.Vector3());
@@ -126,8 +92,8 @@ async function loadMaterial(prefix,files,repeat){
  }
  return maps;
 }
-export async function upgradeOpeningSceneV37({scene,world,car,carStructure,holder,phoneUi,materials,lotMaterial,stage}){
- const status={version:37,state:'loading',car:'pending',phone:'pending',maps:[],lamp:'pending',errors:[],wet:null};
+export async function upgradeOpeningSceneV37({scene,world,car,materials,lotMaterial,stage}){
+ const status={version:41,state:'loading',car:'pending',phone:'removed',maps:[],lamp:'pending',errors:[],wet:null,source:'truck-cabin-interior.glb'};
  stage.v37=status;
  try{
   const response=await fetch(asURL('manifest.json'),{cache:'no-store',mode:'same-origin'});
@@ -135,8 +101,11 @@ export async function upgradeOpeningSceneV37({scene,world,car,carStructure,holde
   const manifest=await response.json();
   if(manifest.license!=='CC0-1.0'||manifest.version!==37)throw Error('Unexpected v37 manifest');
   const files=manifest.assets.map(x=>x.file);
-  const required=['1990s-car-interior.glb','car-phone-holder.glb'];
-  for(const n of required)if(!files.includes(n))throw Error('Missing licensed local GLB '+n);
+  const truckReply=await fetch(new URL('./assets/v41/manifest.json',import.meta.url),{cache:'no-store'});
+  if(!truckReply.ok)throw Error('Missing local v41 utility cabin manifest');
+  const truckMeta=await truckReply.json();
+  if(truckMeta.version!==41||truckMeta.license!=='CC0-1.0'||truckMeta.asset!=='truck-cabin-interior.glb')
+    throw Error('Unexpected truck model license / filename');
   // Update materials in place; all existing doorway and chapter boundaries stay.
   const [asphalt,wall,rust]=await Promise.all([
    loadMaterial('asphalt',files,[21,19]),
@@ -155,102 +124,41 @@ export async function upgradeOpeningSceneV37({scene,world,car,carStructure,holde
   for(const m of [lotMaterial,materials.facade,materials.steel])m.needsUpdate=true;
   status.maps=['asphalt_02','cracked_concrete_wall','rusty_metal'];
   status.wet=mistAndLights(scene,world);
-  const model=await promiseGLB(asURL('1990s-car-interior.glb'));
-  // Grab3D's source cabin faces +Z; Pinewood's established driver looks toward -Z.
-  // Rotate the interior BEFORE centering/scaling it so the front seats/dashboard
-  // are ahead of the driver and rear seating stays behind the eye position.
-  // The outer car shell, authored camera choreography and mounted work-phone
-  // are already oriented in -Z and must NOT rotate with the imported cabin.
-  model.rotation.y=Math.PI;
-  model.updateMatrixWorld(true);
-  // The source's original pivot put its driver's headrest at the camera eye.
-  // Seat the cabin slightly rearward inside the existing exterior shell rather
-  // than moving the approved first-person eye/camera choreography.
-  const carDimensions=placeRealSize(model,1.82,.30,0,.34);
-  status.cabinRearOffset=.34;
-  status.carYawDeg=180;
-  status.forwardAxis='-Z';
+  // Exactly ONE model; no authored car roof, windshield, seats, phone,
+  // floating LCD or kitbashed frame. The vendor GLB supplies every surface.
+  const cabinURL=new URL('./assets/v41/truck-cabin-interior.glb',import.meta.url);
+  const model=await promiseGLB(cabinURL.href);
+  model.name='Grab3D CC0 Truck Cabin Interior (only car mesh)';
+  // Grab3D cabin convention faces +Z; cinematic driver looks toward -Z.
+  model.rotation.y=Math.PI;model.updateMatrixWorld(true);
+  const size=placeRealSize(model,2.28,0,0,.20);
+  let meshes=0;
   model.traverse(o=>{
    if(o.isMesh){
-    o.frustumCulled=false;
-    // Make the family-car finish dirty, not pastel toy-bright.
-    const materials=Array.isArray(o.material)?o.material:[o.material];
-    for(const m of materials)if(m?.color)m.color.multiplyScalar(.68);
+    meshes++;
+    const ms=Array.isArray(o.material)?o.material:[o.material];
+    for(const m of ms)if(m?.color)m.color.multiplyScalar(.55);
    }
   });
   car.add(model);
-  // A geometry-based forward-visibility check guards against placing an entire
-  // front seat directly in front of the first-person camera again.
-  car.updateMatrixWorld(true);
-  model.updateMatrixWorld(true);
-  const eye=car.localToWorld(new THREE.Vector3(-.54,1.60,.58));
-  status.cockpitViewRays=[-.16,0,.16].map(x=>{
-   const direction=new THREE.Vector3(x,0,-1).normalize();
-   const ray=new THREE.Raycaster(eye,direction,.08,1.25);
-   const first=ray.intersectObject(model,true)[0];
-   return first?Number(first.distance.toFixed(3)):null;
-  });
-  const shell=unifiedCabinShell(carStructure);
-  status.cockpit={
-   construction:'single-CC0-cabin',legacyGeometry:0,
-   authoredRoofPanels:1,authoredWindshields:1,
-   frontRoofY:Number(shell.roof.position.y.toFixed(3)),
-   windshieldZ:Number(shell.wind.position.z.toFixed(3))
-  };
+  car.updateWorldMatrix(true,true);
+  if(car.children.length!==1||meshes<2)throw Error('Cabin is not a single self-contained vendor model');
   status.car='loaded';
-  status.carBounds=carDimensions;
-  // The phone must be within arm's reach of the LEFT-HAND driver, not at
-  // x=+0.36 on the far passenger side. The CC0 bracket is retained and the
-  // actual authored dispatch texture is drawn on a visible front surface.
-  const mount=await promiseGLB(asURL('car-phone-holder.glb'));
-  const mountDims=placeRealSize(mount,.14,1.35,-.24,-.38);
-  mount.traverse(o=>{
-   if(o.isMesh){const mm=Array.isArray(o.material)?o.material:[o.material];
-    for(const m of mm)if(m?.color)m.color.multiplyScalar(.67);}
+  status.carBounds=size;
+  status.modelMeshes=meshes;
+  status.cockpit={construction:'single-GRAB3D-truck-cabin',vendorOnly:true,
+    authoredCarMeshes:0,authoredRoofPanels:0,authoredWindshields:0,
+    phoneMounts:0,phoneScreens:0,source:'truck-cabin-interior.glb',
+    sourceSha256:truckMeta.sha256};
+  // Detect geometry directly in front of the first-person eye, rather than
+  // claiming that mesh counts alone guarantee a convincing camera angle.
+  const eye=car.localToWorld(new THREE.Vector3(-.53,1.42,.45));
+  status.cockpitViewRays=[-.15,0,.15].map(x=>{
+   const ray=new THREE.Raycaster(eye,new THREE.Vector3(x,0,-1).normalize(),.08,.85);
+   const result=ray.intersectObject(model,true)[0];
+   return result?Number(result.distance.toFixed(3)):null;
   });
-  // Measure the mount BEFORE parenting it under the translated world car.
-  // A world-space bounding box used as a local position sends the LCD
-  // seventeen metres away from the cockpit.
-  const phoneBox=new THREE.Box3().setFromObject(mount);
-  const phoneCenter=phoneBox.getCenter(new THREE.Vector3());
-  car.add(mount);
-  holder.position.set(-.24,1.48,-.32);
-  const eyeLocal=new THREE.Vector3(-.54,1.60,.58);
-  const phonePosition=new THREE.Vector3(phoneCenter.x,Math.max(1.46,phoneCenter.y),phoneBox.max.z+.024);
-  // Face +Z of PlaneGeometry directly at the driver so the LCD can never show
-  // its untextured back to the only player camera.
-  const screen=new THREE.Mesh(new THREE.PlaneGeometry(.100,.166),
-   new THREE.MeshBasicMaterial({
-    map:phoneUi.texture,color:0xffffff,side:THREE.DoubleSide,
-    toneMapped:false,depthWrite:false,depthTest:false
-   }));
-  screen.position.copy(phonePosition);screen.lookAt(eyeLocal);screen.renderOrder=140;
-  const bezel=new THREE.Mesh(new THREE.PlaneGeometry(.112,.182),
-   new THREE.MeshBasicMaterial({color:0x10171c,side:THREE.DoubleSide,depthTest:false,depthWrite:false}));
-  bezel.position.copy(phonePosition);
-  const normal=new THREE.Vector3(0,0,1).applyQuaternion(screen.quaternion);
-  bezel.position.addScaledVector(normal,-.004);
-  bezel.quaternion.copy(screen.quaternion);bezel.renderOrder=139;
-  car.add(bezel,screen);
-  stage.phoneMount=mount;
-  stage.phoneScreen=screen;
-  phoneUi.update('ticket');
-  const toEye=eyeLocal.clone().sub(screen.position);
-  const frontFacing=normal.dot(toEye.clone().normalize());
-  const phoneDistance=toEye.length();
-  status.phone='loaded';
-  status.phoneBounds=mountDims;
-  status.phoneScreen={
-   width:.100,height:.166,textureSize:[phoneUi.texture.image.width,phoneUi.texture.image.height],
-   frontFacing:Number(frontFacing.toFixed(3)),
-   driverDistance:Number(phoneDistance.toFixed(3)),position:screen.position.toArray(),
-   actualCanvasTexture:screen.material.map===phoneUi.texture,
-   lit:screen.material.toneMapped===false,
-   legible:screen.material.depthTest===false
-  };
-  // Prevent accidentally shipping the far-away, tiny, blank-screen behavior.
-  if(frontFacing<.99||phoneDistance>1.15||phoneDistance<.55)
-   throw Error('Cockpit phone placement invalid: facing='+frontFacing.toFixed(3)+', driverDistance='+phoneDistance.toFixed(3));
+  status.carYawDeg=180;status.forwardAxis='-Z';
   if(manifest.streetLamp){
    try{
     const lamp=await new Promise((resolve,reject)=>loader.load(asURL(manifest.streetLamp),x=>resolve(x.scene),undefined,reject));
