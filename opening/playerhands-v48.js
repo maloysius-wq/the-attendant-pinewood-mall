@@ -78,11 +78,29 @@ export class RiggedPlayerHand {
    // Keep the upper thumb free to reach the app's button.
    const wrist=bones.Hand.getWorldPosition(new THREE.Vector3());
    const fingertip=bones.PointTip.getWorldPosition(new THREE.Vector3());
-   const fingerDirection=fingertip.clone().sub(wrist).normalize();
-   const intendedFingerDirection=v(-.90,.19,.39).normalize();
+   // All alignment axes are PHONE-LOCAL. The phone is pitched and rolled
+   // relative to the camera, so world-space alignment produced a reversed,
+   // edge-on grip in the owner's screenshots.
+   const worldToPhoneAxis=this.phoneRoot.getWorldQuaternion(new THREE.Quaternion()).invert();
+   const fingerDirection=fingertip.clone().sub(wrist)
+    .applyQuaternion(worldToPhoneAxis).normalize();
+   const intendedFingerDirection=v(-.60,.76,.25).normalize();
    if(fingerDirection.lengthSq()>.9){
     const q=new THREE.Quaternion().setFromUnitVectors(fingerDirection,intendedFingerDirection);
     model.quaternion.premultiply(q);
+   }
+   model.updateWorldMatrix(true,true);
+   // Twist around the knuckle axis so the SOURCE thumb is above and in
+   // FRONT of the fingers, pointing toward the phone glass. This preserves
+   // the full genuine skinned armature without mirroring negative-scale bones.
+   const phonePoint=bone=>this.phoneRoot.worldToLocal(bone.getWorldPosition(new THREE.Vector3()));
+   const across=phonePoint(bones.ThumbA).sub(phonePoint(bones.Hand))
+    .projectOnPlane(intendedFingerDirection).normalize();
+   const desiredThumb=v(.78,.16,.60).projectOnPlane(intendedFingerDirection).normalize();
+   if(across.lengthSq()>.9&&desiredThumb.lengthSq()>.9){
+    const cross=new THREE.Vector3().crossVectors(across,desiredThumb);
+    const angle=Math.atan2(intendedFingerDirection.dot(cross),across.dot(desiredThumb));
+    model.quaternion.premultiply(new THREE.Quaternion().setFromAxisAngle(intendedFingerDirection,angle));
    }
    model.updateWorldMatrix(true,true);
    // All model translations are in PHONE-LOCAL coordinates. In particular,
@@ -95,13 +113,13 @@ export class RiggedPlayerHand {
    // align its idle hover just left/above CHECK IN. This prevents the
    // 20-bone arm from reaching over the phone and missing the button.
    const currentTip=this.phoneRoot.worldToLocal(bones.ThumbTip.getWorldPosition(new THREE.Vector3()));
-   model.position.add(v(-.086,-.098,.075).sub(currentTip));
+   model.position.add(v(-.095,-.080,.090).sub(currentTip));
    // The wrist and curled fingers support the BACK of the handset. Only
    // the thumb should travel in front of its glass during the check-in tap.
-   model.position.z-=.055;
+   model.position.z-=.025;
    // Let the fingers wrap the LEFT chassis edge instead of hovering over
    // the work-order text; the thumb alone reaches across to the app button.
-   model.position.x-=.040;
+   model.position.x-=.012;
    model.updateWorldMatrix(true,true);
    this.model=model;this.bones=bones;this.meshCount=meshes;
    this.bindPoses={};
@@ -134,9 +152,9 @@ export class RiggedPlayerHand {
   // Curl original weighted finger joints around the BACK/left side of the
   // phone rather than leaving four long straight fingers over the app.
   for(const base of ['Pinky','Ring','Finger','Point']){
-   if(this.bones[base+'A'])this.bones[base+'A'].rotateX(.38);
-   if(this.bones[base+'B'])this.bones[base+'B'].rotateX(.42);
-   if(this.bones[base+'Tip'])this.bones[base+'Tip'].rotateX(.12);
+   if(this.bones[base+'A'])this.bones[base+'A'].rotateX(.51);
+   if(this.bones[base+'B'])this.bones[base+'B'].rotateX(.65);
+   if(this.bones[base+'Tip'])this.bones[base+'Tip'].rotateX(.18);
   }
   this.model.updateWorldMatrix(true,true);
   const start=this.thumbPos();
