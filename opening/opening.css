@@ -25,14 +25,14 @@
 #pwm-opening .pwm-preview-note{position:absolute;z-index:3;top:17%;left:4.5vw;padding:9px 13px;background:rgba(0,0,0,.56);border-left:3px solid #b6b39c;color:#e4e2d6;font-size:11px;letter-spacing:.1em}
 #pwm-opening.pwm-no-webgl{background:radial-gradient(circle at 70% 60%,#1d343a,#080e13 55%,#020508)}
 #pwm-opening.pwm-no-webgl .pwm-render:after{content:'PINEWOOD MALL';position:absolute;top:42%;left:50%;transform:translate(-50%,-50%);color:#9c9f89;font-size:clamp(36px,7vw,95px);letter-spacing:.15em;text-align:center;text-shadow:0 0 30px #455a58}
-#pwm-opening[data-paused=true]:before{content:'PAUSED';position:absolute;z-index:6;top:50%;left:50%;transform:translate(-50%,-50%);font-size:clamp(28px,5vw,64px);letter-spacing:.23em;text-shadow:0 1px 30px black;pointer-events:none}
+#pwm-opening[data-paused=true]:before{content:'PAUSED';position:absolute;z-index:6;bottom:19vh;left:4.5vw;padding:8px 12px;border:1px solid rgba(211,224,217,.3);border-radius:3px;background:rgba(3,13,17,.82);font-size:12px;font-weight:700;letter-spacing:.17em;text-shadow:0 1px 8px black;pointer-events:none}
 @media(max-width:690px){
  #pwm-opening .pwm-head{top:7vh;left:5vw;right:5vw}
  #pwm-opening .pwm-transport{top:calc(8vh + 22px);right:5vw;left:5vw;max-width:none}
  #pwm-opening .pwm-transport button{font-size:11px;padding:9px 7px;min-height:44px;flex:1}
  #pwm-opening .pwm-preview-note{display:none}
  #pwm-opening .pwm-caption-area{bottom:11%;width:91%}
- #pwm-opening[data-phone-raised="true"] .pwm-caption-area{left:50%;bottom:10.6%;width:91%}
+ #pwm-opening[data-phone-raised="true"] .pwm-caption-area{left:50%;top:19vh;bottom:auto;width:91%}
  #pwm-opening .pwm-caption{min-height:65px;padding:9px 12px;font-size:16px}
  #pwm-opening .pwm-footer{display:none}
 }

@@ -1,11 +1,24 @@
-name: The Call v48 foreground arm pose review
+name: The Call v49 handset framing and real skinned hand
 on:
   push:
-    branches: [feature/the-call-v48-cc0-playerhands-forearm]
+    branches: [fix/the-call-v49-framing-and-skinned-hand, main]
     paths:
       - 'opening/playerhands-v48.js'
       - 'opening/phone-v45.js'
+      - 'opening/intro.js'
+      - 'opening/opening.css'
+      - 'review/the-call-v34/index.html'
       - 'opening/assets/v48/**'
+      - 'scripts/smoke-playerhands-v48.mjs'
+      - '.github/workflows/playerhands-v48-visual.yml'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'opening/playerhands-v48.js'
+      - 'opening/phone-v45.js'
+      - 'opening/intro.js'
+      - 'opening/opening.css'
+      - 'review/the-call-v34/index.html'
       - 'scripts/smoke-playerhands-v48.mjs'
       - '.github/workflows/playerhands-v48-visual.yml'
 permissions:
@@ -25,6 +38,7 @@ jobs:
           test -s opening/assets/v48/manifest.json
           node --check opening/playerhands-v48.js
           node --check opening/phone-v45.js
+          node --check opening/intro.js
           node --check scripts/smoke-playerhands-v48.mjs
       - name: Install deterministic Chromium
         run: |

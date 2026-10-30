@@ -41,13 +41,17 @@ export class RiggedPlayerHand {
     if(obj.isMesh){
      meshes++;
      if(obj.isSkinnedMesh&&obj.skeleton?.bones?.length>=12)skinned++;
-     // Cinematic foreground rendering must not disappear through the car.
+     // Foreground is rendered in its own depth-cleared pass. Preserve the
+     // source mesh's front faces and real depth buffering: forcing DoubleSide
+     // with depth disabled showed internal triangles through the skin.
      for(const material of Array.isArray(obj.material)?obj.material:[obj.material]){
       if(!material)continue;
-      material.depthTest=false;material.depthWrite=false;
-      material.side=THREE.DoubleSide;
+      material.depthTest=true;material.depthWrite=true;
+      material.side=THREE.FrontSide;
       material.needsUpdate=true;
      }
+     // Draw the real finger mesh AFTER the flat LCD texture, while depth
+     // testing against the solid case so the grip stays physically layered.
      obj.renderOrder=10030;
      obj.frustumCulled=false;
     }
@@ -91,6 +95,12 @@ export class RiggedPlayerHand {
    // 20-bone arm from reaching over the phone and missing the button.
    const currentTip=this.phoneRoot.worldToLocal(bones.ThumbTip.getWorldPosition(new THREE.Vector3()));
    model.position.add(v(-.086,-.098,.075).sub(currentTip));
+   // The wrist and curled fingers support the BACK of the handset. Only
+   // the thumb should travel in front of its glass during the check-in tap.
+   model.position.z-=.055;
+   // Let the fingers wrap the LEFT chassis edge instead of hovering over
+   // the work-order text; the thumb alone reaches across to the app button.
+   model.position.x-=.040;
    model.updateWorldMatrix(true,true);
    this.model=model;this.bones=bones;this.meshCount=meshes;
    this.bindPoses={};
@@ -123,9 +133,9 @@ export class RiggedPlayerHand {
   // Curl original weighted finger joints around the BACK/left side of the
   // phone rather than leaving four long straight fingers over the app.
   for(const base of ['Pinky','Ring','Finger','Point']){
-   if(this.bones[base+'A'])this.bones[base+'A'].rotateX(.72);
-   if(this.bones[base+'B'])this.bones[base+'B'].rotateX(.66);
-   if(this.bones[base+'Tip'])this.bones[base+'Tip'].rotateX(.22);
+   if(this.bones[base+'A'])this.bones[base+'A'].rotateX(.38);
+   if(this.bones[base+'B'])this.bones[base+'B'].rotateX(.42);
+   if(this.bones[base+'Tip'])this.bones[base+'Tip'].rotateX(.12);
   }
   this.model.updateWorldMatrix(true,true);
   const start=this.thumbPos();

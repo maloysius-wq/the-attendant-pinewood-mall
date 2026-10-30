@@ -7,7 +7,7 @@ const browser=await chromium.launch({headless:true,args:['--enable-webgl','--ign
  '--use-gl=swiftshader','--enable-unsafe-swiftshader','--autoplay-policy=no-user-gesture-required',
  '--disable-dev-shm-usage']});
 try{
- for(const [kind,w,h] of [['desktop',1280,720],['mobile',390,844]]){
+ for(const [kind,w,h] of [['desktop',1280,720],['narrow',632,748],['mobile',390,844]]){
   const page=await browser.newPage({viewport:{width:w,height:h}}),errors=[],remote=[];
   page.on('pageerror',e=>errors.push(e.message));
   page.on('request',r=>{if(/^https?:/.test(r.url())&&!r.url().startsWith(origin))remote.push(r.url())});
@@ -24,7 +24,59 @@ try{
    kind+' real source arm rig not loaded: '+JSON.stringify(rig));
   await page.evaluate(()=>{const s=window.__PINEWOOD_OPENING_V34__;s.seek(0);s.scrub(.44)});
   await page.waitForTimeout(230);
+  const hold=await page.evaluate(()=>window.__PINEWOOD_OPENING_V34__.handheldPhone);
+  const bounds=hold.screenViewport;
+  const width=bounds.right-bounds.left,height=bounds.bottom-bounds.top;
+  assert(bounds.left>.48&&bounds.right<.96&&bounds.top>.30&&bounds.bottom<.94
+    &&width>.08&&width<.46&&height>.20&&height<.56,
+    kind+' phone is oversized, clipped or badly composed: '+JSON.stringify(bounds));
+  // Pausing may not stamp a huge word across the entire cinematic frame.
+  await page.locator('[data-intro-pause]').click();
+  const pauseStyle=await page.evaluate(()=>{
+   const s=getComputedStyle(document.getElementById('pwm-opening'),'::before');
+   return {size:parseFloat(s.fontSize),bottom:s.bottom,top:s.top};
+  });
+  assert(pauseStyle.size<=16&&pauseStyle.bottom!=='auto',
+   kind+' oversized pause text obscures the scene: '+JSON.stringify(pauseStyle));
+  await page.screenshot({path:'opening-v48-focus-artifacts/'+kind+'-paused.png'});
+  await page.locator('[data-intro-pause]').click();
+  if(w<=690){
+   const caption=await page.locator('.pwm-caption-area').evaluate(el=>{
+    const b=el.getBoundingClientRect();return {bottom:b.bottom,top:b.top};
+   });
+   assert(caption.bottom<h*bounds.top-.015*h,
+    kind+' caption overlaps the handheld screen: '+JSON.stringify({caption,bounds}));
+  }
+  // Assert the actual pixels, not merely that an offscreen CanvasTexture
+  // exists. An earlier edit passed rig telemetry while the app rendered BLACK
+  // and then passed again with the entire hand invisible behind its glass.
+  const framePng=(await page.screenshot({type:'png'})).toString('base64');
+  const pixels=await page.evaluate(async({png,b})=>{
+   const img=new Image();img.src='data:image/png;base64,'+png;await img.decode();
+   const cv=document.createElement('canvas');cv.width=img.naturalWidth;cv.height=img.naturalHeight;
+   const ctx=cv.getContext('2d',{willReadFrequently:true});ctx.drawImage(img,0,0);
+   const {data}=ctx.getImageData(0,0,cv.width,cv.height),w=cv.width,h=cv.height;
+   const by=b.bottom-b.top,dx=x=>Math.max(0,Math.min(w-1,Math.round(x*w)));
+   const dy=y=>Math.max(0,Math.min(h-1,Math.round(y*h)));
+   let appTextPixels=0,skinPixels=0;
+   const probe=(xmin,xmax,ymin,ymax,condition)=>{
+    let hits=0;
+    for(let y=dy(ymin);y<=dy(ymax);y+=2)for(let x=dx(xmin);x<=dx(xmax);x+=2){
+     const i=(y*w+x)*4;if(condition(data[i],data[i+1],data[i+2]))hits++;
+    }
+    return hits;
+   };
+   appTextPixels=probe(b.left+.03,b.right-.03,b.top+.06*by,b.top+.53*by,
+    (r,g,bl)=>r>115&&g>110&&bl>105);
+   skinPixels=probe(b.left-.07,b.left+.025,b.top+.33*by,b.top+.70*by,
+    (r,g,bl)=>r>92&&g>45&&bl>28&&r>g*1.16&&g>bl*1.12);
+   return {appTextPixels,skinPixels};
+  },{png:framePng,b:bounds});
+  console.log('V49_VISUAL_PIXELS_'+kind.toUpperCase()+'='+JSON.stringify(pixels));
+  assert(pixels.appTextPixels>12,kind+' app display is blank in actual Chromium pixels: '+JSON.stringify(pixels));
+  assert(pixels.skinPixels>5,kind+' source CC0 fingers are invisible next to handset: '+JSON.stringify(pixels));
   await page.screenshot({path:'opening-v48-focus-artifacts/'+kind+'-hold.png'});
+  console.log('V49_HOLD_'+kind.toUpperCase()+'_BOUNDS='+JSON.stringify(bounds));
   console.log((kind==='desktop'?'V48_FOCUSED_HOLD_DESKTOP_JPEG=':'V48_FOCUSED_HOLD_MOBILE_JPEG=')
     +(await page.screenshot({type:'jpeg',quality:48})).toString('base64'));
   await page.evaluate(()=>{const s=window.__PINEWOOD_OPENING_V34__;s.seek(0);s.scrub(.62)});

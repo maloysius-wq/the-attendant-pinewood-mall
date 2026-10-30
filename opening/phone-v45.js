@@ -4,7 +4,7 @@
  * duplicate vehicle. Animated against Renee's voice clock for repeatable QA.
  */
 import * as THREE from '../vendor/three/build/three.module.js';
-import {RiggedPlayerHand} from './playerhands-v48.js?v=48';
+import {RiggedPlayerHand} from './playerhands-v48.js?v=49';
 
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 const ease=t=>{t=clamp(t,0,1);return t*t*(3-2*t);};
@@ -67,7 +67,7 @@ export class HandheldCheckInPhone {
  constructor(camera){
   this.root=new THREE.Group();this.root.name='First-person handheld work-order phone';
   // This is an independent first-person prop, never part of the hatchback.
-  camera.add(this.root);
+  camera.add(this.root);this.camera=camera;
   const body=new THREE.MeshStandardMaterial({color:0x222b30,roughness:.37,metalness:.48});
   const edge=new THREE.MeshStandardMaterial({color:0x61737a,roughness:.25,metalness:.75});
   this.root.add(roundedSlab(.245,.447,.027,.025,edge));
@@ -86,15 +86,14 @@ export class HandheldCheckInPhone {
   // been REMOVED, not hidden beneath the imported arm.
   this.playerHand=new RiggedPlayerHand(this.root);
   this.handLoad=this.playerHand.load().catch(()=>null);
-  // An in-hand first-person viewmodel must draw in front of the original
-  // vendor car, not disappear behind its dashboard or steering-wheel depth.
-  this.root.traverse(obj=>{
-   if(!obj.isMesh)return;
-   obj.material.depthTest=false;obj.material.depthWrite=false;
-   obj.renderOrder=10000;
-  });
+  // The app glass is 4.5mm in front of the chassis. Force the LCD pass
+  // AFTER the case, writing the real plane depth for the skinned fingers
+  // rendered afterward. Ordinary LEQUAL incorrectly hid the whole LCD
+  // behind the case in this imported/foreground composition.
+  this.screen.material.depthTest=true;
+  this.screen.material.depthFunc=THREE.AlwaysDepth;
+  this.screen.material.depthWrite=true;
   this.screen.renderOrder=10010;
-  speaker.renderOrder=10012;lens.renderOrder=10012;
   this.state='none';this.raised=false;this.tap=false;this.progress=0;this.root.visible=false;
   this.renderApp('pending');
  }
@@ -119,12 +118,14 @@ export class HandheldCheckInPhone {
   this.renderApp(state);
   // Device lives BELOW the actual forward-looking driver camera, with no
   // dashboard attachment. Preserve a clear windshield when it is stowed.
-  const mobile=this.root.parent.aspect<.80,scale=mobile?.57:.77;
-  this.root.scale.setScalar(scale);
-  // Keep the entire app visible between transport controls and subtitles.
-  this.root.position.set(mobile?.028:.164,
-    (mobile?.026:-.015)-.49*(1-visibility),
-    -.385+.06*(1-visibility));
+  const compact=this.camera.aspect<1.15;
+  const portrait=this.camera.aspect<.7;
+  // Keep the phone in the lower-right quarter, sized like a handheld prop
+  // across 390px mobile, narrow windows, and normal widescreen desktops.
+  this.root.scale.setScalar(portrait?.48:compact?.56:.71);
+  this.root.position.set(portrait?.06:compact?.105:.20,
+    (compact?-.11:-.095)-.49*(1-visibility),
+    -.51+.06*(1-visibility));
   this.root.rotation.set(-.075+.05*(1-visibility),-.14,-.09-.23*(1-visibility));
   this.playerHand.update(tap);
   if(!reducedMotion&&this.raised){
@@ -133,8 +134,14 @@ export class HandheldCheckInPhone {
   return this.status;
  }
  get status(){
+  this.root.updateWorldMatrix(true,true);
+  const corners=[[-.109,-.193],[.109,-.193],[-.109,.193],[.109,.193]]
+   .map(([x,y])=>this.screen.localToWorld(new THREE.Vector3(x,y,0)).project(this.camera));
+  const xs=corners.map(q=>(q.x+1)/2),ys=corners.map(q=>(1-q.y)/2);
+  const screenViewport={left:+Math.min(...xs).toFixed(3),right:+Math.max(...xs).toFixed(3),
+   top:+Math.min(...ys).toFixed(3),bottom:+Math.max(...ys).toFixed(3)};
   return {visible:this.root.visible,raised:this.raised,screenState:this.state,
-   tap:this.tap,visibility:this.progress,screenPixels:[this.canvas.width,this.canvas.height],
+   tap:this.tap,visibility:this.progress,screenViewport,screenPixels:[this.canvas.width,this.canvas.height],
    parent:this.root.parent?.isCamera?'camera':'unexpected',mounts:0,
    hand:this.playerHand.status};
  }
