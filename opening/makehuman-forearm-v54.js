@@ -55,6 +55,7 @@ export class RiggedPlayerHand {
      if(!mat)continue;
      mat.side=THREE.FrontSide;mat.depthTest=true;mat.depthWrite=true;
      mat.roughness=.88;
+     mat.color.set('#ad765b');
      mat.needsUpdate=true;
     }
     obj.renderOrder=10030;
@@ -67,6 +68,14 @@ export class RiggedPlayerHand {
    if(skinned!==1||meshes!==1||vertices<6000)throw Error('Not the verified single real skinned forearm');
    this.bones=bones;this.model=model;this.vertexCount=vertices;this.meshCount=meshes;
    this.holder.add(model);
+   model.scale.setScalar(1.2);
+   // The four source finger chains are curved around the back of the case
+   // BEFORE computing the anatomical wrist-to-fingertip grip axes.
+   for(const n of ['2','3','4','5']){
+    bones['finger'+n+'-1.R'].rotateX(.40);
+    bones['finger'+n+'-2.R'].rotateX(.52);
+    bones['finger'+n+'-3.R'].rotateX(.16);
+   }
    model.updateWorldMatrix(true,true);
    // Orient the WHOLE ORIGINAL skeleton, not its thumb or wrist, by two
    // independently observed anatomical directions: middle fingertip and
@@ -75,14 +84,14 @@ export class RiggedPlayerHand {
    const middle=this.point('finger3-3.R');
    const thumb=this.point('finger1-3.R');
    const sourceFinger=middle.clone().sub(wrist).normalize();
-   const targetFinger=v(-.76,.65,-.015).normalize();
+   const targetFinger=v(-.83,.55,-.10).normalize();
    model.quaternion.premultiply(
     new THREE.Quaternion().setFromUnitVectors(sourceFinger,targetFinger));
    model.updateWorldMatrix(true,true);
    const sourceThumb=this.point('finger1-3.R').sub(this.point('wrist.R'));
    const sourceSide=sourceThumb.clone().projectOnPlane(targetFinger).normalize();
    // Thumb remains on FRONT/RIGHT side while the four fingers wrap BEHIND.
-   const desiredSide=v(-.65,.55,1.0).projectOnPlane(targetFinger).normalize();
+   const desiredSide=v(0,0,1).projectOnPlane(targetFinger).normalize();
    if(sourceSide.lengthSq()>.5&&desiredSide.lengthSq()>.5){
     const cross=new THREE.Vector3().crossVectors(sourceSide,desiredSide);
     const roll=Math.atan2(targetFinger.dot(cross),sourceSide.dot(desiredSide));
@@ -94,13 +103,7 @@ export class RiggedPlayerHand {
    // traded places in order to hit a numerical target.
    model.position.add(this.hover.clone().sub(this.point('finger1-3.R')));
    model.updateWorldMatrix(true,true);
-   // Pose four complete source finger chains around the rear of the case.
-   // The thumb is left in its native shape at rest, still joined to the palm.
-   for(const n of ['2','3','4','5']){
-    bones['finger'+n+'-1.R'].rotateX(.40);
-    bones['finger'+n+'-2.R'].rotateX(.52);
-    bones['finger'+n+'-3.R'].rotateX(.16);
-   }
+   // The thumb remains in its source shape at rest, still joined to the palm.
    model.updateWorldMatrix(true,true);
    this.thumbHoverPose=Object.fromEntries(thumbNames.slice(0,2).map(n=>[n,bones[n].quaternion.clone()]));
    // A thumb press is only a small additional flexion towards the glass.
