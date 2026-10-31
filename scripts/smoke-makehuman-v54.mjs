@@ -55,19 +55,19 @@ try{
     ['B',[-.8,.5,-.32],[-.8,.2,.8],1.2],
     ['C',[-.68,.7,-.25],[-.7,.3,.8],1.2],
     ['D',[-.95,.2,-.22],[-.7,.1,.95],1.3],
-    ['E',[-.78,.55,-.32],[-1,0,.8],1.4],
-    ['F',[-.78,.55,-.32],[-1,-.2,.8],1.2],
-    ['G',[-.7,.6,-.33],[-1,-.15,.7],1.3],
-    ['H',[-.85,.4,-.32],[-.85,-.2,.8],1.3]
+    ['I',[-.83,.55,-.10],[0,0,1],1.1],
+    ['J',[-.83,.55,-.10],[0,0,1],1.2],
+    ['K',[-.83,.55,-.10],[0,0,1],1.3],
+    ['L',[-.8,.6,-.13],[0,0,1],1.2]
    ];
    const saved=await page.evaluate(()=>{
-    const h=window.__PINEWOOD_OPENING_V34__.handheldPhone.hand;
-    return {position:h.model.position.toArray(),q:h.model.quaternion.toArray(),scale:h.model.scale.toArray()};
+    const h=window.__PINEWOOD_OPENING_V34__.qaPlayerHand;
+    return {position:h.model.position.toArray(),q:h.model.quaternion.toArray(),scale:h.model.scale.toArray(),color:h.model.children.find(x=>x.isSkinnedMesh)?.material.color.getHexString()};
    });
    for(const [label,f,s,scale] of presets){
     const result=await page.evaluate(async({label,f,s,scale})=>{
      const THREE=await import('/vendor/three/build/three.module.js');
-     const h=window.__PINEWOOD_OPENING_V34__.handheldPhone.hand;
+     const h=window.__PINEWOOD_OPENING_V34__.qaPlayerHand;
      const m=h.model,vec=a=>new THREE.Vector3(...a);
      m.position.set(0,0,0);m.quaternion.identity();m.scale.setScalar(scale);m.updateWorldMatrix(true,true);
      const finger=h.point('finger3-3.R').sub(h.point('wrist.R')).normalize(),target=vec(f).normalize();
@@ -93,6 +93,7 @@ try{
     const h=window.__PINEWOOD_OPENING_V34__.handheldPhone.hand,m=h.model;
     m.position.fromArray(saved.position);m.quaternion.fromArray(saved.q);m.scale.fromArray(saved.scale);
     m.updateWorldMatrix(true,true);
+    m.traverse(o=>{if(o.isMesh&&saved.color)o.material.color.set('#'+saved.color)});
    },{saved});
   }
   const png=(await page.screenshot({type:'png'})).toString('base64');
