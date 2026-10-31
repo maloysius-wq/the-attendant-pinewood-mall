@@ -118,9 +118,12 @@ export class RiggedPlayerHand {
    }
    // A right-hand thumb reaches INWARD from the right edge while the four
    // bent fingers and palm stay on the back side of the physical handset.
+   // Its thumb KNUCKLE must be to the RIGHT of the wrist so the thumb TIP
+   // folds LEFT toward the glass; a left-facing knuckle made the thumb jut
+   // horizontally RIGHT across the CHECK IN button.
    const across=phonePoint(bones.ThumbA).sub(phonePoint(bones.Hand))
     .projectOnPlane(gripFingers).normalize();
-   const desiredThumb=v(-.78,-.07,.62).projectOnPlane(gripFingers).normalize();
+   const desiredThumb=v(.68,.02,.73).projectOnPlane(gripFingers).normalize();
    if(across.lengthSq()>.9&&desiredThumb.lengthSq()>.9){
     const cross=new THREE.Vector3().crossVectors(across,desiredThumb);
     const angle=Math.atan2(gripFingers.dot(cross),across.dot(desiredThumb));
