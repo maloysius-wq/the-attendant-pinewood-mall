@@ -20,7 +20,7 @@ export class RiggedPlayerHand {
   this.holder.name='Connected CC0 right forearm and hand, high-detail source skin';
   phoneRoot.add(this.holder);
   this.state='loading';this.bones={};this.meshCount=0;
-  this.hover=v(.061,-.135,.054);
+  this.hover=v(.061,-.135,.047);
   this.target=v(.061,-.135,.032);
   this.thumbTipDistance=null;this.lastTap=0;
  }
@@ -75,14 +75,14 @@ export class RiggedPlayerHand {
    const middle=this.point('finger3-3.R');
    const thumb=this.point('finger1-3.R');
    const sourceFinger=middle.clone().sub(wrist).normalize();
-   const targetFinger=v(-.44,.76,-.48).normalize();
+   const targetFinger=v(-.76,.65,-.015).normalize();
    model.quaternion.premultiply(
     new THREE.Quaternion().setFromUnitVectors(sourceFinger,targetFinger));
    model.updateWorldMatrix(true,true);
    const sourceThumb=this.point('finger1-3.R').sub(this.point('wrist.R'));
    const sourceSide=sourceThumb.clone().projectOnPlane(targetFinger).normalize();
    // Thumb remains on FRONT/RIGHT side while the four fingers wrap BEHIND.
-   const desiredSide=v(-.65,.55,.53).projectOnPlane(targetFinger).normalize();
+   const desiredSide=v(-.65,.55,1.0).projectOnPlane(targetFinger).normalize();
    if(sourceSide.lengthSq()>.5&&desiredSide.lengthSq()>.5){
     const cross=new THREE.Vector3().crossVectors(sourceSide,desiredSide);
     const roll=Math.atan2(targetFinger.dot(cross),sourceSide.dot(desiredSide));

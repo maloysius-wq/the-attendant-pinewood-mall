@@ -1,7 +1,8 @@
 import {chromium} from 'playwright';
 import {mkdir} from 'node:fs/promises';
 const origin='http://127.0.0.1:4173';
-const assert=(v,message)=>{if(!v)throw Error(message)};
+const failures=[];
+const assert=(v,message)=>{if(!v){failures.push(message);console.error('V54_ASSERTION '+message)}};
 await mkdir('opening-v54-artifacts',{recursive:true});
 const browser=await chromium.launch({headless:true,args:[
  '--enable-webgl','--ignore-gpu-blocklist','--use-gl=swiftshader',
@@ -38,6 +39,7 @@ try{
   assert(wrist&&base&&middle&&tip,kind+' real joint locations missing');
   assert(base[0]>tip[0]+.020&&base[1]<tip[1]-.020,
    kind+' thumb must originate at right/lower knuckle, not appear to grow downward from the screen: '+JSON.stringify(h));
+  assert(wrist[2]<-.015,kind+' wrist must be behind the phone case; currently '+JSON.stringify(wrist));
   assert(wrist[1]<base[1]&&wrist[0]>tip[0],
    kind+' forearm must connect anatomically beneath thumb and screen: '+JSON.stringify(h));
   assert(h.gripFingerDirection[2]<-.03&&h.gripFingerDirection[0]<-.025,
@@ -101,3 +103,5 @@ try{
   await page.close();
  }
 }finally{await browser.close()}
+if(failures.length)throw Error('v54 visual/anatomy failures ('+failures.length+'):\n'+failures.join('\n'));
+
