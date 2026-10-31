@@ -136,7 +136,7 @@ export class RiggedPlayerHand {
    // translation silently undid the wrist constraint and shoved the palm
    // through the LCD. The wrist now has ONE immutable phone-local anchor.
    const currentWrist=phonePoint(bones.Hand);
-   model.position.add(v(.128,-.154,-.029).sub(currentWrist));
+   model.position.add(v(.188,-.154,-.029).sub(currentWrist));
    model.updateWorldMatrix(true,true);
    this.model=model;this.bones=bones;this.meshCount=meshes;
    this.bindPoses={};
@@ -211,6 +211,7 @@ export class RiggedPlayerHand {
   ):null;
   return {gripFingerDirection:fingerDirection,gripThumbDirection:thumbDirection,
    gripFingerTips:fingerTips,
+   gripThumbTipPosition:this.state==='ready'?this.thumbPos().toArray():null,
    state:this.state,source:'OpenGameArt CC0 Playerhands (sandsound)',
    hasForearm:this.state==='ready'&&!!this.bones.ArmDown,
    skinnedMeshes:this.meshCount,boneCount:Object.keys(this.bones).length,
