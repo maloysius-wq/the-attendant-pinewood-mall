@@ -1,5 +1,5 @@
 /**
- * v51: Original CC0 OpenGameArt Playerhands, including its FOREARM.
+ * v52: Original CC0 OpenGameArt Playerhands, including its FOREARM.
  * Retains the source's actual skin + armature. No procedural fingers, pills
  * or proxy arm meshes; joint-driven tap targets the button on the existing app.
  * Source/provenance: opening/assets/v48/manifest.json + LICENSES.md.
@@ -109,7 +109,10 @@ export class RiggedPlayerHand {
    }
    model.updateWorldMatrix(true,true);
    const currentFingers=phonePoint(bones.PointTip).sub(phonePoint(bones.Hand)).normalize();
-   const gripFingers=v(-.06,.94,-.34).normalize();
+   // Natural RIGHT-HAND grip: the four fingers travel leftward and backward
+   // across the REAR of the handset. The old upward target projected them as
+   // exposed fingertips outside the phone's right edge.
+   const gripFingers=v(-.85,.18,-.49).normalize();
    if(currentFingers.lengthSq()>.9){
     rotateWrist(new THREE.Quaternion().setFromUnitVectors(currentFingers,gripFingers));
    }
@@ -200,7 +203,11 @@ export class RiggedPlayerHand {
    ?inPhone(this.bones.PointTip).sub(inPhone(this.bones.Hand)).toArray():null;
   const thumbDirection=this.state==='ready'
    ?inPhone(this.bones.ThumbA).sub(inPhone(this.bones.Hand)).toArray():null;
+  const fingerTips=this.state==='ready'?Object.fromEntries(
+   ['Pinky','Ring','Finger','Point'].map(name=>[name,inPhone(this.bones[name+'Tip']).toArray()])
+  ):null;
   return {gripFingerDirection:fingerDirection,gripThumbDirection:thumbDirection,
+   gripFingerTips:fingerTips,
    state:this.state,source:'OpenGameArt CC0 Playerhands (sandsound)',
    hasForearm:this.state==='ready'&&!!this.bones.ArmDown,
    skinnedMeshes:this.meshCount,boneCount:Object.keys(this.bones).length,
