@@ -45,7 +45,9 @@ export class RiggedPlayerHand {
    const model=gltf.scene;model.name='CC0 MakeHuman real connected right arm skin and bone hierarchy';
    const bones={};let meshes=0,skinned=0,vertices=0;
    model.traverse(obj=>{
-    if(obj.isBone)bones[obj.name]=obj;
+    // GLTFLoader sanitizes dotted glTF bone names (finger1-1.R -> finger1-1_R).
+    // Restore source names at this one ingestion boundary, never mix aliases.
+    if(obj.isBone)bones[obj.name.replace(/_R$/,'.R')]=obj;
     if(!obj.isMesh)return;
     meshes++;vertices+=obj.geometry?.getAttribute('position')?.count||0;
     if(obj.isSkinnedMesh&&obj.skeleton?.bones?.length>=100)skinned++;
