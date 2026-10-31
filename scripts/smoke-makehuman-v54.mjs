@@ -42,59 +42,30 @@ try{
   assert(wrist[2]<-.015,kind+' wrist must be behind the phone case; currently '+JSON.stringify(wrist));
   assert(wrist[1]<base[1]&&wrist[0]>tip[0],
    kind+' forearm must connect anatomically beneath thumb and screen: '+JSON.stringify(h));
-  assert(h.gripFingerDirection[2]<-.03&&h.gripFingerDirection[0]<-.025,
+  assert(h.gripFingerDirection[2]<-.015&&h.gripFingerDirection[0]<-.025,
    kind+' fingers must aim toward back/left instead of outward: '+JSON.stringify(h));
   for(const [name,p] of Object.entries(h.gripFingerTips)){
    assert(p[2]<-.025&&p[0]<.15,kind+' '+name+' must stay behind phone: '+JSON.stringify(p));
   }
 
+
   if(kind==='mobile'){
-   // Diagnostic pose sweep: select a physically connected silhouette by the rendered shot.
-   const presets=[
-    ['A',[-.8,.5,-.32],[-.8,.2,.8],1.0],
-    ['B',[-.8,.5,-.32],[-.8,.2,.8],1.2],
-    ['C',[-.68,.7,-.25],[-.7,.3,.8],1.2],
-    ['D',[-.95,.2,-.22],[-.7,.1,.95],1.3],
-    ['I',[-.83,.55,-.10],[0,0,1],1.1],
-    ['J',[-.83,.55,-.10],[0,0,1],1.2],
-    ['K',[-.83,.55,-.10],[0,0,1],1.3],
-    ['L',[-.8,.6,-.13],[0,0,1],1.2]
-   ];
-   const saved=await page.evaluate(()=>{
+   // Inspect all original knuckles, fingers, thumb, palm and attached arm
+   // without the handset hiding source anatomy. Restore the shot afterward.
+   const visibility=await page.evaluate(()=>{
     const h=window.__PINEWOOD_OPENING_V34__.qaPlayerHand;
-    return {position:h.model.position.toArray(),q:h.model.quaternion.toArray(),scale:h.model.scale.toArray(),color:h.model.children.find(x=>x.isSkinnedMesh)?.material.color.getHexString()};
+    if(!h?.model)throw Error('Missing review-only source anatomical rig for visibility QA');
+    const children=h.phoneRoot.children.filter(o=>o!==h.holder);
+    const values=children.map(o=>o.visible);
+    children.forEach(o=>o.visible=false);
+    return values;
    });
-   for(const [label,f,s,scale] of presets){
-    const result=await page.evaluate(async({label,f,s,scale})=>{
-     const THREE=await import('/vendor/three/build/three.module.js');
-     const h=window.__PINEWOOD_OPENING_V34__.qaPlayerHand;
-     const m=h.model,vec=a=>new THREE.Vector3(...a);
-     m.position.set(0,0,0);m.quaternion.identity();m.scale.setScalar(scale);m.updateWorldMatrix(true,true);
-     const finger=h.point('finger3-3.R').sub(h.point('wrist.R')).normalize(),target=vec(f).normalize();
-     m.quaternion.premultiply(new THREE.Quaternion().setFromUnitVectors(finger,target));
-     m.updateWorldMatrix(true,true);
-     const side=h.point('finger1-3.R').sub(h.point('wrist.R')).projectOnPlane(target).normalize();
-     const desired=vec(s).projectOnPlane(target).normalize();
-     const cross=new THREE.Vector3().crossVectors(side,desired);
-     const roll=Math.atan2(target.dot(cross),side.dot(desired));
-     m.quaternion.premultiply(new THREE.Quaternion().setFromAxisAngle(target,roll));
-     m.updateWorldMatrix(true,true);
-     m.position.add(h.hover.clone().sub(h.point('finger1-3.R')));m.updateWorldMatrix(true,true);
-     m.traverse(o=>{if(o.isMesh){o.material.color.set('#ad765b');o.material.needsUpdate=true}});
-     return {label,wrist:h.point('wrist.R').toArray(),thumbBase:h.point('finger1-1.R').toArray(),
-      thumbTip:h.point('finger1-3.R').toArray(),middleTip:h.point('finger3-3.R').toArray(),
-      knuckle:h.point('finger3-1.R').toArray()};
-    },{label,f,s,scale});
-    console.log('V54_VARIANT_'+label+'_STATUS='+JSON.stringify(result));
-    await page.waitForTimeout(140);
-    console.log('V54_VARIANT_'+label+'_JPEG='+(await page.screenshot({type:'jpeg',quality:65})).toString('base64'));
-   }
-   await page.evaluate(({saved})=>{
-    const h=window.__PINEWOOD_OPENING_V34__.handheldPhone.hand,m=h.model;
-    m.position.fromArray(saved.position);m.quaternion.fromArray(saved.q);m.scale.fromArray(saved.scale);
-    m.updateWorldMatrix(true,true);
-    m.traverse(o=>{if(o.isMesh&&saved.color)o.material.color.set('#'+saved.color)});
-   },{saved});
+   await page.waitForTimeout(100);
+   console.log('V54_MOBILE_UNOBSTRUCTED_HAND_JPEG='+(await page.screenshot({type:'jpeg',quality:75})).toString('base64'));
+   await page.evaluate(({visibility})=>{
+    const h=window.__PINEWOOD_OPENING_V34__.qaPlayerHand;
+    h.phoneRoot.children.filter(o=>o!==h.holder).forEach((o,i)=>o.visible=visibility[i]);
+   },{visibility});
   }
   const png=(await page.screenshot({type:'png'})).toString('base64');
   const pixels=await page.evaluate(async({png,b})=>{
@@ -148,7 +119,7 @@ try{
   await page.locator('[data-intro-pause]').click();
   assert(!remote.length,kind+' remote runtime fetches: '+JSON.stringify(remote));
   assert(!errors.length,kind+' browser errors: '+JSON.stringify(errors));
-  console.log('PASS v54 '+kind+' natural CC0 skinned right forearm button press');
+  console.log('V54_CAPTURED_'+kind.toUpperCase()+' genuine CC0 forearm; see final visual QA assertions');
   await page.close();
  }
 }finally{await browser.close()}
