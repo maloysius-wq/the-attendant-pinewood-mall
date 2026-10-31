@@ -1,5 +1,5 @@
 /**
- * v51: Original CC0 OpenGameArt Playerhands, including its FOREARM.
+ * v52: Original CC0 OpenGameArt Playerhands, including its FOREARM.
  * Retains the source's actual skin + armature. No procedural fingers, pills
  * or proxy arm meshes; joint-driven tap targets the button on the existing app.
  * Source/provenance: opening/assets/v48/manifest.json + LICENSES.md.
@@ -97,7 +97,7 @@ export class RiggedPlayerHand {
    };
    // Temporarily curl the four ORIGINAL finger chains before solving the
    // wrist, so the fully curled, not merely straight, fingertips finish
-   // upward behind the chassis. Restore the bones before capturing bind poses.
+   // leftward and behind the chassis. Restore before capturing bind poses.
    const curlBones=[];
    for(const base of ['Pinky','Ring','Finger','Point']){
     for(const [suffix,angle] of [['A',.70],['B',.80],['Tip',.25]]){
@@ -109,15 +109,21 @@ export class RiggedPlayerHand {
    }
    model.updateWorldMatrix(true,true);
    const currentFingers=phonePoint(bones.PointTip).sub(phonePoint(bones.Hand)).normalize();
-   const gripFingers=v(-.06,.94,-.34).normalize();
+   // Natural RIGHT-HAND grip: the four fingers travel leftward and backward
+   // across the REAR of the handset. The old upward target projected them as
+   // exposed fingertips outside the phone's right edge.
+   const gripFingers=v(-.85,.18,-.49).normalize();
    if(currentFingers.lengthSq()>.9){
     rotateWrist(new THREE.Quaternion().setFromUnitVectors(currentFingers,gripFingers));
    }
    // A right-hand thumb reaches INWARD from the right edge while the four
    // bent fingers and palm stay on the back side of the physical handset.
+   // Anchor the wrist outside the RIGHT edge so ThumbA sits at the edge
+   // and its tip can fold LEFT onto the glass; a too-inward thumb base
+   // produced a horizontal, outward-pointing thumb over CHECK IN.
    const across=phonePoint(bones.ThumbA).sub(phonePoint(bones.Hand))
     .projectOnPlane(gripFingers).normalize();
-   const desiredThumb=v(-.78,-.07,.62).projectOnPlane(gripFingers).normalize();
+   const desiredThumb=v(.68,.02,.73).projectOnPlane(gripFingers).normalize();
    if(across.lengthSq()>.9&&desiredThumb.lengthSq()>.9){
     const cross=new THREE.Vector3().crossVectors(across,desiredThumb);
     const angle=Math.atan2(gripFingers.dot(cross),across.dot(desiredThumb));
@@ -130,7 +136,7 @@ export class RiggedPlayerHand {
    // translation silently undid the wrist constraint and shoved the palm
    // through the LCD. The wrist now has ONE immutable phone-local anchor.
    const currentWrist=phonePoint(bones.Hand);
-   model.position.add(v(.128,-.154,-.029).sub(currentWrist));
+   model.position.add(v(.202,-.154,-.029).sub(currentWrist));
    model.updateWorldMatrix(true,true);
    this.model=model;this.bones=bones;this.meshCount=meshes;
    this.bindPoses={};
@@ -200,7 +206,12 @@ export class RiggedPlayerHand {
    ?inPhone(this.bones.PointTip).sub(inPhone(this.bones.Hand)).toArray():null;
   const thumbDirection=this.state==='ready'
    ?inPhone(this.bones.ThumbA).sub(inPhone(this.bones.Hand)).toArray():null;
+  const fingerTips=this.state==='ready'?Object.fromEntries(
+   ['Pinky','Ring','Finger','Point'].map(name=>[name,inPhone(this.bones[name+'Tip']).toArray()])
+  ):null;
   return {gripFingerDirection:fingerDirection,gripThumbDirection:thumbDirection,
+   gripFingerTips:fingerTips,
+   gripThumbTipPosition:this.state==='ready'?this.thumbPos().toArray():null,
    state:this.state,source:'OpenGameArt CC0 Playerhands (sandsound)',
    hasForearm:this.state==='ready'&&!!this.bones.ArmDown,
    skinnedMeshes:this.meshCount,boneCount:Object.keys(this.bones).length,
