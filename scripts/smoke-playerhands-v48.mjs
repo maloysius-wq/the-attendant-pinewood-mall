@@ -127,7 +127,7 @@ try{
   await page.waitForTimeout(230);
   await page.locator('[data-intro-pause]').click();
   await page.screenshot({path:'opening-v48-focus-artifacts/'+kind+'-checked-in-paused.png'});
-  if(kind==='desktop')console.log('V50_CHECKED_IN_DESKTOP_JPEG='+(await page.screenshot({type:'jpeg',quality:52})).toString('base64'));
+  console.log('V52_CHECKED_IN_'+kind.toUpperCase()+'_JPEG='+(await page.screenshot({type:'jpeg',quality:52})).toString('base64'));
   await page.locator('[data-intro-pause]').click();
   console.log((kind==='desktop'?'V48_FOCUSED_TAP_DESKTOP_JPEG=':'V48_FOCUSED_TAP_MOBILE_JPEG=')
     +(await page.screenshot({type:'jpeg',quality:48})).toString('base64'));
