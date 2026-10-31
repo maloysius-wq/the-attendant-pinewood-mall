@@ -84,7 +84,7 @@ export class RiggedPlayerHand {
     .applyQuaternion(phoneRotation.clone().invert()).normalize();
    // Keep the actual continuous FOREARM rising from below the handset.
    // Rotating the entire model left (v50 first pass) laid the forearm
-   // horizontally across the dashboard. Only the WRIST should turn left.
+   // horizontally across the dashboard. Only the WRIST should turn right.
    const uprightForearm=v(.12,.98,.16).normalize();
    if(fingerDirection.lengthSq()>.9){
     model.quaternion.premultiply(new THREE.Quaternion().setFromUnitVectors(fingerDirection,uprightForearm));
@@ -113,7 +113,7 @@ export class RiggedPlayerHand {
    if(across.lengthSq()>.9&&desiredThumb.lengthSq()>.9){
     const cross=new THREE.Vector3().crossVectors(across,desiredThumb);
     const angle=Math.atan2(rightFingers.dot(cross),across.dot(desiredThumb));
-    rotateWrist(new THREE.Quaternion().setFromAxisAngle(leftFingers,angle));
+    rotateWrist(new THREE.Quaternion().setFromAxisAngle(rightFingers,angle));
    }
    // All model translations are in PHONE-LOCAL coordinates. In particular,
    // mobile scales the phone root to 0.57, so mixing a world delta here made
