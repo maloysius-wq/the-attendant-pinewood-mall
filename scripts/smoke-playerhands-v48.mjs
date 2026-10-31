@@ -51,10 +51,8 @@ try{
   // exists. An earlier edit passed rig telemetry while the app rendered BLACK
   // and then passed again with the entire hand invisible behind its glass.
   const framePng=(await page.screenshot({type:'png'})).toString('base64');
-  if(kind==='desktop'){
-   console.log('V52_DEBUG_HOLD_DESKTOP='+JSON.stringify(hold.hand));
-   console.log('V52_DEBUG_HOLD_DESKTOP_JPEG='+(await page.screenshot({type:'jpeg',quality:55})).toString('base64'));
-  }
+  console.log('V52_DEBUG_HOLD_'+kind.toUpperCase()+'='+JSON.stringify(hold.hand));
+  console.log('V52_DEBUG_HOLD_'+kind.toUpperCase()+'_JPEG='+(await page.screenshot({type:'jpeg',quality:55})).toString('base64'));
   const pixels=await page.evaluate(async({png,b})=>{
    const img=new Image();img.src='data:image/png;base64,'+png;await img.decode();
    const cv=document.createElement('canvas');cv.width=img.naturalWidth;cv.height=img.naturalHeight;
@@ -62,7 +60,7 @@ try{
    const {data}=ctx.getImageData(0,0,cv.width,cv.height),w=cv.width,h=cv.height;
    const by=b.bottom-b.top,dx=x=>Math.max(0,Math.min(w-1,Math.round(x*w)));
    const dy=y=>Math.max(0,Math.min(h-1,Math.round(y*h)));
-   let appTextPixels=0,skinPixels=0,screenBlockingSkin=0;
+   let appTextPixels=0,skinPixels=0,screenBlockingSkin=0,screenBlockingSkinFraction=0;
    const probe=(xmin,xmax,ymin,ymax,condition)=>{
     let hits=0;
     for(let y=dy(ymin);y<=dy(ymax);y+=2)for(let x=dx(xmin);x<=dx(xmax);x+=2){
@@ -74,16 +72,21 @@ try{
     (r,g,bl)=>r>115&&g>110&&bl>105);
    skinPixels=probe(b.right-.018,b.right+.105,b.top+.27*by,b.top+.86*by,
     (r,g,bl)=>r>92&&g>45&&bl>28&&r>g*1.16&&g>bl*1.12);
-   screenBlockingSkin=probe(b.left+.15*(b.right-b.left),b.right-.15*(b.right-b.left),b.top+.55*by,b.top+.91*by,
+   const innerLeft=b.left+.15*(b.right-b.left),innerRight=b.right-.15*(b.right-b.left);
+   const innerTop=b.top+.55*by,innerBottom=b.top+.91*by;
+   screenBlockingSkin=probe(innerLeft,innerRight,innerTop,innerBottom,
     // The pending amber CHECK IN button is NOT skin; require the
     // higher red/green ratio of the original forearm texture.
     (r,g,bl)=>r>92&&g>45&&bl>28&&r>g*1.38&&g>bl*1.14);
-   return {appTextPixels,skinPixels,screenBlockingSkin};
+   const sampleCount=Math.ceil((dx(innerRight)-dx(innerLeft)+1)/2)
+    *Math.ceil((dy(innerBottom)-dy(innerTop)+1)/2);
+   screenBlockingSkinFraction=screenBlockingSkin/Math.max(1,sampleCount);
+   return {appTextPixels,skinPixels,screenBlockingSkin,screenBlockingSkinFraction};
   },{png:framePng,b:bounds});
   console.log('V49_VISUAL_PIXELS_'+kind.toUpperCase()+'='+JSON.stringify(pixels));
   assert(pixels.appTextPixels>12,kind+' app display is blank in actual Chromium pixels: '+JSON.stringify(pixels));
   assert(pixels.skinPixels>60,kind+' larger CC0 right-hand grip is invisible next to handset: '+JSON.stringify(pixels));
-  assert(pixels.screenBlockingSkin<150,
+  assert(pixels.screenBlockingSkinFraction<.055,
    kind+' palm/fingers project over too much of the active phone glass: '+JSON.stringify(pixels));
   // Regressions: v50 pointed the four fingers LEFT and showed an undersized hand.
   const fingerDirection=hold.hand.gripFingerDirection;
