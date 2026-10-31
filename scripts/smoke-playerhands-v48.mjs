@@ -58,7 +58,7 @@ try{
    const {data}=ctx.getImageData(0,0,cv.width,cv.height),w=cv.width,h=cv.height;
    const by=b.bottom-b.top,dx=x=>Math.max(0,Math.min(w-1,Math.round(x*w)));
    const dy=y=>Math.max(0,Math.min(h-1,Math.round(y*h)));
-   let appTextPixels=0,skinPixels=0;
+   let appTextPixels=0,skinPixels=0,screenBlockingSkin=0;
    const probe=(xmin,xmax,ymin,ymax,condition)=>{
     let hits=0;
     for(let y=dy(ymin);y<=dy(ymax);y+=2)for(let x=dx(xmin);x<=dx(xmax);x+=2){
@@ -70,20 +70,26 @@ try{
     (r,g,bl)=>r>115&&g>110&&bl>105);
    skinPixels=probe(b.right-.018,b.right+.105,b.top+.27*by,b.top+.86*by,
     (r,g,bl)=>r>92&&g>45&&bl>28&&r>g*1.16&&g>bl*1.12);
-   return {appTextPixels,skinPixels};
+   screenBlockingSkin=probe(b.left+.15*(b.right-b.left),b.right-.15*(b.right-b.left),b.top+.55*by,b.top+.91*by,
+    (r,g,bl)=>r>92&&g>45&&bl>28&&r>g*1.16&&g>bl*1.12);
+   return {appTextPixels,skinPixels,screenBlockingSkin};
   },{png:framePng,b:bounds});
   console.log('V49_VISUAL_PIXELS_'+kind.toUpperCase()+'='+JSON.stringify(pixels));
   assert(pixels.appTextPixels>12,kind+' app display is blank in actual Chromium pixels: '+JSON.stringify(pixels));
   assert(pixels.skinPixels>60,kind+' larger CC0 right-hand grip is invisible next to handset: '+JSON.stringify(pixels));
+  assert(pixels.screenBlockingSkin<150,
+   kind+' palm/fingers project over too much of the active phone glass: '+JSON.stringify(pixels));
   // Regressions: v50 pointed the four fingers LEFT and showed an undersized hand.
   const fingerDirection=hold.hand.gripFingerDirection;
   console.log('V50_'+kind.toUpperCase()+'_GRIP_DIRECTION='+JSON.stringify(fingerDirection));
   console.log('V50_'+kind.toUpperCase()+'_ANATOMY='+JSON.stringify(hold.hand));
   if(kind==='desktop')console.log('V50_PRECHECK_DESKTOP_JPEG='+(await page.screenshot({type:'jpeg',quality:52})).toString('base64'));
-  assert(fingerDirection[0]>.035&&Math.abs(fingerDirection[0])>Math.abs(fingerDirection[1])*.65,
-   kind+' right-hand fingers are not turned horizontally RIGHT: '+JSON.stringify(fingerDirection));
-  assert(hold.hand.gripThumbDirection[1]>.02,
-   kind+' right-hand thumb is not above the curled fingers: '+JSON.stringify(hold.hand));
+  assert(fingerDirection[1]>.11&&fingerDirection[1]>Math.abs(fingerDirection[0])*.8,
+   kind+' fingers must run upward behind phone, not stick horizontally out: '+JSON.stringify(fingerDirection));
+  assert(hold.hand.gripWristPosition?.[0]>.105&&hold.hand.gripWristPosition?.[2]<-.018,
+   kind+' wrist/palm must be anchored behind right chassis: '+JSON.stringify(hold.hand));
+  assert(hold.hand.gripThumbDirection[0]<-.015,
+   kind+' thumb must face inward from right edge across front glass: '+JSON.stringify(hold.hand));
   await page.screenshot({path:'opening-v48-focus-artifacts/'+kind+'-hold.png'});
   console.log('V49_HOLD_'+kind.toUpperCase()+'_BOUNDS='+JSON.stringify(bounds));
   console.log((kind==='desktop'?'V48_FOCUSED_HOLD_DESKTOP_JPEG=':'V48_FOCUSED_HOLD_MOBILE_JPEG=')
