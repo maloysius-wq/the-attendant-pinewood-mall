@@ -62,7 +62,7 @@ export class RiggedPlayerHand {
    });
    for(const name of ['lowerarm01.R','lowerarm02.R','wrist.R',...thumbNames,
       ...fingerNames.flatMap(base=>['-1.R','-2.R','-3.R'].map(s=>base+s))]){
-    if(!bones[name])throw Error('Missing source anatomical joint '+name);
+    if(!bones[name])throw Error('Missing source anatomical joint '+name+'; imported bones='+Object.keys(bones).slice(0,170).join('|')+'; rendered meshes='+meshes+'; skinned='+skinned);
    }
    if(skinned!==1||meshes!==1||vertices<6000)throw Error('Not the verified single real skinned forearm');
    this.bones=bones;this.model=model;this.vertexCount=vertices;this.meshCount=meshes;
