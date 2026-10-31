@@ -297,6 +297,7 @@ window.__PINEWOOD_OPENING_V34__={
  },
  get dashboardPhone(){return null;}, // No dashboard mount; the prop is held in hand.
  get handheldPhone(){return active?.handheld?.status||null;},
+ get qaPlayerHand(){return location.pathname.includes('/review/')?active?.handheld?.playerHand||null:null;},
  get captionTiming(){if(active&&!active.paused)active.renderCaption();return active?{line:active.line?.id,voiceSeconds:active.voiceSeconds,
    mediaSeconds:active.audio?.currentTime??null,captionSeconds:active.captionSeconds,
    captionIndex:active.captionIndex,source:active.scrubOverride!==null?'preview-scrub':
