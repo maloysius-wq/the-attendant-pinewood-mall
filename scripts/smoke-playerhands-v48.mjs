@@ -109,8 +109,23 @@ try{
   assert(hold.hand.gripWristPosition?.[0]>.105&&hold.hand.gripWristPosition?.[2]<-.018,
    kind+' wrist/palm must be anchored behind right chassis: '+JSON.stringify(hold.hand));
   const thumbBaseX=hold.hand.gripWristPosition[0]+hold.hand.gripThumbDirection[0];
-  assert(thumbBaseX>.125&&hold.hand.gripThumbTipPosition[0]<thumbBaseX-.012,
-   kind+' right thumb base must be outside chassis, tip folded LEFT onto glass: '+JSON.stringify(hold.hand));
+  const thumbBaseY=hold.hand.gripWristPosition[1]+hold.hand.gripThumbDirection[1];
+  const thumbTip=hold.hand.gripThumbTipPosition;
+  assert(thumbBaseX>.125&&thumbBaseX<.19&&thumbTip[0]<thumbBaseX-.02,
+   kind+' right thumb must extend INWARD from a real edge knuckle: '+JSON.stringify(hold.hand));
+  assert(thumbBaseY<-.165&&thumbBaseY>-.235&&thumbTip[1]>thumbBaseY+.024,
+   kind+' thumb knuckle must start BELOW the button and extend upward, not sprout from LCD: '+JSON.stringify(hold.hand));
+  const travel=Math.hypot(...hold.hand.hoverTarget.map((x,i)=>x-hold.hand.thumbTarget[i]));
+  assert(travel<.03&&hold.hand.hoverTarget[0]===hold.hand.thumbTarget[0]
+   &&hold.hand.hoverTarget[1]===hold.hand.thumbTarget[1],
+   kind+' thumb must press straight onto glass, not swipe diagonally across phone: '+JSON.stringify(hold.hand));
+  const middle=hold.hand.gripThumbMiddlePosition;
+  assert(middle&&middle[0]<thumbBaseX&&middle[0]>thumbTip[0]-.015
+    &&middle[1]>thumbBaseY,
+   kind+' missing or anatomically inverted original thumb middle joint: '+JSON.stringify(hold.hand));
+  const limits=hold.hand.gripThumbJointAngles;
+  assert(limits&&limits.ThumbA<1.15&&limits.ThumbB<1.15,
+   kind+' original thumb rotated beyond believable joint limits: '+JSON.stringify(hold.hand));
   await page.screenshot({path:'opening-v48-focus-artifacts/'+kind+'-hold.png'});
   console.log('V49_HOLD_'+kind.toUpperCase()+'_BOUNDS='+JSON.stringify(bounds));
   console.log((kind==='desktop'?'V48_FOCUSED_HOLD_DESKTOP_JPEG=':'V48_FOCUSED_HOLD_MOBILE_JPEG=')
