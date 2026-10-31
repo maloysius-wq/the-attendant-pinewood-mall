@@ -108,8 +108,8 @@ try{
    kind+' missing original four finger-tip anatomy telemetry');
   assert(hold.hand.gripWristPosition?.[0]>.105&&hold.hand.gripWristPosition?.[2]<-.018,
    kind+' wrist/palm must be anchored behind right chassis: '+JSON.stringify(hold.hand));
-  assert(hold.hand.gripThumbDirection[0]<-.015,
-   kind+' thumb must face inward from right edge across front glass: '+JSON.stringify(hold.hand));
+  assert(hold.hand.gripThumbDirection[0]>.014,
+   kind+' thumb knuckle must emerge outside RIGHT edge; tip bends inward onto glass: '+JSON.stringify(hold.hand));
   await page.screenshot({path:'opening-v48-focus-artifacts/'+kind+'-hold.png'});
   console.log('V49_HOLD_'+kind.toUpperCase()+'_BOUNDS='+JSON.stringify(bounds));
   console.log((kind==='desktop'?'V48_FOCUSED_HOLD_DESKTOP_JPEG=':'V48_FOCUSED_HOLD_MOBILE_JPEG=')
