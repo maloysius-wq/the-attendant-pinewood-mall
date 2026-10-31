@@ -97,7 +97,7 @@ export class RiggedPlayerHand {
    };
    // Temporarily curl the four ORIGINAL finger chains before solving the
    // wrist, so the fully curled, not merely straight, fingertips finish
-   // upward behind the chassis. Restore the bones before capturing bind poses.
+   // leftward and behind the chassis. Restore before capturing bind poses.
    const curlBones=[];
    for(const base of ['Pinky','Ring','Finger','Point']){
     for(const [suffix,angle] of [['A',.70],['B',.80],['Tip',.25]]){
@@ -118,9 +118,9 @@ export class RiggedPlayerHand {
    }
    // A right-hand thumb reaches INWARD from the right edge while the four
    // bent fingers and palm stay on the back side of the physical handset.
-   // Its thumb KNUCKLE must be to the RIGHT of the wrist so the thumb TIP
-   // folds LEFT toward the glass; a left-facing knuckle made the thumb jut
-   // horizontally RIGHT across the CHECK IN button.
+   // Anchor the wrist outside the RIGHT edge so ThumbA sits at the edge
+   // and its tip can fold LEFT onto the glass; a too-inward thumb base
+   // produced a horizontal, outward-pointing thumb over CHECK IN.
    const across=phonePoint(bones.ThumbA).sub(phonePoint(bones.Hand))
     .projectOnPlane(gripFingers).normalize();
    const desiredThumb=v(.68,.02,.73).projectOnPlane(gripFingers).normalize();
