@@ -92,13 +92,20 @@ try{
   const naturalThumbLimit=kind==='mobile'?.10:.055;
   assert(pixels.screenBlockingSkinFraction<naturalThumbLimit,
    kind+' palm/fingers project over too much of the active phone glass: '+JSON.stringify(pixels));
-  // Regressions: v50 pointed the four fingers LEFT and showed an undersized hand.
+  // v51 had fingers running up/outside the RIGHT side of the phone.
+  // All four real fingertips must now tuck leftward behind the physical case.
   const fingerDirection=hold.hand.gripFingerDirection;
   console.log('V50_'+kind.toUpperCase()+'_GRIP_DIRECTION='+JSON.stringify(fingerDirection));
   console.log('V50_'+kind.toUpperCase()+'_ANATOMY='+JSON.stringify(hold.hand));
   if(kind==='desktop')console.log('V50_PRECHECK_DESKTOP_JPEG='+(await page.screenshot({type:'jpeg',quality:52})).toString('base64'));
-  assert(fingerDirection[1]>.11&&fingerDirection[1]>Math.abs(fingerDirection[0])*.8,
-   kind+' fingers must run upward behind phone, not stick horizontally out: '+JSON.stringify(fingerDirection));
+  assert(fingerDirection[0]<-.04&&fingerDirection[2]<-.025,
+   kind+' fingers must curl LEFTWARD and BEHIND phone: '+JSON.stringify(fingerDirection));
+  for(const [name,tip] of Object.entries(hold.hand.gripFingerTips||{})){
+   assert(tip[0]<.145&&tip[2]<-.02,
+    kind+' '+name+' fingertip must lie behind phone chassis: '+JSON.stringify(tip));
+  }
+  assert(Object.keys(hold.hand.gripFingerTips||{}).length===4,
+   kind+' missing original four finger-tip anatomy telemetry');
   assert(hold.hand.gripWristPosition?.[0]>.105&&hold.hand.gripWristPosition?.[2]<-.018,
    kind+' wrist/palm must be anchored behind right chassis: '+JSON.stringify(hold.hand));
   assert(hold.hand.gripThumbDirection[0]<-.015,
