@@ -47,6 +47,54 @@ try{
   for(const [name,p] of Object.entries(h.gripFingerTips)){
    assert(p[2]<-.025&&p[0]<.15,kind+' '+name+' must stay behind phone: '+JSON.stringify(p));
   }
+
+  if(kind==='mobile'){
+   // Diagnostic pose sweep: select a physically connected silhouette by the rendered shot.
+   const presets=[
+    ['A',[-.8,.5,-.32],[-.8,.2,.8],1.0],
+    ['B',[-.8,.5,-.32],[-.8,.2,.8],1.2],
+    ['C',[-.68,.7,-.25],[-.7,.3,.8],1.2],
+    ['D',[-.95,.2,-.22],[-.7,.1,.95],1.3],
+    ['E',[-.78,.55,-.32],[-1,0,.8],1.4],
+    ['F',[-.78,.55,-.32],[-1,-.2,.8],1.2],
+    ['G',[-.7,.6,-.33],[-1,-.15,.7],1.3],
+    ['H',[-.85,.4,-.32],[-.85,-.2,.8],1.3]
+   ];
+   const saved=await page.evaluate(()=>{
+    const h=window.__PINEWOOD_OPENING_V34__.handheldPhone.hand;
+    return {position:h.model.position.toArray(),q:h.model.quaternion.toArray(),scale:h.model.scale.toArray()};
+   });
+   for(const [label,f,s,scale] of presets){
+    const result=await page.evaluate(async({label,f,s,scale})=>{
+     const THREE=await import('/vendor/three/build/three.module.js');
+     const h=window.__PINEWOOD_OPENING_V34__.handheldPhone.hand;
+     const m=h.model,vec=a=>new THREE.Vector3(...a);
+     m.position.set(0,0,0);m.quaternion.identity();m.scale.setScalar(scale);m.updateWorldMatrix(true,true);
+     const finger=h.point('finger3-3.R').sub(h.point('wrist.R')).normalize(),target=vec(f).normalize();
+     m.quaternion.premultiply(new THREE.Quaternion().setFromUnitVectors(finger,target));
+     m.updateWorldMatrix(true,true);
+     const side=h.point('finger1-3.R').sub(h.point('wrist.R')).projectOnPlane(target).normalize();
+     const desired=vec(s).projectOnPlane(target).normalize();
+     const cross=new THREE.Vector3().crossVectors(side,desired);
+     const roll=Math.atan2(target.dot(cross),side.dot(desired));
+     m.quaternion.premultiply(new THREE.Quaternion().setFromAxisAngle(target,roll));
+     m.updateWorldMatrix(true,true);
+     m.position.add(h.hover.clone().sub(h.point('finger1-3.R')));m.updateWorldMatrix(true,true);
+     m.traverse(o=>{if(o.isMesh){o.material.color.set('#ad765b');o.material.needsUpdate=true}});
+     return {label,wrist:h.point('wrist.R').toArray(),thumbBase:h.point('finger1-1.R').toArray(),
+      thumbTip:h.point('finger1-3.R').toArray(),middleTip:h.point('finger3-3.R').toArray(),
+      knuckle:h.point('finger3-1.R').toArray()};
+    },{label,f,s,scale});
+    console.log('V54_VARIANT_'+label+'_STATUS='+JSON.stringify(result));
+    await page.waitForTimeout(140);
+    console.log('V54_VARIANT_'+label+'_JPEG='+(await page.screenshot({type:'jpeg',quality:65})).toString('base64'));
+   }
+   await page.evaluate(({saved})=>{
+    const h=window.__PINEWOOD_OPENING_V34__.handheldPhone.hand,m=h.model;
+    m.position.fromArray(saved.position);m.quaternion.fromArray(saved.q);m.scale.fromArray(saved.scale);
+    m.updateWorldMatrix(true,true);
+   },{saved});
+  }
   const png=(await page.screenshot({type:'png'})).toString('base64');
   const pixels=await page.evaluate(async({png,b})=>{
    const im=new Image();im.src='data:image/png;base64,'+png;await im.decode();
