@@ -62,7 +62,7 @@ export class RiggedPlayerHand {
    if(skinned<1)throw Error('The actual forearm is not skinned to its armature');
    this.holder.add(model);
    // The Blender source uses oversized working units; normalize measured
-   // real mesh bounds, NOT per-bone arbitrary sizes, to a 72cm adult-scale foreground hand/forearm view.
+   // real mesh bounds, NOT per-bone arbitrary sizes, to a 66cm adult-scale foreground hand/forearm view.
    model.updateWorldMatrix(true,true);
    const box=new THREE.Box3().setFromObject(model);
    const sourceSize=box.getSize(new THREE.Vector3());
