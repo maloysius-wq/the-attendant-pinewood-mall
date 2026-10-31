@@ -1,5 +1,5 @@
 /**
- * v52: Original CC0 OpenGameArt Playerhands, including its FOREARM.
+ * v53: Original CC0 OpenGameArt Playerhands, including its FOREARM.
  * Retains the source's actual skin + armature. No procedural fingers, pills
  * or proxy arm meshes; joint-driven tap targets the button on the existing app.
  * Source/provenance: opening/assets/v48/manifest.json + LICENSES.md.
@@ -19,7 +19,7 @@ export class RiggedPlayerHand {
   phoneRoot.add(this.holder);
   this.state='loading';this.meshCount=0;this.bones={};
   this.thumbTipDistance=null;this.lastTap=0;
-  this.hover=v(.101,-.106,.040);
+  this.hover=v(.061,-.135,.050);
   this.target=v(.061,-.135,.044);
  }
  async load(){
@@ -131,12 +131,14 @@ export class RiggedPlayerHand {
    }
    for(const [bone,pose] of curlBones)bone.quaternion.copy(pose);
    model.updateWorldMatrix(true,true);
-   // The previous pose translated the ENTIRE ARM to align the thumb's
-   // fingertip with CHECK IN after anchoring the wrist. That second global
-   // translation silently undid the wrist constraint and shoved the palm
-   // through the LCD. The wrist now has ONE immutable phone-local anchor.
-   const currentWrist=phonePoint(bones.Hand);
-   model.position.add(v(.202,-.154,-.029).sub(currentWrist));
+   // Align the original anatomical ThumbA knuckle, not the fingertip.
+   // Its length scales with the source rig across viewport sizes, so keep
+   // the knuckle just OUTSIDE the right case and BELOW the button. The palm
+   // remains physically attached and behind the case; no detached thumb.
+   const thumbSpan=phonePoint(bones.ThumbTip).distanceTo(phonePoint(bones.ThumbA));
+   const thumbBaseAnchor=v(this.target.x+.65*thumbSpan,
+    this.target.y-.30*thumbSpan,-.024);
+   model.position.add(thumbBaseAnchor.sub(phonePoint(bones.ThumbA)));
    model.updateWorldMatrix(true,true);
    this.model=model;this.bones=bones;this.meshCount=meshes;
    this.bindPoses={};
@@ -147,7 +149,46 @@ export class RiggedPlayerHand {
    ]){
     if(bones[name])this.bindPoses[name]=bones[name].quaternion.clone();
    }
-   // The forearm must remain physically continuous to the skinned hand.
+   // Solve two modest poses ONCE against the original source rig. No
+   // per-frame, unlimited 3D CCD: the old solver could reach the button
+   // while twisting the painted nail back toward the thumb's base.
+   const solveThumb=(goal,seed=null)=>{
+    for(const name of ['ThumbA','ThumbB'])
+     bones[name].quaternion.copy(seed?.[name]||this.bindPoses[name]);
+    model.updateWorldMatrix(true,true);
+    const targetWorld=this.phoneRoot.localToWorld(goal.clone());
+    for(let iteration=0;iteration<32;iteration++){
+     for(const name of ['ThumbB','ThumbA']){
+      const joint=bones[name],tip=bones.ThumbTip;
+      joint.updateWorldMatrix(true,true);tip.updateWorldMatrix(true,true);
+      const pivot=joint.getWorldPosition(new THREE.Vector3());
+      const current=tip.getWorldPosition(new THREE.Vector3()).sub(pivot);
+      const toGoal=targetWorld.clone().sub(pivot);
+      if(current.length()<.001||toGoal.length()<.001)continue;
+      const delta=new THREE.Quaternion().setFromUnitVectors(current.normalize(),toGoal.normalize());
+      const step=2*Math.acos(clamp(delta.w,-1,1));
+      if(step>.16)delta.setFromAxisAngle(
+       new THREE.Vector3(delta.x,delta.y,delta.z).normalize(),.16);
+      const parentQ=joint.parent.getWorldQuaternion(new THREE.Quaternion());
+      const localDelta=parentQ.clone().invert().multiply(delta).multiply(parentQ);
+      const trial=localDelta.multiply(joint.quaternion.clone());
+      const rest=this.bindPoses[name];
+      const offset=rest.angleTo(trial);
+      if(offset>.98)trial.copy(rest).slerp(trial,.98/offset);
+      joint.quaternion.copy(trial);
+      joint.updateWorldMatrix(true,true);
+     }
+     if(this.thumbPos().distanceTo(goal)<.004)break;
+    }
+    return {
+     ThumbA:bones.ThumbA.quaternion.clone(),ThumbB:bones.ThumbB.quaternion.clone(),
+     error:+this.thumbPos().distanceTo(goal).toFixed(4)
+    };
+   };
+   this.thumbHoverPose=solveThumb(this.hover);
+   this.thumbTapPose=solveThumb(this.target,this.thumbHoverPose);
+   this.thumbPoseFit={hover:this.thumbHoverPose.error,tap:this.thumbTapPose.error};
+   // The forearm remains one continuous skinned source hand.
    this.state='ready';
    this.update(this.lastTap);
    return this.status;
@@ -174,28 +215,16 @@ export class RiggedPlayerHand {
    if(this.bones[base+'Tip'])this.bones[base+'Tip'].rotateX(.25);
   }
   this.model.updateWorldMatrix(true,true);
-  // Always aim the original thumb chain at a fixed visible hover point on
-  // the glass, then move INWARD onto the real CHECK IN button and retract.
-  // Do not move the palm, wrist, forearm or phone to satisfy thumb IK.
-  const desired=this.hover.clone().lerp(this.target,eased(this.lastTap));
-  const worldGoal=this.phoneRoot.localToWorld(desired.clone());
-  for(let iteration=0;iteration<9;iteration++){
-   for(const name of ['ThumbTip','ThumbB','ThumbA']){
-    const joint=this.bones[name];const tip=this.bones.ThumbTip;
-    joint.updateWorldMatrix(true,true);tip.updateWorldMatrix(true,true);
-    const pivot=joint.getWorldPosition(new THREE.Vector3());
-    const end=tip.getWorldPosition(new THREE.Vector3());
-    const current=end.sub(pivot),target=worldGoal.clone().sub(pivot);
-    if(current.length()<.001||target.length()<.001)continue;
-    const q=new THREE.Quaternion().setFromUnitVectors(current.normalize(),target.normalize());
-    const angle=2*Math.acos(clamp(q.w,-1,1));
-    if(angle>.30){const axis=new THREE.Vector3(q.x,q.y,q.z).normalize();q.setFromAxisAngle(axis,.30)}
-    const parentQ=joint.parent.getWorldQuaternion(new THREE.Quaternion());
-    const localDelta=parentQ.clone().invert().multiply(q).multiply(parentQ);
-    joint.quaternion.premultiply(localDelta);
-    joint.updateWorldMatrix(true,true);
-   }
+  // The button is directly beneath the resting thumb. Animate only
+  // the bounded source thumb joints, pressing a few millimetres in Z
+  // and retracting; never sweep an inverted finger across the glass.
+  const t=eased(this.lastTap);
+  for(const name of ['ThumbA','ThumbB']){
+   this.bones[name].quaternion.slerpQuaternions(
+    this.thumbHoverPose[name],this.thumbTapPose[name],t);
   }
+  this.model.updateWorldMatrix(true,true);
+  const desired=this.hover.clone().lerp(this.target,t);
   this.thumbTipDistance=+this.thumbPos().distanceTo(desired).toFixed(4);
   return this.status;
  }
@@ -212,6 +241,12 @@ export class RiggedPlayerHand {
   return {gripFingerDirection:fingerDirection,gripThumbDirection:thumbDirection,
    gripFingerTips:fingerTips,
    gripThumbTipPosition:this.state==='ready'?this.thumbPos().toArray():null,
+   gripThumbMiddlePosition:this.state==='ready'?inPhone(this.bones.ThumbB).toArray():null,
+   gripThumbJointAngles:this.state==='ready'?{
+    ThumbA:this.bindPoses.ThumbA.angleTo(this.bones.ThumbA.quaternion),
+    ThumbB:this.bindPoses.ThumbB.angleTo(this.bones.ThumbB.quaternion)
+   }:null,
+   thumbPoseFit:this.thumbPoseFit||null,
    state:this.state,source:'OpenGameArt CC0 Playerhands (sandsound)',
    hasForearm:this.state==='ready'&&!!this.bones.ArmDown,
    skinnedMeshes:this.meshCount,boneCount:Object.keys(this.bones).length,
