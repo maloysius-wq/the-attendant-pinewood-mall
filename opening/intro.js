@@ -2,7 +2,7 @@ import * as THREE from '../vendor/three/build/three.module.js';
 import {makeOpeningScene} from './scene.js?v=46';
 import {HumanCameraRig} from './camera.js?v=43';
 import {OpeningAmbience} from './ambience.js?v=35';
-import {HandheldCheckInPhone} from './phone-v45.js?v=50';
+import {HandheldCheckInPhone} from './phone-v45.js?v=51';
 import {buildCaptionTrack,captionAt} from './caption-sync-v45.js?v=45';
 const $=id=>document.getElementById(id);
 const query=new URLSearchParams(location.search);
