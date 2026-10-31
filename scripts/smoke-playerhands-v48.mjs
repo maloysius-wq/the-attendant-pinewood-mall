@@ -51,6 +51,10 @@ try{
   // exists. An earlier edit passed rig telemetry while the app rendered BLACK
   // and then passed again with the entire hand invisible behind its glass.
   const framePng=(await page.screenshot({type:'png'})).toString('base64');
+  if(kind==='desktop'){
+   console.log('V52_DEBUG_HOLD_DESKTOP='+JSON.stringify(hold.hand));
+   console.log('V52_DEBUG_HOLD_DESKTOP_JPEG='+(await page.screenshot({type:'jpeg',quality:55})).toString('base64'));
+  }
   const pixels=await page.evaluate(async({png,b})=>{
    const img=new Image();img.src='data:image/png;base64,'+png;await img.decode();
    const cv=document.createElement('canvas');cv.width=img.naturalWidth;cv.height=img.naturalHeight;
