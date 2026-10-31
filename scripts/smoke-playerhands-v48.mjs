@@ -75,7 +75,9 @@ try{
    skinPixels=probe(b.right-.018,b.right+.105,b.top+.27*by,b.top+.86*by,
     (r,g,bl)=>r>92&&g>45&&bl>28&&r>g*1.16&&g>bl*1.12);
    screenBlockingSkin=probe(b.left+.15*(b.right-b.left),b.right-.15*(b.right-b.left),b.top+.55*by,b.top+.91*by,
-    (r,g,bl)=>r>92&&g>45&&bl>28&&r>g*1.16&&g>bl*1.12);
+    // The pending amber CHECK IN button is NOT skin; require the
+    // higher red/green ratio of the original forearm texture.
+    (r,g,bl)=>r>92&&g>45&&bl>28&&r>g*1.38&&g>bl*1.14);
    return {appTextPixels,skinPixels,screenBlockingSkin};
   },{png:framePng,b:bounds});
   console.log('V49_VISUAL_PIXELS_'+kind.toUpperCase()+'='+JSON.stringify(pixels));
