@@ -1,0 +1,56 @@
+name: The Call v54 natural right forearm visual QA
+on:
+  push:
+    branches: [fix/the-call-v54-real-right-forearm]
+    paths:
+      - 'opening/makehuman-forearm-v54.js'
+      - 'opening/phone-v45.js'
+      - 'opening/intro.js'
+      - 'review/the-call-v34/index.html'
+      - 'scripts/smoke-makehuman-v54.mjs'
+      - '.github/workflows/the-call-v54-visual.yml'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'opening/makehuman-forearm-v54.js'
+      - 'opening/phone-v45.js'
+      - 'opening/intro.js'
+      - 'review/the-call-v34/index.html'
+      - 'scripts/smoke-makehuman-v54.mjs'
+      - '.github/workflows/the-call-v54-visual.yml'
+permissions:
+  contents: read
+jobs:
+  forearm:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 14
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Check real skinned arm is locally vendored and hooked into preview
+        run: |
+          node scripts/audit-call-right-forearm-v54.mjs
+          grep -q 'makehuman-forearm-v54.js' opening/phone-v45.js
+          node --check opening/makehuman-forearm-v54.js
+          node --check scripts/smoke-makehuman-v54.mjs
+      - name: Install Chromium
+        run: |
+          npm install --no-save playwright@1.55.0
+          npx playwright install --with-deps chromium
+      - name: Start local Pinewood review server
+        run: |
+          python3 -m http.server 4173 --bind 127.0.0.1 >/tmp/pinewood-v54-http.log 2>&1 &
+          for i in {1..30}; do curl -fsS http://127.0.0.1:4173/review/the-call-v34/ >/dev/null && exit 0; sleep 1; done
+          cat /tmp/pinewood-v54-http.log
+          exit 1
+      - name: Validate authentic mobile desktop thumb and screen pixels
+        run: node scripts/smoke-makehuman-v54.mjs
+      - name: Capture real arm screenshots even if anatomy fails
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: the-call-v54-anatomical-arm
+          path: opening-v54-artifacts/
+          retention-days: 7
