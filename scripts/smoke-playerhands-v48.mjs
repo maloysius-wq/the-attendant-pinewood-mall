@@ -68,20 +68,22 @@ try{
    };
    appTextPixels=probe(b.left+.03,b.right-.03,b.top+.06*by,b.top+.53*by,
     (r,g,bl)=>r>115&&g>110&&bl>105);
-   skinPixels=probe(b.left-.07,b.left+.025,b.top+.33*by,b.top+.70*by,
+   skinPixels=probe(b.right-.018,b.right+.105,b.top+.27*by,b.top+.86*by,
     (r,g,bl)=>r>92&&g>45&&bl>28&&r>g*1.16&&g>bl*1.12);
    return {appTextPixels,skinPixels};
   },{png:framePng,b:bounds});
   console.log('V49_VISUAL_PIXELS_'+kind.toUpperCase()+'='+JSON.stringify(pixels));
   assert(pixels.appTextPixels>12,kind+' app display is blank in actual Chromium pixels: '+JSON.stringify(pixels));
-  assert(pixels.skinPixels>5,kind+' source CC0 fingers are invisible next to handset: '+JSON.stringify(pixels));
-  // Regression: rejected v49 pointed the four fingers almost straight UP.
+  assert(pixels.skinPixels>60,kind+' larger CC0 right-hand grip is invisible next to handset: '+JSON.stringify(pixels));
+  // Regressions: v50 pointed the four fingers LEFT and showed an undersized hand.
   const fingerDirection=hold.hand.gripFingerDirection;
   console.log('V50_'+kind.toUpperCase()+'_GRIP_DIRECTION='+JSON.stringify(fingerDirection));
   console.log('V50_'+kind.toUpperCase()+'_ANATOMY='+JSON.stringify(hold.hand));
   if(kind==='desktop')console.log('V50_PRECHECK_DESKTOP_JPEG='+(await page.screenshot({type:'jpeg',quality:52})).toString('base64'));
-  assert(fingerDirection[0]<-.035&&Math.abs(fingerDirection[0])>Math.abs(fingerDirection[1])*.65,
-   kind+' fingers are not turned horizontally LEFT: '+JSON.stringify(fingerDirection));
+  assert(fingerDirection[0]>.035&&Math.abs(fingerDirection[0])>Math.abs(fingerDirection[1])*.65,
+   kind+' right-hand fingers are not turned horizontally RIGHT: '+JSON.stringify(fingerDirection));
+  assert(hold.hand.gripThumbDirection[1]>.02,
+   kind+' right-hand thumb is not above the curled fingers: '+JSON.stringify(hold.hand));
   await page.screenshot({path:'opening-v48-focus-artifacts/'+kind+'-hold.png'});
   console.log('V49_HOLD_'+kind.toUpperCase()+'_BOUNDS='+JSON.stringify(bounds));
   console.log((kind==='desktop'?'V48_FOCUSED_HOLD_DESKTOP_JPEG=':'V48_FOCUSED_HOLD_MOBILE_JPEG=')
@@ -90,7 +92,7 @@ try{
   await page.waitForTimeout(230);
   const tap=await page.evaluate(()=>window.__PINEWOOD_OPENING_V34__.handheldPhone);
   console.log('V48_FOCUSED_'+kind.toUpperCase()+'_TAP='+JSON.stringify(tap.hand));
-  assert(tap.tap&&tap.hand.thumbTipDistance!==null&&tap.hand.thumbTipDistance<.048,
+  assert(tap.tap&&tap.hand.thumbTarget?.[0]>.04&&tap.hand.thumbTipDistance!==null&&tap.hand.thumbTipDistance<.048,
    kind+' original thumb fails physical button contact: '+JSON.stringify(tap.hand));
   await page.screenshot({path:'opening-v48-focus-artifacts/'+kind+'-tap.png'});
   // User's screenshot: PAUSED after CHECKED IN; verify the same shot.
