@@ -37,7 +37,8 @@ export class RiggedPlayerHand {
   const mesh=this.skinnedMesh,position=mesh.geometry.getAttribute('position');
   this.model.updateMatrixWorld(true);mesh.skeleton.update();
   const p=new THREE.Vector3(),pad=new THREE.Vector3();
-  let minZ=Infinity,inFace=0,penetrated=0;
+  let minZ=Infinity,inFace=0,penetrated=0,buttonMinZ=Infinity,buttonCount=0;
+  const buttonMinPoint=new THREE.Vector3();
   for(const i of this.thumbIndices){
    p.fromBufferAttribute(position,i);
    mesh.applyBoneTransform(i,p);
@@ -47,8 +48,14 @@ export class RiggedPlayerHand {
     inFace++;minZ=Math.min(minZ,p.z);
     if(p.z<.025)penetrated++;
    }
+   if(p.x>=-.097&&p.x<=.097&&p.y>=-.158&&p.y<=-.113){
+    buttonCount++;
+    if(p.z<buttonMinZ){buttonMinZ=p.z;buttonMinPoint.copy(p);}
+   }
   }
-  return {pad,minZ:inFace?minZ:null,inFace,penetrated,patchCount:this.thumbIndices.length};
+  return {pad,minZ:inFace?minZ:null,inFace,penetrated,
+   buttonMinZ:buttonCount?buttonMinZ:null,buttonMinPoint:buttonCount?buttonMinPoint:null,
+   buttonCount,patchCount:this.thumbIndices.length};
  }
  async load(){
   try{
@@ -255,7 +262,8 @@ export class RiggedPlayerHand {
    this.thumbHoverPose['finger1-3.R'],this.thumbTapPose,ease(this.lastTap));
   this.model.updateWorldMatrix(true,true);
   const probe=this._probe();
-  this.thumbSurfaceStatus={minZ:probe.minZ,penetrated:probe.penetrated,
+  this.thumbSurfaceStatus={minZ:probe.minZ,buttonMinZ:probe.buttonMinZ,
+   buttonMinPoint:probe.buttonMinPoint?.toArray()||null,penetrated:probe.penetrated,
    inFace:probe.inFace,patchCount:probe.patchCount,pad:probe.pad.toArray()};
   const desired=this.hover.clone().lerp(this.target,ease(this.lastTap));
   this.thumbTipDistance=+probe.pad.distanceTo(desired).toFixed(4);

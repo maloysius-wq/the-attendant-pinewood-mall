@@ -43,7 +43,8 @@ try{
    const two=h.point('finger1-2.R'),three=h.point('finger1-3.R'),axis=three.clone().sub(two).normalize();
    const sample=()=>{
     mesh.updateWorldMatrix(true,true);sk.update();
-    let max=-Infinity,min=Infinity,inFace=0,penetrated=0;
+    let max=-Infinity,min=Infinity,inFace=0,penetrated=0,buttonMin=Infinity,buttonCount=0;
+    const contact=new THREE();
     let pad=ids[0];
     for(const i of ids){
      point.fromBufferAttribute(pos,i);mesh.applyBoneTransform(i,point);
@@ -54,10 +55,16 @@ try{
       inFace++;min=Math.min(min,point.z);
       if(point.z<.024-.001)penetrated++;
      }
+     if(point.x>=-.097&&point.x<=.097&&point.y>=-.158&&point.y<=-.113){
+      buttonCount++;
+      if(point.z<buttonMin){buttonMin=point.z;contact.copy(point)}
+     }
     }
     point.fromBufferAttribute(pos,pad);mesh.applyBoneTransform(pad,point);
     mesh.localToWorld(point);h.phoneRoot.worldToLocal(point);
-    return {pad:point.toArray(),inFace,faceMinZ:inFace?min:null,penetrated,patchCount:ids.length};
+    return {pad:point.toArray(),inFace,faceMinZ:inFace?min:null,
+     buttonMinZ:buttonCount?buttonMin:null,buttonMinPoint:buttonCount?contact.toArray():null,
+     buttonCount,penetrated,patchCount:ids.length};
    };
    const poses=[],base=h.point('finger1-1.R').clone(),middle=h.point('finger1-2.R').clone(),
     proximalA=h.bones['finger1-1.R'].quaternion.clone(),proximalB=h.bones['finger1-2.R'].quaternion.clone(),
@@ -72,16 +79,17 @@ try{
      tipBend:h.bones['finger1-3.R'].quaternion.angleTo(distal)});
    }
    h.update(0);
-   return {source:h.status.source,scale:h.model.scale.x,poses};
+   return {source:h.status.source,scale:h.model.scale.x,solver:h.status.selectedTipSolver,poses};
   });
   console.log('V55_'+layout.toUpperCase()+'_ANATOMY='+JSON.stringify(status));
   const hold=status.poses[0],contact=status.poses[5],release=status.poses[8];
   check(status.source.includes('MakeHuman'),layout+' lost original CC0 connected model');
   check(status.scale>=2.35&&status.scale<=2.45,layout+' hand is not roughly twice original size: '+status.scale);
   check(hold.pad[2]>=.059,layout+' thumb pad not at least 35mm above phone glass at rest: '+JSON.stringify(hold));
-  check(contact.inFace>=10&&contact.pad[0]>=-.097&&contact.pad[0]<=.097
-    &&contact.pad[1]>=-.158&&contact.pad[1]<=-.113&&contact.pad[2]>=.024
-    &&contact.pad[2]<=.035,layout+' real thumb PAD must touch CHECK IN from above: '+JSON.stringify(contact));
+  check(contact.buttonCount>=10&&contact.buttonMinZ>=.0249&&contact.buttonMinZ<=.034,
+    layout+' real fleshy thumb surface must touch CHECK IN without penetrating: '+JSON.stringify(contact));
+  check(contact.pad[2]<hold.pad[2]-.03,
+    layout+' distal tip does not dip at least 30mm toward glass: '+JSON.stringify({hold:hold.pad,contact:contact.pad}));
   check(status.poses.every(p=>p.penetrated===0),
     layout+' native skin passed into phone glass: '+JSON.stringify(status.poses.map(p=>[p.phase,p.penetrated,p.faceMinZ])));
   check(status.poses.every(p=>p.rootA<.04&&p.rootB<.04
