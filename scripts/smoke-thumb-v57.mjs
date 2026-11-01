@@ -81,19 +81,19 @@ try{
   const v55Hold=sample();h.update(1);const v55Tap=sample();h.update(0);
   const nativeJointAngles=[base.quaternion.angleTo(jointsOriginal[0]),mid.quaternion.angleTo(jointsOriginal[1]),dist.quaternion.angleTo(jointsOriginal[2])];
   const candidates=[];
-  for(const mf of [.6,1]){
-   for(const df of [.75,1]){
-    for(const targetX of [-.04,-.025,-.01,.005]){
+  for(const mf of [1]){
+   for(const df of [1]){
+    for(const targetX of [-.045,-.035,-.025,-.015,-.005]){
      for(const targetY of [-.14,-.13]){
       reset();straighten(mf,df);
       const pre=pressSetup(new V(targetX,targetY,.031)),qDown=base.quaternion.clone(),rDown=h.model.position.clone();
       for(const dx of [0,.01]){
-       for(const dz of [.004,.006,.008]){
+       for(const dz of [0,.002,.004,.006,.008]){
         h.model.position.copy(rDown).add(new V(dx,0,dz));h.model.updateMatrixWorld(true);
         const down=sample(),rootPoint=point('finger1-1.R'),downPad=new V().fromArray(down.pad);
-        for(const hx of [0,.025,.05]){
-         for(const hy of [-.10,-.08]){
-          for(const hz of [.13,.17]){
+        for(const hx of [.05,.08,.11,.14]){
+         for(const hy of [-.08,-.05,-.02]){
+          for(const hz of [.11,.14,.17]){
            base.quaternion.copy(qDown);h.model.updateMatrixWorld(true);
            align(base,downPad.clone().sub(rootPoint),new V(hx,hy,hz).sub(rootPoint));
            const up=sample();
