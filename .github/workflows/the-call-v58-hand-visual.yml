@@ -4,9 +4,9 @@ on:
     branches: [fix/the-call-v58-full-hand-case-clearance, main]
     paths:
       - 'scripts/smoke-hand-grip-v58.mjs'
-      - 'opening/makehuman-forearm-v57.js'
-      - 'opening/phone-v45.js'
-      - 'opening/intro.js'
+      - 'opening/makehuman-forearm-v58.js'
+      - 'opening/phone-v58.js'
+      - 'opening/intro-v58.js'
       - 'review/the-call-v34/index.html'
       - '.github/workflows/the-call-v58-hand-visual.yml'
   pull_request:
@@ -14,8 +14,6 @@ on:
     paths:
       - 'scripts/smoke-hand-grip-v58.mjs'
       - 'opening/makehuman-forearm-v57.js'
-      - 'opening/phone-v45.js'
-      - 'opening/intro.js'
       - 'review/the-call-v34/index.html'
       - '.github/workflows/the-call-v58-hand-visual.yml'
 permissions:
@@ -29,7 +27,6 @@ jobs:
         layout: [desktop, mobile]
     env:
       V58_LAYOUT: ${{ matrix.layout }}
-      V58_OPTIMIZE: '1'
     runs-on: ubuntu-24.04
     timeout-minutes: 12
     steps:
