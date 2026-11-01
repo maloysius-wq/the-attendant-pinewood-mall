@@ -1,23 +1,7 @@
-name: The Call v55 double-hand tip-only collision visual QA
+name: ARCHIVED The Call v55 distal-only visual QA
+# Historical v55 tip-only assertions are superseded by the v57 base-joint rig.
 on:
-  push:
-    branches: [fix/the-call-v55-double-hand-thumb-tip, main]
-    paths:
-      - 'opening/makehuman-forearm-v55.js'
-      - 'opening/phone-v45.js'
-      - 'opening/intro.js'
-      - 'review/the-call-v34/index.html'
-      - 'scripts/smoke-thumb-v55.mjs'
-      - '.github/workflows/the-call-v55-visual.yml'
-  pull_request:
-    branches: [main]
-    paths:
-      - 'opening/makehuman-forearm-v55.js'
-      - 'opening/phone-v45.js'
-      - 'opening/intro.js'
-      - 'review/the-call-v34/index.html'
-      - 'scripts/smoke-thumb-v55.mjs'
-      - '.github/workflows/the-call-v55-visual.yml'
+  workflow_dispatch:
 permissions:
   contents: read
 jobs:
