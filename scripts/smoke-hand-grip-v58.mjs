@@ -16,6 +16,10 @@ try{
   await page.waitForFunction(()=>document.getElementById('titleScreen')?.classList.contains('show'),null,{timeout:150000});
   await page.locator('#newBtn').click();
   await page.waitForFunction(()=>window.__PINEWOOD_OPENING_V34__?.active,null,{timeout:30000});
+  // The v61 opening deliberately keeps its camera and timeline covered until the full scene is ready.
+  // Measure the phone only after that covered first frame has been rendered and revealed.
+  await page.waitForFunction(()=>window.__PINEWOOD_OPENING_V34__?.startupStatus?.firstFrameRendered &&
+   document.getElementById('pwm-opening')?.dataset.preloadState==='ready',null,{timeout:150000});
   await page.waitForFunction(()=>['ready','failed'].includes(window.__PINEWOOD_OPENING_V34__?.qaPlayerHand?.state),null,{timeout:40000});
   const phases=[];
   for(const [label,cue,t] of [['hold','.44',0],['contact','.62',1]]){

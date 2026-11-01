@@ -1,0 +1,51 @@
+name: The Call v61 complete scene before reveal
+on:
+  push:
+    branches: [fix/the-call-v61-asset-gate, main]
+    paths:
+      - 'opening/intro-v61.js'
+      - 'opening/opening.css'
+      - 'review/the-call-v34/index.html'
+      - 'scripts/smoke-opening-preload-v61.mjs'
+      - '.github/workflows/the-call-v61-preload.yml'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'opening/intro-v61.js'
+      - 'opening/opening.css'
+      - 'review/the-call-v34/index.html'
+      - 'scripts/smoke-opening-preload-v61.mjs'
+      - '.github/workflows/the-call-v61-preload.yml'
+permissions:
+  contents: read
+jobs:
+  first-visible-frame:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Parse startup regression
+        run: |
+          node --check opening/intro-v61.js
+          node --check scripts/smoke-opening-preload-v61.mjs
+      - name: Install Chromium
+        run: |
+          npm install --no-save playwright@1.55.0
+          npx playwright install chromium
+      - name: Serve local preview
+        run: |
+          python3 -m http.server 4173 --bind 127.0.0.1 >/tmp/pinewood-v61-http.log 2>&1 &
+          for i in {1..30}; do curl -fsS http://127.0.0.1:4173/review/the-call-v34/ >/dev/null && exit 0; sleep 1; done
+          exit 1
+      - name: Prove delayed car stays covered then reveals complete first frame
+        run: node scripts/smoke-opening-preload-v61.mjs
+      - name: Save loading and first-reveal captures
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: v61-preload-first-reveal
+          path: opening-v61-artifacts/
+          retention-days: 7

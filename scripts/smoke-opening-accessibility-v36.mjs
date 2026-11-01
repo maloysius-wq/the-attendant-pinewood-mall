@@ -38,6 +38,11 @@ try {
       await page.locator('#newBtn').click();
       await page.waitForFunction(() => window.__PINEWOOD_OPENING_V34__?.active &&
         !document.querySelector('#pwm-opening').hidden, null, { timeout: 90000 });
+      // v61 keeps an opaque, keyboard-skippable loading screen in front until
+      // all scene assets and the FIRST real rendered frame are complete.
+      await page.waitForFunction(() =>
+        document.querySelector('#pwm-opening')?.dataset.preloadState === 'ready',
+        null, { timeout: 90000 });
 
       const opened = await page.evaluate(() => ({
         titleInert: document.getElementById('titleScreen').inert,
