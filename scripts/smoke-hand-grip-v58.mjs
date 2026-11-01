@@ -81,7 +81,7 @@ try{
     const indexBase=h.point('finger2-1.R').toArray();
     const webbingGap=(thumbBase[0]+indexBase[0])/2-.1225;
     return {phase,modelPosition:h.model.position.toArray(),digits:out,allSkin,
-     gripThumbBaseGap:+(thumbBase[0]-.1225).toFixed(5),gripWebbingGap:+webbingGap.toFixed(5),thumbBase,indexBase,
+     gripThumbBaseGap:+(thumbBase[0]-.1225).toFixed(5),gripWebbingGap:+webbingGap.toFixed(5),thumbBase,indexBase,phoneScreenViewport:s.handheldPhone?.screenViewport,
      thumb:h.status.thumbSurface,source:h.status.source};
    },t);
    phases.push(diagnostic);
@@ -156,9 +156,9 @@ try{
     const parentQ=joint.parent.getWorldQuaternion(new Q()),phoneQ=h.phoneRoot.getWorldQuaternion(new Q());
     const yAxis=new V(0,1,0).applyQuaternion(phoneQ).applyQuaternion(parentQ.clone().invert()).normalize();
     const trials=[];
-    for(const delta of [0,-.010,-.016,-.020,-.024,-.028]){
+    for(const delta of [0,-.002,-.004,-.006,-.008]){
      h.holder.position.x=originalX+delta;
-     for(const yaw of [0,-.15,-.30,-.45,-.60,-.75,-.90]){
+     for(const yaw of [0,-.10,-.20,-.30,-.40,-.50]){
       joint.quaternion.copy(originalQ).premultiply(new Q().setFromAxisAngle(yAxis,yaw));
       const skin=[];
       for(const phase of [0,1]){
@@ -258,7 +258,7 @@ try{
    console.log('V58_OPTIMIZER_'+name.toUpperCase()+'_JPEG='+(await page.screenshot({type:'jpeg',quality:62})).toString('base64'));
   }
   const hold=phases[0],pressed=phases[1];
-  check(hold.gripThumbBaseGap>=.104&&hold.gripThumbBaseGap<=.115&&pressed.gripThumbBaseGap<=.115,
+  check(hold.gripThumbBaseGap>=.120&&hold.gripThumbBaseGap<=.125&&pressed.gripThumbBaseGap<=.125,
    name+' handset has not shifted right toward lower thumb-index webbing: '+JSON.stringify(phases.map(p=>p.gripThumbBaseGap)));
   check(pressed.thumb.buttonMinPoint?.[0]>=.015&&pressed.thumb.buttonMinPoint?.[0]<=.095&&pressed.thumb.buttonMinZ>=.0249&&pressed.thumb.buttonMinZ<=.034,
    name+' thumb contact no longer lands inside physical CHECK IN: '+JSON.stringify(pressed.thumb));
