@@ -43,7 +43,7 @@ try{
     const canvas=document.createElement('canvas');canvas.width=innerWidth;canvas.height=innerHeight;
     canvas.style.cssText='position:fixed;inset:0;pointer-events:none;z-index:999999';
     document.body.appendChild(canvas);
-    const c=canvas.getContext('2d'),camera=s.phoneCamera||s.camera;
+    const c=canvas.getContext('2d'),camera=h.phoneRoot.parent;camera.updateWorldMatrix(true,false);camera.updateProjectionMatrix();
     const colors=['#ff3245','#27e5fb','#b0f235','#f9b64c','#d699fe'];
     const out=[];
     for(let d=0;d<5;d++){
