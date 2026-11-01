@@ -81,7 +81,7 @@ export class RiggedPlayerHand {
     if(obj.isSkinnedMesh&&obj.skeleton?.bones?.length>=100)skinned++;
     for(const mat of Array.isArray(obj.material)?obj.material:[obj.material]){
      if(!mat)continue;
-     mat.side=THREE.FrontSide;mat.depthTest=true;mat.depthWrite=true;
+     mat.side=THREE.DoubleSide;mat.depthTest=true;mat.depthWrite=true;
      mat.roughness=.88;
      mat.color.set('#ad765b');
      mat.needsUpdate=true;
