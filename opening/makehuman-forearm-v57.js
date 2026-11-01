@@ -302,7 +302,7 @@ export class RiggedPlayerHand {
    // v57: Max's whole-thumb motion. Keep the original wrist, forearm, and
    // entire thumb SKIN. Align its two downstream joints once, then animate
    // ONLY the native base joint where the thumb attaches to the palm.
-   const baseJoint=bones['finger1-1.R'],middleJoint=bones['finger1-2.R'];
+   const baseJoint=bones['finger1-1.R'],v57MiddleBone=bones['finger1-2.R'];
    const v57PhoneQ=this.phoneRoot.getWorldQuaternion(new THREE.Quaternion());
    const rotateAtJoint=(joint,phoneRotation)=>{
     model.updateMatrixWorld(true);
@@ -320,7 +320,7 @@ export class RiggedPlayerHand {
    const basePoint=()=>this.point('finger1-1.R');
    const middlePoint=()=>this.point('finger1-2.R');
    const tipPoint=()=>this.point('finger1-3.R');
-   aimJoint(middleJoint,tipPoint().sub(middlePoint()),middlePoint().sub(basePoint()));
+   aimJoint(v57MiddleBone,tipPoint().sub(middlePoint()),middlePoint().sub(basePoint()));
    aimJoint(bone,this._probe().pad.sub(tipPoint()),tipPoint().sub(middlePoint()));
 
    // Press calibration uses the REAL weighted flesh touching the LCD, not
@@ -358,7 +358,7 @@ export class RiggedPlayerHand {
    this.thumbTipBend=upPose.angleTo(downPose);
    this.hover=upPad;
    this.selectedTipSolver={method:'straight thumb at original base joint',
-    baseJoint:'finger1-1.R',staticMiddleJoint:middleJoint.quaternion.toArray(),
+    baseJoint:'finger1-1.R',staticMiddleJoint:v57MiddleBone.quaternion.toArray(),
     staticDistalJoint:bone.quaternion.toArray(),hoverPad:upPad.toArray(),
     pressPad:downFlesh.pad.toArray(),actualContact:downFlesh.buttonMinPoint.toArray(),
     holdWholeOverButton:upFull.overButton,pressWholeInsideCase:downFull.insideCase};
