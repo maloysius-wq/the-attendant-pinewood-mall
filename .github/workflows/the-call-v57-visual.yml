@@ -55,6 +55,6 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: v57-base-thumb-${{ matrix.layout }
+          name: v57-base-thumb-${{ matrix.layout }}
           path: opening-v57-artifacts/
           retention-days: 7
