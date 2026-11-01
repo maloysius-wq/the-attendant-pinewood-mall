@@ -113,6 +113,36 @@ try{
     h.holder.position.x=original;h.update(0);return results;
    });
    console.log('V59_SWEEP_'+name.toUpperCase()+'='+JSON.stringify(candidates));
+   const yawCandidates=await page.evaluate(()=>{
+    const h=window.__PINEWOOD_OPENING_V34__.qaPlayerHand,mesh=h.skinnedMesh;
+    const P=h.model.position.constructor,Q=h.model.quaternion.constructor,p=new P();
+    const pos=mesh.geometry.getAttribute('position'),si=mesh.geometry.getAttribute('skinIndex'),sw=mesh.geometry.getAttribute('skinWeight');
+    const read=(a,i)=>[a.getX(i),a.getY(i),a.getZ(i),a.getW(i)];
+    const ids={};
+    for(let d=1;d<=5;d++)ids[d]=[1,2,3].map(n=>mesh.skeleton.bones.indexOf(h.bones['finger'+d+'-'+n+'.R']));
+    const bone=h.bones['finger2-1.R'],baseQ=bone.quaternion.clone(),parentQ=bone.parent.getWorldQuaternion(new Q()),phoneQ=h.phoneRoot.getWorldQuaternion(new Q());
+    const yAxis=new P(0,1,0).applyQuaternion(phoneQ).applyQuaternion(parentQ.clone().invert()).normalize();
+    const original=h.holder.position.x,results=[];
+    for(const dx of [-.008,-.010,-.012]){
+     h.holder.position.x=original+dx;
+     for(const yaw of [-.40,-.30,-.20,-.15,-.10,-.05,0,.05,.10]){
+      bone.quaternion.copy(baseQ).premultiply(new Q().setFromAxisAngle(yAxis,yaw));
+      h.update(0);h.model.updateMatrixWorld(true);
+      const solidByRole={Thumb:0,Index:0,Middle:0,Ring:0,Pinky:0,Palm:0};
+      for(let i=0;i<pos.count;i++){
+       p.fromBufferAttribute(pos,i);mesh.applyBoneTransform(i,p);mesh.localToWorld(p);h.phoneRoot.worldToLocal(p);
+       if(p.x<-.119||p.x>.119||p.y<-.218||p.y>.218||p.z<-.02||p.z>=.0249)continue;
+       const js=read(si,i),ws=read(sw,i),mass=[1,2,3,4,5].map(d=>js.reduce((total,j,k)=>total+(ids[d].includes(j)?ws[k]:0),0));
+       const best=Math.max(...mass),role=best<.25?'Palm':['Thumb','Index','Middle','Ring','Pinky'][mass.indexOf(best)];
+       solidByRole[role]++;
+      }
+      results.push({dx,yaw,solid:Object.values(solidByRole).reduce((a,b)=>a+b,0),...solidByRole});
+     }
+    }
+    h.holder.position.x=original;bone.quaternion.copy(baseQ);h.update(0);return results;
+   });
+   console.log('V59_YAW_'+name.toUpperCase()+'='+JSON.stringify(yawCandidates));
+
   }
 
   if(process.env.V58_OPTIMIZE){
