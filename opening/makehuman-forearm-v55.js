@@ -35,7 +35,7 @@ export class RiggedPlayerHand {
  // in this probe is actually weighted to the original distal thumb bone.
  _probe(){
   const mesh=this.skinnedMesh,position=mesh.geometry.getAttribute('position');
-  mesh.updateWorldMatrix(true,true);mesh.skeleton.update();
+  this.model.updateMatrixWorld(true);mesh.skeleton.update();
   const p=new THREE.Vector3(),pad=new THREE.Vector3();
   let minZ=Infinity,inFace=0,penetrated=0;
   for(const i of this.thumbIndices){
@@ -139,6 +139,9 @@ export class RiggedPlayerHand {
    }
    if(indices.length<50)throw Error('Missing real source distal thumb pad patch: '+indices.length);
    this.skinnedMesh=mesh;this.thumbIndices=indices;
+   // SkinnedMesh.updateMatrixWorld refreshes attached bindMatrixInverse.
+   // updateWorldMatrix alone bypasses that subclass override until render.
+   model.updateMatrixWorld(true);
    // Stable source vertex farthest beyond the terminal/thumb middle joint.
    const middleJoint=this.point('finger1-2.R'),lastJoint=this.point('finger1-3.R');
    const direction=lastJoint.clone().sub(middleJoint).normalize();
