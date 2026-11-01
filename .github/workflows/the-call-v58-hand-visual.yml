@@ -1,14 +1,14 @@
-name: The Call v58 straight-thumb base-pivot visual
+name: The Call v58 complete hand-phone clearance
 on:
   push:
-    branches: [fix/the-call-v58-base-pivot-thumb, main]
+    branches: [fix/the-call-v58-full-hand-case-clearance, main]
     paths:
       - 'scripts/smoke-hand-grip-v58.mjs'
       - 'opening/makehuman-forearm-v57.js'
       - 'opening/phone-v45.js'
       - 'opening/intro.js'
       - 'review/the-call-v34/index.html'
-      - '.github/workflows/the-call-v58-visual.yml'
+      - '.github/workflows/the-call-v58-hand-visual.yml'
   pull_request:
     branches: [main]
     paths:
@@ -17,7 +17,7 @@ on:
       - 'opening/phone-v45.js'
       - 'opening/intro.js'
       - 'review/the-call-v34/index.html'
-      - '.github/workflows/the-call-v58-visual.yml'
+      - '.github/workflows/the-call-v58-hand-visual.yml'
 permissions:
   contents: read
 jobs:
@@ -51,10 +51,10 @@ jobs:
           exit 1
       - name: Diagnose full source skin finger clearance at hold and tap
         run: node scripts/smoke-hand-grip-v58.mjs
-      - name: Upload actual mobile thumb frames
+      - name: Upload actual full-hand collision frames
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: v58-base-thumb-${{ matrix.layout }}
+          name: v58-full-hand-${{ matrix.layout }}
           path: opening-v58-artifacts/
           retention-days: 7
