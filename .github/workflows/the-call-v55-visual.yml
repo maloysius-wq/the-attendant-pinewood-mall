@@ -1,0 +1,62 @@
+name: The Call v55 double-hand tip-only collision visual QA
+on:
+  push:
+    branches: [fix/the-call-v55-double-hand-thumb-tip, main]
+    paths:
+      - 'opening/makehuman-forearm-v55.js'
+      - 'opening/phone-v45.js'
+      - 'opening/intro.js'
+      - 'review/the-call-v34/index.html'
+      - 'scripts/smoke-thumb-v55.mjs'
+      - '.github/workflows/the-call-v55-visual.yml'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'opening/makehuman-forearm-v55.js'
+      - 'opening/phone-v45.js'
+      - 'opening/intro.js'
+      - 'review/the-call-v34/index.html'
+      - 'scripts/smoke-thumb-v55.mjs'
+      - '.github/workflows/the-call-v55-visual.yml'
+permissions:
+  contents: read
+jobs:
+  thumb-tip:
+    name: thumb-tip-${{ matrix.layout }}
+    strategy:
+      fail-fast: false
+      matrix:
+        layout: [mobile, narrow, desktop]
+    env:
+      V55_LAYOUT: ${{ matrix.layout }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Audit source skinned MakeHuman right forearm
+        run: |
+          node scripts/audit-call-right-forearm-v54.mjs
+          node --check scripts/smoke-thumb-v55.mjs
+          node --check opening/phone-v45.js
+      - name: Install deterministic Chromium
+        run: |
+          npm install --no-save playwright@1.55.0
+          npx playwright install chromium
+      - name: Start local review
+        run: |
+          python3 -m http.server 4173 --bind 127.0.0.1 >/tmp/pinewood-v55-http.log 2>&1 &
+          for i in {1..30}; do curl -fsS http://127.0.0.1:4173/review/the-call-v34/ >/dev/null && exit 0; sleep 1; done
+          cat /tmp/pinewood-v55-http.log
+          exit 1
+      - name: Prove real distal thumb pad touches and never enters phone
+        run: node scripts/smoke-thumb-v55.mjs
+      - name: Capture hold tap lift snapshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: v55-real-thumb-pad-depth-${{ matrix.layout }}
+          path: opening-v55-artifacts/
+          retention-days: 7

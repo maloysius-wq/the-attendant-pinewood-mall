@@ -1,7 +1,7 @@
-name: The Call v54 full cinematic + connected right forearm
+name: The Call v55 full cinematic + enlarged connected right forearm
 on:
   push:
-    branches: [feature/the-call-v37-cc0-atmosphere, main]
+    branches: [fix/the-call-v55-double-hand-thumb-tip, main]
     paths:
       - 'opening/assets/v37/**'
       - 'opening/assets/v42/**'
@@ -10,6 +10,7 @@ on:
       - 'opening/phone-v45.js'
       - 'opening/assets/v54/**'
       - 'opening/makehuman-forearm-v54.js'
+      - 'opening/makehuman-forearm-v55.js'
       - 'opening/caption-sync-v45.js'
       - 'opening/camera.js'
       - 'opening/environment-v37.js'
@@ -29,6 +30,7 @@ on:
       - 'opening/phone-v45.js'
       - 'opening/assets/v54/**'
       - 'opening/makehuman-forearm-v54.js'
+      - 'opening/makehuman-forearm-v55.js'
       - 'opening/caption-sync-v45.js'
       - 'opening/camera.js'
       - 'opening/environment-v37.js'
@@ -57,6 +59,7 @@ jobs:
           node --check opening/intro.js
           node --check opening/phone-v45.js
           node --check opening/makehuman-forearm-v54.js
+          node --check opening/makehuman-forearm-v55.js
           test -s opening/assets/v54/makehuman-right-forearm.glb
           test -s opening/assets/v54/manifest.json
           node scripts/audit-call-right-forearm-v54.mjs
@@ -79,13 +82,13 @@ jobs:
           for i in {1..30}; do curl -fsS http://127.0.0.1:4173/review/the-call-v34/ >/dev/null && exit 0; sleep 1; done
           cat /tmp/pinewood-v37-http.log
           exit 1
-      - name: Exercise v54 full cinematic and connected CC0 right-thumb press in Chromium
+      - name: Exercise v55 full cinematic and connected CC0 right-thumb press in Chromium
         run: node scripts/smoke-opening-v37.mjs
       - name: Preserve cinematic screenshots and telemetry
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: pinewood-opening-v54
+          name: pinewood-opening-v55
           path: opening-v37-artifacts/
           if-no-files-found: warn
           retention-days: 7
