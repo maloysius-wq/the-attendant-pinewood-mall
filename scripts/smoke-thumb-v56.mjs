@@ -114,12 +114,35 @@ try{
     h.model.position.z=rootZ;
    }
    h.update(0);
+   const midJoint=h.bones['finger1-2.R'],midRest=midJoint.quaternion.clone();
+   const Quaternion=midRest.constructor,staticScan=[];
+   const axes=[[1,0,0],[0,1,0],[0,0,1]];
+   for(let ax=0;ax<3;ax++){
+    for(const angle of [-.6,-.4,-.2,.2,.4,.6]){
+     const q=new Quaternion().setFromAxisAngle(new THREE(...axes[ax]),angle);
+     midJoint.quaternion.copy(midRest).multiply(q);
+     for(const dx of [-.01,0,.01,.02,.03]){
+      h.model.position.x=rootX+dx;h.update(0);const up=sample();
+      h.update(1);const down=sample();
+      const dz=down.buttonMinZ===null?null:.028-down.buttonMinZ;
+      staticScan.push({ax,angle,dx,hover:up.buttonCount,
+       allHover:up.wholeThumbOverButton,hoverMin:up.faceMinZ,
+       touch:down.buttonCount,contact:down.buttonMinPoint,
+       dz,pressCase:down.wholeThumbInsideCase,
+       possible:up.buttonCount<=10&&up.wholeThumbOverButton<=25
+        &&down.buttonCount>=30&&down.buttonMinPoint?.[0]<=.08
+        &&dz!==null&&Math.abs(dz)<.03&&up.faceMinZ+dz>=.055});
+     }
+    }
+   }
+   midJoint.quaternion.copy(midRest);h.model.position.x=rootX;h.update(0);
    return {source:h.status.source,scale:h.model.scale.x,
-    solver:h.status.selectedTipSolver,poses,dxScan,tapScan};
+    solver:h.status.selectedTipSolver,poses,dxScan,tapScan,staticScan};
   });
   console.log('V56_'+layout.toUpperCase()+'_ANATOMY='+JSON.stringify(status));
   console.log('V56_'+layout.toUpperCase()+'_OFFSET_DIAG='+JSON.stringify(status.dxScan));
   console.log('V56_'+layout.toUpperCase()+'_TAP_DIAG='+JSON.stringify(status.tapScan));
+  console.log('V56_'+layout.toUpperCase()+'_STATIC_DIAG='+JSON.stringify(status.staticScan));
   const hold=status.poses[0],contact=status.poses[5],release=status.poses[8];
   check(status.source.includes('MakeHuman'),layout+' lost original CC0 connected model');
   check(status.scale>=2.35&&status.scale<=2.45,layout+' hand is not roughly twice original size: '+status.scale);
