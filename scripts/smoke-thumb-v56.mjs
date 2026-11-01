@@ -103,11 +103,23 @@ try{
      caseAtTap:pressed.wholeThumbInsideCase});
    }
    h.model.position.x=rootX;h.update(0);
+   const rootZ=h.model.position.z,tapScan=[];
+   for(const phase of [.6,.7,.8,.85,.9,.95,1]){
+    h.update(phase);
+    for(const dz of [-.020,-.015,-.010,-.005,0]){
+     h.model.position.z=rootZ+dz;const p=sample();
+     tapScan.push({phase,dz,n:p.buttonCount,z:p.buttonMinZ,
+      point:p.buttonMinPoint,face:p.faceMinZ,caseCount:p.wholeThumbInsideCase});
+    }
+    h.model.position.z=rootZ;
+   }
+   h.update(0);
    return {source:h.status.source,scale:h.model.scale.x,
-    solver:h.status.selectedTipSolver,poses,dxScan};
+    solver:h.status.selectedTipSolver,poses,dxScan,tapScan};
   });
   console.log('V56_'+layout.toUpperCase()+'_ANATOMY='+JSON.stringify(status));
   console.log('V56_'+layout.toUpperCase()+'_OFFSET_DIAG='+JSON.stringify(status.dxScan));
+  console.log('V56_'+layout.toUpperCase()+'_TAP_DIAG='+JSON.stringify(status.tapScan));
   const hold=status.poses[0],contact=status.poses[5],release=status.poses[8];
   check(status.source.includes('MakeHuman'),layout+' lost original CC0 connected model');
   check(status.scale>=2.35&&status.scale<=2.45,layout+' hand is not roughly twice original size: '+status.scale);
@@ -117,6 +129,9 @@ try{
   check(hold.pad[2]>=.09&&hold.faceMinZ>=.059,layout+' raised thumb not clearly above the glass at rest: '+JSON.stringify(hold));
   check(hold.pad[1]>=contact.pad[1]+.016,
     layout+' raised thumb is still visibly over the CHECK IN button: '+JSON.stringify({hover:hold.pad,tap:contact.pad}));
+  check(contact.buttonCount>=40&&contact.buttonMinPoint?.[0]<=.077,
+    layout+' fingertip merely grazes the right bezel instead of pressing inside CHECK IN: '+
+    JSON.stringify({contact,alternatives:status.tapScan}));
   check(contact.buttonCount>=10&&contact.buttonMinZ>=.0249&&contact.buttonMinZ<=.034,
     layout+' real fleshy thumb surface must touch CHECK IN without penetrating: '+JSON.stringify(contact));
   check(contact.pad[2]<hold.pad[2]-.03,
