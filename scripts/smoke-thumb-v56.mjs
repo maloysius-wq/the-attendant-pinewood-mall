@@ -168,8 +168,29 @@ try{
     }
    }
    distalBone.scale.copy(originalScale);h.update(0);
+   const baseBone=h.bones['finger1-1.R'],baseRest=baseBone.quaternion.clone();
+   const baseScan=[];
+   for(let ax=0;ax<3;ax++){
+    for(const angle of [-.6,-.4,-.2,.2,.4,.6]){
+     const q=new Quaternion().setFromAxisAngle(new THREE(...axes[ax]),angle);
+     baseBone.quaternion.copy(baseRest).multiply(q);
+     for(const dx of [-.045,-.03,-.02,-.01,0]){
+      h.model.position.x=rootX+dx;h.update(0);const up=sample();
+      h.update(1);const down=sample();
+      const dz=down.buttonMinZ===null?null:.028-down.buttonMinZ;
+      baseScan.push({ax,angle,dx,hover:up.buttonCount,
+       allHover:up.wholeThumbOverButton,hoverMin:up.faceMinZ,
+       touch:down.buttonCount,contact:down.buttonMinPoint,
+       dz,pressCase:down.wholeThumbInsideCase,
+       possible:up.buttonCount<=10&&up.wholeThumbOverButton<=25
+        &&down.buttonCount>=30&&down.buttonMinPoint?.[0]<=.08
+        &&dz!==null&&Math.abs(dz)<.025&&up.faceMinZ+dz>=.055});
+     }
+    }
+   }
+   baseBone.quaternion.copy(baseRest);h.model.position.x=rootX;h.update(0);
    return {source:h.status.source,scale:h.model.scale.x,
-    solver:h.status.selectedTipSolver,poses,dxScan,tapScan,staticScan,pressScan,scaleScan};
+    solver:h.status.selectedTipSolver,poses,dxScan,tapScan,staticScan,pressScan,scaleScan,baseScan};
   });
   console.log('V56_'+layout.toUpperCase()+'_ANATOMY='+JSON.stringify(status));
   console.log('V56_'+layout.toUpperCase()+'_OFFSET_DIAG='+JSON.stringify(status.dxScan));
@@ -177,6 +198,7 @@ try{
   console.log('V56_'+layout.toUpperCase()+'_STATIC_DIAG='+JSON.stringify(status.staticScan));
   console.log('V56_'+layout.toUpperCase()+'_PRESS_DIAG='+JSON.stringify(status.pressScan));
   console.log('V56_'+layout.toUpperCase()+'_SCALE_DIAG='+JSON.stringify(status.scaleScan));
+  console.log('V56_'+layout.toUpperCase()+'_BASE_DIAG='+JSON.stringify(status.baseScan));
   const hold=status.poses[0],contact=status.poses[5],release=status.poses[8];
   check(status.source.includes('MakeHuman'),layout+' lost original CC0 connected model');
   check(status.scale>=2.35&&status.scale<=2.45,layout+' hand is not roughly twice original size: '+status.scale);
