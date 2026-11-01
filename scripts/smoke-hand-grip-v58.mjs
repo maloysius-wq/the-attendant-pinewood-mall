@@ -77,7 +77,9 @@ try{
      if(p.x>=-.119&&p.x<=.119&&p.y>=-.218&&p.y<=.218&&p.z>=-.02&&p.z<.0249)allSkin.solid++;
      if(p.x>=-.109&&p.x<=.109&&p.y>=-.198&&p.y<=.188&&p.z>=.0249)allSkin.front++;
     }
+    const thumbBase=h.point('finger1-1.R').toArray();
     return {phase,modelPosition:h.model.position.toArray(),digits:out,allSkin,
+     gripThumbBaseGap:+(thumbBase[0]-.1225).toFixed(5),thumbBase,
      thumb:h.status.thumbSurface,source:h.status.source};
    },t);
    phases.push(diagnostic);
@@ -87,6 +89,60 @@ try{
    await page.screenshot({path:'opening-v58-artifacts/'+name+'-'+label+'-clean.png'});
    console.log('V58_'+name.toUpperCase()+'_'+label.toUpperCase()+'_JPEG='+
     (await page.screenshot({type:'jpeg',quality:62})).toString('base64'));
+  }
+
+  if(process.env.V59_SWEEP){
+   const candidates=await page.evaluate(()=>{
+    const h=window.__PINEWOOD_OPENING_V34__.qaPlayerHand,mesh=h.skinnedMesh;
+    const pos=mesh.geometry.getAttribute('position'),P=h.model.position.constructor,p=new P();
+    const original=h.holder.position.x,results=[];
+    for(const delta of [0,-.006,-.008,-.010,-.012,-.014]){
+     h.holder.position.x=original+delta;
+     for(const phase of [0,1]){
+      h.update(phase);h.model.updateMatrixWorld(true);
+      let solid=0;
+      for(let i=0;i<pos.count;i++){
+       p.fromBufferAttribute(pos,i);mesh.applyBoneTransform(i,p);mesh.localToWorld(p);h.phoneRoot.worldToLocal(p);
+       if(p.x>=-.119&&p.x<=.119&&p.y>=-.218&&p.y<=.218&&p.z>=-.02&&p.z<.0249)solid++;
+      }
+      const touch=h.status.thumbSurface;
+      results.push({delta,phase,solid,baseGap:+(h.point('finger1-1.R').x-.1225).toFixed(5),
+       button:touch.buttonMinPoint,buttonMinZ:touch.buttonMinZ,penetrated:touch.penetrated});
+     }
+    }
+    h.holder.position.x=original;h.update(0);return results;
+   });
+   console.log('V59_SWEEP_'+name.toUpperCase()+'='+JSON.stringify(candidates));
+   const yawCandidates=await page.evaluate(()=>{
+    const h=window.__PINEWOOD_OPENING_V34__.qaPlayerHand,mesh=h.skinnedMesh;
+    const P=h.model.position.constructor,Q=h.model.quaternion.constructor,p=new P();
+    const pos=mesh.geometry.getAttribute('position'),si=mesh.geometry.getAttribute('skinIndex'),sw=mesh.geometry.getAttribute('skinWeight');
+    const read=(a,i)=>[a.getX(i),a.getY(i),a.getZ(i),a.getW(i)];
+    const ids={};
+    for(let d=1;d<=5;d++)ids[d]=[1,2,3].map(n=>mesh.skeleton.bones.indexOf(h.bones['finger'+d+'-'+n+'.R']));
+    const bone=h.bones['finger2-1.R'],baseQ=bone.quaternion.clone(),parentQ=bone.parent.getWorldQuaternion(new Q()),phoneQ=h.phoneRoot.getWorldQuaternion(new Q());
+    const yAxis=new P(0,1,0).applyQuaternion(phoneQ).applyQuaternion(parentQ.clone().invert()).normalize();
+    const original=h.holder.position.x,results=[];
+    for(const dx of [-.008,-.010,-.012]){
+     h.holder.position.x=original+dx;
+     for(const yaw of [-.40,-.30,-.20,-.15,-.10,-.05,0,.05,.10]){
+      bone.quaternion.copy(baseQ).premultiply(new Q().setFromAxisAngle(yAxis,yaw));
+      h.update(0);h.model.updateMatrixWorld(true);
+      const solidByRole={Thumb:0,Index:0,Middle:0,Ring:0,Pinky:0,Palm:0};
+      for(let i=0;i<pos.count;i++){
+       p.fromBufferAttribute(pos,i);mesh.applyBoneTransform(i,p);mesh.localToWorld(p);h.phoneRoot.worldToLocal(p);
+       if(p.x<-.119||p.x>.119||p.y<-.218||p.y>.218||p.z<-.02||p.z>=.0249)continue;
+       const js=read(si,i),ws=read(sw,i),mass=[1,2,3,4,5].map(d=>js.reduce((total,j,k)=>total+(ids[d].includes(j)?ws[k]:0),0));
+       const best=Math.max(...mass),role=best<.25?'Palm':['Thumb','Index','Middle','Ring','Pinky'][mass.indexOf(best)];
+       solidByRole[role]++;
+      }
+      results.push({dx,yaw,solid:Object.values(solidByRole).reduce((a,b)=>a+b,0),...solidByRole});
+     }
+    }
+    h.holder.position.x=original;bone.quaternion.copy(baseQ);h.update(0);return results;
+   });
+   console.log('V59_YAW_'+name.toUpperCase()+'='+JSON.stringify(yawCandidates));
+
   }
 
   if(process.env.V58_OPTIMIZE){
@@ -167,6 +223,10 @@ try{
    console.log('V58_OPTIMIZER_'+name.toUpperCase()+'_JPEG='+(await page.screenshot({type:'jpeg',quality:62})).toString('base64'));
   }
   const hold=phases[0],pressed=phases[1];
+  check(hold.gripThumbBaseGap>=.116&&hold.gripThumbBaseGap<=.130&&pressed.gripThumbBaseGap<=.130,
+   name+' handset sits too far from native thumb base: '+JSON.stringify(phases.map(p=>p.gripThumbBaseGap)));
+  check(pressed.thumb.buttonMinPoint?.[0]>=.015&&pressed.thumb.buttonMinPoint?.[0]<=.095&&pressed.thumb.buttonMinZ>=.0249&&pressed.thumb.buttonMinZ<=.034,
+   name+' thumb contact no longer lands inside physical CHECK IN: '+JSON.stringify(pressed.thumb));
   check(hold.source.includes('v58')&&pressed.source.includes('v58'),name+' reviewed module is not v58');
   check(hold.allSkin.solid===0&&pressed.allSkin.solid===0,name+' actual continuous full-forearm SKIN intersects handset: '+JSON.stringify(phases.map(p=>p.allSkin)));
   check(hold.digits[1].solid===0&&pressed.digits[1].solid===0,

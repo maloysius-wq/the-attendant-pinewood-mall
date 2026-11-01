@@ -1,12 +1,14 @@
-name: The Call v58 complete hand-phone clearance
+name: The Call v59 thumb-base fit and complete hand-phone clearance
 on:
   push:
-    branches: [fix/the-call-v58-full-hand-case-clearance, main]
+    branches: [fix/the-call-v58-full-hand-case-clearance, fix/the-call-v59-phone-thumb-base-fit, main]
     paths:
       - 'scripts/smoke-hand-grip-v58.mjs'
       - 'opening/makehuman-forearm-v58.js'
       - 'opening/phone-v58.js'
+      - 'opening/phone-v59.js'
       - 'opening/intro-v58.js'
+      - 'opening/intro-v59.js'
       - 'review/the-call-v34/index.html'
       - '.github/workflows/the-call-v58-hand-visual.yml'
   pull_request:
@@ -47,7 +49,7 @@ jobs:
           python3 -m http.server 4173 --bind 127.0.0.1 >/tmp/pinewood-v58-http.log 2>&1 &
           for i in {1..30}; do curl -fsS http://127.0.0.1:4173/review/the-call-v34/ >/dev/null && exit 0; sleep 1; done
           exit 1
-      - name: Diagnose full source skin finger clearance at hold and tap
+      - name: Verify all source skin clears case and handset fits native thumb base
         run: node scripts/smoke-hand-grip-v58.mjs
       - name: Upload actual full-hand collision frames
         if: always()
