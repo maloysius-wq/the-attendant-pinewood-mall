@@ -124,6 +124,20 @@ try{
   await page.waitForTimeout(260);
   await page.screenshot({path:'opening-v55-artifacts/'+layout+'-release.png'});
   console.log('V55_'+layout.toUpperCase()+'_RELEASE_JPEG='+(await page.screenshot({type:'jpeg',quality:58})).toString('base64'));
+  if(layout==='mobile'){
+   await page.evaluate(()=>{
+    const hand=window.__PINEWOOD_OPENING_V34__.qaPlayerHand;
+    for(const child of hand.phoneRoot.children)if(child!==hand.holder)child.visible=false;
+   });
+   await page.waitForTimeout(160);
+   await page.screenshot({path:'opening-v55-artifacts/mobile-unobstructed-connected-forearm.png'});
+   console.log('V55_MOBILE_UNOBSTRUCTED_JPEG='+
+    (await page.screenshot({type:'jpeg',quality:60})).toString('base64'));
+   await page.evaluate(()=>{
+    const hand=window.__PINEWOOD_OPENING_V34__.qaPlayerHand;
+    for(const child of hand.phoneRoot.children)child.visible=true;
+   });
+  }
   check(!remote.length&&!pageErrors.length,layout+' nonlocal fetches or browser errors: '+JSON.stringify({remote,pageErrors}));
   await page.close();
  }
