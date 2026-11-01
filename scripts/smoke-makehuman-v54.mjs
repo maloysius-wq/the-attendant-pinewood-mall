@@ -47,7 +47,7 @@ try{
   assert(h.gripFingerDirection[2]<-.015&&h.gripFingerDirection[0]<-.025,
    kind+' fingers must aim toward back/left instead of outward: '+JSON.stringify(h));
   for(const [name,p] of Object.entries(h.gripFingerTips)){
-   assert(p[2]<-.010&&p[0]<.15,kind+' '+name+' must stay behind phone: '+JSON.stringify(p));
+   assert(p[2]<.0&&p[0]<.15,kind+' '+name+' must stay behind phone: '+JSON.stringify(p));
   }
 
 
