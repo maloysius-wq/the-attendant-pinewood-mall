@@ -158,8 +158,9 @@ export class RiggedPlayerHand {
    const axes=[v(1,0,0),v(0,1,0),v(0,0,1)];
    const options=axes.map(a=>a.applyQuaternion(phoneQ).applyQuaternion(parentQ.clone().invert()).normalize());
    const hoverRaw=this._probe();
+   const hoverBeforeSweep=JSON.stringify({pad:hoverRaw.pad.toArray(),min:hoverRaw.minZ,face:hoverRaw.inFace});
    const wristZ=this.point('wrist.R').z;
-   const candidates=[],diagnostics=[];
+   const candidates=[],diagnostics=[];let firstPoseRecord=null;
    const samplePose=(axis,angle)=>{
     bone.quaternion.copy(rest).premultiply(
      new THREE.Quaternion().setFromAxisAngle(axis,angle));
@@ -173,6 +174,7 @@ export class RiggedPlayerHand {
     for(let n=-29;n<=29;n++){
      if(Math.abs(n)<5)continue;
      const angle=n*.05,pose=samplePose(options[axis],angle);
+     if(!firstPoseRecord)firstPoseRecord={axis,angle,pad:pose.pad.toArray(),min:pose.minZ,tipPoint:this.point('finger1-3.R').toArray()};
      const dz=this.target.z-pose.pad.z;
      const hoverPadZ=hoverRaw.pad.z+dz;
      const minAtContact=(pose.minZ??Infinity)+dz;
@@ -204,7 +206,8 @@ export class RiggedPlayerHand {
    bone.quaternion.copy(rest);model.updateWorldMatrix(true,true);
    candidates.sort((a,b)=>a.score-b.score);
    if(!candidates.length)throw Error('No anatomically safe distal-only tip contact. Context '+JSON.stringify({
-      padId:this.thumbPadIndex,distalId,hoverPad:hoverRaw.pad.toArray(),
+      padId:this.thumbPadIndex,distalId,hoverBeforeSweep,firstPoseRecord,
+      hoverPad:hoverRaw.pad.toArray(),restAfter:this._probe().pad.toArray(),
       hoverMin:hoverRaw.minZ,restJoint:this.point('finger1-3.R').toArray(),
       middleJoint:this.point('finger1-2.R').toArray(),
       wrist:this.point('wrist.R').toArray(),boneLocal:bone.position.toArray(),
