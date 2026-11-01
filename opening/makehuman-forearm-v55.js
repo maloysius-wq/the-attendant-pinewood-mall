@@ -225,28 +225,60 @@ export class RiggedPlayerHand {
       inverse:mesh.skeleton.boneInverses[distalId].elements.map(v=>+v.toFixed(4))
      })+' Probe '+JSON.stringify(diagnostics.slice(0,48)));
    const best=candidates[0];
-   // One fixed anchor sets the rest height and contact. It does NOT move
-   // during the tap; neither wrist nor thumb base can slide on the screen.
+   // The body/forearm stays stationary: the entire tap happens at the
+   // native distal thumb joint, with its real source skin still attached.
    model.position.z+=best.dz;
-   model.updateWorldMatrix(true,true);
-   this.thumbHoverPose=Object.fromEntries(thumbNames.map(n=>[n,bones[n].quaternion.clone()]));
+   model.updateMatrixWorld(true);
    bone.quaternion.copy(rest).premultiply(
     new THREE.Quaternion().setFromAxisAngle(options[best.axis],best.angle));
-   model.updateWorldMatrix(true,true);
-   this.thumbTapPose=bone.quaternion.clone();
-   this.thumbTipBend=Math.abs(best.angle);
-   bone.quaternion.copy(rest);model.updateWorldMatrix(true,true);
+   model.updateMatrixWorld(true);
+   const tapPose=bone.quaternion.clone(),tapPatch=this._probe();
+   // The idle pose is intentionally UP AND AWAY from the button in the
+   // phone's image plane, not lying visually across CHECK IN. Scan modest
+   // native distal joint rotations about the local screen normal. A natural
+   // single-joint arc from the raised pose to contact must remain collision
+   // safe at every point, including before the LCD's click state changes.
+   const raised=[];
+   for(let k=-20;k<=20;k++){
+    if(Math.abs(k)<3)continue;
+    const angle=k*.05;
+    bone.quaternion.copy(rest).premultiply(
+     new THREE.Quaternion().setFromAxisAngle(options[2],angle));
+    model.updateMatrixWorld(true);
+    const q=bone.quaternion.clone(),probe=this._probe();
+    if(probe.pad.y<tapPatch.pad.y+.016||probe.pad.z<.09
+      ||probe.minZ===null||probe.minZ<.059||probe.penetrated)continue;
+    let clear=true;
+    for(let step=0;step<=20;step++){
+     bone.quaternion.slerpQuaternions(q,tapPose,step/20);
+     model.updateMatrixWorld(true);
+     const p=this._probe();
+     if(p.inFace&&p.minZ<.0249){clear=false;break;}
+    }
+    if(clear)raised.push({q,angle,hover:probe,score:
+     (probe.pad.y-tapPatch.pad.y)*3+Math.min(.10,probe.minZ)*.08-Math.abs(angle)*.005});
+   }
+   raised.sort((a,b)=>b.score-a.score);
+   if(!raised.length)throw Error('No collision-safe raised distal hover with visible y lift. Contact '+
+    JSON.stringify({tapPad:tapPatch.pad.toArray(),touch:tapPatch.buttonMinPoint?.toArray(),
+     minZ:tapPatch.minZ,sourceHover:this._probe().pad.toArray()}));
+   const up=raised[0];
+   bone.quaternion.copy(up.q);model.updateMatrixWorld(true);
+   this.thumbHoverPose=Object.fromEntries(thumbNames.map(n=>[n,bones[n].quaternion.clone()]));
+   this.thumbTapPose=tapPose;
+   this.thumbTipBend=up.q.angleTo(tapPose);
    this.hover=this._probe().pad.clone();
-   this.selectedTipSolver=best;
-   // Prove the skin's in-between motion is collision-safe at startup.
+   this.selectedTipSolver={...best,hoverAngle:up.angle,
+    hoverPad:this.hover.toArray(),tapPad:tapPatch.pad.toArray(),
+    actualContact:tapPatch.buttonMinPoint?.toArray(),hoverCandidates:raised.length};
    for(let step=0;step<=32;step++){
-    bone.quaternion.slerpQuaternions(rest,this.thumbTapPose,step/32);
-    model.updateWorldMatrix(true,true);
+    bone.quaternion.slerpQuaternions(up.q,tapPose,step/32);
+    model.updateMatrixWorld(true);
     const check=this._probe();
     if(check.inFace&&check.minZ<.0249)throw Error(
-     'Distal thumb penetration at phase '+step+'/32, minimum '+check.minZ);
+     'Raised thumb penetration at phase '+step+'/32, minimum '+check.minZ);
    }
-   bone.quaternion.copy(rest);model.updateWorldMatrix(true,true);
+   bone.quaternion.copy(up.q);model.updateMatrixWorld(true);
    this.state='ready';this.update(0);
    return this.status;
   }catch(e){

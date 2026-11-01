@@ -86,7 +86,9 @@ try{
   const hold=status.poses[0],contact=status.poses[5],release=status.poses[8];
   check(status.source.includes('MakeHuman'),layout+' lost original CC0 connected model');
   check(status.scale>=2.35&&status.scale<=2.45,layout+' hand is not roughly twice original size: '+status.scale);
-  check(hold.pad[2]>=.059,layout+' thumb pad not at least 35mm above phone glass at rest: '+JSON.stringify(hold));
+  check(hold.pad[2]>=.09&&hold.faceMinZ>=.059,layout+' raised thumb not clearly above the glass at rest: '+JSON.stringify(hold));
+  check(hold.pad[1]>=contact.pad[1]+.016,
+    layout+' raised thumb is still visibly over the CHECK IN button: '+JSON.stringify({hover:hold.pad,tap:contact.pad}));
   check(contact.buttonCount>=10&&contact.buttonMinZ>=.0249&&contact.buttonMinZ<=.034,
     layout+' real fleshy thumb surface must touch CHECK IN without penetrating: '+JSON.stringify(contact));
   check(contact.pad[2]<hold.pad[2]-.03,
