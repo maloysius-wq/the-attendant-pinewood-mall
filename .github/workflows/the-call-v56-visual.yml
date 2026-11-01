@@ -1,0 +1,57 @@
+name: The Call v56 clear raised thumb from CHECK IN
+on:
+  push:
+    branches: [fix/the-call-v56-clear-idle-button, main]
+    paths:
+      - 'scripts/smoke-thumb-v56.mjs'
+      - 'opening/makehuman-forearm-v56.js'
+      - 'opening/phone-v45.js'
+      - 'opening/intro.js'
+      - 'review/the-call-v34/index.html'
+      - '.github/workflows/the-call-v56-visual.yml'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'scripts/smoke-thumb-v56.mjs'
+      - 'opening/makehuman-forearm-v56.js'
+      - 'opening/phone-v45.js'
+      - 'opening/intro.js'
+      - 'review/the-call-v34/index.html'
+      - '.github/workflows/the-call-v56-visual.yml'
+permissions:
+  contents: read
+jobs:
+  thumb-clearance:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    env:
+      V56_LAYOUT: mobile
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify source and diagnostic syntax
+        run: |
+          node scripts/audit-call-right-forearm-v54.mjs
+          node --check scripts/smoke-thumb-v56.mjs
+          node --check opening/phone-v45.js
+      - name: Install deterministic Chromium
+        run: |
+          npm install --no-save playwright@1.55.0
+          npx playwright install chromium
+      - name: Start local review
+        run: |
+          python3 -m http.server 4173 --bind 127.0.0.1 >/tmp/pinewood-v56-http.log 2>&1 &
+          for i in {1..30}; do curl -fsS http://127.0.0.1:4173/review/the-call-v34/ >/dev/null && exit 0; sleep 1; done
+          cat /tmp/pinewood-v56-http.log
+          exit 1
+      - name: Prove idle thumb stays off CHECK IN and only the tip touches
+        run: node scripts/smoke-thumb-v56.mjs
+      - name: Capture raised thumb tap and connected forearm screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: v56-idle-clear-thumb
+          path: opening-v56-artifacts/
+          retention-days: 7
