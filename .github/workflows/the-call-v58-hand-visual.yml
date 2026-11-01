@@ -29,6 +29,7 @@ jobs:
         layout: [desktop, mobile]
     env:
       V58_LAYOUT: ${{ matrix.layout }}
+      V58_OPTIMIZE: '1'
     runs-on: ubuntu-24.04
     timeout-minutes: 12
     steps:
