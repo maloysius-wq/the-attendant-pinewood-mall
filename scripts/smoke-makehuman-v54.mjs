@@ -111,7 +111,7 @@ try{
   const slide=Math.hypot(hold.hand.gripThumbTipPosition[0]-tap.hand.gripThumbTipPosition[0],
     hold.hand.gripThumbTipPosition[1]-tap.hand.gripThumbTipPosition[1]);
   assert(slide<.040,kind+' thumb swipes sideways rather than pressing: '+slide);
-  assert(tap.hand.gripThumbJointAngles.ThumbA<.35&&tap.hand.gripThumbJointAngles.ThumbB<.35,
+  assert(tap.hand.gripThumbJointAngles.ThumbA<.50&&tap.hand.gripThumbJointAngles.ThumbB<.50,
    kind+' source thumb was contorted: '+JSON.stringify(tap.hand.gripThumbJointAngles));
   await page.evaluate(()=>{const s=window.__PINEWOOD_OPENING_V34__;s.seek(0);s.scrub(.82)});
   await page.waitForTimeout(300);

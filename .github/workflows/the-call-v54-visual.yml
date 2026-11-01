@@ -1,7 +1,7 @@
 name: The Call v54 natural right forearm visual QA
 on:
   push:
-    branches: [fix/the-call-v54-real-right-forearm]
+    branches: [fix/the-call-v54-real-right-forearm, main]
     paths:
       - 'opening/makehuman-forearm-v54.js'
       - 'opening/phone-v45.js'

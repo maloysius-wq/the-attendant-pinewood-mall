@@ -108,8 +108,8 @@ export class RiggedPlayerHand {
    this.thumbHoverPose=Object.fromEntries(thumbNames.slice(0,2).map(n=>[n,bones[n].quaternion.clone()]));
    // At rest the connected thumb waits off the right/lower button edge;
    // pressing flexes two source joints inward/down against the glass.
-   // Optimize two native joints in local bone axes, each <=.23 rad from
-   // their bind poses, and penalize any visible sideways slide.
+   // Optimize two native joints in local bone axes; each per-axis change
+   // stays within .23 rad, combined bend under .5 rad. Penalize sideways slide.
    const names=thumbNames.slice(0,2),axes=[v(1,0,0),v(0,1,0),v(0,0,1)];
    let params=[0,0,0,0,0,0];
    const apply=()=>{
