@@ -117,6 +117,21 @@ try{
       }
       singles.push(best);
      }
+     const shiftTrials=[];
+     if(digit===2){
+      const initialX=h.model.position.x;
+      for(const angle of [-1.0,-1.2,-1.4,-1.6,-1.8,-2.0]){
+       for(const shift of [0,.01,.02,.03,.04,.05,.06,.08]){
+        bone.quaternion.copy(q0).premultiply(new Q().setFromAxisAngle(axis[1],angle));
+        h.model.position.x=initialX+shift;
+        const hit=probe();
+        shiftTrials.push({angle,shift,solid:hit.solid,front:hit.front,
+         score:hit.solid*10+hit.front*3+shift*100});
+       }
+      }
+      h.model.position.x=initialX;
+      shiftTrials.sort((a,b)=>a.score-b.score);
+     }
      bone.quaternion.copy(q0);
      let final=probe(),q=bone.quaternion.clone(),history=[];
      for(let iteration=0;iteration<3;iteration++){
@@ -133,11 +148,12 @@ try{
       }
      }
      bone.quaternion.copy(q);h.model.updateMatrixWorld(true);
-     outputs.push({digit,source:indices.length,baseline:singles,final,rotations:history,localQuaternion:q.toArray()});
+     outputs.push({digit,source:indices.length,baseline:singles,shiftTrials:shiftTrials.slice(0,15),final,rotations:history,localQuaternion:q.toArray()});
     }
     return outputs;
    });
    console.log('V58_OPTIMIZER_'+name.toUpperCase()+'='+JSON.stringify(opt));
+   await page.evaluate(()=>document.querySelectorAll('canvas[style*=\"z-index: 999999\"]').forEach(c=>c.remove()));
    await page.waitForTimeout(300);
    await page.screenshot({path:'opening-v58-artifacts/'+name+'-optimized.png'});
    console.log('V58_OPTIMIZER_'+name.toUpperCase()+'_JPEG='+(await page.screenshot({type:'jpeg',quality:62})).toString('base64'));
