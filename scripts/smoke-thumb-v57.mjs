@@ -16,6 +16,7 @@ try{
  await page.waitForFunction(()=>document.getElementById('titleScreen')?.classList.contains('show'),null,{timeout:150000});
  await page.locator('#newBtn').click();
  await page.waitForFunction(()=>window.__PINEWOOD_OPENING_V34__?.active,null,{timeout:30000});
+ await page.waitForFunction(()=>window.__PINEWOOD_OPENING_V34__?.startupStatus?.state==='ready',null,{timeout:150000});
  await page.waitForFunction(()=>['ready','failed'].includes(window.__PINEWOOD_OPENING_V34__?.handheldPhone?.hand?.state),null,{timeout:40000});
  await page.evaluate(()=>{const s=window.__PINEWOOD_OPENING_V34__;s.seek(0);s.scrub(.44)});
  await page.waitForTimeout(240);
@@ -84,11 +85,11 @@ try{
  await page.waitForTimeout(200);
  await page.screenshot({path:'opening-v57-artifacts/'+layout+'-hover.png'});
  console.log('V57_'+layout.toUpperCase()+'_HOVER_JPEG='+(await page.screenshot({type:'jpeg',quality:66})).toString('base64'));
- await page.evaluate(()=>{const s=window.__PINEWOOD_OPENING_V34__;s.seek(0);s.scrub(.62)});
+ await page.evaluate(()=>{const s=window.__PINEWOOD_OPENING_V34__;s.seek(0);const t=s.captionTiming;s.scrub((t.voiceSeconds+.28)/t.waitSeconds)});
  await page.waitForTimeout(230);
  await page.screenshot({path:'opening-v57-artifacts/'+layout+'-tap.png'});
  console.log('V57_'+layout.toUpperCase()+'_TAP_JPEG='+(await page.screenshot({type:'jpeg',quality:66})).toString('base64'));
- await page.evaluate(()=>{const s=window.__PINEWOOD_OPENING_V34__;s.seek(0);s.scrub(.82)});
+ await page.evaluate(()=>{const s=window.__PINEWOOD_OPENING_V34__;s.seek(0);const t=s.captionTiming;s.scrub((t.voiceSeconds+.72)/t.waitSeconds)});
  await page.waitForTimeout(200);
  await page.screenshot({path:'opening-v57-artifacts/'+layout+'-released.png'});
  console.log('V57_'+layout.toUpperCase()+'_RELEASE_JPEG='+(await page.screenshot({type:'jpeg',quality:66})).toString('base64'));

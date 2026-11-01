@@ -1,0 +1,53 @@
+name: The Call v62 human camera, check-in, and instant outside rain
+on:
+  push:
+    branches: [fix/the-call-v62-human-pacing, main]
+    paths:
+      - 'opening/intro-v62.js'
+      - 'opening/camera-v62.js'
+      - 'opening/ambience-v62.js'
+      - 'opening/phone-v62.js'
+      - 'review/the-call-v34/index.html'
+      - 'scripts/smoke-opening-pacing-v62.mjs'
+      - '.github/workflows/the-call-v62-pacing.yml'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'opening/intro-v62.js'
+      - 'opening/camera-v62.js'
+      - 'opening/ambience-v62.js'
+      - 'opening/phone-v62.js'
+      - 'review/the-call-v34/index.html'
+      - 'scripts/smoke-opening-pacing-v62.mjs'
+      - '.github/workflows/the-call-v62-pacing.yml'
+permissions:
+  contents: read
+jobs:
+  human-cinematic-pacing:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Check test syntax
+        run: node --check scripts/smoke-opening-pacing-v62.mjs
+      - name: Install Chromium
+        run: |
+          npm install --no-save playwright@1.55.0
+          npx playwright install chromium
+      - name: Serve local cinematic preview
+        run: |
+          python3 -m http.server 4173 --bind 127.0.0.1 >/tmp/pinewood-v62-http.log 2>&1 &
+          for i in {1..30}; do curl -fsS http://127.0.0.1:4173/review/the-call-v34/ >/dev/null && exit 0; sleep 1; done
+          exit 1
+      - name: Confirm held gaze, delayed tap, quick stow, immediate rain
+        run: node scripts/smoke-opening-pacing-v62.mjs
+      - name: Save pacing and check-in captures
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: v62-pacing-captures
+          path: opening-v62-artifacts/
+          retention-days: 7

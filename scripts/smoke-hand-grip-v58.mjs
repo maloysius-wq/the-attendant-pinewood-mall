@@ -22,8 +22,9 @@ try{
    document.getElementById('pwm-opening')?.dataset.preloadState==='ready',null,{timeout:150000});
   await page.waitForFunction(()=>['ready','failed'].includes(window.__PINEWOOD_OPENING_V34__?.qaPlayerHand?.state),null,{timeout:40000});
   const phases=[];
-  for(const [label,cue,t] of [['hold','.44',0],['contact','.62',1]]){
-   await page.evaluate((at)=>{const s=window.__PINEWOOD_OPENING_V34__;s.seek(0);s.scrub(at)},Number(cue));
+  for(const [label,cue,t] of [['hold','.44',0],['contact','after-instruction',1]]){
+   await page.evaluate((at)=>{const s=window.__PINEWOOD_OPENING_V34__;s.seek(0);const t=s.captionTiming;
+    s.scrub(at==='after-instruction'?(t.voiceSeconds+.28)/t.waitSeconds:Number(at))},cue);
    await page.waitForTimeout(220);
    const diagnostic=await page.evaluate((phase)=>{
     const s=window.__PINEWOOD_OPENING_V34__,h=s.qaPlayerHand,mesh=h.skinnedMesh;

@@ -124,7 +124,7 @@ try{
    await page.screenshot({path:'opening-v37-artifacts/'+layout.name+'-v54-connected-arm-holding-phone.png'});
    console.log((layout.name==='desktop'?'V54_HOLD_JPEG=':'V54_MOBILE_HOLD_JPEG=')
      +(await page.screenshot({type:'jpeg',quality:46})).toString('base64'));
-   await page.evaluate(()=>{window.__PINEWOOD_OPENING_V34__.seek(0);window.__PINEWOOD_OPENING_V34__.scrub(.62);});
+   await page.evaluate(()=>{const s=window.__PINEWOOD_OPENING_V34__;s.seek(0);const t=s.captionTiming;s.scrub((t.voiceSeconds+.28)/t.waitSeconds);});
    await page.waitForTimeout(140);
    phone=await page.evaluate(()=>window.__PINEWOOD_OPENING_V34__.handheldPhone);
    assert(phone.visible&&phone.tap&&phone.hand?.state==='ready'
@@ -135,7 +135,7 @@ try{
    await page.screenshot({path:'opening-v37-artifacts/'+layout.name+'-v54-connected-arm-thumb-tap.png'});
    console.log((layout.name==='desktop'?'V54_RIGGED_TAP_JPEG=':'V54_MOBILE_RIGGED_TAP_JPEG=')
     +(await page.screenshot({type:'jpeg',quality:50})).toString('base64'));
-   await page.evaluate(()=>{window.__PINEWOOD_OPENING_V34__.seek(0);window.__PINEWOOD_OPENING_V34__.scrub(.74);});
+   await page.evaluate(()=>{const s=window.__PINEWOOD_OPENING_V34__;s.seek(0);const t=s.captionTiming;s.scrub((t.voiceSeconds+.68)/t.waitSeconds);});
    await page.waitForTimeout(140);
    phone=await page.evaluate(()=>window.__PINEWOOD_OPENING_V34__.handheldPhone);
    assert(phone.visible&&phone.screenState==='confirmed',
@@ -143,7 +143,7 @@ try{
    await page.screenshot({path:'opening-v37-artifacts/'+layout.name+'-v45-check-in-confirmed.png'});
    console.log((layout.name==='desktop'?'V54_CONFIRMED_JPEG=':'V54_MOBILE_CONFIRMED_JPEG=')
      +(await page.screenshot({type:'jpeg',quality:46})).toString('base64'));
-   await page.evaluate(()=>{window.__PINEWOOD_OPENING_V34__.seek(1);window.__PINEWOOD_OPENING_V34__.scrub(.11);});
+   await page.evaluate(()=>{window.__PINEWOOD_OPENING_V34__.seek(1);window.__PINEWOOD_OPENING_V34__.scrub(.015);});
    await page.waitForTimeout(140);
    phone=await page.evaluate(()=>window.__PINEWOOD_OPENING_V34__.handheldPhone);
    assert(phone.screenState==='confirmed'&&phone.visible,
@@ -200,7 +200,7 @@ try{
     // sit behind the steering wheel/seat and stare at a near-field dashboard
     // target. Verify actual authored camera rig geometry, not just GLB count.
     const cameraCheck=await page.evaluate(async()=>{
-      const mod=await import(new URL('../../opening/camera.js?v=43',location.href).href);
+      const mod=await import(new URL('../../opening/camera-v62.js?v=62',location.href).href);
       const rig=new mod.HumanCameraRig();
       const frame=rig.sample('clock',1,10,.016,{paused:true});
       return {pose:mod.driverSeatPose,gaze:mod.dashboardGazeTarget,
@@ -208,8 +208,8 @@ try{
     });
     assert(cameraCheck.pose[0]>-10.31&&cameraCheck.pose[0]<-10.09
       &&cameraCheck.pose[1]>=1.20&&cameraCheck.pose[1]<=1.28
-      &&cameraCheck.pose[2]>=17.54&&cameraCheck.pose[2]<=17.66,
-      'v43 driver eye is back behind the seat/steering again: '+JSON.stringify(cameraCheck));
+      &&cameraCheck.pose[2]>=17.65&&cameraCheck.pose[2]<=17.79,
+      'v62 driver eye does not keep the wheel at a modest size: '+JSON.stringify(cameraCheck));
     assert(cameraCheck.gaze[2]<14.0&&cameraCheck.gaze[2]>12.0,
       'v43 near-field phone-era gaze returned: '+JSON.stringify(cameraCheck));
     await page.evaluate(()=>{window.__PINEWOOD_OPENING_V34__.seek(1);window.__PINEWOOD_OPENING_V34__.scrub(.45);});
