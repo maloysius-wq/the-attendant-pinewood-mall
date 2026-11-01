@@ -326,7 +326,7 @@ export class RiggedPlayerHand {
    // Press calibration uses the REAL weighted flesh touching the LCD, not
    // the terminal bone or the marker at the far end of the thumbnail.
    const gripClearanceX=.03; // original index knuckle must wrap OUTSIDE the right edge
-   const towardButton=v(-.015-gripClearanceX,-.13,.031);
+   const towardButton=v(-.015,-.13,.031);
    aimJoint(baseJoint,this._probe().pad.sub(basePoint()),
     towardButton.clone().sub(basePoint()));
    model.position.add(towardButton.sub(this._probe().pad));
