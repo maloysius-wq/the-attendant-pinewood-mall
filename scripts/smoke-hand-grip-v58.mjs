@@ -78,8 +78,10 @@ try{
      if(p.x>=-.109&&p.x<=.109&&p.y>=-.198&&p.y<=.188&&p.z>=.0249)allSkin.front++;
     }
     const thumbBase=h.point('finger1-1.R').toArray();
+    const indexBase=h.point('finger2-1.R').toArray();
+    const webbingGap=(thumbBase[0]+indexBase[0])/2-.1225;
     return {phase,modelPosition:h.model.position.toArray(),digits:out,allSkin,
-     gripThumbBaseGap:+(thumbBase[0]-.1225).toFixed(5),thumbBase,
+     gripThumbBaseGap:+(thumbBase[0]-.1225).toFixed(5),gripWebbingGap:+webbingGap.toFixed(5),thumbBase,indexBase,
      thumb:h.status.thumbSurface,source:h.status.source};
    },t);
    phases.push(diagnostic);
@@ -143,6 +145,39 @@ try{
    });
    console.log('V59_YAW_'+name.toUpperCase()+'='+JSON.stringify(yawCandidates));
 
+  }
+
+  if(process.env.V60_SWEEP){
+   const candidates=await page.evaluate(()=>{
+    const h=window.__PINEWOOD_OPENING_V34__.qaPlayerHand,mesh=h.skinnedMesh;
+    const V=h.model.position.constructor,Q=h.model.quaternion.constructor,p=new V();
+    const pos=mesh.geometry.getAttribute('position');
+    const joint=h.bones['finger2-1.R'],originalQ=joint.quaternion.clone(),originalX=h.holder.position.x;
+    const parentQ=joint.parent.getWorldQuaternion(new Q()),phoneQ=h.phoneRoot.getWorldQuaternion(new Q());
+    const yAxis=new V(0,1,0).applyQuaternion(phoneQ).applyQuaternion(parentQ.clone().invert()).normalize();
+    const trials=[];
+    for(const delta of [0,-.010,-.016,-.020,-.024,-.028]){
+     h.holder.position.x=originalX+delta;
+     for(const yaw of [0,-.15,-.30,-.45,-.60,-.75,-.90]){
+      joint.quaternion.copy(originalQ).premultiply(new Q().setFromAxisAngle(yAxis,yaw));
+      const skin=[];
+      for(const phase of [0,1]){
+       h.update(phase);h.model.updateMatrixWorld(true);
+       let solid=0,front=0;
+       for(let i=0;i<pos.count;i++){
+        p.fromBufferAttribute(pos,i);mesh.applyBoneTransform(i,p);mesh.localToWorld(p);h.phoneRoot.worldToLocal(p);
+        if(p.x>=-.119&&p.x<=.119&&p.y>=-.218&&p.y<=.218&&p.z>=-.02&&p.z<.0249)solid++;
+       }
+       const d=h.status;
+       skin.push({phase,solid,thumbBaseGap:+(d.gripThumbBasePosition[0]-.1225).toFixed(5),button:d.thumbSurface.buttonMinPoint,buttonMinZ:d.thumbSurface.buttonMinZ});
+      }
+      trials.push({delta,yaw,skin});
+     }
+    }
+    h.holder.position.x=originalX;joint.quaternion.copy(originalQ);h.update(0);
+    return trials;
+   });
+   console.log('V60_SWEEP_'+name.toUpperCase()+'='+JSON.stringify(candidates));
   }
 
   if(process.env.V58_OPTIMIZE){
@@ -223,8 +258,8 @@ try{
    console.log('V58_OPTIMIZER_'+name.toUpperCase()+'_JPEG='+(await page.screenshot({type:'jpeg',quality:62})).toString('base64'));
   }
   const hold=phases[0],pressed=phases[1];
-  check(hold.gripThumbBaseGap>=.116&&hold.gripThumbBaseGap<=.130&&pressed.gripThumbBaseGap<=.130,
-   name+' handset sits too far from native thumb base: '+JSON.stringify(phases.map(p=>p.gripThumbBaseGap)));
+  check(hold.gripThumbBaseGap>=.104&&hold.gripThumbBaseGap<=.115&&pressed.gripThumbBaseGap<=.115,
+   name+' handset has not shifted right toward lower thumb-index webbing: '+JSON.stringify(phases.map(p=>p.gripThumbBaseGap)));
   check(pressed.thumb.buttonMinPoint?.[0]>=.015&&pressed.thumb.buttonMinPoint?.[0]<=.095&&pressed.thumb.buttonMinZ>=.0249&&pressed.thumb.buttonMinZ<=.034,
    name+' thumb contact no longer lands inside physical CHECK IN: '+JSON.stringify(pressed.thumb));
   check(hold.source.includes('v58')&&pressed.source.includes('v58'),name+' reviewed module is not v58');
