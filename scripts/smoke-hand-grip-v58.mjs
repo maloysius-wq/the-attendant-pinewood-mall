@@ -7,7 +7,7 @@ const browser=await chromium.launch({headless:true,args:[
  '--enable-webgl','--ignore-gpu-blocklist','--use-gl=swiftshader',
  '--enable-unsafe-swiftshader','--autoplay-policy=no-user-gesture-required','--disable-dev-shm-usage']});
 try{
- const layouts=[['desktop',1280,720],['mobile',390,844]];
+ const layouts=[['desktop',1622,919],['mobile',390,844]];
  for(const [name,width,height] of layouts.filter(([n])=>!process.env.V58_LAYOUT||n===process.env.V58_LAYOUT)){
   const page=await browser.newPage({viewport:{width,height}});
   const errors=[],remote=[];page.on('pageerror',e=>errors.push(e.message));
@@ -42,7 +42,7 @@ try{
     h.model.updateMatrixWorld(true);mesh.skeleton.update();
     const canvas=document.createElement('canvas');canvas.width=innerWidth;canvas.height=innerHeight;
     canvas.style.cssText='position:fixed;inset:0;pointer-events:none;z-index:999999';
-    document.body.appendChild(canvas);
+    canvas.dataset.v58Overlay='true';document.body.appendChild(canvas);
     const c=canvas.getContext('2d'),camera=h.phoneRoot.parent;camera.updateWorldMatrix(true,false);camera.updateProjectionMatrix();
     const colors=['#ff3245','#27e5fb','#b0f235','#f9b64c','#d699fe'];
     const out=[];
@@ -71,12 +71,20 @@ try{
      out.push({name:digitName[d],vertices:group.length,solid,front,atEdge,behind,
       bounds:{x:[minX,maxX],y:[minY,maxY],z:[minZ,maxZ]},hits});
     }
-    return {phase,modelPosition:h.model.position.toArray(),digits:out,
+    const allSkin={total:pos.count,solid:0,front:0};
+    for(let i=0;i<pos.count;i++){
+     p.fromBufferAttribute(pos,i);mesh.applyBoneTransform(i,p);mesh.localToWorld(p);h.phoneRoot.worldToLocal(p);
+     if(p.x>=-.119&&p.x<=.119&&p.y>=-.218&&p.y<=.218&&p.z>=-.02&&p.z<.0249)allSkin.solid++;
+     if(p.x>=-.109&&p.x<=.109&&p.y>=-.198&&p.y<=.188&&p.z>=.0249)allSkin.front++;
+    }
+    return {phase,modelPosition:h.model.position.toArray(),digits:out,allSkin,
      thumb:h.status.thumbSurface,source:h.status.source};
    },t);
    phases.push(diagnostic);
    console.log('V58_'+name.toUpperCase()+'_'+label.toUpperCase()+'='+JSON.stringify(diagnostic));
    await page.screenshot({path:'opening-v58-artifacts/'+name+'-'+label+'-annotated.png'});
+   await page.evaluate(()=>document.querySelectorAll('canvas[data-v58-overlay]').forEach(c=>c.remove()));
+   await page.screenshot({path:'opening-v58-artifacts/'+name+'-'+label+'-clean.png'});
    console.log('V58_'+name.toUpperCase()+'_'+label.toUpperCase()+'_JPEG='+
     (await page.screenshot({type:'jpeg',quality:62})).toString('base64'));
   }
@@ -159,6 +167,8 @@ try{
    console.log('V58_OPTIMIZER_'+name.toUpperCase()+'_JPEG='+(await page.screenshot({type:'jpeg',quality:62})).toString('base64'));
   }
   const hold=phases[0],pressed=phases[1];
+  check(hold.source.includes('v58')&&pressed.source.includes('v58'),name+' reviewed module is not v58');
+  check(hold.allSkin.solid===0&&pressed.allSkin.solid===0,name+' actual continuous full-forearm SKIN intersects handset: '+JSON.stringify(phases.map(p=>p.allSkin)));
   check(hold.digits[1].solid===0&&pressed.digits[1].solid===0,
    name+' real INDEX finger skin intersects phone case: '+JSON.stringify(phases.map(p=>p.digits[1])));
   check(hold.digits[1].front===0,
