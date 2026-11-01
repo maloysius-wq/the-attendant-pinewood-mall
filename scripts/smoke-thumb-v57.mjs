@@ -68,8 +68,7 @@ try{
   }
   // Establish a pressed pose by aiming the WHOLE straight thumb from the real hand root.
   // Shift only the static rig's overall placement; contact animation itself will rotate BASE.
-  function pressSetup(){
-   const destination=new V(.056,-.135,.031);
+  function pressSetup(destination){
    const boneBase=point('finger1-1.R'),flesh=new V().fromArray(sample().pad);
    align(base,flesh.sub(boneBase),destination.clone().sub(boneBase),1);
    let p=sample(),fix=destination.clone().sub(new V().fromArray(p.pad));
@@ -83,30 +82,37 @@ try{
   const nativeJointAngles=[base.quaternion.angleTo(jointsOriginal[0]),mid.quaternion.angleTo(jointsOriginal[1]),dist.quaternion.angleTo(jointsOriginal[2])];
   const candidates=[],axes=[new V(1,0,0),new V(0,1,0),new V(0,0,1)];
   for(const mf of [0,.6,1]){
-   for(const df of [0,.65,1]){
-    reset();straighten(mf,df);
-    const pre=pressSetup(),qDown=base.quaternion.clone(),rDown=h.model.position.clone();
-    for(let ax=0;ax<3;ax++){
-     for(let ang of [-1.0,-.8,-.6,-.45,-.3,-.15,.15,.3,.45,.6,.8,1.0]){
-      base.quaternion.copy(qDown);rotatePhone(base,new Q().setFromAxisAngle(axes[ax],ang));
-      const up=sample();
-      const low=pre.press;
-      const hoverTip=new V().fromArray(up.pad),downTip=new V().fromArray(low.pad);
-      const validDown=low.insideCase===0&&low.buttonCount>=30&&low.buttonMinZ!==null
-       &&low.buttonMinZ>=.0247&&low.buttonMinZ<=.033&&low.contactX<=.082;
-      const validUp=up.insideCase===0&&up.buttonCount<=25&&up.allOverButton<=30
-       &&up.pad[2]>=.07&&up.faceMinZ>=.045&&up.pad[1]>=low.pad[1]+.005;
-      const margin=up.pad[2]-low.pad[2],movement=hoverTip.distanceTo(downTip);
-      const score= (validDown?0:1000)+(validUp?0:300)+(low.insideCase*2)+(up.insideCase*2)
-       +low.buttonCount<30?0:0; // geometry details below rank candidates.
-      candidates.push({mf,df,ax,ang,score:score+Math.abs((low.contactX??.2)-.06)*200
-       +Math.abs((low.buttonMinZ??.08)-.027)*400
-       +Math.max(0,.05-margin)*500+Math.max(0,.03-movement)*300
-       +Math.max(0,low.buttonCount-300)*.1,down:low,hover:up,staticOffset:pre.staticOffset,
-       base:pre.base,middle:pre.middle,tip:pre.tip,validUp,validDown});
+   for(const df of [.75,1]){
+    for(const targetX of [-.04,-.025,-.01,.005,.02,.035,.05,.065]){
+     for(const targetY of [-.145,-.13]){
+      reset();straighten(mf,df);
+      const destination=new V(targetX,targetY,.031);
+      const pre=pressSetup(destination),qDown=base.quaternion.clone(),rDown=h.model.position.clone();
+      for(const dx of [-.02,-.01,0,.01]){
+       for(const dz of [0,.004,.008,.012]){
+        h.model.position.copy(rDown).add(new V(dx,0,dz));
+        h.model.updateMatrixWorld(true);const down=sample();
+        const angles=[.3,.4,.5,.6];
+        for(const ang of angles){
+         base.quaternion.copy(qDown);rotatePhone(base,new Q().setFromAxisAngle(axes[1],ang));
+         const up=sample();
+         const validDown=down.insideCase===0&&down.buttonCount>=30&&down.buttonMinZ!==null
+          &&down.buttonMinZ>=.0247&&down.buttonMinZ<=.034&&down.contactX<=.082;
+         const validUp=up.insideCase===0&&up.buttonCount<=25&&up.allOverButton<=30
+          &&up.pad[2]>=.07&&(up.faceMinZ===null||up.faceMinZ>=.045)
+          &&up.pad[2]>=down.pad[2]+.027;
+         const score=(validDown?0:1000)+(validUp?0:300)
+          +Math.abs((down.contactX??.2)-.055)*200+Math.abs((down.buttonMinZ??.08)-.027)*400
+          +Math.max(0,.045-(up.pad[2]-down.pad[2]))*500+down.insideCase*3+up.insideCase*3
+          +Math.abs(pre.staticOffset[0]+dx)*3;
+         candidates.push({mf,df,targetX,targetY,dx,dz,ang,score,down,hover:up,
+          staticOffset:pre.staticOffset,base:pre.base,middle:pre.middle,tip:pre.tip,validUp,validDown});
+         base.quaternion.copy(qDown);
+        }
+       }
+      }
      }
     }
-    base.quaternion.copy(qDown);h.model.position.copy(rDown);
    }
   }
   reset();
