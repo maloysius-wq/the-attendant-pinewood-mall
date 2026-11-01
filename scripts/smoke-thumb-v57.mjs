@@ -80,34 +80,37 @@ try{
   const nativeBase=point('finger1-1.R').toArray(),nativeMiddle=point('finger1-2.R').toArray(),nativeTip=point('finger1-3.R').toArray();
   const v55Hold=sample();h.update(1);const v55Tap=sample();h.update(0);
   const nativeJointAngles=[base.quaternion.angleTo(jointsOriginal[0]),mid.quaternion.angleTo(jointsOriginal[1]),dist.quaternion.angleTo(jointsOriginal[2])];
-  const candidates=[],axes=[new V(1,0,0),new V(0,1,0),new V(0,0,1)];
-  for(const mf of [0,.6,1]){
+  const candidates=[];
+  for(const mf of [.6,1]){
    for(const df of [.75,1]){
-    for(const targetX of [-.04,-.025,-.01,.005,.02,.035,.05,.065]){
-     for(const targetY of [-.145,-.13]){
+    for(const targetX of [-.04,-.025,-.01,.005]){
+     for(const targetY of [-.14,-.13]){
       reset();straighten(mf,df);
-      const destination=new V(targetX,targetY,.031);
-      const pre=pressSetup(destination),qDown=base.quaternion.clone(),rDown=h.model.position.clone();
-      for(const dx of [-.02,-.01,0,.01]){
-       for(const dz of [0,.004,.008,.012]){
-        h.model.position.copy(rDown).add(new V(dx,0,dz));
-        h.model.updateMatrixWorld(true);const down=sample();
-        const angles=[.3,.4,.5,.6];
-        for(const ang of angles){
-         base.quaternion.copy(qDown);rotatePhone(base,new Q().setFromAxisAngle(axes[1],ang));
-         const up=sample();
-         const validDown=down.insideCase===0&&down.buttonCount>=30&&down.buttonMinZ!==null
-          &&down.buttonMinZ>=.0247&&down.buttonMinZ<=.034&&down.contactX<=.082;
-         const validUp=up.insideCase===0&&up.buttonCount<=25&&up.allOverButton<=30
-          &&up.pad[2]>=.07&&(up.faceMinZ===null||up.faceMinZ>=.045)
-          &&up.pad[2]>=down.pad[2]+.027;
-         const score=(validDown?0:1000)+(validUp?0:300)
-          +Math.abs((down.contactX??.2)-.055)*200+Math.abs((down.buttonMinZ??.08)-.027)*400
-          +Math.max(0,.045-(up.pad[2]-down.pad[2]))*500+down.insideCase*3+up.insideCase*3
-          +Math.abs(pre.staticOffset[0]+dx)*3;
-         candidates.push({mf,df,targetX,targetY,dx,dz,ang,score,down,hover:up,
-          staticOffset:pre.staticOffset,base:pre.base,middle:pre.middle,tip:pre.tip,validUp,validDown});
-         base.quaternion.copy(qDown);
+      const pre=pressSetup(new V(targetX,targetY,.031)),qDown=base.quaternion.clone(),rDown=h.model.position.clone();
+      for(const dx of [0,.01]){
+       for(const dz of [.004,.006,.008]){
+        h.model.position.copy(rDown).add(new V(dx,0,dz));h.model.updateMatrixWorld(true);
+        const down=sample(),rootPoint=point('finger1-1.R'),downPad=new V().fromArray(down.pad);
+        for(const hx of [0,.025,.05]){
+         for(const hy of [-.10,-.08]){
+          for(const hz of [.13,.17]){
+           base.quaternion.copy(qDown);h.model.updateMatrixWorld(true);
+           align(base,downPad.clone().sub(rootPoint),new V(hx,hy,hz).sub(rootPoint));
+           const up=sample();
+           const validDown=down.insideCase===0&&down.buttonCount>=30&&down.buttonMinZ!==null
+            &&down.buttonMinZ>=.0247&&down.buttonMinZ<=.034&&down.contactX<=.082;
+           const validUp=up.insideCase===0&&up.buttonCount<=25&&up.allOverButton<=30
+            &&up.pad[2]>=.07&&(up.faceMinZ===null||up.faceMinZ>=.045)
+            &&up.pad[2]>=down.pad[2]+.027;
+           const score=(validDown?0:1000)+(validUp?0:300)
+            +Math.abs((down.contactX??.2)-.055)*200+Math.abs((down.buttonMinZ??.08)-.027)*400
+            +Math.max(0,.045-(up.pad[2]-down.pad[2]))*500+down.insideCase*3+up.insideCase*3
+            +Math.abs(pre.staticOffset[0]+dx)*3+up.allOverButton*.05;
+           candidates.push({mf,df,targetX,targetY,dx,dz,hx,hy,hz,score,down,hover:up,
+            staticOffset:pre.staticOffset,base:pre.base,middle:pre.middle,tip:pre.tip,validUp,validDown});
+           base.quaternion.copy(qDown);
+          }
+         }
         }
        }
       }
