@@ -4,7 +4,7 @@
  * duplicate vehicle. Animated against Renee's voice clock for repeatable QA.
  */
 import * as THREE from '../vendor/three/build/three.module.js';
-import {RiggedPlayerHand} from './makehuman-forearm-v55.js?v=55';
+import {RiggedPlayerHand} from './makehuman-forearm-v56.js?v=56';
 
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 const ease=t=>{t=clamp(t,0,1);return t*t*(3-2*t);};
