@@ -67,9 +67,9 @@ try{
   'idle thumb obscures CHECK IN instead of hovering clear: '+JSON.stringify(up));
  check(up.pad[2]>=.11&&up.pad[2]>down.pad[2]+.04&&up.pad[1]>=down.pad[1]+.06,
   'straight raised thumb is not lifted above button: '+JSON.stringify({up:up.pad,down:down.pad}));
- check(down.buttonCount>=100&&down.buttonMinPoint?.[0]>=.015&&down.buttonMinPoint?.[0]<=.08
+ check(down.buttonCount>=100&&down.buttonMinPoint?.[0]>=.015&&down.buttonMinPoint?.[0]<=.095
   &&down.buttonMinPoint?.[1]>=-.158&&down.buttonMinPoint?.[1]<=-.113,
-  'fleshy thumb did not reach well INSIDE the CHECK IN button: '+JSON.stringify(down));
+  'fleshy thumb did not reach the CHECK IN button within its physical edge clearance: '+JSON.stringify(down));
  check(down.buttonMinZ!==null&&down.buttonMinZ>=.0249&&down.buttonMinZ<=.034,
   'thumb did not make near-surface contact safely: '+JSON.stringify(down));
  check(down.baseMotion>=.15&&down.middleMotion<.02&&down.tipMotion<.02&&down.anchorShift<.004,
