@@ -20,7 +20,7 @@ export class RiggedPlayerHand {
   this.holder.name='Connected CC0 right forearm and hand, high-detail source skin';
   phoneRoot.add(this.holder);
   this.state='loading';this.bones={};this.meshCount=0;
-  this.hover=v(.061,-.135,.047);
+  this.hover=v(.086,-.151,.052);
   this.target=v(.061,-.135,.032);
   this.thumbTipDistance=null;this.lastTap=0;
  }
@@ -106,7 +106,8 @@ export class RiggedPlayerHand {
    // The thumb remains in its source shape at rest, still joined to the palm.
    model.updateWorldMatrix(true,true);
    this.thumbHoverPose=Object.fromEntries(thumbNames.slice(0,2).map(n=>[n,bones[n].quaternion.clone()]));
-   // A thumb press is only a small additional flexion towards the glass.
+   // At rest the connected thumb waits off the right/lower button edge;
+   // pressing flexes two source joints inward/down against the glass.
    // Optimize two native joints in local bone axes, each <=.23 rad from
    // their bind poses, and penalize any visible sideways slide.
    const names=thumbNames.slice(0,2),axes=[v(1,0,0),v(0,1,0),v(0,0,1)];
