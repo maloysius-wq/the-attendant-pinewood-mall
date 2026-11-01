@@ -1,14 +1,16 @@
-name: The Call v59 thumb-base fit and complete hand-phone clearance
+name: The Call v60 phone-to-webbing alignment and full-skin clearance
 on:
   push:
-    branches: [fix/the-call-v58-full-hand-case-clearance, fix/the-call-v59-phone-thumb-base-fit, main]
+    branches: [fix/the-call-v58-full-hand-case-clearance, fix/the-call-v59-phone-thumb-base-fit, fix/the-call-v60-phone-webbing-grip, main]
     paths:
       - 'scripts/smoke-hand-grip-v58.mjs'
       - 'opening/makehuman-forearm-v58.js'
       - 'opening/phone-v58.js'
       - 'opening/phone-v59.js'
+      - 'opening/phone-v60.js'
       - 'opening/intro-v58.js'
       - 'opening/intro-v59.js'
+      - 'opening/intro-v60.js'
       - 'review/the-call-v34/index.html'
       - '.github/workflows/the-call-v58-hand-visual.yml'
   pull_request:

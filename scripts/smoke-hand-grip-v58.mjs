@@ -78,8 +78,10 @@ try{
      if(p.x>=-.109&&p.x<=.109&&p.y>=-.198&&p.y<=.188&&p.z>=.0249)allSkin.front++;
     }
     const thumbBase=h.point('finger1-1.R').toArray();
+    const indexBase=h.point('finger2-1.R').toArray();
+    const webbingGap=(thumbBase[0]+indexBase[0])/2-.1225;
     return {phase,modelPosition:h.model.position.toArray(),digits:out,allSkin,
-     gripThumbBaseGap:+(thumbBase[0]-.1225).toFixed(5),thumbBase,
+     gripThumbBaseGap:+(thumbBase[0]-.1225).toFixed(5),gripWebbingGap:+webbingGap.toFixed(5),thumbBase,indexBase,phoneScreenViewport:s.handheldPhone?.screenViewport,
      thumb:h.status.thumbSurface,source:h.status.source};
    },t);
    phases.push(diagnostic);
@@ -223,8 +225,12 @@ try{
    console.log('V58_OPTIMIZER_'+name.toUpperCase()+'_JPEG='+(await page.screenshot({type:'jpeg',quality:62})).toString('base64'));
   }
   const hold=phases[0],pressed=phases[1];
-  check(hold.gripThumbBaseGap>=.116&&hold.gripThumbBaseGap<=.130&&pressed.gripThumbBaseGap<=.130,
-   name+' handset sits too far from native thumb base: '+JSON.stringify(phases.map(p=>p.gripThumbBaseGap)));
+  check(hold.gripThumbBaseGap>=.124&&hold.gripThumbBaseGap<=.126&&pressed.gripThumbBaseGap<=.126,
+   name+' handset has not shifted right toward lower thumb-index webbing: '+JSON.stringify(phases.map(p=>p.gripThumbBaseGap)));
+  check(hold.gripWebbingGap>=.071&&hold.gripWebbingGap<=.074&&pressed.gripWebbingGap<=.074,
+   name+' lower thumb-index webbing is still separated from right case edge: '+JSON.stringify(phases.map(p=>p.gripWebbingGap)));
+  check(hold.phoneScreenViewport.right>=(name==='mobile'?.944:.773)&&hold.phoneScreenViewport.right<.987,
+   name+' phone did not move visibly RIGHT in the composed shot while staying on screen: '+JSON.stringify(hold.phoneScreenViewport));
   check(pressed.thumb.buttonMinPoint?.[0]>=.015&&pressed.thumb.buttonMinPoint?.[0]<=.095&&pressed.thumb.buttonMinZ>=.0249&&pressed.thumb.buttonMinZ<=.034,
    name+' thumb contact no longer lands inside physical CHECK IN: '+JSON.stringify(pressed.thumb));
   check(hold.source.includes('v58')&&pressed.source.includes('v58'),name+' reviewed module is not v58');
