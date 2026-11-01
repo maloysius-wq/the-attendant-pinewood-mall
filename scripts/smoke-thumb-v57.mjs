@@ -4,7 +4,11 @@ const failures=[],check=(v,msg)=>{if(!v){failures.push(msg);console.error('V57_F
 await mkdir('opening-v57-artifacts',{recursive:true});
 const browser=await chromium.launch({headless:true,args:['--enable-webgl','--ignore-gpu-blocklist','--use-gl=swiftshader','--enable-unsafe-swiftshader','--autoplay-policy=no-user-gesture-required','--disable-dev-shm-usage']});
 try{
- const page=await browser.newPage({viewport:{width:390,height:844}});
+ const layout=process.env.V57_LAYOUT||'mobile';
+ const dimensions={mobile:[390,844],narrow:[632,748],desktop:[1280,720]};
+ if(!dimensions[layout])throw Error('Unsupported V57_LAYOUT '+layout);
+ const [width,height]=dimensions[layout];
+ const page=await browser.newPage({viewport:{width,height}});
  const pageErrors=[],external=[];
  page.on('pageerror',e=>pageErrors.push(e.message));
  page.on('request',r=>{if(/^https?:/.test(r.url())&&!r.url().startsWith('http://127.0.0.1:4173'))external.push(r.url())});
@@ -54,7 +58,7 @@ try{
    base:h.point('finger1-1.R').toArray(),middle:h.point('finger1-2.R').toArray(),
    tip:h.point('finger1-3.R').toArray(),poses};
  });
- console.log('V57_MOBILE_ANATOMY='+JSON.stringify(evidence));
+ console.log('V57_'+layout.toUpperCase()+'_ANATOMY='+JSON.stringify(evidence));
  const up=evidence.poses[0],down=evidence.poses[10],lift=evidence.poses[evidence.poses.length-1];
  check(evidence.source.includes('MakeHuman')&&evidence.hasForearm&&evidence.vertexCount>9000,
   'connected source-skinned right forearm missing');
@@ -78,16 +82,16 @@ try{
  check(!pageErrors.length&&!external.length,'browser errors or nonlocal requests '+JSON.stringify({pageErrors,external}));
  await page.evaluate(()=>{const s=window.__PINEWOOD_OPENING_V34__;s.seek(0);s.scrub(.44)});
  await page.waitForTimeout(200);
- await page.screenshot({path:'opening-v57-artifacts/mobile-hover.png'});
- console.log('V57_MOBILE_HOVER_JPEG='+(await page.screenshot({type:'jpeg',quality:66})).toString('base64'));
+ await page.screenshot({path:'opening-v57-artifacts/'+layout+'-hover.png'});
+ console.log('V57_'+layout.toUpperCase()+'_HOVER_JPEG='+(await page.screenshot({type:'jpeg',quality:66})).toString('base64'));
  await page.evaluate(()=>{const s=window.__PINEWOOD_OPENING_V34__;s.seek(0);s.scrub(.62)});
  await page.waitForTimeout(230);
- await page.screenshot({path:'opening-v57-artifacts/mobile-tap.png'});
- console.log('V57_MOBILE_TAP_JPEG='+(await page.screenshot({type:'jpeg',quality:66})).toString('base64'));
+ await page.screenshot({path:'opening-v57-artifacts/'+layout+'-tap.png'});
+ console.log('V57_'+layout.toUpperCase()+'_TAP_JPEG='+(await page.screenshot({type:'jpeg',quality:66})).toString('base64'));
  await page.evaluate(()=>{const s=window.__PINEWOOD_OPENING_V34__;s.seek(0);s.scrub(.82)});
  await page.waitForTimeout(200);
- await page.screenshot({path:'opening-v57-artifacts/mobile-released.png'});
- console.log('V57_MOBILE_RELEASE_JPEG='+(await page.screenshot({type:'jpeg',quality:66})).toString('base64'));
+ await page.screenshot({path:'opening-v57-artifacts/'+layout+'-released.png'});
+ console.log('V57_'+layout.toUpperCase()+'_RELEASE_JPEG='+(await page.screenshot({type:'jpeg',quality:66})).toString('base64'));
  await page.close();
 }finally{await browser.close()}
 if(failures.length)throw Error('V57 mobile straight thumb regression failed ('+failures.length+'): '+failures.join('; '));

@@ -22,6 +22,13 @@ permissions:
   contents: read
 jobs:
   thumb-base-pivot:
+    name: thumb-base-${{ matrix.layout }}
+    strategy:
+      fail-fast: false
+      matrix:
+        layout: [mobile, narrow, desktop]
+    env:
+      V57_LAYOUT: ${{ matrix.layout }}
     runs-on: ubuntu-24.04
     timeout-minutes: 12
     steps:
@@ -48,6 +55,6 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: v57-base-thumb-mobile
+          name: v57-base-thumb-${{ matrix.layout }
           path: opening-v57-artifacts/
           retention-days: 7
