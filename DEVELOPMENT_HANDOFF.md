@@ -683,3 +683,16 @@ The owner requested a bigger adult-sized **right hand and attached forearm** gri
 **Green visual evidence:** [v54 anatomical arm run 41255210067](https://github.com/maloysius-wq/the-attendant-pinewood-mall/actions/runs/41255210067) succeeded for desktop 1280x720, narrow 632x748 and portrait 390x844 real Chromium screenshots. It checks source bones/skin mesh, joint direction, fingertip positions, right-edge thumb origin, tip contact and travel, screen text pixels, visible arm skin, maximum lower-screen overlap, and no remote runtime requests/browser exceptions. Mobile screen sample: 204 readable text pixels, 89 side-skin samples, 3.4% lower-screen skin overlap. The retired v48 test is manual-only in `.github/workflows/playerhands-v48-visual.yml`; the v54 visual workflow replaces it for review changes.
 
 **Owner gate stays closed:** Review path is `/review/the-call-v34/` with v54 cache-busted imports. Production `index.html` and `game.js` are unchanged; six chapters and Audio Direction v27 remain live. Publishing this review-only build does **not** make it the New Game opening. Wait for Max to inspect the actual hosted Android portrait frame and explicitly approve it before production promotion. Automated tests are not a substitute for his visual judgment.
+
+
+### v54 merge, hosted asset verification, and complete PR checks (2026-11-01)
+
+[Review-only PR #28](https://github.com/maloysius-wq/the-attendant-pinewood-mall/pull/28) **squash-merged into main** at `6186c68f0e9d44f964cc09ef96ddf6ed35a9568f`. The superseded, visually rejected v53 draft [PR #27](https://github.com/maloysius-wq/the-attendant-pinewood-mall/pull/27) was closed without merging.
+
+**All four exact-PR-head checks succeeded** (head `5bc708265c11e230517b36b038442aaf014137ef`):
+- [v54 three-layout anatomical forearm/tap visual QA 41255557289](https://github.com/maloysius-wq/the-attendant-pinewood-mall/actions/runs/41255557289) — SUCCESS.
+- [v54 full cinematic regression 41255557252](https://github.com/maloysius-wq/the-attendant-pinewood-mall/actions/runs/41255557252) — SUCCESS.
+- [opening accessibility 41255557173](https://github.com/maloysius-wq/the-attendant-pinewood-mall/actions/runs/41255557173) — SUCCESS.
+- [six-chapter v27 production hardening 41255557118](https://github.com/maloysius-wq/the-attendant-pinewood-mall/actions/runs/41255557118) — SUCCESS.
+
+**Actual hosted GitHub Pages** `https://maloysius-wq.github.io/the-attendant-pinewood-mall/review/the-call-v34/?v=54` returned HTTP 200 and the HTML identifies `THE CALL: CONNECTED RIGHT HAND REVIEW v54` with `./opening/intro.js?v=54`. `opening/assets/v54/manifest.json` returned HTTP 200 (695 bytes), and `makehuman-right-forearm.glb` returned HTTP 200 (701,276 bytes, model/gltf-binary). Post-merge production source blobs: root `index.html` `022b99b3b3b613b326a34a92e900134aa370e60e`; root `game.js` `5107c82b23cc8bce00dab099b2ac585229a1f1a8`, both unchanged. **The Call is still NOT the live New Game opening.** Max must personally approve the hosted v54 look before any production promotion.
