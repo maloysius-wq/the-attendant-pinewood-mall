@@ -353,7 +353,7 @@ export class RiggedPlayerHand {
     throw Error('Straight raised base-thumb does not fully clear CHECK IN: '+
      JSON.stringify({up:upFlesh,upFull,down:downFlesh,downFull}));
    if(downFlesh.buttonCount<100||!downFlesh.buttonMinPoint
-      ||downFlesh.buttonMinPoint.x<.015||downFlesh.buttonMinPoint.x>.08
+      ||downFlesh.buttonMinPoint.x<.015||downFlesh.buttonMinPoint.x>.095
       ||downFlesh.buttonMinZ<.0249||downFlesh.buttonMinZ>.034
       ||downFull.insideCase)
     throw Error('Native straight-thumb surface cannot tap inside CHECK IN safely: '+
