@@ -10,7 +10,8 @@ const browser=await chromium.launch({headless:true,args:[
  '--enable-unsafe-swiftshader','--autoplay-policy=no-user-gesture-required',
  '--disable-dev-shm-usage']});
 try{
- for(const [layout,width,height] of [['desktop',1280,720],['narrow',632,748],['mobile',390,844]]){
+ const layouts=[['desktop',1280,720],['narrow',632,748],['mobile',390,844]];
+ for(const [layout,width,height] of layouts.filter(([name])=>!process.env.V55_LAYOUT||name===process.env.V55_LAYOUT)){
   const page=await browser.newPage({viewport:{width,height}});
   const remote=[],pageErrors=[];
   page.on('request',r=>{if(/^https?:/.test(r.url())&&!r.url().startsWith(origin))remote.push(r.url())});
