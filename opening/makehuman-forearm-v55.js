@@ -81,6 +81,8 @@ export class RiggedPlayerHand {
     if(obj.isSkinnedMesh&&obj.skeleton?.bones?.length>=100)skinned++;
     for(const mat of Array.isArray(obj.material)?obj.material:[obj.material]){
      if(!mat)continue;
+     // The source thumb inner/nail faces otherwise look like a black hole
+     // as it flexes: render its REAL backface skin, not an added cap.
      mat.side=THREE.DoubleSide;mat.depthTest=true;mat.depthWrite=true;
      mat.roughness=.88;
      mat.color.set('#ad765b');
@@ -283,7 +285,7 @@ export class RiggedPlayerHand {
    return this.status;
   }catch(e){
    this.state='failed';this.error=String(e);
-   console.error('[The Call] CC0 v54 anatomical forearm load failure:',e);
+   console.error('[The Call] CC0 v55 anatomical forearm load failure:',e);
    throw e;
   }
  }

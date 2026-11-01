@@ -33,10 +33,14 @@ try{
    if(boneId<0)throw Error('Missing original distal-thumb skin bone');
    const ix=mesh.geometry.getAttribute('skinIndex'),wt=mesh.geometry.getAttribute('skinWeight');
    const pos=mesh.geometry.getAttribute('position');
-   const ids=[],read=(attr,i)=>[attr.getX(i),attr.getY(i),attr.getZ(i),attr.getW(i)];
+   const ids=[],allThumb=[],read=(attr,i)=>[attr.getX(i),attr.getY(i),attr.getZ(i),attr.getW(i)];
+   const thumbBones=['finger1-1R','finger1-2R','finger1-3R'].map(n=>sk.bones.findIndex(b=>b.name===n));
+   if(thumbBones.some(i=>i<0))throw Error('Missing real proximal-to-distal source thumb skin bones');
    for(let i=0;i<pos.count;i++){
     const joints=read(ix,i),weights=read(wt,i);
     if(joints.some((j,k)=>j===boneId&&weights[k]>=.30))ids.push(i);
+    if(joints.reduce((sum,j,k)=>sum+(thumbBones.includes(j)?weights[k]:0),0)>=.25)
+     allThumb.push(i);
    }
    if(ids.length<10)throw Error('Real distal thumb skin patch missing: '+ids.length);
    const THREE=h.model.position.constructor;
@@ -44,7 +48,7 @@ try{
    const two=h.point('finger1-2.R'),three=h.point('finger1-3.R'),axis=three.clone().sub(two).normalize();
    const sample=()=>{
     mesh.updateWorldMatrix(true,true);sk.update();
-    let max=-Infinity,min=Infinity,inFace=0,penetrated=0,buttonMin=Infinity,buttonCount=0;
+    let max=-Infinity,min=Infinity,inFace=0,penetrated=0,wholeThumbInsideCase=0,buttonMin=Infinity,buttonCount=0;
     const contact=new THREE();
     let pad=ids[0];
     for(const i of ids){
@@ -61,11 +65,17 @@ try{
       if(point.z<buttonMin){buttonMin=point.z;contact.copy(point)}
      }
     }
+    for(const i of allThumb){
+     point.fromBufferAttribute(pos,i);mesh.applyBoneTransform(i,point);
+     mesh.localToWorld(point);h.phoneRoot.worldToLocal(point);
+     if(point.x>=-.119&&point.x<=.119&&point.y>=-.218&&point.y<=.218
+       &&point.z>=-.020&&point.z<.0249)wholeThumbInsideCase++;
+    }
     point.fromBufferAttribute(pos,pad);mesh.applyBoneTransform(pad,point);
     mesh.localToWorld(point);h.phoneRoot.worldToLocal(point);
     return {pad:point.toArray(),inFace,faceMinZ:inFace?min:null,
      buttonMinZ:buttonCount?buttonMin:null,buttonMinPoint:buttonCount?contact.toArray():null,
-     buttonCount,penetrated,patchCount:ids.length};
+     buttonCount,penetrated,wholeThumbInsideCase,wholeThumbSkinCount:allThumb.length,patchCount:ids.length};
    };
    const poses=[],base=h.point('finger1-1.R').clone(),middle=h.point('finger1-2.R').clone(),
     proximalA=h.bones['finger1-1.R'].quaternion.clone(),proximalB=h.bones['finger1-2.R'].quaternion.clone(),
@@ -93,6 +103,9 @@ try{
     layout+' real fleshy thumb surface must touch CHECK IN without penetrating: '+JSON.stringify(contact));
   check(contact.pad[2]<hold.pad[2]-.03,
     layout+' distal tip does not dip at least 30mm toward glass: '+JSON.stringify({hold:hold.pad,contact:contact.pad}));
+  check(status.poses.every(p=>p.wholeThumbInsideCase===0),
+    layout+' proximal or distal source thumb skin occupies the phone solid: '+
+    JSON.stringify(status.poses.map(p=>[p.phase,p.wholeThumbInsideCase,p.wholeThumbSkinCount])));
   check(status.poses.every(p=>p.penetrated===0),
     layout+' native skin passed into phone glass: '+JSON.stringify(status.poses.map(p=>[p.phase,p.penetrated,p.faceMinZ])));
   check(status.poses.every(p=>p.rootA<.04&&p.rootB<.04
