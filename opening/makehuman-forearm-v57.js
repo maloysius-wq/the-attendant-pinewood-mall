@@ -303,12 +303,12 @@ export class RiggedPlayerHand {
    // entire thumb SKIN. Align its two downstream joints once, then animate
    // ONLY the native base joint where the thumb attaches to the palm.
    const baseJoint=bones['finger1-1.R'],middleJoint=bones['finger1-2.R'];
-   const phoneQ=this.phoneRoot.getWorldQuaternion(new THREE.Quaternion());
+   const v57PhoneQ=this.phoneRoot.getWorldQuaternion(new THREE.Quaternion());
    const rotateAtJoint=(joint,phoneRotation)=>{
     model.updateMatrixWorld(true);
     const parentQ=joint.parent.getWorldQuaternion(new THREE.Quaternion());
-    const localRotation=parentQ.clone().invert().multiply(phoneQ)
-     .multiply(phoneRotation).multiply(phoneQ.clone().invert()).multiply(parentQ);
+    const localRotation=parentQ.clone().invert().multiply(v57PhoneQ)
+     .multiply(phoneRotation).multiply(v57PhoneQ.clone().invert()).multiply(parentQ);
     joint.quaternion.premultiply(localRotation);
     model.updateMatrixWorld(true);
    };
