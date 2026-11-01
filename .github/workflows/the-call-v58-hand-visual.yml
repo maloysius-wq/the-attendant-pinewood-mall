@@ -31,7 +31,6 @@ jobs:
         layout: [desktop, mobile]
     env:
       V58_LAYOUT: ${{ matrix.layout }}
-      V60_SWEEP: '1'
     runs-on: ubuntu-24.04
     timeout-minutes: 12
     steps:
