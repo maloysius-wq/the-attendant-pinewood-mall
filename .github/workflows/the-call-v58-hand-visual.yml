@@ -1,12 +1,14 @@
 name: The Call v58 complete hand-phone clearance
 on:
   push:
-    branches: [fix/the-call-v58-full-hand-case-clearance, main]
+    branches: [fix/the-call-v58-full-hand-case-clearance, fix/the-call-v59-phone-thumb-base-fit, main]
     paths:
       - 'scripts/smoke-hand-grip-v58.mjs'
       - 'opening/makehuman-forearm-v58.js'
       - 'opening/phone-v58.js'
+      - 'opening/phone-v59.js'
       - 'opening/intro-v58.js'
+      - 'opening/intro-v59.js'
       - 'review/the-call-v34/index.html'
       - '.github/workflows/the-call-v58-hand-visual.yml'
   pull_request:
@@ -27,6 +29,7 @@ jobs:
         layout: [desktop, mobile]
     env:
       V58_LAYOUT: ${{ matrix.layout }}
+      V59_SWEEP: '1'
     runs-on: ubuntu-24.04
     timeout-minutes: 12
     steps:
