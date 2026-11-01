@@ -270,3 +270,11 @@ Pinewood's named storefront signs are generated locally because their lettering 
 - Local runtime: reads only `opening/assets/v48/manifest.json` and `opening/assets/v48/playerhands-forearm.glb`; no OpenGameArt URL is requested in the game.
 - Conversion/reproducibility: `scripts/vendor-playerhands-v48.mjs`, `scripts/export-playerhands-v48.py` and `.github/workflows/vendor-playerhands-v48.yml`. SHA-256 of both upstream archive and committed GLB pinned in manifest.
 - Purpose: first-person phone-holding hand and joint-driven check-in tap in the preview-only opening cinematic. No use of procedural capsule hands or the discarded v47 hand-only asset.
+
+## The Call v54 — MakeHuman/Innerscene continuous right forearm and five fingers (CC0)
+
+- Original source: [Innerscene Male base mesh — 3D Person, Rigged A-pose](https://www.innerscene.com/tools/library/3d-parts/male-base-mesh-3d-person-rigged-a-pose-380e6d89), adapted from the [MakeHuman Community](https://www.makehumancommunity.org/) CC0 assets. Innerscene explicitly dedicates this 163-bone, 109k-triangle anatomical base mesh to **CC0 1.0**; the asset page confirms unrestricted reuse and modification, including commercially.
+- Exact source binary: \`male-base-mesh-base_male.glb\`, 4,498,248 bytes, SHA-256 \`86c7cdfa989924b45e2e5110c131a4a4e6251ceb4e71246be68e468f3a32ca86\`. Original downloadable URL and pinned SHA appear in \`scripts/vendor-call-right-forearm-v54.mjs\`.
+- Offline extraction: \`scripts/vendor-call-right-forearm-v54.mjs\` crops only weighted triangles associated with the source **right lower forearm, wrist, metacarpals, and five finger chains** while retaining the source original bind transforms and 163-bone rig. This is not the old Innerscene hand-only mesh; the connected forearm surface is real weighted anatomy.
+- Local runtime artifact: \`opening/assets/v54/makehuman-right-forearm.glb\`, with SHA-256/triangle/vertex counts recorded in \`opening/assets/v54/manifest.json\` and validated by \`scripts/audit-call-right-forearm-v54.mjs\`.
+- Runtime never requests a URL from Innerscene or MakeHuman. Old v48 sandsound forearm retained only for historical regression and rollback; the review intro uses v54 only.

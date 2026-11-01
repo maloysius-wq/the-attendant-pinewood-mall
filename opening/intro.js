@@ -2,7 +2,7 @@ import * as THREE from '../vendor/three/build/three.module.js';
 import {makeOpeningScene} from './scene.js?v=46';
 import {HumanCameraRig} from './camera.js?v=43';
 import {OpeningAmbience} from './ambience.js?v=35';
-import {HandheldCheckInPhone} from './phone-v45.js?v=52';
+import {HandheldCheckInPhone} from './phone-v45.js?v=54';
 import {buildCaptionTrack,captionAt} from './caption-sync-v45.js?v=45';
 const $=id=>document.getElementById(id);
 const query=new URLSearchParams(location.search);
@@ -297,6 +297,7 @@ window.__PINEWOOD_OPENING_V34__={
  },
  get dashboardPhone(){return null;}, // No dashboard mount; the prop is held in hand.
  get handheldPhone(){return active?.handheld?.status||null;},
+ get qaPlayerHand(){return location.pathname.includes('/review/')?active?.handheld?.playerHand||null:null;},
  get captionTiming(){if(active&&!active.paused)active.renderCaption();return active?{line:active.line?.id,voiceSeconds:active.voiceSeconds,
    mediaSeconds:active.audio?.currentTime??null,captionSeconds:active.captionSeconds,
    captionIndex:active.captionIndex,source:active.scrubOverride!==null?'preview-scrub':

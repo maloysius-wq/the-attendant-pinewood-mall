@@ -1,0 +1,15 @@
+{
+  "version": 54,
+  "license": "CC0-1.0",
+  "source": "https://www.innerscene.com/tools/library/3d-parts/male-base-mesh-3d-person-rigged-a-pose-380e6d89",
+  "author": "Innerscene / MakeHuman Community",
+  "sourceAsset": "male-base-mesh-base_male.glb",
+  "sourceSha256": "86c7cdfa989924b45e2e5110c131a4a4e6251ceb4e71246be68e468f3a32ca86",
+  "model": "makehuman-right-forearm.glb",
+  "sha256": "28747b74555a4e26b1655a9ff5c81d7844b8c8203c858b041e0a450c80566dc6",
+  "bytes": 701276,
+  "vertexCount": 9145,
+  "triangles": 14325,
+  "boneCount": 163,
+  "description": "Only original CC0 skinned right forearm and continuous right hand, cropped by source skin weights. No other rendered body parts."
+}

@@ -1,26 +1,6 @@
-name: The Call v50 left-facing forearm grip
+name: The Call legacy v48 source forearm archival QA
 on:
-  push:
-    branches: [fix/the-call-v50-left-facing-grip, main]
-    paths:
-      - 'opening/playerhands-v48.js'
-      - 'opening/phone-v45.js'
-      - 'opening/intro.js'
-      - 'opening/opening.css'
-      - 'review/the-call-v34/index.html'
-      - 'opening/assets/v48/**'
-      - 'scripts/smoke-playerhands-v48.mjs'
-      - '.github/workflows/playerhands-v48-visual.yml'
-  pull_request:
-    branches: [main]
-    paths:
-      - 'opening/playerhands-v48.js'
-      - 'opening/phone-v45.js'
-      - 'opening/intro.js'
-      - 'opening/opening.css'
-      - 'review/the-call-v34/index.html'
-      - 'scripts/smoke-playerhands-v48.mjs'
-      - '.github/workflows/playerhands-v48-visual.yml'
+  workflow_dispatch:
 permissions:
   contents: read
 jobs:

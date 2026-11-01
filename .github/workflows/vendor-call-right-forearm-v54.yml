@@ -1,0 +1,30 @@
+name: The Call v54 pin and crop real CC0 right forearm
+on:
+  push:
+    branches: [fix/the-call-v54-real-right-forearm]
+    paths:
+      - 'scripts/vendor-call-right-forearm-v54.mjs'
+      - 'scripts/audit-call-right-forearm-v54.mjs'
+      - '.github/workflows/vendor-call-right-forearm-v54.yml'
+permissions:
+  contents: write
+jobs:
+  vendor:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 9
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Download pinned CC0 MakeHuman model, crop anatomical right forearm
+        run: node scripts/vendor-call-right-forearm-v54.mjs
+      - name: Audit a single real skinned forearm and all five fingers
+        run: node scripts/audit-call-right-forearm-v54.mjs
+      - name: Commit only the verified binary and provenance manifest
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add opening/assets/v54/makehuman-right-forearm.glb opening/assets/v54/manifest.json
+          git commit -m "Vendor pinned CC0 MakeHuman continuous right forearm v54 [skip ci]"
+          git push origin HEAD:fix/the-call-v54-real-right-forearm
