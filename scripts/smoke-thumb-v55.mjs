@@ -25,6 +25,7 @@ try{
   const status=await page.evaluate(()=>{
    const h=window.__PINEWOOD_OPENING_V34__.qaPlayerHand;
    if(!h?.model)throw Error('Missing original source-skinned hand');
+   if(h.state!=='ready')throw Error('Rig rejected unsafe distal pose: '+h.error);
    const mesh=h.model.getObjectByProperty('type','SkinnedMesh');
    if(!mesh)throw Error('No original source SkinnedMesh');
    const sk=mesh.skeleton,boneId=sk.bones.findIndex(b=>b.name==='finger1-3R');
