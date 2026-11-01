@@ -80,6 +80,68 @@ try{
    console.log('V58_'+name.toUpperCase()+'_'+label.toUpperCase()+'_JPEG='+
     (await page.screenshot({type:'jpeg',quality:62})).toString('base64'));
   }
+
+  if(process.env.V58_OPTIMIZE){
+   const opt=await page.evaluate(()=>{
+    const h=window.__PINEWOOD_OPENING_V34__.qaPlayerHand,mesh=h.skinnedMesh;
+    const P=h.model.position.constructor,Q=h.model.quaternion.constructor;
+    const pos=mesh.geometry.getAttribute('position'),si=mesh.geometry.getAttribute('skinIndex'),sw=mesh.geometry.getAttribute('skinWeight');
+    const read=(a,i)=>[a.getX(i),a.getY(i),a.getZ(i),a.getW(i)];
+    const phoneQ=h.phoneRoot.getWorldQuaternion(new Q());
+    const outputs=[];
+    for(const digit of [2,3]){
+     const bone=h.bones['finger'+digit+'-1.R'],joints=[1,2,3].map(n=>mesh.skeleton.bones.indexOf(h.bones['finger'+digit+'-'+n+'.R']));
+     const indices=[];
+     for(let i=0;i<pos.count;i++){const js=read(si,i),weights=read(sw,i);if(js.reduce((sum,j,k)=>sum+(joints.includes(j)?weights[k]:0),0)>=.25)indices.push(i);}
+     const q0=bone.quaternion.clone(),parentQ=bone.parent.getWorldQuaternion(new Q());
+     const axis=[[1,0,0],[0,1,0],[0,0,1]].map(a=>new P(...a).applyQuaternion(phoneQ).applyQuaternion(parentQ.clone().invert()).normalize());
+     const p=new P();
+     const probe=()=>{
+      h.model.updateMatrixWorld(true);let solid=0,front=0,over=0;
+      for(const i of indices){
+       p.fromBufferAttribute(pos,i);mesh.applyBoneTransform(i,p);mesh.localToWorld(p);h.phoneRoot.worldToLocal(p);
+       if(p.x>=-.119&&p.x<=.119&&p.y>=-.218&&p.y<=.218&&p.z>=-.02&&p.z<.0249)solid++;
+       if(p.x>=-.109&&p.x<=.109&&p.y>=-.198&&p.y<=.188&&p.z>=.0249)front++;
+       if(p.x>=-.119&&p.x<=.119&&p.y>=-.218&&p.y<=.218)over++;
+      }
+      return {solid,front,over};
+     };
+     const score=(d,angle)=>d.solid*10+d.front*3+Math.abs(angle)*20;
+     const singles=[];
+     for(let axisNo=0;axisNo<3;axisNo++){
+      let best={score:Infinity};
+      for(let n=-15;n<=15;n++){
+       const angle=n*.1;bone.quaternion.copy(q0).premultiply(new Q().setFromAxisAngle(axis[axisNo],angle));
+       const sample=probe(),cost=score(sample,angle);
+       if(cost<best.score)best={axis:'xyz'[axisNo],angle:+angle.toFixed(2),score:cost,...sample};
+      }
+      singles.push(best);
+     }
+     bone.quaternion.copy(q0);
+     let final=probe(),q=bone.quaternion.clone(),history=[];
+     for(let iteration=0;iteration<3;iteration++){
+      for(let axisNo=0;axisNo<3;axisNo++){
+       let best={score:score(final,0),q:q.clone(),angle:0,...final};
+       for(let n=-16;n<=16;n++){
+        const angle=n*.1;
+        bone.quaternion.copy(q).premultiply(new Q().setFromAxisAngle(axis[axisNo],angle));
+        const sample=probe(),cost=score(sample,angle);
+        if(cost<best.score)best={score:cost,q:bone.quaternion.clone(),angle,...sample};
+       }
+       q=best.q;bone.quaternion.copy(q);final=probe();
+       history.push({axis:'xyz'[axisNo],angle:+best.angle.toFixed(2),solid:final.solid,front:final.front});
+      }
+     }
+     bone.quaternion.copy(q);h.model.updateMatrixWorld(true);
+     outputs.push({digit,source:indices.length,baseline:singles,final,rotations:history,localQuaternion:q.toArray()});
+    }
+    return outputs;
+   });
+   console.log('V58_OPTIMIZER_'+name.toUpperCase()+'='+JSON.stringify(opt));
+   await page.waitForTimeout(300);
+   await page.screenshot({path:'opening-v58-artifacts/'+name+'-optimized.png'});
+   console.log('V58_OPTIMIZER_'+name.toUpperCase()+'_JPEG='+(await page.screenshot({type:'jpeg',quality:62})).toString('base64'));
+  }
   const hold=phases[0],pressed=phases[1];
   check(hold.digits[1].solid===0&&pressed.digits[1].solid===0,
    name+' real INDEX finger skin intersects phone case: '+JSON.stringify(phases.map(p=>p.digits[1])));
