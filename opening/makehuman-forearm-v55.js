@@ -203,8 +203,14 @@ export class RiggedPlayerHand {
    }
    bone.quaternion.copy(rest);model.updateWorldMatrix(true,true);
    candidates.sort((a,b)=>a.score-b.score);
-   if(!candidates.length)throw Error('No anatomically safe distal-only tip contact. Probe '+
-     JSON.stringify(diagnostics.slice(0,48)));
+   if(!candidates.length)throw Error('No anatomically safe distal-only tip contact. Context '+JSON.stringify({
+      padId:this.thumbPadIndex,distalId,hoverPad:hoverRaw.pad.toArray(),
+      hoverMin:hoverRaw.minZ,restJoint:this.point('finger1-3.R').toArray(),
+      middleJoint:this.point('finger1-2.R').toArray(),
+      wrist:this.point('wrist.R').toArray(),boneLocal:bone.position.toArray(),
+      bindMatrix:mesh.bindMatrix.elements.map(v=>+v.toFixed(4)),
+      inverse:mesh.skeleton.boneInverses[distalId].elements.map(v=>+v.toFixed(4))
+     })+' Probe '+JSON.stringify(diagnostics.slice(0,48)));
    const best=candidates[0];
    // One fixed anchor sets the rest height and contact. It does NOT move
    // during the tap; neither wrist nor thumb base can slide on the screen.
