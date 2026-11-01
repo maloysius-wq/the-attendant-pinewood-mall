@@ -37,3 +37,24 @@
  #pwm-opening .pwm-footer{display:none}
 }
 @media(prefers-reduced-motion:reduce){#pwm-opening .pwm-grain{display:none}#pwm-opening .pwm-progress{transition:none}}
+
+/* v61: The entire Three.js canvas stays covered until the car, original
+ * skin, local PBR maps and first GPU frame are truly ready. */
+#pwm-opening .pwm-preload{position:absolute;inset:0;z-index:50;display:flex;
+ align-items:center;justify-content:center;padding:24px;text-align:center;
+ background:radial-gradient(ellipse at 50% 43%,#16252a 0%,#081115 54%,#020608 100%);color:#e8e8dd}
+#pwm-opening .pwm-preload-panel{width:min(520px,92vw);padding:26px 15px}
+#pwm-opening .pwm-preload-kicker{font:700 12px/1.5 monospace;letter-spacing:.24em;color:#aac7be}
+#pwm-opening .pwm-preload-title{margin:22px 0 14px;font-size:clamp(24px,4.5vw,39px);
+ font-weight:800;letter-spacing:.11em}
+#pwm-opening .pwm-preload-message{font:15px/1.6 Arial;color:#bbcbc6}
+#pwm-opening .pwm-preload-track{height:3px;max-width:370px;margin:28px auto 22px;
+ overflow:hidden;background:#324548}
+#pwm-opening .pwm-preload-sweep{height:100%;width:38%;background:#a7d9c9;
+ animation:pwm-preload-sweep 1.8s ease-in-out infinite}
+#pwm-opening .pwm-preload-skip{min-height:44px;padding:10px 24px;border:1px solid #738b83;
+ background:#152328;color:#eeeae0;font:13px Arial;cursor:pointer}
+#pwm-opening .pwm-preload-skip:focus-visible{outline:3px solid #e4c787;outline-offset:4px}
+#pwm-opening[data-preload-state="failed"] .pwm-preload-sweep{animation:none;width:100%;background:#a97d70}
+@keyframes pwm-preload-sweep{0%{transform:translateX(-110%)}50%{transform:translateX(135%)}100%{transform:translateX(295%)}}
+@media(prefers-reduced-motion:reduce){#pwm-opening .pwm-preload-sweep{animation:none;width:100%}}

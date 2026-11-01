@@ -28,7 +28,9 @@ jobs:
         with:
           node-version: '22'
       - name: Parse startup regression
-        run: node --check scripts/smoke-opening-preload-v61.mjs
+        run: |
+          node --check opening/intro-v61.js
+          node --check scripts/smoke-opening-preload-v61.mjs
       - name: Install Chromium
         run: |
           npm install --no-save playwright@1.55.0
