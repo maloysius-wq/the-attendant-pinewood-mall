@@ -1,0 +1,60 @@
+name: The Call v58 straight-thumb base-pivot visual
+on:
+  push:
+    branches: [fix/the-call-v58-base-pivot-thumb, main]
+    paths:
+      - 'scripts/smoke-hand-grip-v58.mjs'
+      - 'opening/makehuman-forearm-v57.js'
+      - 'opening/phone-v45.js'
+      - 'opening/intro.js'
+      - 'review/the-call-v34/index.html'
+      - '.github/workflows/the-call-v58-visual.yml'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'scripts/smoke-hand-grip-v58.mjs'
+      - 'opening/makehuman-forearm-v57.js'
+      - 'opening/phone-v45.js'
+      - 'opening/intro.js'
+      - 'review/the-call-v34/index.html'
+      - '.github/workflows/the-call-v58-visual.yml'
+permissions:
+  contents: read
+jobs:
+  full-hand-clearance:
+    name: full-hand-${{ matrix.layout }}
+    strategy:
+      fail-fast: false
+      matrix:
+        layout: [desktop, mobile]
+    env:
+      V58_LAYOUT: ${{ matrix.layout }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify original skinned forearm and test syntax
+        run: |
+          node scripts/audit-call-right-forearm-v54.mjs
+          node --check scripts/smoke-hand-grip-v58.mjs
+      - name: Install Chromium
+        run: |
+          npm install --no-save playwright@1.55.0
+          npx playwright install chromium
+      - name: Start deterministic opening preview
+        run: |
+          python3 -m http.server 4173 --bind 127.0.0.1 >/tmp/pinewood-v58-http.log 2>&1 &
+          for i in {1..30}; do curl -fsS http://127.0.0.1:4173/review/the-call-v34/ >/dev/null && exit 0; sleep 1; done
+          exit 1
+      - name: Diagnose full source skin finger clearance at hold and tap
+        run: node scripts/smoke-hand-grip-v58.mjs
+      - name: Upload actual mobile thumb frames
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: v58-base-thumb-${{ matrix.layout }}
+          path: opening-v58-artifacts/
+          retention-days: 7
