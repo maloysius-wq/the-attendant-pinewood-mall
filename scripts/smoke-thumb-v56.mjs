@@ -151,14 +151,32 @@ try{
     }
    }
    midJoint.quaternion.copy(midRest);h.update(0);
+   const distalBone=h.bones['finger1-3.R'],originalScale=distalBone.scale.clone();
+   const scaleScan=[];
+   for(let ax=0;ax<3;ax++){
+    for(const factor of [1.1,1.2,1.3,1.4,1.5,1.6,1.75]){
+     distalBone.scale.copy(originalScale);
+     distalBone.scale.setComponent(ax,originalScale.getComponent(ax)*factor);
+     h.update(0);const up=sample();h.update(1);const down=sample();
+     const dz=down.buttonMinZ===null?null:.028-down.buttonMinZ;
+     scaleScan.push({ax,factor,hover:up.buttonCount,wholeHover:up.wholeThumbOverButton,
+      hoverMin:up.faceMinZ,pressed:down.buttonCount,contact:down.buttonMinPoint,
+      dz,caseCount:down.wholeThumbInsideCase,
+      viable:up.buttonCount<=10&&up.wholeThumbOverButton<=25
+        &&down.buttonCount>=30&&down.buttonMinPoint?.[0]<=.08
+        &&dz!==null&&dz>=-.015&&dz<=.02&&up.faceMinZ+dz>=.055});
+    }
+   }
+   distalBone.scale.copy(originalScale);h.update(0);
    return {source:h.status.source,scale:h.model.scale.x,
-    solver:h.status.selectedTipSolver,poses,dxScan,tapScan,staticScan,pressScan};
+    solver:h.status.selectedTipSolver,poses,dxScan,tapScan,staticScan,pressScan,scaleScan};
   });
   console.log('V56_'+layout.toUpperCase()+'_ANATOMY='+JSON.stringify(status));
   console.log('V56_'+layout.toUpperCase()+'_OFFSET_DIAG='+JSON.stringify(status.dxScan));
   console.log('V56_'+layout.toUpperCase()+'_TAP_DIAG='+JSON.stringify(status.tapScan));
   console.log('V56_'+layout.toUpperCase()+'_STATIC_DIAG='+JSON.stringify(status.staticScan));
   console.log('V56_'+layout.toUpperCase()+'_PRESS_DIAG='+JSON.stringify(status.pressScan));
+  console.log('V56_'+layout.toUpperCase()+'_SCALE_DIAG='+JSON.stringify(status.scaleScan));
   const hold=status.poses[0],contact=status.poses[5],release=status.poses[8];
   check(status.source.includes('MakeHuman'),layout+' lost original CC0 connected model');
   check(status.scale>=2.35&&status.scale<=2.45,layout+' hand is not roughly twice original size: '+status.scale);
