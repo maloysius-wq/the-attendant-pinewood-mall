@@ -1,0 +1,61 @@
+name: The Call v63 imported CC0 landscaping and clear walking route
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'opening/landscape-*.js'
+      - 'opening/landscape-*.mjs'
+      - 'opening/assets/v63/**'
+      - 'opening/scene.js'
+      - 'opening/intro-v63.js'
+      - 'review/the-call-v34/index.html'
+      - 'scripts/*landscape-v63.mjs'
+      - '.github/workflows/the-call-v63-landscape.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'opening/landscape-*.js'
+      - 'opening/landscape-*.mjs'
+      - 'opening/assets/v63/**'
+      - 'opening/scene.js'
+      - 'opening/intro-v63.js'
+      - 'review/the-call-v34/index.html'
+      - 'scripts/*landscape-v63.mjs'
+      - '.github/workflows/the-call-v63-landscape.yml'
+permissions:
+  contents: read
+jobs:
+  imported-landscape:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Syntax and source-model, license, positioning audits
+        run: |
+          node --check opening/scene.js
+          node --check opening/landscape-v63.js
+          node --check opening/landscape-layout-v63.mjs
+          node --check opening/intro-v63.js
+          node --check scripts/smoke-opening-landscape-v63.mjs
+          node scripts/audit-opening-landscape-v63.mjs
+      - name: Install deterministic Chromium
+        run: |
+          npm install --no-save playwright@1.55.0
+          npx playwright install chromium
+      - name: Serve local review
+        run: |
+          python3 -m http.server 4173 --bind 127.0.0.1 >/tmp/pinewood-v63-http.log 2>&1 &
+          for i in {1..30}; do curl -fsS http://127.0.0.1:4173/review/the-call-v34/ >/dev/null && exit 0; sleep 1; done
+          exit 1
+      - name: Verify imported models and capture exterior route on desktop/mobile
+        run: node scripts/smoke-opening-landscape-v63.mjs
+      - name: Save exterior views
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: v63-modelled-exterior
+          path: opening-v63-artifacts/
+          retention-days: 7
