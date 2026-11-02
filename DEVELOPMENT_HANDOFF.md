@@ -8,6 +8,18 @@
 
 ---
 
+## Current construction implementation: Unified Physical Shell v67 (2026-11-02)
+
+**Status:** First **review-only physical construction milestone** complete. Do not mistake this for a playable-world migration. The default branch keeps shipping the original six-chapter production runtime and cinematic independently. The unified shell, loaded models, fixtures, doors, and stairs are separate review artifacts.
+
+- `docs/superpowers/plans/2026-11-02-pinewood-construction-v67.md` — implementation milestone and acceptance plan.
+- `mall/physical-shell-v67.mjs` — deterministic three-level geometry, 148 structural partitions, real doorway apertures, world floor slabs with freight/stair shafts, chapter-gated barriers, impassable boarded public lobby, and aligned 24-step B1 and 30-step mezzanine stairways.
+- `mall/render-shell-v67.js` — combined Three.js property with licensed pre-vendored CC0 models and PBR textures, fitted fixtures, true room partitions, atrium, structural roofs, and all visual assets loaded before the first visible frame.
+- `review/mall-construction-v67/` — fixed-camera desktop/mobile architectural inspection, no WASD, chapter selector, roof cutaway. Pages URL after merging: https://maloysius-wq.github.io/the-attendant-pinewood-mall/review/mall-construction-v67/.
+- `scripts/test-physical-shell-v67.mjs`, `scripts/smoke-physical-shell-v67.mjs`, `.github/workflows/mall-physical-shell-v67.yml` — tests for openings/collision, chapter gates, shafts, stairs, local assets, preload, and desktop/mobile captures. All 18 combined v66/v67 Node tests passed. Desktop/mobile captures: 148 partitions, 8 material maps, 10 CC0 fixtures, zero browser errors, zero remote asset requests (Actions run `41523973512`).
+
+**Next architectural work, not yet done:** recognizable boarded facade and weathered sign, richer licensed derelict retail fixtures, stronger structural collision/nav layer, cinematic-to-game coordinate handoff, and migration of each chapter's authored interactions, evidence, AI and endings into the new world. The v66 plan and Story Bible remain authoritative. The existing playable game must remain intact until full campaign and audio hardening passes.
+
 ## Current architectural rebuild: Unified Pinewood Mall v66 (2026-11-02)
 
 **User-approved architectural direction:** Max chose a **single-story public mall** with a **12 m central atrium/dry fountain**, a **real below-grade mechanical level (B1)**, and an **administrative mezzanine (M1)** overlooking the atrium. The six chapters must occupy **one continuous physical property** and not be six detached room layouts.

@@ -1,0 +1,52 @@
+name: Pinewood physical mall shell v67 review
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'mall/physical-shell-v67.mjs'
+      - 'mall/render-shell-v67.js'
+      - 'review/mall-construction-v67/**'
+      - 'scripts/*physical-shell-v67.mjs'
+      - '.github/workflows/mall-physical-shell-v67.yml'
+  push:
+    branches: [construction/unified-mall-shell-v67, main]
+    paths:
+      - 'mall/physical-shell-v67.mjs'
+      - 'mall/render-shell-v67.js'
+      - 'review/mall-construction-v67/**'
+      - 'scripts/*physical-shell-v67.mjs'
+      - '.github/workflows/mall-physical-shell-v67.yml'
+permissions:
+  contents: read
+jobs:
+  physical-shell:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 18
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify physical architecture and v66 mapping contracts
+        run: |
+          node --check mall/physical-shell-v67.mjs
+          node --check scripts/test-physical-shell-v67.mjs
+          node --test scripts/test-mall-masterplan-v66.mjs scripts/test-physical-shell-v67.mjs
+      - name: Install deterministic Chromium
+        run: |
+          npm install --no-save playwright@1.55.0
+          npx playwright install chromium
+      - name: Serve review-only built mall
+        run: |
+          python3 -m http.server 4173 --bind 127.0.0.1 >/tmp/pinewood-v67-http.log 2>&1 &
+          for i in {1..30}; do curl -fsS http://127.0.0.1:4173/review/mall-construction-v67/ >/dev/null && exit 0; sleep 1; done
+          exit 1
+      - name: Capture deterministic built-mall inspection cameras
+        run: node scripts/smoke-physical-shell-v67.mjs
+      - name: Upload v67 built-mall inspection evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: v67-pinewood-built-shell
+          path: mall-v67-artifacts/
+          retention-days: 14
