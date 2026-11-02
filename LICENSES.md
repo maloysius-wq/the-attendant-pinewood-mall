@@ -278,3 +278,17 @@ Pinewood's named storefront signs are generated locally because their lettering 
 - Offline extraction: \`scripts/vendor-call-right-forearm-v54.mjs\` crops only weighted triangles associated with the source **right lower forearm, wrist, metacarpals, and five finger chains** while retaining the source original bind transforms and 163-bone rig. This is not the old Innerscene hand-only mesh; the connected forearm surface is real weighted anatomy.
 - Local runtime artifact: \`opening/assets/v54/makehuman-right-forearm.glb\`, with SHA-256/triangle/vertex counts recorded in \`opening/assets/v54/manifest.json\` and validated by \`scripts/audit-call-right-forearm-v54.mjs\`.
 - Runtime never requests a URL from Innerscene or MakeHuman. Old v48 sandsound forearm retained only for historical regression and rollback; the review intro uses v54 only.
+
+## Opening v63 imported exterior landscape models (review-only)
+
+- **Weathering steel planter** — Innerscene Corp original 3D asset, CC0 1.0:
+  https://www.innerscene.com/tools/library/3d-parts/weathering-steel-planter-1a0662ed ; locally vendored as
+  `opening/assets/v63/weathering-steel-planter.glb`, SHA-256
+  `10e21b1334a3277ac6d0df1a14045370c68ce487a46ddd921c0dff316261415f`.
+- **Rounded landscape shrub** — Innerscene Corp original 3D asset, CC0 1.0:
+  https://www.innerscene.com/tools/library/3d-parts/rounded-landscape-shrub-71bcc316 ; locally vendored as
+  `opening/assets/v63/rounded-landscape-shrub.glb`, SHA-256
+  `bb5605f4367e53f4a11c007c5a46ae92e08c6a6f7a277d23d33e840f354ecef2`.
+- The glTF assets themselves declare Innerscene Corp authorship and CC0
+  dedication. All visible landscaping in v63 is cloned from these models.
+  Runtime requests are restricted to local `opening/assets/v63/` files.

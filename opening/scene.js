@@ -1,5 +1,6 @@
 import * as THREE from '../vendor/three/build/three.module.js';
 import {upgradeOpeningSceneV37} from './environment-v37.js?v=43';
+import {installMallPlantersV63} from './landscape-v63.js?v=63';
 const v=(x,y,z)=>new THREE.Vector3(x,y,z);
 const mat=(color,roughness=.85,metalness=0)=>new THREE.MeshStandardMaterial({color,roughness,metalness});
 const lit=(color,intensity=.4)=>new THREE.MeshStandardMaterial({color,roughness:.73,emissive:color,emissiveIntensity:intensity});
@@ -42,7 +43,7 @@ export const shots={
  inside:{pos:v(12,1.73,-24.2),end:v(10,1.73,-26.1),look:v(0,2.4,-40),endLook:v(0,2.4,-40)},
  interiorWide:{pos:v(10,1.73,-26.1),end:v(6.7,1.73,-28.1),look:v(0,2.5,-39),endLook:v(0,2.5,-39)}
 };
-export function makeOpeningScene(){
+export function makeOpeningScene({useImportedLandscape=false}={}){
  const scene=new THREE.Scene();scene.background=new THREE.Color(0x111a22);scene.fog=new THREE.FogExp2(0x18242a,.010);
  const world=new THREE.Group();scene.add(world);
  const concrete=mat(0x727069,.96),steel=mat(0x48545a,.72,.37),facade=mat(0x586367,.96),dark=mat(0x1d292d,.92),windowMat=glass();
@@ -126,7 +127,8 @@ export function makeOpeningScene(){
  const car=new THREE.Group();car.name='Sole full 1990s hatchback placement';car.position.set(-10,0,17.5);world.add(car);
  // Parking fixtures.
  for(const [x,z] of[[-21,9],[28,5],[0,28]]){cyl(world,x,3.9,z,.09,7.8,steel);box(world,x,7.75,z,.8,.2,.5,concrete);lamp(scene,x,7.3,z,0xd9c6a3,3.2,19);}
- for(let i=0;i<7;i++){const x=-32+i*10;box(world,x,.38,-13.7,4.2,.55,1.35,concrete);for(let k=-1;k<=1;k++)cyl(world,x+k*.9,.86,-13.7,.55,.7,mat(0x2a382e));}
+ // Keep primitive planters solely for legacy/production scenes; v63 is model-only.
+ if(!useImportedLandscape){for(let i=0;i<7;i++){const x=-32+i*10;box(world,x,.38,-13.7,4.2,.55,1.35,concrete);for(let k=-1;k<=1;k++)cyl(world,x+k*.9,.86,-13.7,.55,.7,mat(0x2a382e));}}
  box(world,-37,.72,-17,2.8,1.4,1.7,mat(0x24423c,.8,.5));
  lamp(scene,12,3.0,-19.4,0xb9d9bc,3.2,22);lamp(scene,0,4.3,-42,0xb9c6bb,1.4,18);
  lamp(scene,0,5,-15.0,0xc6c4b5,5.2,36);
@@ -138,7 +140,7 @@ export function makeOpeningScene(){
  for(let i=0;i<rainCount;i++){positions[i*3]=((i*41.71)%108)-54;positions[i*3+1]=((i*17.23)%13)+.3;positions[i*3+2]=((i*29.31)%55)-11;}
  const geom=new THREE.BufferGeometry();geom.setAttribute('position',new THREE.BufferAttribute(positions,3));
  const rain=new THREE.Points(geom,new THREE.PointsMaterial({color:0x93aec0,size:.055,transparent:true,opacity:.52,depthWrite:false}));world.add(rain);
- const stage={scene,pivot,rain,
+ const stage={scene,world,pivot,rain,
   serviceEntry:{
    opening:serviceOpening,doorSpecs:serviceDoor,doorSlab:serviceDoorSlab,
    leftInfill:serviceLeftInfill,rightInfill:serviceRightInfill,
@@ -147,8 +149,14 @@ export function makeOpeningScene(){
    canopy:serviceCanopy,canopyFascia
   }
  };
- stage.assetReady=upgradeOpeningSceneV37({
+ const environmentReady=upgradeOpeningSceneV37({
   scene,world,car,stage,materials:{facade,steel},lotMaterial
  });
+ // The opaque v63 preload awaits vendored third-party models before reveal.
+ stage.assetReady=useImportedLandscape
+  ?Promise.all([environmentReady,installMallPlantersV63(world)]).then(([status,landscape])=>{
+    status.landscape=landscape;return status;
+   })
+  :environmentReady;
  return stage;
 }
