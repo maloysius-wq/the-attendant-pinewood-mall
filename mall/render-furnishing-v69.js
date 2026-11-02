@@ -13,6 +13,7 @@ const dim=box=>box.getSize(new THREE.Vector3());
 const center=box=>box.getCenter(new THREE.Vector3());
 function fitModel(scene,f){
  const object=scene.clone(true);
+ object.rotation.x=f.pitch||0;
  object.rotation.y=f.yaw||0;
  object.updateMatrixWorld(true);
  const initial=boxOf(object),size=dim(initial);
@@ -20,10 +21,16 @@ function fitModel(scene,f){
   throw Error('Invalid source geometry for '+f.id+': '+f.model);
  // The circular walking collider encloses the entire visible asset,
  // including bulky cabinets and protruding machine feet.
- const axisCap=f.support ? 0.7 : 1.32*f.radius;
+ const widthCap=f.support?f.maxWidth:1.32*f.radius;
+ const depthCap=f.support?f.maxDepth:1.32*f.radius;
  const byHeight=size.y>.00001?f.targetHeight/size.y:Number.POSITIVE_INFINITY;
- const scale=Math.min(byHeight,axisCap/Math.max(size.x,.00001),axisCap/Math.max(size.z,.00001));
+ const scale=Math.min(byHeight,widthCap/Math.max(size.x,.00001),depthCap/Math.max(size.z,.00001));
  if(!Number.isFinite(scale)||scale<=0)throw Error('Cannot fit '+f.id);
+ // A mathematically valid footprint can still make a real cabinet or
+ // machine look like a toy. Fail visibly instead of shrinking silently.
+ if(size.y<.00001||size.y*scale<f.targetHeight*.82)
+  throw Error('Model is too wide/deep for believable height: '+f.id+
+   ' fitted '+(size.y*scale).toFixed(3)+'m of '+f.targetHeight+'m');
  object.scale.multiplyScalar(scale);
  object.updateMatrixWorld(true);
  object.name='furnished_'+f.id;
@@ -51,7 +58,7 @@ function measureSupport(id,object,room){
 function measurePlaced(f,object){
  const b=boxOf(object),s=dim(b),c=center(b);
  return {id:f.id,room:f.room,model:f.model,
-  yBottom:b.min.y,measuredHeight:s.y,width:s.x,depth:s.z,
+  yBottom:b.min.y,measuredHeight:s.y,requestedHeight:f.targetHeight,width:s.x,depth:s.z,
   centerX:c.x,centerZ:c.z,
   colliderRadius:f.radius};
 }

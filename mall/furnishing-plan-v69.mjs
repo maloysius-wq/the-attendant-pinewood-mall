@@ -76,7 +76,7 @@ export const FURNISHINGS_V69=Object.freeze({
       "x": -43,
       "z": -94,
       "targetHeight": 2,
-      "radius": 1.05,
+      "radius": 1.12,
       "role": "arcade"
     },
     {
@@ -96,7 +96,7 @@ export const FURNISHINGS_V69=Object.freeze({
       "x": -33.5,
       "z": -104.5,
       "targetHeight": 2.35,
-      "radius": 1.3,
+      "radius": 2.28,
       "role": "arcade"
     },
     {
@@ -155,10 +155,12 @@ export const FURNISHINGS_V69=Object.freeze({
       "model": "assets/vendor/runtime/856bdfdf2197a32e/VHS_cassette.glb",
       "x": 35,
       "z": -65,
-      "targetHeight": 0.21,
+      "targetHeight": 0.025,
       "radius": 0,
       "role": "loose_prop",
-      "support": "video_counter"
+      "support": "video_counter",
+      "maxWidth": 0.21,
+      "maxDepth": 0.115
     },
     {
       "id": "food_table_1",
@@ -266,10 +268,12 @@ export const FURNISHINGS_V69=Object.freeze({
       "model": "assets/vendor/runtime/6a62ba711ba90736/pizza-box.glb",
       "x": 35,
       "z": -84.1,
-      "targetHeight": 0.19,
+      "targetHeight": 0.3,
       "radius": 0,
       "role": "loose_prop",
-      "support": "food_table_1"
+      "support": "food_table_1",
+      "maxWidth": 0.34,
+      "maxDepth": 0.34
     },
     {
       "id": "food_cup",
@@ -277,10 +281,13 @@ export const FURNISHINGS_V69=Object.freeze({
       "model": "assets/vendor/runtime/f576c2b30a9defad/cup.glb",
       "x": 42,
       "z": -84.1,
-      "targetHeight": 0.21,
+      "targetHeight": 0.12,
       "radius": 0,
       "role": "loose_prop",
-      "support": "food_table_2"
+      "support": "food_table_2",
+      "maxWidth": 0.11,
+      "maxDepth": 0.11,
+      "pitch": -1.5707963267948966
     },
     {
       "id": "fallow_display",
@@ -338,10 +345,12 @@ export const FURNISHINGS_V69=Object.freeze({
       "model": "assets/vendor/runtime/e3c9feb9172f2e3b/radio.glb",
       "x": 37,
       "z": -109,
-      "targetHeight": 0.24,
+      "targetHeight": 0.19,
       "radius": 0,
       "role": "loose_prop",
-      "support": "cc0_security_desk"
+      "support": "cc0_security_desk",
+      "maxWidth": 0.29,
+      "maxDepth": 0.14
     },
     {
       "id": "training_desk",
@@ -399,10 +408,13 @@ export const FURNISHINGS_V69=Object.freeze({
       "model": "assets/vendor/runtime/f576c2b30a9defad/cup.glb",
       "x": 74,
       "z": -93,
-      "targetHeight": 0.23,
+      "targetHeight": 0.12,
       "radius": 0,
       "role": "loose_prop",
-      "support": "cc0_breakroom_table"
+      "support": "cc0_breakroom_table",
+      "maxWidth": 0.11,
+      "maxDepth": 0.11,
+      "pitch": -1.5707963267948966
     },
     {
       "id": "staff_storage_1",
@@ -441,7 +453,7 @@ export const FURNISHINGS_V69=Object.freeze({
       "x": -32,
       "z": -97,
       "targetHeight": 2.2,
-      "radius": 1,
+      "radius": 2,
       "role": "equipment"
     },
     {
@@ -451,7 +463,7 @@ export const FURNISHINGS_V69=Object.freeze({
       "x": -15,
       "z": -97,
       "targetHeight": 2.2,
-      "radius": 1,
+      "radius": 2,
       "role": "equipment"
     },
     {
@@ -461,7 +473,7 @@ export const FURNISHINGS_V69=Object.freeze({
       "x": 2,
       "z": -97,
       "targetHeight": 2.2,
-      "radius": 0.8,
+      "radius": 2,
       "role": "equipment"
     },
     {
@@ -530,10 +542,12 @@ export const FURNISHINGS_V69=Object.freeze({
       "model": "assets/vendor/runtime/aaa4f3872b3cc4b9/book.glb",
       "x": 48,
       "z": -89.7,
-      "targetHeight": 0.27,
+      "targetHeight": 0.033,
       "radius": 0,
       "role": "loose_prop",
-      "support": "roster_desk"
+      "support": "roster_desk",
+      "maxWidth": 0.22,
+      "maxDepth": 0.17
     },
     {
       "id": "kessler_chair",
@@ -601,10 +615,12 @@ export const FURNISHINGS_V69=Object.freeze({
       "model": "assets/vendor/runtime/e3c9feb9172f2e3b/radio.glb",
       "x": 74,
       "z": -108,
-      "targetHeight": 0.24,
+      "targetHeight": 0.19,
       "radius": 0,
       "role": "loose_prop",
-      "support": "pa_console"
+      "support": "pa_console",
+      "maxWidth": 0.29,
+      "maxDepth": 0.14
     },
     {
       "id": "pcas_desk",
@@ -613,7 +629,7 @@ export const FURNISHINGS_V69=Object.freeze({
       "x": 82.6,
       "z": -101,
       "targetHeight": 0.85,
-      "radius": 0.95,
+      "radius": 1.35,
       "role": "desk"
     }
   ],
@@ -787,8 +803,11 @@ export function validateFurnishingPlan(plan){
   if(!room){errors.push('unknown room '+f.id);continue;}
   if(!/^assets\/vendor\/runtime\/[a-f0-9]{16}\/.*\.glb$/.test(f.model))errors.push('invalid model '+f.id);
   if(/ShelfLarge|ShelfSmall|Shelf%20Large|Shelf%20Small|shelf-bags|shelf-boxes/i.test(f.model))errors.push('banned or stocked shelf '+f.id);
-  if(!Number.isFinite(f.targetHeight)||f.targetHeight<=.06||f.targetHeight>3.6)errors.push('unmeasured height '+f.id);
+  if(!Number.isFinite(f.targetHeight)||f.targetHeight<=(f.support ? .012 : .06)||f.targetHeight>3.6)errors.push('unmeasured height '+f.id);
   if(!Number.isFinite(f.radius)||f.radius<0||(!f.support&&f.radius<.15))errors.push('invalid footprint '+f.id);
+  if(f.support&&(!Number.isFinite(f.maxWidth)||!Number.isFinite(f.maxDepth)||
+   f.maxWidth<=0||f.maxDepth<=0||f.maxWidth>.45||f.maxDepth>.45))
+   errors.push('unbounded tabletop prop '+f.id);
   if(!Number.isFinite(f.x)||!Number.isFinite(f.z)) {errors.push('invalid position '+f.id);continue;}
   const padding=f.support?.0:f.radius+.16;
   if(f.x<room.x1+padding||f.x>room.x2-padding||f.z<room.z1+padding||f.z>room.z2-padding)

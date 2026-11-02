@@ -12,7 +12,7 @@ const state={
  texturesLoaded:0,modelsLoaded:0,walls:0,floor:'G',
  chapter:1,eastExitLocked:true,shot:'frontage',
  facadeFeatures:0,signText:'',entryBoarded:false,serviceOpen:false,
- furnishingsLoaded:0,uniqueModels:0,supportChecks:[],clearanceWarnings:[],storyAnchors:[]
+ furnishingsLoaded:0,uniqueModels:0,supportChecks:[],clearanceWarnings:[],storyAnchors:[],furnitureManifest:[]
 };
 const shots={
   "frontage": {
@@ -328,6 +328,7 @@ async function begin(){
   state.supportChecks=built.supportChecks;
   state.clearanceWarnings=built.clearanceWarnings;
   state.storyAnchors=built.storyAnchors;
+  state.furnitureManifest=built.furnitureManifest;
   state.signText=built.signText;
   state.entryBoarded=built.entryBoarded;
   state.serviceOpen=built.serviceOpen;

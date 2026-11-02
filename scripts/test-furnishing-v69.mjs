@@ -21,7 +21,7 @@ test('furnishes real stores and back rooms with a diverse set of pinned CC0 asse
   assert.match(f.model,/^assets\/vendor\/runtime\/[a-f0-9]{16}\/[^?#]+\.glb$/);
   assert.ok(legal.has(f.model),'unvendored model '+f.id);
   assert.doesNotMatch(f.model,/ShelfLarge|ShelfSmall|Shelf%20Large|Shelf%20Small/i);
-  assert.ok(f.targetHeight>.06&&f.targetHeight<3.6);
+  assert.ok(f.targetHeight>(f.support ? .015 : .06)&&f.targetHeight<3.6);
   if(!f.support)assert.ok(f.radius>=.15&&f.radius<=2.3,'physical collision footprint '+f.id);
  }
 });
