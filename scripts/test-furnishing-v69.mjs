@@ -84,3 +84,12 @@ test('store thresholds retain their actual room-side approach clearance',()=>{
   assert.equal(isFurnishingRouteClear(FURNISHINGS_V69,'G',start,end,.76),true,'doorway blocked by furniture '+id);
  }
 });
+
+test('basement electrical equipment is allotted physically full-size walk envelopes',()=>{
+ for(const id of ['relay_d_equipment','relay_e_equipment','feeder_equipment']){
+  const f=FURNISHINGS_V69.fixtures.find(f=>f.id===id);
+  assert.ok(f,id+' exists');
+  assert.ok(f.radius>=1.9,id+' needs room for a full-height imported machine');
+  assert.ok(f.targetHeight>=2.15,id+' should read as substantial plant machinery');
+ }
+});

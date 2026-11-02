@@ -27,6 +27,14 @@ try{
   assert.equal(initial.firstFrameFullyLoaded,true,'all 3D assets render before removing the loading screen');
   assert.equal(initial.furnishingsLoaded,60,'exactly sixty licensed fitted model fixtures');
   assert.ok(initial.modelsLoaded>=66,'legacy models plus all new CC0 fixtures');
+  assert.equal(initial.furnitureManifest.length,60,'all imported GLBs are physically measured after fitting');
+  for(const model of initial.furnitureManifest){
+   assert.ok(model.measuredHeight>=model.requestedHeight*.82,
+    model.id+' shrank to '+model.measuredHeight.toFixed(2)+'m instead of '+model.requestedHeight+'m');
+  }
+  for(const id of ['cassette_rack_w1','cassette_rack_w2','cassette_rack_e1']){
+   assert.ok(initial.furnitureManifest.find(f=>f.id===id)?.measuredHeight>=1.65,id+' cannot be toy-sized');
+  }
   assert.ok(initial.uniqueModels>=14,'distinct imported assets are actually loaded');
   assert.ok(initial.walls>=140,'original physical architectural shell preserved');
   assert.equal(initial.texturesLoaded,8,'all original licensed architectural texture maps');
