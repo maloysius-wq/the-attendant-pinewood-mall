@@ -8,7 +8,7 @@ const origin = new URL(base).origin;
 const report = { preview, cases: {}, passed: false };
 const layouts = [
   { name: 'desktop', width: 1280, height: 720, motion: 'no-preference' },
-  { name: 'mobile-reduced-motion', width: 390, height: 844, motion: 'reduce' }
+  { name: 'desktop-reduced-motion', width: 1280, height: 720, motion: 'reduce' }
 ];
 const assert = (value, detail) => { if (!value) throw new Error(detail); };
 await mkdir('production-smoke-artifacts', { recursive: true });

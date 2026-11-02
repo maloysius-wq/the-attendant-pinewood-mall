@@ -7,7 +7,7 @@ const browser=await chromium.launch({headless:true,args:[
  '--enable-unsafe-swiftshader','--disable-dev-shm-usage',
  '--autoplay-policy=no-user-gesture-required']});
 try{
- for(const [name,width,height] of [['desktop',1280,720],['mobile',390,844]]){
+ for(const [name,width,height] of [['desktop',1280,720]]){
   const page=await browser.newPage({viewport:{width,height}});
   const errors=[],remote=[];
   page.on('pageerror',error=>errors.push(error.message));

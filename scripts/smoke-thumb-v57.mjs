@@ -4,8 +4,8 @@ const failures=[],check=(v,msg)=>{if(!v){failures.push(msg);console.error('V57_F
 await mkdir('opening-v57-artifacts',{recursive:true});
 const browser=await chromium.launch({headless:true,args:['--enable-webgl','--ignore-gpu-blocklist','--use-gl=swiftshader','--enable-unsafe-swiftshader','--autoplay-policy=no-user-gesture-required','--disable-dev-shm-usage']});
 try{
- const layout=process.env.V57_LAYOUT||'mobile';
- const dimensions={mobile:[390,844],narrow:[632,748],desktop:[1280,720]};
+ const layout=process.env.V57_LAYOUT||'desktop';
+ const dimensions={desktop:[1280,720]};
  if(!dimensions[layout])throw Error('Unsupported V57_LAYOUT '+layout);
  const [width,height]=dimensions[layout];
  const page=await browser.newPage({viewport:{width,height}});
@@ -95,4 +95,4 @@ try{
  console.log('V57_'+layout.toUpperCase()+'_RELEASE_JPEG='+(await page.screenshot({type:'jpeg',quality:66})).toString('base64'));
  await page.close();
 }finally{await browser.close()}
-if(failures.length)throw Error('V57 mobile straight thumb regression failed ('+failures.length+'): '+failures.join('; '));
+if(failures.length)throw Error('V57 desktop straight thumb regression failed ('+failures.length+'): '+failures.join('; '));

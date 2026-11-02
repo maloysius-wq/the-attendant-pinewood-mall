@@ -8,6 +8,10 @@
 
 ---
 
+## Current platform testing policy: Desktop-only (Max, 2026-11-02)
+
+The Attendant is not a mobile game. Max explicitly requested **removal of every mobile automated test**. All current scripts and workflows were revised to run **desktop-only browser regression**; older archived workflow matrices no longer launch mobile Chromium. Desktop reduced-motion checks remain. Do not reintroduce mobile viewport/device permutations, mobile test assertions, mobile screenshot artifacts, or mobile CI matrices in later milestones. Prior v66–v69 handoff entries documenting old successful mobile runs describe history, not present/future coverage.
+
 ## Current licensed interior design checkpoint: Pinewood Mall v69 (2026-11-02)
 
 **Status:** The next **review-only** unified-mall milestone is complete and green on its feature branch. It furnishes the connected v67 shell and preserves v68's abandoned facade. It does **not** replace the six-chapter production game, alter the opening cinematic, change saves or claim full gameplay migration.

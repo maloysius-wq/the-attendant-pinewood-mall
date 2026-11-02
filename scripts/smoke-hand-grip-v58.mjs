@@ -7,7 +7,7 @@ const browser=await chromium.launch({headless:true,args:[
  '--enable-webgl','--ignore-gpu-blocklist','--use-gl=swiftshader',
  '--enable-unsafe-swiftshader','--autoplay-policy=no-user-gesture-required','--disable-dev-shm-usage']});
 try{
- const layouts=[['desktop',1622,919],['mobile',390,844]];
+ const layouts=[['desktop',1622,919]];
  for(const [name,width,height] of layouts.filter(([n])=>!process.env.V58_LAYOUT||n===process.env.V58_LAYOUT)){
   const page=await browser.newPage({viewport:{width,height}});
   const errors=[],remote=[];page.on('pageerror',e=>errors.push(e.message));
@@ -234,7 +234,7 @@ try{
    name+' handset has not shifted right toward lower thumb-index webbing: '+JSON.stringify(phases.map(p=>p.gripThumbBaseGap)));
   check(hold.gripWebbingGap>=.071&&hold.gripWebbingGap<=.074&&pressed.gripWebbingGap<=.074,
    name+' lower thumb-index webbing is still separated from right case edge: '+JSON.stringify(phases.map(p=>p.gripWebbingGap)));
-  check(hold.phoneScreenViewport.right>=(name==='mobile'?.944:.773)&&hold.phoneScreenViewport.right<.987,
+  check(hold.phoneScreenViewport.right>=(.773)&&hold.phoneScreenViewport.right<.987,
    name+' phone did not move visibly RIGHT in the composed shot while staying on screen: '+JSON.stringify(hold.phoneScreenViewport));
   check(pressed.thumb.buttonMinPoint?.[0]>=.015&&pressed.thumb.buttonMinPoint?.[0]<=.095&&pressed.thumb.buttonMinZ>=.0249&&pressed.thumb.buttonMinZ<=.034,
    name+' thumb contact no longer lands inside physical CHECK IN: '+JSON.stringify(pressed.thumb));

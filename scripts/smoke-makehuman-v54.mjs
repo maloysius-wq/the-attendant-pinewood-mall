@@ -9,7 +9,7 @@ const browser=await chromium.launch({headless:true,args:[
  '--enable-unsafe-swiftshader','--autoplay-policy=no-user-gesture-required',
  '--disable-dev-shm-usage']});
 try{
- for(const [kind,width,height] of [['desktop',1280,720],['narrow',632,748],['mobile',390,844]]){
+ for(const [kind,width,height] of [['desktop',1280,720]]){
   const page=await browser.newPage({viewport:{width,height}}),remote=[],errors=[];
   page.on('request',r=>{if(/^https?:/.test(r.url())&&!r.url().startsWith(origin))remote.push(r.url())});
   page.on('pageerror',e=>errors.push(e.message));
@@ -51,24 +51,6 @@ try{
   }
 
 
-  if(kind==='mobile'){
-   // Inspect all original knuckles, fingers, thumb, palm and attached arm
-   // without the handset hiding source anatomy. Restore the shot afterward.
-   const visibility=await page.evaluate(()=>{
-    const h=window.__PINEWOOD_OPENING_V34__.qaPlayerHand;
-    if(!h?.model)throw Error('Missing review-only source anatomical rig for visibility QA');
-    const children=h.phoneRoot.children.filter(o=>o!==h.holder);
-    const values=children.map(o=>o.visible);
-    children.forEach(o=>o.visible=false);
-    return values;
-   });
-   await page.waitForTimeout(100);
-   console.log('V54_MOBILE_UNOBSTRUCTED_HAND_JPEG='+(await page.screenshot({type:'jpeg',quality:75})).toString('base64'));
-   await page.evaluate(({visibility})=>{
-    const h=window.__PINEWOOD_OPENING_V34__.qaPlayerHand;
-    h.phoneRoot.children.filter(o=>o!==h.holder).forEach((o,i)=>o.visible=visibility[i]);
-   },{visibility});
-  }
   const png=(await page.screenshot({type:'png'})).toString('base64');
   const pixels=await page.evaluate(async({png,b})=>{
    const im=new Image();im.src='data:image/png;base64,'+png;await im.decode();
@@ -96,7 +78,7 @@ try{
   console.log('V54_'+kind.toUpperCase()+'_PIXELS='+JSON.stringify(pixels));
   assert(pixels.textPixels>12,kind+' real phone screen unreadable');
   assert(pixels.skinPixels>35,kind+' real adult skin not visible alongside phone');
-  assert(pixels.screenBlockingFraction<(kind==='mobile'?.11:.07),
+  assert(pixels.screenBlockingFraction<(.07),
    kind+' hand hides too much of app glass: '+JSON.stringify(pixels));
   await page.evaluate(()=>{const s=window.__PINEWOOD_OPENING_V34__;s.seek(0);s.scrub(.62)});
   await page.waitForTimeout(350);

@@ -8,7 +8,7 @@ const browser=await chromium.launch({headless:true,args:[
  '--enable-webgl','--ignore-gpu-blocklist','--use-gl=swiftshader',
  '--enable-unsafe-swiftshader','--disable-dev-shm-usage']});
 try{
- for(const [device,width,height]of[['desktop',1440,900],['mobile',390,844]]){
+ for(const [device,width,height]of[['desktop',1440,900]]){
   const page=await browser.newPage({viewport:{width,height},deviceScaleFactor:1});
   const errors=[],remote=[],consoleErrors=[];
   page.on('pageerror',e=>errors.push(e.message));
