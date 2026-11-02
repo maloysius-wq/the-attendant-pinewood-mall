@@ -12,7 +12,7 @@ Ground (G): front service vestibule (southeast of boarded lobby) → long galler
 
 Basement (B1, floor Y = -4.3 m): freight lift → industrial cross-corridor → relays D/E → feeder, sump and flooded passage/Gavin site → north stair to Ground Security. All corridors must have continuous walking geometry, not scene transitions.
 
-Mezzanine (M1, deck Y = +5.4 m): stairs from Receiving R-12 → records gallery → payroll/roster/contractor ledger → Kessler office → PCAS and PA control with Eli's sealed utility chase. This is **not a second shopping level**; it is visible across/above portions of the tall original concourse.
+Mezzanine (M1, deck Y = +5.4 m): stairs from Receiving R-12 → raised records gallery → payroll/roster/contractor ledger → Kessler office → PCAS and PA control with Eli's sealed utility chase. The narrow gallery runs west to X = -11 across the rear section of the original atrium (public concourse X = -11..11), creating a **real upper-level overlook**. No upper shopping level is built.
 
 ## Narrative geography and chronology
 - 1979 opening: central dry fountain and main retail.

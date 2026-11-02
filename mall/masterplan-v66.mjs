@@ -27,7 +27,7 @@ export const MALL={
       "z2": -68
     },
     "M1": {
-      "x1": 30,
+      "x1": -11,
       "x2": 86,
       "z1": -116,
       "z2": -82
@@ -458,15 +458,15 @@ export const MALL={
     },
     {
       "id": "mezz_hall",
-      "label": "Administrative Records Gallery",
+      "label": "Admin Gallery / Atrium Overlook",
       "level": "M1",
-      "x1": 30,
+      "x1": -11,
       "x2": 80,
       "z1": -102,
       "z2": -94,
       "chapter": 5,
       "kind": "admin",
-      "story": "Raised office gallery overlooking the dead mall without forming a second retail floor."
+      "story": "The raised records gallery extends west to the original atrium: a genuine overlook, not a second retail concourse."
     },
     {
       "id": "payroll_office",
