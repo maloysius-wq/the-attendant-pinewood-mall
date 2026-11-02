@@ -22,7 +22,7 @@ try{
   await page.waitForFunction(()=>window.__PINEWOOD_OPENING_V34__?.startupStatus?.state==='ready',null,{timeout:120000});
   const meta=await page.evaluate(()=>{
    const qa=window.__PINEWOOD_OPENING_V34__;
-   return {env:qa.environmentV37,entry:qa.serviceEntryGeometry(),startup:qa.startupStatus};
+   return {env:qa.environmentV37,entry:qa.serviceEntryGeometry,startup:qa.startupStatus};
   });
   const f=meta.env?.facadeV65;
   assert.equal(f?.state,'ready',name+' facade preload');
