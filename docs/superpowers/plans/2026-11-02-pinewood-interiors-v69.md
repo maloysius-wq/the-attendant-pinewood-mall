@@ -75,4 +75,6 @@
 - [x] Step 3: Check the verified screenshot artifact, 40+ fixtures, all nine evidence anchors and at least 22 Node tests. Update handoff.
 - [x] Step 4: Merge only after scoped CI green. Verify GitHub Pages deployment. Preserve playable game.
 
-**Verification:** [GitHub Actions v69 41531295302](https://github.com/maloysius-wq/the-attendant-pinewood-mall/actions/runs/41531295302) passed 28 Node tests plus fifteen fixed cameras per desktop/mobile, with 30 screenshot/audit artifacts. Human subjective art-direction review is pending; production remains isolated.
+**Verification:** [GitHub Actions v69 41533199394](https://github.com/maloysius-wq/the-attendant-pinewood-mall/actions/runs/41533199394) passed 30 Node tests plus fifteen fixed cameras per desktop/mobile, with 30 screenshot/audit artifacts. Human subjective art-direction review is pending; production remains isolated.
+
+**Independent review remediation:** Size-cap coercion previously shrank machinery, a basketball cabinet, and a desk; supported items also had unrealistic VHS/book/cup dimensions. Before merging, v69 added explicit real-world tabletop width/depth limits, adjusted physical collider envelopes inside confirmed rooms, and required all 60 imported GLBs to measure at least 82% of specified target height. [Final 30-test and 30-camera run](https://github.com/maloysius-wq/the-attendant-pinewood-mall/actions/runs/41533199394) **SUCCESS**.
