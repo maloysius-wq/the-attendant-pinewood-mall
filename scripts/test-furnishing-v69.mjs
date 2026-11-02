@@ -93,3 +93,19 @@ test('basement electrical equipment is allotted physically full-size walk envelo
   assert.ok(f.targetHeight>=2.15,id+' should read as substantial plant machinery');
  }
 });
+
+test('loose props carry real-world compact physical size constraints',()=>{
+ const bounds={
+  video_demo_vhs:[.22,.13,.045],roster_book:[.24,.18,.055],
+  food_pizza_box:[.36,.36,.40],food_cup:[.12,.12,.16],
+  break_cup:[.12,.12,.16],security_radio:[.31,.16,.26],
+  pa_radio:[.31,.16,.26]
+ };
+ for(const [id,[maxWidth,maxDepth,maxHeight]] of Object.entries(bounds)){
+  const f=FURNISHINGS_V69.fixtures.find(x=>x.id===id);
+  assert.ok(f?.support,id+' must have physical support');
+  assert.ok(f.maxWidth>0&&f.maxWidth<=maxWidth,id+' has bounded width');
+  assert.ok(f.maxDepth>0&&f.maxDepth<=maxDepth,id+' has bounded depth');
+  assert.ok(f.targetHeight<maxHeight,id+' plausible physical height');
+ }
+});

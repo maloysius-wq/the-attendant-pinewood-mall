@@ -32,6 +32,19 @@ try{
    assert.ok(model.measuredHeight>=model.requestedHeight*.82,
     model.id+' shrank to '+model.measuredHeight.toFixed(2)+'m instead of '+model.requestedHeight+'m');
   }
+  const caps={
+   video_demo_vhs:[.22,.13,.045],roster_book:[.24,.18,.055],
+   food_pizza_box:[.36,.36,.40],food_cup:[.12,.12,.16],
+   break_cup:[.12,.12,.16],security_radio:[.31,.16,.26],
+   pa_radio:[.31,.16,.26]
+  };
+  for(const [id,[width,depth,height]] of Object.entries(caps)){
+   const m=initial.furnitureManifest.find(f=>f.id===id);
+   assert.ok(m,id+' physically modeled');
+   assert.ok(m.width<=width+.005,id+' not wider than real-world object');
+   assert.ok(m.depth<=depth+.005,id+' not deeper than real-world object');
+   assert.ok(m.measuredHeight<=height+.005,id+' not taller than real-world object');
+  }
   for(const id of ['cassette_rack_w1','cassette_rack_w2','cassette_rack_e1']){
    assert.ok(initial.furnitureManifest.find(f=>f.id===id)?.measuredHeight>=1.65,id+' cannot be toy-sized');
   }
