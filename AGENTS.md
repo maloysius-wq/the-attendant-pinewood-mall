@@ -48,6 +48,15 @@ The final assembled runtime must pass the local-assets audit before a Pinewood r
 - Do not describe the absence of a manual WASD playtest as incomplete verification or a remaining task.
 - Do not launch a manual keyboard/mouse gameplay session unless the user explicitly reverses this rule in a future request.
 
+## Permanent desktop-only testing rule (Max, 2026-11-02)
+
+**The Attendant: Pinewood Mall is a desktop game. Do not create or run mobile tests.**
+
+- Automated browser, opening-cinematic, gameplay, hand-rig, asset-loading, accessibility, and visual-regression checks must use **desktop Chromium and desktop viewports only**.
+- Do not add mobile/iPhone/Android viewport cases, mobile or tablet device emulation, mobile-specific test assertions, screenshot artifacts, or mobile matrices in GitHub Actions.
+- Keep the strong desktop coverage: mouse/keyboard controls, accessibility, reduced-motion support, opening pacing, model scale/clearance, story and chapter flow, and local-asset checks.
+- Historic test results/docs from earlier versions may mention mobile runs; those are archival evidence, **not** a mandate to repeat or reinstate mobile coverage.
+
 ## Permanent Cassette Castle shelf ban
 
 The following retired shelf resources are **permanently banned from Pinewood and must never be reintroduced, reused, re-added under another key, or suggested as a future fixture**:

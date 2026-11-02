@@ -22,7 +22,7 @@ const report={version:54,preview,layouts:{},passed:false};
 const browser=await chromium.launch({headless:true,args:[
  '--enable-webgl','--ignore-gpu-blocklist','--use-gl=swiftshader','--enable-unsafe-swiftshader','--disable-dev-shm-usage','--autoplay-policy=no-user-gesture-required']});
 try{
- for(const layout of [{name:'desktop',width:1280,height:720},{name:'mobile',width:390,height:844}]){
+ for(const layout of [{name:'desktop',width:1280,height:720}]){
   const context=await browser.newContext({viewport:{width:layout.width,height:layout.height},deviceScaleFactor:1});
   const page=await context.newPage(),errors=[],remote=[];
   page.on('pageerror',e=>errors.push(e.stack||e.message));
@@ -122,7 +122,7 @@ try{
       layout.name+' subtitles still cover handheld check-in area: '+captionRight);
    }
    await page.screenshot({path:'opening-v37-artifacts/'+layout.name+'-v54-connected-arm-holding-phone.png'});
-   console.log((layout.name==='desktop'?'V54_HOLD_JPEG=':'V54_MOBILE_HOLD_JPEG=')
+   console.log('V54_HOLD_JPEG='
      +(await page.screenshot({type:'jpeg',quality:46})).toString('base64'));
    await page.evaluate(()=>{const s=window.__PINEWOOD_OPENING_V34__;s.seek(0);const t=s.captionTiming;s.scrub((t.voiceSeconds+.28)/t.waitSeconds);});
    await page.waitForTimeout(140);
@@ -133,7 +133,7 @@ try{
      layout.name+' actual rigged thumb misses the CHECK IN button: '+JSON.stringify(phone));
    console.log('V54_THUMB_POSE='+JSON.stringify(phone.hand));
    await page.screenshot({path:'opening-v37-artifacts/'+layout.name+'-v54-connected-arm-thumb-tap.png'});
-   console.log((layout.name==='desktop'?'V54_RIGGED_TAP_JPEG=':'V54_MOBILE_RIGGED_TAP_JPEG=')
+   console.log('V54_RIGGED_TAP_JPEG='
     +(await page.screenshot({type:'jpeg',quality:50})).toString('base64'));
    await page.evaluate(()=>{const s=window.__PINEWOOD_OPENING_V34__;s.seek(0);const t=s.captionTiming;s.scrub((t.voiceSeconds+.68)/t.waitSeconds);});
    await page.waitForTimeout(140);
@@ -141,7 +141,7 @@ try{
    assert(phone.visible&&phone.screenState==='confirmed',
      layout.name+' app never acknowledges check-in: '+JSON.stringify(phone));
    await page.screenshot({path:'opening-v37-artifacts/'+layout.name+'-v45-check-in-confirmed.png'});
-   console.log((layout.name==='desktop'?'V54_CONFIRMED_JPEG=':'V54_MOBILE_CONFIRMED_JPEG=')
+   console.log('V54_CONFIRMED_JPEG='
      +(await page.screenshot({type:'jpeg',quality:46})).toString('base64'));
    await page.evaluate(()=>{window.__PINEWOOD_OPENING_V34__.seek(1);window.__PINEWOOD_OPENING_V34__.scrub(.015);});
    await page.waitForTimeout(140);

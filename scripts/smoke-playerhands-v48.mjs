@@ -7,7 +7,7 @@ const browser=await chromium.launch({headless:true,args:['--enable-webgl','--ign
  '--use-gl=swiftshader','--enable-unsafe-swiftshader','--autoplay-policy=no-user-gesture-required',
  '--disable-dev-shm-usage']});
 try{
- for(const [kind,w,h] of [['desktop',1280,720],['narrow',632,748],['mobile',390,844]]){
+ for(const [kind,w,h] of [['desktop',1280,720]]){
   const page=await browser.newPage({viewport:{width:w,height:h}}),errors=[],remote=[];
   page.on('pageerror',e=>errors.push(e.message));
   page.on('request',r=>{if(/^https?:/.test(r.url())&&!r.url().startsWith(origin))remote.push(r.url())});
@@ -86,10 +86,8 @@ try{
   console.log('V49_VISUAL_PIXELS_'+kind.toUpperCase()+'='+JSON.stringify(pixels));
   assert(pixels.appTextPixels>12,kind+' app display is blank in actual Chromium pixels: '+JSON.stringify(pixels));
   assert(pixels.skinPixels>60,kind+' larger CC0 right-hand grip is invisible next to handset: '+JSON.stringify(pixels));
-  // Perspective at 390px puts a life-size thumb across a larger fraction of
-  // this smaller glass. Permit the natural thumb overlap, but still reject
-  // the previous full-palm wedge: desktop/narrow under 5.5%, mobile under 10%.
-  const naturalThumbLimit=kind==='mobile'?.10:.055;
+  // The desktop phone screen may not be occluded by the hand beyond 5.5%.
+  const naturalThumbLimit=.055;
   assert(pixels.screenBlockingSkinFraction<naturalThumbLimit,
    kind+' palm/fingers project over too much of the active phone glass: '+JSON.stringify(pixels));
   // v51 had fingers running up/outside the RIGHT side of the phone.
@@ -113,7 +111,7 @@ try{
    kind+' right thumb base must be outside chassis, tip folded LEFT onto glass: '+JSON.stringify(hold.hand));
   await page.screenshot({path:'opening-v48-focus-artifacts/'+kind+'-hold.png'});
   console.log('V49_HOLD_'+kind.toUpperCase()+'_BOUNDS='+JSON.stringify(bounds));
-  console.log((kind==='desktop'?'V48_FOCUSED_HOLD_DESKTOP_JPEG=':'V48_FOCUSED_HOLD_MOBILE_JPEG=')
+  console.log('V48_FOCUSED_HOLD_DESKTOP_JPEG='
     +(await page.screenshot({type:'jpeg',quality:48})).toString('base64'));
   await page.evaluate(()=>{const s=window.__PINEWOOD_OPENING_V34__;s.seek(0);s.scrub(.62)});
   await page.waitForTimeout(230);
@@ -129,7 +127,7 @@ try{
   await page.screenshot({path:'opening-v48-focus-artifacts/'+kind+'-checked-in-paused.png'});
   console.log('V52_CHECKED_IN_'+kind.toUpperCase()+'_JPEG='+(await page.screenshot({type:'jpeg',quality:52})).toString('base64'));
   await page.locator('[data-intro-pause]').click();
-  console.log((kind==='desktop'?'V48_FOCUSED_TAP_DESKTOP_JPEG=':'V48_FOCUSED_TAP_MOBILE_JPEG=')
+  console.log('V48_FOCUSED_TAP_DESKTOP_JPEG='
     +(await page.screenshot({type:'jpeg',quality:48})).toString('base64'));
   assert(!remote.length,'Remote assets loaded: '+remote);
   assert(!errors.length,'Browser errors: '+errors);

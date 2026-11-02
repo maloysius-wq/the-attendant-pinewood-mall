@@ -41,7 +41,7 @@ jobs:
           for i in {1..30}; do curl -fsS http://127.0.0.1:4173/ >/dev/null && exit 0; sleep 1; done
           cat /tmp/pinewood-menu-v31-http.log
           exit 1
-      - name: Exercise accessible labels keyboard navigation and mobile responsiveness
+      - name: Exercise accessible labels and keyboard navigation on desktop
         run: node scripts/smoke-menu-accessibility-v31.mjs
       - name: Preserve diagnostic report
         if: always()

@@ -13,7 +13,7 @@ const browser=await chromium.launch({headless:true,args:[
 await mkdir('opening-v61-artifacts',{recursive:true});
 const report={layouts:{},failureCase:null,passed:false};
 try{
- for(const [name,width,height] of [['desktop',1280,720],['mobile',390,844]]){
+ for(const [name,width,height] of [['desktop',1280,720]]){
   const page=await browser.newPage({viewport:{width,height}});
   const errors=[],remote=[];
   page.on('pageerror',e=>errors.push(e.message));

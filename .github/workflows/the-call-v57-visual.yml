@@ -26,7 +26,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        layout: [mobile, narrow, desktop]
+        layout: [desktop]
     env:
       V57_LAYOUT: ${{ matrix.layout }}
     runs-on: ubuntu-24.04
@@ -51,7 +51,7 @@ jobs:
           exit 1
       - name: Prove straight thumb pivots at hand, taps and returns without clipping
         run: node scripts/smoke-thumb-v57.mjs
-      - name: Upload actual mobile thumb frames
+      - name: Upload desktop thumb frames
         if: always()
         uses: actions/upload-artifact@v4
         with:

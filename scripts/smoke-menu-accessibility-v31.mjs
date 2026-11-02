@@ -18,7 +18,7 @@ const controls = [
 ];
 const layouts = [
   { name: 'desktop', width: 1280, height: 720, reducedMotion: 'no-preference' },
-  { name: 'mobile-390', width: 390, height: 844, reducedMotion: 'reduce' }
+  { name: 'desktop-reduced-motion', width: 1280, height: 720, reducedMotion: 'reduce' }
 ];
 
 const browser = await chromium.launch({

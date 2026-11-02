@@ -10,7 +10,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        layout: [mobile, narrow, desktop]
+        layout: [desktop]
     env:
       V55_LAYOUT: ${{ matrix.layout }}
     runs-on: ubuntu-24.04
