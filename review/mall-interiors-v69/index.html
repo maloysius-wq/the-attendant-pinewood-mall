@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>Pinewood Mall | Weathered Licensed Interiors v69</title>
+<meta name="description" content="Review sixty licensed interior fixtures, story locations and circulation routes inside Pinewood's connected mall shell.">
+<script type="importmap">{"imports":{"three":"../../vendor/three/build/three.module.js"}}</script>
+<style>
+:root{color-scheme:dark;--bg:#070d0e;--panel:#101c1d;--panel2:#172528;--line:#314345;--muted:#a3b4b2;--cream:#e7e4d7;--mint:#abd7c7;--amber:#e7b97b}
+*{box-sizing:border-box}html,body{margin:0;min-height:100%;background:var(--bg);color:var(--cream);font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
+button,select{font:inherit;color:inherit}button{cursor:pointer}button:focus-visible,select:focus-visible,a:focus-visible{outline:3px solid var(--amber);outline-offset:3px}
+main{display:grid;grid-template-columns:minmax(0,1fr) minmax(260px,330px);min-height:100vh}
+.workspace{position:relative;min-width:0;display:flex;flex-direction:column;max-height:100vh;background:#0a1214}
+.head{position:absolute;top:0;left:0;right:0;display:flex;justify-content:space-between;gap:16px;padding:23px 25px;z-index:5;pointer-events:none;background:linear-gradient(#071012d9,#07101200)}
+.brand{font-size:11px;letter-spacing:.27em;font-weight:900;color:var(--mint)}h1{font-family:Georgia,serif;font-weight:500;margin:8px 0 2px;font-size:clamp(26px,2.8vw,42px);line-height:1.1}
+.kicker{font-size:12px;color:#bfcccb;letter-spacing:.07em}.flag{border:1px solid #977b51;background:#191b16cc;color:#ebc992;letter-spacing:.12em;font-size:10px;padding:10px 11px;align-self:flex-start;white-space:nowrap}
+#world{position:relative;flex:1;min-height:420px;overflow:hidden;background:#101c1e}
+#world canvas{display:block;width:100%;height:100%}
+.vignette{position:absolute;inset:0;pointer-events:none;z-index:2;background:radial-gradient(ellipse at center,transparent 32%,rgba(0,0,0,.25) 65%,rgba(0,0,0,.68) 100%)}
+#loading{position:absolute;inset:0;z-index:10;display:flex;align-items:center;justify-content:center;background:radial-gradient(ellipse at 45% 45%,#18292a,#070c0e 72%);text-align:center;padding:24px}
+#loading strong{display:block;font:normal 40px Georgia,serif;margin-top:8px}#loading span{display:block;font-size:12px;color:#b6c6c2;margin-top:13px;line-height:1.7;max-width:45ch}
+#loading progress{margin-top:18px;width:min(290px,85vw);height:5px;accent-color:#a6d1bd}
+#loading.hidden{display:none}
+.readout{position:absolute;left:18px;bottom:20px;z-index:4;max-width:min(600px,calc(100% - 36px));padding:14px 17px;background:#091516d9;border-left:3px solid #d2ad79;pointer-events:none;box-shadow:0 15px 45px #0007}
+.readout small{color:var(--mint);letter-spacing:.17em;font-weight:900;font-size:9px}.readout h2{margin:6px 0;font:normal clamp(19px,2vw,26px) Georgia,serif}.readout p{color:#b7c7c3;font-size:12px;line-height:1.55;margin:0}
+#cinema-tip{position:absolute;right:16px;bottom:23px;color:#91aead;font-size:10px;z-index:4;pointer-events:none;letter-spacing:.06em}
+aside{border-left:1px solid var(--line);background:linear-gradient(140deg,#122024,#0a1517);display:flex;flex-direction:column;gap:21px;padding:28px 20px;min-width:0;max-height:100vh;overflow:auto}
+.sectiontitle{display:block;font-size:10px;letter-spacing:.19em;text-transform:uppercase;color:var(--mint);font-weight:900;margin-bottom:11px}
+.selector{display:block;width:100%;background:#1a2a2d;border:1px solid #536360;border-radius:2px;color:#f0eee2;padding:11px 10px}
+.quick{display:grid;grid-template-columns:repeat(2,1fr);gap:6px}.quick button{padding:10px 8px;background:#1b2b2c;border:1px solid #405254;font-size:11px;text-align:left;border-radius:2px}.quick button[aria-pressed=true]{border-color:#d8b477;background:#3b3225;color:#f8dcaf}
+.status{display:grid;grid-template-columns:1fr 1fr;gap:6px}.status div{border:1px solid #344646;background:#142123;padding:11px}.status strong{font-size:21px;font-weight:800;display:block;color:#dfdfd1}.status span{color:#99afad;font-size:9px;text-transform:uppercase;letter-spacing:.12em;display:block;margin-top:5px}
+#build-status{font-size:12px;color:#b6c4c0;line-height:1.62}.warning{font-size:11px;line-height:1.6;color:#d6bb93;padding:11px;border:1px solid #65533c;background:#2a241b}
+select#chapter{margin-top:0}.toggle{display:flex;align-items:center;gap:7px;font-size:12px;color:#becdc8;margin-top:11px}.toggle input{accent-color:var(--amber);width:16px;height:16px}
+a{color:#b7d9d2;text-underline-offset:3px}.linkbox{margin-top:auto;border-top:1px solid #344848;padding-top:14px;font-size:12px;line-height:1.7}
+@media(max-width:960px){main{grid-template-columns:1fr}.workspace{height:68vh;max-height:800px;min-height:480px}.head{padding:15px}.flag{font-size:8px;padding:7px}aside{max-height:none;padding:20px;gap:15px;border-left:0;border-top:1px solid var(--line)}.quick{grid-template-columns:repeat(4,1fr)}#world{min-height:360px}#cinema-tip{display:none}}
+@media(max-width:550px){.workspace{height:57vh;min-height:445px}.head h1{font-size:27px}.head{padding:14px 13px}.brand{font-size:9px}.kicker{font-size:10px}.readout{left:12px;right:12px;bottom:11px;padding:11px}.readout h2{font-size:19px}.readout p{font-size:11px}.quick{grid-template-columns:repeat(2,1fr)}aside{padding:15px}}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<main>
+<section class="workspace" aria-label="Furnished mall inspection">
+<header class="head"><div><div class="brand">THE ATTENDANT / PINEWOOD MALL</div><h1>Inside Pinewood, after closing</h1><div class="kicker">Licensed interiors and narrative geography · Revision 69</div></div><div class="flag">REVIEW ONLY · NOT GAMEPLAY</div></header>
+<div id="world"><div class="vignette"></div>
+<div id="loading" role="status" aria-live="polite"><div><div class="brand">PREPARING PINEWOOD</div><strong>Furnishing the mall...</strong><span>Loading all three levels, the intact exterior, sixty real imported fixtures, and measured tabletop props before the first frame.</span><progress max="100" value="14" aria-label="Construction loading"></progress></div></div>
+<div class="readout"><small id="view-floor">EXTERIOR / ORIGINAL 1979 FACADE</small><h2 id="view-title">Pinewood Mall, Boarded Up</h2><p id="view-note">The boarded and weathered mall remains intact while its original stores and working spaces acquire actual imported furnishings.</p></div>
+<div id="cinema-tip">Fixed survey cameras · No manual gameplay</div>
+</div>
+</section>
+<aside aria-label="Furnished mall survey controls">
+<section><span class="sectiontitle">01 / Inspection camera</span>
+<select id="view-select" class="selector" aria-label="Choose fixed inspection viewpoint">
+<option value="frontage">Boarded mall exterior</option>
+<option value="atrium">Central atrium / dry fountain</option>
+<option value="cassette">Cassette Castle · full-size empty racks</option>
+<option value="arcade">Sunburst Arcade · imported machines</option>
+<option value="video">Video Planet · counter and VHS</option>
+<option value="food">Food court · table props</option>
+<option value="security">Security office</option>
+<option value="east">East Wing staff corridor</option>
+<option value="training">Training Room T04</option>
+<option value="lockers">Staff lockers</option>
+<option value="b1">Below Grade · relays</option>
+<option value="mezz">Atrium overlook</option>
+<option value="records">Roster / records mezzanine</option>
+<option value="pa">PA control</option>
+<option value="aerial">Aerial cutaway</option>
+</select>
+<div class="quick" style="margin-top:9px">
+<button type="button" data-shot="frontage" aria-pressed="true">Facade</button>
+<button type="button" data-shot="atrium" aria-pressed="false">Atrium</button>
+<button type="button" data-shot="cassette" aria-pressed="false">Cassette</button>
+<button type="button" data-shot="arcade" aria-pressed="false">Arcade</button>
+<button type="button" data-shot="video" aria-pressed="false">Video</button>
+<button type="button" data-shot="food" aria-pressed="false">Food</button>
+<button type="button" data-shot="security" aria-pressed="false">Security</button>
+<button type="button" data-shot="east" aria-pressed="false">East Wing</button>
+<button type="button" data-shot="b1" aria-pressed="false">Basement</button>
+<button type="button" data-shot="records" aria-pressed="false">Records</button>
+<button type="button" data-shot="aerial" aria-pressed="false">Cutaway</button>
+</div></section>
+<section><label class="sectiontitle" for="chapter">02 / Chapter access state</label>
+<select id="chapter" class="selector" aria-label="Choose chapter access state">
+<option value="1" selected>01 — Closing Time</option><option value="2">02 — Below Grade</option><option value="3">03 — Eyes in Security</option>
+<option value="4">04 — The East Wing</option><option value="5">05 — Accountability</option><option value="6">06 — The Last Shift</option>
+</select><label class="toggle"><input type="checkbox" id="roof" checked> Show structural roof / skylight</label></section>
+<section><span class="sectiontitle">03 / Built geometry</span>
+<div class="status"><div><strong id="walls-stat">—</strong><span>Physical partitions</span></div><div><strong id="models-stat">—</strong><span>Imported CC0 fixtures</span></div><div><strong id="floors-stat">3</strong><span>Joined world levels</span></div><div><strong id="fixture-stat">—</strong><span>New interior models</span></div><div><strong id="door-stat">—</strong><span>East exit state</span></div></div>
+<p id="build-status">Waiting for the measured CC0 interior collection and nine canonical evidence locations.</p></section>
+<section><span class="sectiontitle">04 / Important distinction</span><div class="warning">This is a review of furnished spaces, still not a playable chapter. The live six-chapter experience and saves remain unchanged while its story and gameplay migrate into the new unified world.</div></section>
+<section><span class="sectiontitle">05 / Narrative route preserved</span>
+<p id="narrative-list" style="font-size:11px;line-height:1.65;color:#b7c5c0">LS-01 &amp; 02 · Atrium; LS-03 · Video Planet; LS-04 · Gavin’s niche; LS-05 · Security; LS-06 · Staff lockers; LS-07 · Roster records; LS-08 · Eli chase; LS-09 · Kessler office.</p></section>
+<div class="linkbox"><a href="../mall-masterplan-v66/">Approved scaled blueprints</a> · <a href="../mall-facade-v68/">Weathered facade review</a><div style="margin-top:8px;color:#91aaa5">Original mall 1979 · East Wing 1988–94 · PCAS retrofit 1997 · Abandoned present day</div></div>
+</aside>
+</main>
+<script type="module" src="./main.js"></script>
+</body></html>

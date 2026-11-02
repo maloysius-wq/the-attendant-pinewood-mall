@@ -1,0 +1,52 @@
+name: Pinewood licensed interiors v69 review
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'mall/furnishing-plan-v69.mjs'
+      - 'mall/render-furnishing-v69.js'
+      - 'mall/render-shell-v69.js'
+      - 'review/mall-interiors-v69/**'
+      - 'scripts/*furnishing-v69.mjs'
+      - '.github/workflows/mall-furnishing-v69.yml'
+  push:
+    branches: [construction/licensed-interiors-v69, main]
+    paths:
+      - 'mall/furnishing-plan-v69.mjs'
+      - 'mall/render-furnishing-v69.js'
+      - 'mall/render-shell-v69.js'
+      - 'review/mall-interiors-v69/**'
+      - 'scripts/*furnishing-v69.mjs'
+      - '.github/workflows/mall-furnishing-v69.yml'
+permissions:
+  contents: read
+jobs:
+  interiors:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 18
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify canonical mall, geometry and interior fixtures
+        run: |
+          node --test scripts/test-mall-masterplan-v66.mjs scripts/test-physical-shell-v67.mjs scripts/test-facade-v68.mjs scripts/test-furnishing-v69.mjs
+      - name: Install deterministic Chromium
+        run: |
+          npm install --no-save playwright@1.55.0
+          npx playwright install chromium
+      - name: Serve review-only furnished mall
+        run: |
+          python3 -m http.server 4173 --bind 127.0.0.1 >/tmp/pinewood-v69-http.log 2>&1 &
+          for i in {1..30}; do curl -fsS http://127.0.0.1:4173/review/mall-interiors-v69/ >/dev/null && exit 0; sleep 1; done
+          exit 1
+      - name: Inspect deterministic licensed interior cameras
+        run: node scripts/smoke-furnishing-v69.mjs
+      - name: Upload v69 interior review evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: v69-pinewood-licensed-interiors
+          path: mall-v69-artifacts/
+          retention-days: 14
