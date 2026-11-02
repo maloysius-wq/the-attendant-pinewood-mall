@@ -1,6 +1,6 @@
 # Pinewood Licensed Interior Furnishings v69 Implementation Plan
 
-> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (\`- [ ]\`) syntax for tracking.
+> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (\`- [x]\`) syntax for tracking.
 
 **Goal:** furnish the approved 41-room, three-level mall with legal, realistic, correctly grounded legacy CC0 models, preserve full walking clearance, and expose a deterministic visual/story-placement review without changing the playable game.
 
@@ -38,10 +38,10 @@
 - Consumes: \`MALL\` from \`mall/masterplan-v66.mjs\`; \`constructPhysicalShell\` from v67.
 - Produces: \`FURNISHINGS_V69\` with \`fixtures\`, \`storyAnchors\`, \`tourRoutes\`; \`validateFurnishingPlan(plan)\`; \`isFurnishingRouteClear(plan,level,a,b,radius)\`.
 
-- [ ] Step 1: Write Node tests for at least 40 authored fixtures; each fixture in its correct room, model vendored and not banned; all LS-01..09 anchors once and in canonical rooms; supported loose props; empty Cassette shelving.
-- [ ] Step 2: Run the new Node test on a contract stub and verify failures for absent furniture/anchors and blocked openings.
-- [ ] Step 3: Implement the data and clearance validator with portal approach and route tests (including service entry, retail storefronts, East Wing, B1 spine, M1 gallery).
-- [ ] Step 4: Run full v66-v69 Node suite, verify green; commit.
+- [x] Step 1: Write Node tests for at least 40 authored fixtures; each fixture in its correct room, model vendored and not banned; all LS-01..09 anchors once and in canonical rooms; supported loose props; empty Cassette shelving.
+- [x] Step 2: Run the new Node test on a contract stub and verify failures for absent furniture/anchors and blocked openings.
+- [x] Step 3: Implement the data and clearance validator with portal approach and route tests (including service entry, retail storefronts, East Wing, B1 spine, M1 gallery).
+- [x] Step 4: Run full v66-v69 Node suite, verify green; commit.
 
 ### Task 2: Import and ground actual models, relocate the legacy register
 
@@ -54,10 +54,10 @@
 - Consumes: v68 \`renderPinewoodV68({scene,chapter})\` and \`FURNISHINGS_V69\`.
 - Produces: \`renderPinewoodV69({scene,chapter})\` returning \`furnishingsLoaded\`, \`supportChecks\`, \`clearanceWarnings\`, \`storyAnchors\`, \`firstFrameFullyLoaded\`, plus existing v68 scene state.
 
-- [ ] Step 1: Write browser-red test requiring model support measurements, grounded boxes, complete preloading, no banned models, and no external runtime fetches.
-- [ ] Step 2: Verify failure against a placeholder review page.
-- [ ] Step 3: Build GLB adapter that clones fully preloaded vendor GLBs, scales to height and footprint, grounds through measured Box3, then places supported objects on measured top bounds, relocates v67 floor-level register, and attaches collision metadata.
-- [ ] Step 4: Run browser smoke, verify support and no-pop-in state on desktop/mobile; commit.
+- [x] Step 1: Write browser-red test requiring model support measurements, grounded boxes, complete preloading, no banned models, and no external runtime fetches.
+- [x] Step 2: Verify failure against a placeholder review page.
+- [x] Step 3: Build GLB adapter that clones fully preloaded vendor GLBs, scales to height and footprint, grounds through measured Box3, then places supported objects on measured top bounds, relocates v67 floor-level register, and attaches collision metadata.
+- [x] Step 4: Run browser smoke, verify support and no-pop-in state on desktop/mobile; commit.
 
 ### Task 3: Deliver responsive survey and handoff
 
@@ -70,7 +70,9 @@
 - Consumes: \`renderPinewoodV69\` and fixed cameras from v68.
 - Produces: review-only URL \`/review/mall-interiors-v69/\`, deterministic camera survey, expanded telemetry and GitHub artifacts.
 
-- [ ] Step 1: Add test that exercises fixed cameras for Cassette, Arcade, Video Planet, Food Court, Security, East Wing, B1 and M1 at desktop/mobile sizes.
-- [ ] Step 2: Verify RED, implement responsive review-only UI, verify GREEN.
-- [ ] Step 3: Check the verified screenshot artifact, 40+ fixtures, all nine evidence anchors and at least 22 Node tests. Update handoff.
-- [ ] Step 4: Merge only after scoped CI green. Verify GitHub Pages deployment. Preserve playable game.
+- [x] Step 1: Add test that exercises fixed cameras for Cassette, Arcade, Video Planet, Food Court, Security, East Wing, B1 and M1 at desktop/mobile sizes.
+- [x] Step 2: Verify RED, implement responsive review-only UI, verify GREEN.
+- [x] Step 3: Check the verified screenshot artifact, 40+ fixtures, all nine evidence anchors and at least 22 Node tests. Update handoff.
+- [x] Step 4: Merge only after scoped CI green. Verify GitHub Pages deployment. Preserve playable game.
+
+**Verification:** [GitHub Actions v69 41531295302](https://github.com/maloysius-wq/the-attendant-pinewood-mall/actions/runs/41531295302) passed 28 Node tests plus fifteen fixed cameras per desktop/mobile, with 30 screenshot/audit artifacts. Human subjective art-direction review is pending; production remains isolated.
