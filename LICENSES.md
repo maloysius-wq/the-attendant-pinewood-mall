@@ -292,3 +292,9 @@ Pinewood's named storefront signs are generated locally because their lettering 
 - The glTF assets themselves declare Innerscene Corp authorship and CC0
   dedication. All visible landscaping in v63 is cloned from these models.
   Runtime requests are restricted to local `opening/assets/v63/` files.
+
+## The Call v65 — boarded public mall entrance (review-only)
+
+- **Weathered Planks** — Poly Haven, CC0 1.0 ([asset](https://polyhaven.com/a/weathered_planks), [license](https://polyhaven.com/license)).
+- Vendored diffuse texture: `opening/assets/v65/weathered_planks_diff_1k.jpg`, 599,581 bytes, SHA-256 `01c9a372cfd7a7bf471b59c2458ed3ccecc93448aebf7ba0cc5b3b5b6ed24349`.
+- Used only for the boarded closed main public entrance in the v65 cinematic review. The tall facade, concrete entry surround and period-inspired Pinewood Mall sign are code-native. No remote runtime asset request. See `opening/assets/v65/SOURCES.md`.

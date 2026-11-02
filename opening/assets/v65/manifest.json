@@ -1,0 +1,19 @@
+{
+  "version": 65,
+  "license": "CC0-1.0",
+  "asset": "weathered_planks_diff_1k.jpg",
+  "assets": [
+    {
+      "file": "weathered_planks_diff_1k.jpg",
+      "type": "diffuse_texture",
+      "bytes": 599581,
+      "sha256": "01c9a372cfd7a7bf471b59c2458ed3ccecc93448aebf7ba0cc5b3b5b6ed24349",
+      "source": "https://polyhaven.com/a/weathered_planks",
+      "download": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/weathered_planks/weathered_planks_diff_1k.jpg",
+      "creator": "Poly Haven contributors",
+      "license": "CC0-1.0"
+    }
+  ],
+  "purpose": "Boarded public entrance, locally loaded before first visible cinematic frame",
+  "reviewOnly": true
+}
