@@ -8,6 +8,29 @@
 
 ---
 
+## Current architectural rebuild: Unified Pinewood Mall v66 (2026-11-02)
+
+**User-approved architectural direction:** Max chose a **single-story public mall** with a **12 m central atrium/dry fountain**, a **real below-grade mechanical level (B1)**, and an **administrative mezzanine (M1)** overlooking the atrium. The six chapters must occupy **one continuous physical property** and not be six detached room layouts.
+
+**Initial deliverable — review-only v66 floorplan and interactive massing study:**
+- `docs/superpowers/specs/2026-11-02-pinewood-master-mall-design.md` — approved spatial/narrative specification and timeline.
+- `docs/superpowers/plans/2026-11-02-pinewood-master-mall.md` — staged implementation milestones.
+- `mall/masterplan-v66.mjs` — 41 authored spaces, 46 tested portal connections, three physical levels, 9 evidence sites, and all six chapter trajectories.
+- `review/mall-masterplan-v66/` — scaled room blueprints, interactive 3D graybox, floor and chapter selectors, door/landmark markers and story details. When on main, Pages URL: **https://maloysius-wq.github.io/the-attendant-pinewood-mall/review/mall-masterplan-v66/**.
+- `scripts/test-mall-masterplan-v66.mjs`, `scripts/smoke-mall-masterplan-v66.mjs`, `.github/workflows/mall-masterplan-v66.yml` — topology, door, evidence, browser, local-runtime and desktop/mobile checks. Automated preview does not use WASD.
+
+**Entrances are sacred cinematic coordinates:** original front wall Z=-22.5, authorized service entry X=12, boarded public lobby X=-10.5, and future real east Employee Exit at X=86, Z=-42. Original 1979 mall X=-47..47, rear to Z=-118.5; later annex X=47..86, Z=-34..-115. Freight lift joins G/B1, north fire stair joins B1/G Security, Receiving R-12 stair joins G/M1. The narrow upper records gallery reaches west over the original atrium, but there is no second shopping floor.
+
+**Critical distinction:** v66 is an architectural graybox **not** a replacement for the shipped meshes/rooms or game code. Do not claim the mall is already rebuilt for play. The six-chapter production runtime remains at v27, and the v65 facade cinematic remains separately review-only. Do not switch production to v66 floor rectangles or lose narrative and input systems.
+
+**Next required implementation phases:**
+1. Model and vendor verified licensed abandoned-mall shell/retail assets; align the modernized exterior to the approved main/front entrances. Graybox geometry is only for layout review.
+2. Build a coherent shared world/streaming and collision layer from v66; remove chapter-island teleport assumptions and carveRect contradictions; preserve saves and AI pathing.
+3. Integrate each chapter's authored interactions, collectibles LS-01..09, PCAS/Renee, flooding, false route E-17, safe egress, and Chapter 6 endings into real rooms and portals. Maintain `STORY_BIBLE.md` as narrative authority.
+4. Run deterministic desktop/mobile visual, objective, ending, audio and asset audits; compare opening outside/inside geography before promotion.
+5. Promote only after the entire unified campaign gate is green. Existing public game must remain playable until then.
+---
+
 ## 0. Current canonical checkpoint: six chapters live, Audio Direction v27 shipped
 
 As of September 6, 2026, all six authored chapters are live on `main`. The production runtime now feeds forward through Chapter 6 v25, Production Readability / Visual Identity v26, and **Audio Direction v27** as the terminal runtime layer.

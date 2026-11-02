@@ -1,0 +1,50 @@
+name: Pinewood master mall v66 review
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'mall/masterplan-v66.mjs'
+      - 'review/mall-masterplan-v66/**'
+      - 'scripts/*mall-masterplan-v66.mjs'
+      - '.github/workflows/mall-masterplan-v66.yml'
+  push:
+    branches: [design/mall-masterplan-v66, main]
+    paths:
+      - 'mall/masterplan-v66.mjs'
+      - 'review/mall-masterplan-v66/**'
+      - 'scripts/*mall-masterplan-v66.mjs'
+      - '.github/workflows/mall-masterplan-v66.yml'
+permissions:
+  contents: read
+jobs:
+  blueprint-review:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 16
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Test plan and portal topology
+        run: |
+          node --check mall/masterplan-v66.mjs
+          node --check scripts/test-mall-masterplan-v66.mjs
+          node --test scripts/test-mall-masterplan-v66.mjs
+      - name: Install deterministic Chromium
+        run: |
+          npm install --no-save playwright@1.55.0
+          npx playwright install chromium
+      - name: Serve review-only blueprints
+        run: |
+          python3 -m http.server 4173 --bind 127.0.0.1 >/tmp/pinewood-v66-http.log 2>&1 &
+          for i in {1..30}; do curl -fsS http://127.0.0.1:4173/review/mall-masterplan-v66/ >/dev/null && exit 0; sleep 1; done
+          exit 1
+      - name: Review blueprint geometry in deterministic browser captures
+        run: node scripts/smoke-mall-masterplan-v66.mjs
+      - name: Save architectural blueprint screenshots and QA manifests
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: v66-pinewood-master-mall-blueprints
+          path: mall-v66-artifacts/
+          retention-days: 14

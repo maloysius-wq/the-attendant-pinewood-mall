@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>THE ATTENDANT | PINEWOOD MALL V66 ARCHITECTURAL MASTERPLAN</title>
+<meta name="description" content="Review-only, data-driven architectural blueprint for the single-story Pinewood Mall rebuild">
+<script type="importmap">{"imports":{"three":"../../vendor/three/build/three.module.js"}}</script>
+<style>
+:root{color-scheme:dark;--bg:#080e11;--panel:#111b20;--panel2:#142329;--line:#304047;--white:#e7eee8;--muted:#9ab0b2;--mint:#80cfbb;--gold:#f5be6a;--sienna:#bb7760;--blue:#76a4bc}
+*{box-sizing:border-box}html,body{margin:0;min-height:100%;background:var(--bg);color:var(--white);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+body:before{content:"";position:fixed;inset:0;pointer-events:none;background:radial-gradient(ellipse at 48% -20%,rgba(39,82,83,.3),transparent 65%);z-index:-1}
+button,select{font:inherit;cursor:pointer}button:focus-visible,select:focus-visible,[tabindex]:focus-visible{outline:3px solid var(--gold);outline-offset:3px}
+.sitehead{display:flex;align-items:center;justify-content:space-between;gap:22px;padding:24px clamp(18px,3.3vw,56px) 19px;border-bottom:1px solid var(--line);background:linear-gradient(125deg,#0e1b1e,#091113)}
+.eyebrow{font-weight:850;letter-spacing:.27em;font-size:11px;color:var(--mint)}h1{font-family:Georgia,serif;font-weight:500;font-size:clamp(28px,3vw,44px);letter-spacing:.04em;line-height:1.05;margin:8px 0 3px}.subtitle{color:var(--muted);font-size:13px;line-height:1.5}
+.flag{border:1px solid #97794e;background:#242319;color:#e9c992;letter-spacing:.12em;font-size:11px;padding:11px 13px;white-space:nowrap;font-weight:800}
+.metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--line);border-bottom:1px solid var(--line)}
+.metric{padding:14px clamp(12px,2.6vw,38px);background:#0d171b;min-width:0}.metric strong{display:block;font-size:17px;color:#e4eee6;font-variant-numeric:tabular-nums}.metric span{display:block;font-size:10px;text-transform:uppercase;letter-spacing:.12em;color:var(--muted);margin-top:4px}
+main{display:grid;grid-template-columns:minmax(240px,318px) minmax(0,1fr);gap:0;min-height:calc(100vh - 178px)}
+aside{border-right:1px solid var(--line);background:#101a1e;padding:25px 20px 32px;display:flex;flex-direction:column;gap:26px}
+.sectiontitle{font-weight:850;color:var(--mint);font-size:10px;letter-spacing:.2em;text-transform:uppercase;margin-bottom:11px}
+.floorbtns{display:grid;gap:7px}.floorbtns button{display:flex;justify-content:space-between;align-items:center;text-align:left;width:100%;padding:11px 12px;border:1px solid #354248;color:var(--white);background:#18252b;border-radius:3px;transition:.15s}
+.floorbtns button small{color:var(--muted);font-size:10px;letter-spacing:.13em}.floorbtns button[aria-pressed=true]{border-color:#e0b16a;background:#343022;color:#f6d69b}
+.chapterselect{width:100%;background:#17242a;color:#f4f4ee;border:1px solid #44545b;border-radius:3px;padding:12px 10px}
+#chapter-story,.info-copy{font-size:12px;line-height:1.65;color:#b3c0c0;margin:9px 0 0}.chaptermeta{margin-top:12px;color:var(--gold);font-size:12px;font-weight:700}
+.legend{display:grid;grid-template-columns:1fr 1fr;gap:11px 9px}.legend span{font-size:11px;color:#acbbbe;display:flex;align-items:center;gap:7px}.swatch{width:12px;height:12px;border-radius:2px;display:inline-block;flex-shrink:0}.s1{background:#367d74}.s2{background:#527f97}.s3{background:#a47751}.s4{background:#9b6e83}
+.tag{display:inline-block;border:1px solid #586564;padding:5px 8px;font-size:10px;letter-spacing:.12em;color:#bbc9c7;text-transform:uppercase}
+.work{padding:20px clamp(13px,2.3vw,32px) 34px;min-width:0}
+.controls{display:flex;gap:12px;align-items:end;justify-content:space-between;margin-bottom:15px;flex-wrap:wrap}.controls h2{font-size:18px;font-weight:650;margin:5px 0 3px}.controls p{font-size:12px;color:var(--muted);margin:0}.toggler{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.toggler button{border:1px solid #405159;background:#14252b;color:var(--white);font-size:11px;padding:9px;border-radius:3px}.toggler button[aria-pressed=true]{border-color:var(--gold);color:#fbd59e}
+.drawings{display:grid;grid-template-columns:minmax(0,1.17fr) minmax(0,1fr);gap:14px}
+.sheet{min-width:0;background:linear-gradient(150deg,#101e23,#0d191d);border:1px solid #425258;box-shadow:0 25px 70px #0008}
+.sheethead{display:flex;justify-content:space-between;align-items:center;padding:13px 17px;border-bottom:1px solid #33464a;gap:10px}
+.sheethead b{font-size:11px;letter-spacing:.15em;text-transform:uppercase;color:#c3dad4}.sheethead span{font-size:10px;letter-spacing:.1em;color:#829b9e;text-transform:uppercase}
+#blueprint{display:block;width:100%;height:auto;background:radial-gradient(ellipse at 50% 60%,#12252b,#08161b);touch-action:manipulation}
+#model3d{position:relative;width:100%;aspect-ratio:1/1;min-height:320px;background:radial-gradient(circle at 46% 50%,#1b3034,#071014 75%);overflow:hidden}
+#model3d canvas{display:block;width:100%;height:100%}
+#three-note{position:absolute;left:12px;bottom:12px;background:#0a171bdb;color:#acc0bc;font-size:11px;line-height:1.5;padding:8px 10px;pointer-events:none}
+.notes{margin-top:14px;display:grid;grid-template-columns:1.2fr .8fr;gap:14px}
+.info{border:1px solid #33474c;background:#111f23;padding:16px 19px;min-width:0}.info h3{font-family:Georgia,serif;font-weight:500;font-size:22px;margin:3px 0 6px}.info small{font-size:11px;color:var(--gold);letter-spacing:.11em;text-transform:uppercase}
+#room-details p{margin:7px 0 0;color:#b7c5c3;font-size:13px;line-height:1.6}.compact{display:flex;flex-wrap:wrap;gap:7px;margin-top:11px}.compact .tag{letter-spacing:.03em;font-size:10px}
+.warning{color:#e4cb9c;font-size:11px;line-height:1.6;border-left:2px solid var(--gold);padding-left:11px;margin:13px 0 0}
+footer{margin-top:14px;padding:8px 2px;color:#6c8785;font-size:11px}
+svg text{font-family:ui-sans-serif,system-ui,sans-serif}.room-group{cursor:pointer}.room-group rect{stroke:#9ac2ba44;stroke-width:1;transition:fill .15s,stroke .15s}.room-group:focus rect,.room-group:hover rect{stroke:#f5ca83;stroke-width:2}.room-group.selected rect{stroke:#f7cf92;stroke-width:2.5}.route-wire{pointer-events:none}
+@media(max-width:1170px){.drawings{grid-template-columns:1fr}.sheethead{padding:11px 14px}#model3d{aspect-ratio:1.45/1;min-height:330px}}
+@media(max-width:730px){.sitehead{padding:17px;align-items:flex-start}.flag{font-size:9px;padding:7px}.metrics{grid-template-columns:1fr 1fr}main{display:block}aside{border-right:0;border-bottom:1px solid var(--line);padding:16px;gap:14px}.floorbtns{grid-template-columns:repeat(3,minmax(0,1fr))}.floorbtns button{display:block;text-align:center;font-size:11px;padding:9px 3px}.floorbtns button small{display:block;font-size:8px;margin-top:4px}.legend{grid-template-columns:repeat(4,1fr)}.legend span{font-size:9px}.work{padding:15px 12px}.notes{grid-template-columns:1fr}.info h3{font-size:20px}#model3d{aspect-ratio:1.05/1;min-height:300px}}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<header class="sitehead">
+<div><div class="eyebrow">THE ATTENDANT / PINEWOOD MALL</div><h1>Architectural reconstruction</h1><div class="subtitle">A credible building for six connected chapters. Canonical masterplan · Revision 66</div></div>
+<div class="flag">REVIEW ONLY · NOT LIVE GAME</div>
+</header>
+<div class="metrics" aria-label="Building facts">
+<div class="metric"><strong>1979</strong><span>Original public mall</span></div>
+<div class="metric"><strong>1988—94</strong><span>East Wing added</span></div>
+<div class="metric"><strong>3 levels</strong><span>1 retail + 1 admin + B1</span></div>
+<div class="metric"><strong>41 spaces</strong><span>One connected building</span></div>
+</div>
+<main>
+<aside aria-label="Blueprint controls">
+<section><div class="sectiontitle">01 / Floor plans</div><div class="floorbtns">
+<button type="button" data-floor="G" aria-pressed="true">Ground <small>RETAIL / ATRIUM</small></button>
+<button type="button" data-floor="B1" aria-pressed="false">B1 <small>MECHANICAL</small></button>
+<button type="button" data-floor="M1" aria-pressed="false">Mezzanine <small>ADMIN / PA</small></button>
+</div></section>
+<section><label for="chapter" class="sectiontitle" style="display:block">02 / Story route</label>
+<select class="chapterselect" id="chapter" aria-label="Show chapter route">
+<option value="all">All chapters / zones</option>
+<option value="1" selected>01 · Closing Time</option>
+<option value="2">02 · Below Grade</option>
+<option value="3">03 · Eyes in Security</option>
+<option value="4">04 · The East Wing</option>
+<option value="5">05 · Accountability</option>
+<option value="6">06 · The Last Shift</option>
+</select>
+<p id="chapter-story">Chapter route will appear here.</p><div id="route-status" class="chaptermeta"></div>
+</section>
+<section><div class="sectiontitle">03 / Space identity</div><div class="legend">
+<span><i class="swatch s1"></i>Public</span><span><i class="swatch s2"></i>Service</span>
+<span><i class="swatch s3"></i>Retail</span><span><i class="swatch s4"></i>Restricted</span>
+</div><p class="info-copy">Room names, corridors and stair connections are grounded in the story. Select any space to inspect its purpose.</p></section>
+<section><div class="sectiontitle">04 / Continuity guarantees</div>
+<div class="compact"><span class="tag">1 continuous floor</span><span class="tag">Real B1 lift</span><span class="tag">Real stairs</span><span class="tag">9 evidence sites</span><span class="tag">East employee exit</span></div>
+<p class="warning">The public entrance is boarded. Contractor access stays at x=12 on the opening facade. This plan does not alter the production game.</p></section>
+</aside>
+<section class="work">
+<div class="controls"><div><div class="eyebrow" style="letter-spacing:.14em">SCALED TECHNICAL STUDY</div><h2 id="floor-title">Ground floor / Atrium</h2><p id="floor-description">One public shopping level</p></div>
+<div class="toggler"><button id="route-toggle" type="button" aria-pressed="true">Route lines on</button><button id="labels-toggle" type="button" aria-pressed="true">Labels on</button></div></div>
+<div class="drawings">
+<section class="sheet" aria-label="Scale blueprint"><div class="sheethead"><b>01 · Plan / X–Z</b><span>Metres · North ↑</span></div><svg id="blueprint" viewBox="0 0 790 640" role="img" aria-label="Pinewood Mall floor blueprint showing rooms, architectural shells and chapter route"><title>Pinewood Mall masterplan floor blueprint</title></svg></section>
+<section class="sheet" aria-label="Three-dimensional massing"><div class="sheethead"><b>02 · Three-dimensional massing</b><span>Orbit / drag to inspect</span></div><div id="model3d"><div id="three-note">Review graybox · Geometry only<br>Drag to orbit · Scroll/pinch to zoom</div></div></section>
+</div>
+<div class="notes"><div class="info" id="room-details"><small>SELECTED SPACE</small><h3>Dry Atrium Fountain</h3><p>The permanent orientation landmark at the center of Pinewood.</p></div>
+<div class="info"><small>WHY THIS FITS THE STORY</small><h3 id="story-heading">A physical place, not a level transition</h3><p id="story-explain">Every chapter enters through actual doors, lifts and stairs. The visual route is diagrammatic, while the adjacency graph is validated by automated tests.</p></div></div>
+<footer>Masterplan v66 · Fictional architectural study · Source of truth: STORY_BIBLE.md and current mall entrance geometry · Production unaffected</footer>
+</section>
+</main>
+<script type="module" src="./main.js"></script>
+</body></html>
