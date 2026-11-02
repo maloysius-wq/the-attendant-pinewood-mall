@@ -78,9 +78,14 @@ function placeModel(group,loaded,f){
  const source=loaded.get(f.model);
  if(!source)throw Error('CC0 model was not preloaded: '+f.model);
  const model=source.scene.clone(true),b=new THREE.Box3().setFromObject(model),size=b.getSize(new THREE.Vector3());
- if(!Number.isFinite(size.y)||size.y<.001)throw Error('Model has invalid dimensions: '+f.model);
+ const largest=Math.max(size.x,size.y,size.z);
+ if(!Number.isFinite(largest)||largest<.001)throw Error('Model has invalid dimensions: '+f.model);
  const maxWidth=f.id==='dry_fountain_art'?4.2:f.id.startsWith('arcade')?1.5:2.4;
- const s=Math.min(f.targetHeight/size.y,maxWidth/Math.max(size.x,size.z,.01));
+ // Some genuine floor fixtures are single-plane GLBs with zero vertical
+ // extent; ground them by footprint instead of dividing by height zero.
+ const flat=size.y<.001;
+ const s=flat?maxWidth/Math.max(size.x,size.z,.01):
+  Math.min(f.targetHeight/size.y,maxWidth/Math.max(size.x,size.z,.01));
  model.scale.setScalar(s);
  const scaled=new THREE.Box3().setFromObject(model),middle=scaled.getCenter(new THREE.Vector3());
  model.position.set(f.x-middle.x,f.y-scaled.min.y,f.z-middle.z);
