@@ -5,6 +5,8 @@ on:
     paths:
       - 'opening/intro-v62.js'
       - 'opening/camera-v62.js'
+      - 'opening/camera-v65.js'
+      - 'opening/intro-v65.js'
       - 'opening/ambience-v62.js'
       - 'opening/phone-v62.js'
       - 'review/the-call-v34/index.html'
@@ -15,6 +17,8 @@ on:
     paths:
       - 'opening/intro-v62.js'
       - 'opening/camera-v62.js'
+      - 'opening/camera-v65.js'
+      - 'opening/intro-v65.js'
       - 'opening/ambience-v62.js'
       - 'opening/phone-v62.js'
       - 'review/the-call-v34/index.html'
