@@ -38,7 +38,7 @@ const shots={
  aerial:{floor:'G',eye:[130,103,102],target:[17,0,-72],label:'ALL LEVELS · CUTAWAY',title:'Joined Mall Structure',
   note:'The public mall, basement service level, and administrative mezzanine occupy one consistent world.'}
 };
-let scene,camera,renderer,orbit,built,raf=0;
+let scene,camera,renderer,orbit,built;
 const publicApi={
  ready:false,
  getState:()=>JSON.parse(JSON.stringify(state)),
@@ -81,11 +81,7 @@ function resize(){
  const w=Math.max(320,world.clientWidth),h=Math.max(300,world.clientHeight);
  camera.aspect=w/h;camera.updateProjectionMatrix();renderer.setSize(w,h,false);
 }
-function renderLoop(){
- raf=requestAnimationFrame(renderLoop);
- if(orbit?.enabled)orbit.update();
- renderer?.render(scene,camera);
-}
+function renderOnDemand(){if(renderer&&scene&&camera)renderer.render(scene,camera);}
 async function begin(){
  try{
   const clock=document.querySelector('#loading progress');
@@ -100,7 +96,8 @@ async function begin(){
   world.prepend(renderer.domElement);
   resize();
   orbit=new OrbitControls(camera,renderer.domElement);
-  orbit.enableDamping=true;orbit.dampingFactor=.08;orbit.minDistance=18;orbit.maxDistance=260;orbit.enabled=false;
+  orbit.enableDamping=false;orbit.minDistance=18;orbit.maxDistance=260;orbit.enabled=false;
+  orbit.addEventListener('change',renderOnDemand);
   setShot('service');
   clock.value=30;
   built=await renderConstructionScene({scene,chapter:state.chapter});
@@ -123,7 +120,6 @@ async function begin(){
   state.firstFrameFullyLoaded=!!built.firstFrameFullyLoaded;
   state.ready=true;publicApi.ready=true;
   clock.value=100;cover.classList.add('hidden');
-  renderLoop();
  }catch(error){
   state.errors.push(String(error?.stack||error));
   cover.querySelector('strong').textContent='Construction review could not load';
@@ -135,7 +131,7 @@ async function begin(){
 for(const b of document.querySelectorAll('[data-shot]'))b.addEventListener('click',()=>setShot(b.dataset.shot));
 viewSelect.addEventListener('change',e=>setShot(e.target.value));
 chapterSelect.addEventListener('change',e=>setChapter(e.target.value));
-roofToggle.addEventListener('change',()=>built?.setRoofVisible(roofToggle.checked&&state.shot!=='aerial'));
-window.addEventListener('resize',resize);
-window.addEventListener('pagehide',()=>{if(raf)cancelAnimationFrame(raf);built?.dispose();orbit?.dispose();renderer?.dispose();});
+roofToggle.addEventListener('change',()=>{built?.setRoofVisible(roofToggle.checked&&state.shot!=='aerial');renderOnDemand()});
+window.addEventListener('resize',()=>{resize();renderOnDemand()});
+window.addEventListener('pagehide',()=>{built?.dispose();orbit?.dispose();renderer?.dispose();});
 begin();
