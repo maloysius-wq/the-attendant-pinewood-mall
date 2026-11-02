@@ -75,11 +75,11 @@ function facadeConstruction(stage,texture){
  const structure=(name,x,y,z,w,h,d,material=facade)=>box(g,name,x,y,z,w,h,d,material);
  // Existing 8m-height load-bearing wall and narrow service doorway are untouched.
  // A broad raised parapet and a stepped central tower create a ~17m silhouette.
- structure('west raised wing',-34.25,11.05,-22.55,36.5,5.5,1.05);
- structure('east raised wing',27.25,11.05,-22.55,39.5,5.5,1.05);
+ structure('west raised wing',-32.0,11.05,-22.55,25.5,5.5,1.05);
+ structure('east raised wing',26.0,11.05,-22.55,44.0,5.5,1.05);
  structure('central raised entry tower',-10.5,12.50,-22.65,31,8.8,1.30);
- structure('west parapet coping',-34.25,13.87,-22.54,37,.34,1.46,oxidized);
- structure('east parapet coping',27.25,13.87,-22.54,40,.34,1.46,oxidized);
+ structure('west parapet coping',-32.0,13.87,-22.54,26,.34,1.46,oxidized);
+ structure('east parapet coping',26.0,13.87,-22.54,44.5,.34,1.46,oxidized);
  structure('tower parapet coping',-10.5,17.08,-22.65,31.7,.46,1.64,oxidized);
  // Deliberate historic banding, not regularly spaced fake mullions.
  structure('tower lower concrete fascia',-10.5,9.08,-21.81,31.15,.36,.38,stained);

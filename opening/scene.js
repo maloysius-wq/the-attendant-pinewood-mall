@@ -71,7 +71,10 @@ export function makeOpeningScene({useImportedLandscape=false,useAbandonedFacade=
  const serviceLeftInfill=box(world,(10.5+serviceOpening.left)/2,4,-22.5,serviceOpening.left-10.5,8.2,.9,facade);
  const serviceRightInfill=box(world,(14+serviceOpening.right)/2,4,-22.5,14-serviceOpening.right,8.2,.9,facade);
  const serviceHeaderInfill=box(world,serviceDoor.centerX,(8.1+serviceOpening.top)/2,-22.5,serviceOpening.right-serviceOpening.left,8.1-serviceOpening.top,.9,facade);
- box(world,0,8.55,-22.48,106,1.1,.96,mat(0x55615d));
+ // The raised v65 building has a properly supported lower parapet belt.
+ // Keep the exact wide 8.55m cornice for all older/production scenes.
+ if(useAbandonedFacade)box(world,1.5,8.55,-22.48,93.5,1.1,.96,mat(0x55615d));
+ else box(world,0,8.55,-22.48,106,1.1,.96,mat(0x55615d));
  // Keep the original low, repetitive storefront only in earlier reviews.
  // v65 suppresses these dummy windows, thin strips, small sign and posters;
  // the replacement facade is one coherent architectural composition.
