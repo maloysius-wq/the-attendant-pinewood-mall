@@ -17,7 +17,12 @@ try{
   page.on('request',r=>{if(/^https?:/.test(r.url())&&!r.url().startsWith(origin))remote.push(r.url())});
   await page.goto(origin+'/review/mall-interiors-v69/',{waitUntil:'domcontentloaded'});
   try{
-   await page.waitForFunction(()=>window.__PINEWOOD_MALL_INTERIORS_V69__?.ready,null,{timeout:60000});
+   await page.waitForFunction(()=>{
+    const app=window.__PINEWOOD_MALL_INTERIORS_V69__;
+    return !!app&&(app.ready||app.getState().errors.length>0);
+   },null,{timeout:60000});
+   const startup=await page.evaluate(()=>window.__PINEWOOD_MALL_INTERIORS_V69__.getState());
+   if(!startup.ready)throw Error('Interior GLB preflight failed: '+startup.errors.join(' | '));
   }catch(e){
    console.error('MALL_V69_STARTUP',JSON.stringify({errors,remote,consoleErrors,body:(await page.locator('body').innerText()).slice(0,1900)}));throw e;
   }

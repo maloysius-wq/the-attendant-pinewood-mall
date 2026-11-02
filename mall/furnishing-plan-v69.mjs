@@ -443,7 +443,7 @@ export const FURNISHINGS_V69=Object.freeze({
       "x": 49,
       "z": -105,
       "targetHeight": 0.85,
-      "radius": 0.9,
+      "radius": 1.3,
       "role": "desk"
     },
     {
