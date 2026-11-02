@@ -1,0 +1,52 @@
+name: Pinewood abandoned frontage v68 review
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'mall/facade-plan-v68.mjs'
+      - 'mall/weathered-facade-v68.js'
+      - 'mall/render-shell-v68.js'
+      - 'review/mall-facade-v68/**'
+      - 'scripts/*facade-v68.mjs'
+      - '.github/workflows/mall-facade-v68.yml'
+  push:
+    branches: [construction/abandoned-frontage-v68, main]
+    paths:
+      - 'mall/facade-plan-v68.mjs'
+      - 'mall/weathered-facade-v68.js'
+      - 'mall/render-shell-v68.js'
+      - 'review/mall-facade-v68/**'
+      - 'scripts/*facade-v68.mjs'
+      - '.github/workflows/mall-facade-v68.yml'
+permissions:
+  contents: read
+jobs:
+  facade:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Validate facade placement and existing shell
+        run: |
+          node --test scripts/test-mall-masterplan-v66.mjs scripts/test-physical-shell-v67.mjs scripts/test-facade-v68.mjs
+      - name: Install deterministic Chromium
+        run: |
+          npm install --no-save playwright@1.55.0
+          npx playwright install chromium
+      - name: Serve facade review
+        run: |
+          python3 -m http.server 4173 --bind 127.0.0.1 >/tmp/pinewood-v68-http.log 2>&1 &
+          for i in {1..30}; do curl -fsS http://127.0.0.1:4173/review/mall-facade-v68/ >/dev/null && exit 0; sleep 1; done
+          exit 1
+      - name: Audit weathered frontage desktop/mobile
+        run: node scripts/smoke-facade-v68.mjs
+      - name: Upload frontage evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: v68-pinewood-weathered-frontage
+          path: mall-v68-artifacts/
+          retention-days: 14
