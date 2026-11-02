@@ -10,11 +10,18 @@ const browser=await chromium.launch({headless:true,args:[
 try{
  for(const [name,width,height] of [['desktop',1440,900],['mobile',390,844]]){
   const page=await browser.newPage({viewport:{width,height},deviceScaleFactor:1});
-  const errors=[],remote=[];
+  const errors=[],remote=[],failedRequests=[],consoleErrors=[];
+  page.on('console',m=>{if(m.type()==='error')consoleErrors.push(m.text())});
+  page.on('requestfailed',r=>failedRequests.push({url:r.url(),reason:r.failure()?.errorText}));
   page.on('pageerror',e=>errors.push(e.message));
   page.on('request',r=>{if(/^https?:/.test(r.url())&&!r.url().startsWith(origin))remote.push(r.url())});
   await page.goto(origin+path,{waitUntil:'domcontentloaded'});
-  await page.waitForFunction(()=>window.__PINEWOOD_MALL_CONSTRUCTION_V67__?.ready,null,{timeout:90000});
+  try{await page.waitForFunction(()=>window.__PINEWOOD_MALL_CONSTRUCTION_V67__?.ready,null,{timeout:26000})}catch(error){
+   const diagnostic=await page.evaluate(()=>({api:window.__PINEWOOD_MALL_CONSTRUCTION_V67__?.getState?.()??null,body:document.body?.innerText?.slice(0,3000)??null,modules:[...document.querySelectorAll('script')].map(s=>s.src||s.type)}));
+   console.error('MALL_V67_STARTUP_DIAGNOSTIC',JSON.stringify({name,diagnostic,errors,remote,failedRequests,consoleErrors}));
+   await page.screenshot({path:'mall-v67-artifacts/'+name+'-startup-failure.png',fullPage:true}).catch(()=>{});
+   throw error;
+  }
   const state=()=>page.evaluate(()=>window.__PINEWOOD_MALL_CONSTRUCTION_V67__.getState());
   const initial=await state();
   assert.deepEqual(initial.errors,[],name+' physical geometry and renderer errors');
