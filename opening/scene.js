@@ -43,7 +43,7 @@ export const shots={
  inside:{pos:v(12,1.73,-24.2),end:v(10,1.73,-26.1),look:v(0,2.4,-40),endLook:v(0,2.4,-40)},
  interiorWide:{pos:v(10,1.73,-26.1),end:v(6.7,1.73,-28.1),look:v(0,2.5,-39),endLook:v(0,2.5,-39)}
 };
-export function makeOpeningScene({useImportedLandscape=false}={}){
+export function makeOpeningScene({useImportedLandscape=false,useAbandonedFacade=false}={}){
  const scene=new THREE.Scene();scene.background=new THREE.Color(0x111a22);scene.fog=new THREE.FogExp2(0x18242a,.010);
  const world=new THREE.Group();scene.add(world);
  const concrete=mat(0x727069,.96),steel=mat(0x48545a,.72,.37),facade=mat(0x586367,.96),dark=mat(0x1d292d,.92),windowMat=glass();
@@ -71,12 +71,20 @@ export function makeOpeningScene({useImportedLandscape=false}={}){
  const serviceLeftInfill=box(world,(10.5+serviceOpening.left)/2,4,-22.5,serviceOpening.left-10.5,8.2,.9,facade);
  const serviceRightInfill=box(world,(14+serviceOpening.right)/2,4,-22.5,14-serviceOpening.right,8.2,.9,facade);
  const serviceHeaderInfill=box(world,serviceDoor.centerX,(8.1+serviceOpening.top)/2,-22.5,serviceOpening.right-serviceOpening.left,8.1-serviceOpening.top,.9,facade);
- box(world,0,8.55,-22.48,106,1.1,.96,mat(0x55615d));
+ // The raised v65 building has a properly supported lower parapet belt.
+ // Keep the exact wide 8.55m cornice for all older/production scenes.
+ if(useAbandonedFacade)box(world,1.5,8.55,-22.48,93.5,1.1,.96,mat(0x55615d));
+ else box(world,0,8.55,-22.48,106,1.1,.96,mat(0x55615d));
+ // Keep the original low, repetitive storefront only in earlier reviews.
+ // v65 suppresses these dummy windows, thin strips, small sign and posters;
+ // the replacement facade is one coherent architectural composition.
+ if(!useAbandonedFacade){
  for(let x=-42;x<43;x+=8.4){box(world,x,4,-21.91,.22,6.7,.37,concrete);}
  for(let x=-40;x<43;x+=9){if(x>9&&x<16)continue;box(world,x,3.9,-21.89,5.9,4.3,.11,dark);box(world,x,3.9,-21.8,5.5,4,.035,windowMat);}
  sign(world,'PINEWOOD MALL',0,7.58,-21.86,20,1.55);
  notice(world,'A PLACE TO\nBELONG',['SHOP • EAT • MEET','PINEWOOD MALL','A PLACE FOR EVERYONE'],-17,3.1,-21.72,2.0,2.28,{bg:'#c4c2bc'});
  notice(world,'GRAND HOLIDAY\nSALE',['CASSETTE CASTLE','NOVEMBER 1997','EVERYTHING MUST GO'],-28,2.95,-21.72,2.05,2.20,{bg:'#bd9ba9'});
+ }
  // Compact weather canopy: roughly 1.6x the door width, not a 7.2m awning.
  const serviceCanopy=box(world,12,2.82,-21.25,3.10,.18,1.80,concrete);
  const canopyFascia=box(world,12,2.72,-20.36,3.10,.15,.07,mat(0x283135,.82,.28));
@@ -141,6 +149,7 @@ export function makeOpeningScene({useImportedLandscape=false}={}){
  const geom=new THREE.BufferGeometry();geom.setAttribute('position',new THREE.BufferAttribute(positions,3));
  const rain=new THREE.Points(geom,new THREE.PointsMaterial({color:0x93aec0,size:.055,transparent:true,opacity:.52,depthWrite:false}));world.add(rain);
  const stage={scene,world,pivot,rain,
+  facadeMaterials:{facade,steel,concrete,dark},
   serviceEntry:{
    opening:serviceOpening,doorSpecs:serviceDoor,doorSlab:serviceDoorSlab,
    leftInfill:serviceLeftInfill,rightInfill:serviceRightInfill,
