@@ -101,3 +101,11 @@ test('landmark coordinates sit in intended rooms; E17 stays blocked',()=>{
 });
 
 test('integrity validator returns no map defects',()=>assert.deepEqual(validateMasterplan(),[]));
+test('administrative mezzanine physically overlooks the real atrium rather than a separate building',()=>{
+ const atrium=byId('central_gallery'),gallery=byId('mezz_hall');
+ assert.equal(atrium.level,'G');
+ assert.equal(gallery.level,'M1');
+ assert.ok(overlap(atrium.x1,atrium.x2,gallery.x1,gallery.x2),'no mezzanine edge beside atrium');
+ assert.ok(overlap(atrium.z1,atrium.z2,gallery.z1,gallery.z2),'no common atrium span');
+ assert.equal(MALL.levels.find(l=>l.id==='M1').publicRetail,false);
+});
