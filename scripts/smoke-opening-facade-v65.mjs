@@ -55,6 +55,19 @@ try{
    await page.waitForTimeout(520);
    await page.screenshot({path:'opening-v65-artifacts/'+name+'-'+label+'.png'});
   }
+  // Fixed review-only observer placements: visually verify the public closure
+  // and full mall silhouette without steering the story character or using WASD.
+  const probes=[
+   ['public-entry-detail',{x:-10.5,y:2.25,z:-12.9,dx:-10.5,dy:3.45,dz:-22}],
+   ['full-facade',{x:-5.0,y:2.3,z:8.0,dx:-9.0,dy:9.7,dz:-22}]
+  ];
+  for(const [label,eye] of probes){
+   const rendered=await page.evaluate(eye=>
+    window.__PINEWOOD_OPENING_V34__.qaCockpitProbe(eye),eye);
+   assert.equal(rendered,true,name+' deterministic '+label+' camera');
+   await page.waitForTimeout(350);
+   await page.screenshot({path:'opening-v65-artifacts/'+name+'-'+label+'.png'});
+  }
   assert.deepEqual(errors,[],name+' script errors');
   assert.deepEqual(remote,[],name+' runtime remote assets');
   await writeFile('opening-v65-artifacts/'+name+'-status.json',JSON.stringify({
