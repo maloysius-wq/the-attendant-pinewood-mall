@@ -8,6 +8,19 @@
 
 ---
 
+## Current exterior design checkpoint: Pinewood Facade v68 (2026-11-02)
+
+**Status:** Abandoned exterior architectural treatment is complete **for review only**, layered on the validated v67 physical shell. This does not replace production Chapter 1 or modify the opening cinematic.
+
+- `docs/superpowers/plans/2026-11-02-pinewood-facade-v68.md` records the authored exterior implementation boundaries.
+- `mall/facade-plan-v68.mjs` anchors the 1979 exterior at Z=-22.5: tall 12.8m original shell, deliberately no arbitrary front windows, 32m-wide PINEWOOD MALL enamel sign, three boarded plywood bays at the main lobby X=-10.5, safe contractor entry at X=12 (1.78m × 2.27m opening), weathered masonry, and later East Wing exit X=86 Z=-42.
+- `mall/weathered-facade-v68.js` builds forty-one physically attached architectural details (sign, actual plywood/fasteners/bracing, doorway frame, contractor plaque and weathering) using deterministic locally generated surface finishes and existing material/geometry conventions. No floating arbitrary blocks or runtime external requests.
+- `mall/render-shell-v68.js` composes the proven licensed v67 shell and architectural facade before the first rendered frame.
+- `review/mall-facade-v68/` offers front, boarded entry, contractor door, atrium, east employee exit and cutaway cameras on desktop/mobile. On main: https://maloysius-wq.github.io/the-attendant-pinewood-mall/review/mall-facade-v68/.
+- `scripts/test-facade-v68.mjs`, `scripts/smoke-facade-v68.mjs`, `.github/workflows/mall-facade-v68.yml` protect sign geometry, real blocked/open door positions, no windows, same-origin and fully preloaded rendering. All 22 combined v66/v67/v68 Node tests passed; desktop/mobile v68 camera sweeps passed, 41 facade details, 148 shell partitions, zero external requests (Actions run `41525608630`).
+
+**Still required for a playable replacement:** enrich the mall with licensed coherent interiors rather than arbitrary boxes; import/migrate every authored game chapter and evidence object into these same coordinates; integrate collision, navigation, AI, saves, cutscene alignment, audio/flooding/lighting and true-ending routes; run comprehensive deterministic production regression tests. Keep the live game unchanged until the whole campaign is ready.
+
 ## Current construction implementation: Unified Physical Shell v67 (2026-11-02)
 
 **Status:** First **review-only physical construction milestone** complete. Do not mistake this for a playable-world migration. The default branch keeps shipping the original six-chapter production runtime and cinematic independently. The unified shell, loaded models, fixtures, doors, and stairs are separate review artifacts.
