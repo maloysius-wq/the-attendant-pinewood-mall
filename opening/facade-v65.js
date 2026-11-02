@@ -23,7 +23,7 @@ function woodMaterial(texture,repeatX=1,repeatY=1){
  const map=texture.clone();map.needsUpdate=true;
  map.wrapS=map.wrapT=THREE.RepeatWrapping;map.repeat.set(repeatX,repeatY);
  map.anisotropy=4;
- return new THREE.MeshStandardMaterial({color:0xaba391,map,roughness:.98,side:THREE.DoubleSide});
+ return new THREE.MeshStandardMaterial({color:0xd4c3a4,map,roughness:.98,emissive:0x6b5135,emissiveIntensity:.27,side:THREE.DoubleSide});
 }
 function signTexture(){
  const canvas=document.createElement('canvas');canvas.width=2048;canvas.height=400;
@@ -107,7 +107,7 @@ function facadeConstruction(stage,texture){
   for(let i=0;i<16;i++){
    const offset=(i%3-1)*.09;
    const plank=structure('weathered boarded public-door plank '+(++count),
-    cx+offset,.49+i*.313,entryZ+.015+(i%2)*.008,4.18,.292,.095,i%4===0?darkBoard:board);
+    cx+offset,.49+i*.313,entryZ+.015+(i%2)*.008,4.18,.267,.095,i%4===0?darkBoard:board);
    if(i%7===0)plank.rotation.z=.008*(i%2?1:-1);
   }
   // Diagonal bracing rests ON TOP of the boarding, not floating out of wall.
@@ -115,6 +115,22 @@ function facadeConstruction(stage,texture){
    cx,3.0,entryZ+.13,.35,5.45,.13,woodMaterial(texture,.35,1.9));
   bracing.rotation.z=cx<entryX?-.36:.36;
  }
+ // Long exterior barricade slats visibly cross BOTH door leaves. Their
+ // weathered grain and deep silhouettes establish a boarded-up public entry
+ // from across the parking lot, rather than a dark rectangular fake opening.
+ for(const [height,tilt] of[[1.22,-.045],[3.52,.034],[4.78,-.025]]){
+  const cross=structure('full-width weathered public entrance barricade '+(++count),
+   entryX,height,entryZ+.25,8.95,.32,.16,darkBoard);
+  cross.rotation.z=tilt;
+ }
+ // The long-abandoned public portal has one weak amber surviving sconce;
+ // it falls on the timber without relighting the entire front elevation.
+ const canopyBulb=new THREE.PointLight(0xffd2a0,2.8,11,2);
+ canopyBulb.name='weak surviving entry canopy lamp';
+ canopyBulb.position.set(entryX,6.15,-19.80);g.add(canopyBulb);
+ const fixture=structure('rusted public entry sconce housing',entryX,6.22,-20.86,
+  .28,.16,.26,steel);
+ fixture.userData.poweredButFading=true;
  for(const x of[-14.65,-10.45,-6.25]){
   for(const y of[.62,1.84,3.06,4.28,5.32]){
    const nail=new THREE.Mesh(new THREE.SphereGeometry(.027,7,5),oxidized);
