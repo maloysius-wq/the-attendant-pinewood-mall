@@ -51,6 +51,9 @@ function applyUnifiedMallV70(source){
  once("updateLastShiftV25(dt){if(this.levelIndex!==5||!this.ch6V25)return;const s=this.ch6V25;",
   "updateLastShiftV25(dt){if(this.levelIndex!==5||!this.ch6V25)return;const s=this.ch6V25;const physicalGate=this.mallV70?.gates?.children?.find(g=>g.userData?.boundary?.id==='gate_east_exit');if(physicalGate)physicalGate.visible=!s.exitOpen;",
   "the real east exit stays locked until PCAS releases it");
+ once("this.storyV17.queueDialogue('ch1_start',.7);",
+  "if(!window.__PINEWOOD_INTRO_COMPLETED_FOR_GAME__)this.storyV17.queueDialogue('ch1_start',.7);window.__PINEWOOD_INTRO_COMPLETED_FOR_GAME__=false;",
+  "avoid repeating Renee's full briefing after the played cinematic");
  const cameraFunction=source.indexOf("function buildEyesInSecurityV22(");
  const feedsStart=source.indexOf("  const feeds=[",cameraFunction);
  const feedsEnd=source.indexOf("\n  ];",feedsStart);

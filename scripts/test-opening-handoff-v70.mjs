@@ -15,6 +15,7 @@ test('production New Game starts the approved local cinematic, not a review-only
  assert.match(script,/document\.addEventListener\('click',intercept,true\)/);
  assert.match(script,/document\.dispatchEvent\(new CustomEvent\('pinewood-intro-finished'/);
  assert.match(script,/const button=\$\('newBtn'\)/);
+ assert.match(script,/if\(!skipped\)window\.__PINEWOOD_INTRO_COMPLETED_FOR_GAME__=true/);
 });
 test('end of cinematic enters the actual contractor vestibule just behind the exterior door',()=>{
  const entry=chapterRouteV70(1).spawn;
