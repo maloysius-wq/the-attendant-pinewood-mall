@@ -47,7 +47,7 @@ export class KeypadReachHandV72{
   this.worldCamera=worldCamera;
   this.digit=digit;this.displayPoint=[sx,sy];
   this.inFrame=sx>.02&&sx<.98&&sy>.02&&sy<.98;
-  const scale=.88;
+  const scale=.96;
   this.root.visible=true;
   this.root.scale.setScalar(scale);
   const target=this.hand.target;
