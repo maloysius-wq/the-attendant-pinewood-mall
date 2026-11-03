@@ -494,8 +494,19 @@ window.__PINEWOOD_OPENING_V34__={
  },
  qaRenderNow(){
   if(!location.pathname.includes('/review/')||!active?.renderer)return false;
+  const arm=active.keypadReach?.root;
   active.renderer.render(active.stage.scene,active.camera);
-  return true;
+  const withArm=active.renderer.info.render.calls;
+  const wasVisible=arm?.visible;
+  if(arm)arm.visible=false;
+  active.renderer.render(active.stage.scene,active.camera);
+  const withoutArm=active.renderer.info.render.calls;
+  if(arm)arm.visible=wasVisible;
+  active.renderer.render(active.stage.scene,active.camera);
+  const restored=active.renderer.info.render.calls;
+  return {withArm,withoutArm,restored,
+   armOnStage:arm?.parent===active.stage.scene,
+   armVisible:arm?.visible,probeVisible:active.keypadReach?.probe?.visible};
  },
  get qaPlayerHand(){return location.pathname.includes('/review/')?active?.handheld?.playerHand||null:null;},
  get captionTiming(){if(active&&!active.paused)active.renderCaption();return active?{line:active.line?.id,voiceSeconds:active.voiceSeconds,
