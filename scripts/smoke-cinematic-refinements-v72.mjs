@@ -28,6 +28,7 @@ try{
  assert.equal(initial.clock?.mountedToImportedDash,true,'clock must be flush-mounted to imported dash material');
  assert.ok(initial.clock?.displayWidth<.25,'clock is a smaller factory-sized readout');
  assert.ok(initial.clock?.surfaceGap<=.02,'clock display cannot float in the cabin');
+ assert.equal(initial.clock?.unobstructedFromDriver,true,'clock must be visible from the real driver seat, not hidden by car mesh');
  assert.equal(initial.world?.retiredInteriorMeshes,0,'retired miniature mall must be absent from arrival scene');
  await page.evaluate(()=>{const q=window.__PINEWOOD_OPENING_V34__;q.seek(1);q.scrub(.38)});
  await page.waitForTimeout(700);
@@ -38,15 +39,19 @@ try{
  await page.evaluate(()=>{const q=window.__PINEWOOD_OPENING_V34__;q.seek(7);q.scrub(.97)});
  await page.waitForTimeout(700);
  const entry=await get();
+ console.log('V72_HAND_DIAGNOSTIC '+JSON.stringify(entry.keypad));
  assert.ok(entry.keypad?.inFrame,'entire keypad panel is within the desktop viewport');
  assert.ok(entry.keypad?.viewportWidth>=.09,'digits are large enough to read');
  assert.ok(entry.keypad?.legibleDigits===9,'all nine key labels are visibly rendered');
+ assert.equal(entry.keypad?.displayedCode,'158','the illuminated keypad screen must show the entered digits');
  assert.ok(entry.keypad?.forearmVisible,'a real locally vendored hand reaches the keypad');
  const wrist=entry.keypad?.finger?.wristViewport,thumb=entry.keypad?.finger?.thumbViewport;
  assert.ok(wrist?.[0]>.05&&wrist?.[0]<.95&&wrist?.[1]>.05&&wrist?.[1]<.95&&wrist?.[2]<1,
   'the imported wrist must actually project onto the visible screen, not just be flagged visible');
  assert.ok(thumb?.[0]>.05&&thumb?.[0]<.95&&thumb?.[1]>.05&&thumb?.[1]<.95&&thumb?.[2]<1,
   'the pressing finger must be within the visible keypad frame');
+ assert.ok(entry.keypad?.finger?.skinSamplesInView>35,
+  'actual skinned vertices, not only bone joints, must be visibly projected');
  assert.equal(entry.keypad?.entered.length,3,'third code digit entered during the fourth-key sequence');
  await page.screenshot({path:'cinematic-v72-artifacts/02-pressing-code.png'});
  await page.evaluate(()=>{const q=window.__PINEWOOD_OPENING_V34__;q.seek(8);q.scrub(.75)});
