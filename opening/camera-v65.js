@@ -14,15 +14,15 @@ const E={
  driver:[-10.20,1.24,17.69],dashLean:[-10.20,1.22,17.66],
  doorLean:[-10.84,1.25,17.59],doorOutside:[-11.82,1.72,17.30],
  parking:[-9.0,1.73,13.0],pavement:[0,1.73,.0],underCanopy:[8.05,1.73,-13.0],
- access:[12.35,1.67,-19.6],threshold:[12.07,1.71,-23.4],concourse:[9.0,1.72,-26.3]
+ access:[12.35,1.67,-19.6],threshold:[12.07,1.71,-23.4],handoff:[12.0,1.72,-26.0] // service_vestibule
 };
 const G={
  ahead:[2,2.9,-22],softAhead:[1.2,2.7,-22],softSign:[.5,3.4,-22],
- sign:[-10.5,13.13,-22],dash:[-9.9,.94,13.30],
+ sign:[-10.5,13.13,-22],dash:[-10.22,1.045,16.97],
  mirror:[-12,2.06,16.1],door:[-14,1.62,17.8],mall:[12,2,-22],
  posters:[-17,3.0,-22],entrance:[12,1.5,-22],keypad:[13.65,1.37,-21.72],
- inside:[0,2.5,-39],directory:[0,2.5,-31.2],
- storefront:[-13,3.1,-39],hall:[0,2.4,-50]
+ inside:[12,2.2,-36],directory:[10.0,2.4,-43.5],
+ storefront:[9.3,2.2,-44],hall:[9.7,2.4,-58]
 };
 // Normalized cue times: f=0..1, eye=[x,y,z], gaze=[x,y,z], mode "walk" or "hold".
 // A hold turns the eyes/head rapidly near its mark, then remains still,
@@ -34,9 +34,10 @@ const cues={
   f(.84,E.driver,G.softAhead),f(1,E.driver,G.softAhead)
  ],
  clock:[
-  f(0,E.driver,G.softAhead),f(.26,E.driver,G.softAhead),
-  f(.46,E.driver,G.softSign),f(.67,E.driver,G.softSign),
-  f(.86,E.driver,G.ahead),f(1,E.driver,G.ahead)
+  // One motivated, unhurried glance at the illuminated 02:17 AM dashboard.
+  f(0,E.driver,G.softAhead),f(.16,E.driver,G.softAhead),
+  f(.39,E.driver,G.dash),f(.56,E.driver,G.dash),
+  f(.76,E.driver,G.ahead),f(1,E.driver,G.ahead)
  ],
  closed:[
   f(0,E.driver,G.ahead),f(.68,E.driver,G.ahead),
@@ -68,35 +69,27 @@ const cues={
  ],
  lights:[
   f(0,E.pavement,G.entrance),
-  f(.20,[2,1.72,-2.4],G.entrance,'walk'),
-  f(.39,[4.1,1.72,-5.9],G.posters,'walk'),
-  f(.55,[5.5,1.73,-8.3],G.entrance,'walk'),
-  f(.75,[6.9,1.73,-10.9],G.keypad,'walk'),
-  f(1,E.underCanopy,G.keypad,'walk')
+  f(.22,[2.3,1.72,-2.9],G.entrance,'walk'),
+  f(.42,[5,1.72,-7.0],G.entrance,'walk'),
+  f(.64,E.underCanopy,G.keypad,'walk'),
+  f(.85,[10.55,1.71,-16.5],G.keypad,'walk'),
+  f(1,E.access,G.keypad,'walk')
  ],
  inside:[
-  f(0,E.underCanopy,G.entrance),
-  f(.20,[9.9,1.73,-16.1],G.keypad,'walk'),
-  f(.41,[11.1,1.69,-18.1],G.keypad,'walk'),
-  f(.65,E.access,G.keypad,'walk'),
-  f(.80,E.access,G.keypad),f(.92,E.access,G.inside),
-  f(1,E.access,G.keypad)
+  // Authorization is already confirmed; the real service door opens and the
+  // player moves into the same vestibule used as Chapter 1 gameplay spawn.
+  f(0,E.access,G.keypad),f(.17,E.access,G.inside),
+  f(.43,E.threshold,G.inside,'walk'),
+  f(.75,[12.01,1.72,-25.0],G.directory,'walk'),
+  f(1,E.handoff,G.inside,'walk')
  ],
  promise:[
-  f(0,E.access,G.keypad),f(.14,[12.0,1.72,-21],G.inside,'walk'),
-  f(.33,E.threshold,G.directory,'walk'),
-  f(.56,[10.5,1.73,-24.5],G.storefront,'walk'),
-  f(.77,E.concourse,G.directory,'walk'),
-  f(1,E.concourse,G.inside)
+  f(0,E.handoff,G.inside),f(.38,E.handoff,G.inside),
+  f(.75,E.handoff,G.directory),f(1,E.handoff,G.directory)
  ],
  direction:[
-  f(0,E.concourse,G.inside),
-  f(.20,[8.2,1.73,-27.6],G.directory,'walk'),
-  f(.34,[7.4,1.73,-28.6],G.directory,'walk'),
-  f(.48,[6.8,1.73,-29.2],G.storefront,'walk'),
-  f(.62,[6.6,1.73,-30.2],G.inside,'walk'),
-  f(.78,[5.7,1.73,-31.9],G.hall,'walk'),
-  f(1,[5.4,1.73,-33.0],G.hall,'walk')
+  f(0,E.handoff,G.directory),f(.34,E.handoff,G.directory),
+  f(.65,E.handoff,G.hall),f(1,E.handoff,G.hall)
  ]
 };
 const WALK_CUES=new Set(['owner','entrance','lights','inside','promise','direction']);
@@ -149,11 +142,11 @@ export class HumanCameraRig{
    }
   }
   const interior=indoor.has(id),isExit=id==='owner';
-  const doorOpen=interior?1:id==='inside'?smooth(clamp((phase-.68)/.24,0,1)):0;
+  const doorOpen=interior?1:id==='inside'?smooth(clamp((phase-.06)/.27,0,1)):0;
   // Acoustic boundary at the moment the driver passes the open car door:
   // switch to the already-decoded outdoor bed, not a multi-second blend.
   let carWeight=['arrival','clock','closed','work','safety'].includes(id)?1:0;
-  let exteriorWeight=['entrance','lights'].includes(id)?1:id==='inside'?1-smooth(clamp((phase-.70)/.30,0,1)):0;
+  let exteriorWeight=['entrance','lights'].includes(id)?1:id==='inside'?1-smooth(clamp((phase-.36)/.24,0,1)):0;
   if(id==='owner'){
    const outside=phase>=.32;
    carWeight=outside?0:1;exteriorWeight=outside?1:0;
