@@ -47,7 +47,7 @@ try{
       const chapter3V22=await page.evaluate(()=>window.__PINEWOOD_CH3_V22__||null);
       const chapter4V23=await page.evaluate(()=>window.__PINEWOOD_CH4_V23__||null);
       const failureText=await page.locator('#assetStatus').textContent().catch(()=>null);
-      await page.screenshot({path:`visual-artifacts/${view}.png`,fullPage:true});
+      await page.screenshot({path:`visual-artifacts/${view}.png`,fullPage:false,timeout:120000});
       const uniqueRemote=[...new Set(remoteRequests)];
       const storyOk=story?.version===17&&story?.chapterCount===6&&Array.isArray(story?.lastShiftIds)&&story.lastShiftIds.length===9;
       const pcasRuntimeOk=pcas?.version===19&&pcas?.lineCount>=19&&pcas?.localOnly===true&&Array.isArray(pcas?.failures)&&pcas.failures.length===0;
@@ -70,7 +70,7 @@ try{
       const chapter2V21=await page.evaluate(()=>window.__PINEWOOD_CH2_V21__||null).catch(()=>null);
       const chapter3V22=await page.evaluate(()=>window.__PINEWOOD_CH3_V22__||null).catch(()=>null);
       const chapter4V23=await page.evaluate(()=>window.__PINEWOOD_CH4_V23__||null).catch(()=>null);
-      await page.screenshot({path:`visual-artifacts/${view}-failure.png`,fullPage:true}).catch(()=>{});
+      await page.screenshot({path:`visual-artifacts/${view}-failure.png`,fullPage:false,timeout:120000}).catch(()=>{});
       report.views[view]={ok:false,error:err.stack||String(err),pcas,chapter1V20,chapter2V21,chapter3V22,chapter4V23,failureText,bodyText,consoleMessages,remoteRequests:[...new Set(remoteRequests)]};
     }finally{await page.close();}
   }

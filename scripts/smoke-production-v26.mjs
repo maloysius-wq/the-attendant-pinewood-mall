@@ -142,7 +142,7 @@ try{
       expect(name,state.objective.length>=8,`objective is empty/too short: ${JSON.stringify(state.objective)}`);
       expect(name,!/\b(undefined|null|nan)\b/i.test(state.chapter+' '+state.objective+' '+state.inventory),`HUD exposed invalid state text: ${state.chapter} / ${state.objective} / ${state.inventory}`);
       expect(name,!/failed|fatal|exception/i.test(state.status),`asset status indicates failure: ${state.status}`);
-      await page.screenshot({path:`${out}/${view}.png`,fullPage:true});
+      await page.screenshot({path:`${out}/${view}.png`,fullPage:false,timeout:120000});
       assertTelemetry(name,telemetry);
       report.chapters[view]={ok:true,expectedTitle,chapter:state.chapter,objective:state.objective,status:state.status};
     }catch(err){report.failed=true;report.chapters[view]={ok:false,error:err.stack||String(err),telemetry};throw err;}finally{await context.close();}
