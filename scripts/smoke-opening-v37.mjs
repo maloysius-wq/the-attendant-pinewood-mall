@@ -108,8 +108,9 @@ try{
    assert(natural.waitSeconds>8.3&&natural.waitSeconds<8.7,
      layout.name+' still using slow estimated-reading timeline: '+JSON.stringify(natural));
 
-   // v62 raises the handheld later; .74 is the established pre-tap pose.\n   await page.evaluate(()=>{window.__PINEWOOD_OPENING_V34__.seek(0);window.__PINEWOOD_OPENING_V34__.scrub(.74);});
-   await page.waitForTimeout(180);
+   // v62 raises the handheld later; .74 is the established pre-tap pose.
+   await page.evaluate(()=>{window.__PINEWOOD_OPENING_V34__.seek(0);window.__PINEWOOD_OPENING_V34__.scrub(.74);});
+   await page.waitForFunction(()=>window.__PINEWOOD_OPENING_V34__?.handheldPhone?.visible,null,{timeout:10000});
    let phone=await page.evaluate(()=>window.__PINEWOOD_OPENING_V34__.handheldPhone);
    assert(phone?.visible&&phone.parent==='camera'&&phone.screenState==='pending'
      &&phone.mounts===0&&phone.screenPixels[0]>=600,
