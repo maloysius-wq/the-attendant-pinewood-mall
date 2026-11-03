@@ -24,6 +24,9 @@ test('opening uses real mall after the threshold and preserves cinematic sequenc
  assert.match(read('opening/scene.js'),/rainCount=1500/);
  assert.match(read('opening/opening.css'),/user-select:none/);
  assert.match(read('opening/dashboard-clock-v71.js'),/12:47 AM/);
+ const route=read('opening/camera-v65.js');
+ assert.match(route,/f\(1,\[10\.3,1\.73,-40\.0\],G\.inside/,'vestibule path');
+ assert.match(route,/f\(1,\[5\.8,1\.73,-58\.0\],G\.hall/,'real central atrium path');
 });
 test('public entrance boards remain sparse and layers have distinct depth',()=>{
  const facade=read('opening/facade-v65.js');

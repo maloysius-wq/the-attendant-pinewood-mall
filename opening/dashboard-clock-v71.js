@@ -10,7 +10,8 @@ export function installDashboardClockV71(car){
   throw Error('The dashboard clock needs the complete imported hatchback');
  const clock=new THREE.Group();
  clock.name='Pinewood dashboard digital clock';
- clock.position.set(-.13,1.065,-.53);
+ clock.position.set(-.08,1.21,-.49);
+ clock.scale.set(.72,.72,1);
  const plastic=new THREE.Mesh(new THREE.BoxGeometry(.36,.135,.035),
   new THREE.MeshStandardMaterial({color:0x12191c,roughness:.72,metalness:.06}));
  plastic.name='Clock factory-black enclosure';

@@ -21,8 +21,8 @@ const G={
  sign:[-10.5,13.13,-22],dash:[-9.9,.94,13.30],
  mirror:[-12,2.06,16.1],door:[-14,1.62,17.8],mall:[12,2,-22],
  posters:[-17,3.0,-22],entrance:[12,1.5,-22],keypad:[13.65,1.37,-21.72],
- inside:[0,2.5,-39],directory:[0,2.5,-31.2],
- storefront:[-13,3.1,-39],hall:[0,2.4,-50]
+ inside:[10,2.4,-48],directory:[0,2.5,-56],
+ storefront:[-13,3.1,-59],hall:[0,2.4,-71]
 };
 // Normalized cue times: f=0..1, eye=[x,y,z], gaze=[x,y,z], mode "walk" or "hold".
 // A hold turns the eyes/head rapidly near its mark, then remains still,
@@ -86,19 +86,21 @@ const cues={
  ],
  promise:[
   f(0,E.access,G.keypad),f(.14,[12.0,1.72,-21],G.inside,'walk'),
-  f(.33,E.threshold,G.directory,'walk'),
-  f(.56,[10.5,1.73,-24.5],G.storefront,'walk'),
-  f(.77,E.concourse,G.directory,'walk'),
-  f(1,E.concourse,G.inside)
+  f(.33,E.threshold,G.inside,'walk'),
+  f(.56,[12.0,1.73,-28.0],G.inside,'walk'),
+  f(.77,[11.8,1.73,-34.0],G.inside,'walk'),
+  f(1,[10.3,1.73,-40.0],G.inside,'walk')
  ],
  direction:[
-  f(0,E.concourse,G.inside),
-  f(.20,[8.2,1.73,-27.6],G.directory,'walk'),
-  f(.34,[7.4,1.73,-28.6],G.directory,'walk'),
-  f(.48,[6.8,1.73,-29.2],G.storefront,'walk'),
-  f(.62,[6.6,1.73,-30.2],G.inside,'walk'),
-  f(.78,[5.7,1.73,-31.9],G.hall,'walk'),
-  f(1,[5.4,1.73,-33.0],G.hall,'walk')
+  // The canonical service vestibule runs x=9..16 down to z=-43. Only its
+  // x≈10 portal joins the atrium; the old preview route clipped its west wall.
+  f(0,[10.3,1.73,-40.0],G.inside),
+  f(.20,[10.3,1.73,-41.0],G.inside,'walk'),
+  f(.34,[10.1,1.73,-44.0],G.directory,'walk'),
+  f(.48,[9.4,1.73,-47.0],G.hall,'walk'),
+  f(.62,[8.0,1.73,-50.0],G.hall,'walk'),
+  f(.78,[7.0,1.73,-54.0],G.hall,'walk'),
+  f(1,[5.8,1.73,-58.0],G.hall,'walk')
  ]
 };
 const WALK_CUES=new Set(['owner','entrance','lights','inside','promise','direction']);
