@@ -62,3 +62,15 @@ test('security and East Wing route shutters remain separate physical choices',()
   seen.add(k);
  }
 });
+
+test('all four CCTV feeds describe real visible areas of the new property',async()=>{
+ const {CCTV_FEEDS_V70}=await import('../mall/story-placement-v70.mjs');
+ const expectations={ 'CAM 02':'west_gallery','CAM 05':'receiving_r12','CAM 09':'security','CAM 12':'annex_threshold'};
+ assert.equal(CCTV_FEEDS_V70.length,4);
+ for(const f of CCTV_FEEDS_V70){
+  const room=MALL.rooms.find(r=>r.id===expectations[f.id]);
+  assert.ok(room,`unknown feed ${f.id}`);
+  assert.ok(f.bounds[0]>=room.x1-.1&&f.bounds[1]<=room.x2+.1);
+  assert.ok(f.bounds[2]>=room.z1-.1&&f.bounds[3]<=room.z2+.1);
+ }
+});
