@@ -8,6 +8,15 @@
 
 ---
 
+## In-progress cinematic continuity v71 (2026-11-03) — BRANCH ONLY
+
+**Status: NOT MERGED OR LIVE.** Draft PR [#48](https://github.com/maloysius-wq/the-attendant-pinewood-mall/pull/48) on `feature/intro-canonical-mall-v71` implements Max's eight opening requests: a physical 02:17 AM imported-car dashboard clock with a motivated glance; symmetrical source-GLB planters clearing the contractor bollards; deconflicted facade parapets and duplicate shell front faces; 1,900 faster-falling rain points; 14 irregular locally textured boarding slats and a visible CLOSED placard; nonselectable cinematic text; a genuine CC0 MakeHuman right arm dialing work-order code 2841 after Renee's lights speech and before her entry-confirmation line; and **real v67 physical shell + v69 CC0 furnishings** instead of the obsolete mock interior.
+
+- New cinematic source: `opening/interior-v71.js`, `opening/dashboard-clock-v71.js`, `opening/keypad-v71.js`. The old internal set in `opening/scene.js` now runs only in legacy mode. Canonical preload joins the pre-existing first-GPU-frame cover before any scene reveal. Final cinematic camera remains at the canonical Chapter 1 service vestibule spawn x=12, z=-26; no gameplay migration regression should be necessary.
+- Desktop-only test-first contracts `scripts/test-opening-continuity-v71.mjs` and `scripts/test-opening-handoff-v70.mjs` passed in first CI run 41658241967. The browser loaded to `startupStatus.ready` but the first automated Playwright screenshot timed out while continuous WebGL animation ran. The review API now offers `freezeFrame()/resumeFrame()` and all v71/v62/v65 screenshot capture scripts freeze render just for screenshot. **Latest desktop v71 Actions run 41659013823 is queued** behind earlier CI and must be inspected before merging.
+- Any future continuation should inspect the newest PR head and Actions result, fix browser/visual failures, require all relevant desktop checks green, then mark PR ready, merge and verify Pages propagation. Do not report v71 live before these gates. The older v70 production checkpoint below remains true until then.
+- User explicitly prohibits mobile testing and has asked not to be interrupted with small approval questions.
+
 ## Current platform testing policy: Desktop-only (Max, 2026-11-02)
 
 The Attendant is not a mobile game. Max explicitly requested **removal of every mobile automated test**. All current scripts and workflows were revised to run **desktop-only browser regression**; older archived workflow matrices no longer launch mobile Chromium. Desktop reduced-motion checks remain. Do not reintroduce mobile viewport/device permutations, mobile test assertions, mobile screenshot artifacts, or mobile CI matrices in later milestones. Prior v66–v69 handoff entries documenting old successful mobile runs describe history, not present/future coverage.
