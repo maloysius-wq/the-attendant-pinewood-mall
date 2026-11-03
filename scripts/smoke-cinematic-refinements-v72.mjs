@@ -15,6 +15,43 @@ try{
  page.on('request',r=>{if(/^https?:/.test(r.url())&&!r.url().startsWith(origin))remote.push(r.url())});
  await page.goto(origin+'/review/the-call-v34/',{waitUntil:'domcontentloaded'});
  await page.locator('#newBtn').click();
+ const dashVisibility=await page.evaluate(async()=>{
+  const [{GLTFLoader},THREE]=await Promise.all([
+   import('/vendor/three/examples/jsm/loaders/GLTFLoader.js'),
+   import('/vendor/three/build/three.module.js')]);
+  const gltf=await new GLTFLoader().loadAsync('/opening/assets/v42/1990s-hatchback.glb');
+  const model=gltf.scene;model.rotation.y=Math.PI;model.updateMatrixWorld(true);
+  let bounds=new THREE.Box3().setFromObject(model),size=bounds.getSize(new THREE.Vector3());
+  model.scale.multiplyScalar(1.86/size.x);model.updateMatrixWorld(true);
+  bounds.setFromObject(model);const center=bounds.getCenter(new THREE.Vector3());
+  model.position.x-=center.x;model.position.y-=bounds.min.y;model.position.z-=center.z;
+  const car=new THREE.Group();car.position.set(-10,0,17.5);car.add(model);
+  model.traverse(o=>{if(o.isMesh)for(const m of Array.isArray(o.material)?o.material:[o.material])
+    if(m&&/body_pbr/i.test(m.name||''))m.side=THREE.FrontSide;});
+  car.updateWorldMatrix(true,true);
+  const local=p=>car.localToWorld(new THREE.Vector3(...p));
+  const eye=local([-.24,1.27,.29]),results=[];
+  for(const x of[-.45,-.3,-.15,0,.15,.3,.45])
+   for(const y of[.7,.85,1.0,1.1,1.2,1.3])
+    for(const z of[-.8,-1,-1.2,-1.4]){
+     const d=local([x,y,z]).sub(eye).normalize();
+     const hit=new THREE.Raycaster(eye,d,.08,3).intersectObject(model,true)
+      .find(h=>!/window|wheel|tire|rim/i.test(h.object.name));
+     if(!hit)continue;
+     const p=car.worldToLocal(hit.point.clone());
+     const normal=hit.face.normal.clone().transformDirection(hit.object.matrixWorld);
+     const view=eye.clone().sub(hit.point).normalize();
+     results.push({aim:[x,y,z],point:p.toArray().map(n=>+n.toFixed(3)),
+      distance:+hit.distance.toFixed(3),mesh:hit.object.name,
+      normalDot:+Math.abs(normal.dot(view)).toFixed(3)});
+    }
+  return {eye:eye.toArray(),results:results.filter(r=>r.point[2]<-.70&&r.point[1]>.68)
+   .sort((a,b)=>a.distance-b.distance).slice(0,40),
+   allDistances:results.length,
+   nonDashExamples:results.filter(r=>r.point[2]>=-.70).slice(0,8)};
+ });
+ console.log('V74_DASH_VISIBILITY '+JSON.stringify(dashVisibility));
+
  await page.waitForFunction(()=>window.__PINEWOOD_OPENING_V34__?.startupStatus?.state==='ready',null,{timeout:150000});
  const get=()=>page.evaluate(()=>({
   clock:window.__PINEWOOD_OPENING_V34__.dashboardClock,
