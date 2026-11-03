@@ -9,24 +9,24 @@ import {ENTRY_CODE,keypadCenter} from './keypad-spec-v72.mjs';
 
 const clamp=(x,a,b)=>Math.max(a,Math.min(b,x));
 export class KeypadReachHandV72{
- constructor(){
-  this.scene=new THREE.Scene();
-  this.camera=new THREE.PerspectiveCamera(66,1,.05,10);
-  this.scene.add(this.camera);
-  this.scene.add(new THREE.AmbientLight(0xffffff,1.5));
-  const key=new THREE.DirectionalLight(0xffead5,1.8);
-  key.position.set(-1.4,2,3);this.scene.add(key);
+ constructor(worldCamera){
+  // The rig is an actual child of the world camera in the same scene as the
+  // physical keypad. A second renderer pass previously never showed its skin.
+  this.camera=worldCamera;
   this.root=new THREE.Group();this.root.name='Anatomical contractor forearm reaching for access digits';
   this.camera.add(this.root);
+  this.fill=new THREE.PointLight(0xffdbbf,1.7,1.6,2);
+  this.fill.position.set(.2,0,-.25);this.camera.add(this.fill);
+  this.fill.visible=false;
   this.hand=new RiggedPlayerHand(this.root);
   this.ready=this.hand.load();
   this.root.visible=false;
   this.digit=null;this.press=0;this.inFrame=false;this.displayPoint=[0,0];
  }
- resize(aspect){this.camera.aspect=aspect;this.camera.updateProjectionMatrix()}
  update(progress,active,worldCamera){
   const p=clamp(progress,0,1);
   this.root.visible=!!active&&p>0&&p<1&&this.hand.state==='ready';
+  this.fill.visible=this.root.visible;
   if(!this.root.visible){this.digit=null;this.hand.update(0);return}
   const slot=Math.min(3,Math.floor(p*4));
   const digit=ENTRY_CODE[slot],center=keypadCenter(digit);
@@ -50,7 +50,21 @@ export class KeypadReachHandV72{
    return [(p.x+1)/2,(1-p.y)/2,p.z];
   };
   const bone=this.hand.state==='ready'?this.hand.status:null;
-  return {visible:this.root.visible,source:this.hand.state,
+  let skinSamplesInView=0,skinSamples=0;
+  const mesh=this.hand.skinnedMesh;
+  if(this.root.visible&&mesh){
+   this.camera.updateWorldMatrix(true,false);
+   mesh.updateMatrixWorld(true);mesh.skeleton.update();
+   const attr=mesh.geometry.getAttribute('position');
+   const pt=new THREE.Vector3();
+   for(let i=0;i<attr.count;i+=37){
+    pt.fromBufferAttribute(attr,i);mesh.applyBoneTransform(i,pt);
+    mesh.localToWorld(pt);pt.project(this.camera);skinSamples++;
+    if(Math.abs(pt.x)<1&&Math.abs(pt.y)<1&&pt.z>=-1&&pt.z<=1)
+     skinSamplesInView++;
+   }
+  }
+  return {visible:this.root.visible,source:this.hand.state,skinSamplesInView,skinSamples,
    digit:this.digit,press:this.press,inFrame:this.inFrame,
    targetViewport:this.displayPoint,realAnatomicalForearm:!!bone?.hasForearm,
    wristViewport:bone?.gripWristPosition?toViewport(bone.gripWristPosition):null,

@@ -12,20 +12,27 @@ export function installDashboardClockV71(car){
   throw Error('The dashboard clock needs the complete imported hatchback');
  car.updateWorldMatrix(true,true);
  const hits=[];
- // Probe across the central actual dashboard, avoiding the steering wheel.
+ const driverEye=local(car,[-.20,1.24,.19]);
+ // Accept only dash surfaces on the first visible line of sight from the
+ // driver's eye. The nearest top hit was behind the wheel/other car meshes.
+ // Probe across the passenger side of the original center dashboard.
  // All positions are in the imported vehicle's measured, full-size meters.
- for(const x of [.17,.11,.05,-.03,-.13,-.23,.28]){
+ for(const x of [.39,.33,.47,.26,.18,.11,.05,-.05]){
   for(const z of [-.62,-.70,-.53,-.43,-.82,-.30]){
    const ray=new THREE.Raycaster(local(car,[x,1.26,z]),new THREE.Vector3(0,-1,0),.05,.68);
    for(const hit of ray.intersectObject(model,true)){
     if(/window|wheel|tire|rim/i.test(hit.object.name))continue;
     const p=car.worldToLocal(hit.point.clone());
     if(p.y<.68||p.y>1.16||p.z>-.25||p.z<-.98)continue;
+    const direct=hit.point.clone().sub(driverEye),distance=direct.length();
+    const blockers=new THREE.Raycaster(driverEye,direct.normalize(),.02,distance-.035)
+     .intersectObject(model,true).filter(h=>!/window|wheel|tire|rim/i.test(h.object.name));
+    if(blockers.length)continue; // Genuine occlusion, not an unobstructed insert.
     const normal=hit.face.normal.clone().transformDirection(hit.object.matrixWorld);
-    const toEye=local(car,[-.24,1.24,.18]).sub(hit.point).normalize();
+    const toEye=driverEye.clone().sub(hit.point).normalize();
     if(normal.dot(toEye)<0)normal.negate();
     // A near-vertical center stack is ideal, but the real dash top is valid.
-    const score=Math.abs(p.x-.11)*1.2+Math.abs(p.z+.61)*.48+
+    const score=Math.abs(p.x-.34)*1.2+Math.abs(p.z+.61)*.48+
      Math.abs(p.y-.89)*.8+(1-Math.max(0,normal.dot(toEye)))*.08;
     hits.push({score,p,normal,mesh:hit.object.name});
     break;
@@ -60,7 +67,7 @@ export function installDashboardClockV71(car){
  car.add(clock);
  return Object.freeze({
   time:'12:47 AM',localPosition:clock.position.toArray(),importedCarPreserved:true,
-  mountedToImportedDash:true,surfaceGap:.005,displayWidth:.218,
+  mountedToImportedDash:true,unobstructedFromDriver:true,surfaceGap:.005,displayWidth:.218,
   hitMesh:mount.mesh,displayNormal:mount.normal.toArray()
  });
 }

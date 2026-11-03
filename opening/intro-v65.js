@@ -45,7 +45,7 @@ class Intro{
   this.canvasSlot=this.root.querySelector('.pwm-render');this.last=performance.now();
   this.ambience=new OpeningAmbience();
   this.eyeRig=new HumanCameraRig();this.lastCameraPose=null;
-  this.resize=()=>{if(!this.renderer)return;const w=this.root.clientWidth||innerWidth,h=this.root.clientHeight||innerHeight;this.renderer.setSize(w,h,false);this.camera.aspect=w/h;this.camera.updateProjectionMatrix();if(this.phoneCamera){this.phoneCamera.aspect=w/h;this.phoneCamera.updateProjectionMatrix()}this.keypadReach?.resize(w/h)};
+  this.resize=()=>{if(!this.renderer)return;const w=this.root.clientWidth||innerWidth,h=this.root.clientHeight||innerHeight;this.renderer.setSize(w,h,false);this.camera.aspect=w/h;this.camera.updateProjectionMatrix();if(this.phoneCamera){this.phoneCamera.aspect=w/h;this.phoneCamera.updateProjectionMatrix()}};
   this.keydown=e=>{
    if(this.preloading){
     if(e.key==='Tab'){e.preventDefault();this.preloadSkip.focus();return;}
@@ -106,7 +106,7 @@ class Intro{
    handsetKey.position.set(-1.5,2,3);
    this.phoneScene.add(handsetKey);
    this.handheld=new HandheldCheckInPhone(this.phoneCamera);
-   this.keypadReach=new KeypadReachHandV72();
+   this.keypadReach=new KeypadReachHandV72(this.camera);
    this.renderer=new THREE.WebGLRenderer({antialias:true,alpha:false,powerPreference:'high-performance'});
    this.renderer.outputColorSpace=THREE.SRGBColorSpace;this.renderer.toneMapping=THREE.ACESFilmicToneMapping;
    this.renderer.toneMappingExposure=1.20;this.renderer.setPixelRatio(Math.min(devicePixelRatio||1,1.6));
@@ -168,9 +168,8 @@ class Intro{
    this.camera.position.set(12.8,1.63,-20.73);
    this.camera.lookAt(13.65,1.37,-21.68);
    this.keypadReach.update(.375,true,this.camera);
-   this.renderer.autoClear=false;this.renderer.clearDepth();
-   this.renderer.render(this.keypadReach.scene,this.keypadReach.camera);
-   this.renderer.autoClear=true;this.keypadReach.update(0,false,this.camera);
+   this.renderer.render(this.stage.scene,this.camera);
+   this.keypadReach.update(0,false,this.camera);
    this.camera.position.copy(originalPos);this.camera.quaternion.copy(originalQuat);
    this.renderer.render(this.stage.scene,this.camera);
    this.firstFrameRendered=true;this.eyeRig=new HumanCameraRig();
@@ -205,7 +204,7 @@ class Intro{
   this.preloadSkip.focus({preventScroll:true});
  }
  disposeScenes(){
-  for(const scene of [this.stage?.scene,this.phoneScene,this.keypadReach?.scene])scene?.traverse(o=>{
+  for(const scene of [this.stage?.scene,this.phoneScene])scene?.traverse(o=>{
    o.geometry?.dispose?.();
    for(const m of o.material?(Array.isArray(o.material)?o.material:[o.material]):[]){
     m.map?.dispose?.();m.dispose?.();
@@ -334,12 +333,6 @@ class Intro{
      this.renderer.autoClear=false;
      this.renderer.clearDepth();
      this.renderer.render(this.phoneScene,this.phoneCamera);
-     this.renderer.autoClear=true;
-    }
-    if(this.keypadReach?.root.visible){
-     this.renderer.autoClear=false;
-     this.renderer.clearDepth();
-     this.renderer.render(this.keypadReach.scene,this.keypadReach.camera);
      this.renderer.autoClear=true;
     }
    }
@@ -474,7 +467,8 @@ window.__PINEWOOD_OPENING_V34__={
     .map(p=>new THREE.Vector3(...p).project(active.camera));
    const xs=bounds.map(p=>(p.x+1)/2),ys=bounds.map(p=>(1-p.y)/2);
    const pad=active.stage.accessPad.status,reach=active.keypadReach?.status;
-   return {entered:pad.entered,granted:pad.granted,legibleDigits:pad.legibleDigits,
+   return {entered:pad.entered,displayedCode:pad.displayedCode,
+    granted:pad.granted,legibleDigits:pad.legibleDigits,
     inFrame:xs.every(x=>x>=.03&&x<=.97)&&ys.every(y=>y>=.03&&y<=.97),
     viewportWidth:Math.max(...xs)-Math.min(...xs),
     viewportBounds:{left:Math.min(...xs),right:Math.max(...xs),top:Math.min(...ys),bottom:Math.max(...ys)},

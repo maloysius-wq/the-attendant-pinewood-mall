@@ -112,7 +112,26 @@ export function makeOpeningScene({useImportedLandscape=false,useAbandonedFacade=
  box(pivot,doorMid,1.59,.17,1.38,1.0,.032,windowMat);
  box(pivot,serviceDoor.width-.25,1.06,.17,.12,.28,.05,concrete);
  box(world,13.65,1.38,-21.81,.46,.81,.18,steel);
- box(world,13.65,1.50,-21.67,.32,.25,.03,lit(0x648677,.45));
+ // Recessed glass code readout: it actually displays each digit as entered,
+ // instead of a featureless mint rectangle that never changes.
+ box(world,13.65,1.52,-21.676,.335,.263,.03,mat(0x102327,.68,.10));
+ const codeCanvas=document.createElement('canvas');codeCanvas.width=512;codeCanvas.height=256;
+ const codeCtx=codeCanvas.getContext('2d');
+ const codeTexture=new THREE.CanvasTexture(codeCanvas);codeTexture.colorSpace=THREE.SRGBColorSpace;
+ const codeFace=new THREE.Mesh(new THREE.PlaneGeometry(.301,.195),
+  new THREE.MeshBasicMaterial({map:codeTexture,toneMapped:false}));
+ codeFace.name='Live illuminated contractor entry digits';codeFace.position.set(13.65,1.53,-21.656);
+ world.add(codeFace);
+ const drawCode=(entered,granted)=>{
+  codeCtx.fillStyle='#061316';codeCtx.fillRect(0,0,512,256);
+  codeCtx.fillStyle='#83b4a7';codeCtx.font='bold 29px monospace';codeCtx.textAlign='center';
+  codeCtx.fillText(granted?'ACCESS ACCEPTED':'CONTRACTOR PIN',256,61);
+  codeCtx.fillStyle=granted?'#91ffba':'#e0f8e9';
+  codeCtx.shadowColor=granted?'#3dff98':'#95caaa';codeCtx.shadowBlur=16;
+  codeCtx.font='bold 77px monospace';codeCtx.fillText((entered+'____').slice(0,4).split('').join(' '),256,175);
+  codeCtx.shadowBlur=0;codeTexture.needsUpdate=true;
+ };
+ drawCode('',false);
  const accessKeys=[];
  // Real keycap faces carry legible numbers. An index finger is shown during
  // the dialogue pause and the corresponding imported key physically depresses.
@@ -134,7 +153,7 @@ export function makeOpeningScene({useImportedLandscape=false,useAbandonedFacade=
   label.name='Readable physical digit '+digit;label.position.z=.014;key.add(label);
   accessKeys.push(key);
  }
-  const accessIndicator=box(world,13.65,1.50,-21.64,.28,.09,.018,
+  const accessIndicator=box(world,13.79,1.73,-21.641,.038,.034,.018,
    new THREE.MeshStandardMaterial({color:0x15211e,emissive:0x0b130f,emissiveIntensity:.2}));
   accessIndicator.name='contractor access indicator';
  notice(world,'AUTHORIZED\nCONTRACTORS',['REPORT ELECTRICAL HAZARDS','DO NOT PROP FIRE DOORS','ENTRY IS RECORDED'],15.5,1.76,-21.72,1.14,1.32);
@@ -179,7 +198,7 @@ export function makeOpeningScene({useImportedLandscape=false,useAbandonedFacade=
  const rain=new THREE.Points(geom,new THREE.PointsMaterial({color:0x93aec0,size:.055,transparent:true,opacity:.52,depthWrite:false}));world.add(rain);
  const stage={scene,world,pivot,rain,car,retiredInteriorMeshes:useAbandonedFacade?0:1,
    accessPad:{
-    status:{pressed:0,entered:'',legibleDigits:accessKeys.length,granted:false,progress:0},
+    status:{pressed:0,entered:'',displayedCode:'',legibleDigits:accessKeys.length,granted:false,progress:0},
     update(progress){
      const p=Math.min(1,Math.max(0,progress));
      const pressed=Math.min(4,Math.floor(p*4));
@@ -190,10 +209,13 @@ export function makeOpeningScene({useImportedLandscape=false,useAbandonedFacade=
       key.material.emissiveIntensity=active?1.15:.17;
      }
      const granted=p>=.999;
+     const entered=ENTRY_CODE.slice(0,pressed).join('');
+     if(entered!==this.status.displayedCode||granted!==this.status.granted)
+      drawCode(entered,granted);
      accessIndicator.material.color.setHex(granted?0x376e50:0x15211e);
      accessIndicator.material.emissive.setHex(granted?0x22ff7f:0x0b130f);
      accessIndicator.material.emissiveIntensity=granted?1.8:.2;
-     this.status={pressed,entered:ENTRY_CODE.slice(0,pressed).join(''),
+     this.status={pressed,entered,displayedCode:entered,
       legibleDigits:accessKeys.length,granted,progress:p};
     }
    },
