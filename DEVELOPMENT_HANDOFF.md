@@ -8,6 +8,17 @@
 
 ---
 
+## Current opening-cinematic checkpoint: v72 (2026-11-03)
+
+**Status: MERGED TO MAIN AS `fb8351bdb3fb29f859a9dc5c10ebf8bb1fcbaaf8`.** Production fix tracked in [PR #50](https://github.com/maloysius-wq/the-attendant-pinewood-mall/pull/50). The v72 opening refinements replace the prior v71 clock placement, rain transition, retired vestibule flash and blank access entry. The canonical full-size imported hatchback, original connected CC0 hand and preloaded unified Pinewood Mall remain intact.
+
+- The small 12:47 AM digital readout is mounted flush against the real imported hatchback's driver-facing dashboard panel (the first safe visible surface found through actual GLB triangles); the clock now shows all digits without clipping and does not float over the windshield. It is 0.218 m wide and visually confirmed by desktop capture.
+- Interior/exterior rain audio switches at the physical camera boundary as the player steps out of the car (x=-11.15), independent of how long Renee's dialogue lasts. Exterior rain continues through the contractor code entry and only transitions as the player crosses into the mall.
+- The old procedural mall mini-interior is not constructed at all when the abandoned facade is in use (0 retired interior meshes). The current preloaded v69 canonical mall replaces the exterior exactly at the contractor threshold; no prior layout can flash during the cut.
+- The contractor keypad is centered and large enough to read nine physical number labels. Each digit of 1-5-8-3 visibly depresses its corresponding 3D key, the illuminated display updates while typing, and the original licensed anatomical right forearm is placed in the real 3D scene for physical presses. Key entry occurs within the pause between Renee's recorded lines; approved voice assets/scripts remain unchanged.
+- Regression: `scripts/test-opening-v72.mjs` and desktop-only `scripts/smoke-cinematic-refinements-v72.mjs`, via `.github/workflows/cinematic-refinements-v72.yml`. The browser runner's full-page screenshot sometimes captures an out-of-date GPU composite at the keypad; the smoke test additionally captures the **actual WebGL framebuffer** and verifies the genuine arm contributes a draw call and changes scene pixels, plus the code display, physical bounds, canonical mall and zero remote dependencies. v72 desktop workflow [run 41694854589](https://github.com/maloysius-wq/the-attendant-pinewood-mall/actions/runs/41694854589) passed. Other desktop workflows and the production hardening gate must be green before claiming a released build.
+- No mobile QA is permitted; don't reintroduce mobile viewport tests. Preserve all previous cinematic audio timings, phone check-in, story canon, CC0 local assets, gameplay and save migration.
+
 ## Current cinematic continuity checkpoint: v71 (2026-11-03)
 
 **Status: MERGED TO MAIN AS `f929cd294f9b57f250afdf111ff507fbebc72803`; GITHUB PAGES PUBLISHES FROM THE REPOSITORY ROOT.** PR #49 reconnects the shipped v70 single-property gameplay to its opening: after the real contractor-entry threshold, the cinematic uses `renderPinewoodV69` in a separately preloaded scene instead of its retired miniature interior. The camera follows the x=9..16 service vestibule to the x≈10 connection at z=-43, then enters the actual central atrium. The same 17 licensed interior model types remain local and preloaded under the opaque cover; exterior and interior are never superimposed with z-fighting.
