@@ -1,3 +1,8 @@
+import {renderPinewoodV69} from './mall/render-shell-v69.js';
+import {buildGameplayLayoutV70,eyeHeightOnMezzStairV70} from './mall/gameplay-layout-v70.mjs';
+import {VISUAL_VIEWPOINTS_V70} from './mall/visual-anchors-v70.mjs';
+import {CCTV_FEEDS_V70} from './mall/story-placement-v70.mjs';
+import {relocateStoryV70,descendToExitV70} from './mall/story-runtime-v70.js';
 // Deployment loader for The Attendant: Pinewood Mall.
 // Runtime bundle stays immutable; authored room and world-prop overrides live in /patches.
 const PARTS=[
@@ -5,6 +10,7 @@ const PARTS=[
   './bundle2/p4-1.txt','./bundle2/p4-2.txt','./bundle2/p4-3.txt','./bundle2/p4-4.txt','./bundle2/p4-5.txt',
   './bundle2/p5-1.txt','./bundle2/p5-2.txt','./bundle2/p5-3.txt','./bundle2/p5-4.txt','./bundle2/p5-5.txt'
 ];
+const UNIFIED_MALL_V70_PATCH='./patches/unified-mall-v70.js.txt';
 const WORLD_PATCH='./patches/worldprops-v1.js.txt';
 const INDUSTRIAL_PATCH='./patches/industrial-cc0-v1.js.txt';
 const VISUAL_FIX_PATCH='./patches/visual-fixes-v1.js.txt';
@@ -294,7 +300,15 @@ try{
   const freightElevatorV28Source=await applyFreightElevatorReliabilityV28Runtime(productionReadabilityV26Source,freightElevatorV28Patch);
   const arcadeV30Source=await applyArcadeRebuildV30Runtime(freightElevatorV28Source,arcadeV30Patch);
   const audioDirectionV27Source=await applyAudioDirectionV27Runtime(arcadeV30Source,audioDirectionV27Patch,characterVoiceManifest);
-  const source=audioDirectionV27Source+'\n//# sourceURL=pinewood-runtime.js\n';
+  const v70PatchText=await getText(UNIFIED_MALL_V70_PATCH);
+  const v70PatchUrl=URL.createObjectURL(new Blob([v70PatchText+'\nexport {applyUnifiedMallV70};\n'],{type:'text/javascript'}));
+  let unifiedSource;
+  try{
+    const v70=await import(v70PatchUrl);
+    unifiedSource=v70.applyUnifiedMallV70(audioDirectionV27Source);
+  }finally{URL.revokeObjectURL(v70PatchUrl);}
+  window.__PINEWOOD_V70_BRIDGE__={renderPinewoodV69,buildGameplayLayoutV70,eyeHeightOnMezzStairV70,relocateStoryV70,descendToExitV70,VISUAL_VIEWPOINTS_V70,CCTV_FEEDS_V70};
+  const source=unifiedSource+'\n//# sourceURL=pinewood-runtime.js\n';
   const moduleUrl=URL.createObjectURL(new Blob([source],{type:'text/javascript'}));
   try{await import(moduleUrl);}finally{URL.revokeObjectURL(moduleUrl);}
 }catch(err){

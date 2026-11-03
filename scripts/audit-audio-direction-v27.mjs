@@ -67,7 +67,9 @@ for(const marker of [
   'arcadeV30Source',
   'applyAudioDirectionV27Runtime',
   'audioDirectionV27Source',
-  "const source=audioDirectionV27Source+'\\n//# sourceURL=pinewood-runtime.js\\n';"
+  ...(game.includes("const UNIFIED_MALL_V70_PATCH")?
+  ["unifiedSource=v70.applyUnifiedMallV70(audioDirectionV27Source);","const source=unifiedSource+'\\n//# sourceURL=pinewood-runtime.js\\n';"]:
+  ["const source=audioDirectionV27Source+'\\n//# sourceURL=pinewood-runtime.js\\n';"])
 ])if(!game.includes(marker))fail('loader marker missing '+marker);
 for(const marker of [
   'rand(72,118)',

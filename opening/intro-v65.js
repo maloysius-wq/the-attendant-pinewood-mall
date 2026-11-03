@@ -345,6 +345,7 @@ class Intro{
   }
   document.dispatchEvent(new CustomEvent('pinewood-intro-finished',{detail:{skipped,preview:this.preview}}));
   if(this.preview)return;
+  if(!skipped)window.__PINEWOOD_INTRO_COMPLETED_FOR_GAME__=true;
   // The full game loader assembles the six-chapter runtime asynchronously.
   // A fast skip may finish before the classic New Game click handler is attached.
   // Retry the native click until its existing title screen actually transitions.
