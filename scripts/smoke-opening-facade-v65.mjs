@@ -32,6 +32,37 @@ try{
   assert.equal(f.mainEntrance.routeBlocked,true);
   assert.equal(f.sign.width,27.1);
   assert.ok(f.heightMeters>=17);
+  // Inspect the actual built 3D meshes from the arrival lot. A roof cap
+  // projects across the sign if its screen-space x/y bounds overlap the
+  // lettering and its front face is closer to the player than the sign.
+  const roofSignClearance=await page.evaluate(async()=>{
+   const [{installAbandonedFacadeV65},THREE]=await Promise.all([
+    import('/opening/facade-v65.js'),
+    import('/vendor/three/build/three.module.js')
+   ]);
+   const material=new THREE.MeshBasicMaterial({color:0x888888});
+   const world=new THREE.Group();
+   await installAbandonedFacadeV65({
+    world,facadeMaterials:{facade:material,steel:material},serviceEntry:{}
+   });
+   world.updateMatrixWorld(true);
+   const sign=world.getObjectByName('large weathered 1980s PINEWOOD MALL sign');
+   if(!sign)throw Error('Pinewood Mall sign mesh is missing');
+   const signBox=new THREE.Box3().setFromObject(sign);
+   const occludingCoping=[];
+   world.traverse(mesh=>{
+    if(!mesh.isMesh||!/parapet coping/i.test(mesh.name))return;
+    const b=new THREE.Box3().setFromObject(mesh);
+    const xOverlap=Math.max(0,Math.min(signBox.max.x,b.max.x)-Math.max(signBox.min.x,b.min.x));
+    const yOverlap=Math.max(0,Math.min(signBox.max.y,b.max.y)-Math.max(signBox.min.y,b.min.y));
+    if(xOverlap>.02&&yOverlap>.02&&b.max.z>signBox.max.z+.005){
+     occludingCoping.push({name:mesh.name,xOverlap,yOverlap,frontZ:b.max.z,signZ:signBox.max.z});
+    }
+   });
+   return {occludingCoping};
+  });
+  assert.deepEqual(roofSignClearance.occludingCoping,[],
+   'roof parapet coping must not pass in front of or through the Pinewood Mall sign');
   assert.equal(meta.env.landscape?.version,64,name+' v64 planter preservation');
   assert.equal(meta.env.landscape?.count,8);
   assert.equal(meta.env.landscape?.scaleFactor,2);
