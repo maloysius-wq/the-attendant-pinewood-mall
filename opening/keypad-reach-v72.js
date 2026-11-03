@@ -10,14 +10,11 @@ import {ENTRY_CODE,keypadCenter} from './keypad-spec-v72.mjs';
 const clamp=(x,a,b)=>Math.max(a,Math.min(b,x));
 export class KeypadReachHandV72{
  constructor(worldCamera){
-  // The rig is an actual child of the world camera in the same scene as the
-  // physical keypad. A second renderer pass previously never showed its skin.
+  // Share the already-proven camera, lighting, depth-cleared foreground
+  // renderer and local anatomical source with the existing phone close-up.
   this.camera=worldCamera;
   this.root=new THREE.Group();this.root.name='Anatomical contractor forearm reaching for access digits';
   this.camera.add(this.root);
-  this.fill=new THREE.PointLight(0xffdbbf,1.7,1.6,2);
-  this.fill.position.set(.2,0,-.25);this.camera.add(this.fill);
-  this.fill.visible=false;
   this.hand=new RiggedPlayerHand(this.root);
   this.ready=this.hand.load();
   this.root.visible=false;
@@ -26,7 +23,6 @@ export class KeypadReachHandV72{
  update(progress,active,worldCamera){
   const p=clamp(progress,0,1);
   this.root.visible=!!active&&p>0&&p<1&&this.hand.state==='ready';
-  this.fill.visible=this.root.visible;
   if(!this.root.visible){this.digit=null;this.hand.update(0);return}
   const slot=Math.min(3,Math.floor(p*4));
   const digit=ENTRY_CODE[slot],center=keypadCenter(digit);

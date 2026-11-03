@@ -42,10 +42,16 @@ export function installDashboardClockV71(car){
  hits.sort((a,b)=>a.score-b.score);
  if(!hits.length)throw Error('Cannot locate a real imported dashboard mounting surface; refusing to float the clock');
  const mount=hits[0],clock=new THREE.Group();
+ // The mounting foot touches the imported dashboard, while the shallow
+ // factory LCD is angled toward the actual driver (like an inset clock).
+ const eyeVector=driverEye.clone().sub(local(car,mount.p.toArray())).normalize();
+ const displayNormal=mount.normal.clone().multiplyScalar(.38)
+  .addScaledVector(eyeVector,.62).normalize();
+ const displayReadableAngle=displayNormal.dot(eyeVector);
  clock.name='Factory-sized recessed digital dashboard readout';
  // The thin bezel seats into the actual mesh. It is not a freestanding box.
  clock.position.copy(mount.p).addScaledVector(mount.normal,.005);
- clock.quaternion.setFromUnitVectors(new THREE.Vector3(0,0,1),mount.normal);
+ clock.quaternion.setFromUnitVectors(new THREE.Vector3(0,0,1),displayNormal);
  const plastic=new THREE.Mesh(new THREE.BoxGeometry(.238,.091,.009),
   new THREE.MeshStandardMaterial({color:0x11181b,roughness:.83,metalness:.035}));
  plastic.name='Slim factory bezel seated into imported dashboard';
@@ -68,6 +74,7 @@ export function installDashboardClockV71(car){
  return Object.freeze({
   time:'12:47 AM',localPosition:clock.position.toArray(),importedCarPreserved:true,
   mountedToImportedDash:true,unobstructedFromDriver:true,surfaceGap:.005,displayWidth:.218,
-  hitMesh:mount.mesh,displayNormal:mount.normal.toArray()
+  hitMesh:mount.mesh,displayNormal:displayNormal.toArray(),
+  importedSurfaceNormal:mount.normal.toArray(),displayReadableAngle
  });
 }
