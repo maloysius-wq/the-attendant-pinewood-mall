@@ -74,3 +74,17 @@ test('all four CCTV feeds describe real visible areas of the new property',async
   assert.ok(f.bounds[2]>=room.z1-.1&&f.bounds[3]<=room.z2+.1);
  }
 });
+
+test('every office console and payroll clue has a clear player approach on its actual floor',()=>{
+ const samples=[
+  [3,'ch3_console_v22',{controlId:'route'}],
+  [5,'journal',{label:'PAYROLL-1997'}],
+  [5,'journal',{label:'TIMECLOCK-1997'}],
+  [5,'ch5_sessions_terminal_v24',{}]
+ ];
+ for(const [chapter,type,metadata] of samples){
+  const target=storyTargetV70({chapter,type,...metadata});
+  assert.ok(buildGameplayLayoutV70({chapter}).canStand(target.x,target.z),
+   'Unreachable '+type+' in '+target.room);
+ }
+});

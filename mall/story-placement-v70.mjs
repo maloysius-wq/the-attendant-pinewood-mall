@@ -21,7 +21,7 @@ const FIXED={
   },
   3:{
     'ch3_console_v22:cctv':['security',36,-111],
-    'ch3_console_v22:route':['security',41,-111],
+    'ch3_console_v22:route':['security',41,-110],
     'LUIS-ROUTE':['security',43,-105],
     'West Security Shutter':['security',29,-105.5],
     'East Security Shutter':['security',37.5,-101],
@@ -41,10 +41,10 @@ const FIXED={
   },
   5:{
     'JO-ROSTER-PAGES':['payroll_office',36,-89],
-    'PAYROLL-1997':['payroll_office',36,-86],
-    'TIMECLOCK-1997':['contractor_ledger',75,-89],
+    'PAYROLL-1997':['payroll_office',34.5,-86],
+    'TIMECLOCK-1997':['contractor_ledger',75.5,-89],
     'ch5_roster_terminal_v24':['roster_records',50,-89],
-    'ch5_sessions_terminal_v24':['pa_control',75,-109],
+    'ch5_sessions_terminal_v24':['pa_control',75,-110],
     'ch5_eli_access_v24':['eli_chase',61,-104],
     'ch5_exit_v24':['pa_control',72,-104],
     'door':['eli_chase',61,-104]
