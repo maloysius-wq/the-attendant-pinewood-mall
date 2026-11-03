@@ -36,7 +36,7 @@ test('the car clock, ticket and contractor keypad agree on the late-night time a
  assert.match(dash,/02:17/);
  assert.match(phone,/2841/);
  assert.match(entry,/2841/);
- assert.match(intro,/this\.keypad\.update/);
+ assert.match(intro,/this\.keypad\?\.update/);
  assert.match(intro,/this\.voiceSeconds/);
 });
 
