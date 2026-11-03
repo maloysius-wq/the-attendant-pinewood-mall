@@ -44,3 +44,21 @@ test('unmapped props are zoned into a reachable chapter room instead of original
   assert.equal(room.level,'G');
   assert.ok(loc.x>=room.x1&&loc.x<=room.x2&&loc.z>=room.z1&&loc.z<=room.z2);
 });
+
+test('security and East Wing route shutters remain separate physical choices',()=>{
+ const names=[
+  [3,'West Security Shutter','security'],
+  [3,'East Security Shutter','security'],
+  [3,'East Wing Fire Door','annex_threshold'],
+  [4,'E-17 Fire Closure','east_wing_spine'],
+  [4,'R-12 Records Gate','receiving_r12']
+ ];
+ const seen=new Set();
+ for(const [chapter,label,room] of names){
+  const at=storyTargetV70({chapter,type:'door',label,index:0});
+  assert.equal(at.room,room);
+  const k=chapter+':'+at.x+':'+at.z;
+  assert.equal(seen.has(k),false,`${label} overlaps another shutter`);
+  seen.add(k);
+ }
+});
