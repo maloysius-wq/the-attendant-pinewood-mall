@@ -329,6 +329,7 @@ class Intro{
     const useNewMall=throughDoor&&(this.line.id==='promise'||this.line.id==='direction');
     this.root.dataset.renderWorld=useNewMall?'unified-mall':'exterior';
     this.renderer.render(useNewMall?this.interiorScene:this.stage.scene,this.camera);
+    this.frameDraws=(this.frameDraws||0)+1;
     if(this.handheld?.raised){
      this.renderer.autoClear=false;
      this.renderer.clearDepth();
@@ -482,6 +483,20 @@ window.__PINEWOOD_OPENING_V34__={
    retiredInteriorMeshes:active.stage?.retiredInteriorMeshes??null
   }:null;},
  get handheldPhone(){return active?.handheld?.status||null;},
+ get qaRenderStats(){
+  if(!active?.renderer)return null;
+  const arm=active.keypadReach?.root;
+  return {frameDraws:active.frameDraws||0,contextLost:active.renderer.getContext().isContextLost(),
+   stageDrawCalls:active.renderer.info.render.calls,
+   armOnStage:arm?.parent===active.stage.scene,armVisible:arm?.visible,
+   probeVisible:active.keypadReach?.probe?.visible,
+   sceneChildCount:active.stage.scene.children.length};
+ },
+ qaRenderNow(){
+  if(!location.pathname.includes('/review/')||!active?.renderer)return false;
+  active.renderer.render(active.stage.scene,active.camera);
+  return true;
+ },
  get qaPlayerHand(){return location.pathname.includes('/review/')?active?.handheld?.playerHand||null:null;},
  get captionTiming(){if(active&&!active.paused)active.renderCaption();return active?{line:active.line?.id,voiceSeconds:active.voiceSeconds,
    mediaSeconds:active.audio?.currentTime??null,captionSeconds:active.captionSeconds,

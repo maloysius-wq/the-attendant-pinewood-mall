@@ -41,6 +41,11 @@ try{
  await page.evaluate(()=>{const q=window.__PINEWOOD_OPENING_V34__;q.seek(7);q.scrub(.97)});
  await page.waitForTimeout(700);
  const entry=await get();
+ const diagnosticsBefore=await page.evaluate(()=>window.__PINEWOOD_OPENING_V34__.qaRenderStats);
+ await page.waitForTimeout(150);
+ const diagnosticsAfter=await page.evaluate(()=>window.__PINEWOOD_OPENING_V34__.qaRenderStats);
+ await page.evaluate(()=>window.__PINEWOOD_OPENING_V34__.qaRenderNow());
+ console.log('V72_RENDER_DIAGNOSTIC '+JSON.stringify({diagnosticsBefore,diagnosticsAfter}));
  console.log('V72_HAND_DIAGNOSTIC '+JSON.stringify(entry.keypad));
  assert.ok(entry.keypad?.inFrame,'entire keypad panel is within the desktop viewport');
  assert.ok(entry.keypad?.viewportWidth>=.09,'digits are large enough to read');
@@ -72,7 +77,7 @@ try{
  assert.equal(interior.world?.mode,'unified-mall');
  assert.ok(interior.eye[2]<-43,'real mall route remains traversable');
  assert.deepEqual(errors,[]);assert.deepEqual(remote,[]);
- await writeFile('cinematic-v72-artifacts/status.json',JSON.stringify({initial,clockMoment,entry,granted,threshold,interior,errors,remote},null,2));
+ await writeFile('cinematic-v72-artifacts/status.json',JSON.stringify({initial,clockMoment,entry,granted,threshold,interior,diagnosticsBefore,diagnosticsAfter,errors,remote},null,2));
  console.log('CINEMATIC_V72_DESKTOP_PASS '+JSON.stringify({clock:initial.clock,keypad:entry.keypad,world:interior.world,errors,remote}));
  await page.close();
 }finally{await browser.close()}

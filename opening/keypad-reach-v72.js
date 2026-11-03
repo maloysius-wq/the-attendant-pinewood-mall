@@ -18,7 +18,7 @@ export class KeypadReachHandV72{
   this.ready=handheld.handLoad;
   this.handOnly=false;this.digit=null;this.press=0;
   this.inFrame=false;this.displayPoint=[0,0];
-  this.probe=new THREE.Mesh(new THREE.SphereGeometry(.018,16,12),new THREE.MeshBasicMaterial({color:0xff00ff,depthTest:false}));
+  this.probe=new THREE.Mesh(new THREE.SphereGeometry(.075,16,12),new THREE.MeshBasicMaterial({color:0xff00ff,depthTest:false}));
   this.root.add(this.probe);this.probe.visible=false;
  }
  showHandOnly(on){
