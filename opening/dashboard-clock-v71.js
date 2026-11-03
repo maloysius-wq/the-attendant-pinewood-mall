@@ -13,26 +13,25 @@ export function installDashboardClockV71(car){
  car.updateWorldMatrix(true,true);
  // The old driver eye looked through front-seat upholstery and the mount
  // search selected a seat-depth triangle (z=-.186) as "dashboard".
- const driverEye=local(car,[-.24,1.27,.29]);
+ const driverEye=local(car,[-.30,1.10,-.32]);
  const hits=[];
- // Match the scene camera's in-car near plane: upholstery immediately in front
- // of the seated eye is intentionally clipped, while the true dashboard farther
- // forward is visible. Cast beyond that same near plane for a physical mount.
- for(const x of[.05,-.05,.15,-.15,.25,.35]){
-  for(const y of[.85,.80,.75,.90,.95]){
+ // The seat is behind this driver eye. Only the physically useful first-person
+ // near plane is skipped; candidate faces must actually belong to the front dash.
+ for(const x of[-.30,-.20,-.10,0,.10,.20]){
+  for(const y of[.75,.80,.85,.90,1.0]){
    for(const z of[-1.0,-1.15,-1.30,-1.45]){
     const direction=local(car,[x,y,z]).sub(driverEye).normalize();
-    const hit=new THREE.Raycaster(driverEye,direction,.78,3)
+    const hit=new THREE.Raycaster(driverEye,direction,.18,3)
      .intersectObject(model,true)
      .find(h=>!/window|wheel|tire|rim/i.test(h.object.name));
     if(!hit)continue;
     const point=car.worldToLocal(hit.point.clone());
     if(point.x<-.45||point.x>.48||point.y<.73||point.y>1.05||
-       point.z>-.80||point.z<-1.50||hit.distance<.64)continue;
+       point.z>-.78||point.z<-1.50||hit.distance<.36)continue;
     const normal=hit.face.normal.clone().transformDirection(hit.object.matrixWorld);
     const toEye=driverEye.clone().sub(hit.point).normalize();
     if(normal.dot(toEye)<0)normal.negate();
-    if(normal.dot(toEye)<.35)continue;
+    if(normal.dot(toEye)<.16)continue;
     const score=Math.abs(point.x-.05)*2+Math.abs(point.y-.87)*2+
      Math.abs(point.z+1.0)*.7+(1-normal.dot(toEye))*.6;
     hits.push({score,p:point,normal,mesh:hit.object.name,
@@ -52,7 +51,7 @@ export function installDashboardClockV71(car){
  clock.name='Factory-sized recessed digital dashboard readout';
  clock.position.copy(mount.p).addScaledVector(mount.normal,.005);
  clock.quaternion.setFromUnitVectors(new THREE.Vector3(0,0,1),displayNormal);
- const plastic=new THREE.Mesh(new THREE.BoxGeometry(.238,.091,.009),
+ const plastic=new THREE.Mesh(new THREE.BoxGeometry(.165,.068,.008),
   new THREE.MeshStandardMaterial({color:0x11181b,roughness:.83,metalness:.035}));
  plastic.name='Slim factory bezel seated into imported dashboard';
  clock.add(plastic);
@@ -66,22 +65,22 @@ export function installDashboardClockV71(car){
  ctx.fillText('12:47',278,149);
  ctx.font='bold 48px monospace';ctx.fillText('AM',522,156);
  const map=new THREE.CanvasTexture(canvas);map.colorSpace=THREE.SRGBColorSpace;
- const face=new THREE.Mesh(new THREE.PlaneGeometry(.218,.077),
+ const face=new THREE.Mesh(new THREE.PlaneGeometry(.151,.060),
   new THREE.MeshBasicMaterial({map,toneMapped:false}));
  face.name='12:47 AM inset display';
- face.position.z=.0053;clock.add(face);
+ face.position.z=.0048;clock.add(face);
  car.add(clock);
  const visibleClockPoint=local(car,clock.position.toArray());
  const viewRay=visibleClockPoint.clone().sub(driverEye);
  const clockDistance=viewRay.length();
- const blockers=new THREE.Raycaster(driverEye,viewRay.normalize(),.78,clockDistance-.018)
+ const blockers=new THREE.Raycaster(driverEye,viewRay.normalize(),.18,clockDistance-.018)
   .intersectObject(model,true).filter(h=>!/window|wheel|tire|rim/i.test(h.object.name));
  const unobstructedFromDriver=blockers.length===0;
  if(!unobstructedFromDriver)throw Error('Dashboard clock is hidden behind original car geometry');
  return Object.freeze({
   time:'12:47 AM',localPosition:clock.position.toArray(),importedCarPreserved:true,
-  mountedToImportedDash:mount.p.z<-.80,unobstructedFromDriver,surfaceGap:.005,displayWidth:.218,
-  mountDepth:mount.p.z,clockDistance,interiorNearPlane:.78,
+  mountedToImportedDash:mount.p.z<-.78,unobstructedFromDriver,surfaceGap:.005,displayWidth:.151,
+  mountDepth:mount.p.z,clockDistance,interiorNearPlane:.18,
   hitMesh:mount.mesh,mountKind:mount.kind,displayNormal:displayNormal.toArray(),
   importedSurfaceNormal:mount.normal.toArray(),displayReadableAngle
  });

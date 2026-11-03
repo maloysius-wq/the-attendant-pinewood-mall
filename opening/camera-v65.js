@@ -10,10 +10,10 @@ const clamp=(v,a,b)=>Math.min(b,Math.max(a,v));
 const smooth=t=>{t=clamp(t,0,1);return t*t*(3-2*t)};
 const E={
  // The previous viewpoint saw oversized upholstery through the clock gaze.
- // Real GLB ray samples locate this driver eye beneath the original roof,
- // minimizing near-field seat occlusion while retaining the enclosed cabin.
- driver:[-10.24,1.27,17.79],dashLean:[-10.24,1.25,17.73],
- doorLean:[-10.85,1.25,17.66],doorOutside:[-11.82,1.72,17.12],
+ // The true front-seat eye sits 12 cm below the imported roof and forward
+ // of the seatback; measured rays reach the real dash ~59 cm away.
+ driver:[-10.30,1.10,17.18],dashLean:[-10.30,1.08,17.14],
+ doorLean:[-10.85,1.15,17.18],doorOutside:[-11.82,1.72,17.12],
  parking:[-9.0,1.73,13.0],pavement:[0,1.73,.0],underCanopy:[8.05,1.73,-13.0],
  access:[12.80,1.63,-20.73],threshold:[12.07,1.71,-23.4],concourse:[9.0,1.72,-26.3]
 };

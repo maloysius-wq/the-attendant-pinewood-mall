@@ -149,9 +149,9 @@ class Intro{
    const openingLine=this.lines[0],seconds=Math.max(1,Number(this.voices?.files?.[openingLine.id]?.duration)||8);
    const pose=this.eyeRig.sample(openingLine.id,0,seconds,0,{reducedMotion:this.reduced});
    this.camera.position.copy(pose.position);this.camera.lookAt(pose.lookAt);
-   // The vendor GLB has a seatback only ~40 cm ahead of the seated eye. Render
-   // the physical cockpit beyond it, while the separate handset camera remains .08.
-   this.camera.near=.78;this.camera.updateProjectionMatrix();
+   // A front-seat eye needs only a small first-person near plane; all the
+   // vendor seat, roof and dashboard geometry remains intact.
+   this.camera.near=.18;this.camera.updateProjectionMatrix();
    this.stage.pivot.rotation.y=0;
    this.renderer.render(this.stage.scene,this.camera);
    // Prime the same real CC0 arm/hand, phone app CanvasTexture and lighting
@@ -319,7 +319,7 @@ class Intro{
     this.camera.lookAt(pose.lookAt);
     const enclosed=['arrival','clock','closed','work','safety'].includes(this.line.id)
      ||(this.line.id==='owner'&&pose.position.x>-11.15);
-    const worldNear=enclosed ? .78 : .08;
+    const worldNear=enclosed ? .18 : .08;
     if(this.camera.near!==worldNear){this.camera.near=worldNear;this.camera.updateProjectionMatrix();}
     // Include the post-voice pause: CHECK IN happens after Renee's instruction.
     this.handheld?.update(this.line.id,this.elapsed,this.voiceSeconds,{reducedMotion:this.reduced});

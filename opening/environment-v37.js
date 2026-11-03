@@ -161,7 +161,7 @@ export async function upgradeOpeningSceneV37({scene,world,car,materials,lotMater
   car.add(model);car.updateWorldMatrix(true,true);
   if(car.children.length!==1||meshes<5)throw Error('A second car or empty car found');
   // Driver is inside the left front seat, under the real roof, behind windshield.
-  const eye=car.localToWorld(new THREE.Vector3(-.24,1.27,.29));
+  const eye=car.localToWorld(new THREE.Vector3(-.30,1.10,-.32));
   const roof=new THREE.Raycaster(eye,new THREE.Vector3(0,1,0),.04,.85)
     .intersectObject(model,true).filter(x=>!/windows/i.test(x.object.name||''))[0];
   // Test the roof from OUTSIDE, where source-facing surface normals exist.
@@ -179,7 +179,7 @@ export async function upgradeOpeningSceneV37({scene,world,car,materials,lotMater
     mesh:h.object.name,height:+h.point.y.toFixed(3),
     aboveEye:h.point.y>eye.y,glass:/window/i.test(h.object.name)}));
   status.roofHeight=roofHeight;
-  const roofDistance=roofHeight===null?null:roofHeight-1.27;
+  const roofDistance=roofHeight===null?null:roofHeight-eye.y;
   // Diagnostic grid: assess the actual GLB top surface before accepting the
   // first-person eye; do not mistake the published model description for proof.
   status.roofSamples=[];
