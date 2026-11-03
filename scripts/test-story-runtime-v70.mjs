@@ -54,3 +54,10 @@ test('final closing-memory groups remain together and are scaled into the PA roo
  assert.ok(present.scale.x<.5);
  assert.equal(present.position.y,5.4);
 });
+
+test('Attendant sight does not pass through a drawn storefront wall',()=>{
+ const game=fakeGame(1),layout=buildGameplayLayoutV70({chapter:1});
+ relocateStoryV70({game,layout,THREE});
+ assert.equal(game.world.hasLOS({x:20,z:-77},{x:40,z:-77}),false);
+ assert.equal(game.world.hasLOS({x:20,z:-70},{x:39,z:-70}),true);
+});
