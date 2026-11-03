@@ -68,8 +68,7 @@ export function installDashboardClockV71(car){
  // The mounting foot touches the imported dashboard, while the shallow
  // factory LCD is angled toward the actual driver (like an inset clock).
  const eyeVector=driverEye.clone().sub(local(car,mount.p.toArray())).normalize();
- const displayNormal=mount.normal.clone().multiplyScalar(.38)
-  .addScaledVector(eyeVector,.62).normalize();
+ const displayNormal=mount.normal.clone().normalize();
  const displayReadableAngle=displayNormal.dot(eyeVector);
  clock.name='Factory-sized recessed digital dashboard readout';
  // The thin bezel seats into the actual mesh. It is not a freestanding box.

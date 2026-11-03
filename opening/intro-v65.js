@@ -106,7 +106,7 @@ class Intro{
    handsetKey.position.set(-1.5,2,3);
    this.phoneScene.add(handsetKey);
    this.handheld=new HandheldCheckInPhone(this.phoneCamera);
-   this.keypadReach=new KeypadReachHandV72(this.phoneCamera,this.handheld);
+   this.keypadReach=new KeypadReachHandV72(this.phoneCamera,this.handheld,this.stage.scene);
    this.renderer=new THREE.WebGLRenderer({antialias:true,alpha:false,powerPreference:'high-performance'});
    this.renderer.outputColorSpace=THREE.SRGBColorSpace;this.renderer.toneMapping=THREE.ACESFilmicToneMapping;
    this.renderer.toneMappingExposure=1.20;this.renderer.setPixelRatio(Math.min(devicePixelRatio||1,1.6));
@@ -168,9 +168,7 @@ class Intro{
    this.camera.position.set(12.8,1.63,-20.73);
    this.camera.lookAt(13.65,1.37,-21.68);
    this.keypadReach.update(.375,true,this.camera);
-   this.renderer.autoClear=false;this.renderer.clearDepth();
-   this.renderer.render(this.phoneScene,this.phoneCamera);
-   this.renderer.autoClear=true;
+   this.renderer.render(this.stage.scene,this.camera);
    this.keypadReach.update(0,false,this.camera);
    this.camera.position.copy(originalPos);this.camera.quaternion.copy(originalQuat);
    this.renderer.render(this.stage.scene,this.camera);
@@ -331,7 +329,7 @@ class Intro{
     const useNewMall=throughDoor&&(this.line.id==='promise'||this.line.id==='direction');
     this.root.dataset.renderWorld=useNewMall?'unified-mall':'exterior';
     this.renderer.render(useNewMall?this.interiorScene:this.stage.scene,this.camera);
-    if(this.handheld?.raised||this.keypadReach?.root.visible){
+    if(this.handheld?.raised){
      this.renderer.autoClear=false;
      this.renderer.clearDepth();
      this.renderer.render(this.phoneScene,this.phoneCamera);
