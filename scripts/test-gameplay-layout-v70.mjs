@@ -59,3 +59,12 @@ test('wall collision and furniture are part of the same obstacle map',()=>{
   assert.equal(layout.canStand(-42,-77.4),false,'large retail counter stops movement');
   assert.equal(layout.canStand(-40,-76),true,'nearby public area remains navigable');
 });
+
+test('final chapter can descend onto the real ground floor without resetting its story progress',()=>{
+  const upper=buildGameplayLayoutV70({chapter:6});
+  const lower=buildGameplayLayoutV70({chapter:6,level:'G'});
+  assert.equal(upper.level,'M1');
+  assert.equal(lower.level,'G');
+  assert.equal(lower.canStand(83,-42),true,'employee exit approach is reachable');
+  assert.equal(lower.canStand(51,-111),true,'stair receiving landing is reachable');
+});
