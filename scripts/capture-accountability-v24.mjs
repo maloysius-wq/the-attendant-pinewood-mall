@@ -19,12 +19,12 @@ try{
       await page.waitForFunction(()=>window.__PINEWOOD_VISUAL_READY__===true,null,{timeout:120000});
       await page.waitForTimeout(900);
       const state=await page.evaluate(()=>({visual:window.__PINEWOOD_VISUAL_INFO__||null,story:window.__PINEWOOD_STORY_V17__||null,chapter2:window.__PINEWOOD_CH2_V21__||null,chapter3:window.__PINEWOOD_CH3_V22__||null,chapter4:window.__PINEWOOD_CH4_V23__||null,chapter5:window.__PINEWOOD_CH5_V24__||null,status:document.getElementById('assetStatus')?.textContent||''}));
-      await page.screenshot({path:`accountability-artifacts/${view}.png`,fullPage:true});
+      await page.screenshot({path:`accountability-artifacts/${view}.png`,fullPage:false,timeout:120000});
       const remotes=[...new Set(remoteRequests)],errors=consoleMessages.filter(m=>m.type==='pageerror'||m.type==='error');
       const ch5=state.chapter5;
       const ok=remotes.length===0&&errors.length===0&&state.story?.version===17&&state.chapter2?.version===21&&state.chapter3?.version===22&&state.chapter3?.readabilityPolish===true&&state.visual?.view===view&&ch5?.version===24&&ch5?.reconstruction===true&&ch5?.rosterTerminal===true&&ch5?.kesslerCoverup===true&&ch5?.eliSetpiece===true&&ch5?.contractorSessions===14&&Array.isArray(ch5?.lastShiftEvidence)&&ch5.lastShiftEvidence.join(',')==='LS-07,LS-08,LS-09'&&ch5?.eliIsAttendant===false&&ch5?.sceneBuilt===true;
       if(!ok)report.failed=true;report.views[view]={ok,state,consoleMessages,remoteRequests:remotes};
-    }catch(err){report.failed=true;await page.screenshot({path:`accountability-artifacts/${view}-failure.png`,fullPage:true}).catch(()=>{});report.views[view]={ok:false,error:err.stack||String(err),consoleMessages,remoteRequests:[...new Set(remoteRequests)]};}
+    }catch(err){report.failed=true;await page.screenshot({path:`accountability-artifacts/${view}-failure.png`,fullPage:false,timeout:120000}).catch(()=>{});report.views[view]={ok:false,error:err.stack||String(err),consoleMessages,remoteRequests:[...new Set(remoteRequests)]};}
     finally{await page.close();}
   }
 }finally{await browser.close();}

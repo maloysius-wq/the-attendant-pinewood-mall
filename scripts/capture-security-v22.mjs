@@ -27,7 +27,7 @@ try{
         chapter3:window.__PINEWOOD_CH3_V22__||null,
         status:document.getElementById('assetStatus')?.textContent||''
       }));
-      await page.screenshot({path:`security-artifacts/${view}.png`,fullPage:true});
+      await page.screenshot({path:`security-artifacts/${view}.png`,fullPage:false,timeout:120000});
       const remotes=[...new Set(remoteRequests)];
       const ch3=state.chapter3;
       const ok=remotes.length===0&&state.story?.version===17&&state.chapter1?.version===20&&state.chapter2?.version===21&&ch3?.version===22&&ch3?.cctvFeeds===4&&ch3?.nonOmniscient===true&&ch3?.interlockedShutters===true&&ch3?.luisSetpiece===true&&ch3?.lastShiftEvidence==='LS-05'&&ch3?.eastWingHandoff===true&&ch3?.readabilityLighting===true&&ch3?.readabilityPolish===true&&ch3?.voiceImitation===false&&ch3?.sceneBuilt===true;
@@ -35,7 +35,7 @@ try{
       report.views[view]={ok,state,consoleMessages,remoteRequests:remotes};
     }catch(err){
       report.failed=true;
-      await page.screenshot({path:`security-artifacts/${view}-failure.png`,fullPage:true}).catch(()=>{});
+      await page.screenshot({path:`security-artifacts/${view}-failure.png`,fullPage:false,timeout:120000}).catch(()=>{});
       report.views[view]={ok:false,error:err.stack||String(err),consoleMessages,remoteRequests:[...new Set(remoteRequests)]};
     }finally{await page.close();}
   }
