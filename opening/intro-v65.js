@@ -454,6 +454,18 @@ window.__PINEWOOD_OPENING_V34__={
  },
  get dashboardPhone(){return null;}, // No dashboard mount; the prop is held in hand.
   get dashboardClock(){return active?.dashboardClock||null;},
+  get dashboardClockView(){
+   const display=active?.stage?.car?.getObjectByName('12:47 AM inset display');
+   if(!display||!active?.camera)return null;
+   display.updateWorldMatrix(true,false);
+   active.camera.updateWorldMatrix(true,false);
+   const corners=[[-.109,-.0385],[.109,-.0385],[-.109,.0385],[.109,.0385]]
+    .map(([x,y])=>display.localToWorld(new THREE.Vector3(x,y,0)).project(active.camera));
+   const xs=corners.map(p=>(p.x+1)/2),ys=corners.map(p=>(1-p.y)/2);
+   return {viewportWidth:Math.max(...xs)-Math.min(...xs),
+    inFrame:xs.every(x=>x>.05&&x<.95)&&ys.every(y=>y>.05&&y<.95),
+    bounds:[Math.min(...xs),Math.min(...ys),Math.max(...xs),Math.max(...ys)]};
+  },
   get accessPad(){return active?.stage?.accessPad?.status||null;},
   get keypadView(){
    if(!active?.stage||!active.camera)return null;

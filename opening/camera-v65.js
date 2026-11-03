@@ -18,7 +18,7 @@ const E={
 };
 const G={
  ahead:[2,2.9,-22],softAhead:[1.2,2.7,-22],softSign:[.5,3.4,-22],
- sign:[-10.5,13.13,-22],dash:[-9.9,.94,13.30],
+ sign:[-10.5,13.13,-22],dash:[-9.9,.94,13.30],clockDash:[-9.89,.91,16.88],
  mirror:[-12,2.06,16.1],door:[-14,1.62,17.8],mall:[12,2,-22],
  posters:[-17,3.0,-22],entrance:[12,1.5,-22],keypad:[13.65,1.37,-21.72],
  inside:[10,2.4,-48],directory:[0,2.5,-56],
@@ -34,9 +34,12 @@ const cues={
   f(.84,E.driver,G.softAhead),f(1,E.driver,G.softAhead)
  ],
  clock:[
-  f(0,E.driver,G.softAhead),f(.26,E.driver,G.softAhead),
-  f(.46,E.driver,G.softSign),f(.67,E.driver,G.softSign),
-  f(.86,E.driver,G.ahead),f(1,E.driver,G.ahead)
+  // Renee apologizes for the hour: a brief motivated downward glance at
+  // the real dashboard readout, returning to the windshield afterward.
+  f(0,E.driver,G.softAhead),f(.16,E.driver,G.softAhead),
+  f(.29,E.driver,G.clockDash),f(.48,E.driver,G.clockDash),
+  f(.62,E.driver,G.softAhead),f(.84,E.driver,G.ahead),
+  f(1,E.driver,G.ahead)
  ],
  closed:[
   f(0,E.driver,G.ahead),f(.68,E.driver,G.ahead),

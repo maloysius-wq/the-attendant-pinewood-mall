@@ -45,8 +45,17 @@ export class KeypadReachHandV72{
   this.hand.update(this.press);
  }
  get status(){
+  const toViewport=point=>{
+   const p=this.root.localToWorld(new THREE.Vector3(...point)).project(this.camera);
+   return [(p.x+1)/2,(1-p.y)/2,p.z];
+  };
+  const bone=this.hand.state==='ready'?this.hand.status:null;
   return {visible:this.root.visible,source:this.hand.state,
    digit:this.digit,press:this.press,inFrame:this.inFrame,
-   targetViewport:this.displayPoint,realAnatomicalForearm:this.hand.status.hasForearm};
+   targetViewport:this.displayPoint,realAnatomicalForearm:!!bone?.hasForearm,
+   wristViewport:bone?.gripWristPosition?toViewport(bone.gripWristPosition):null,
+   thumbViewport:bone?.gripThumbTipPosition?toViewport(bone.gripThumbTipPosition):null,
+   gripFingerViewport:bone?.gripFingerTips?.Point?toViewport(bone.gripFingerTips.Point):null,
+   rootPosition:this.root.position.toArray()};
  }
 }

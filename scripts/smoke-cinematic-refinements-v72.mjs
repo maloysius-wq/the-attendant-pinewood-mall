@@ -18,6 +18,7 @@ try{
  await page.waitForFunction(()=>window.__PINEWOOD_OPENING_V34__?.startupStatus?.state==='ready',null,{timeout:150000});
  const get=()=>page.evaluate(()=>({
   clock:window.__PINEWOOD_OPENING_V34__.dashboardClock,
+  clockView:window.__PINEWOOD_OPENING_V34__.dashboardClockView,
   keypad:window.__PINEWOOD_OPENING_V34__.keypadView,
   world:window.__PINEWOOD_OPENING_V34__.cinematicWorld,
   eye:window.__PINEWOOD_OPENING_V34__.cameraPosition,
@@ -28,7 +29,12 @@ try{
  assert.ok(initial.clock?.displayWidth<.25,'clock is a smaller factory-sized readout');
  assert.ok(initial.clock?.surfaceGap<=.02,'clock display cannot float in the cabin');
  assert.equal(initial.world?.retiredInteriorMeshes,0,'retired miniature mall must be absent from arrival scene');
- await page.screenshot({path:'cinematic-v72-artifacts/01-integrated-clock.png'});
+ await page.evaluate(()=>{const q=window.__PINEWOOD_OPENING_V34__;q.seek(1);q.scrub(.38)});
+ await page.waitForTimeout(700);
+ const clockMoment=await get();
+ assert.ok(clockMoment.clockView?.inFrame,'clock must appear during Renee\'s time-of-night line');
+ assert.ok(clockMoment.clockView?.viewportWidth>=.055,'dashboard time must be legible');
+ await page.screenshot({path:'cinematic-v72-artifacts/01-clock-glance.png'});
  await page.evaluate(()=>{const q=window.__PINEWOOD_OPENING_V34__;q.seek(7);q.scrub(.97)});
  await page.waitForTimeout(700);
  const entry=await get();
@@ -36,6 +42,11 @@ try{
  assert.ok(entry.keypad?.viewportWidth>=.09,'digits are large enough to read');
  assert.ok(entry.keypad?.legibleDigits===9,'all nine key labels are visibly rendered');
  assert.ok(entry.keypad?.forearmVisible,'a real locally vendored hand reaches the keypad');
+ const wrist=entry.keypad?.finger?.wristViewport,thumb=entry.keypad?.finger?.thumbViewport;
+ assert.ok(wrist?.[0]>.05&&wrist?.[0]<.95&&wrist?.[1]>.05&&wrist?.[1]<.95&&wrist?.[2]<1,
+  'the imported wrist must actually project onto the visible screen, not just be flagged visible');
+ assert.ok(thumb?.[0]>.05&&thumb?.[0]<.95&&thumb?.[1]>.05&&thumb?.[1]<.95&&thumb?.[2]<1,
+  'the pressing finger must be within the visible keypad frame');
  assert.equal(entry.keypad?.entered.length,3,'third code digit entered during the fourth-key sequence');
  await page.screenshot({path:'cinematic-v72-artifacts/02-pressing-code.png'});
  await page.evaluate(()=>{const q=window.__PINEWOOD_OPENING_V34__;q.seek(8);q.scrub(.75)});
@@ -54,7 +65,7 @@ try{
  assert.equal(interior.world?.mode,'unified-mall');
  assert.ok(interior.eye[2]<-43,'real mall route remains traversable');
  assert.deepEqual(errors,[]);assert.deepEqual(remote,[]);
- await writeFile('cinematic-v72-artifacts/status.json',JSON.stringify({initial,entry,granted,threshold,interior,errors,remote},null,2));
+ await writeFile('cinematic-v72-artifacts/status.json',JSON.stringify({initial,clockMoment,entry,granted,threshold,interior,errors,remote},null,2));
  console.log('CINEMATIC_V72_DESKTOP_PASS '+JSON.stringify({clock:initial.clock,keypad:entry.keypad,world:interior.world,errors,remote}));
  await page.close();
 }finally{await browser.close()}
