@@ -81,7 +81,7 @@ function applyUnifiedMallV70(source){
  move=move.replace(movementStart,movementStart+
   "\n    if(this.levelIndex===5&&this.ch6V25?.exitOpen&&!this.mallGroundExitV70&&dz<0&&p.x>49.8&&p.x<52.2&&p.z<-103.1&&p.z>-104.3){window.__PINEWOOD_V70_BRIDGE__.descendToExitV70(this);}");
  move=move.replace(ending,
-   "p.y=1.7+(this.mallLevelYV70??0);\n    if(this.levelIndex===5&&this.ch6V25?.exitOpen){\n      if(!this.mallGroundExitV70&&p.x>49.8&&p.x<52.2&&p.z<-103.5&&p.z>-114){\n        window.__PINEWOOD_V70_BRIDGE__.descendToExitV70(this);\n      }\n      if(this.mallGroundExitV70&&p.x>49.8&&p.x<52.2&&p.z<-104.2&&p.z>-114){\n        p.y=1.7+5.4*clamp((p.z+114)/10.5,0,1);\n      }\n    }\n  }");
+   "p.y=1.7+(this.mallLevelYV70??0);\n    if(this.levelIndex===5&&this.ch6V25?.exitOpen){\n      if(!this.mallGroundExitV70&&p.x>49.8&&p.x<52.2&&p.z<-103.5&&p.z>-114){\n        window.__PINEWOOD_V70_BRIDGE__.descendToExitV70(this);\n      }\n      if(this.mallGroundExitV70&&p.x>49.8&&p.x<52.2&&p.z<-103.0&&p.z>-114){\n        p.y=1.7+5.4*clamp((p.z+114)/11,0,1);\n      }\n    }\n  }");
  source=source.slice(0,moveStart)+move+source.slice(moveEnd);
  return source;
 }
