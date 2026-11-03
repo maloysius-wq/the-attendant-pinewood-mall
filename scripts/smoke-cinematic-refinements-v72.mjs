@@ -107,9 +107,33 @@ try{
     candidates.push({local:[x,y,z],world:from.toArray(),score,ahead,dash});
    }
   candidates.sort((a,b)=>a.score-b.score);
+  // Search the original GLB triangles for a dashboard face ahead of the
+  // shifted eye. Never accept seatback surfaces at z > -0.75.
+  const mountEye=local([-.38,1.26,-.45]),mounts=[],misses=[];
+  for(const x of[-.35,-.15,.05,.25,.45])for(const y of[.75,.85,.95,1.05,1.15])
+   for(const z of[-1.0,-1.2,-1.4,-1.6]){
+    const target=local([x,y,z]);
+    const ray=new THREE.Raycaster(mountEye,target.clone().sub(mountEye).normalize(),.08,3);
+    const hit=ray.intersectObject(model,true).find(h=>!/window|wheel|tire|rim/i.test(h.object.name));
+    if(!hit)continue;
+    const point=car.worldToLocal(hit.point.clone());
+    const normal=hit.face.normal.clone().transformDirection(hit.object.matrixWorld);
+    const toEye=mountEye.clone().sub(hit.point).normalize();
+    if(normal.dot(toEye)<0)normal.negate();
+    const d=hit.distance,readable=normal.dot(toEye);
+    const entry={aim:[x,y,z],point:point.toArray().map(n=>+n.toFixed(3)),
+     distance:+d.toFixed(3),normal:normal.toArray().map(n=>+n.toFixed(3)),
+     readable:+readable.toFixed(3)};
+    if(point.z<-.75&&point.y>.65&&point.y<1.28&&d>.58&&readable>.4){
+     entry.score=+(Math.abs(point.x-.05)*2+Math.abs(point.y-1.0)*2+
+      Math.abs(point.z+1.15)*.7+(1-readable)*.6).toFixed(3);
+     mounts.push(entry);
+    }else if(misses.length<12)misses.push(entry);
+   }
+  mounts.sort((a,b)=>a.score-b.score);
   const worldBound=new THREE.Box3().setFromObject(model);
   return {eye:eye.toArray(),clock:clock.toArray(),clockDistance:eye.distanceTo(clock),
-   candidateEyes:candidates.slice(0,15),currentEyeRank:candidates.findIndex(c=>c.local[0]===-.24&&c.local[1]===1.26&&c.local[2]===.15),
+   candidateEyes:candidates.slice(0,15),mounts:mounts.slice(0,35),mountMisses:misses,currentEyeRank:candidates.findIndex(c=>c.local[0]===-.24&&c.local[1]===1.26&&c.local[2]===.15),
    carBounds:{min:worldBound.min.toArray(),max:worldBound.max.toArray()},
    clockGlance:probe(sceneGaze),ahead:probe(new THREE.Vector3(2,2.9,-22))};
  });
