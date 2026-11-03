@@ -21,8 +21,8 @@ test('all six chapters spawn on the right real floor with safe, walkable positio
 test('real partition walls block crossing except at their drawn doorway',()=>{
   const layout=buildGameplayLayoutV70({chapter:1});
   // East gallery / Video Planet wall, with a single authored opening.
-  assert.equal(layout.canStand(29,-72),false,'solid wall blocks');
-  assert.equal(layout.canStand(29,-64),true,'doorway is passable');
+  assert.equal(layout.canStand(29,-77),false,'solid wall blocks');
+  assert.equal(layout.canStand(29,-70),true,'doorway is passable');
 });
 
 test('the main boarded entrance stays blocked while the contractor door is navigable',()=>{
