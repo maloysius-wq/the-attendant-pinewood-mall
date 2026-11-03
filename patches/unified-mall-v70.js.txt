@@ -1,0 +1,55 @@
+// V70 is applied after the final v27 audio patch. The old six-chapter
+// gameplay and save/event code remains intact; only its geometry, coordinates,
+// and physical handoffs are migrated into the approved v66-v69 mall.
+function applyUnifiedMallV70(source){
+ const once=(before,after,label)=>{
+  const first=source.indexOf(before);
+  if(first<0||source.indexOf(before,first+before.length)>=0)
+   throw Error('V70 runtime anchor missing or ambiguous: '+label);
+  source=source.slice(0,first)+after+source.slice(first+before.length);
+ };
+ once("  addProductionReadabilityV26(world,idx);","  // Physical v69 shell already provides installed lighting and licensed interiors.","legacy visual decorations");
+ once("    await buildArcade(world);await buildVHS(world);await buildFoodCourt(world);await buildMusic(world);await addMallBlood(world);","    // Retail is supplied by the actual approved shell and licensed v69 fixtures.","chapter one retail");
+ once("    await buildCentralFountain(world);","    // Dry fountain is already installed in central_gallery.","chapter one fountain");
+ once("this.world.clear();this.resetState();carveChapter(this.world,idx);await this.world.buildGeometry();$('loadFill').style.width='68%';await decorateLevel(this.world,idx);$('loadFill').style.width='92%';",
+  "this.world.clear();this.resetState();this.mallGroundExitV70=false;if(!window.__PINEWOOD_V70_BRIDGE__)throw Error('Physical mall runtime bridge is unavailable');if(!this.mallV70){$('loadText').textContent='Loading all three levels and licensed fixtures…';this.mallV70=await window.__PINEWOOD_V70_BRIDGE__.renderPinewoodV69({scene:this.scene,chapter:idx+1});if(!this.mallV70.firstFrameFullyLoaded)throw Error('Mall assets were not ready before the first frame');}this.mallV70.setChapter(idx+1);$('loadFill').style.width='68%';await decorateLevel(this.world,idx);const layoutV70=window.__PINEWOOD_V70_BRIDGE__.buildGameplayLayoutV70({chapter:idx+1});window.__PINEWOOD_V70_BRIDGE__.relocateStoryV70({game:this,layout:layoutV70,THREE});$('loadFill').style.width='92%';",
+  "startChapter world construction");
+ once("const starts=[new THREE.Vector3(-24,1.70,0),new THREE.Vector3(-23,1.70,0),new THREE.Vector3(-25,1.70,0),new THREE.Vector3(-26,1.70,0),new THREE.Vector3(-26,1.70,0),new THREE.Vector3(-26,1.70,0)];this.controls.yaw.position.copy(starts[idx]);",
+  "this.controls.yaw.position.set(this.mallLayoutV70.spawn.x,this.mallLayoutV70.spawn.y,this.mallLayoutV70.spawn.z);",
+  "chapter spawn positions");
+ once("this.root.position.set(c.x,0,c.z);this.prevPos.copy(this.root.position);",
+  "this.root.position.set(c.x,GAME.mallLevelYV70??0,c.z);this.prevPos.copy(this.root.position);",
+  "Attendant spawn height");
+ once("const n=this.path[this.pathIndex],target=new THREE.Vector3(n.x,0,n.z),v=target.clone().sub(this.root.position)",
+  "const n=this.path[this.pathIndex],target=new THREE.Vector3(n.x,GAME.mallLevelYV70??0,n.z),v=target.clone().sub(this.root.position)",
+  "Attendant physical route height");
+ once("zone(-26.0,-7.0,6.6,s.loadingCompressor);zone(-10.0,24.0,8.2,s.pumpRunning);zone(9.0,-11.0,7.0,s.pumpRunning);",
+  "zone(2,-93,6.6,s.loadingCompressor);zone(-29,-75,8.2,s.pumpRunning);zone(24,-94,7.0,s.pumpRunning);",
+  "basement equipment acoustics");
+ once("Math.hypot(p.x+27,p.z+8)<5.0",
+  "Math.hypot(p.x-2,p.z+93)<5.0","feeder discovery");
+ once("p.x>6.5&&p.x<11.5&&p.z<-6",
+  "p.x>17&&p.x<34&&p.z<-84&&p.z>-102","flooded corridor discovery");
+ once("p.x>11&&p.x<19&&p.z<-7",
+  "p.x>58&&p.x<65&&p.z<-47&&p.z>-67","east-wing false route trigger");
+ once("new THREE.Vector3(15,0,-15),.92,'east-wing-false-route'",
+  "new THREE.Vector3(61,0,-58),.92,'east-wing-false-route'","east-wing false route sound");
+ once("new THREE.Vector3(15,0,-15),.82,'route-error'",
+  "new THREE.Vector3(61,0,-58),.82,'route-error'","east-wing false route AI cue");
+ once("if(s.exitOpen&&pp.x>27.45&&pp.z>-18.6&&pp.z<-7.0)completeLastShiftV25(this)",
+  "if(s.exitOpen&&this.mallGroundExitV70&&pp.x>82.5&&pp.z>-44.5&&pp.z<-39.5)completeLastShiftV25(this)",
+  "final physical employee exit");
+ // Portals and furniture form the authoritative collision. No leftover
+ // grid walls, suspended ceilings, or hallway teleport maps are rendered.
+ const moveStart=source.indexOf("  tryMove(dx,dz){");
+ const moveEnd=source.indexOf("\n  toggleFlashlight()",moveStart);
+ if(moveStart<0||moveEnd<0)throw Error('V70 movement method missing');
+ let move=source.slice(moveStart,moveEnd);
+ move=move.replaceAll("p.y=1.7","p.y=1.7+(this.mallLevelYV70??0)");
+ const ending="p.y=1.7+(this.mallLevelYV70??0);\n  }";
+ if(!move.includes(ending))throw Error('V70 movement ending missing');
+ move=move.replace(ending,
+   "p.y=1.7+(this.mallLevelYV70??0);\n    if(this.levelIndex===5&&this.ch6V25?.exitOpen){\n      if(!this.mallGroundExitV70&&p.x>49.8&&p.x<52.2&&p.z<-104.2&&p.z>-114){\n        window.__PINEWOOD_V70_BRIDGE__.descendToExitV70(this);\n      }\n      if(this.mallGroundExitV70&&p.x>49.8&&p.x<52.2&&p.z<-104.2&&p.z>-114){\n        p.y=1.7+5.4*clamp((p.z+114)/9.8,0,1);\n      }\n    }\n  }");
+ source=source.slice(0,moveStart)+move+source.slice(moveEnd);
+ return source;
+}

@@ -1,4 +1,5 @@
 import {storyTargetV70} from './story-placement-v70.mjs';
+import {buildGameplayLayoutV70} from './gameplay-layout-v70.mjs';
 
 const STATE_KEYS=['','ch2V21','ch3V22','ch4V23','ch5V24','ch6V25'];
 const SPECIAL={
@@ -127,8 +128,33 @@ export function relocateStoryV70({game,layout,THREE}={}){
  world.walk=new Set(layout.walk);world.tags=new Map(layout.tags);
  world.colliders=[...shellCollision,...owned];world.navCache.clear();
  world.wallMeshes=[];world.floorMeshes=[];
+ world.hasLOS=(a,b)=>{
+  const dist=Math.hypot(b.x-a.x,b.z-a.z),steps=Math.max(1,Math.ceil(dist/.32));
+  for(let i=1;i<steps;i++){
+   const t=i/steps,x=a.x+(b.x-a.x)*t,z=a.z+(b.z-a.z)*t;
+   if(!world.walk.has(Math.round(x)+','+Math.round(z)))return false;
+   if(world.colliders.some(c=>!c.disabled&&c.physicalBlock!==false&&x>c.minX&&x<c.maxX&&z>c.minZ&&z<c.maxZ))return false;
+  }
+  return true;
+ };
  world.bounds={minX:-47,maxX:86,minZ:-119,maxZ:-22};
  game.mallLevelYV70=layout.y;game.mallLayoutV70=layout;
  return {chapter,level:layout.level,kept:root.children.length,interactables:world.interactables.length,
   obstacles:world.colliders.length};
+}
+
+/** One-way, physically situated descent out of M1 for the final employee exit. */
+export function descendToExitV70(game){
+ if(game.levelIndex!==5||!game.ch6V25?.exitOpen||game.mallGroundExitV70)return false;
+ const lower=buildGameplayLayoutV70({chapter:6,level:'G'});
+ game.world.walk=new Set(lower.walk);
+ game.world.tags=new Map(lower.tags);
+ game.world.colliders=lower.colliders.map(c=>({...c,navBlock:true,physicalBlock:true,disabled:false,owner:null}));
+ game.world.navCache.clear();
+ game.mallLayoutV70=lower;
+ game.mallLevelYV70=0;
+ game.mallGroundExitV70=true;
+ if(game.attendant?.root)game.attendant.root.position.y=0;
+ if(game.attendant){game.attendant.path=[];game.attendant.pathIndex=0;}
+ return true;
 }
