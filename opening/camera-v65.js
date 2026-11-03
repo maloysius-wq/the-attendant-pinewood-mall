@@ -14,7 +14,7 @@ const E={
  driver:[-10.20,1.24,17.69],dashLean:[-10.20,1.22,17.66],
  doorLean:[-10.84,1.25,17.59],doorOutside:[-11.82,1.72,17.30],
  parking:[-9.0,1.73,13.0],pavement:[0,1.73,.0],underCanopy:[8.05,1.73,-13.0],
- access:[12.35,1.67,-19.6],threshold:[12.07,1.71,-23.4],concourse:[9.0,1.72,-26.3]
+ access:[12.35,1.67,-20.1],threshold:[12.07,1.71,-23.4],concourse:[9.0,1.72,-26.3]
 };
 const G={
  ahead:[2,2.9,-22],softAhead:[1.2,2.7,-22],softSign:[.5,3.4,-22],
@@ -72,13 +72,15 @@ const cues={
   f(.39,[4.1,1.72,-5.9],G.posters,'walk'),
   f(.55,[5.5,1.73,-8.3],G.entrance,'walk'),
   f(.75,[6.9,1.73,-10.9],G.keypad,'walk'),
-  f(1,E.underCanopy,G.keypad,'walk')
+  f(.86,[10.4,1.71,-16.6],G.keypad,'walk'),
+  f(.96,E.access,G.keypad,'walk'),
+  f(1,E.access,G.keypad)
  ],
  inside:[
-  f(0,E.underCanopy,G.entrance),
-  f(.20,[9.9,1.73,-16.1],G.keypad,'walk'),
-  f(.41,[11.1,1.69,-18.1],G.keypad,'walk'),
-  f(.65,E.access,G.keypad,'walk'),
+  f(0,E.access,G.keypad),
+  f(.20,E.access,G.keypad),
+  f(.41,E.access,G.keypad),
+  f(.65,E.access,G.keypad),
   f(.80,E.access,G.keypad),f(.92,E.access,G.inside),
   f(1,E.access,G.keypad)
  ],

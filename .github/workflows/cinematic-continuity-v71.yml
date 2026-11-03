@@ -1,0 +1,54 @@
+name: Pinewood v71 opening-to-playable-mall continuity
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'opening/**'
+      - 'mall/**'
+      - 'scripts/*cinematic-continuity-v71.mjs'
+      - '.github/workflows/cinematic-continuity-v71.yml'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'opening/**'
+      - 'mall/**'
+      - 'scripts/*cinematic-continuity-v71.mjs'
+      - '.github/workflows/cinematic-continuity-v71.yml'
+permissions:
+  contents: read
+jobs:
+  desktop-cinematic:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 22
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Test physical continuity and code contracts
+        run: |
+          node --check opening/scene.js
+          node --check opening/intro-v65.js
+          node --check opening/dashboard-clock-v71.js
+          node --check scripts/smoke-cinematic-continuity-v71.mjs
+          node --test scripts/test-cinematic-continuity-v71.mjs
+          node scripts/audit-opening-landscape-v64.mjs
+          node scripts/audit-opening-facade-v65.mjs
+      - name: Install desktop Chromium
+        run: |
+          npm install --no-save playwright@1.55.0
+          npx playwright install chromium
+      - name: Serve the current game and cinematic review
+        run: |
+          python3 -m http.server 4173 --bind 127.0.0.1 >/tmp/pinewood-v71-http.log 2>&1 &
+          for i in {1..30}; do curl -fsS http://127.0.0.1:4173/review/the-call-v34/ >/dev/null && exit 0; sleep 1; done
+          exit 1
+      - name: Desktop screenshots, keypresses, preloading, and actual mall entry
+        run: node scripts/smoke-cinematic-continuity-v71.mjs
+      - name: Save cinematic review screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pinewood-v71-desktop-cinematic
+          path: cinematic-v71-artifacts/
+          retention-days: 7

@@ -5,7 +5,9 @@
  */
 import {MALL_PLANTERS_V63} from './landscape-layout-v63.mjs';
 export const MALL_PLANTER_SCALE_V64=2;
-const xs=[-34.20,-30.15,-22.20,-13.20,-4.10,20.15,24.20,32.20];
+// Mirror four matched pairs around the public entrance at x=-10.5 while
+// leaving the independent x=12 service route entirely unobstructed.
+const xs=[-28.3,-24.7,-21.1,-17.5,-3.5,0.1,3.7,7.3];
 export const MALL_PLANTERS_V64=Object.freeze(
  MALL_PLANTERS_V63.map((spot,i)=>Object.freeze({...spot,x:xs[i]}))
 );

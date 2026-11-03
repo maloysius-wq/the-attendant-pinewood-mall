@@ -36,7 +36,7 @@ assert.match(camera,/softSign:\[\.5,3\.4,-22\]/,'Keep v62 gentle seated glance w
 assert.match(facade,/central raised entry tower/);
 assert.match(facade,/east raised wing',26\.0,11\.05,-22\.55,44\.0/);
 assert.match(facade,/west raised wing',-32\.0,11\.05,-22\.55,25\.5/);
-assert.match(scene,/if\(useAbandonedFacade\)box\(world,1\.5,8\.55,-22\.48,93\.5/);
+assert.match(scene,/if\(useAbandonedFacade\)box\(world,1\.5,8\.55,-22\.70,93\.5/);
 assert.match(facade,/heightMeters:17\.31/);
 assert.match(facade,/const windows=\[-35\.7,32\.0\]/);
 assert.match(facade,/mainEntranceBoarded:true/);

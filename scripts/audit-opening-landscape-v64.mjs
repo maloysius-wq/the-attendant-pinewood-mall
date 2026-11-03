@@ -10,6 +10,16 @@ const intro=read('opening/intro-v64.js');
 const preview=read('review/the-call-v34/index.html');
 assert.equal(MALL_PLANTER_SCALE_V64,2,'Entire existing model assembly must double');
 assert.equal(MALL_PLANTERS_V64.length,8);
+const mirrored=MALL_PLANTERS_V64.map(p=>p.x);
+for(let i=0;i<4;i++)
+ assert.ok(Math.abs((mirrored[i]+mirrored[7-i])/2+10.5)<1e-6,
+  'Entrance planters must mirror about the boarded public doorway');
+for(let i=1;i<4;i++)
+ assert.ok(Math.abs((mirrored[i]-mirrored[i-1])-3.6)<1e-6,
+  'Equal left-side planter spacing');
+for(let i=5;i<8;i++)
+ assert.ok(Math.abs((mirrored[i]-mirrored[i-1])-3.6)<1e-6,
+  'Equal right-side planter spacing');
 assert.match(scene,/group\.scale\.setScalar\(MALL_PLANTER_SCALE_V64\)/);
 assert.match(scene,/weathering-steel-planter\.glb/);
 assert.match(scene,/rounded-landscape-shrub\.glb/);

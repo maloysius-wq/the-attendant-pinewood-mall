@@ -1,15 +1,9 @@
 name: Render approved Renee neural production audio
 
+# This is a one-time asset-acquisition workflow, not a regression gate.
+# The approved neural download source currently returns HTTP 404; keep the
+# existing local Renee clips and run this manually only after source repair.
 on:
-  push:
-    paths:
-      - '.github/workflows/renee-neural-production.yml'
-      - 'scripts/render-renee-neural-v27.mjs'
-      - 'scripts/reprocess-renee-walkie-v28.mjs'
-      - 'scripts/audit-audio-direction-v27.mjs'
-      - 'patches/audio-direction-v27.js.txt'
-      - 'story/renee-voice-direction-v27.json'
-      - 'story/renee-voice-sources-v27.json'
   workflow_dispatch:
 
 permissions:
