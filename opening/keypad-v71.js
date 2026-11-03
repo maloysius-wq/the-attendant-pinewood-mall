@@ -106,7 +106,7 @@ export class ContractorKeypadV71{
   const depression=Math.sin(Math.PI*clamp((cycle-.15)/.60,0,1));
   const x=13.52+col*.13,y=1.30-row*.11;
   this.handRoot.visible=after<3.1;
-  this.handRoot.position.set(x,y,-21.46-depression*.065);
+  this.handRoot.position.set(x,y,-21.54-depression*.12);
   this.pressingDigit=after<3.1?digit:null;
   for(const b of this.buttons){
    const currentlyPressed=this.pressingDigit===b.digit&&depression>.55;
