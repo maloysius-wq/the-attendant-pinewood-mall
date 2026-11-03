@@ -78,7 +78,9 @@ if(live){
               audioInput='arcadeV30Source';
             }
             if(v27){
-              for(const marker of ['async function applyAudioDirectionV27Runtime(source,patchText,manifest)','getText(AUDIO_DIRECTION_V27_PATCH)',`const audioDirectionV27Source=await applyAudioDirectionV27Runtime(${audioInput},audioDirectionV27Patch,characterVoiceManifest);`,"const source=audioDirectionV27Source+'\\n//# sourceURL=pinewood-runtime.js\\n';"])if(!loader.includes(marker))fail('game.js invalid terminal world→audio-v27 feed-forward marker: '+marker);
+              for(const marker of ['async function applyAudioDirectionV27Runtime(source,patchText,manifest)','getText(AUDIO_DIRECTION_V27_PATCH)',`const audioDirectionV27Source=await applyAudioDirectionV27Runtime(${audioInput},audioDirectionV27Patch,characterVoiceManifest);`,...(loader.includes("const UNIFIED_MALL_V70_PATCH")?
+  ["unifiedSource=v70.applyUnifiedMallV70(audioDirectionV27Source);","const source=unifiedSource+'\\n//# sourceURL=pinewood-runtime.js\\n';"]:
+  ["const source=audioDirectionV27Source+'\\n//# sourceURL=pinewood-runtime.js\\n';"])])if(!loader.includes(marker))fail('game.js invalid terminal world→audio-v27 feed-forward marker: '+marker);
               if(loader.includes(`const source=${audioInput}+'\\n//# sourceURL=pinewood-runtime.js\\n';`))fail('game.js boots a world tail directly while audio v27 is present');
             }else if(!loader.includes(`const source=${audioInput}+'\\n//# sourceURL=pinewood-runtime.js\\n';`))fail('game.js missing terminal post-v26 source marker');
           }else if(!loader.includes("const source=chapter6V25Source+'\\n//# sourceURL=pinewood-runtime.js\\n';"))fail('game.js missing terminal v25 source marker');
