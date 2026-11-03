@@ -45,7 +45,10 @@ try{
     const range=Math.max(...samples.map(x=>x.yaw))-Math.min(...samples.map(x=>x.yaw));
     const shortest=Math.min(...samples.map(x=>x.distance));
     assert(range<=11,layout+' dialogue '+index+' darts through too many gaze angles: '+JSON.stringify(samples));
-    assert(shortest>17,layout+' dialogue '+index+' zooms attention into dashboard/mirror: '+JSON.stringify(samples));
+    if(index===1){
+     assert(shortest<2,layout+' clock line never glances at real dashboard time: '+JSON.stringify(samples));
+     assert(samples.at(-1).distance>17,layout+' fails to settle back through windshield after clock glance');
+    }else assert(shortest>17,layout+' dialogue '+index+' unmotivated close-range dart: '+JSON.stringify(samples));
     gazeSamples.push({index,range:+range.toFixed(2),shortest:+shortest.toFixed(2)});
    }
    const pre=await snap(0,.74);
