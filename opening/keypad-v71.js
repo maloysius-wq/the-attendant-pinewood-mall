@@ -26,6 +26,18 @@ export class ContractorKeypadV71{
   face.name='Live contractor keypad numeric entry display';
   face.position.set(13.65,1.505,-21.63);stage.world.add(face);
   this.face=face;
+  // Real keypad buttons stay separate meshes; each has its own raised,
+  // attached numeral so pressing the source key visibly moves the label too.
+  for(const b of this.buttons){
+   const letter=document.createElement('canvas');letter.width=96;letter.height=96;
+   const ink=letter.getContext('2d');ink.fillStyle='#252f2f';ink.fillRect(0,0,96,96);
+   ink.fillStyle='#e5e9df';ink.textAlign='center';ink.textBaseline='middle';
+   ink.font='bold 70px monospace';ink.fillText(b.digit,48,48);
+   const labelMap=new THREE.CanvasTexture(letter);labelMap.colorSpace=THREE.SRGBColorSpace;
+   const label=new THREE.Mesh(new THREE.PlaneGeometry(.059,.055),
+    new THREE.MeshBasicMaterial({map:labelMap}));
+   label.position.z=.016;label.name='Key '+b.digit+' numeral';b.mesh.add(label);
+  }
   this.handRoot=new THREE.Group();
   this.handRoot.name='Player visibly enters contractor access code with licensed real arm';
   this.handRoot.visible=false;stage.world.add(this.handRoot);
