@@ -21,6 +21,7 @@ try{
   clockView:window.__PINEWOOD_OPENING_V34__.dashboardClockView,
   keypad:window.__PINEWOOD_OPENING_V34__.keypadView,
   world:window.__PINEWOOD_OPENING_V34__.cinematicWorld,
+  roof:window.__PINEWOOD_OPENING_V34__.environmentV37?.roofRayDistance,
   eye:window.__PINEWOOD_OPENING_V34__.cameraPosition,
   ambience:window.__PINEWOOD_OPENING_V34__.audioStatus.ambient
  }));
@@ -31,6 +32,7 @@ try{
  assert.equal(initial.clock?.unobstructedFromDriver,true,'clock must be visible from the real driver seat, not hidden by car mesh');
  assert.equal(initial.clock?.mountKind,'driver-facing-panel','the digital readout must be integrated into a dashboard panel, not perched along the windshield');
  assert.ok(initial.clock?.displayReadableAngle>.70,'clock face must point toward the driver, not lie edge-on to view');
+ assert.ok(initial.roof>.08&&initial.roof<.67,'driver eye must remain physically below the imported hatchback roof');
  assert.equal(initial.world?.retiredInteriorMeshes,0,'retired miniature mall must be absent from arrival scene');
  await page.evaluate(()=>{const q=window.__PINEWOOD_OPENING_V34__;q.seek(1);q.scrub(.38)});
  await page.waitForTimeout(700);
