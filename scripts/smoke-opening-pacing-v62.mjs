@@ -52,7 +52,9 @@ try{
     }
     const range=Math.max(...samples.map(x=>x.yaw))-Math.min(...samples.map(x=>x.yaw));
     const shortest=Math.min(...samples.map(x=>x.distance));
-    assert(range<=11,layout+' dialogue '+index+' darts through too many gaze angles: '+JSON.stringify(samples));
+    // Only the dashboard-clock line may make a deliberate near-field glance; keep all other lines strict.
+    const allowedYaw=index===1?21:11;
+    assert(range<=allowedYaw,layout+' dialogue '+index+' darts through too many gaze angles: '+JSON.stringify(samples));
     if(index===1){
      assert(shortest<2,layout+' clock line never glances at real dashboard time: '+JSON.stringify(samples));
      assert(samples.at(-1).distance>17,layout+' fails to settle back through windshield after clock glance');
