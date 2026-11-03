@@ -22,5 +22,5 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - run: node --test scripts/test-gameplay-layout-v70.mjs
+      - run: node --test scripts/test-gameplay-layout-v70.mjs scripts/test-story-placement-v70.mjs
       - run: node --test scripts/test-physical-shell-v67.mjs scripts/test-furnishing-v69.mjs
