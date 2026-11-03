@@ -13,6 +13,29 @@ export function installDashboardClockV71(car){
  car.updateWorldMatrix(true,true);
  const hits=[];
  const driverEye=local(car,[-.20,1.24,.19]);
+ // Prefer the ORIGINAL driver's visible center-stack panel over the
+ // horizontal windshield ledge. Shoot rays out of the seated driver's eye,
+ // using actual GLB triangles; a front-facing body hit is physically visible.
+ for(const x of [.34,.44,.24,.54,.14,.05]){
+  for(const y of [.94,.88,1.01,.81,1.08]){
+   for(const z of [-.35,-.46,-.57,-.25,-.68]){
+    const direction=local(car,[x,y,z]).sub(driverEye).normalize();
+    const first=new THREE.Raycaster(driverEye,direction,.06,2)
+     .intersectObject(model,true)
+     .find(hit=>!/window|wheel|tire|rim/i.test(hit.object.name));
+    if(!first)continue;
+    const p=car.worldToLocal(first.point.clone());
+    if(p.y<.73||p.y>1.16||p.z>-.14||p.z<-.96)continue;
+    const normal=first.face.normal.clone().transformDirection(first.object.matrixWorld);
+    const toEye=driverEye.clone().sub(first.point).normalize();
+    if(normal.dot(toEye)<0)normal.negate();
+    if(normal.z<.27||normal.dot(toEye)<.20)continue;
+    const score=-10+Math.abs(p.x-.34)*.8+Math.abs(p.z+.39)*.7+
+     Math.abs(p.y-.93)*.8+(1-normal.dot(toEye))*.15;
+    hits.push({score,p,normal,mesh:first.object.name,kind:'driver-facing-panel'});
+   }
+  }
+ }
  // Accept only dash surfaces on the first visible line of sight from the
  // driver's eye. The nearest top hit was behind the wheel/other car meshes.
  // Probe across the passenger side of the original center dashboard.
@@ -34,7 +57,7 @@ export function installDashboardClockV71(car){
     // A near-vertical center stack is ideal, but the real dash top is valid.
     const score=Math.abs(p.x-.34)*1.2+Math.abs(p.z+.61)*.48+
      Math.abs(p.y-.89)*.8+(1-Math.max(0,normal.dot(toEye)))*.08;
-    hits.push({score,p,normal,mesh:hit.object.name});
+    hits.push({score,p,normal,mesh:hit.object.name,kind:'dashboard-top'});
     break;
    }
   }
@@ -74,7 +97,7 @@ export function installDashboardClockV71(car){
  return Object.freeze({
   time:'12:47 AM',localPosition:clock.position.toArray(),importedCarPreserved:true,
   mountedToImportedDash:true,unobstructedFromDriver:true,surfaceGap:.005,displayWidth:.218,
-  hitMesh:mount.mesh,displayNormal:displayNormal.toArray(),
+  hitMesh:mount.mesh,mountKind:mount.kind,displayNormal:displayNormal.toArray(),
   importedSurfaceNormal:mount.normal.toArray(),displayReadableAngle
  });
 }

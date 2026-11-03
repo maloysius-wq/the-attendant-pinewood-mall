@@ -106,7 +106,7 @@ class Intro{
    handsetKey.position.set(-1.5,2,3);
    this.phoneScene.add(handsetKey);
    this.handheld=new HandheldCheckInPhone(this.phoneCamera);
-   this.keypadReach=new KeypadReachHandV72(this.phoneCamera);
+   this.keypadReach=new KeypadReachHandV72(this.phoneCamera,this.handheld);
    this.renderer=new THREE.WebGLRenderer({antialias:true,alpha:false,powerPreference:'high-performance'});
    this.renderer.outputColorSpace=THREE.SRGBColorSpace;this.renderer.toneMapping=THREE.ACESFilmicToneMapping;
    this.renderer.toneMappingExposure=1.20;this.renderer.setPixelRatio(Math.min(devicePixelRatio||1,1.6));

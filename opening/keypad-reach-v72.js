@@ -1,46 +1,61 @@
 /**
- * A second presentation of the locally licensed, continuous right forearm
- * for the keypad. It is camera-composited against the real physical key
- * coordinates (no procedural fingers, external asset, or fake keypad image).
+ * Reuses the SAME connected, locally licensed anatomical right hand which is
+ * visibly proven during the check-in phone shot. During access-code entry the
+ * phone case is hidden, leaving the native hand skin and thumb to press the
+ * real physical keypad. No duplicate GLB, fake fingers or remote asset.
  */
 import * as THREE from '../vendor/three/build/three.module.js';
-import {RiggedPlayerHand} from './makehuman-forearm-v58.js?v=58';
 import {ENTRY_CODE,keypadCenter} from './keypad-spec-v72.mjs';
 
 const clamp=(x,a,b)=>Math.max(a,Math.min(b,x));
 export class KeypadReachHandV72{
- constructor(worldCamera){
-  // Share the already-proven camera, lighting, depth-cleared foreground
-  // renderer and local anatomical source with the existing phone close-up.
-  this.camera=worldCamera;
-  this.root=new THREE.Group();this.root.name='Anatomical contractor forearm reaching for access digits';
-  this.camera.add(this.root);
-  this.hand=new RiggedPlayerHand(this.root);
-  this.ready=this.hand.load();
-  this.root.visible=false;
-  this.digit=null;this.press=0;this.inFrame=false;this.displayPoint=[0,0];
+ constructor(phoneCamera,handheld){
+  this.camera=phoneCamera;
+  this.handheld=handheld;
+  this.root=handheld.root;
+  this.hand=handheld.playerHand;
+  this.ready=handheld.handLoad;
+  this.handOnly=false;this.digit=null;this.press=0;
+  this.inFrame=false;this.displayPoint=[0,0];
+ }
+ showHandOnly(on){
+  if(this.handOnly===on)return;
+  this.handOnly=on;
+  for(const part of this.root.children)
+   part.visible=!on||part===this.hand.holder;
  }
  update(progress,active,worldCamera){
   const p=clamp(progress,0,1);
-  this.root.visible=!!active&&p>0&&p<1&&this.hand.state==='ready';
-  if(!this.root.visible){this.digit=null;this.hand.update(0);return}
+  const reach=!!active&&p>0&&p<1&&this.hand.state==='ready';
+  this.showHandOnly(reach);
+  if(!reach){
+   this.root.visible=!!this.handheld.raised;
+   this.digit=null;this.press=0;
+   return;
+  }
+  // The foreground phone camera has the same FOV/aspect as the stage camera.
+  // Project each *actual physical key* into its pixel location and put the
+  // original skinned thumb there for a visible down/up stroke.
   const slot=Math.min(3,Math.floor(p*4));
   const digit=ENTRY_CODE[slot],center=keypadCenter(digit);
   worldCamera.updateWorldMatrix(true,false);
   const normalized=new THREE.Vector3(...center).project(worldCamera);
-  const screenX=(normalized.x+1)/2,screenY=(1-normalized.y)/2;
-  this.digit=digit;this.displayPoint=[screenX,screenY];
-  this.inFrame=screenX>.02&&screenX<.98&&screenY>.02&&screenY<.98;
-  const scale=.55,depth=.68,tangent=Math.tan(this.camera.fov*Math.PI/360);
-  const target=this.hand.target;
+  const sx=(normalized.x+1)/2,sy=(1-normalized.y)/2;
+  this.digit=digit;this.displayPoint=[sx,sy];
+  this.inFrame=sx>.02&&sx<.98&&sy>.02&&sy<.98;
+  const scale=.72,depth=.60,tangent=Math.tan(this.camera.fov*Math.PI/360);
+  this.root.visible=true;
   this.root.scale.setScalar(scale);
+  const target=this.hand.target;
   this.root.position.set(normalized.x*depth*tangent*this.camera.aspect-target.x*scale,
    normalized.y*depth*tangent-target.y*scale,-depth-target.z*scale);
+  this.root.rotation.set(-.075,-.14,-.09);
   const phase=p*4-slot;
   this.press=Math.max(0,Math.sin(phase*Math.PI));
   this.hand.update(this.press);
  }
  get status(){
+  this.camera.updateWorldMatrix(true,false);
   const toViewport=point=>{
    const p=this.root.localToWorld(new THREE.Vector3(...point)).project(this.camera);
    return [(p.x+1)/2,(1-p.y)/2,p.z];
@@ -48,11 +63,9 @@ export class KeypadReachHandV72{
   const bone=this.hand.state==='ready'?this.hand.status:null;
   let skinSamplesInView=0,skinSamples=0;
   const mesh=this.hand.skinnedMesh;
-  if(this.root.visible&&mesh){
-   this.camera.updateWorldMatrix(true,false);
+  if(this.handOnly&&mesh){
    mesh.updateMatrixWorld(true);mesh.skeleton.update();
-   const attr=mesh.geometry.getAttribute('position');
-   const pt=new THREE.Vector3();
+   const attr=mesh.geometry.getAttribute('position'),pt=new THREE.Vector3();
    for(let i=0;i<attr.count;i+=37){
     pt.fromBufferAttribute(attr,i);mesh.applyBoneTransform(i,pt);
     mesh.localToWorld(pt);pt.project(this.camera);skinSamples++;
@@ -60,12 +73,12 @@ export class KeypadReachHandV72{
      skinSamplesInView++;
    }
   }
-  return {visible:this.root.visible,source:this.hand.state,skinSamplesInView,skinSamples,
+  return {visible:this.handOnly&&this.root.visible,source:this.hand.state,
    digit:this.digit,press:this.press,inFrame:this.inFrame,
    targetViewport:this.displayPoint,realAnatomicalForearm:!!bone?.hasForearm,
    wristViewport:bone?.gripWristPosition?toViewport(bone.gripWristPosition):null,
    thumbViewport:bone?.gripThumbTipPosition?toViewport(bone.gripThumbTipPosition):null,
    gripFingerViewport:bone?.gripFingerTips?.Point?toViewport(bone.gripFingerTips.Point):null,
-   rootPosition:this.root.position.toArray()};
+   skinSamplesInView,skinSamples,rootPosition:this.root.position.toArray()};
  }
 }
