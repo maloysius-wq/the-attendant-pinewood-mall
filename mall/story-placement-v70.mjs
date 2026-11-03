@@ -23,6 +23,9 @@ const FIXED={
     'ch3_console_v22:cctv':['security',36,-111],
     'ch3_console_v22:route':['security',41,-111],
     'LUIS-ROUTE':['security',43,-105],
+    'West Security Shutter':['security',33,-108],
+    'East Security Shutter':['security',40,-108],
+    'East Wing Fire Door':['annex_threshold',42,-99],
     'door':['annex_threshold',42,-99]
   },
   4:{
@@ -32,6 +35,8 @@ const FIXED={
     'JO-CLOSING-NOTES':['training_t04',72,-102],
     'PRE-1986-LOG':['receiving_r12',53,-105],
     'ch4_staff_photo_v23':['staff_lockers',75,-84],
+    'E-17 Fire Closure':['east_wing_spine',61,-57],
+    'R-12 Records Gate':['receiving_r12',53,-111],
     'door':['receiving_r12',53,-111]
   },
   5:{
@@ -40,6 +45,8 @@ const FIXED={
     'TIMECLOCK-1997':['contractor_ledger',75,-89],
     'ch5_roster_terminal_v24':['roster_records',50,-89],
     'ch5_sessions_terminal_v24':['pa_control',75,-109],
+    'ch5_eli_access_v24':['eli_chase',61,-104],
+    'ch5_exit_v24':['pa_control',72,-104],
     'door':['eli_chase',61,-104]
   },
   6:{
