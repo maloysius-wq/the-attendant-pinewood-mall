@@ -88,8 +88,9 @@ class Intro{
      if(environment.canonicalMall?.state!=='ready'||environment.canonicalMall.furnishingsLoaded<50)
       throw Error('Canonical G/M1 mall and CC0 furnishings not ready behind cinematic preload');
      environment.facadeV65=facadeV65;
-     environment.dashboardClock=installDashboardClockV71(
+     this.stage.dashboardClock=installDashboardClockV71(
       this.stage.world.getObjectByName('Sole full 1990s hatchback placement'));
+     environment.dashboardClock={state:'ready',time:this.stage.dashboardClock.time};
      return enlargeImportedLandscapeV64(this.stage,environment);
     });
    this.keypad=new ContractorKeypadV71(this.stage);
