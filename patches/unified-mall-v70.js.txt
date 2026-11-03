@@ -39,6 +39,12 @@ function applyUnifiedMallV70(source){
  once("if(s.exitOpen&&pp.x>27.45&&pp.z>-18.6&&pp.z<-7.0)completeLastShiftV25(this)",
   "if(s.exitOpen&&this.mallGroundExitV70&&pp.x>82.5&&pp.z>-44.5&&pp.z<-39.5)completeLastShiftV25(this)",
   "final physical employee exit");
+ const reviewStart=source.lastIndexOf("    const views={");
+ const reviewEnd=source.indexOf("\n    const view=views[visualTest]",reviewStart);
+ if(reviewStart<0||reviewEnd<0)throw Error('V70 desktop review camera mapping missing');
+ source=source.slice(0,reviewStart)
+   +"    const views=window.__PINEWOOD_V70_BRIDGE__.VISUAL_VIEWPOINTS_V70;"
+   +source.slice(reviewEnd);
  // Portals and furniture form the authoritative collision. No leftover
  // grid walls, suspended ceilings, or hallway teleport maps are rendered.
  const moveStart=source.indexOf("  tryMove(dx,dz){");
