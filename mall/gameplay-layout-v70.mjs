@@ -97,3 +97,10 @@ export function shortestRouteV70(layout,start,finish,{limit=12000}={}){
  }
  return [];
 }
+
+/** Eye line follows the real thirty-tread Receiving→M1 staircase, not a fictitious ramp. */
+export function eyeHeightOnMezzStairV70(z){
+ const bottomZ=-113.4,topZ=-104.7,rise=5.4;
+ const t=Math.max(0,Math.min(1,(z-bottomZ)/(topZ-bottomZ)));
+ return 1.7+rise*t;
+}

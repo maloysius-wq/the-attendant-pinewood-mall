@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {MALL} from '../mall/masterplan-v66.mjs';
 import {FURNISHINGS_V69} from '../mall/furnishing-plan-v69.mjs';
-import {buildGameplayLayoutV70,chapterRouteV70,shortestRouteV70} from '../mall/gameplay-layout-v70.mjs';
+import {buildGameplayLayoutV70,chapterRouteV70,shortestRouteV70,eyeHeightOnMezzStairV70} from '../mall/gameplay-layout-v70.mjs';
 
 test('all six chapters spawn on the right real floor with safe, walkable positions',()=>{
   const expected=[['G','service_vestibule'],['B1','freight_b1'],['G','security'],['G','annex_threshold'],['M1','m1_stair'],['M1','pa_control']];
@@ -98,4 +98,12 @@ test('final physical exit can be crossed beyond the exterior wall without steppi
  const exit=buildGameplayLayoutV70({chapter:6,level:'G'});
  assert.equal(exit.canStand(87,-42),true);
  assert.equal(exit.canStand(87,-47),false,'no unbounded invisible pavement');
+});
+
+test('M1 stair eye height tracks the actual thirty-tread 8.7-metre run',()=>{
+ assert.equal(eyeHeightOnMezzStairV70(-113.4),1.7);
+ assert.ok(Math.abs(eyeHeightOnMezzStairV70(-109.05)-4.4)<.00001);
+ assert.ok(Math.abs(eyeHeightOnMezzStairV70(-104.7)-7.1)<.00001);
+ assert.equal(eyeHeightOnMezzStairV70(-103),7.1);
+ assert.equal(eyeHeightOnMezzStairV70(-114),1.7);
 });
