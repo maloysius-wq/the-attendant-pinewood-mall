@@ -73,7 +73,29 @@ test('final escape has a contiguous PCAS-to-stair and stair-to-east-exit route',
  const upper=buildGameplayLayoutV70({chapter:6});
  const lower=buildGameplayLayoutV70({chapter:6,level:'G'});
  const toStair=shortestRouteV70(upper,{x:75,z:-110},{x:51,z:-107});
- const toExit=shortestRouteV70(lower,{x:51,z:-109},{x:83,z:-42});
+ const toExit=shortestRouteV70(lower,{x:51,z:-109},{x:87,z:-42});
  assert.ok(toStair.length>0,'PA closing-control room must connect to M1 stairs');
  assert.ok(toExit.length>0,'G stair landing must connect to physical Employee Exit');
+});
+
+test('actual floor cutouts cannot be walked over as if they are solid tiles',()=>{
+ const ground=buildGameplayLayoutV70({chapter:3});
+ const mezz=buildGameplayLayoutV70({chapter:5});
+ assert.equal(ground.canStand(20.5,-113),false,'freight shaft is open air');
+ assert.equal(ground.canStand(32,-112),false,'north staircase is not a floating floor');
+ assert.equal(mezz.canStand(51,-109),false,'administrative stair aperture must be honored');
+ assert.equal(ground.canStand(17,-113),true,'freight lobby approach is safe');
+ assert.equal(mezz.canStand(51,-103),true,'upper stair landing is safe');
+});
+
+test('first-person arrival is within sight of the actual contractor door',()=>{
+ const start=chapterRouteV70(1).spawn;
+ assert.deepEqual([start.x,start.z],[12,-26]);
+ assert.equal(buildGameplayLayoutV70({chapter:1}).canStand(start.x,start.z),true);
+});
+
+test('final physical exit can be crossed beyond the exterior wall without stepping into an abyss',()=>{
+ const exit=buildGameplayLayoutV70({chapter:6,level:'G'});
+ assert.equal(exit.canStand(87,-42),true);
+ assert.equal(exit.canStand(87,-47),false,'no unbounded invisible pavement');
 });

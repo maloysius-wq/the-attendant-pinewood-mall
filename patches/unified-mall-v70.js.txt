@@ -37,7 +37,7 @@ function applyUnifiedMallV70(source){
  once("new THREE.Vector3(15,0,-15),.82,'route-error'",
   "new THREE.Vector3(61,0,-58),.82,'route-error'","east-wing false route AI cue");
  once("crossExit(){game.controls.yaw.position.set(28.1,1.70,-14);game.updateLastShiftV25(.016);return chapter6TestStateV25(game);}",
-  "crossExit(){window.__PINEWOOD_V70_BRIDGE__.descendToExitV70(game);game.controls.yaw.position.set(83,1.70,-42);game.updateLastShiftV25(.016);return chapter6TestStateV25(game);}",
+  "crossExit(){window.__PINEWOOD_V70_BRIDGE__.descendToExitV70(game);game.controls.yaw.position.set(87,1.70,-42);game.updateLastShiftV25(.016);return chapter6TestStateV25(game);}",
   "finale desktop deterministic exit hook");
  once("const west=makeShutter(new THREE.Vector3(-8,0,8),'z',false,'West Security Shutter')",
   "const west=makeShutter(new THREE.Vector3(-8,0,8),'x',false,'West Security Shutter')",
@@ -46,8 +46,11 @@ function applyUnifiedMallV70(source){
   "const routes=[{label:'PA CONTROL',pos:new THREE.Vector3(74.5,5.4,-106.4)},{label:'KEY CONTROL',pos:new THREE.Vector3(69.9,5.4,-110.4)},{label:'SERVICE STATE',pos:new THREE.Vector3(77.5,5.4,-110.7)},{label:'STAFF ACCOUNTABILITY',pos:new THREE.Vector3(70.7,5.4,-105.8)}];",
   "physical final recall routes");
  once("if(s.exitOpen&&pp.x>27.45&&pp.z>-18.6&&pp.z<-7.0)completeLastShiftV25(this)",
-  "if(s.exitOpen&&this.mallGroundExitV70&&pp.x>82.5&&pp.z>-44.5&&pp.z<-39.5)completeLastShiftV25(this)",
+  "if(s.exitOpen&&this.mallGroundExitV70&&pp.x>86.15&&pp.z>-42.7&&pp.z<-41.3)completeLastShiftV25(this)",
   "final physical employee exit");
+ once("updateLastShiftV25(dt){if(this.levelIndex!==5||!this.ch6V25)return;const s=this.ch6V25;",
+  "updateLastShiftV25(dt){if(this.levelIndex!==5||!this.ch6V25)return;const s=this.ch6V25;const physicalGate=this.mallV70?.gates?.children?.find(g=>g.userData?.boundary?.id==='gate_east_exit');if(physicalGate)physicalGate.visible=!s.exitOpen;",
+  "the real east exit stays locked until PCAS releases it");
  const cameraFunction=source.indexOf("function buildEyesInSecurityV22(");
  const feedsStart=source.indexOf("  const feeds=[",cameraFunction);
  const feedsEnd=source.indexOf("\n  ];",feedsStart);
@@ -70,8 +73,12 @@ function applyUnifiedMallV70(source){
  move=move.replaceAll("p.y=1.7","p.y=1.7+(this.mallLevelYV70??0)");
  const ending="p.y=1.7+(this.mallLevelYV70??0);\n  }";
  if(!move.includes(ending))throw Error('V70 movement ending missing');
+ const movementStart="const p=this.controls.yaw.position,nx=p.x+dx,nz=p.z+dz,e=this.exitObject,u=e?.userData;";
+ if(!move.includes(movementStart))throw Error('V70 movement start missing');
+ move=move.replace(movementStart,movementStart+
+  "\n    if(this.levelIndex===5&&this.ch6V25?.exitOpen&&!this.mallGroundExitV70&&dz<0&&p.x>49.8&&p.x<52.2&&p.z<-103.1&&p.z>-104.3){window.__PINEWOOD_V70_BRIDGE__.descendToExitV70(this);}");
  move=move.replace(ending,
-   "p.y=1.7+(this.mallLevelYV70??0);\n    if(this.levelIndex===5&&this.ch6V25?.exitOpen){\n      if(!this.mallGroundExitV70&&p.x>49.8&&p.x<52.2&&p.z<-104.2&&p.z>-114){\n        window.__PINEWOOD_V70_BRIDGE__.descendToExitV70(this);\n      }\n      if(this.mallGroundExitV70&&p.x>49.8&&p.x<52.2&&p.z<-104.2&&p.z>-114){\n        p.y=1.7+5.4*clamp((p.z+114)/9.8,0,1);\n      }\n    }\n  }");
+   "p.y=1.7+(this.mallLevelYV70??0);\n    if(this.levelIndex===5&&this.ch6V25?.exitOpen){\n      if(!this.mallGroundExitV70&&p.x>49.8&&p.x<52.2&&p.z<-103.5&&p.z>-114){\n        window.__PINEWOOD_V70_BRIDGE__.descendToExitV70(this);\n      }\n      if(this.mallGroundExitV70&&p.x>49.8&&p.x<52.2&&p.z<-104.2&&p.z>-114){\n        p.y=1.7+5.4*clamp((p.z+114)/10.5,0,1);\n      }\n    }\n  }");
  source=source.slice(0,moveStart)+move+source.slice(moveEnd);
  return source;
 }

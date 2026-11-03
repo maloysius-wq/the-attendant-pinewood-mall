@@ -3,7 +3,7 @@ import {constructPhysicalShell} from './physical-shell-v67.mjs';
 import {FURNISHINGS_V69} from './furnishing-plan-v69.mjs';
 
 const CHAPTERS=Object.freeze([
- {level:'G',room:'service_vestibule',x:12,z:-38,from:null},
+ {level:'G',room:'service_vestibule',x:12,z:-26,from:null},
  {level:'B1',room:'freight_b1',x:23,z:-110,from:'freight_lobby__freight_b1'},
  {level:'G',room:'security',x:35,z:-110,from:'b1_stair__security'},
  {level:'G',room:'annex_threshold',x:52,z:-99,from:'security__annex_threshold'},
@@ -44,6 +44,23 @@ export function buildGameplayLayoutV70({chapter,level}={}){
   }
  }
  for(const w of [...shell.walls,...shell.gates,...shell.railings])addWallCollision(colliders,w);
+ // Floor openings are real holes in the v67 mesh; never let the legacy
+ // 2D walk grid place a suspended player over an elevator or stair void.
+ const openings=activeLevel==='G'?
+  [{id:'freight-shaft',x1:18.5,x2:22.5,z1:-115.8,z2:-110.5},
+   {id:'north-stair-void',x1:30.5,x2:33.5,z1:-115.5,z2:-108}]:
+  activeLevel==='M1'?
+  [{id:'mezz-stair-void',x1:49.7,x2:52.3,z1:-114.5,z2:-104}]:[];
+ for(const o of openings)colliders.push({minX:o.x1,maxX:o.x2,minZ:o.z1,maxZ:o.z2,kind:'open-shaft',id:o.id});
+ // The Chapter 6 exit is a real threshold at x=86, not a trigger
+ // three metres inside a room. A short off-property apron lets the
+ // player cross the door plane before the ending takes control.
+ if(chapter===6&&activeLevel==='G'){
+  for(let x=86;x<=89;x++)for(let z=-43;z<=-41;z++){
+   walk.add(cell(x,z));tags.set(cell(x,z),'east_employee_exit_apron');
+  }
+ }
+
  const furniture=FURNISHINGS_V69.fixtures.filter(f=>ROOM.get(f.room)?.level===route.level);
  for(const f of furniture){
   if(!Number.isFinite(f.radius)||f.radius<=0)continue;
