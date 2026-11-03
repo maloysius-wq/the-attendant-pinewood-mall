@@ -13,7 +13,7 @@ export function installDashboardClockV71(car){
  car.updateWorldMatrix(true,true);
  // The old driver eye looked through front-seat upholstery and the mount
  // search selected a seat-depth triangle (z=-.186) as "dashboard".
- const driverEye=local(car,[-.38,1.26,-.45]);
+ const driverEye=local(car,[-.24,1.27,.29]);
  const hits=[];
  // Search real dashboard faces ahead of the seats, from the new driver eye.
  // Only the nearest visible non-glass triangle may hold the clock.

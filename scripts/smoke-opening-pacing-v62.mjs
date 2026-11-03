@@ -34,7 +34,7 @@ try{
     });
    };
    const driver=await snap(0,.02);
-   // The v74 real-mesh regression checks this camera against the seatbacks and dashboard;\n   // keep the older pacing test focused on a stable, enclosed seated pose.\n   assert(driver.camera[2]>=16.95&&driver.camera[2]<=17.20,\n     layout+' opening must begin at the corrected driver eye: eyeZ='+driver.camera[2]);
+   // The v74 real-mesh regression checks this camera against the seatbacks and dashboard;\n   // keep the older pacing test focused on a stable, enclosed seated pose.\n   assert(driver.camera[2]>=17.70&&driver.camera[2]<=17.88,\n     layout+' opening must begin at the corrected driver eye: eyeZ='+driver.camera[2]);
    const gazeSamples=[];
    for(let index=0;index<5;index++){
     const samples=[];
