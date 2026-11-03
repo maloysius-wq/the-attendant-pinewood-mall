@@ -494,19 +494,36 @@ window.__PINEWOOD_OPENING_V34__={
  },
  qaRenderNow(){
   if(!location.pathname.includes('/review/')||!active?.renderer)return false;
-  const arm=active.keypadReach?.root;
-  active.renderer.render(active.stage.scene,active.camera);
-  const withArm=active.renderer.info.render.calls;
+  const arm=active.keypadReach?.root,renderer=active.renderer,gl=renderer.getContext();
+  const mark=active.keypadReach.probe.getWorldPosition(new THREE.Vector3()).project(active.camera);
+  const width=gl.drawingBufferWidth,height=gl.drawingBufferHeight;
+  const cx=Math.floor((mark.x+1)*width/2),cy=Math.floor((mark.y+1)*height/2);
+  const colorSample=()=>{
+   const w=64,h=64,x=Math.max(0,Math.min(width-w,cx-32)),y=Math.max(0,Math.min(height-h,cy-32));
+   const rgba=new Uint8Array(w*h*4);gl.readPixels(x,y,w,h,gl.RGBA,gl.UNSIGNED_BYTE,rgba);
+   let purple=0;for(let p=0;p<rgba.length;p+=4)if(rgba[p]>130&&rgba[p+2]>130&&rgba[p+1]<100)purple++;
+   return {center:Array.from(rgba.slice((32*w+32)*4,(32*w+32)*4+4)),purple,x,y};
+  };
+  renderer.render(active.stage.scene,active.camera);
+  const withArm=renderer.info.render.calls,withColor=colorSample();
   const wasVisible=arm?.visible;
   if(arm)arm.visible=false;
-  active.renderer.render(active.stage.scene,active.camera);
-  const withoutArm=active.renderer.info.render.calls;
+  renderer.render(active.stage.scene,active.camera);
+  const withoutArm=renderer.info.render.calls,withoutColor=colorSample();
   if(arm)arm.visible=wasVisible;
-  active.renderer.render(active.stage.scene,active.camera);
-  const restored=active.renderer.info.render.calls;
-  return {withArm,withoutArm,restored,
+  renderer.render(active.stage.scene,active.camera);
+  const restored=renderer.info.render.calls,restoredColor=colorSample();
+  const raw=new Uint8Array(width*height*4);
+  gl.readPixels(0,0,width,height,gl.RGBA,gl.UNSIGNED_BYTE,raw);
+  const image=new ImageData(width,height),pixels=image.data;
+  for(let row=0;row<height;row++)pixels.set(raw.subarray(row*width*4,(row+1)*width*4),(height-1-row)*width*4);
+  const capture=document.createElement('canvas');capture.width=width;capture.height=height;
+  capture.getContext('2d').putImageData(image,0,0);
+  return {withArm,withoutArm,restored,withColor,withoutColor,restoredColor,
+   framebufferPng:capture.toDataURL('image/png'),
    armOnStage:arm?.parent===active.stage.scene,
-   armVisible:arm?.visible,probeVisible:active.keypadReach?.probe?.visible};
+   armVisible:arm?.visible,probeVisible:active.keypadReach?.probe?.visible,
+   projectedProbe:[cx,cy,width,height]};
  },
  get qaPlayerHand(){return location.pathname.includes('/review/')?active?.handheld?.playerHand||null:null;},
  get captionTiming(){if(active&&!active.paused)active.renderCaption();return active?{line:active.line?.id,voiceSeconds:active.voiceSeconds,

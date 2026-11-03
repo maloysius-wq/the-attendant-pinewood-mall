@@ -44,7 +44,9 @@ try{
  const diagnosticsBefore=await page.evaluate(()=>window.__PINEWOOD_OPENING_V34__.qaRenderStats);
  await page.waitForTimeout(150);
  const diagnosticsAfter=await page.evaluate(()=>window.__PINEWOOD_OPENING_V34__.qaRenderStats);
- const drawProbe=await page.evaluate(()=>window.__PINEWOOD_OPENING_V34__.qaRenderNow());
+ const drawProbeRaw=await page.evaluate(()=>window.__PINEWOOD_OPENING_V34__.qaRenderNow());
+ const {framebufferPng,...drawProbe}=drawProbeRaw;
+ await writeFile('cinematic-v72-artifacts/04-direct-webgl-framebuffer.png',Buffer.from(framebufferPng.split(',')[1],'base64'));
  console.log('V72_RENDER_DIAGNOSTIC '+JSON.stringify({diagnosticsBefore,diagnosticsAfter,drawProbe}));
  console.log('V72_HAND_DIAGNOSTIC '+JSON.stringify(entry.keypad));
  assert.ok(entry.keypad?.inFrame,'entire keypad panel is within the desktop viewport');
