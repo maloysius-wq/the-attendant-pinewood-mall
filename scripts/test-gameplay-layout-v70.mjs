@@ -72,7 +72,7 @@ test('final chapter can descend onto the real ground floor without resetting its
 test('final escape has a contiguous PCAS-to-stair and stair-to-east-exit route',()=>{
  const upper=buildGameplayLayoutV70({chapter:6});
  const lower=buildGameplayLayoutV70({chapter:6,level:'G'});
- const toStair=shortestRouteV70(upper,{x:75,z:-110},{x:51,z:-107});
+ const toStair=shortestRouteV70(upper,{x:75,z:-110},{x:51,z:-103});
  const toExit=shortestRouteV70(lower,{x:51,z:-109},{x:87,z:-42});
  assert.ok(toStair.length>0,'PA closing-control room must connect to M1 stairs');
  assert.ok(toExit.length>0,'G stair landing must connect to physical Employee Exit');
