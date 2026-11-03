@@ -139,6 +139,16 @@ try{
  });
  await writeFile('cinematic-v72-artifacts/car-seat-diagnostic.json',JSON.stringify(seatDiagnostics,null,2));
  console.log('V74_SEAT_DIAGNOSTIC '+JSON.stringify(seatDiagnostics));
+ assert.ok(seatDiagnostics.clockDistance>=.70,
+  'the dashboard clock must be forward of the front seat, not mounted to nearby upholstery');
+ assert.ok(seatDiagnostics.clockGlance.nearUnder04<=4,
+  'a natural clock glance must not fill the screen with upholstery within 40cm of the eye');
+ assert.ok(seatDiagnostics.clockGlance.nearUnder08<=16,
+  'the clock glance must preserve a clear forward cockpit instead of huge nearby seat surfaces');
+ assert.ok(seatDiagnostics.ahead.nearUnder04<=4,
+  'the seated windshield view cannot begin from inside or directly behind the seat');
+ assert.ok(clockMoment.clockView?.viewportWidth<=.16,
+  'dashboard readout must not be exaggerated by an extremely close camera');
  await page.evaluate(()=>{const q=window.__PINEWOOD_OPENING_V34__;q.seek(7);q.scrub(.97)});
  await page.waitForTimeout(700);
  const entry=await get();
