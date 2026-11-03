@@ -165,7 +165,7 @@ export class HumanCameraRig{
   if(id==='owner'){
    // A real car-door boundary, not a fraction of Renee's long speech.
    // The driver clears the left door when the camera crosses this X-plane.
-   const outside=this.eye.x<=-11.15;
+   const outside=at.x<=-11.15;
    carWeight=outside?0:1;exteriorWeight=outside?1:0;
   }
   if(id==='inside')exteriorWeight=1; // Still standing at the outdoor keypad.
