@@ -5,7 +5,8 @@
  */
 import {MALL_PLANTERS_V63} from './landscape-layout-v63.mjs';
 export const MALL_PLANTER_SCALE_V64=2;
-const xs=[-34.20,-30.15,-22.20,-13.20,-4.10,20.15,24.20,32.20];
+// Four mirrored pairs about the public doorway x=-10.5; identical setbacks.
+const xs=[-45.5,-36.5,-27.5,-18.5,-2.5,6.5,15.5,24.5];
 export const MALL_PLANTERS_V64=Object.freeze(
- MALL_PLANTERS_V63.map((spot,i)=>Object.freeze({...spot,x:xs[i]}))
+ MALL_PLANTERS_V63.map((spot,i)=>Object.freeze({...spot,x:xs[i],z:-18.85}))
 );
