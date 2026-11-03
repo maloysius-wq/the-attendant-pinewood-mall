@@ -15,13 +15,14 @@ export function installDashboardClockV71(car){
  // search selected a seat-depth triangle (z=-.186) as "dashboard".
  const driverEye=local(car,[-.24,1.27,.29]);
  const hits=[];
- // Search real dashboard faces ahead of the seats, from the new driver eye.
- // Only the nearest visible non-glass triangle may hold the clock.
+ // Match the scene camera's in-car near plane: upholstery immediately in front
+ // of the seated eye is intentionally clipped, while the true dashboard farther
+ // forward is visible. Cast beyond that same near plane for a physical mount.
  for(const x of[.05,-.05,.15,-.15,.25,.35]){
   for(const y of[.85,.80,.75,.90,.95]){
    for(const z of[-1.0,-1.15,-1.30,-1.45]){
     const direction=local(car,[x,y,z]).sub(driverEye).normalize();
-    const hit=new THREE.Raycaster(driverEye,direction,.08,3)
+    const hit=new THREE.Raycaster(driverEye,direction,.78,3)
      .intersectObject(model,true)
      .find(h=>!/window|wheel|tire|rim/i.test(h.object.name));
     if(!hit)continue;
@@ -73,14 +74,14 @@ export function installDashboardClockV71(car){
  const visibleClockPoint=local(car,clock.position.toArray());
  const viewRay=visibleClockPoint.clone().sub(driverEye);
  const clockDistance=viewRay.length();
- const blockers=new THREE.Raycaster(driverEye,viewRay.normalize(),.03,clockDistance-.018)
+ const blockers=new THREE.Raycaster(driverEye,viewRay.normalize(),.78,clockDistance-.018)
   .intersectObject(model,true).filter(h=>!/window|wheel|tire|rim/i.test(h.object.name));
  const unobstructedFromDriver=blockers.length===0;
  if(!unobstructedFromDriver)throw Error('Dashboard clock is hidden behind original car geometry');
  return Object.freeze({
   time:'12:47 AM',localPosition:clock.position.toArray(),importedCarPreserved:true,
   mountedToImportedDash:mount.p.z<-.80,unobstructedFromDriver,surfaceGap:.005,displayWidth:.218,
-  mountDepth:mount.p.z,clockDistance,
+  mountDepth:mount.p.z,clockDistance,interiorNearPlane:.78,
   hitMesh:mount.mesh,mountKind:mount.kind,displayNormal:displayNormal.toArray(),
   importedSurfaceNormal:mount.normal.toArray(),displayReadableAngle
  });
