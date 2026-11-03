@@ -7,6 +7,14 @@ const SPECIAL={
   3:{luisRoot:[43,-109]},
   5:{eliRoot:[60,-110]}
 };
+const RITUAL_CONTROLS_V70={
+ ch6_roster_station_v25:[70.7,-105.8],
+ ch6_eli_station_v25:[77.4,-105.8],
+ ch6_key_station_v25:[69.9,-110.4],
+ ch6_service_station_v25:[77.5,-110.7],
+ ch6_clockout_station_v25:[70.4,-114.0],
+ ch6_employee_exit_v25:[77.3,-113.9]
+};
 const SETPIECES={
   2:{'flooded-east-low-corridor-v21':[24,-94]},
   3:{'primary-security-cctv-v22':[38,-110],'disconnected-pa-chain-v22':[42,-106],'luis-vhs-station-v22':[43,-108]},
@@ -73,12 +81,30 @@ export function relocateStoryV70({game,layout,THREE}={}){
   moved.add(obj);moved.add(top);
  }
  if(chapter===6&&state?.presentGroup){
+  // The 1997 replay is a scaled staging vignette, but its physical ritual
+  // consoles are separate root objects: each needs its own M1 coordinate.
   for(const group of [state.presentGroup,state.memoryGroup]){
    if(!group?.parent)continue;
    group.position.set(74.5,layout.y,-109);
    group.scale.set(.205,1,.205);
    group.updateWorldMatrix(true,true);
    moved.add(group);
+  }
+  if(state.echoRoot?.parent&&state.memoryGroup?.parent){
+   state.memoryGroup.add(state.echoRoot);
+   state.echoRoot.position.set(7.7,.02,13);
+   moved.add(state.echoRoot);
+  }
+  for(const obj of world.interactables){
+   if(!obj?.parent||obj===state.presentGroup||obj===state.memoryGroup)continue;
+   if(topChild(root,obj)===state.presentGroup||topChild(root,obj)===state.memoryGroup)continue;
+   const point=RITUAL_CONTROLS_V70[obj.userData?.type];
+   if(point)reposition(obj,{x:point[0],z:point[1]});
+  }
+  for(const light of [state.presentTaskLight,state.memoryLight]){
+   if(!light?.parent)continue;
+   light.position.set(74.5,layout.y+2.2,-106.4);
+   moved.add(light);
   }
  }else{
   world.interactables.forEach((o,index)=>{

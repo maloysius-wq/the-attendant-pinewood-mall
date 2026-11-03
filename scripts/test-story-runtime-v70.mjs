@@ -61,3 +61,39 @@ test('Attendant sight does not pass through a drawn storefront wall',()=>{
  assert.equal(game.world.hasLOS({x:20,z:-77},{x:40,z:-77}),false);
  assert.equal(game.world.hasLOS({x:20,z:-70},{x:39,z:-70}),true);
 });
+
+test('chapter six terminals occupy the actual PA room rather than the demolished abstract map',()=>{
+ const game=fakeGame(6),layout=buildGameplayLayoutV70({chapter:6});
+ const present=new THREE.Group(),memory=new THREE.Group(),echo=new THREE.Group();
+ game.world.root.add(present,memory,echo);
+ const controls=[
+  ['ch6_roster_station_v25',-5.2,12.5],
+  ['ch6_eli_station_v25',5.2,12.5],
+  ['ch6_key_station_v25',-22,-12],
+  ['ch6_service_station_v25',22,-12],
+  ['ch6_clockout_station_v25',-24.5,-14],
+  ['ch6_employee_exit_v25',27.2,-14]
+ ];
+ for(const [type,x,z] of controls){
+  const o=interact(type,type,x,z,.02);
+  game.world.root.add(o);game.world.interactables.push(o);
+ }
+ const lights=[
+  ['present-task',0,12],['memory-1997',0,12]
+ ];
+ for(const [tag,x,z] of lights){
+  const l=new THREE.PointLight();l.position.set(x,2.2,z);l.userData.chapter6LightV25=tag;game.world.root.add(l);
+ }
+ game.ch6V25={presentGroup:present,memoryGroup:memory,echoRoot:echo,presentTaskLight:game.world.root.children.find(o=>o.userData.chapter6LightV25==='present-task'),memoryLight:game.world.root.children.find(o=>o.userData.chapter6LightV25==='memory-1997')};
+ const out=relocateStoryV70({game,layout,THREE});
+ assert.equal(out.interactables,controls.length);
+ for(const o of game.world.interactables){
+  assert.ok(o.position.x>=68&&o.position.x<=80,o.userData.type+' must be in M1 PA');
+  assert.ok(o.position.z>=-116&&o.position.z<=-102,o.userData.type+' must be in M1 PA');
+  assert.equal(o.position.y,5.42);
+ }
+ assert.equal(echo.parent,memory,'1997 echo should remain inside the scaled reconstruction');
+ for(const l of game.world.root.children.filter(c=>c.userData.chapter6LightV25)){
+  assert.ok(l.position.z<-100,'chapter-six task lights must illuminate the real PA room');
+ }
+});
