@@ -3,7 +3,8 @@ import {makeOpeningScene} from './scene.js?v=65';
 import {installAbandonedFacadeV65} from './facade-v65.js?v=65';
 import {enlargeImportedLandscapeV64} from './landscape-scale-v64.js?v=64';
 import {renderPinewoodV69} from '../mall/render-shell-v69.js';
-import {installDashboardClockV71} from './dashboard-clock-v71.js?v=71';
+import {installDashboardClockV71} from './dashboard-clock-v71.js?v=72';
+import {KeypadReachHandV72} from './keypad-reach-v72.js?v=72';
 import {HumanCameraRig} from './camera-v65.js?v=65';
 import {OpeningAmbience} from './ambience-v62.js?v=62';
 import {HandheldCheckInPhone} from './phone-v62.js?v=62';
@@ -44,7 +45,7 @@ class Intro{
   this.canvasSlot=this.root.querySelector('.pwm-render');this.last=performance.now();
   this.ambience=new OpeningAmbience();
   this.eyeRig=new HumanCameraRig();this.lastCameraPose=null;
-  this.resize=()=>{if(!this.renderer)return;const w=this.root.clientWidth||innerWidth,h=this.root.clientHeight||innerHeight;this.renderer.setSize(w,h,false);this.camera.aspect=w/h;this.camera.updateProjectionMatrix();if(this.phoneCamera){this.phoneCamera.aspect=w/h;this.phoneCamera.updateProjectionMatrix()}};
+  this.resize=()=>{if(!this.renderer)return;const w=this.root.clientWidth||innerWidth,h=this.root.clientHeight||innerHeight;this.renderer.setSize(w,h,false);this.camera.aspect=w/h;this.camera.updateProjectionMatrix();if(this.phoneCamera){this.phoneCamera.aspect=w/h;this.phoneCamera.updateProjectionMatrix()}this.keypadReach?.resize(w/h)};
   this.keydown=e=>{
    if(this.preloading){
     if(e.key==='Tab'){e.preventDefault();this.preloadSkip.focus();return;}
@@ -105,6 +106,7 @@ class Intro{
    handsetKey.position.set(-1.5,2,3);
    this.phoneScene.add(handsetKey);
    this.handheld=new HandheldCheckInPhone(this.phoneCamera);
+   this.keypadReach=new KeypadReachHandV72();
    this.renderer=new THREE.WebGLRenderer({antialias:true,alpha:false,powerPreference:'high-performance'});
    this.renderer.outputColorSpace=THREE.SRGBColorSpace;this.renderer.toneMapping=THREE.ACESFilmicToneMapping;
    this.renderer.toneMappingExposure=1.20;this.renderer.setPixelRatio(Math.min(devicePixelRatio||1,1.6));
@@ -127,7 +129,7 @@ class Intro{
  async prepareAssets(){
   try{
    const [environment,interior]=await Promise.all([
-    this.stage.assetReady,this.interiorReady,this.handheld.handLoad,this.ambience.ready
+    this.stage.assetReady,this.interiorReady,this.handheld.handLoad,this.keypadReach.ready,this.ambience.ready
    ]);
    this.interiorBuilding=interior;
    if(this.finished){this.disposeScenes();return;}
@@ -138,6 +140,8 @@ class Intro{
    this.dashboardClock=installDashboardClockV71(this.stage.car);
    if(this.handheld.playerHand.state!=='ready')
     throw Error('Connected source hand did not load: '+this.handheld.playerHand.error);
+   if(this.keypadReach.hand.state!=='ready')
+    throw Error('Keypad forearm did not preload: '+this.keypadReach.hand.error);
    if(this.ambience.ctx&&(!this.ambience.buffers.car||!this.ambience.buffers.outside))
     throw Error('Local indoor or outdoor rain did not decode before cinematic reveal');
    // GPU uploads and shader setup are also done UNDER the opaque loading
@@ -159,6 +163,14 @@ class Intro{
    this.camera.position.set(11.8,1.73,-25.2);
    this.camera.lookAt(5,2.4,-34);
    this.renderer.render(this.interiorScene,this.camera);
+   // Compile the licensed keypad hand under the same opaque cover as the
+   // real mall, so the physical contact animation cannot flash on first use.
+   this.camera.position.set(12.8,1.63,-20.73);
+   this.camera.lookAt(13.65,1.37,-21.68);
+   this.keypadReach.update(.375,true,this.camera);
+   this.renderer.autoClear=false;this.renderer.clearDepth();
+   this.renderer.render(this.keypadReach.scene,this.keypadReach.camera);
+   this.renderer.autoClear=true;this.keypadReach.update(0,false,this.camera);
    this.camera.position.copy(originalPos);this.camera.quaternion.copy(originalQuat);
    this.renderer.render(this.stage.scene,this.camera);
    this.firstFrameRendered=true;this.eyeRig=new HumanCameraRig();
@@ -193,7 +205,7 @@ class Intro{
   this.preloadSkip.focus({preventScroll:true});
  }
  disposeScenes(){
-  for(const scene of [this.stage?.scene,this.phoneScene])scene?.traverse(o=>{
+  for(const scene of [this.stage?.scene,this.phoneScene,this.keypadReach?.scene])scene?.traverse(o=>{
    o.geometry?.dispose?.();
    for(const m of o.material?(Array.isArray(o.material)?o.material:[o.material]):[]){
     m.map?.dispose?.();m.dispose?.();
@@ -312,6 +324,7 @@ class Intro{
      ?clamp((this.elapsed-this.voiceSeconds)/Math.max(.1,this.line.pause||2),0,1)
      :this.index>7?1:0;
     this.stage.accessPad.update(accessProgress);
+    this.keypadReach?.update(accessProgress,this.line.id==='lights',this.camera);
     if(!this.reduced){const a=this.stage.rain.geometry.attributes.position.array;for(let i=1;i<a.length;i+=3){a[i]-=delta*11.6;if(a[i]<.1)a[i]+=12.9;}this.stage.rain.geometry.attributes.position.needsUpdate=true;}
     const throughDoor=this.camera.position.z< -22.55;
     const useNewMall=throughDoor&&(this.line.id==='promise'||this.line.id==='direction');
@@ -321,6 +334,12 @@ class Intro{
      this.renderer.autoClear=false;
      this.renderer.clearDepth();
      this.renderer.render(this.phoneScene,this.phoneCamera);
+     this.renderer.autoClear=true;
+    }
+    if(this.keypadReach?.root.visible){
+     this.renderer.autoClear=false;
+     this.renderer.clearDepth();
+     this.renderer.render(this.keypadReach.scene,this.keypadReach.camera);
      this.renderer.autoClear=true;
     }
    }
@@ -436,10 +455,25 @@ window.__PINEWOOD_OPENING_V34__={
  get dashboardPhone(){return null;}, // No dashboard mount; the prop is held in hand.
   get dashboardClock(){return active?.dashboardClock||null;},
   get accessPad(){return active?.stage?.accessPad?.status||null;},
+  get keypadView(){
+   if(!active?.stage||!active.camera)return null;
+   const bounds=[[13.41,.94,-21.65],[13.89,.94,-21.65],
+    [13.41,1.82,-21.65],[13.89,1.82,-21.65]]
+    .map(p=>new THREE.Vector3(...p).project(active.camera));
+   const xs=bounds.map(p=>(p.x+1)/2),ys=bounds.map(p=>(1-p.y)/2);
+   const pad=active.stage.accessPad.status,reach=active.keypadReach?.status;
+   return {entered:pad.entered,granted:pad.granted,legibleDigits:pad.legibleDigits,
+    inFrame:xs.every(x=>x>=.03&&x<=.97)&&ys.every(y=>y>=.03&&y<=.97),
+    viewportWidth:Math.max(...xs)-Math.min(...xs),
+    viewportBounds:{left:Math.min(...xs),right:Math.max(...xs),top:Math.min(...ys),bottom:Math.max(...ys)},
+    forearmVisible:!!reach?.visible&&!!reach.realAnatomicalForearm,
+    finger:reach};
+  },
   get cinematicWorld(){return active?{
    mode:active.root.dataset.renderWorld||'exterior',
    interiorReady:!!active.interiorBuilding?.firstFrameFullyLoaded,
-   uniqueLicensedModels:active.interiorBuilding?.uniqueModels||0
+   uniqueLicensedModels:active.interiorBuilding?.uniqueModels||0,
+   retiredInteriorMeshes:active.stage?.retiredInteriorMeshes??null
   }:null;},
  get handheldPhone(){return active?.handheld?.status||null;},
  get qaPlayerHand(){return location.pathname.includes('/review/')?active?.handheld?.playerHand||null:null;},

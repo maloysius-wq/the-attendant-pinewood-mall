@@ -1,37 +1,66 @@
 /**
- * A diegetic late-night digital dashboard clock. The enclosure belongs to the
- * imported CC0 hatchback; only this small, original clock insert is authored.
- * Its time is deliberately fixed to the moment of dispatch, not the system clock.
+ * Small 12:47 AM factory readout. Its bezel is seated against a measured
+ * surface of the original licensed enclosed hatchback, not suspended in
+ * empty space or attached to a replacement dashboard.
  */
 import * as THREE from '../vendor/three/build/three.module.js';
 
+const local=(car,p)=>car.localToWorld(new THREE.Vector3(...p));
 export function installDashboardClockV71(car){
- if(!car?.isGroup||car.children.filter(x=>x.name==='Complete Grab3D CC0 1990s Hatchback').length!==1)
+ const model=car?.children?.find(child=>child.name==='Complete Grab3D CC0 1990s Hatchback');
+ if(!car?.isGroup||!model||car.children.filter(x=>x.name===model.name).length!==1)
   throw Error('The dashboard clock needs the complete imported hatchback');
- const clock=new THREE.Group();
- clock.name='Pinewood dashboard digital clock';
- clock.position.set(-.08,1.21,-.49);
- clock.scale.set(.72,.72,1);
- const plastic=new THREE.Mesh(new THREE.BoxGeometry(.36,.135,.035),
-  new THREE.MeshStandardMaterial({color:0x12191c,roughness:.72,metalness:.06}));
- plastic.name='Clock factory-black enclosure';
+ car.updateWorldMatrix(true,true);
+ const hits=[];
+ // Probe across the central actual dashboard, avoiding the steering wheel.
+ // All positions are in the imported vehicle's measured, full-size meters.
+ for(const x of [.17,.11,.05,-.03,-.13,-.23,.28]){
+  for(const z of [-.62,-.70,-.53,-.43,-.82,-.30]){
+   const ray=new THREE.Raycaster(local(car,[x,1.26,z]),new THREE.Vector3(0,-1,0),.05,.68);
+   for(const hit of ray.intersectObject(model,true)){
+    if(/window|wheel|tire|rim/i.test(hit.object.name))continue;
+    const p=car.worldToLocal(hit.point.clone());
+    if(p.y<.68||p.y>1.16||p.z>-.25||p.z<-.98)continue;
+    const normal=hit.face.normal.clone().transformDirection(hit.object.matrixWorld);
+    const toEye=local(car,[-.24,1.24,.18]).sub(hit.point).normalize();
+    if(normal.dot(toEye)<0)normal.negate();
+    // A near-vertical center stack is ideal, but the real dash top is valid.
+    const score=Math.abs(p.x-.11)*1.2+Math.abs(p.z+.61)*.48+
+     Math.abs(p.y-.89)*.8+(1-Math.max(0,normal.dot(toEye)))*.08;
+    hits.push({score,p,normal,mesh:hit.object.name});
+    break;
+   }
+  }
+ }
+ hits.sort((a,b)=>a.score-b.score);
+ if(!hits.length)throw Error('Cannot locate a real imported dashboard mounting surface; refusing to float the clock');
+ const mount=hits[0],clock=new THREE.Group();
+ clock.name='Factory-sized recessed digital dashboard readout';
+ // The thin bezel seats into the actual mesh. It is not a freestanding box.
+ clock.position.copy(mount.p).addScaledVector(mount.normal,.005);
+ clock.quaternion.setFromUnitVectors(new THREE.Vector3(0,0,1),mount.normal);
+ const plastic=new THREE.Mesh(new THREE.BoxGeometry(.238,.091,.009),
+  new THREE.MeshStandardMaterial({color:0x11181b,roughness:.83,metalness:.035}));
+ plastic.name='Slim factory bezel seated into imported dashboard';
  clock.add(plastic);
  const canvas=document.createElement('canvas');
- canvas.width=640;canvas.height=230;
+ canvas.width=600;canvas.height=218;
  const ctx=canvas.getContext('2d');
- ctx.fillStyle='#030507';ctx.fillRect(0,0,640,230);
- ctx.strokeStyle='#343e43';ctx.lineWidth=9;ctx.strokeRect(8,8,624,214);
- ctx.fillStyle='#f46b46';ctx.shadowColor='#f04d2d';ctx.shadowBlur=27;
- ctx.font='bold 112px monospace';ctx.textAlign='center';
- ctx.fillText('12:47',305,146);
- ctx.font='bold 52px monospace';ctx.fillText('AM',536,154);
- const map=new THREE.CanvasTexture(canvas);
- map.colorSpace=THREE.SRGBColorSpace;
- const face=new THREE.Mesh(new THREE.PlaneGeometry(.323,.116),
-  new THREE.MeshBasicMaterial({map,transparent:false,toneMapped:false}));
- face.name='12:47 AM dashboard clock display';
- face.position.z=.019;
- clock.add(face);
+ ctx.fillStyle='#05090b';ctx.fillRect(0,0,600,218);
+ ctx.strokeStyle='#323d41';ctx.lineWidth=7;ctx.strokeRect(7,7,586,204);
+ ctx.fillStyle='#ef704e';ctx.shadowColor='#ef4d30';ctx.shadowBlur=18;
+ ctx.font='bold 115px monospace';ctx.textAlign='center';
+ ctx.fillText('12:47',278,149);
+ ctx.font='bold 48px monospace';ctx.fillText('AM',522,156);
+ const map=new THREE.CanvasTexture(canvas);map.colorSpace=THREE.SRGBColorSpace;
+ const face=new THREE.Mesh(new THREE.PlaneGeometry(.218,.077),
+  new THREE.MeshBasicMaterial({map,toneMapped:false}));
+ face.name='12:47 AM inset display';
+ face.position.z=.0053;clock.add(face);
  car.add(clock);
- return Object.freeze({time:'12:47 AM',localPosition:clock.position.toArray(),importedCarPreserved:true});
+ return Object.freeze({
+  time:'12:47 AM',localPosition:clock.position.toArray(),importedCarPreserved:true,
+  mountedToImportedDash:true,surfaceGap:.005,displayWidth:.218,
+  hitMesh:mount.mesh,displayNormal:mount.normal.toArray()
+ });
 }

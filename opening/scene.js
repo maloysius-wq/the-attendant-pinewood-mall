@@ -1,6 +1,7 @@
 import * as THREE from '../vendor/three/build/three.module.js';
 import {upgradeOpeningSceneV37} from './environment-v37.js?v=43';
 import {installMallPlantersV63} from './landscape-v63.js?v=63';
+import {ENTRY_CODE,keypadCenter} from './keypad-spec-v72.mjs';
 const v=(x,y,z)=>new THREE.Vector3(x,y,z);
 const mat=(color,roughness=.85,metalness=0)=>new THREE.MeshStandardMaterial({color,roughness,metalness});
 const lit=(color,intensity=.4)=>new THREE.MeshStandardMaterial({color,roughness:.73,emissive:color,emissiveIntensity:intensity});
@@ -113,17 +114,36 @@ export function makeOpeningScene({useImportedLandscape=false,useAbandonedFacade=
  box(world,13.65,1.38,-21.81,.46,.81,.18,steel);
  box(world,13.65,1.50,-21.67,.32,.25,.03,lit(0x648677,.45));
  const accessKeys=[];
-  for(let r=0;r<3;r++)for(let col=0;col<3;col++){
-   const key=box(world,13.52+col*.13,1.30-r*.11,-21.67,.075,.066,.025,concrete);
-   key.name='contractor access digit '+(r*3+col+1);
-   accessKeys.push(key);
-  }
+ // Real keycap faces carry legible numbers. An index finger is shown during
+ // the dialogue pause and the corresponding imported key physically depresses.
+ for(let digit=1;digit<=9;digit++){
+  const [x,y,z]=keypadCenter(digit);
+  const key=box(world,x,y,-21.67,.086,.077,.025,
+   new THREE.MeshStandardMaterial({color:0x293438,emissive:0x111d1f,
+    emissiveIntensity:.17,roughness:.78}));
+  key.name='Contractor keypad physical button '+digit;key.userData.digit=digit;
+  const cv=document.createElement('canvas');cv.width=96;cv.height=88;
+  const cx=cv.getContext('2d');
+  cx.fillStyle='#253238';cx.fillRect(0,0,96,88);
+  cx.strokeStyle='#73817e';cx.lineWidth=3;cx.strokeRect(3,3,90,82);
+  cx.fillStyle='#e6e5dc';cx.font='bold 63px Arial';cx.textAlign='center';
+  cx.fillText(String(digit),48,66);
+  const tx=new THREE.CanvasTexture(cv);tx.colorSpace=THREE.SRGBColorSpace;
+  const label=new THREE.Mesh(new THREE.PlaneGeometry(.079,.069),
+   new THREE.MeshBasicMaterial({map:tx,side:THREE.DoubleSide,toneMapped:false}));
+  label.name='Readable physical digit '+digit;label.position.z=.014;key.add(label);
+  accessKeys.push(key);
+ }
   const accessIndicator=box(world,13.65,1.50,-21.64,.28,.09,.018,
    new THREE.MeshStandardMaterial({color:0x15211e,emissive:0x0b130f,emissiveIntensity:.2}));
   accessIndicator.name='contractor access indicator';
  notice(world,'AUTHORIZED\nCONTRACTORS',['REPORT ELECTRICAL HAZARDS','DO NOT PROP FIRE DOORS','ENTRY IS RECORDED'],15.5,1.76,-21.72,1.14,1.32);
  notice(world,'BUILDING\nNOTICE',['PROPERTY CLOSED TO PUBLIC','SERVICE ENTRY ONLY','VERIFY DISPATCH AUTHORIZATION'],9.25,1.75,-21.72,1.06,1.27);
  for(let x of[9,15])cyl(world,x,.68,-18.5,.16,1.35,mat(0x595c4f,.55,.24));
+ // The pre-v66 miniature mall was still being rendered through the service
+ // doorway until the camera crossed the wall. Only legacy reviews retain it.
+ // The actual cinematic uses the separately preloaded licensed unified mall.
+ if(!useAbandonedFacade){
  // Concrete/steel mall structures continue into real 3D interior.
  box(world,0,-.09,-38.9,38,.2,36,mat(0x5e5b55,.97));
  box(world,-19,3.5,-39,.4,7,36,facade);box(world,19,3.5,-39,.4,7,36,facade);
@@ -138,6 +158,7 @@ export function makeOpeningScene({useImportedLandscape=false,useAbandonedFacade=
  notice(world,'PINEWOOD\nSERVICE MAP',['A  CONCOURSE / EMERGENCY','B  RETAIL / PA','C  SERVICE / FREIGHT','EAST WING  AUTHORIZED'],0,2.2,-31.01,2.45,1.98,{h:700});
  notice(world,'STAFF\nNOTICE',['VERIFY DOORS','RETURN ALL KEYS','CLOCK OUT BEFORE LEAVING'],9.3,1.8,-55.73,1.14,1.39);
  for(const z of[-32,-43,-52])for(const x of[-8,8]){box(world,x,6.5,z,2.8,.14,.55,mat(0x646960));lamp(scene,x,6.25,z,0xb9c3b4,.8,9);}
+ }
  // Complete enclosed CC0 1990s hatchback: real roof, seats, transparent glass.
  // No procedural car shell, truck cutaway or phone mount.
  const car=new THREE.Group();car.name='Sole full 1990s hatchback placement';car.position.set(-10,0,17.5);world.add(car);
@@ -156,23 +177,24 @@ export function makeOpeningScene({useImportedLandscape=false,useAbandonedFacade=
  for(let i=0;i<rainCount;i++){positions[i*3]=((i*41.71)%108)-54;positions[i*3+1]=((i*17.23)%13)+.3;positions[i*3+2]=((i*29.31)%55)-11;}
  const geom=new THREE.BufferGeometry();geom.setAttribute('position',new THREE.BufferAttribute(positions,3));
  const rain=new THREE.Points(geom,new THREE.PointsMaterial({color:0x93aec0,size:.055,transparent:true,opacity:.52,depthWrite:false}));world.add(rain);
- const stage={scene,world,pivot,rain,car,
+ const stage={scene,world,pivot,rain,car,retiredInteriorMeshes:useAbandonedFacade?0:1,
    accessPad:{
-    status:{pressed:0,granted:false,progress:0},
+    status:{pressed:0,entered:'',legibleDigits:accessKeys.length,granted:false,progress:0},
     update(progress){
      const p=Math.min(1,Math.max(0,progress));
      const pressed=Math.min(4,Math.floor(p*4));
-     const sequence=[0,4,7,2];
      for(const [i,key] of accessKeys.entries()){
-      const slot=sequence.indexOf(i),within=p*4-slot;
+      const slot=ENTRY_CODE.indexOf(i+1),within=p*4-slot;
       const active=slot>=0&&within>=0&&within<1;
       key.position.z=-21.67-(active?Math.sin(within*Math.PI)*.018:0);
+      key.material.emissiveIntensity=active?1.15:.17;
      }
      const granted=p>=.999;
      accessIndicator.material.color.setHex(granted?0x376e50:0x15211e);
      accessIndicator.material.emissive.setHex(granted?0x22ff7f:0x0b130f);
      accessIndicator.material.emissiveIntensity=granted?1.8:.2;
-     this.status={pressed,granted,progress:p};
+     this.status={pressed,entered:ENTRY_CODE.slice(0,pressed).join(''),
+      legibleDigits:accessKeys.length,granted,progress:p};
     }
    },
   facadeMaterials:{facade,steel,concrete,dark},
