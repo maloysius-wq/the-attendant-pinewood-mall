@@ -109,6 +109,20 @@ try{
   candidates.sort((a,b)=>a.score-b.score);
   // Search the original GLB triangles for a dashboard face ahead of the
   // shifted eye. Never accept seatback surfaces at z > -0.75.
+  const roofCandidates=[];
+  for(const z of[-.65,-.50,-.45,-.35,-.25,-.15,-.05,.05,.15,.25]){
+   const roofHit=new THREE.Raycaster(local([-.38,2.1,z]),
+    new THREE.Vector3(0,-1,0),.30,1.3).intersectObject(model,true)
+    .find(h=>!/windows/i.test(h.object.name));
+   const roofY=roofHit?2.1-roofHit.distance:null;
+   for(const y of[1.02,1.12,1.20,1.26]){
+    const from=local([-.38,y,z]);
+    roofCandidates.push({local:[-.38,y,z],roofY:roofY===null?null:+roofY.toFixed(3),
+      headroom:roofY===null?null:+(roofY-y).toFixed(3),
+      ahead:viewScore(from,new THREE.Vector3(2,2.9,-22)),
+      dash:viewScore(from,local([.10,.95,-1.05]))});
+   }
+  }
   const mountEye=local([-.38,1.26,-.45]),mounts=[],misses=[];
   for(const x of[-.35,-.15,.05,.25,.45])for(const y of[.75,.85,.95,1.05,1.15])
    for(const z of[-1.0,-1.2,-1.4,-1.6]){
@@ -133,7 +147,7 @@ try{
   mounts.sort((a,b)=>a.score-b.score);
   const worldBound=new THREE.Box3().setFromObject(model);
   return {eye:eye.toArray(),clock:clock.toArray(),clockDistance:eye.distanceTo(clock),
-   candidateEyes:candidates.slice(0,15),mounts:mounts.slice(0,35),mountMisses:misses,currentEyeRank:candidates.findIndex(c=>c.local[0]===-.24&&c.local[1]===1.26&&c.local[2]===.15),
+   candidateEyes:candidates.slice(0,15),roofCandidates,mounts:mounts.slice(0,35),mountMisses:misses,currentEyeRank:candidates.findIndex(c=>c.local[0]===-.24&&c.local[1]===1.26&&c.local[2]===.15),
    carBounds:{min:worldBound.min.toArray(),max:worldBound.max.toArray()},
    clockGlance:probe(sceneGaze),ahead:probe(new THREE.Vector3(2,2.9,-22))};
  });
