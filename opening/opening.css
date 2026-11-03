@@ -1,5 +1,5 @@
 /* THE CALL: scoped pre-game cinematic HUD; no style changes to the live runtime. */
-#pwm-opening{position:fixed;inset:0;z-index:2000;overflow:hidden;background:#071018;color:#ebe9df;font-family:Arial,Helvetica,sans-serif;isolation:isolate}
+#pwm-opening{position:fixed;inset:0;z-index:2000;overflow:hidden;-webkit-user-select:none;user-select:none;background:#071018;color:#ebe9df;font-family:Arial,Helvetica,sans-serif;isolation:isolate}
 #pwm-opening[hidden],#pwm-opening [hidden]{display:none!important}
 #pwm-opening .pwm-render,#pwm-opening .pwm-render canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
 #pwm-opening .pwm-vignette{position:absolute;inset:0;pointer-events:none;background:radial-gradient(ellipse at center,transparent 18%,rgba(0,0,0,.34) 75%,rgba(0,0,0,.78));mix-blend-mode:multiply}

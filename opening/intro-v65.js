@@ -2,6 +2,8 @@ import * as THREE from '../vendor/three/build/three.module.js';
 import {makeOpeningScene} from './scene.js?v=65';
 import {installAbandonedFacadeV65} from './facade-v65.js?v=65';
 import {enlargeImportedLandscapeV64} from './landscape-scale-v64.js?v=64';
+import {renderPinewoodV69} from '../mall/render-shell-v69.js';
+import {installDashboardClockV71} from './dashboard-clock-v71.js?v=71';
 import {HumanCameraRig} from './camera-v65.js?v=65';
 import {OpeningAmbience} from './ambience-v62.js?v=62';
 import {HandheldCheckInPhone} from './phone-v62.js?v=62';
@@ -86,6 +88,12 @@ class Intro{
      environment.facadeV65=facadeV65;
      return enlargeImportedLandscapeV64(this.stage,environment);
     });
+   // The actual playable mall is already unified; render that same interior
+   // after the entrance threshold without overlapping the exterior facade.
+   this.interiorScene=new THREE.Scene();
+   this.interiorScene.background=new THREE.Color(0x0b1418);
+   this.interiorScene.fog=new THREE.FogExp2(0x151e20,.012);
+   this.interiorReady=renderPinewoodV69({scene:this.interiorScene,chapter:1});
    this.camera=new THREE.PerspectiveCamera(66,1,.08,230);
    this.stage.scene.add(this.camera);
    // The car and the handheld are rendered with separate depth buffers.
@@ -118,10 +126,16 @@ class Intro{
  }
  async prepareAssets(){
   try{
-   const [environment]=await Promise.all([this.stage.assetReady,this.handheld.handLoad,this.ambience.ready]);
+   const [environment,interior]=await Promise.all([
+    this.stage.assetReady,this.interiorReady,this.handheld.handLoad,this.ambience.ready
+   ]);
+   this.interiorBuilding=interior;
    if(this.finished){this.disposeScenes();return;}
    if(environment?.state!=='ready'||environment.car!=='loaded'||environment.maps?.length!==3)
     throw Error('Local Pinewood environment not ready: '+JSON.stringify(environment?.errors||environment));
+   if(!interior?.firstFrameFullyLoaded||interior.uniqueModels<10)
+    throw Error('Canonical licensed interior did not finish preloading');
+   this.dashboardClock=installDashboardClockV71(this.stage.car);
    if(this.handheld.playerHand.state!=='ready')
     throw Error('Connected source hand did not load: '+this.handheld.playerHand.error);
    if(this.ambience.ctx&&(!this.ambience.buffers.car||!this.ambience.buffers.outside))
@@ -140,6 +154,12 @@ class Intro{
    this.renderer.render(this.phoneScene,this.phoneCamera);
    this.renderer.autoClear=true;
    this.handheld.update(openingLine.id,0,seconds,{reducedMotion:this.reduced});
+   // Prewarm all indoor model shaders before any scene is visible.
+   const originalPos=this.camera.position.clone(),originalQuat=this.camera.quaternion.clone();
+   this.camera.position.set(11.8,1.73,-25.2);
+   this.camera.lookAt(5,2.4,-34);
+   this.renderer.render(this.interiorScene,this.camera);
+   this.camera.position.copy(originalPos);this.camera.quaternion.copy(originalQuat);
    this.renderer.render(this.stage.scene,this.camera);
    this.firstFrameRendered=true;this.eyeRig=new HumanCameraRig();
    await new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)));
@@ -287,8 +307,16 @@ class Intro{
     this.handheld?.update(this.line.id,this.elapsed,this.voiceSeconds,{reducedMotion:this.reduced});
     this.root.dataset.phoneRaised=this.handheld?.raised?'true':'false';
     this.stage.pivot.rotation.y=-Math.PI*.48*pose.doorOpen;
-    if(!this.reduced){const a=this.stage.rain.geometry.attributes.position.array;for(let i=1;i<a.length;i+=3){a[i]-=delta*5.2;if(a[i]<.1)a[i]+=12.9;}this.stage.rain.geometry.attributes.position.needsUpdate=true;}
-    this.renderer.render(this.stage.scene,this.camera);
+    // Visible button presses follow the voice, before Renee confirms entry.
+    const accessProgress=this.line.id==='lights'
+     ?clamp((this.elapsed-this.voiceSeconds)/Math.max(.1,this.line.pause||2),0,1)
+     :this.index>7?1:0;
+    this.stage.accessPad.update(accessProgress);
+    if(!this.reduced){const a=this.stage.rain.geometry.attributes.position.array;for(let i=1;i<a.length;i+=3){a[i]-=delta*11.6;if(a[i]<.1)a[i]+=12.9;}this.stage.rain.geometry.attributes.position.needsUpdate=true;}
+    const throughDoor=this.camera.position.z< -22.55;
+    const useNewMall=throughDoor&&(this.line.id==='promise'||this.line.id==='direction');
+    this.root.dataset.renderWorld=useNewMall?'unified-mall':'exterior';
+    this.renderer.render(useNewMall?this.interiorScene:this.stage.scene,this.camera);
     if(this.handheld?.raised){
      this.renderer.autoClear=false;
      this.renderer.clearDepth();
@@ -335,6 +363,7 @@ class Intro{
    if(this.primedVoice){this.primedVoice.pause();this.primedVoice.removeAttribute('src');this.primedVoice.load();this.primedVoice=null;}
    this.ambience.destroy();
    this.handheld?.dispose();
+   this.interiorBuilding?.dispose();
    this.disposeScenes();
    this.renderer?.dispose();
   } catch(error) {
@@ -405,6 +434,13 @@ window.__PINEWOOD_OPENING_V34__={
   };
  },
  get dashboardPhone(){return null;}, // No dashboard mount; the prop is held in hand.
+  get dashboardClock(){return active?.dashboardClock||null;},
+  get accessPad(){return active?.stage?.accessPad?.status||null;},
+  get cinematicWorld(){return active?{
+   mode:active.root.dataset.renderWorld||'exterior',
+   interiorReady:!!active.interiorBuilding?.firstFrameFullyLoaded,
+   uniqueLicensedModels:active.interiorBuilding?.uniqueModels||0
+  }:null;},
  get handheldPhone(){return active?.handheld?.status||null;},
  get qaPlayerHand(){return location.pathname.includes('/review/')?active?.handheld?.playerHand||null:null;},
  get captionTiming(){if(active&&!active.paused)active.renderCaption();return active?{line:active.line?.id,voiceSeconds:active.voiceSeconds,

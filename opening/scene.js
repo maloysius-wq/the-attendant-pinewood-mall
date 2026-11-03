@@ -73,7 +73,7 @@ export function makeOpeningScene({useImportedLandscape=false,useAbandonedFacade=
  const serviceHeaderInfill=box(world,serviceDoor.centerX,(8.1+serviceOpening.top)/2,-22.5,serviceOpening.right-serviceOpening.left,8.1-serviceOpening.top,.9,facade);
  // The raised v65 building has a properly supported lower parapet belt.
  // Keep the exact wide 8.55m cornice for all older/production scenes.
- if(useAbandonedFacade)box(world,1.5,8.55,-22.48,93.5,1.1,.96,mat(0x55615d));
+ if(useAbandonedFacade)box(world,1.5,8.55,-22.70,93.5,1.1,.96,mat(0x55615d));
  else box(world,0,8.55,-22.48,106,1.1,.96,mat(0x55615d));
  // Keep the original low, repetitive storefront only in earlier reviews.
  // v65 suppresses these dummy windows, thin strips, small sign and posters;
@@ -112,7 +112,15 @@ export function makeOpeningScene({useImportedLandscape=false,useAbandonedFacade=
  box(pivot,serviceDoor.width-.25,1.06,.17,.12,.28,.05,concrete);
  box(world,13.65,1.38,-21.81,.46,.81,.18,steel);
  box(world,13.65,1.50,-21.67,.32,.25,.03,lit(0x648677,.45));
- for(let r=0;r<3;r++)for(let col=0;col<3;col++)box(world,13.52+col*.13,1.30-r*.11,-21.67,.075,.066,.025,concrete);
+ const accessKeys=[];
+  for(let r=0;r<3;r++)for(let col=0;col<3;col++){
+   const key=box(world,13.52+col*.13,1.30-r*.11,-21.67,.075,.066,.025,concrete);
+   key.name='contractor access digit '+(r*3+col+1);
+   accessKeys.push(key);
+  }
+  const accessIndicator=box(world,13.65,1.50,-21.64,.28,.09,.018,
+   new THREE.MeshStandardMaterial({color:0x15211e,emissive:0x0b130f,emissiveIntensity:.2}));
+  accessIndicator.name='contractor access indicator';
  notice(world,'AUTHORIZED\nCONTRACTORS',['REPORT ELECTRICAL HAZARDS','DO NOT PROP FIRE DOORS','ENTRY IS RECORDED'],15.5,1.76,-21.72,1.14,1.32);
  notice(world,'BUILDING\nNOTICE',['PROPERTY CLOSED TO PUBLIC','SERVICE ENTRY ONLY','VERIFY DISPATCH AUTHORIZATION'],9.25,1.75,-21.72,1.06,1.27);
  for(let x of[9,15])cyl(world,x,.68,-18.5,.16,1.35,mat(0x595c4f,.55,.24));
@@ -144,11 +152,29 @@ export function makeOpeningScene({useImportedLandscape=false,useAbandonedFacade=
  lamp(scene,1,3.8,-33,0xd6d3c0,2.8,18);
  scene.add(new THREE.HemisphereLight(0xb8cad4,0x373631,2.4));scene.add(new THREE.AmbientLight(0x8ba19b,.58));
  // Atmospheric rain dots. No ambience audio yet.
- const rainCount=650,positions=new Float32Array(rainCount*3);
+ const rainCount=1500,positions=new Float32Array(rainCount*3);
  for(let i=0;i<rainCount;i++){positions[i*3]=((i*41.71)%108)-54;positions[i*3+1]=((i*17.23)%13)+.3;positions[i*3+2]=((i*29.31)%55)-11;}
  const geom=new THREE.BufferGeometry();geom.setAttribute('position',new THREE.BufferAttribute(positions,3));
  const rain=new THREE.Points(geom,new THREE.PointsMaterial({color:0x93aec0,size:.055,transparent:true,opacity:.52,depthWrite:false}));world.add(rain);
- const stage={scene,world,pivot,rain,
+ const stage={scene,world,pivot,rain,car,
+   accessPad:{
+    status:{pressed:0,granted:false,progress:0},
+    update(progress){
+     const p=Math.min(1,Math.max(0,progress));
+     const pressed=Math.min(4,Math.floor(p*4));
+     const sequence=[0,4,7,2];
+     for(const [i,key] of accessKeys.entries()){
+      const slot=sequence.indexOf(i),within=p*4-slot;
+      const active=slot>=0&&within>=0&&within<1;
+      key.position.z=-21.67-(active?Math.sin(within*Math.PI)*.018:0);
+     }
+     const granted=p>=.999;
+     accessIndicator.material.color.setHex(granted?0x376e50:0x15211e);
+     accessIndicator.material.emissive.setHex(granted?0x22ff7f:0x0b130f);
+     accessIndicator.material.emissiveIntensity=granted?1.8:.2;
+     this.status={pressed,granted,progress:p};
+    }
+   },
   facadeMaterials:{facade,steel,concrete,dark},
   serviceEntry:{
    opening:serviceOpening,doorSpecs:serviceDoor,doorSlab:serviceDoorSlab,

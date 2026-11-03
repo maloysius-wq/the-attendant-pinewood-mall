@@ -104,11 +104,14 @@ function facadeConstruction(stage,texture){
  const darkBoard=woodMaterial(texture,.8,.5);
  let count=0;
  for(const cx of[-12.65,-8.35]){
-  for(let i=0;i<16;i++){
-   const offset=(i%3-1)*.09;
+  // Sparse, uneven salvaged timber, with dark gaps and visibly rotted grain.
+  const rows=[.58,1.28,2.03,2.71,3.58,4.31,5.10];
+  for(let i=0;i<rows.length;i++){
+   const offset=[-.16,.10,-.09,.04,.17,-.12,.08][i];
    const plank=structure('weathered boarded public-door plank '+(++count),
-    cx+offset,.49+i*.313,entryZ+.015+(i%2)*.008,4.18,.267,.095,i%4===0?darkBoard:board);
-   if(i%7===0)plank.rotation.z=.008*(i%2?1:-1);
+    cx+offset,rows[i],entryZ+.015+(i%3)*.012,
+    4.12+(i%3)*.10,.27+(i%2)*.055,.095,i%3===0?darkBoard:board);
+   plank.rotation.z=[-.033,.019,-.048,.026,-.017,.041,-.025][i];
   }
   // Diagonal bracing rests ON TOP of the boarding, not floating out of wall.
   const bracing=structure('diagonal boarded-door brace '+(++count),
@@ -118,7 +121,7 @@ function facadeConstruction(stage,texture){
  // Long exterior barricade slats visibly cross BOTH door leaves. Their
  // weathered grain and deep silhouettes establish a boarded-up public entry
  // from across the parking lot, rather than a dark rectangular fake opening.
- for(const [height,tilt] of[[1.22,-.045],[3.52,.034],[4.78,-.025]]){
+ for(const [height,tilt] of[[1.22,-.045],[4.78,-.025]]){
   const cross=structure('full-width weathered public entrance barricade '+(++count),
    entryX,height,entryZ+.25,8.95,.32,.16,darkBoard);
   cross.rotation.z=tilt;
