@@ -424,6 +424,17 @@ window.__PINEWOOD_OPENING_V34__={
    head:bbox(entry.head),sill:bbox(entry.sill),canopy:bbox(entry.canopy)
   };
  },
+ // Desktop review screenshots may stop the render loop without adding a
+ // PAUSED overlay or altering audio timing. Never offered to live gameplay.
+ freezeFrame(){
+  if(!location.pathname.includes('/review/')||!active?.frame||active.frameFrozen)return false;
+  cancelAnimationFrame(active.raf);active.frameFrozen=true;return true;
+ },
+ resumeFrame(){
+  if(!location.pathname.includes('/review/')||!active?.frameFrozen)return false;
+  active.frameFrozen=false;active.last=performance.now();
+  active.raf=requestAnimationFrame(active.frame);return true;
+ },
  get dashboardPhone(){return null;}, // No dashboard mount; the prop is held in hand.
  get handheldPhone(){return active?.handheld?.status||null;},
  get qaPlayerHand(){return location.pathname.includes('/review/')?active?.handheld?.playerHand||null:null;},
