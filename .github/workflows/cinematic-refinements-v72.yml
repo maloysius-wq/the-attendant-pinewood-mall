@@ -1,0 +1,47 @@
+name: Pinewood v72 cockpit, acoustic door, and keypad regressions
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'opening/**'
+      - 'scripts/*opening-v72.mjs'
+      - 'scripts/*cinematic-refinements-v72.mjs'
+      - '.github/workflows/cinematic-refinements-v72.yml'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'opening/**'
+      - 'scripts/*opening-v72.mjs'
+      - 'scripts/*cinematic-refinements-v72.mjs'
+      - '.github/workflows/cinematic-refinements-v72.yml'
+permissions:
+  contents: read
+jobs:
+  desktop-cinematic:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Real camera/acoustic boundary regression
+        run: node --test scripts/test-opening-v72.mjs
+      - name: Install desktop Chromium
+        run: |
+          npm install --no-save playwright@1.55.0
+          npx playwright install chromium
+      - name: Serve Pinewood locally
+        run: |
+          python3 -m http.server 4173 --bind 127.0.0.1 >/tmp/pinewood-v72-http.log 2>&1 &
+          for i in {1..30}; do curl -fsS http://127.0.0.1:4173/review/the-call-v34/ >/dev/null && exit 0; sleep 1; done
+          exit 1
+      - name: Validate true cockpit mount, visible keypad and canonical mall
+        run: node scripts/smoke-cinematic-refinements-v72.mjs
+      - name: Save desktop cinematic evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pinewood-v72-desktop-cinematic
+          path: cinematic-v72-artifacts/
+          retention-days: 7

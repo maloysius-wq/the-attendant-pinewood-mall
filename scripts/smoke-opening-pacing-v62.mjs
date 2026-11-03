@@ -44,8 +44,12 @@ try{
     }
     const range=Math.max(...samples.map(x=>x.yaw))-Math.min(...samples.map(x=>x.yaw));
     const shortest=Math.min(...samples.map(x=>x.distance));
-    assert(range<=11,layout+' dialogue '+index+' darts through too many gaze angles: '+JSON.stringify(samples));
-    assert(shortest>17,layout+' dialogue '+index+' zooms attention into dashboard/mirror: '+JSON.stringify(samples));
+    if(index===1){
+     assert(shortest<10,layout+' clock apology should briefly glance down at the actual dashboard readout: '+JSON.stringify(samples));
+    }else{
+     assert(range<=11,layout+' dialogue '+index+' darts through too many gaze angles: '+JSON.stringify(samples));
+     assert(shortest>17,layout+' dialogue '+index+' zooms attention into dashboard/mirror: '+JSON.stringify(samples));
+    }
     gazeSamples.push({index,range:+range.toFixed(2),shortest:+shortest.toFixed(2)});
    }
    const pre=await snap(0,.74);
