@@ -28,6 +28,7 @@ try{
  const initial=await get();
  assert.equal(initial.clock?.mountedToImportedDash,true,'clock must be flush-mounted to imported dash material');
  assert.ok(initial.clock?.displayWidth<.18,'clock is a smaller factory-sized readout');
+ assert.equal(initial.clock?.visibleDisplayCorners,4,'all four LCD corners must be free of vendor dashboard geometry');
  assert.ok(initial.clock?.surfaceGap<=.02,'clock display cannot float in the cabin');
  assert.equal(initial.clock?.unobstructedFromDriver,true,'clock must be visible from the real driver seat, not hidden by car mesh');
  assert.equal(initial.clock?.mountKind,'driver-facing-panel','the digital readout must be integrated into a dashboard panel, not perched along the windshield');

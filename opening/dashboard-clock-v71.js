@@ -52,7 +52,7 @@ export function installDashboardClockV71(car){
  // Bury the back/lower edge of the clock housing into the original dash
  // surface. Its raised face stays entirely clear of the top panel instead of
  // clipping through it at the readout's lower half.
- clock.position.copy(mount.p).addScaledVector(mount.normal,.044);
+ clock.position.copy(mount.p).addScaledVector(mount.normal,.028);
  clock.quaternion.setFromUnitVectors(new THREE.Vector3(0,0,1),displayNormal);
  const plastic=new THREE.Mesh(new THREE.BoxGeometry(.168,.073,.072),
   new THREE.MeshStandardMaterial({color:0x11181b,roughness:.83,metalness:.035}));
@@ -73,6 +73,18 @@ export function installDashboardClockV71(car){
  face.name='12:47 AM inset display';
  face.position.z=.040;clock.add(face);
  car.add(clock);
+ clock.updateWorldMatrix(true,true);
+ // A real GLB surface must not eat the bottom or either side of the LCD.
+ // Check every screen corner against the intact vendor body, not the bezel.
+ const corners=[[-.0755,-.030],[.0755,-.030],[-.0755,.030],[.0755,.030]];
+ const obscuredCorners=corners.filter(([x,y])=>{
+  const target=face.localToWorld(new THREE.Vector3(x,y,0));
+  const ray=target.sub(driverEye),distance=ray.length();
+  return new THREE.Raycaster(driverEye,ray.normalize(),.18,distance-.012)
+   .intersectObject(model,true)
+   .some(h=>!/window|wheel|tire|rim/i.test(h.object.name));
+ });
+ if(obscuredCorners.length)throw Error('Dashboard panel covers a corner of the clock display');
  const visibleClockPoint=local(car,clock.position.toArray());
  const viewRay=visibleClockPoint.clone().sub(driverEye);
  const clockDistance=viewRay.length();
@@ -82,7 +94,7 @@ export function installDashboardClockV71(car){
  if(!unobstructedFromDriver)throw Error('Dashboard clock is hidden behind original car geometry');
  return Object.freeze({
   time:'12:47 AM',localPosition:clock.position.toArray(),importedCarPreserved:true,
-  mountedToImportedDash:mount.p.z<-.78,unobstructedFromDriver,surfaceGap:0,displayWidth:.151,
+  mountedToImportedDash:mount.p.z<-.78,unobstructedFromDriver,surfaceGap:0,displayWidth:.151,visibleDisplayCorners:4,
   mountDepth:mount.p.z,clockDistance,interiorNearPlane:.18,
   hitMesh:mount.mesh,mountKind:mount.kind,displayNormal:displayNormal.toArray(),
   importedSurfaceNormal:mount.normal.toArray(),displayReadableAngle
