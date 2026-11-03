@@ -11,6 +11,14 @@ const browser=await chromium.launch({headless:true,args:[
 try{
  for(const [name,width,height] of [['desktop',1280,720]]){
   const page=await browser.newPage({viewport:{width,height}});
+   const capture=async path=>{
+    page.setDefaultTimeout(90000);
+    const frozen=await page.evaluate(()=>window.__PINEWOOD_OPENING_V34__?.freezeFrame());
+    if(!frozen)throw Error('Expected paused frame for deterministic desktop screenshot');
+    try{await page.screenshot({path,timeout:90000});}
+    finally{await page.evaluate(()=>window.__PINEWOOD_OPENING_V34__?.resumeFrame());}
+   };
+
   const errors=[],remote=[];
   page.on('pageerror',error=>errors.push(error.message));
   page.on('request',request=>{
@@ -53,7 +61,7 @@ try{
     qa.seek(cue);qa.scrub(phase);
    },{cue,phase});
    await page.waitForTimeout(520);
-   await page.screenshot({path:'opening-v65-artifacts/'+name+'-'+label+'.png'});
+   await capture('opening-v65-artifacts/'+name+'-'+label+'.png');
   }
   // Fixed review-only observer placements: visually verify the public closure
   // and full mall silhouette without steering the story character or using WASD.
@@ -66,7 +74,7 @@ try{
     window.__PINEWOOD_OPENING_V34__.qaCockpitProbe(eye),eye);
    assert.equal(rendered,true,name+' deterministic '+label+' camera');
    await page.waitForTimeout(350);
-   await page.screenshot({path:'opening-v65-artifacts/'+name+'-'+label+'.png'});
+   await capture('opening-v65-artifacts/'+name+'-'+label+'.png');
   }
   assert.deepEqual(errors,[],name+' script errors');
   assert.deepEqual(remote,[],name+' runtime remote assets');

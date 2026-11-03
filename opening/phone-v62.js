@@ -38,6 +38,7 @@ function drawApp(canvas,state){
    c.fillStyle='#fad18c';c.font='bold 42px Arial';c.fillText(id,54,y+69);
    c.fillStyle='#eaf3f1';c.font='bold 24px Arial';c.fillText(label,116,y+66);
   });
+  c.fillStyle='#ebd4a0';c.font='bold 27px monospace';c.fillText('CONTRACTOR DOOR CODE  2841',38,881);
   c.fillStyle='#ccd8d7';c.font='bold 24px Arial';c.fillText('VERIFY EAST FREIGHT ELEVATOR',38,918);
   paintRound(c,32,970,w-64,91,16,'#315f59');c.fillStyle='#e8fff7';c.font='bold 27px Arial';
   c.textAlign='center';c.fillText('VIEW SERVICE NOTES',w/2,1027);c.textAlign='left';

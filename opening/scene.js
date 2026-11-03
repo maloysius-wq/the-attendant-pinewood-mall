@@ -1,6 +1,7 @@
 import * as THREE from '../vendor/three/build/three.module.js';
 import {upgradeOpeningSceneV37} from './environment-v37.js?v=43';
 import {installMallPlantersV63} from './landscape-v63.js?v=63';
+import {mountCanonicalOpeningInterior} from './interior-v71.js';
 const v=(x,y,z)=>new THREE.Vector3(x,y,z);
 const mat=(color,roughness=.85,metalness=0)=>new THREE.MeshStandardMaterial({color,roughness,metalness});
 const lit=(color,intensity=.4)=>new THREE.MeshStandardMaterial({color,roughness:.73,emissive:color,emissiveIntensity:intensity});
@@ -48,7 +49,8 @@ export function makeOpeningScene({useImportedLandscape=false,useAbandonedFacade=
  const world=new THREE.Group();scene.add(world);
  const concrete=mat(0x727069,.96),steel=mat(0x48545a,.72,.37),facade=mat(0x586367,.96),dark=mat(0x1d292d,.92),windowMat=glass();
  const lotMaterial=mat(0x171e20,.99);
- box(world,0,-.22,16,115,.43,105,lotMaterial);box(world,0,-.07,-17.7,103,.22,10.2,concrete);
+ box(world,0,-.22,useAbandonedFacade?23:16,115,.43,useAbandonedFacade?91:105,lotMaterial);
+ box(world,0,-.07,useAbandonedFacade?-17.55:-17.7,103,.22,useAbandonedFacade?9.9:10.2,concrete);
  box(world,0,.07,-13.75,103,.24,.35,concrete);
  for(let x=-39;x<45;x+=6){const p=box(world,x,.012,13,2.6,.018,.1,mat(0x898779));p.rotation.y=-.1;}
  // V46: One authoritative door dimension set drives the slab, the wall
@@ -112,11 +114,18 @@ export function makeOpeningScene({useImportedLandscape=false,useAbandonedFacade=
  box(pivot,serviceDoor.width-.25,1.06,.17,.12,.28,.05,concrete);
  box(world,13.65,1.38,-21.81,.46,.81,.18,steel);
  box(world,13.65,1.50,-21.67,.32,.25,.03,lit(0x648677,.45));
- for(let r=0;r<3;r++)for(let col=0;col<3;col++)box(world,13.52+col*.13,1.30-r*.11,-21.67,.075,.066,.025,concrete);
+ const keypadButtons=[];
+ for(let r=0;r<3;r++)for(let col=0;col<3;col++){
+  const key=box(world,13.52+col*.13,1.30-r*.11,-21.67,.075,.066,.025,mat(0x727776,.92));
+  const digit=String(r*3+col+1);key.name='Contractor keypad button '+digit;
+  keypadButtons.push({digit,mesh:key});
+ }
  notice(world,'AUTHORIZED\nCONTRACTORS',['REPORT ELECTRICAL HAZARDS','DO NOT PROP FIRE DOORS','ENTRY IS RECORDED'],15.5,1.76,-21.72,1.14,1.32);
  notice(world,'BUILDING\nNOTICE',['PROPERTY CLOSED TO PUBLIC','SERVICE ENTRY ONLY','VERIFY DISPATCH AUTHORIZATION'],9.25,1.75,-21.72,1.06,1.27);
  for(let x of[9,15])cyl(world,x,.68,-18.5,.16,1.35,mat(0x595c4f,.55,.24));
- // Concrete/steel mall structures continue into real 3D interior.
+ // The old stage-set concourse stays exclusively in legacy previews.
+ // The approved opening instead preloads actual v67/v69 mall geometry.
+ if(!useAbandonedFacade){ // Legacy concourse
  box(world,0,-.09,-38.9,38,.2,36,mat(0x5e5b55,.97));
  box(world,-19,3.5,-39,.4,7,36,facade);box(world,19,3.5,-39,.4,7,36,facade);
  box(world,0,3.5,-56,.45,7,.45,facade);
@@ -130,6 +139,7 @@ export function makeOpeningScene({useImportedLandscape=false,useAbandonedFacade=
  notice(world,'PINEWOOD\nSERVICE MAP',['A  CONCOURSE / EMERGENCY','B  RETAIL / PA','C  SERVICE / FREIGHT','EAST WING  AUTHORIZED'],0,2.2,-31.01,2.45,1.98,{h:700});
  notice(world,'STAFF\nNOTICE',['VERIFY DOORS','RETURN ALL KEYS','CLOCK OUT BEFORE LEAVING'],9.3,1.8,-55.73,1.14,1.39);
  for(const z of[-32,-43,-52])for(const x of[-8,8]){box(world,x,6.5,z,2.8,.14,.55,mat(0x646960));lamp(scene,x,6.25,z,0xb9c3b4,.8,9);}
+ }
  // Complete enclosed CC0 1990s hatchback: real roof, seats, transparent glass.
  // No procedural car shell, truck cutaway or phone mount.
  const car=new THREE.Group();car.name='Sole full 1990s hatchback placement';car.position.set(-10,0,17.5);world.add(car);
@@ -144,7 +154,7 @@ export function makeOpeningScene({useImportedLandscape=false,useAbandonedFacade=
  lamp(scene,1,3.8,-33,0xd6d3c0,2.8,18);
  scene.add(new THREE.HemisphereLight(0xb8cad4,0x373631,2.4));scene.add(new THREE.AmbientLight(0x8ba19b,.58));
  // Atmospheric rain dots. No ambience audio yet.
- const rainCount=650,positions=new Float32Array(rainCount*3);
+ const rainCount=1900,positions=new Float32Array(rainCount*3);
  for(let i=0;i<rainCount;i++){positions[i*3]=((i*41.71)%108)-54;positions[i*3+1]=((i*17.23)%13)+.3;positions[i*3+2]=((i*29.31)%55)-11;}
  const geom=new THREE.BufferGeometry();geom.setAttribute('position',new THREE.BufferAttribute(positions,3));
  const rain=new THREE.Points(geom,new THREE.PointsMaterial({color:0x93aec0,size:.055,transparent:true,opacity:.52,depthWrite:false}));world.add(rain);
@@ -155,17 +165,22 @@ export function makeOpeningScene({useImportedLandscape=false,useAbandonedFacade=
    leftInfill:serviceLeftInfill,rightInfill:serviceRightInfill,
    headerInfill:serviceHeaderInfill,leftJamb:serviceLeftJamb,
    rightJamb:serviceRightJamb,head:serviceDoorHead,sill:serviceSill,
-   canopy:serviceCanopy,canopyFascia
+   canopy:serviceCanopy,canopyFascia,keypadButtons
   }
  };
  const environmentReady=upgradeOpeningSceneV37({
   scene,world,car,stage,materials:{facade,steel},lotMaterial
  });
  // The opaque v63 preload awaits vendored third-party models before reveal.
- stage.assetReady=useImportedLandscape
-  ?Promise.all([environmentReady,installMallPlantersV63(world)]).then(([status,landscape])=>{
-    status.landscape=landscape;return status;
-   })
-  :environmentReady;
+ const canonicalReady=useAbandonedFacade?mountCanonicalOpeningInterior(scene):Promise.resolve(null);
+ const planterReady=useImportedLandscape?installMallPlantersV63(world):Promise.resolve(null);
+ stage.assetReady=Promise.all([environmentReady,planterReady,canonicalReady])
+  .then(([status,landscape,canonicalMall])=>{
+   if(landscape)status.landscape=landscape;
+   if(canonicalMall){status.canonicalMall={state:canonicalMall.state,source:canonicalMall.source,
+    furnishingsLoaded:canonicalMall.furnishingsLoaded,duplicateFrontWalls:canonicalMall.duplicateFrontWalls};
+    stage.canonicalMall=canonicalMall;}
+   return status;
+  });
  return stage;
 }

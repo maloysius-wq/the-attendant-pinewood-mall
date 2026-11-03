@@ -1,10 +1,12 @@
 import * as THREE from '../vendor/three/build/three.module.js';
-import {makeOpeningScene} from './scene.js?v=65';
-import {installAbandonedFacadeV65} from './facade-v65.js?v=65';
-import {enlargeImportedLandscapeV64} from './landscape-scale-v64.js?v=64';
-import {HumanCameraRig} from './camera-v65.js?v=65';
+import {makeOpeningScene} from './scene.js?v=71';
+import {installDashboardClockV71} from './dashboard-clock-v71.js';
+import {ContractorKeypadV71} from './keypad-v71.js';
+import {installAbandonedFacadeV65} from './facade-v65.js?v=71';
+import {enlargeImportedLandscapeV64} from './landscape-scale-v64.js?v=71';
+import {HumanCameraRig} from './camera-v65.js?v=71';
 import {OpeningAmbience} from './ambience-v62.js?v=62';
-import {HandheldCheckInPhone} from './phone-v62.js?v=62';
+import {HandheldCheckInPhone} from './phone-v62.js?v=71';
 import {buildCaptionTrack,captionAt} from './caption-sync-v45.js?v=45';
 const $=id=>document.getElementById(id);
 const query=new URLSearchParams(location.search);
@@ -83,10 +85,16 @@ class Intro{
     .then(([environment,facadeV65])=>{
      if(environment?.state!=='ready'||facadeV65?.state!=='ready')
       throw Error('V65 cinematic mall facade or environment did not finish preloading');
+     if(environment.canonicalMall?.state!=='ready'||environment.canonicalMall.furnishingsLoaded<50)
+      throw Error('Canonical G/M1 mall and CC0 furnishings not ready behind cinematic preload');
      environment.facadeV65=facadeV65;
+     this.stage.dashboardClock=installDashboardClockV71(
+      this.stage.world.getObjectByName('Sole full 1990s hatchback placement'));
+     environment.dashboardClock={state:'ready',time:this.stage.dashboardClock.time};
      return enlargeImportedLandscapeV64(this.stage,environment);
     });
-   this.camera=new THREE.PerspectiveCamera(66,1,.08,230);
+   this.keypad=new ContractorKeypadV71(this.stage);
+    this.camera=new THREE.PerspectiveCamera(66,1,.08,230);
    this.stage.scene.add(this.camera);
    // The car and the handheld are rendered with separate depth buffers.
    this.phoneScene=new THREE.Scene();
@@ -118,11 +126,13 @@ class Intro{
  }
  async prepareAssets(){
   try{
-   const [environment]=await Promise.all([this.stage.assetReady,this.handheld.handLoad,this.ambience.ready]);
+   const [environment]=await Promise.all([this.stage.assetReady,this.handheld.handLoad,this.ambience.ready,this.keypad.ready]);
    if(this.finished){this.disposeScenes();return;}
    if(environment?.state!=='ready'||environment.car!=='loaded'||environment.maps?.length!==3)
     throw Error('Local Pinewood environment not ready: '+JSON.stringify(environment?.errors||environment));
-   if(this.handheld.playerHand.state!=='ready')
+   if(environment.dashboardClock?.state!=='ready'||this.keypad.state!=='ready')
+     throw Error('Dashboard clock or authentic keypad hand did not preload');
+    if(this.handheld.playerHand.state!=='ready')
     throw Error('Connected source hand did not load: '+this.handheld.playerHand.error);
    if(this.ambience.ctx&&(!this.ambience.buffers.car||!this.ambience.buffers.outside))
     throw Error('Local indoor or outdoor rain did not decode before cinematic reveal');
@@ -243,7 +253,8 @@ class Intro{
   // The recording owns the caption clock, including load stalls, pauses and
   // playback-rate changes. No wall-clock read-speed or scene-pause estimates.
   this.captionSeconds=this.voiceTime();
-  const cue=captionAt(this.captionTrack,this.captionSeconds);
+  const cue=this.line.id==='lights'&&this.elapsed>this.voiceSeconds+.12
+    ?{index:this.captionIndex,text:''}:captionAt(this.captionTrack,this.captionSeconds);
   this.captionIndex=cue.index;
   if($('pwm-caption').textContent!==cue.text)$('pwm-caption').textContent=cue.text;
  }
@@ -277,7 +288,10 @@ class Intro{
    }else this.elapsed+=delta;
    this.renderCaption();
    // The camera, rain and phone all use the media-following shot timeline.
-   const pose=this.eyeRig.sample(this.line.id,this.elapsed,this.wait,delta,{reducedMotion:this.reduced});
+   // Arrive at the access box before the SILENT keypad presses; don't
+    // stretch Renee's voice or hold the camera in mid-stride during entry.
+    const cameraSeconds=this.line.id==='lights'?this.voiceSeconds+1.05:this.wait;
+    const pose=this.eyeRig.sample(this.line.id,this.elapsed,cameraSeconds,delta,{reducedMotion:this.reduced});
    this.lastCameraPose=pose;
    this.ambience.update(delta,this.line.shot,!!this.audio&&!this.audio.ended&&!this.audio.paused,pose.rain);
    if(this.stage&&this.renderer){
@@ -286,8 +300,9 @@ class Intro{
     // Include the post-voice pause: CHECK IN happens after Renee's instruction.
     this.handheld?.update(this.line.id,this.elapsed,this.voiceSeconds,{reducedMotion:this.reduced});
     this.root.dataset.phoneRaised=this.handheld?.raised?'true':'false';
+     this.keypad?.update(this.line.id,this.elapsed,this.voiceSeconds);
     this.stage.pivot.rotation.y=-Math.PI*.48*pose.doorOpen;
-    if(!this.reduced){const a=this.stage.rain.geometry.attributes.position.array;for(let i=1;i<a.length;i+=3){a[i]-=delta*5.2;if(a[i]<.1)a[i]+=12.9;}this.stage.rain.geometry.attributes.position.needsUpdate=true;}
+    if(!this.reduced){const a=this.stage.rain.geometry.attributes.position.array;for(let i=1;i<a.length;i+=3){a[i]-=delta*13.5;if(a[i]<.1)a[i]+=12.9;}this.stage.rain.geometry.attributes.position.needsUpdate=true;}
     this.renderer.render(this.stage.scene,this.camera);
     if(this.handheld?.raised){
      this.renderer.autoClear=false;
@@ -384,6 +399,11 @@ window.__PINEWOOD_OPENING_V34__={
  get cameraPosition(){return active?.camera?.position.toArray()||null;},
  get eyeMotion(){const p=active?.lastCameraPose;return p?{cue:p.cue,phase:p.phase,gaze:p.gazeTarget,walking:p.isWalking,rain:p.rain,doorOpen:p.doorOpen}:null;},
  get environmentV37(){return active?.stage?.v37||null;},
+ get canonicalMall(){return active?.stage?.canonicalMall?{state:active.stage.canonicalMall.state,
+  source:active.stage.canonicalMall.source,furnishingsLoaded:active.stage.canonicalMall.furnishingsLoaded,
+  duplicateFrontWalls:active.stage.canonicalMall.duplicateFrontWalls}:null;},
+ get dashboardClock(){return active?.stage?.v37?.dashboardClock?.time||null;},
+ get keypadStatus(){return active?.keypad?.status||null;},
  get startupStatus(){return active?{state:active.root.dataset.preloadState,
   firstFrameRendered:!!active.firstFrameRendered,preloading:active.preloading,
   voicedLineStarted:active.index>=0}:null;},
@@ -403,6 +423,17 @@ window.__PINEWOOD_OPENING_V34__={
    leftJamb:bbox(entry.leftJamb),rightJamb:bbox(entry.rightJamb),
    head:bbox(entry.head),sill:bbox(entry.sill),canopy:bbox(entry.canopy)
   };
+ },
+ // Desktop review screenshots may stop the render loop without adding a
+ // PAUSED overlay or altering audio timing. Never offered to live gameplay.
+ freezeFrame(){
+  if(!location.pathname.includes('/review/')||!active?.frame||active.frameFrozen)return false;
+  cancelAnimationFrame(active.raf);active.frameFrozen=true;return true;
+ },
+ resumeFrame(){
+  if(!location.pathname.includes('/review/')||!active?.frameFrozen)return false;
+  active.frameFrozen=false;active.last=performance.now();
+  active.raf=requestAnimationFrame(active.frame);return true;
  },
  get dashboardPhone(){return null;}, // No dashboard mount; the prop is held in hand.
  get handheldPhone(){return active?.handheld?.status||null;},
@@ -439,7 +470,8 @@ window.__PINEWOOD_OPENING_V34__={
   if(!active?.stage)return null;
   let meshes=0,signs=[];
   active.stage.scene.traverse(o=>{if(o.isMesh)meshes++;if(o.userData?.openingWallPaper)signs.push({text:o.userData.openingWallPaper,position:o.position.toArray()});});
-  return {meshCount:meshes,wallNotices:signs,rainParticles:active.stage.rain.geometry.attributes.position.count,doorAngle:active.stage.pivot.rotation.y};
+  return {meshCount:meshes,wallNotices:signs,rainParticles:active.stage.rain.geometry.attributes.position.count,doorAngle:active.stage.pivot.rotation.y,
+   canonicalMall:active.stage.canonicalMall?.source||null};
  },
  async preview(){if(active&&!active.finished)return;const [script,voices]=await loadResources();active=new Intro(script,voices,{preview:true});},
  seek(index){return active?.seek(index)||false;},

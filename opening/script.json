@@ -49,7 +49,7 @@
       "id": "lights",
       "text": "Did they leave the outside lights on? Of course they did. All right. Watch your footing. Half the exterior cameras are out, so I can't see what you're walking into.",
       "shot": "entrance",
-      "pause": 2
+      "pause": 5.2
     },
     {
       "id": "inside",
