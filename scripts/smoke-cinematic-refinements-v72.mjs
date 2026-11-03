@@ -1,0 +1,60 @@
+import {chromium} from 'playwright';
+import assert from 'node:assert/strict';
+import {mkdir,writeFile} from 'node:fs/promises';
+const origin='http://127.0.0.1:4173';
+await mkdir('cinematic-v72-artifacts',{recursive:true});
+const browser=await chromium.launch({headless:true,args:[
+ '--enable-webgl','--ignore-gpu-blocklist','--use-gl=swiftshader',
+ '--enable-unsafe-swiftshader','--disable-dev-shm-usage',
+ '--autoplay-policy=no-user-gesture-required'
+]});
+try{
+ const page=await browser.newPage({viewport:{width:1440,height:900}});
+ const errors=[],remote=[];
+ page.on('pageerror',e=>errors.push(e.message));
+ page.on('request',r=>{if(/^https?:/.test(r.url())&&!r.url().startsWith(origin))remote.push(r.url())});
+ await page.goto(origin+'/review/the-call-v34/',{waitUntil:'domcontentloaded'});
+ await page.locator('#newBtn').click();
+ await page.waitForFunction(()=>window.__PINEWOOD_OPENING_V34__?.startupStatus?.state==='ready',null,{timeout:150000});
+ const get=()=>page.evaluate(()=>({
+  clock:window.__PINEWOOD_OPENING_V34__.dashboardClock,
+  keypad:window.__PINEWOOD_OPENING_V34__.keypadView,
+  world:window.__PINEWOOD_OPENING_V34__.cinematicWorld,
+  eye:window.__PINEWOOD_OPENING_V34__.cameraPosition,
+  ambience:window.__PINEWOOD_OPENING_V34__.audioStatus.ambient
+ }));
+ const initial=await get();
+ assert.equal(initial.clock?.mountedToImportedDash,true,'clock must be flush-mounted to imported dash material');
+ assert.ok(initial.clock?.displayWidth<.25,'clock is a smaller factory-sized readout');
+ assert.ok(initial.clock?.surfaceGap<=.02,'clock display cannot float in the cabin');
+ assert.equal(initial.world?.retiredInteriorMeshes,0,'retired miniature mall must be absent from arrival scene');
+ await page.screenshot({path:'cinematic-v72-artifacts/01-integrated-clock.png'});
+ await page.evaluate(()=>{const q=window.__PINEWOOD_OPENING_V34__;q.seek(7);q.scrub(.97)});
+ await page.waitForTimeout(700);
+ const entry=await get();
+ assert.ok(entry.keypad?.inFrame,'entire keypad panel is within the desktop viewport');
+ assert.ok(entry.keypad?.viewportWidth>=.09,'digits are large enough to read');
+ assert.ok(entry.keypad?.legibleDigits===9,'all nine key labels are visibly rendered');
+ assert.ok(entry.keypad?.forearmVisible,'a real locally vendored hand reaches the keypad');
+ assert.equal(entry.keypad?.entered.length,3,'third code digit entered during the fourth-key sequence');
+ await page.screenshot({path:'cinematic-v72-artifacts/02-pressing-code.png'});
+ await page.evaluate(()=>{const q=window.__PINEWOOD_OPENING_V34__;q.seek(8);q.scrub(.75)});
+ await page.waitForTimeout(700);
+ const granted=await get();
+ assert.equal(granted.keypad?.entered,'1583','four digit entry finishes before Renee confirms');
+ assert.equal(granted.keypad?.granted,true);
+ await page.screenshot({path:'cinematic-v72-artifacts/03-code-granted.png'});
+ await page.evaluate(()=>{const q=window.__PINEWOOD_OPENING_V34__;q.seek(9);q.scrub(.06)});
+ await page.waitForTimeout(500);
+ const threshold=await get();
+ assert.equal(threshold.world?.retiredInteriorMeshes,0,'no old mall flash at the doorway');
+ await page.evaluate(()=>{const q=window.__PINEWOOD_OPENING_V34__;q.seek(10);q.scrub(.95)});
+ await page.waitForTimeout(850);
+ const interior=await get();
+ assert.equal(interior.world?.mode,'unified-mall');
+ assert.ok(interior.eye[2]<-43,'real mall route remains traversable');
+ assert.deepEqual(errors,[]);assert.deepEqual(remote,[]);
+ await writeFile('cinematic-v72-artifacts/status.json',JSON.stringify({initial,entry,granted,threshold,interior,errors,remote},null,2));
+ console.log('CINEMATIC_V72_DESKTOP_PASS '+JSON.stringify({clock:initial.clock,keypad:entry.keypad,world:interior.world,errors,remote}));
+ await page.close();
+}finally{await browser.close()}
