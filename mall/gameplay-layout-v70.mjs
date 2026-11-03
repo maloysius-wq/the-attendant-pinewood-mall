@@ -27,10 +27,13 @@ function addWallCollision(colliders,w){
  else colliders.push({minX:w.start-.025,maxX:w.end+.025,minZ:w.at-thick/2,maxZ:w.at+thick/2,kind:w.role||'wall',id:w.id});
 }
 
-export function buildGameplayLayoutV70({chapter}={}){
- const route=chapterRouteV70(chapter);
- const shell=constructPhysicalShell({level:route.level,chapter});
- const rooms=MALL.rooms.filter(r=>r.level===route.level);
+export function buildGameplayLayoutV70({chapter,level}={}){
+ const canonical=chapterRouteV70(chapter);
+ const activeLevel=level||canonical.level;
+ if(!LEVEL.has(activeLevel))throw RangeError('Invalid gameplay floor '+activeLevel);
+ const route=activeLevel===canonical.level?canonical:{...canonical,level:activeLevel,spawn:{room:'receiving_r12',x:51,y:1.7,z:-111}};
+ const shell=constructPhysicalShell({level:activeLevel,chapter});
+ const rooms=MALL.rooms.filter(r=>r.level===activeLevel);
  const walk=new Set(),tags=new Map(),colliders=[];
  for(const room of rooms){
   for(let z=Math.ceil(room.z1-.4);z<=Math.floor(room.z2+.4);z++){
