@@ -1,0 +1,62 @@
+name: V71 canonical cinematic continuity (desktop only)
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'opening/**'
+      - 'mall/**'
+      - 'index.html'
+      - 'scripts/test-opening-continuity-v71.mjs'
+      - 'scripts/test-opening-handoff-v70.mjs'
+      - 'scripts/smoke-opening-v71.mjs'
+      - 'scripts/smoke-opening-pacing-v62.mjs'
+      - '.github/workflows/opening-canonical-v71.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'opening/**'
+      - 'mall/**'
+      - 'index.html'
+      - 'scripts/test-opening-continuity-v71.mjs'
+      - 'scripts/test-opening-handoff-v70.mjs'
+      - '.github/workflows/opening-canonical-v71.yml'
+permissions:
+  contents: read
+jobs:
+  canonical-opening:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify opening contracts and canonical retail geometry
+        run: |
+          node --test scripts/test-opening-continuity-v71.mjs scripts/test-opening-handoff-v70.mjs
+          node --test scripts/test-physical-shell-v67.mjs scripts/test-facade-v68.mjs scripts/test-furnishing-v69.mjs
+      - name: Install pinned desktop Chromium
+        run: |
+          npm install --no-save playwright@1.55.0
+          npx playwright install --with-deps chromium
+      - name: Serve the same local files as GitHub Pages
+        run: |
+          python3 -m http.server 4173 --bind 127.0.0.1 >/tmp/pinewood-opening-v71.log 2>&1 &
+          for i in {1..30}; do curl -fsS http://127.0.0.1:4173/review/the-call-v34/ >/dev/null && exit 0; sleep 1; done
+          exit 1
+      - name: Verify new cinematic from clock through canonical entry
+        run: node scripts/smoke-opening-v71.mjs
+      - name: Guard against random POV darting and phone mistiming
+        run: node scripts/smoke-opening-pacing-v62.mjs
+      - name: Capture boarded facade and imported landscape
+        run: node scripts/smoke-opening-facade-v65.mjs
+      - name: Upload desktop-only screenshots and metrics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: v71-opening-cinematic-desktop
+          path: |
+            opening-v71-artifacts/
+            opening-v62-artifacts/
+            opening-v65-artifacts/
+          retention-days: 14
