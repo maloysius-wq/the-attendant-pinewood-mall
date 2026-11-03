@@ -59,13 +59,29 @@ try{
    const stopped=await page.evaluate(()=>window.__PINEWOOD_OPENING_V34__?.freezeFrame());
    assert(stopped,'review frame freeze unavailable before screenshot '+file);
    try{
-    await page.screenshot({path:dir+'/'+file,timeout:90000,animations:'disabled'});
+    return await page.screenshot({path:dir+'/'+file,timeout:90000,animations:'disabled'});
    }finally{
     await page.evaluate(()=>window.__PINEWOOD_OPENING_V34__?.resumeFrame());
    }
   };
   const clock=await seek(1,.51);
-  await capture('01-dashboard-0217.png');
+  const clockFrame=await capture('01-dashboard-0217.png');
+  // A mounted CanvasTexture is insufficient: the readout must be visible to the player.
+  // Count illuminated green readout pixels in the ACTUAL desktop rendered screenshot.
+  const clockVisiblePixels=await page.evaluate(async encoded=>{
+   const png=Uint8Array.from(atob(encoded),c=>c.charCodeAt(0));
+   const bitmap=await createImageBitmap(new Blob([png],{type:'image/png'}));
+   const canvas=document.createElement('canvas');canvas.width=bitmap.width;canvas.height=bitmap.height;
+   const context=canvas.getContext('2d');context.drawImage(bitmap,0,0);
+   const {data}=context.getImageData(Math.floor(bitmap.width*.2),Math.floor(bitmap.height*.2),
+    Math.floor(bitmap.width*.65),Math.floor(bitmap.height*.6));
+   let lit=0;
+   for(let i=0;i<data.length;i+=4)
+    if(data[i+1]>150&&data[i+1]-data[i]>35&&data[i+1]-data[i+2]>15)lit++;
+   return lit;
+  },clockFrame.toString('base64'));
+  results.clockVisiblePixels=clockVisiblePixels;
+  assert(clockVisiblePixels>=100,'digital readout is hidden behind the steering wheel/dashboard: '+clockVisiblePixels+' visible pixels');
   assert(Math.hypot(...clock.gaze.map((v,i)=>v-clock.eye[i]))<2,
    'camera never looks at physical dashboard time');
   const facade=await seek(6,.76);
