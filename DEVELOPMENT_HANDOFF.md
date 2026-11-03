@@ -8,6 +8,16 @@
 
 ---
 
+## Current cinematic continuity checkpoint: v71 (2026-11-03)
+
+**Status: MERGED TO MAIN AS `f929cd294f9b57f250afdf111ff507fbebc72803`; GITHUB PAGES PUBLISHES FROM THE REPOSITORY ROOT.** PR #49 reconnects the shipped v70 single-property gameplay to its opening: after the real contractor-entry threshold, the cinematic uses `renderPinewoodV69` in a separately preloaded scene instead of its retired miniature interior. The camera follows the x=9..16 service vestibule to the x≈10 connection at z=-43, then enters the actual central atrium. The same 17 licensed interior model types remain local and preloaded under the opaque cover; exterior and interior are never superimposed with z-fighting.
+
+- Owner-requested exterior/arrival refinements: four exactly mirrored pairs of existing CC0 planters around x=-10.5, clear x=12 contractor path, faster/denser rain (1,500 points), correctly separated raised facade belt, 18 uneven weathered entrance planks/braces rather than 37, CLOSED sign unobstructed, cinematic text selection disabled.
+- Arrival details: a 12:47 AM digital dashboard readout attached to the authentic enclosed CC0 car; scripted four-key access-panel presses during the pause *after* Renee's directions, with the confirmation complete before her next line. No existing local voice recordings, true hand/phone model, or dialogue text changed.
+- Tests: `scripts/test-cinematic-continuity-v71.mjs`, `scripts/smoke-cinematic-continuity-v71.mjs`, and desktop-only `.github/workflows/cinematic-continuity-v71.yml`. On PR head `f5b4e625d230ed7416e91388c427a8e1b5eababb`, the browser reports the physical central-gallery camera at x≈6.13, z≈−56.91, interior ready with 17 unique licensed model types, no script errors/off-origin requests; deterministic images include dashboard, keypad, vestibule, and atrium.
+- The separate one-off Renee neural renderer is now **manual-only** because its upstream approved source returned HTTP 404; shipped local Renee voice assets and the permanent v27 audio regression remain untouched. Do not silently restore its auto-run until the licensed source is available.
+- Preserve the permanent desktop-only testing policy and no-manual-WASD rule. Subjective framing and clock readability remain owner-review points; automated scene/geometry gates alone do not prove art direction.
+
 ## Current platform testing policy: Desktop-only (Max, 2026-11-02)
 
 The Attendant is not a mobile game. Max explicitly requested **removal of every mobile automated test**. All current scripts and workflows were revised to run **desktop-only browser regression**; older archived workflow matrices no longer launch mobile Chromium. Desktop reduced-motion checks remain. Do not reintroduce mobile viewport/device permutations, mobile test assertions, mobile screenshot artifacts, or mobile CI matrices in later milestones. Prior v66–v69 handoff entries documenting old successful mobile runs describe history, not present/future coverage.
