@@ -36,6 +36,9 @@ function applyUnifiedMallV70(source){
   "new THREE.Vector3(61,0,-58),.92,'east-wing-false-route'","east-wing false route sound");
  once("new THREE.Vector3(15,0,-15),.82,'route-error'",
   "new THREE.Vector3(61,0,-58),.82,'route-error'","east-wing false route AI cue");
+ once("crossExit(){game.controls.yaw.position.set(28.1,1.70,-14);game.updateLastShiftV25(.016);return chapter6TestStateV25(game);}",
+  "crossExit(){window.__PINEWOOD_V70_BRIDGE__.descendToExitV70(game);game.controls.yaw.position.set(83,1.70,-42);game.updateLastShiftV25(.016);return chapter6TestStateV25(game);}",
+  "finale desktop deterministic exit hook");
  once("if(s.exitOpen&&pp.x>27.45&&pp.z>-18.6&&pp.z<-7.0)completeLastShiftV25(this)",
   "if(s.exitOpen&&this.mallGroundExitV70&&pp.x>82.5&&pp.z>-44.5&&pp.z<-39.5)completeLastShiftV25(this)",
   "final physical employee exit");
