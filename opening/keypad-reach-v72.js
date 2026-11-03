@@ -17,6 +17,8 @@ export class KeypadReachHandV72{
   this.ready=handheld.handLoad;
   this.handOnly=false;this.digit=null;this.press=0;
   this.inFrame=false;this.displayPoint=[0,0];
+  this.probe=new THREE.Mesh(new THREE.SphereGeometry(.018,16,12),new THREE.MeshBasicMaterial({color:0xff00ff,depthTest:false}));
+  this.root.add(this.probe);this.probe.visible=false;
  }
  showHandOnly(on){
   if(this.handOnly===on)return;
@@ -28,6 +30,7 @@ export class KeypadReachHandV72{
   const p=clamp(progress,0,1);
   const reach=!!active&&p>0&&p<1&&this.hand.state==='ready';
   this.showHandOnly(reach);
+  this.probe.visible=reach;
   if(!reach){
    this.root.visible=!!this.handheld.raised;
    this.digit=null;this.press=0;
@@ -50,6 +53,7 @@ export class KeypadReachHandV72{
   this.root.position.set(normalized.x*depth*tangent*this.camera.aspect-target.x*scale,
    normalized.y*depth*tangent-target.y*scale,-depth-target.z*scale);
   this.root.rotation.set(-.075,-.14,-.09);
+  this.probe.position.copy(target);this.probe.position.z+=.025;
   const phase=p*4-slot;
   this.press=Math.max(0,Math.sin(phase*Math.PI));
   this.hand.update(this.press);
@@ -79,6 +83,6 @@ export class KeypadReachHandV72{
    wristViewport:bone?.gripWristPosition?toViewport(bone.gripWristPosition):null,
    thumbViewport:bone?.gripThumbTipPosition?toViewport(bone.gripThumbTipPosition):null,
    gripFingerViewport:bone?.gripFingerTips?.Point?toViewport(bone.gripFingerTips.Point):null,
-   skinSamplesInView,skinSamples,rootPosition:this.root.position.toArray()};
+   skinSamplesInView,skinSamples,skinRenderable:!!mesh?.visible&&!!mesh?.material?.visible,holderVisible:this.hand.holder.visible,probeVisible:this.probe.visible,rootPosition:this.root.position.toArray()};
  }
 }

@@ -30,8 +30,8 @@ export function installDashboardClockV71(car){
     const toEye=driverEye.clone().sub(first.point).normalize();
     if(normal.dot(toEye)<0)normal.negate();
     if(normal.z<.27||normal.dot(toEye)<.20)continue;
-    const score=-10+Math.abs(p.x-.34)*.8+Math.abs(p.z+.39)*.7+
-     Math.abs(p.y-.93)*.8+(1-normal.dot(toEye))*.15;
+    const score=-10+Math.abs(p.x-.04)*5+Math.abs(p.z+.39)*.7+
+     Math.abs(p.y-1.07)*5+(1-normal.dot(toEye))*.15;
     hits.push({score,p,normal,mesh:first.object.name,kind:'driver-facing-panel'});
    }
   }
