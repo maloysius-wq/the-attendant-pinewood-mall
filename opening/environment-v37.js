@@ -142,10 +142,13 @@ export async function upgradeOpeningSceneV37({scene,world,car,materials,lotMater
     for(const m of Array.isArray(o.material)?o.material:[o.material]){
       if(!m)continue;
       if(/window_glass/i.test(m.name||'')){
-        glass++;m.transparent=true;m.opacity=.17;
+        glass++;m.transparent=true;m.opacity=.045;
         m.depthWrite=false;m.side=THREE.DoubleSide;m.roughness=.08;m.needsUpdate=true;
       }else if(m.color){
-        m.color.multiplyScalar(.63);
+        // Near-black dashboard trim suits this midnight vehicle; the imported
+        // body shares one PBR material across the seats, hood and dashboard.
+        if(/body_pbr/i.test(m.name||''))m.color.setHex(0x343b3f);
+        else m.color.multiplyScalar(.63);
         // The original GLB labels all body faces double-sided. From INSIDE,
         // backfaces of exterior shell then render as giant black blockers.
         // Keep the exact original geometry and real roof, but render only

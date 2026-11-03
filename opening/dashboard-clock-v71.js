@@ -49,9 +49,12 @@ export function installDashboardClockV71(car){
   .addScaledVector(eyeVector,.75).normalize();
  const displayReadableAngle=displayNormal.dot(eyeVector);
  clock.name='Factory-sized recessed digital dashboard readout';
- clock.position.copy(mount.p).addScaledVector(mount.normal,.005);
+ // Bury the back/lower edge of the clock housing into the original dash
+ // surface. Its raised face stays entirely clear of the top panel instead of
+ // clipping through it at the readout's lower half.
+ clock.position.copy(mount.p).addScaledVector(mount.normal,.044);
  clock.quaternion.setFromUnitVectors(new THREE.Vector3(0,0,1),displayNormal);
- const plastic=new THREE.Mesh(new THREE.BoxGeometry(.165,.068,.008),
+ const plastic=new THREE.Mesh(new THREE.BoxGeometry(.168,.073,.072),
   new THREE.MeshStandardMaterial({color:0x11181b,roughness:.83,metalness:.035}));
  plastic.name='Slim factory bezel seated into imported dashboard';
  clock.add(plastic);
@@ -68,7 +71,7 @@ export function installDashboardClockV71(car){
  const face=new THREE.Mesh(new THREE.PlaneGeometry(.151,.060),
   new THREE.MeshBasicMaterial({map,toneMapped:false}));
  face.name='12:47 AM inset display';
- face.position.z=.0048;clock.add(face);
+ face.position.z=.040;clock.add(face);
  car.add(clock);
  const visibleClockPoint=local(car,clock.position.toArray());
  const viewRay=visibleClockPoint.clone().sub(driverEye);
@@ -79,7 +82,7 @@ export function installDashboardClockV71(car){
  if(!unobstructedFromDriver)throw Error('Dashboard clock is hidden behind original car geometry');
  return Object.freeze({
   time:'12:47 AM',localPosition:clock.position.toArray(),importedCarPreserved:true,
-  mountedToImportedDash:mount.p.z<-.78,unobstructedFromDriver,surfaceGap:.005,displayWidth:.151,
+  mountedToImportedDash:mount.p.z<-.78,unobstructedFromDriver,surfaceGap:0,displayWidth:.151,
   mountDepth:mount.p.z,clockDistance,interiorNearPlane:.18,
   hitMesh:mount.mesh,mountKind:mount.kind,displayNormal:displayNormal.toArray(),
   importedSurfaceNormal:mount.normal.toArray(),displayReadableAngle
