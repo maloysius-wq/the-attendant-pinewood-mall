@@ -20,11 +20,11 @@ export function installDashboardClockV71(car){
  c.fillText(DASHBOARD_CLOCK_TIME,256,75);
  const map=new THREE.CanvasTexture(canvas);map.colorSpace=THREE.SRGBColorSpace;
  const group=new THREE.Group();group.name='Dashboard digital time 02:17 AM';
- group.position.set(-.22,1.045,-.53);
- const bezel=new THREE.Mesh(new THREE.BoxGeometry(.44,.16,.055),
+ group.position.set(.40,1.22,-.38); // passenger-side upper dashboard, clear of steering rim
+ const bezel=new THREE.Mesh(new THREE.BoxGeometry(.32,.12,.045),
   new THREE.MeshStandardMaterial({color:0x101815,roughness:.55,metalness:.18}));
  bezel.position.z=-.018;group.add(bezel);
- const face=new THREE.Mesh(new THREE.PlaneGeometry(.397,.119),
+ const face=new THREE.Mesh(new THREE.PlaneGeometry(.295,.092),
   new THREE.MeshBasicMaterial({map,transparent:false,depthTest:true,side:THREE.FrontSide}));
  face.position.z=.014;face.name='Illuminated dashboard clock 02:17 AM';group.add(face);
  const rim=new THREE.PointLight(0x8cffbe,.29,1.05,2);rim.position.set(0,0,.09);group.add(rim);
