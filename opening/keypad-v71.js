@@ -83,7 +83,8 @@ export class ContractorKeypadV71{
    if(!this.confirmed){this.entered='';this.pressCount=0;this.draw();}
    return;
   }
-  const after=elapsed-voiceSeconds;
+  // One second for the camera to finish its walk under the canopy.
+  const after=elapsed-voiceSeconds-1.05;
   if(after<.10){
    this.handRoot.visible=false;this.entered='';this.confirmed=false;this.pressCount=0;
    this.pressingDigit=null;this.draw();return;
