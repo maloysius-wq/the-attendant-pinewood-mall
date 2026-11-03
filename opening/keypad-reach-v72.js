@@ -18,8 +18,6 @@ export class KeypadReachHandV72{
   this.ready=handheld.handLoad;
   this.handOnly=false;this.digit=null;this.press=0;
   this.inFrame=false;this.displayPoint=[0,0];
-  this.probe=new THREE.Mesh(new THREE.SphereGeometry(.075,16,12),new THREE.MeshBasicMaterial({color:0xff00ff,depthTest:false}));
-  this.root.add(this.probe);this.probe.visible=false;
  }
  showHandOnly(on){
   if(this.handOnly===on)return;
@@ -31,7 +29,6 @@ export class KeypadReachHandV72{
   const p=clamp(progress,0,1);
   const reach=!!active&&p>0&&p<1&&this.hand.state==='ready';
   this.showHandOnly(reach);
-  this.probe.visible=reach;
   if(reach&&this.root.parent!==this.scene)this.scene.add(this.root);
   if(!reach&&this.root.parent!==this.camera)this.camera.add(this.root);
   if(!reach){
@@ -50,7 +47,7 @@ export class KeypadReachHandV72{
   this.worldCamera=worldCamera;
   this.digit=digit;this.displayPoint=[sx,sy];
   this.inFrame=sx>.02&&sx<.98&&sy>.02&&sy<.98;
-  const scale=.72;
+  const scale=.88;
   this.root.visible=true;
   this.root.scale.setScalar(scale);
   const target=this.hand.target;
@@ -59,7 +56,6 @@ export class KeypadReachHandV72{
   const towardEye=worldCamera.position.clone().sub(contact).normalize();
   this.root.position.copy(contact).addScaledVector(towardEye,.12)
    .sub(target.clone().multiplyScalar(scale).applyQuaternion(this.root.quaternion));
-  this.probe.position.copy(target);this.probe.position.z+=.025;
   const phase=p*4-slot;
   this.press=Math.max(0,Math.sin(phase*Math.PI));
   this.hand.update(this.press);
@@ -90,6 +86,6 @@ export class KeypadReachHandV72{
    wristViewport:bone?.gripWristPosition?toViewport(bone.gripWristPosition):null,
    thumbViewport:bone?.gripThumbTipPosition?toViewport(bone.gripThumbTipPosition):null,
    gripFingerViewport:bone?.gripFingerTips?.Point?toViewport(bone.gripFingerTips.Point):null,
-   skinSamplesInView,skinSamples,skinRenderable:!!mesh?.visible&&!!mesh?.material?.visible,holderVisible:this.hand.holder.visible,probeVisible:this.probe.visible,rootPosition:this.root.position.toArray()};
+   skinSamplesInView,skinSamples,rootPosition:this.root.position.toArray()};
  }
 }

@@ -41,13 +41,16 @@ try{
  await page.evaluate(()=>{const q=window.__PINEWOOD_OPENING_V34__;q.seek(7);q.scrub(.97)});
  await page.waitForTimeout(700);
  const entry=await get();
- const diagnosticsBefore=await page.evaluate(()=>window.__PINEWOOD_OPENING_V34__.qaRenderStats);
- await page.waitForTimeout(150);
- const diagnosticsAfter=await page.evaluate(()=>window.__PINEWOOD_OPENING_V34__.qaRenderStats);
- const drawProbeRaw=await page.evaluate(()=>window.__PINEWOOD_OPENING_V34__.qaRenderNow());
- const {framebufferPng,...drawProbe}=drawProbeRaw;
- await writeFile('cinematic-v72-artifacts/04-direct-webgl-framebuffer.png',Buffer.from(framebufferPng.split(',')[1],'base64'));
- console.log('V72_RENDER_DIAGNOSTIC '+JSON.stringify({diagnosticsBefore,diagnosticsAfter,drawProbe}));
+ const directCapture=await page.evaluate(()=>window.__PINEWOOD_OPENING_V34__.qaRenderNow());
+ const {framebufferPng,...drawComparison}=directCapture;
+ await writeFile('cinematic-v72-artifacts/04-direct-webgl-framebuffer.png',
+  Buffer.from(framebufferPng.split(',')[1],'base64'));
+ assert.ok(drawComparison?.armOnStage,'the connected source hand must animate in the actual 3D world');
+ assert.ok(drawComparison.withArmCalls>drawComparison.withoutArmCalls,
+  'real skinned forearm must create actual 3D draw calls');
+ assert.ok(drawComparison.differentPixels>700,
+  'real skinned forearm must visibly alter framebuffer pixels, not just project bone telemetry');
+ console.log('V72_FOREARM_FRAMEBUFFER_PASS '+JSON.stringify(drawComparison));
  console.log('V72_HAND_DIAGNOSTIC '+JSON.stringify(entry.keypad));
  assert.ok(entry.keypad?.inFrame,'entire keypad panel is within the desktop viewport');
  assert.ok(entry.keypad?.viewportWidth>=.09,'digits are large enough to read');
@@ -79,7 +82,7 @@ try{
  assert.equal(interior.world?.mode,'unified-mall');
  assert.ok(interior.eye[2]<-43,'real mall route remains traversable');
  assert.deepEqual(errors,[]);assert.deepEqual(remote,[]);
- await writeFile('cinematic-v72-artifacts/status.json',JSON.stringify({initial,clockMoment,entry,granted,threshold,interior,diagnosticsBefore,diagnosticsAfter,drawProbe,errors,remote},null,2));
+ await writeFile('cinematic-v72-artifacts/status.json',JSON.stringify({initial,clockMoment,entry,granted,threshold,interior,drawComparison,errors,remote},null,2));
  console.log('CINEMATIC_V72_DESKTOP_PASS '+JSON.stringify({clock:initial.clock,keypad:entry.keypad,world:interior.world,errors,remote}));
  await page.close();
 }finally{await browser.close()}

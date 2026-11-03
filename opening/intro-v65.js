@@ -329,7 +329,6 @@ class Intro{
     const useNewMall=throughDoor&&(this.line.id==='promise'||this.line.id==='direction');
     this.root.dataset.renderWorld=useNewMall?'unified-mall':'exterior';
     this.renderer.render(useNewMall?this.interiorScene:this.stage.scene,this.camera);
-    this.frameDraws=(this.frameDraws||0)+1;
     if(this.handheld?.raised){
      this.renderer.autoClear=false;
      this.renderer.clearDepth();
@@ -483,47 +482,36 @@ window.__PINEWOOD_OPENING_V34__={
    retiredInteriorMeshes:active.stage?.retiredInteriorMeshes??null
   }:null;},
  get handheldPhone(){return active?.handheld?.status||null;},
- get qaRenderStats(){
-  if(!active?.renderer)return null;
-  const arm=active.keypadReach?.root;
-  return {frameDraws:active.frameDraws||0,contextLost:active.renderer.getContext().isContextLost(),
-   stageDrawCalls:active.renderer.info.render.calls,
-   armOnStage:arm?.parent===active.stage.scene,armVisible:arm?.visible,
-   probeVisible:active.keypadReach?.probe?.visible,
-   sceneChildCount:active.stage.scene.children.length};
- },
  qaRenderNow(){
   if(!location.pathname.includes('/review/')||!active?.renderer)return false;
   const arm=active.keypadReach?.root,renderer=active.renderer,gl=renderer.getContext();
-  const mark=active.keypadReach.probe.getWorldPosition(new THREE.Vector3()).project(active.camera);
   const width=gl.drawingBufferWidth,height=gl.drawingBufferHeight;
-  const cx=Math.floor((mark.x+1)*width/2),cy=Math.floor((mark.y+1)*height/2);
-  const colorSample=()=>{
-   const w=64,h=64,x=Math.max(0,Math.min(width-w,cx-32)),y=Math.max(0,Math.min(height-h,cy-32));
-   const rgba=new Uint8Array(w*h*4);gl.readPixels(x,y,w,h,gl.RGBA,gl.UNSIGNED_BYTE,rgba);
-   let purple=0;for(let p=0;p<rgba.length;p+=4)if(rgba[p]>130&&rgba[p+2]>130&&rgba[p+1]<100)purple++;
-   return {center:Array.from(rgba.slice((32*w+32)*4,(32*w+32)*4+4)),purple,x,y};
+  const renderRead=()=>{
+   renderer.render(active.stage.scene,active.camera);
+   const calls=renderer.info.render.calls,rgba=new Uint8Array(width*height*4);
+   gl.readPixels(0,0,width,height,gl.RGBA,gl.UNSIGNED_BYTE,rgba);
+   return {calls,rgba};
   };
-  renderer.render(active.stage.scene,active.camera);
-  const withArm=renderer.info.render.calls,withColor=colorSample();
-  const wasVisible=arm?.visible;
+  const withArm=renderRead(),wasVisible=arm?.visible;
   if(arm)arm.visible=false;
-  renderer.render(active.stage.scene,active.camera);
-  const withoutArm=renderer.info.render.calls,withoutColor=colorSample();
+  const withoutArm=renderRead();
   if(arm)arm.visible=wasVisible;
   renderer.render(active.stage.scene,active.camera);
-  const restored=renderer.info.render.calls,restoredColor=colorSample();
-  const raw=new Uint8Array(width*height*4);
-  gl.readPixels(0,0,width,height,gl.RGBA,gl.UNSIGNED_BYTE,raw);
+  let differentPixels=0;
+  for(let y=Math.floor(height*.10);y<Math.floor(height*.75);y+=2){
+   for(let x=Math.floor(width*.53);x<Math.floor(width*.97);x+=2){
+    const i=(y*width+x)*4,a=withArm.rgba,b=withoutArm.rgba;
+    if(Math.abs(a[i]-b[i])+Math.abs(a[i+1]-b[i+1])+Math.abs(a[i+2]-b[i+2])>85)
+     differentPixels++;
+   }
+  }
   const image=new ImageData(width,height),pixels=image.data;
-  for(let row=0;row<height;row++)pixels.set(raw.subarray(row*width*4,(row+1)*width*4),(height-1-row)*width*4);
+  for(let row=0;row<height;row++)
+   pixels.set(withArm.rgba.subarray(row*width*4,(row+1)*width*4),(height-1-row)*width*4);
   const capture=document.createElement('canvas');capture.width=width;capture.height=height;
   capture.getContext('2d').putImageData(image,0,0);
-  return {withArm,withoutArm,restored,withColor,withoutColor,restoredColor,
-   framebufferPng:capture.toDataURL('image/png'),
-   armOnStage:arm?.parent===active.stage.scene,
-   armVisible:arm?.visible,probeVisible:active.keypadReach?.probe?.visible,
-   projectedProbe:[cx,cy,width,height]};
+  return {withArmCalls:withArm.calls,withoutArmCalls:withoutArm.calls,differentPixels,
+   armOnStage:arm?.parent===active.stage.scene,framebufferPng:capture.toDataURL('image/png')};
  },
  get qaPlayerHand(){return location.pathname.includes('/review/')?active?.handheld?.playerHand||null:null;},
  get captionTiming(){if(active&&!active.paused)active.renderCaption();return active?{line:active.line?.id,voiceSeconds:active.voiceSeconds,

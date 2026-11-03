@@ -66,7 +66,7 @@ export function installDashboardClockV71(car){
  if(!hits.length)throw Error('Cannot locate a real imported dashboard mounting surface; refusing to float the clock');
  const mount=hits[0],clock=new THREE.Group();
  // The mounting foot touches the imported dashboard, while the shallow
- // factory LCD is angled toward the actual driver (like an inset clock).
+ // factory LCD follows the original panel's normal without clipping its edges.
  const eyeVector=driverEye.clone().sub(local(car,mount.p.toArray())).normalize();
  const displayNormal=mount.normal.clone().normalize();
  const displayReadableAngle=displayNormal.dot(eyeVector);
