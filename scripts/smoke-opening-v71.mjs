@@ -55,29 +55,38 @@ try{
      keypad:s.keypadStatus,timing:s.captionTiming,door:s.sceneStats?.doorAngle};
    });
   };
+  const capture=async file=>{
+   const stopped=await page.evaluate(()=>window.__PINEWOOD_OPENING_V34__?.freezeFrame());
+   assert(stopped,'review frame freeze unavailable before screenshot '+file);
+   try{
+    await page.screenshot({path:dir+'/'+file,timeout:90000,animations:'disabled'});
+   }finally{
+    await page.evaluate(()=>window.__PINEWOOD_OPENING_V34__?.resumeFrame());
+   }
+  };
   const clock=await seek(1,.51);
-  await page.screenshot({path:dir+'/01-dashboard-0217.png'});
+  await capture('01-dashboard-0217.png');
   assert(Math.hypot(...clock.gaze.map((v,i)=>v-clock.eye[i]))<2,
    'camera never looks at physical dashboard time');
   const facade=await seek(6,.76);
-  await page.screenshot({path:dir+'/02-derelict-entrance.png'});
+  await capture('02-derelict-entrance.png');
   const start=await seek(7,.02);
   const voice=start.timing.voiceSeconds,wait=start.timing.waitSeconds;
   const pressing=await seek(7,(voice+3.25)/wait,350);
-  await page.screenshot({path:dir+'/03-code-entry-action.png'});
+  await capture('03-code-entry-action.png');
   const granted=await seek(7,(voice+4.82)/wait,350);
-  await page.screenshot({path:dir+'/04-keypad-authorized.png'});
+  await capture('04-keypad-authorized.png');
   assert(pressing.keypad?.realHand&&pressing.keypad?.pressCount>=1,
    'native player arm does not press numeric keypad: '+JSON.stringify(pressing.keypad));
   assert(granted.keypad?.entered==='2841'&&granted.keypad.confirmed,
    'access code was not fully entered before Renee confirms: '+JSON.stringify(granted.keypad));
   const entered=await seek(8,.91,350);
-  await page.screenshot({path:dir+'/05-canonical-service-vestibule.png'});
+  await capture('05-canonical-service-vestibule.png');
   assert(entered.door<-.7,'physical contractor door fails to open during entry');
   assert(entered.eye[0]>9&&entered.eye[0]<16&&entered.eye[2]<-22.5,
    'camera did not enter actual x9..16 contractor vestibule: '+entered.eye);
   const final=await seek(10,.96,350);
-  await page.screenshot({path:dir+'/06-final-in-canonical-mall.png'});
+  await capture('06-final-in-canonical-mall.png');
   assert(Math.abs(final.eye[0]-12)<.5&&Math.abs(final.eye[2]+26)<.7,
    'cinematic ends outside canonical gameplay spawn: '+final.eye);
   assert(!errors.length&&!remote.length,
