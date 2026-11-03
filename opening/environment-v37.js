@@ -161,19 +161,26 @@ export async function upgradeOpeningSceneV37({scene,world,car,materials,lotMater
   car.add(model);car.updateWorldMatrix(true,true);
   if(car.children.length!==1||meshes<5)throw Error('A second car or empty car found');
   // Driver is inside the left front seat, under the real roof, behind windshield.
-  const eye=car.localToWorld(new THREE.Vector3(-.38,1.02,-.45));
+  const eye=car.localToWorld(new THREE.Vector3(-.38,1.26,-.45));
   const roof=new THREE.Raycaster(eye,new THREE.Vector3(0,1,0),.04,.85)
     .intersectObject(model,true).filter(x=>!/windows/i.test(x.object.name||''))[0];
   // Test the roof from OUTSIDE, where source-facing surface normals exist.
   // A separate, controlled roof-height test avoids false negatives caused
   // by the deliberate one-sided interior view material.
-  const topHit=new THREE.Raycaster(
+  const overheadHits=new THREE.Raycaster(
      car.localToWorld(new THREE.Vector3(-.38,2.1,-.45)),
      new THREE.Vector3(0,-1,0),.30,1.3)
-    .intersectObject(model,true).find(h=>!/windows/i.test(h.object.name||''));
-  const roofHeight=topHit?+(2.1-topHit.distance).toFixed(3):null;
+    .intersectObject(model,true);
+  // At this forward eye position, the transparent sloped windshield is the
+  // enclosure overhead; the opaque dashboard BELOW eye level is not a roof.
+  // Count actual imported glass or sheet metal above the eye, never the dash.
+  const shelter=overheadHits.find(h=>h.point.y>eye.y+.08);
+  const roofHeight=shelter?+shelter.point.y.toFixed(3):null;
+  status.overheadSurfaces=overheadHits.slice(0,6).map(h=>({
+    mesh:h.object.name,height:+h.point.y.toFixed(3),
+    aboveEye:h.point.y>eye.y,glass:/window/i.test(h.object.name)}));
   status.roofHeight=roofHeight;
-  const roofDistance=roofHeight===null?null:roofHeight-1.02;
+  const roofDistance=roofHeight===null?null:roofHeight-1.26;
   // Diagnostic grid: assess the actual GLB top surface before accepting the
   // first-person eye; do not mistake the published model description for proof.
   status.roofSamples=[];
