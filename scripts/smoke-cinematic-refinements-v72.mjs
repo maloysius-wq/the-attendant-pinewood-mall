@@ -80,8 +80,36 @@ try{
     nearUnder12:rays.filter(r=>r.d!==null&&r.d<1.2).length,
     clockNdc:projection.toArray(),rays};
   };
+  // Scan physically plausible seated driver-eye placements and a farther
+  // dashboard gaze before choosing any scene changes.
+  const viewScore=(from,to)=>{
+   const camera=new THREE.PerspectiveCamera(66,1440/900,.08,230);
+   camera.position.copy(from);camera.lookAt(to);camera.updateMatrixWorld(true);
+   const rays=[],xGrid=[-.8,-.4,0,.4,.8],yGrid=[-.65,-.25,.15,.55];
+   for(const y of yGrid)for(const x of xGrid){
+    const ray=new THREE.Raycaster();ray.setFromCamera(new THREE.Vector2(x,y),camera);
+    const hit=ray.intersectObject(model,true).find(h=>!/windows/i.test(h.object.name));
+    rays.push(hit?hit.distance:Infinity);
+   }
+   return {near04:rays.filter(d=>d<.4).length,
+    near07:rays.filter(d=>d<.7).length,
+    center:Math.min(rays[2],rays[7],rays[12],rays[17]),
+    median:rays.filter(Number.isFinite).sort((a,b)=>a-b)[Math.floor(rays.filter(Number.isFinite).length/2)]||null};
+  };
+  const candidates=[];
+  for(const x of[-.52,-.38,-.24,-.10])for(const y of[1.17,1.26,1.34])
+   for(const z of[-.65,-.45,-.25,-.05,.15]){
+    const from=local([x,y,z]);
+    const ahead=viewScore(from,new THREE.Vector3(2,2.9,-22));
+    const dash=viewScore(from,local([.10,1.0,-1.05]));
+    const score=4*(ahead.near04+dash.near04)+(ahead.near07+dash.near07)
+     +3*(ahead.center<.4?1:0)+3*(dash.center<.4?1:0);
+    candidates.push({local:[x,y,z],world:from.toArray(),score,ahead,dash});
+   }
+  candidates.sort((a,b)=>a.score-b.score);
   const worldBound=new THREE.Box3().setFromObject(model);
   return {eye:eye.toArray(),clock:clock.toArray(),clockDistance:eye.distanceTo(clock),
+   candidateEyes:candidates.slice(0,15),currentEyeRank:candidates.findIndex(c=>c.local[0]===-.24&&c.local[1]===1.26&&c.local[2]===.15),
    carBounds:{min:worldBound.min.toArray(),max:worldBound.max.toArray()},
    clockGlance:probe(sceneGaze),ahead:probe(new THREE.Vector3(2,2.9,-22))};
  });
