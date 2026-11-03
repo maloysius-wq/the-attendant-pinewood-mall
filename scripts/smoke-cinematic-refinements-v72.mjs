@@ -51,6 +51,53 @@ try{
    nonDashExamples:results.filter(r=>r.point[2]>=-.70).slice(0,8)};
  });
  console.log('V74_DASH_VISIBILITY '+JSON.stringify(dashVisibility));
+ const positions=await page.evaluate(async()=>{
+  const [{GLTFLoader},THREE]=await Promise.all([
+   import('/vendor/three/examples/jsm/loaders/GLTFLoader.js'),
+   import('/vendor/three/build/three.module.js')]);
+  const gltf=await new GLTFLoader().loadAsync('/opening/assets/v42/1990s-hatchback.glb');
+  const model=gltf.scene;model.rotation.y=Math.PI;model.updateMatrixWorld(true);
+  let bounds=new THREE.Box3().setFromObject(model);
+  model.scale.multiplyScalar(1.86/bounds.getSize(new THREE.Vector3()).x);
+  model.updateMatrixWorld(true);bounds.setFromObject(model);
+  const center=bounds.getCenter(new THREE.Vector3());
+  model.position.x-=center.x;model.position.y-=bounds.min.y;model.position.z-=center.z;
+  const car=new THREE.Group();car.position.set(-10,0,17.5);car.add(model);
+  model.traverse(o=>{if(o.isMesh)for(const m of Array.isArray(o.material)?o.material:[o.material])
+   if(m&&/body_pbr/i.test(m.name||''))m.side=THREE.FrontSide;});
+  car.updateWorldMatrix(true,true);
+  const local=p=>car.localToWorld(new THREE.Vector3(...p));
+  const points=[];
+  const xs=[-.48,-.30],ys=[.96,1.03,1.10,1.17,1.25],zs=[-.52,-.32,-.12,.08,.28];
+  for(const x of xs)for(const y of ys)for(const z of zs){
+   const eye=local([x,y,z]),out={e:[x,y,z]},above=local([x,2.1,z]);
+   const roof=new THREE.Raycaster(above,new THREE.Vector3(0,-1,0),.3,1.3)
+    .intersectObject(model,true).find(h=>h.point.y>eye.y+.04);
+   out.roof=roof?+(roof.point.y-eye.y).toFixed(3):null;
+   out.front=[];
+   for(const ax of[-.3,-.1,.1,.3])for(const ay of[.75,.9,1.05]) {
+    const d=local([ax,ay,-1.15]).sub(eye).normalize();
+    const h=new THREE.Raycaster(eye,d,.08,3)
+     .intersectObject(model,true).find(h=>!/window|wheel|tire|rim/i.test(h.object.name));
+    if(h){const p=car.worldToLocal(h.point.clone());
+     if(p.z<-.75&&p.y>.68&&p.y<1.12)out.front.push([+h.distance.toFixed(2),...p.toArray().map(n=>+n.toFixed(2))]);}
+   }
+   out.front.sort((a,b)=>a[0]-b[0]);
+   const gaze=local([.04,.98,-1.07]),cam=new THREE.PerspectiveCamera(66,1440/900,.08,230);
+   cam.position.copy(eye);cam.lookAt(gaze);cam.updateMatrixWorld(true);
+   let near04=0,near08=0,near12=0,visible=0;
+   for(const nx of[-.85,-.6,-.3,0,.3,.6,.85])for(const ny of[-.7,-.45,-.2,0,.2,.45,.7]){
+    const ray=new THREE.Raycaster();ray.setFromCamera(new THREE.Vector2(nx,ny),cam);
+    ray.near=.08;const h=ray.intersectObject(model,true).find(h=>!/window/i.test(h.object.name));
+    if(h){visible++;if(h.distance<.4)near04++;if(h.distance<.8)near08++;if(h.distance<1.2)near12++;}
+   }
+   out.samples=[near04,near08,near12,visible];out.frontN=out.front.length;
+   points.push(out);
+  }
+  return points;
+ });
+ console.log('V74_EYE_CANDIDATES '+JSON.stringify(positions));
+ throw Error('V74 eye-location diagnostic complete');
  if(!dashVisibility.results.length)throw Error('V74 diagnostic: no forward surfaces beyond near upholstery');
 
  await page.waitForFunction(()=>window.__PINEWOOD_OPENING_V34__?.startupStatus?.state==='ready',null,{timeout:150000});
