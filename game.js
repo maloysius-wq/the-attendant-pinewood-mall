@@ -1,6 +1,7 @@
 import {renderPinewoodV69} from './mall/render-shell-v69.js';
 import {buildGameplayLayoutV70} from './mall/gameplay-layout-v70.mjs';
 import {VISUAL_VIEWPOINTS_V70} from './mall/visual-anchors-v70.mjs';
+import {CCTV_FEEDS_V70} from './mall/story-placement-v70.mjs';
 import {relocateStoryV70,descendToExitV70} from './mall/story-runtime-v70.js';
 // Deployment loader for The Attendant: Pinewood Mall.
 // Runtime bundle stays immutable; authored room and world-prop overrides live in /patches.
@@ -306,7 +307,7 @@ try{
     const v70=await import(v70PatchUrl);
     unifiedSource=v70.applyUnifiedMallV70(audioDirectionV27Source);
   }finally{URL.revokeObjectURL(v70PatchUrl);}
-  window.__PINEWOOD_V70_BRIDGE__={renderPinewoodV69,buildGameplayLayoutV70,relocateStoryV70,descendToExitV70,VISUAL_VIEWPOINTS_V70};
+  window.__PINEWOOD_V70_BRIDGE__={renderPinewoodV69,buildGameplayLayoutV70,relocateStoryV70,descendToExitV70,VISUAL_VIEWPOINTS_V70,CCTV_FEEDS_V70};
   const source=unifiedSource+'\n//# sourceURL=pinewood-runtime.js\n';
   const moduleUrl=URL.createObjectURL(new Blob([source],{type:'text/javascript'}));
   try{await import(moduleUrl);}finally{URL.revokeObjectURL(moduleUrl);}

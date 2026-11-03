@@ -75,3 +75,11 @@ export function storyTargetV70({chapter,type='',id='',label='',controlId='',inde
  return {room,x:Math.max(r.x1+.8,Math.min(r.x2-.8,x+column*1.3)),
   z:Math.max(r.z1+.8,Math.min(r.z2-.8,z+row*1.3)),canonical:false};
 }
+
+/** Physical room bounds used by Luis Ortega's four CCTV groups. */
+export const CCTV_FEEDS_V70=Object.freeze([
+ {id:'CAM 02',label:'WEST JUNCTION',bounds:[-29,-11,-111,-43]},
+ {id:'CAM 05',label:'RECEIVING',bounds:[47,56,-115,-101]},
+ {id:'CAM 09',label:'NORTH SECURITY HALL',bounds:[29,46,-115,-101]},
+ {id:'CAM 12',label:'SECONDARY SECURITY',bounds:[29,56,-101,-97]}
+]);
