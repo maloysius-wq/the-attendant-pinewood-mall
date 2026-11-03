@@ -12,6 +12,14 @@ await mkdir('opening-v62-artifacts',{recursive:true});
 try{
  for(const [layout,width,height] of [['desktop',1280,720]]){
   const page=await browser.newPage({viewport:{width,height}});
+   const capture=async path=>{
+    page.setDefaultTimeout(90000);
+    const frozen=await page.evaluate(()=>window.__PINEWOOD_OPENING_V34__?.freezeFrame());
+    if(!frozen)throw Error('Expected paused frame for deterministic desktop screenshot');
+    try{await page.screenshot({path,timeout:90000});}
+    finally{await page.evaluate(()=>window.__PINEWOOD_OPENING_V34__?.resumeFrame());}
+   };
+
   const errors=[],remote=[];
   page.on('pageerror',e=>errors.push(e.message));
   page.on('request',r=>{if(/^https?:/.test(r.url())&&!r.url().startsWith(origin))remote.push(r.url());});
@@ -61,11 +69,11 @@ try{
    const afterTap=await snap(0,(voiceSeconds+.68)/waitSeconds);
    assert(afterTap.phone?.screenState==='confirmed'&&!afterTap.phone?.tap,
      layout+' check-in did not complete and release after the line: '+JSON.stringify(afterTap.phone));
-   await page.screenshot({path:'opening-v62-artifacts/'+layout+'-check-in-after-instruction.png'});
+   await capture('opening-v62-artifacts/'+layout+'-check-in-after-instruction.png');
    const stowed=await snap(1,.10);
    assert(!stowed.phone?.visible&&stowed.phone?.screenState==='confirmed',
      layout+' handset still hangs in view after first second of next line: '+JSON.stringify(stowed.phone));
-   await page.screenshot({path:'opening-v62-artifacts/'+layout+'-phone-stowed.png'});
+   await capture('opening-v62-artifacts/'+layout+'-phone-stowed.png');
    const inside=await snap(5,.25,780);
    const outside=await snap(5,.40,210);
    assert(inside.rain?.car?.readyState===4&&inside.rain?.outside?.readyState===4,
