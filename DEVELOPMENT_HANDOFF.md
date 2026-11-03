@@ -8,6 +8,17 @@
 
 ---
 
+## Current driver-seat cockpit correction: v74 (2026-11-03)
+
+**Source PR:** [#52](https://github.com/maloysius-wq/the-attendant-pinewood-mall/pull/52). The opening cinematic's CC0 enclosed hatchback is still the **single original GLB** (`opening/assets/v42/1990s-hatchback.glb`); no additional vehicle shell, replacement windshield or vector seats were introduced. The earlier v73 Pinewood sign/roof clearance is preserved.
+
+- **Owner-reported defect:** from the clock glance, huge pale seat/interior panels filled the foreground and the 12:47 AM clock was too large, partly blocked, or appeared stuck to an arbitrary upholstery polygon.
+- **Measured root cause:** the old cinematic eye sat behind the real front seatback (car-local `[-0.20, 1.24, 0.19]`). An attempted dash-ray mount hit seat upholstery only ~47 cm away. A subsequent taller camera avoided some upholstery but sat ahead of the sloping roof or was occluded by it. Desktop browser raycasts against the original GLB were used to evaluate 50 seated eye candidates; `[-0.30, 1.10, -0.32]` sits about 12 cm beneath the real roof, ahead of the seatback, and yields a genuinely visible front-dash surface.
+- **Cockpit correction:** `opening/camera-v65.js` now places the eye at world `[-10.30,1.10,17.18]`, with a continuous door exit. Seated camera near plane is only 0.18 m; the separate anatomical hand/phone camera still uses 0.08 m. Original car geometry remains intact inside and outside.
+- **Factory-sized clock:** `opening/dashboard-clock-v71.js` selects the actual forward dashboard from GLB ray intersections, not a seat surface. The 12:47 AM readout is 0.151 m across, faces the seated driver, and its thick molded dark bezel intersects the real dash surface rather than floating or being cut off. A permanent **four-LCD-corner raycast** rejects any installation with clipped digits. The unchanged clock dialogue glance is still motivated by Renee's line.
+- **Exterior glass and car trim:** imported glass opacity is reduced to avoid a large diagonal windshield tint, and the original body/dash PBR material is darkened for the midnight scene. No import, mesh, exterior landmark, dialogue recording or gameplay file is replaced.
+- **Desktop-only regression:** `scripts/smoke-cinematic-refinements-v72.mjs` validates a sheltered camera, true dashboard mount, 4 visible clock corners, legible screen, real connected keypad forearm and 1-5-8-3 entry, instant outdoor rain handoff, zero retired-mall geometry and the canonical fully loaded mall. `scripts/smoke-opening-pacing-v62.mjs` checks the new front-seat pose and preserved cinematic timing. The [v74 final clock/seat run 41726900939](https://github.com/maloysius-wq/the-attendant-pinewood-mall/actions/runs/41726900939) passed all permanent dashboard/keypad/mall checks; its screenshot artifact was reviewed to confirm the oversized seat panels no longer fill the car view and the small clock is fully legible. The existing facade, accessibility, continuity and six-chapter workflows remain relevant. **Never reintroduce mobile QA or manual WASD.**
+
 ## Current exterior sign/roof clearance checkpoint: v73 (2026-11-03)
 
 **Status: MERGED TO MAIN AS `4aa6746531df14d54d00ee3c3de61966d2c869b0`** in [PR #51](https://github.com/maloysius-wq/the-attendant-pinewood-mall/pull/51). The user reported a horizontal roof line crossing the PINEWOOD MALL sign in the car-arrival exterior.

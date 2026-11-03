@@ -3,9 +3,9 @@ import {makeOpeningScene} from './scene.js?v=65';
 import {installAbandonedFacadeV65} from './facade-v65.js?v=65';
 import {enlargeImportedLandscapeV64} from './landscape-scale-v64.js?v=64';
 import {renderPinewoodV69} from '../mall/render-shell-v69.js';
-import {installDashboardClockV71} from './dashboard-clock-v71.js?v=72';
+import {installDashboardClockV71} from './dashboard-clock-v71.js?v=74';
 import {KeypadReachHandV72} from './keypad-reach-v72.js?v=72';
-import {HumanCameraRig} from './camera-v65.js?v=65';
+import {HumanCameraRig} from './camera-v65.js?v=74';
 import {OpeningAmbience} from './ambience-v62.js?v=62';
 import {HandheldCheckInPhone} from './phone-v62.js?v=62';
 import {buildCaptionTrack,captionAt} from './caption-sync-v45.js?v=45';
@@ -149,6 +149,9 @@ class Intro{
    const openingLine=this.lines[0],seconds=Math.max(1,Number(this.voices?.files?.[openingLine.id]?.duration)||8);
    const pose=this.eyeRig.sample(openingLine.id,0,seconds,0,{reducedMotion:this.reduced});
    this.camera.position.copy(pose.position);this.camera.lookAt(pose.lookAt);
+   // A front-seat eye needs only a small first-person near plane; all the
+   // vendor seat, roof and dashboard geometry remains intact.
+   this.camera.near=.18;this.camera.updateProjectionMatrix();
    this.stage.pivot.rotation.y=0;
    this.renderer.render(this.stage.scene,this.camera);
    // Prime the same real CC0 arm/hand, phone app CanvasTexture and lighting
@@ -314,6 +317,10 @@ class Intro{
    if(this.stage&&this.renderer){
     this.camera.position.copy(pose.position);
     this.camera.lookAt(pose.lookAt);
+    const enclosed=['arrival','clock','closed','work','safety'].includes(this.line.id)
+     ||(this.line.id==='owner'&&pose.position.x>-11.15);
+    const worldNear=enclosed ? .18 : .08;
+    if(this.camera.near!==worldNear){this.camera.near=worldNear;this.camera.updateProjectionMatrix();}
     // Include the post-voice pause: CHECK IN happens after Renee's instruction.
     this.handheld?.update(this.line.id,this.elapsed,this.voiceSeconds,{reducedMotion:this.reduced});
     this.root.dataset.phoneRaised=this.handheld?.raised?'true':'false';

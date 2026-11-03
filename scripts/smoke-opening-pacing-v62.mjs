@@ -34,7 +34,9 @@ try{
     });
    };
    const driver=await snap(0,.02);
-   assert(driver.camera[2]>=17.65,layout+' steering wheel remains too large in the close driver view: eyeZ='+driver.camera[2]);
+   // The detailed v74 regression checks the actual roof and dashboard.
+   assert(driver.camera[2]>=17.13&&driver.camera[2]<=17.25,
+     layout+' opening must begin inside the real front seat: eyeZ='+driver.camera[2]);
    const gazeSamples=[];
    for(let index=0;index<5;index++){
     const samples=[];
