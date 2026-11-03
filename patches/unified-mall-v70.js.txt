@@ -39,6 +39,9 @@ function applyUnifiedMallV70(source){
  once("crossExit(){game.controls.yaw.position.set(28.1,1.70,-14);game.updateLastShiftV25(.016);return chapter6TestStateV25(game);}",
   "crossExit(){window.__PINEWOOD_V70_BRIDGE__.descendToExitV70(game);game.controls.yaw.position.set(83,1.70,-42);game.updateLastShiftV25(.016);return chapter6TestStateV25(game);}",
   "finale desktop deterministic exit hook");
+ once("const west=makeShutter(new THREE.Vector3(-8,0,8),'z',false,'West Security Shutter')",
+  "const west=makeShutter(new THREE.Vector3(-8,0,8),'x',false,'West Security Shutter')",
+  "west security shutter portal orientation");
  once("const routes=[{label:'PA CONTROL',pos:new THREE.Vector3(0,0,12)},{label:'KEY CONTROL',pos:new THREE.Vector3(-22,0,-12)},{label:'SERVICE STATE',pos:new THREE.Vector3(22,0,-12)},{label:'STAFF ACCOUNTABILITY',pos:new THREE.Vector3(-5.2,0,12)}];",
   "const routes=[{label:'PA CONTROL',pos:new THREE.Vector3(74.5,5.4,-106.4)},{label:'KEY CONTROL',pos:new THREE.Vector3(69.9,5.4,-110.4)},{label:'SERVICE STATE',pos:new THREE.Vector3(77.5,5.4,-110.7)},{label:'STAFF ACCOUNTABILITY',pos:new THREE.Vector3(70.7,5.4,-105.8)}];",
   "physical final recall routes");

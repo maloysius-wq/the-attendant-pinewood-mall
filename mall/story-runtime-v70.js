@@ -126,7 +126,8 @@ export function relocateStoryV70({game,layout,THREE}={}){
   const named=SETPIECES[chapter]?.[tag];
   if(named)reposition(c,{x:named[0],z:named[1]});
   else if(chapter!==6){
-   const at=storyTargetV70({chapter,type:c.userData?.type||'',index:root.children.indexOf(c)});
+   const at=storyTargetV70({chapter,type:c.userData?.type||'',id:c.userData?.id||'',
+    label:c.userData?.label||'',controlId:c.userData?.controlId||'',index:root.children.indexOf(c)});
    reposition(c,at);
   }
  }
@@ -140,6 +141,15 @@ export function relocateStoryV70({game,layout,THREE}={}){
   if(!old)continue;
   c.minX+=now.x-old.x;c.maxX+=now.x-old.x;
   c.minZ+=now.z-old.z;c.maxZ+=now.z-old.z;
+  if(chapter===3&&owner===state?.westShutter){
+   owner.scale.z=.45;owner.updateWorldMatrix(true,true);
+   const x=owner.position.x,z=owner.position.z;
+   Object.assign(c,{minX:x-.20,maxX:x+.20,minZ:z-1.2,maxZ:z+1.2});
+  }else if(chapter===3&&owner===state?.eastShutter){
+   owner.scale.x=.45;owner.updateWorldMatrix(true,true);
+   const x=owner.position.x,z=owner.position.z;
+   Object.assign(c,{minX:x-1.2,maxX:x+1.2,minZ:z-.20,maxZ:z+.20});
+  }
   owned.push(c);
  }
  const shellCollision=layout.colliders.map(c=>({...c,navBlock:true,physicalBlock:true,disabled:false,owner:null}));

@@ -23,8 +23,8 @@ const FIXED={
     'ch3_console_v22:cctv':['security',36,-111],
     'ch3_console_v22:route':['security',41,-111],
     'LUIS-ROUTE':['security',43,-105],
-    'West Security Shutter':['security',33,-108],
-    'East Security Shutter':['security',40,-108],
+    'West Security Shutter':['security',29,-105.5],
+    'East Security Shutter':['security',37.5,-101],
     'East Wing Fire Door':['annex_threshold',42,-99],
     'door':['annex_threshold',42,-99]
   },

@@ -97,3 +97,17 @@ test('chapter six terminals occupy the actual PA room rather than the demolished
   assert.ok(l.position.z<-100,'chapter-six task lights must illuminate the real PA room');
  }
 });
+
+test('independently controlled security shutters retain distinct physical doorway coordinates',()=>{
+ const game=fakeGame(3),layout=buildGameplayLayoutV70({chapter:3});
+ const west=interact('door','West Security Shutter',-8,8,0);
+ const east=interact('door','East Security Shutter',18,8,0);
+ game.world.root.add(west,east);
+ game.world.dynamicDoors.push(west,east);
+ relocateStoryV70({game,layout,THREE});
+ assert.equal(west.position.x,29);
+ assert.equal(east.position.x,37.5);
+ assert.equal(west.position.z,-105.5);
+ assert.equal(east.position.z,-101);
+ assert.notEqual(west.position.x,east.position.x);
+});
