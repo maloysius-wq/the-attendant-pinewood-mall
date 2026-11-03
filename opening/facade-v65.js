@@ -19,11 +19,11 @@ const leaf=surface(0x192e2c,.95);
 const stained=surface(0x414c48,.96);
 const file=new URL('./assets/v65/weathered_planks_diff_1k.jpg',import.meta.url);
 
-function woodMaterial(texture,repeatX=1,repeatY=1){
+function woodMaterial(texture,repeatX=1,repeatY=1,tint=0x9b8b74){
  const map=texture.clone();map.needsUpdate=true;
  map.wrapS=map.wrapT=THREE.RepeatWrapping;map.repeat.set(repeatX,repeatY);
  map.anisotropy=4;
- return new THREE.MeshStandardMaterial({color:0xd4c3a4,map,roughness:.98,emissive:0x6b5135,emissiveIntensity:.27,side:THREE.DoubleSide});
+ return new THREE.MeshStandardMaterial({color:tint,map,roughness:1,emissive:0x3d342a,emissiveIntensity:.065,side:THREE.DoubleSide});
 }
 function signTexture(){
  const canvas=document.createElement('canvas');canvas.width=2048;canvas.height=400;
@@ -75,11 +75,13 @@ function facadeConstruction(stage,texture){
  const structure=(name,x,y,z,w,h,d,material=facade)=>box(g,name,x,y,z,w,h,d,material);
  // Existing 8m-height load-bearing wall and narrow service doorway are untouched.
  // A broad raised parapet and a stepped central tower create a ~17m silhouette.
- structure('west raised wing',-32.0,11.05,-22.55,25.5,5.5,1.05);
- structure('east raised wing',26.0,11.05,-22.55,44.0,5.5,1.05);
+ // No coplanar wing/tower overlaps: every raised frontage occupies one x-span.
+ const zFightingGuard=true;
+ structure('west raised wing',-35.525,11.05,-22.55,18.45,5.5,1.05);
+ structure('east raised wing',26.65,11.05,-22.55,42.7,5.5,1.05);
  structure('central raised entry tower',-10.5,12.50,-22.65,31,8.8,1.30);
- structure('west parapet coping',-32.0,13.87,-22.54,26,.34,1.46,oxidized);
- structure('east parapet coping',26.0,13.87,-22.54,44.5,.34,1.46,oxidized);
+ structure('west parapet coping',-35.75,13.87,-22.54,18.5,.34,1.46,oxidized);
+ structure('east parapet coping',26.875,13.87,-22.54,42.75,.34,1.46,oxidized);
  structure('tower parapet coping',-10.5,17.08,-22.65,31.7,.46,1.64,oxidized);
  // Deliberate historic banding, not regularly spaced fake mullions.
  structure('tower lower concrete fascia',-10.5,9.08,-21.81,31.15,.36,.38,stained);
@@ -98,29 +100,29 @@ function facadeConstruction(stage,texture){
   structure('public door outer mullion',x,3.13,-21.30,.15,5.85,.17,steel);
  }
  structure('public entry transom',entryX,5.71,-21.27,9.0,.16,.17,steel);
- // Full-size mismatched horizontal planks over two door leaves, plus
- // purposeful diagonal anti-entry bracing. Locally sampled real CC0 timber.
- const board=woodMaterial(texture,1.3,.33);
- const darkBoard=woodMaterial(texture,.8,.5);
+ // Eleven crooked, widely spaced strips leave the original door and its
+ // real CLOSED notice legible. Weathering comes from locally pinned wood scans;
+ // no uniform picket-wall or freshly painted 32-plank barricade.
+ const board=woodMaterial(texture,1.15,.31,0x998a73);
+ const darkBoard=woodMaterial(texture,.8,.48,0x655746);
  let count=0;
- for(const cx of[-12.65,-8.35]){
-  for(let i=0;i<16;i++){
-   const offset=(i%3-1)*.09;
+ for(const [leaf,cx] of [[0,-12.65],[1,-8.35]]){
+  const heights=leaf===0?[.81,1.65,2.31,4.39,5.1]:[.62,1.49,2.56,4.48,5.21];
+  for(let i=0;i<heights.length;i++){
+   const widths=[3.28,4.06,3.62,4.14,3.39];
    const plank=structure('weathered boarded public-door plank '+(++count),
-    cx+offset,.49+i*.313,entryZ+.015+(i%2)*.008,4.18,.267,.095,i%4===0?darkBoard:board);
-   if(i%7===0)plank.rotation.z=.008*(i%2?1:-1);
+    cx+((i%3)-1)*.16,heights[i],entryZ+.015+i*.011,
+    widths[i],.22+(i%2)*.085,.11,i%3===0?darkBoard:board);
+   plank.rotation.z=[-.075,.045,.085,-.11,.06][i]*(leaf?-.85:1);
   }
-  // Diagonal bracing rests ON TOP of the boarding, not floating out of wall.
-  const bracing=structure('diagonal boarded-door brace '+(++count),
-   cx,3.0,entryZ+.13,.35,5.45,.13,woodMaterial(texture,.35,1.9));
-  bracing.rotation.z=cx<entryX?-.36:.36;
+  const brace=structure('diagonal boarded-door brace '+(++count),
+   cx+(leaf?.38:-.28),2.82,entryZ+.14,.24,4.35,.13,darkBoard);
+  brace.rotation.z=leaf?.48:-.42;
  }
- // Long exterior barricade slats visibly cross BOTH door leaves. Their
- // weathered grain and deep silhouettes establish a boarded-up public entry
- // from across the parking lot, rather than a dark rectangular fake opening.
- for(const [height,tilt] of[[1.22,-.045],[3.52,.034],[4.78,-.025]]){
+ // Two visibly mismatched crossing braces, clear of the door's central sign.
+ for(const [height,tilt,width,offset] of [[1.08,-.08,8.42,-.17],[4.83,.075,7.94,.22]]){
   const cross=structure('full-width weathered public entrance barricade '+(++count),
-   entryX,height,entryZ+.25,8.95,.32,.16,darkBoard);
+   entryX+offset,height,entryZ+.25, width,.26,.15,darkBoard);
   cross.rotation.z=tilt;
  }
  // The long-abandoned public portal has one weak amber surviving sconce;
@@ -139,7 +141,7 @@ function facadeConstruction(stage,texture){
  }
  const placard=new THREE.Mesh(new THREE.PlaneGeometry(3.5,.99),
   new THREE.MeshStandardMaterial({map:placardTexture(),roughness:1,side:THREE.DoubleSide}));
- placard.name='public entry CLOSED sign';placard.position.set(entryX,3.45,-21.22);g.add(placard);
+ placard.name='public entry CLOSED sign';placard.position.set(entryX,3.43,-21.075);g.add(placard);
  structure('public entry abandoned step',entryX,.07,-20.92,11,.15,1.8,stained);
  // Two high narrow clerestory openings only; no repeating ground-floor glass.
  const windows=[-35.7,32.0];
@@ -152,7 +154,7 @@ function facadeConstruction(stage,texture){
  }
  // Late-70s institutional sign on an architectural backplate, not a flat
  // poster: mounted high enough to read over the car from the arrival lot.
- const signX=-10.5,signY=13.13,signZ=-21.86;
+ const signX=-10.5,signY=13.13,signZ=-21.745;
  structure('large vintage Pinewood Mall sign backplate',signX,signY,-22.015,27.4,3.67,.28,steel);
  const face=new THREE.Mesh(new THREE.PlaneGeometry(27.1,3.4),
   new THREE.MeshStandardMaterial({map:signTexture(),roughness:.86,emissive:0x352e20,emissiveIntensity:.17}));
@@ -163,7 +165,7 @@ function facadeConstruction(stage,texture){
   surface(0x343b37,.99));
  const status={
   version:65,state:'ready',heightMeters:17.31,frontWindowCount:windows.length,
-  mainEntranceBoarded:true,boardingPlankCount:count,
+  mainEntranceBoarded:true,boardingPlankCount:count,zFightingGuard,
   mainEntrance:{centerX:entryX,centerZ:entryZ,width:9.6,routeBlocked:true},
   sign:{centerX:signX,centerY:signY,width:27.1,height:3.4,style:'weathered 1980s forest-green and cream'},
   asset:'weathered_planks_diff_1k.jpg',textureLoaded:true,
