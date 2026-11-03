@@ -8,6 +8,15 @@
 
 ---
 
+## Current exterior sign/roof clearance checkpoint: v73 (2026-11-03)
+
+**Status: MERGED TO MAIN AS `4aa6746531df14d54d00ee3c3de61966d2c869b0`** in [PR #51](https://github.com/maloysius-wq/the-attendant-pinewood-mall/pull/51). The user reported a horizontal roof line crossing the PINEWOOD MALL sign in the car-arrival exterior.
+
+- Root cause verified with actual Three.js mesh bounds: the west parapet coping (front z≈−21.81) crossed 5.05 m of the sign's x-range and 0.34 m vertically while sitting 0.05 m in front of the sign surface (z=−21.86). Thus it visibly drew over the sign.
+- In `opening/facade-v65.js`, shorten that **one** coping from x=−45..−19 to x=−45..−26, ending flush at the left edge of the central tower. Do not change the original sign mesh, texture, tower, roof height, service entry, rain, car or dialogue.
+- Permanent desktop regression added to `scripts/smoke-opening-facade-v65.mjs`: construct the real v65 facade in a temporary Three.js world and measure the sign plane against all parapet cap bounding boxes. No cap may protrude in front of the sign while overlapping it in x/y. This test was demonstrated RED on original geometry ([run 41712959954](https://github.com/maloysius-wq/the-attendant-pinewood-mall/actions/runs/41712959954)) and GREEN after the fix ([run 41713240895](https://github.com/maloysius-wq/the-attendant-pinewood-mall/actions/runs/41713240895)); desktop screenshot artifacts are attached to the green run.
+- Additional PR suites GREEN: v71 canonical mall entry [41713240742](https://github.com/maloysius-wq/the-attendant-pinewood-mall/actions/runs/41713240742), v72 full cockpit/rain/keypad [41713240768](https://github.com/maloysius-wq/the-attendant-pinewood-mall/actions/runs/41713240768), opening accessibility [41713241017](https://github.com/maloysius-wq/the-attendant-pinewood-mall/actions/runs/41713241017). The larger six-chapter production hardening [41713241089](https://github.com/maloysius-wq/the-attendant-pinewood-mall/actions/runs/41713241089) was still processing Chapter 1–4 screenshots at merge. The permanent no-WASD, desktop-only, and local-asset rules still apply.
+
 ## Current opening-cinematic checkpoint: v72 (2026-11-03)
 
 **Status: MERGED TO MAIN AS `fb8351bdb3fb29f859a9dc5c10ebf8bb1fcbaaf8`.** Production fix tracked in [PR #50](https://github.com/maloysius-wq/the-attendant-pinewood-mall/pull/50). The v72 opening refinements replace the prior v71 clock placement, rain transition, retired vestibule flash and blank access entry. The canonical full-size imported hatchback, original connected CC0 hand and preloaded unified Pinewood Mall remain intact.
