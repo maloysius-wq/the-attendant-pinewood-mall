@@ -28,7 +28,7 @@ try{
   assert.equal(initial.entryBoarded,true);
   assert.equal(initial.serviceOpen,true);
   assert.ok(initial.facadeFeatures>=25,'architectural facade must have sign, boarded panels, braces, aging, door trims');
-  assert.equal(initial.texturesLoaded,8);
+  assert.ok(initial.texturesLoaded>=10,'eight original PBR maps plus both real ceiling finishes');
   assert.ok(initial.modelsLoaded>=10);
   assert.ok(initial.walls>=140);
   for(const [shot,floor]of[['frontage','G'],['boarded','G'],['service','G'],['atrium','G'],['exit','G'],['aerial','G']]){
