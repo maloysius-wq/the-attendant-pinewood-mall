@@ -97,16 +97,20 @@ try{
    await page.evaluate(()=>window.__PINEWOOD_OPENING_V34__.seek(0));
    // Audio decoding and browser autoplay scheduling can take longer than one
    // video frame. Wait for a real media timestamp, not an arbitrary 650ms.
-   await page.waitForFunction(()=>{
+   // Capture the timing atomically with the predicate: under a slow WebGL
+   // compositor the line can advance between waitForFunction and evaluate.
+   const naturalHandle=await page.waitForFunction(()=>{
     const s=window.__PINEWOOD_OPENING_V34__?.captionTiming;
-    return (s?.source==='media'&&s.mediaSeconds>.07)||s?.source==='text-fallback';
+    return s?.line==='arrival'&&((s.source==='media'&&s.mediaSeconds>.07)
+      ||s.source==='text-fallback')?s:false;
    },null,{timeout:20000});
-   const natural=await page.evaluate(()=>window.__PINEWOOD_OPENING_V34__.captionTiming);
+   const natural=await naturalHandle.jsonValue();
    assert(natural.source==='media'&&natural.mediaSeconds>.07
      &&Math.abs(natural.captionSeconds-natural.mediaSeconds)<.13,
      layout.name+' subtitle clock does not follow playing Renee audio: '+JSON.stringify(natural));
-   assert(natural.waitSeconds>8.3&&natural.waitSeconds<8.7,
-     layout.name+' still using slow estimated-reading timeline: '+JSON.stringify(natural));
+   assert(natural.voiceSeconds>6&&natural.voiceSeconds<13
+     &&Math.abs(natural.waitSeconds-(natural.voiceSeconds+1.6))<.15,
+     layout.name+' first radio line must use real audio duration plus its authored pause: '+JSON.stringify(natural));
 
    // v62 raises the handheld later; .74 is the established pre-tap pose.
    await page.evaluate(()=>{window.__PINEWOOD_OPENING_V34__.seek(0);window.__PINEWOOD_OPENING_V34__.scrub(.74);});

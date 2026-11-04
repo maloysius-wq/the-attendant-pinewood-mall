@@ -27,7 +27,9 @@ export class KeypadReachHandV72{
  }
  update(progress,active,worldCamera){
   const p=clamp(progress,0,1);
-  const reach=!!active&&p>0&&p<1&&this.hand.state==='ready';
+  // The player must first have reached the pad. Bring the existing connected
+  // anatomical forearm in from the camera-side sleeve, then withdraw it.
+  const reach=!!active&&p>.005&&p<.995&&this.hand.state==='ready';
   this.showHandOnly(reach);
   if(reach&&this.root.parent!==this.scene)this.scene.add(this.root);
   if(!reach&&this.root.parent!==this.camera)this.camera.add(this.root);
@@ -54,7 +56,14 @@ export class KeypadReachHandV72{
   this.root.quaternion.copy(worldCamera.getWorldQuaternion(new THREE.Quaternion()));
   const contact=new THREE.Vector3(...center);
   const towardEye=worldCamera.position.clone().sub(contact).normalize();
-  this.root.position.copy(contact).addScaledVector(towardEye,.12)
+  const extended=contact.clone().addScaledVector(towardEye,.12);
+  const fromEye=worldCamera.position.clone()
+   .addScaledVector(new THREE.Vector3(1,0,0).applyQuaternion(this.root.quaternion),.34)
+   .addScaledVector(new THREE.Vector3(0,1,0).applyQuaternion(this.root.quaternion),-.34)
+   .addScaledVector(new THREE.Vector3(0,0,-1).applyQuaternion(this.root.quaternion),.30);
+  const ease=t=>{t=clamp(t,0,1);return t*t*(3-2*t)};
+  const reachWeight=ease(p/.11)*ease((1-p)/.055);
+  this.root.position.copy(fromEye.lerp(extended,reachWeight))
    .sub(target.clone().multiplyScalar(scale).applyQuaternion(this.root.quaternion));
   const phase=p*4-slot;
   this.press=Math.max(0,Math.sin(phase*Math.PI));

@@ -40,7 +40,7 @@ try{
  const clockMoment=await get();
  assert.ok(clockMoment.clockView?.inFrame,'clock must appear during Renee\'s time-of-night line');
  assert.ok(clockMoment.clockView?.viewportWidth>=.035,'dashboard time must be legible');
- await page.screenshot({path:'cinematic-v72-artifacts/01-clock-glance.png'});
+ // Geometry projections and direct WebGL framebuffer are validated without an extra compositor readback.
  // Investigate the actual imported upholstery geometry at the player's
  // eye for both the clock glance and the unoccluded windshield view.
  const seatDiagnostics=await page.evaluate(async()=>{
@@ -134,13 +134,14 @@ try{
  assert.ok(entry.keypad?.finger?.skinSamplesInView>35,
   'actual skinned vertices, not only bone joints, must be visibly projected');
  assert.equal(entry.keypad?.entered.length,3,'third code digit entered during the fourth-key sequence');
- await page.screenshot({path:'cinematic-v72-artifacts/02-pressing-code.png'});
+ // The real 3D keypad frame is already captured directly from WebGL above.
+ // Avoid racing another compositor screenshot against a heavy readPixels frame.
  await page.evaluate(()=>{const q=window.__PINEWOOD_OPENING_V34__;q.seek(8);q.scrub(.75)});
  await page.waitForTimeout(700);
  const granted=await get();
  assert.equal(granted.keypad?.entered,'1583','four digit entry finishes before Renee confirms');
  assert.equal(granted.keypad?.granted,true);
- await page.screenshot({path:'cinematic-v72-artifacts/03-code-granted.png'});
+ // Geometry projections and direct WebGL framebuffer are validated without an extra compositor readback.
  await page.evaluate(()=>{const q=window.__PINEWOOD_OPENING_V34__;q.seek(9);q.scrub(.06)});
  await page.waitForTimeout(500);
  const threshold=await get();
