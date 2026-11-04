@@ -58,6 +58,8 @@ test('exit route crosses the real left-side threshold without jumping outdoors e
 test('exit crosses the front-left opening, never the solid rear door',()=>{
  // Actual GLB world-space door bounds at 1.86 m vehicle width:
  // FL_Door Z 16.62..17.50; RL_Door Z 17.582..18.297.
+ // Only consider the exit beat (phase <= .42); later the player crosses
+ // the same X coordinate again while walking well ahead of the car.
  // The left-side body seam is x=-10.77. Measure the real interpolated
  // eye position as it crosses the sedan side, not the hand-authored cue list.
  const rig=new HumanCameraRig();
@@ -65,7 +67,7 @@ test('exit crosses the front-left opening, never the solid rear door',()=>{
  for(let i=0;i<=180;i++){
   const phase=i/180;
   const frame=rig.sample('owner',23*phase,23,23/180,{reducedMotion:true});
-  if(frame.position.x<=-10.77&&frame.position.x>=-11.30)
+  if(phase<=.42&&frame.position.x<=-10.77&&frame.position.x>=-11.30)
    crossed.push({phase,x:frame.position.x,z:frame.position.z});
  }
  assert.ok(crossed.length>4,'camera must move through the front-left doorway');
