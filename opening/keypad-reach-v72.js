@@ -99,7 +99,7 @@ export class KeypadReachHandV72{
   hand.model.updateMatrixWorld(true);
   const index=at('finger2-3.R').sub(at('finger2-1.R')).normalize();
   hand.model.quaternion.premultiply(new THREE.Quaternion()
-   .setFromUnitVectors(index,new THREE.Vector3(-.035,-.095,-1).normalize()));
+   .setFromUnitVectors(index,new THREE.Vector3(-.46,.28,-.84).normalize()));
   hand.model.updateMatrixWorld(true);
   // Press using the farthest original index-skin vertex weighted to
   // its terminal bone, not a floating proxy or the thumb's phone target.
