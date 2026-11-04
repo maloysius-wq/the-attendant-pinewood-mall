@@ -22,7 +22,7 @@ try{
    eye:q.cameraPosition,door:q.eyeMotion?.doorOpen,access:q.accessPad,
    hand:q.keypadView,world:q.cinematicWorld,continuity:q.entryContinuity
   }});
-  if(path)await page.screenshot({path:'entry-v77-artifacts/'+path});
+  if(path)await page.screenshot({path:'entry-v77-artifacts/'+path,timeout:120000});
   return state;
  };
  const approach=await snap(7,.835,'01-arrived-before-keypress.png');
