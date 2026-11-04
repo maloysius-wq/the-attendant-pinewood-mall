@@ -50,7 +50,7 @@ try {
  await page.waitForTimeout(650);
  const crossing=await read();
  assert.ok(crossing.camera[0]<-10.77&&crossing.camera[0]>-11.30,
-  'camera must be at the driver's side threshold in this exit beat');
+  "camera must be at the driver's side threshold in this exit beat");
  assert.ok(crossing.camera[2]>=16.65&&crossing.camera[2]<=17.47,
   'camera must cross the front-left door opening, not the rear-door metal');
  assert.ok(crossing.door?.openFraction>.90,
