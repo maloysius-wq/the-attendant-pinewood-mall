@@ -29,15 +29,6 @@ try{
  }
  assert.ok(new Set(exterior.plants.map(p=>p.bushTilt.join(','))).size>=5,'shrub droop should not be identical');
  assert.ok(images.length>=1,'same-origin sky texture must be fetched');
- const probe=await page.evaluate(()=>window.__PINEWOOD_OPENING_V34__.qaCockpitProbe({
-  x:-4,y:1.85,z:-9,dx:-12,dy:24,dz:-28
- }));
- assert.equal(probe,true);
- await page.screenshot({path:'storm-v81-artifacts/01-cloudy-night.png',timeout:120000});
- await page.evaluate(()=>window.__PINEWOOD_OPENING_V34__.qaCockpitProbe({
-  x:-8,y:1.65,z:-7.5,dx:-10.5,dy:1.4,dz:-17.7
- }));
- await page.screenshot({path:'storm-v81-artifacts/02-dying-planters.png',timeout:120000});
  await page.evaluate(()=>window.__PINEWOOD_OPENING_V34__.seek(7));
  const timing=await page.evaluate(()=>window.__PINEWOOD_OPENING_V34__.captionTiming);
  const phaseFor=p=>(timing.voiceSeconds+(timing.waitSeconds-timing.voiceSeconds)*p)/timing.waitSeconds;
@@ -58,6 +49,16 @@ try{
  assert.ok(pose.angles[2]<.28,'native index remains pointing');
  for(const n of [3,4,5])assert.ok(pose.angles[n]>.42&&pose.angles[n]<1.65,
   'native finger '+n+' folds naturally toward palm');
+ await page.screenshot({path:'storm-v81-artifacts/03-natural-keypad-curl.png',timeout:120000});
+ const probe=await page.evaluate(()=>window.__PINEWOOD_OPENING_V34__.qaCockpitProbe({
+  x:-4,y:1.85,z:-9,dx:-12,dy:24,dz:-28
+ }));
+ assert.equal(probe,true);
+ await page.screenshot({path:'storm-v81-artifacts/01-cloudy-night.png',timeout:120000});
+ await page.evaluate(()=>window.__PINEWOOD_OPENING_V34__.qaCockpitProbe({
+  x:-8,y:1.65,z:-7.5,dx:-10.5,dy:1.4,dz:-17.7
+ }));
+ await page.screenshot({path:'storm-v81-artifacts/02-dying-planters.png',timeout:120000});
  assert.deepEqual(remote,[]);
  assert.deepEqual(errors,[]);
  console.log('PINEWOOD_STORM_DECAY_V81_PASS '+JSON.stringify({exterior,pose,errors,remote}));
