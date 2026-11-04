@@ -2,6 +2,11 @@
 
 All third-party visual and audio assets used by this build were selected because their source licensing could be verified as **Creative Commons Zero (CC0 1.0)** unless otherwise noted below.
 
+## Original v81 storm-night panorama and decayed landscaping (2026-11-04)
+
+- `opening/assets/v81/storm-night-sky.jpg` — original, locally generated and reviewed 1536×768 equirectangular dark midnight thundercloud panorama. Its SHA-256 is `4d755d1d4def3ead403a0eeb1bf634483115cec03dcc3be6d42ccc433a9aecc6`. Runtime loads only this same-origin JPEG and waits for it before showing the cinematic.
+- The v81 front planters and dying shrubs still use the exact two original locally vendored Innerscene CC0 GLB models under `opening/assets/v63/`. Foliage is weathered with native-geometry deformations and vertex colors; pots match the old sign's `#21332f` backdrop. No third-party media, remote runtime requests, or substitute model geometry were added.
+
 ## Original v80 architectural surface albedo (2026-11-04)
 
 These three texture images are original, project-generated raster assets, not third-party downloads. They depict era-appropriate 1980s mall ceiling finishes and an abandoned sidewalk; no external runtime requests are used. Images were generated for Pinewood, inspected, and compressed to 1024×1024 JPEG (quality 88) for fast same-origin loading.

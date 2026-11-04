@@ -9,6 +9,17 @@
 
 ---
 
+## Stormy night sky, neglected planters and natural keypad curl: v81 (2026-11-04)
+
+**User request:** Retain the independent phone grip and the v79 pointing index, curl the middle/ring/pinky farther inward toward the palm while tapping contractor keys, replace the flat outdoor sky with a storm-cloud nighttime texture, and make all eight imported planter shrubs dying/overgrown with pots as dark green as the Pinewood Mall sign background.
+
+- `opening/keypad-reach-v72.js` gently deepens three non-index finger hinges from the original CC0 forearm pose (not the phone hand), flexing DIP and MCP by smaller anatomical amounts; the thumb remains tucked and the index stays extended and physically aligned to all four buttons. The original phone GLB, pose and animation code are completely unchanged.
+- `opening/assets/v81/storm-night-sky.jpg` is a new original 1536×768 locally stored photographic storm panorama. The scene waits for this same-origin JPEG and applies it as an equirectangular background **after** v37 atmosphere setup to avoid mist/haze overwriting the sky. The separate v80 sidewalk and ceiling finishes remain.
+- `opening/landscape-v63.js` uses the same eight authentic GLB pots and shrubs, adds dried-out brown/olive leaf coloration, varied sagging leaf geometry and subtle non-identical lean, and paints the pot material `#21332f` to match the sign's principal background. No primitive plant replacement; v64 planter positions and scale remain unchanged.
+- Regression: `scripts/test-storm-decay-v81.mjs` and desktop Chromium `scripts/smoke-storm-decay-v81.mjs`, workflow `.github/workflows/storm-and-decay-v81.yml`, plus existing v78/v80 suites. No manual WASD and no mobile tests.
+
+**Live verification:** Complete CI and Pages deployment after merging; use current GitHub runs as source of truth.
+
 ## Age-appropriate ground-floor ceiling and sidewalk materials: v80 (2026-11-04)
 
 **User request:** All previously added ground-floor room ceilings should have appropriate period finish; the front pedestrian sidewalk should look visibly dilapidated. Maintain the stable phone/keypad hand poses, the unified mall threshold and the selected sedan.

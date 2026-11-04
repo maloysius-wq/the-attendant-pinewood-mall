@@ -1,6 +1,6 @@
 import * as THREE from '../vendor/three/build/three.module.js';
 import {upgradeOpeningSceneV37} from './environment-v37.js?v=75';
-import {installMallPlantersV63} from './landscape-v63.js?v=63';
+import {installMallPlantersV63} from './landscape-v63.js?v=81';
 import {ENTRY_CODE,keypadCenter} from './keypad-spec-v72.mjs';
 const v=(x,y,z)=>new THREE.Vector3(x,y,z);
 const mat=(color,roughness=.85,metalness=0)=>new THREE.MeshStandardMaterial({color,roughness,metalness});
@@ -256,15 +256,28 @@ export function makeOpeningScene({useImportedLandscape=false,useAbandonedFacade=
      return {state:'ready',file:'worn-sidewalk-albedo.jpg'};
     })
   :Promise.resolve({state:'legacy'});
+ const stormSkyReady=useAbandonedFacade
+  ?new THREE.TextureLoader().loadAsync(new URL('./assets/v81/storm-night-sky.jpg',import.meta.url).href)
+    .then(texture=>{
+     texture.colorSpace=THREE.SRGBColorSpace;
+     texture.mapping=THREE.EquirectangularReflectionMapping;
+     texture.anisotropy=8;
+     return {state:'ready',file:'storm-night-sky.jpg',texture};
+    })
+  :Promise.resolve({state:'legacy'});
  const environmentReady=upgradeOpeningSceneV37({
   scene,world,car,stage,materials:{facade,steel},lotMaterial
  });
  // All new materials must be uploaded before the first cinematic frame.
- const exteriorReady=Promise.all([environmentReady,sidewalkReady]).then(([status,sidewalk])=>{
-  status.sidewalk=sidewalk;return status;
+ const exteriorReady=Promise.all([environmentReady,sidewalkReady,stormSkyReady]).then(([status,sidewalk,sky])=>{
+  // The v37 atmosphere sets a fallback flat color while loading. Apply the
+  // panoramic midnight cloud texture only AFTER it finishes to avoid a race.
+  if(sky.texture)scene.background=sky.texture;
+  status.sidewalk=sidewalk;status.sky={state:sky.state,file:sky.file||null};
+  return status;
  });
  stage.assetReady=useImportedLandscape
-  ?Promise.all([exteriorReady,installMallPlantersV63(world)]).then(([status,landscape])=>{
+  ?Promise.all([exteriorReady,installMallPlantersV63(world,{decayed:useAbandonedFacade})]).then(([status,landscape])=>{
     status.landscape=landscape;return status;
    })
   :exteriorReady;

@@ -38,17 +38,23 @@ export class KeypadReachHandV72{
   this.hand.model.updateMatrixWorld(true);
  }
  _curl(n){
-  const b=this.hand.bones,pip=b['finger'+n+'-2.R'],rest=pip.quaternion.clone();
-  const distance=()=>this._point('finger'+n+'-3.R').distanceTo(this._point('wrist.R'));
-  const options=[-.63,.63].map(angle=>{
-   pip.quaternion.copy(rest).multiply(new THREE.Quaternion()
-    .setFromAxisAngle(new THREE.Vector3(1,0,0),angle));
+  // Start from the unmodified imported CC0 joints. Find the native hinge
+  // direction that brings the distal phalanx toward the palm, not away.
+  // Flex PIP strongly, DIP moderately and MCP just a touch: a relaxed
+  // folded finger rather than the over-rotated phone-hand fist of v78.
+  const b=this.hand.bones,prox=b['finger'+n+'-1.R'],
+   pip=b['finger'+n+'-2.R'],dip=b['finger'+n+'-3.R'];
+  const original=pip.quaternion.clone(),hinge=new THREE.Vector3(1,0,0);
+  const palm=this._point('wrist.R').clone().lerp(this._point('finger3-1.R'),.48);
+  const options=[-.94,.94].map(angle=>{
+   pip.quaternion.copy(original).multiply(new THREE.Quaternion().setFromAxisAngle(hinge,angle));
    this.hand.model.updateMatrixWorld(true);
-   return {angle,distance:distance()};
-  }).sort((a,b)=>a.distance-b.distance);
-  pip.quaternion.copy(rest).multiply(new THREE.Quaternion()
-   .setFromAxisAngle(new THREE.Vector3(1,0,0),options[0].angle));
-  b['finger'+n+'-3.R'].rotateX(options[0].angle*.20);
+   return {angle,distance:this._point('finger'+n+'-3.R').distanceTo(palm)};
+  });
+  const chosen=options[0].distance<options[1].distance?options[0].angle:options[1].angle;
+  pip.quaternion.copy(original).multiply(new THREE.Quaternion().setFromAxisAngle(hinge,chosen));
+  dip.rotateX(chosen*.32);
+  prox.rotateX(chosen*.12);
   this.hand.model.updateMatrixWorld(true);
  }
  _indexTip(){
@@ -121,17 +127,17 @@ export class KeypadReachHandV72{
     const second=this._point('finger2-3.R').sub(this._point('finger2-2.R'));
     this._aimJoint('finger2-2.R',second,first);
    }
-   // Three loose, modest flexes: no phone grip and no clenched fist.
+   // Three naturally folded fingers; the independent phone grip is untouched.
    for(const n of [3,4,5])this._curl(n);
    const base=bones['finger1-1.R'],original=base.quaternion.clone(),
     origin=this._point('finger1-1.R'),thumb=this._point('finger1-3.R').sub(origin),
     palm=this._point('finger3-1.R').sub(origin);
    if(thumb.angleTo(palm)>.65){
     const first=this._point('finger1-2.R').sub(origin);
-    const aim=first.clone().lerp(palm.clone().setLength(first.length()),.40);
+    const aim=first.clone().lerp(palm.clone().setLength(first.length()),.60);
     this._aimJoint('finger1-1.R',first,aim);
     const delta=original.angleTo(base.quaternion);
-    if(delta>.70)base.quaternion.slerpQuaternions(original,base.quaternion,.7/delta);
+    if(delta>.76)base.quaternion.slerpQuaternions(original,base.quaternion,.76/delta);
    }
    this._chooseSkin();this._orient();
    this.hand.state='ready';return this.status;
