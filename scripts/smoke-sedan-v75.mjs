@@ -24,6 +24,8 @@ try {
    sightlines:q.cockpitSightlines,world:q.cinematicWorld};
  });
  const initial=await read();
+ console.log('SEDAN_V75_INITIAL_DIAGNOSTIC '+JSON.stringify(initial));
+ await page.screenshot({path:'sedan-v75-artifacts/00-initial-before-assert.png'});
  assert.equal(initial.vehicle?.cockpit?.source,'low-poly_sedan_car.glb','the actual #4 sedan must be rendered');
  assert.equal(initial.vehicle?.cockpit?.meshes,44,'all original GLB meshes should remain');
  assert.equal(initial.vehicle?.cockpit?.hasOriginalRoof,true,'original covered roof must remain');

@@ -62,13 +62,13 @@ try{
    assert(st.state==='ready',layout.name+' v37 asset stage failed: '+JSON.stringify(st.errors));
    assert(st.car==='loaded'&&st.phone==='removed',layout.name+' enclosed model failed to load: '+JSON.stringify(st));
    const cc=st.cockpit;
-   assert(cc?.construction==='complete-GRAB3D-enclosed-hatchback'&&cc.vendorOnly,
+   assert(cc?.construction==='complete-original-scailman-low-poly-sedan'&&cc.vendorOnly,
      layout.name+' wrong car or open cutaway: '+JSON.stringify(st));
    assert(cc.originalRoof&&cc.transparentWindows&&st.windows>0,
      layout.name+' missing real roof/window glass: '+JSON.stringify(st));
    assert(st.roofRayDistance>.08&&st.roofRayDistance<.67,
      layout.name+' no roof hit from driver eye: '+JSON.stringify(st));
-   assert(cc.source==='1990s-hatchback.glb'&&cc.authoredCarMeshes===0
+   assert(cc.source==='low-poly_sedan_car.glb'&&cc.authoredCarMeshes===0
      &&cc.authoredWindshields===0&&cc.phoneMounts===0&&cc.phoneScreens===0,
      layout.name+' duplicate shell, cutaway or phone mount: '+JSON.stringify(st));
    assert(st.modelMeshes>=5&&st.carBounds?.[0]>=1.80&&st.carBounds?.[0]<1.93
