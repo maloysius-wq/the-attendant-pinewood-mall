@@ -89,10 +89,13 @@ export class KeypadReachHandV72{
   this._aimJoint('finger1-1.R',
    at('finger1-2.R').sub(at('finger1-1.R')),
    at('finger3-1.R').sub(at('finger1-1.R')));
-  this._aimJoint('finger1-2.R',
-   at('finger1-3.R').sub(at('finger1-2.R')),
-   at('wrist.R').sub(at('finger1-2.R')));
-  b['finger1-3.R'].rotateX(.38);
+  const thumbOut=at('finger1-3.R').sub(at('finger1-2.R'));
+  const thumbIn=at('wrist.R').sub(at('finger1-2.R'));
+  let thumbAxis=thumbOut.clone().cross(thumbIn);
+  if(thumbAxis.lengthSq()<1e-8)thumbAxis=thumbOut.clone().cross(new THREE.Vector3(0,0,1));
+  this._aimJoint('finger1-2.R',thumbOut.clone(),thumbOut.clone()
+   .applyAxisAngle(thumbAxis.normalize(),1.12));
+  b['finger1-3.R'].rotateX(.34);
   hand.model.updateMatrixWorld(true);
   const index=at('finger2-3.R').sub(at('finger2-1.R')).normalize();
   hand.model.quaternion.premultiply(new THREE.Quaternion()
@@ -190,6 +193,7 @@ export class KeypadReachHandV72{
    return [(p.x+1)/2,(1-p.y)/2,p.z];
   };
   const bone=this.hand.state==='ready'?this.hand.status:null;
+  const indexSkinWorld=this.handOnly?this.root.localToWorld(this._indexTip()).toArray():null;
   let skinSamplesInView=0,skinSamples=0;
   const mesh=this.hand.skinnedMesh;
   if(this.handOnly&&mesh){
@@ -208,6 +212,7 @@ export class KeypadReachHandV72{
    wristViewport:bone?.gripWristPosition?toViewport(bone.gripWristPosition):null,
    thumbViewport:bone?.gripThumbTipPosition?toViewport(bone.gripThumbTipPosition):null,
    gripFingerViewport:bone?.gripFingerTips?.Point?toViewport(bone.gripFingerTips.Point):null,
+   indexSkinWorld,
    skinSamplesInView,skinSamples,rootPosition:this.root.position.toArray()};
  }
 }

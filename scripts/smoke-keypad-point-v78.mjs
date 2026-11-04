@@ -30,8 +30,10 @@ try{
   const center=digit?point('wrist.R').clone().set(
    13.52+((digit-1)%3)*.13,1.30-Math.floor((digit-1)/3)*.11,-21.647):null;
   const angles=Object.fromEntries([1,2,3,4,5].map(n=>[n,bend(n)]));
+  const indexSkin=q.keypadView?.finger?.indexSkinWorld;
   const keyDistances=center?{
    index:point('finger2-3.R').distanceTo(center),
+   indexSkin:indexSkin?point('wrist.R').fromArray(indexSkin).distanceTo(center):null,
    thumb:point('finger1-3.R').distanceTo(center)
   }:null;
   const quats=Object.fromEntries(['finger1-1.R','finger1-2.R','finger1-3.R',
@@ -73,7 +75,8 @@ try{
   for(const n of [3,4,5])
    assert.ok(snap.angles[n]>.70,'middle, ring and pinky must curl visibly into the palm');
   assert.ok(snap.angles[1]>.32,'thumb must bend into the palm rather than pointing at the pad');
-  assert.ok(snap.keyDistances.index<.065,'index distal joint must reach the keyed button');
+  assert.ok(snap.keyDistances.index<.09,'native index joint must remain behind the contacting skin');
+  assert.ok(snap.keyDistances.indexSkin<.029,'actual weighted index fingertip skin must press each button');
   assert.ok(snap.keyDistances.thumb>.070,'thumb must not be the finger pressing the keypad');
  }
  await page.screenshot({path:'keypad-v78-artifacts/01-index-finger-at-pad.png'});
