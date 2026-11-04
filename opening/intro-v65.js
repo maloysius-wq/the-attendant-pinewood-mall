@@ -433,6 +433,15 @@ window.__PINEWOOD_OPENING_V34__={
  get cameraPosition(){return active?.camera?.position.toArray()||null;},
  get eyeMotion(){const p=active?.lastCameraPose;return p?{cue:p.cue,phase:p.phase,gaze:p.gazeTarget,walking:p.isWalking,rain:p.rain,doorOpen:p.doorOpen}:null;},
  get environmentV37(){return active?.stage?.v37||null;},
+ get carDoorState(){return active?.stage?.sedanDoor?.status||null;},
+ get cockpitSightlines(){
+  const model=active?.stage?.sedanV75?.model,cam=active?.camera;
+  if(!model||!cam)return null;
+  cam.updateWorldMatrix(true,false);
+  const ray=new THREE.Raycaster();ray.setFromCamera(new THREE.Vector2(0,0),cam);ray.near=.18;
+  const hit=ray.intersectObject(model,true).find(h=>!/windows|glass/i.test(h.object.name||''));
+  return {centerForwardDistance:hit?.distance??20,hitMesh:hit?.object.name||null};
+ },
  get startupStatus(){return active?{state:active.root.dataset.preloadState,
   firstFrameRendered:!!active.firstFrameRendered,preloading:active.preloading,
   voicedLineStarted:active.index>=0}:null;},
