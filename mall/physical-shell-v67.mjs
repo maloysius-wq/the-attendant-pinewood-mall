@@ -9,7 +9,9 @@ const TEXTURES=Object.freeze({
  concrete:'assets/vendor/runtime/2cc17a586ae39128/concrete_wall_001_diff_1k.jpg',
  concreteRough:'assets/vendor/runtime/b9a1b6af3c621e74/concrete_wall_001_rough_1k.jpg',
  tile:'assets/vendor/runtime/5e2a13faf5d98437/floor_tiles_06_diff_1k.jpg',
- tileRough:'assets/vendor/runtime/465619dc64de605e/floor_tiles_06_rough_1k.jpg'
+ tileRough:'assets/vendor/runtime/465619dc64de605e/floor_tiles_06_rough_1k.jpg',
+ shopCeiling:'opening/assets/v80/aged-acoustic-ceiling-albedo.jpg',
+ plasterCeiling:'opening/assets/v80/stained-plaster-ceiling-albedo.jpg'
 });
 const CIRCULATION=new Set([
  'central_gallery','west_gallery','east_gallery','annex_threshold',

@@ -2,19 +2,19 @@ import * as THREE from '../vendor/three/build/three.module.js';
 import {GLTFLoader} from '../vendor/three/examples/jsm/loaders/GLTFLoader.js';
 import {constructPhysicalShell,validatePhysicalShell} from './physical-shell-v67.mjs';
 
-function mappedBox(w,h,d){
+function mappedBox(w,h,d,tileMetres=3){
  const g=new THREE.BoxGeometry(w,h,d),uv=g.getAttribute('uv');
  const sizes=[[d,h],[d,h],[w,d],[w,d],[w,h],[w,h]];
  for(let side=0;side<6;side++){
   for(let j=0;j<4;j++){
    const i=side*4+j;
-   uv.setXY(i,uv.getX(i)*Math.max(.12,sizes[side][0]/3),uv.getY(i)*Math.max(.12,sizes[side][1]/3));
+   uv.setXY(i,uv.getX(i)*Math.max(.12,sizes[side][0]/tileMetres),uv.getY(i)*Math.max(.12,sizes[side][1]/tileMetres));
   }
  }
  uv.needsUpdate=true;return g;
 }
-function addBox(group,name,x,y,z,w,h,d,material){
- const mesh=new THREE.Mesh(mappedBox(w,h,d),material);
+function addBox(group,name,x,y,z,w,h,d,material,tileMetres=3){
+ const mesh=new THREE.Mesh(mappedBox(w,h,d,tileMetres),material);
  mesh.name=name;mesh.position.set(x,y,z);mesh.castShadow=false;mesh.receiveShadow=true;
  group.add(mesh);return mesh;
 }
@@ -135,14 +135,18 @@ function makeMaterials(t){
   stair:material(0x878b86,t.tile,t.tileRough),
   fountain:material(0x8e8574,t.terrazzo,t.terrazzoRough),
   glass:material(0x1b4342,null,null,{transparent:true,opacity:.3,metalness:.1,roughness:.12}),
-  header:material(0x475859,t.concrete,t.concreteRough)
+  header:material(0x475859,t.concrete,t.concreteRough),
+  shopCeiling:material(0xded7c6,t.shopCeiling,null,{roughness:.97}),
+  plasterCeiling:material(0xd3cfc6,t.plasterCeiling,null,{roughness:.96})
  };
 }
 function renderCeiling(group,p,mats){
   const mat=p.material==='shop-ceiling'?mats.shopCeiling:mats.plasterCeiling;
   const mesh=addBox(group,'ceiling_'+p.id,(p.x1+p.x2)/2,p.y,
-   (p.z1+p.z2)/2,p.x2-p.x1,p.thickness,p.z2-p.z1,mat);
+   (p.z1+p.z2)/2,p.x2-p.x1,p.thickness,p.z2-p.z1,mat,
+   p.material==='shop-ceiling'?2.44:3);
   mesh.userData.roomCeiling=p.room;
+  mesh.userData.ceilingFinish=p.material;
   return mesh;
  }
  function buildRoof(group,r,mats){

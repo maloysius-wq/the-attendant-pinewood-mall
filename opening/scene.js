@@ -6,6 +6,17 @@ const v=(x,y,z)=>new THREE.Vector3(x,y,z);
 const mat=(color,roughness=.85,metalness=0)=>new THREE.MeshStandardMaterial({color,roughness,metalness});
 const lit=(color,intensity=.4)=>new THREE.MeshStandardMaterial({color,roughness:.73,emissive:color,emissiveIntensity:intensity});
 function box(g,x,y,z,sx,sy,sz,m){const o=new THREE.Mesh(new THREE.BoxGeometry(sx,sy,sz),m);o.position.set(x,y,z);g.add(o);return o;}
+// World-scale UVs keep sidewalk cracks and joints from stretching over the entire frontage.
+function tileBoxUV(mesh,tileMetres=3){
+ const uv=mesh.geometry.getAttribute('uv'),{width,height,depth}=mesh.geometry.parameters;
+ const sizes=[[depth,height],[depth,height],[width,depth],[width,depth],[width,height],[width,height]];
+ for(let side=0;side<6;side++)for(let vertex=0;vertex<4;vertex++){
+  const i=side*4+vertex;
+  uv.setXY(i,uv.getX(i)*sizes[side][0]/tileMetres,uv.getY(i)*sizes[side][1]/tileMetres);
+ }
+ uv.needsUpdate=true;
+ return mesh;
+}
 function cyl(g,x,y,z,r,h,m){const o=new THREE.Mesh(new THREE.CylinderGeometry(r,r,h,12),m);o.position.set(x,y,z);g.add(o);return o;}
 function lamp(s,x,y,z,color,intensity,range){const o=new THREE.PointLight(color,intensity,range,2);o.position.set(x,y,z);s.add(o);}
 function canvasText(title,lines,opt={}){
@@ -52,7 +63,9 @@ export function makeOpeningScene({useImportedLandscape=false,useAbandonedFacade=
  // Keep the outdoor lot OUT of the canonical entrance vestibule. The old
   // 105m slab ran 14m beneath the licensed indoor floor, causing overlaps.
   box(world,0,-.22,24.5,115,.43,88,lotMaterial);
-  box(world,0,-.07,-17.55,103,.22,9.6,concrete);
+  const sidewalkMaterial=useAbandonedFacade?mat(0xc6bfb2,.96):concrete;
+ const frontSidewalk=tileBoxUV(box(world,0,-.07,-17.55,103,.22,9.6,sidewalkMaterial),3.4);
+ frontSidewalk.name='front_mall_sidewalk';
  box(world,0,.07,-13.75,103,.24,.35,concrete);
  for(let x=-39;x<45;x+=6){const p=box(world,x,.012,13,2.6,.018,.1,mat(0x898779));p.rotation.y=-.1;}
  // V46: One authoritative door dimension set drives the slab, the wall
@@ -231,14 +244,29 @@ export function makeOpeningScene({useImportedLandscape=false,useAbandonedFacade=
    canopy:serviceCanopy,canopyFascia
   }
  };
+ // The new original concrete albedo preloads behind the opaque cinematic cover.
+ const sidewalkReady=useAbandonedFacade
+  ?new THREE.TextureLoader().loadAsync(new URL('./assets/v80/worn-sidewalk-albedo.jpg',import.meta.url).href)
+    .then(texture=>{
+     texture.colorSpace=THREE.SRGBColorSpace;
+     texture.wrapS=texture.wrapT=THREE.RepeatWrapping;
+     texture.anisotropy=8;
+     sidewalkMaterial.map=texture;
+     sidewalkMaterial.needsUpdate=true;
+     return {state:'ready',file:'worn-sidewalk-albedo.jpg'};
+    })
+  :Promise.resolve({state:'legacy'});
  const environmentReady=upgradeOpeningSceneV37({
   scene,world,car,stage,materials:{facade,steel},lotMaterial
  });
- // The opaque v63 preload awaits vendored third-party models before reveal.
+ // All new materials must be uploaded before the first cinematic frame.
+ const exteriorReady=Promise.all([environmentReady,sidewalkReady]).then(([status,sidewalk])=>{
+  status.sidewalk=sidewalk;return status;
+ });
  stage.assetReady=useImportedLandscape
-  ?Promise.all([environmentReady,installMallPlantersV63(world)]).then(([status,landscape])=>{
+  ?Promise.all([exteriorReady,installMallPlantersV63(world)]).then(([status,landscape])=>{
     status.landscape=landscape;return status;
    })
-  :environmentReady;
+  :exteriorReady;
  return stage;
 }

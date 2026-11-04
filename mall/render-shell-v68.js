@@ -1,4 +1,4 @@
-import {renderConstructionScene} from './render-shell-v67.js';
+import {renderConstructionScene} from './render-shell-v67.js?v=80';
 import {buildWeatheredFacade} from './weathered-facade-v68.js';
 
 // Compose the verified connected structure and weathered frontage before any
