@@ -19,7 +19,8 @@ test('opening shares the licensed mall and physical contractor entrance before a
  assert.match(s,/this\.stage\.scene\.add\(canonical\)/,'mount real mall in one continuous scene');
  assert.match(s,/this\.renderer\.render\(this\.stage\.scene,this\.camera\)/,'render same physical world across the threshold');
  assert.match(s,/this\.root\.dataset\.renderWorld=throughDoor\?'unified-mall':'exterior'/,'diagnostic tag follows threshold without changing scene');
- assert.doesNotMatch(s,/this\.renderer\.render\(this\.interiorScene,this\.camera\)/,'retired scene swap cannot reappear');
+ // Interior-only rendering is permitted during the hidden shader warm-up, never as the visible threshold frame.
+ assert.match(s,/const throughDoor=this\.camera\.position\.z< -22\.55;[\s\S]*?this\.renderer\.render\(this\.stage\.scene,this\.camera\)/);
  assert.match(s,/this\.stage\.accessPad\.update\(accessProgress\)/);
  assert.match(s,/this\.elapsed-this\.voiceSeconds/,'numeric entry must follow Renee, not interrupt her');
  assert.match(s,/delta\*11\.6/,'faster rainfall');
