@@ -58,41 +58,49 @@ const cues={
   f(0,E.driver,G.ahead),f(.12,E.driver,G.door),
   f(.22,E.doorLean,G.door,'walk'),
   f(.37,E.doorOutside,[-18,1.9,13],'walk'),
-  f(.52,[-11.8,1.74,16.0],G.mall,'walk'),
-  f(.72,[-10.7,1.73,14.7],G.sign,'walk'),
-  f(.88,E.parking,G.mall,'walk'),f(1,E.parking,G.entrance)
+  // Exit at the real front door, then keep walking during Renee's long
+  // explanation. The next dialogue must not inherit 20m of travel debt.
+  f(.52,[-10.9,1.74,15.0],G.mall,'walk'),
+  f(.72,[-7.3,1.73,10.0],G.sign,'walk'),
+  f(.88,[-4.0,1.73,6.5],G.entrance,'walk'),
+  f(1,[-2.0,1.73,3.5],G.entrance,'walk')
  ],
  entrance:[
-  f(0,E.parking,G.mall),
-  f(.20,[-7.8,1.74,10],G.posters,'walk'),
-  f(.39,[-5.4,1.74,7],G.sign,'walk'),
-  f(.58,[-3.1,1.74,3.6],G.entrance,'walk'),
-  f(.80,[-1.3,1.73,1.1],G.entrance,'walk'),
-  f(1,E.pavement,G.entrance,'walk')
+  f(0,[-2.0,1.73,3.5],G.entrance),
+  f(.20,[-.3,1.73,1.0],G.posters,'walk'),
+  f(.39,[1.4,1.73,-1.5],G.sign,'walk'),
+  f(.58,[3.0,1.73,-4.5],G.entrance,'walk'),
+  f(.80,[4.8,1.73,-7.6],G.keypad,'walk'),
+  f(1,[6.0,1.73,-10.0],G.keypad,'walk')
  ],
  lights:[
-  f(0,E.pavement,G.entrance),
-  f(.20,[2,1.72,-2.4],G.entrance,'walk'),
-  f(.39,[4.1,1.72,-5.9],G.posters,'walk'),
-  f(.55,[5.5,1.73,-8.3],G.entrance,'walk'),
-  f(.75,[6.9,1.73,-10.9],G.keypad,'walk'),
-  f(.86,[10.4,1.71,-16.6],G.keypad,'walk'),
-  f(.96,E.access,G.keypad,'walk'),
+  // Arrive at the keypad before the last spoken word. The old route
+  // covered almost half its distance in the final 3 seconds (a sprint).
+  f(0,[6.0,1.73,-10.0],G.keypad),
+  f(.20,[7.2,1.73,-12.0],G.keypad,'walk'),
+  f(.40,[8.6,1.73,-14.4],G.keypad,'walk'),
+  f(.60,[10.0,1.73,-16.8],G.keypad,'walk'),
+  f(.76,[11.7,1.70,-19.0],G.keypad,'walk'),
+  f(.82,E.access,G.keypad,'walk'),
   f(1,E.access,G.keypad)
  ],
  inside:[
+  // Code is already accepted. Turn toward the actual doorway as it opens,
+  // then enter the real vestibule WHILE dispatch gives the confirmation.
   f(0,E.access,G.keypad),
-  f(.20,E.access,G.keypad),
-  f(.41,E.access,G.keypad),
-  f(.65,E.access,G.keypad),
-  f(.80,E.access,G.keypad),f(.92,E.access,G.inside),
-  f(1,E.access,G.keypad)
+  f(.08,E.access,G.keypad),
+  f(.17,E.access,G.inside),
+  f(.24,[12.0,1.72,-21.05],G.inside,'walk'),
+  f(.34,[12.0,1.71,-22.15],G.inside,'walk'),
+  f(.54,[12.0,1.71,-24.4],G.inside,'walk'),
+  f(.78,[12.0,1.72,-26.6],G.inside,'walk'),
+  f(1,[12.0,1.72,-29.0],G.inside,'walk')
  ],
  promise:[
-  f(0,E.access,G.keypad),f(.14,[12.0,1.72,-21],G.inside,'walk'),
-  f(.33,E.threshold,G.inside,'walk'),
-  f(.56,[12.0,1.73,-28.0],G.inside,'walk'),
-  f(.77,[11.8,1.73,-34.0],G.inside,'walk'),
+  f(0,[12.0,1.72,-29.0],G.inside),
+  f(.15,[12.0,1.72,-30.3],G.inside,'walk'),
+  f(.40,[12.0,1.72,-33.0],G.inside,'walk'),
+  f(.70,[11.4,1.73,-36.0],G.inside,'walk'),
   f(1,[10.3,1.73,-40.0],G.inside,'walk')
  ],
  direction:[
@@ -156,12 +164,15 @@ export class HumanCameraRig{
     look.y+=breath*.55;
    }
   }
-  const interior=indoor.has(id),isExit=id==='owner';
-  const doorOpen=interior?1:id==='inside'?smooth(clamp((phase-.68)/.24,0,1)):0;
+  const interior=indoor.has(id);
+  // The contractor latch grants access at the end of 'lights', so the steel
+  // door begins opening immediately on the confirmation instead of waiting
+  // ten seconds for the end of the following dialogue.
+  const doorOpen=interior?1:id==='inside'?smooth(clamp((phase-.01)/.12,0,1)):0;
   // Acoustic boundary at the moment the driver passes the open car door:
   // switch to the already-decoded outdoor bed, not a multi-second blend.
   let carWeight=['arrival','clock','closed','work','safety'].includes(id)?1:0;
-  let exteriorWeight=['entrance','lights'].includes(id)?1:id==='inside'?1-smooth(clamp((phase-.70)/.30,0,1)):0;
+  let exteriorWeight=['entrance','lights'].includes(id)?1:id==='inside'?(at.z>=-22.55?1:0):0;
   if(id==='owner'){
    // A real car-door boundary, not a fraction of Renee's long speech.
    // The driver clears the left door when the camera crosses this X-plane.

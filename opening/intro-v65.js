@@ -1,11 +1,11 @@
 import * as THREE from '../vendor/three/build/three.module.js';
-import {makeOpeningScene} from './scene.js?v=75';
+import {makeOpeningScene} from './scene.js?v=77';
 import {installAbandonedFacadeV65} from './facade-v65.js?v=65';
 import {enlargeImportedLandscapeV64} from './landscape-scale-v64.js?v=64';
 import {renderPinewoodV69} from '../mall/render-shell-v69.js';
 import {installDashboardClockV71} from './dashboard-clock-v71.js?v=75';
-import {KeypadReachHandV72} from './keypad-reach-v72.js?v=72';
-import {HumanCameraRig} from './camera-v65.js?v=75';
+import {KeypadReachHandV72} from './keypad-reach-v72.js?v=77';
+import {HumanCameraRig} from './camera-v65.js?v=77';
 import {OpeningAmbience} from './ambience-v62.js?v=62';
 import {HandheldCheckInPhone} from './phone-v62.js?v=62';
 import {buildCaptionTrack,captionAt} from './caption-sync-v45.js?v=45';
@@ -173,6 +173,20 @@ class Intro{
    this.keypadReach.update(.375,true,this.camera);
    this.renderer.render(this.stage.scene,this.camera);
    this.keypadReach.update(0,false,this.camera);
+   // One continuous 3D world: preloaded v69 mall behind the existing v65
+   // frontage. Retire the older front elevation to prevent intersections.
+   const canonical=this.interiorBuilding.group;
+   this.interiorBuilding.facade.group.visible=false;
+   let hiddenFrontWalls=0;
+   canonical.traverse(obj=>{
+    if(obj.userData?.boundary?.id?.startsWith('front_original_')){
+     obj.visible=false;hiddenFrontWalls++;
+    }
+   });
+   if(hiddenFrontWalls<2)throw Error('Could not retire duplicate canonical front elevation');
+   this.stage.scene.add(canonical);
+   this.stage.canonicalMall=canonical;
+   this.stage.hiddenCanonicalFrontWalls=hiddenFrontWalls;
    this.camera.position.copy(originalPos);this.camera.quaternion.copy(originalQuat);
    this.renderer.render(this.stage.scene,this.camera);
    this.firstFrameRendered=true;this.eyeRig=new HumanCameraRig();
@@ -334,9 +348,9 @@ class Intro{
     this.keypadReach?.update(accessProgress,this.line.id==='lights',this.camera);
     if(!this.reduced){const a=this.stage.rain.geometry.attributes.position.array;for(let i=1;i<a.length;i+=3){a[i]-=delta*11.6;if(a[i]<.1)a[i]+=12.9;}this.stage.rain.geometry.attributes.position.needsUpdate=true;}
     const throughDoor=this.camera.position.z< -22.55;
-    const useNewMall=throughDoor&&(this.line.id==='promise'||this.line.id==='direction');
-    this.root.dataset.renderWorld=useNewMall?'unified-mall':'exterior';
-    this.renderer.render(useNewMall?this.interiorScene:this.stage.scene,this.camera);
+    this.root.dataset.renderWorld=throughDoor?'unified-mall':'exterior';
+    // The same interior geometry remains visible across the threshold.
+    this.renderer.render(this.stage.scene,this.camera);
     if(this.handheld?.raised){
      this.renderer.autoClear=false;
      this.renderer.clearDepth();
@@ -383,6 +397,7 @@ class Intro{
    if(this.primedVoice){this.primedVoice.pause();this.primedVoice.removeAttribute('src');this.primedVoice.load();this.primedVoice=null;}
    this.ambience.destroy();
    this.handheld?.dispose();
+   if(this.stage?.canonicalMall)this.stage.scene.remove(this.stage.canonicalMall);
    this.interiorBuilding?.dispose();
    this.disposeScenes();
    this.renderer?.dispose();
@@ -492,6 +507,13 @@ window.__PINEWOOD_OPENING_V34__={
     forearmVisible:!!reach?.visible&&!!reach.realAnatomicalForearm,
     finger:reach};
   },
+  get entryContinuity(){return active?.stage?{
+   canonicalMounted:!!active.interiorBuilding?.group&&active.interiorBuilding.group.parent===active.stage.scene,
+   retiredExteriorFacades:active.interiorBuilding?.facade?.group?.visible?1:0,
+   hiddenCanonicalFrontWalls:active.stage.hiddenCanonicalFrontWalls||0,
+   sameWorldFrame:!!active.stage.canonicalMall&&active.stage.canonicalMall.parent===active.stage.scene,
+   doorSwingRadians:active.stage.pivot.rotation.y
+  }:null;},
   get cinematicWorld(){return active?{
    mode:active.root.dataset.renderWorld||'exterior',
    interiorReady:!!active.interiorBuilding?.firstFrameFullyLoaded,

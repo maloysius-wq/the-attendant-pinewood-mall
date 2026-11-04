@@ -49,7 +49,10 @@ export function makeOpeningScene({useImportedLandscape=false,useAbandonedFacade=
  const world=new THREE.Group();scene.add(world);
  const concrete=mat(0x727069,.96),steel=mat(0x48545a,.72,.37),facade=mat(0x586367,.96),dark=mat(0x1d292d,.92),windowMat=glass();
  const lotMaterial=mat(0x171e20,.99);
- box(world,0,-.22,16,115,.43,105,lotMaterial);box(world,0,-.07,-17.7,103,.22,10.2,concrete);
+ // Keep the outdoor lot OUT of the canonical entrance vestibule. The old
+  // 105m slab ran 14m beneath the licensed indoor floor, causing overlaps.
+  box(world,0,-.22,24.5,115,.43,88,lotMaterial);
+  box(world,0,-.07,-17.55,103,.22,9.6,concrete);
  box(world,0,.07,-13.75,103,.24,.35,concrete);
  for(let x=-39;x<45;x+=6){const p=box(world,x,.012,13,2.6,.018,.1,mat(0x898779));p.rotation.y=-.1;}
  // V46: One authoritative door dimension set drives the slab, the wall
