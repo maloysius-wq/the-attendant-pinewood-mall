@@ -58,6 +58,11 @@ export class KeypadReachHandV72{
   this.pointing=true;
   const hand=this.hand,b=hand.bones,at=id=>hand.point(id);
   this.phonePose=this._capturePose();
+  // Release the index MCP from the back-of-phone grip. Its proximal
+  // phalanx should follow the adjacent native finger before it points.
+  this._aimJoint('finger2-1.R',
+   at('finger2-2.R').sub(at('finger2-1.R')),
+   at('finger3-2.R').sub(at('finger3-1.R')));
   // Extend the index: straighten its genuine interphalangeal joint.
   this._aimJoint('finger2-2.R',
    at('finger2-3.R').sub(at('finger2-2.R')),
