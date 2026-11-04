@@ -552,6 +552,7 @@ window.__PINEWOOD_OPENING_V34__={
   return {withArmCalls:withArm.calls,withoutArmCalls:withoutArm.calls,differentPixels,
    armOnStage:arm?.parent===active.stage.scene,framebufferPng:capture.toDataURL('image/png')};
  },
+ get qaKeypadHand(){return location.pathname.includes('/review/')?active?.keypadReach?.hand||null:null;},
  get qaPlayerHand(){return location.pathname.includes('/review/')?active?.handheld?.playerHand||null:null;},
  get captionTiming(){if(active&&!active.paused)active.renderCaption();return active?{line:active.line?.id,voiceSeconds:active.voiceSeconds,
    mediaSeconds:active.audio?.currentTime??null,captionSeconds:active.captionSeconds,

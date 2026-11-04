@@ -27,7 +27,7 @@ assert.match(intro,/Promise\.all\(\[environmentReady,facadeReady\]\)/);
 assert.match(intro,/installAbandonedFacadeV65\(this\.stage\)/);
 assert.match(intro,/enlargeImportedLandscapeV64\(this\.stage,environment\)/);
 assert.match(intro,/facadeV65\?\.state!=='ready'/);
-assert.match(preview,/intro-v65\.js\?v=(?:65|72|75|77|78)/);
+assert.match(preview,/intro-v65\.js\?v=(?:65|72|75|77|78|79)/);
 assert.doesNotMatch(production,/facade-v65/);
 assert.match(camera,/sign:\[-10\.5,13\.13,-22\]/);
 assert.match(camera,/softSign:\[\.5,3\.4,-22\]/,'Keep v62 gentle seated glance without abrupt upward whip');

@@ -167,7 +167,8 @@ export class KeypadReachHandV72{
   const ready=this.hand.state==='ready',camera=this.handOnly?this.worldCamera:this.camera;
   camera.updateWorldMatrix(true,false);
   const viewport=name=>{
-   const point=this._point(name)?.project(camera);
+   const point=this._point(name);
+   if(point)this.root.localToWorld(point).project(camera);
    return point?[(point.x+1)/2,(1-point.y)/2,point.z]:null;
   };
   let skinSamplesInView=0,skinSamples=0;
