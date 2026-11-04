@@ -10,7 +10,7 @@ const roofToggle=document.getElementById('roof');
 const state={
  ready:false,errors:[],firstFrameFullyLoaded:false,
  texturesLoaded:0,modelsLoaded:0,walls:0,floor:'G',
- chapter:1,eastExitLocked:true,shot:'service'
+ chapter:1,eastExitLocked:true,shot:'service',ceilingMeshes:0,ceilingRooms:[]
 };
 const shots={
  service:{floor:'G',eye:[12,1.72,-27],target:[11,1.8,-49],label:'GROUND · CONTRACTOR SERVICE ENTRY',title:'Contractor Service Vestibule',
@@ -105,6 +105,8 @@ async function begin(){
   state.texturesLoaded=built.texturesLoaded;
   state.modelsLoaded=built.modelsLoaded;
   state.walls=built.shells.reduce((n,s)=>n+s.walls.length,0);
+  state.ceilingMeshes=built.ceilings.children.length;
+  state.ceilingRooms=[...new Set(built.ceilings.children.map(mesh=>mesh.userData.roomCeiling))].sort();
   state.errors=[...built.geometryErrors];
   document.getElementById('walls-stat').textContent=String(state.walls);
   document.getElementById('models-stat').textContent=String(state.modelsLoaded);
