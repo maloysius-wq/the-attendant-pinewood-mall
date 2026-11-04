@@ -176,10 +176,12 @@ export class HumanCameraRig{
   if(id==='owner'){
    // A real car-door boundary, not a fraction of Renee's long speech.
    // The driver clears the left door when the camera crosses this X-plane.
-   const outside=at.x<=-11.15;
+   // Keep the exterior bed after exiting; walking back toward the mall
+   // increases world X, but does NOT put the player back inside the sedan.
+   const outside=at.x<=-11.15||phase>=.37;
    carWeight=outside?0:1;exteriorWeight=outside?1:0;
   }
-  if(id==='inside')exteriorWeight=1; // Still standing at the outdoor keypad.
+  // Once the player crosses the threshold, indoor acoustics take over.
   if(id==='promise'||id==='direction')
    exteriorWeight=this.eye.z>=-22.55?1:0;
   return{
