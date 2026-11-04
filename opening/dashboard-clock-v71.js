@@ -13,7 +13,7 @@ export function installDashboardClockV71(car){
  car.updateWorldMatrix(true,true);
  // The old driver eye looked through front-seat upholstery and the mount
  // search selected a seat-depth triangle (z=-.186) as "dashboard".
- const driverEye=local(car,[-.33,1.22,.22]);
+ const driverEye=local(car,[-.33,1.22,-.08]);
  const hits=[];
  // The seat is behind this driver eye. Only the physically useful first-person
  // near plane is skipped; candidate faces must actually belong to the front dash.

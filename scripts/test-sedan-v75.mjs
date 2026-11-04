@@ -29,11 +29,13 @@ test('chosen Sketchfab sedan is a pinned, fully local GLB with real independent 
  assert.equal(meta.license,'CC-BY-4.0');
 });
 test('seated eye stays behind the new sedan steering wheel, not in the dashboard',()=>{
- // The imported left-side steering wheel is ~45 cm forward of a seated
- // driver's eye after the 5.2-source-unit car is scaled to 1.86 m wide.
+ // The actual front-left doorway ends at world Z 17.50, and the wheel
+ // occupies Z 16.86–17.02. Seat the eye comfortably behind that wheel
+ // but decisively ahead of the rear passenger door (Z >= 17.58).
  assert.ok(driverSeatPose[0]<-10.25&&driverSeatPose[0]>-10.52);
  assert.ok(driverSeatPose[1]>=1.14&&driverSeatPose[1]<=1.38);
- assert.ok(driverSeatPose[2]>=17.52&&driverSeatPose[2]<=17.92);
+ assert.ok(driverSeatPose[2]>=17.15&&driverSeatPose[2]<=17.48,
+  'driver eye is behind the wheel but inside the front-door seating bay: '+driverSeatPose[2]);
  const p=new HumanCameraRig().sample('arrival',0,8,0);
  assert.ok(p.position.distanceToSquared({x:driverSeatPose[0],y:driverSeatPose[1],z:driverSeatPose[2]})<.00001);
 });
@@ -51,4 +53,26 @@ test('exit route crosses the real left-side threshold without jumping outdoors e
  assert.ok(firstOutside>0,'driver must cross left door during owner cue');
  assert.ok(frames[firstOutside].rain.outside>.9);
  assert.ok(frames[firstOutside-1].rain.car>.9);
+});
+
+test('exit crosses the front-left opening, never the solid rear door',()=>{
+ // Actual GLB world-space door bounds at 1.86 m vehicle width:
+ // FL_Door Z 16.62..17.50; RL_Door Z 17.582..18.297.
+ // Only consider the exit beat (phase <= .42); later the player crosses
+ // the same X coordinate again while walking well ahead of the car.
+ // The left-side body seam is x=-10.77. Measure the real interpolated
+ // eye position as it crosses the sedan side, not the hand-authored cue list.
+ const rig=new HumanCameraRig();
+ const crossed=[];
+ for(let i=0;i<=180;i++){
+  const phase=i/180;
+  const frame=rig.sample('owner',23*phase,23,23/180,{reducedMotion:true});
+  if(phase<=.42&&frame.position.x<=-10.77&&frame.position.x>=-11.30)
+   crossed.push({phase,x:frame.position.x,z:frame.position.z});
+ }
+ assert.ok(crossed.length>4,'camera must move through the front-left doorway');
+ for(const point of crossed){
+  assert.ok(point.z>=16.65&&point.z<=17.47,
+   'camera intersects rear door rather than open front door: '+JSON.stringify(point));
+ }
 });

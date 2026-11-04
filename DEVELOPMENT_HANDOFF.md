@@ -8,6 +8,15 @@
 
 ---
 
+## Current sedan camera and driver-door exit correction: v76 (2026-11-04)
+
+**Source PR:** [#55](https://github.com/maloysius-wq/the-attendant-pinewood-mall/pull/55). User confirmed that the v75 sedan was a substantial visual improvement, but the player was sitting too far back and passed through the rear door while leaving.
+
+- **Measured root cause, not a model defect:** At the car's real-world 1.86 m width and the existing placement, original GLB `FL_Door` occupies world Z ≈ **16.62–17.50** and the solid `RL_Door` spans **17.58–18.30**. The v75 seated camera began at world Z **17.72**, and the initial exit lean stayed at **17.68**, genuinely overlapping the rear-door region. A geometry-derived desktop regression captured both failures RED in [Actions 41851040793](https://github.com/maloysius-wq/the-attendant-pinewood-mall/actions/runs/41851040793).
+- **Correction:** `opening/camera-v65.js` seats the driver at world `[-10.33,1.22,17.42]`, 0.30 m closer to the windshield, and moves toward the open *front-left* doorway at Z ≈ **17.19**, then outside at Z ≈ **17.05**, fully clear of the solid rear door. The wheel remains forward of the eye; the intact roof is still 0.564 m above it. The `FL_Door` animation starts earlier, reaching fully open before the body crosses the side. `opening/assets/v75/manifest.json` and dashboard raycast eye origin reflect the new position. The imported car geometry and license are unchanged.
+- **Regression:** `scripts/test-sedan-v75.mjs` now checks the seated eye against measured front/rear door bounds and samples the entire exit crossing; the actual browser `scripts/smoke-sedan-v75.mjs` checks the front threshold and that the original `FL_Door` is open before crossing. Workflow also parses the browser test script before Playwright startup. [Dedicated GREEN run 41851720754](https://github.com/maloysius-wq/the-attendant-pinewood-mall/actions/runs/41851720754): 4 Node tests passed, complete desktop car/clock/door scene passed, no page errors or remote requests. The broader [v72 dashboard/keypad suite](https://github.com/maloysius-wq/the-attendant-pinewood-mall/actions/runs/41851720204) and [v62 pacing suite](https://github.com/maloysius-wq/the-attendant-pinewood-mall/actions/runs/41851374859) also passed.
+- **Preserve:** The user's chosen #4 sedan, actual GLB roof and seats, 12:47 AM clock, original driver door hinge, dialogue, rain, external mall and canonical interior. Do not regress eye/exit Z into the rear-door band.
+
 ## Current opening vehicle: v75 Low-Poly Sedan (2026-11-04)
 
 **Source PR:** [#54](https://github.com/maloysius-wq/the-attendant-pinewood-mall/pull/54). User explicitly selected option **#4, scailman's Low-Poly Sedan**, and uploaded the exact original GLB. This section supersedes the old v74 hatchback cockpit; historical v74 notes below remain for context.

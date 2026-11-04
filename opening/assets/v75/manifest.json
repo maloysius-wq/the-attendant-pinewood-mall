@@ -15,7 +15,7 @@
   "driverEyeLocal": [
     -0.33,
     1.22,
-    0.22
+    -0.08
   ],
   "notes": "Converted Sketchfab GLB, user-provided; original 3D geometry with separate left/right doors and interior. No dependent image files."
 }

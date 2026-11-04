@@ -85,7 +85,7 @@ export async function installSedanV75({car,stage,status,loader}){
   status:{side:'FL_Door',angle:closedAngle,openFraction:0},
   update(cue,phase){
    const fraction=cue==='owner'
-    ?smooth((phase-.10)/.19)
+    ?smooth((phase-.06)/.14)
     :cue==='entrance' ? 1-smooth((phase-.03)/.33)
     :0;
    door.rotation.y=closedAngle-1.12*fraction;
