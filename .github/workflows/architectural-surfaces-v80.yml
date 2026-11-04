@@ -1,0 +1,62 @@
+name: Pinewood v80 aged ceilings and front walkway
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'mall/physical-shell-v67.mjs'
+      - 'mall/render-shell-v67.js'
+      - 'mall/render-shell-v68.js'
+      - 'opening/scene.js'
+      - 'opening/intro-v65.js'
+      - 'opening/assets/v80/**'
+      - 'review/mall-construction-v67/main.js'
+      - 'scripts/*surface-finishes-v80.mjs'
+      - '.github/workflows/architectural-surfaces-v80.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'mall/physical-shell-v67.mjs'
+      - 'mall/render-shell-v67.js'
+      - 'mall/render-shell-v68.js'
+      - 'opening/scene.js'
+      - 'opening/intro-v65.js'
+      - 'opening/assets/v80/**'
+      - 'review/mall-construction-v67/main.js'
+      - 'scripts/*surface-finishes-v80.mjs'
+      - '.github/workflows/architectural-surfaces-v80.yml'
+permissions:
+  contents: read
+jobs:
+  surfaces-desktop:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify source and material provenance
+        run: |
+          node --check mall/render-shell-v67.js
+          node --check opening/scene.js
+          node --check opening/intro-v65.js
+          node --test scripts/test-surface-finishes-v80.mjs scripts/test-physical-shell-v67.mjs
+      - name: Install desktop Chromium
+        run: |
+          npm install --no-save playwright@1.55.0
+          npx playwright install chromium
+      - name: Serve local mall previews
+        run: |
+          python3 -m http.server 4173 --bind 127.0.0.1 >/tmp/pinewood-surface-v80-http.log 2>&1 &
+          for i in {1..30}; do curl -fsS http://127.0.0.1:4173/review/the-call-v34/ >/dev/null && exit 0; sleep 1; done
+          exit 1
+      - name: Verify real surface maps and capture desktop evidence
+        run: node scripts/smoke-surface-finishes-v80.mjs
+      - name: Upload 3 surface captures
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pinewood-v80-architectural-surfaces
+          path: surface-v80-artifacts/
+          if-no-files-found: ignore
+          retention-days: 14

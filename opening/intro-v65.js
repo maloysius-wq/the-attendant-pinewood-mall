@@ -1,5 +1,5 @@
 import * as THREE from '../vendor/three/build/three.module.js';
-import {makeOpeningScene} from './scene.js?v=77';
+import {makeOpeningScene} from './scene.js?v=80';
 import {installAbandonedFacadeV65} from './facade-v65.js?v=65';
 import {enlargeImportedLandscapeV64} from './landscape-scale-v64.js?v=64';
 import {renderPinewoodV69} from '../mall/render-shell-v69.js';
@@ -581,6 +581,16 @@ window.__PINEWOOD_OPENING_V34__={
   active.camera.lookAt(-10,1.0,17.5);
   active.renderer.render(active.stage.scene,active.camera);
   return true;
+ },
+ get sidewalkFinish(){
+  if(!location.pathname.includes('/review/'))return null;
+  const slab=active?.stage?.world?.getObjectByName('front_mall_sidewalk');
+  const texture=slab?.material?.map;
+  return slab?{name:slab.name,textureLoaded:!!texture?.image?.width,
+   textureURL:texture?.image?.src||null,wrapS:texture?.wrapS,wrapT:texture?.wrapT,
+   topUVRepeat:[slab.geometry.attributes.uv.getX(8),slab.geometry.attributes.uv.getY(8),
+    slab.geometry.attributes.uv.getX(10),slab.geometry.attributes.uv.getY(10)],
+   materialRoughness:slab.material.roughness}:null;
  },
  get sceneStats(){
   if(!active?.stage)return null;

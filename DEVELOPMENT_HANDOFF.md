@@ -9,6 +9,16 @@
 
 ---
 
+## Age-appropriate ground-floor ceiling and sidewalk materials: v80 (2026-11-04)
+
+**User request:** All previously added ground-floor room ceilings should have appropriate period finish; the front pedestrian sidewalk should look visibly dilapidated. Maintain the stable phone/keypad hand poses, the unified mall threshold and the selected sedan.
+
+- **Root cause:** v79 placed ceiling mesh geometry but `mall/render-shell-v67.js` referred to undefined `mats.shopCeiling` and `mats.plasterCeiling`; the Three.js material default concealed this wiring mistake, leaving white untextured undersides. The exterior v65 sidewalk slab in `opening/scene.js` likewise used only a plain colored material.
+- **Original local materials:** `opening/assets/v80/` contains three newly generated, inspected, 1024×1024 compressed albedos: grimed and water-stained mineral acoustic tiles in retail, mottled plasterboard in non-retail staff/gallery rooms, and fissured moss-stained concrete on the 103×9.6 m exterior pedestrian strip. SHA-256 provenance is in `LICENSES.md`. The source textures live wholly in the repository, with no remote runtime fetches.
+- **Correct geometry/scale:** `mall/physical-shell-v67.mjs` includes new local texture paths; the renderer makes two actual `MeshStandardMaterial` finishes and scales shop tile repetition to ~2.44 m/UV sample for realistic 1.22×0.61 m sections. Staff plaster repeats every 3 m. Sidewalk UVs tile about every 3.4 m (no full-width stretch). Its original curb/parking geometry, service entrance and old production appearance stay preserved.
+- **Preload and QA:** The v65 opening's existing opaque first-frame cover waits for the new sidewalk image, while the canonical v69 mall preload waits for both interior ceiling images. `scripts/test-surface-finishes-v80.mjs` verifies materials, per-room assignments, source hashes, and loading contracts; desktop Chromium `scripts/smoke-surface-finishes-v80.mjs` examines actual scene maps and captures ceiling/sidewalk images through fixed review probes. Workflow: `.github/workflows/architectural-surfaces-v80.yml`. No manual WASD and no mobile testing.
+- **Merge/Pages:** Pending verification at authoring time; use the latest GitHub PR, Actions, and Pages runs as source of truth.
+
 ## Native keypad hand and ground-floor ceilings: v79 (2026-11-04)
 
 **Source PR:** [#58](https://github.com/maloysius-wq/the-attendant-pinewood-mall/pull/58). User observed that v78 looked anatomically bizarre while reaching the keypad, and requested a relaxed point from the original imported finger poses, keeping the phone-grip animation **exactly unchanged**. User also requested ceilings in all ground-floor rooms.

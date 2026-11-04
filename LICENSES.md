@@ -2,6 +2,16 @@
 
 All third-party visual and audio assets used by this build were selected because their source licensing could be verified as **Creative Commons Zero (CC0 1.0)** unless otherwise noted below.
 
+## Original v80 architectural surface albedo (2026-11-04)
+
+These three texture images are original, project-generated raster assets, not third-party downloads. They depict era-appropriate 1980s mall ceiling finishes and an abandoned sidewalk; no external runtime requests are used. Images were generated for Pinewood, inspected, and compressed to 1024×1024 JPEG (quality 88) for fast same-origin loading.
+
+- `opening/assets/v80/aged-acoustic-ceiling-albedo.jpg` — worn, yellowed retail mineral-fiber 2×4 suspended ceiling and water stains. SHA-256 `5a3220b6a74319bf77498ec9593dfe2b5a2b4919f1d23684982ab7d5676fe6f7`.
+- `opening/assets/v80/stained-plaster-ceiling-albedo.jpg` — aging off-white painted gypsum, service/back-of-house ceilings. SHA-256 `4541c84a9df0a623db11015744bfca2ab5b591824da9750af9f19699ca65ade3`.
+- `opening/assets/v80/worn-sidewalk-albedo.jpg` — dilapidated, cracked sidewalk panels, grime and sporadic moss. SHA-256 `872a984cee5c4e9e90377366bcd9a8901e8fa0739362c0acb83219fc8c78eb22`.
+
+The two ceiling finishes are preloaded by the v67 shell renderer in the same map set as other physical building textures; the separate exterior sidewalk is awaited by the v65 opening first-frame cover. Each map repeats at an explicitly defined physical scale instead of stretching over full geometry.
+
 ## Runtime storage policy — authoritative v15
 - **No third-party asset or browser library is loaded from an external host during play.** All runtime models, model dependencies, PBR textures, decals/images, sound effects, ambience, music, Three.js and Pako are served from this repository.
 - `assets/vendor/runtime/manifest.json` records original provenance, any verified replacement mirror used during development-time vendoring, the repository-local runtime path, byte count, SHA-256 digest, and dependent GLTF/model files.

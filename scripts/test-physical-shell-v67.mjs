@@ -93,8 +93,10 @@ test('real fixture models and textures are pinned to same-origin, licensed repos
    assert.ok(f.targetHeight>0&&f.targetHeight<5);
    assert.ok(MALL.rooms.some(r=>r.id===f.room&&r.level===level),'unanchored fixture '+f.id);
   }
-  for(const path of Object.values(shell.texturePaths)){
-   assert.match(path,/^assets\/vendor\/runtime\/[a-f0-9]{16}\/[^?#]+\.(jpg|png)$/);
+  for(const [key,path] of Object.entries(shell.texturePaths)){
+   if(key==='shopCeiling'||key==='plasterCeiling')
+    assert.match(path,/^opening\/assets\/v80\/(aged-acoustic-ceiling-albedo|stained-plaster-ceiling-albedo)\.jpg$/);
+   else assert.match(path,/^assets\/vendor\/runtime\/[a-f0-9]{16}\/[^?#]+\.(jpg|png)$/);
   }
  }
  assert.ok(g1().fixtures.some(f=>f.id==='dry_fountain_art'&&f.room==='central_gallery'));
