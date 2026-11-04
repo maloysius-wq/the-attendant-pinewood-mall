@@ -8,7 +8,7 @@ test('production New Game starts the approved local cinematic, not a review-only
  assert.match(html,/opening\/opening\.css\?v=61/);
  assert.match(html,/<section id="pwm-opening" hidden role="dialog"/);
  assert.match(html,/data-intro-preload/);
- const intro=html.search(/src="\.\/opening\/intro-v65\.js\?v=(?:70|72|75|77|78)"/);
+ const intro=html.search(/src="\.\/opening\/intro-v65\.js\?v=(?:70|72|75|77|78|79)"/);
  const game=html.indexOf('src="./game.js"');
  assert.ok(intro>=0&&game>intro,'approved cinematic must load ahead of the game module');
  const script=readFileSync(new URL('../opening/intro-v65.js',import.meta.url),'utf8');
