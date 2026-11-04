@@ -1,0 +1,175 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="color-scheme" content="dark">
+<title>Pinewood Mall — Vehicle Auditions</title>
+<meta name="description" content="Compare ten 3D vehicle candidates for The Attendant's opening cinematic, inspect interactive source previews, and record model-specific findings.">
+<style>
+:root{--bg:#0d1113;--panel:#141a1d;--panel2:#1b2427;--line:#303a3d;--text:#eef0e8;--muted:#9aaba9;--mint:#bedcc8;--gold:#eec98c;--red:#e69b91}
+*{box-sizing:border-box}html,body{margin:0;min-height:100%;background:var(--bg);color:var(--text);font:14px/1.48 Inter,system-ui,-apple-system,Segoe UI,sans-serif}
+button,input,textarea{font:inherit}button{cursor:pointer}a{color:var(--mint)}a:hover{color:white}
+.shell{display:grid;grid-template-columns:300px minmax(0,1fr) 338px;min-height:100vh}
+.sidebar,.details{background:var(--panel);border-color:var(--line);min-width:0}.sidebar{border-right:1px solid var(--line);padding:26px 17px;display:flex;flex-direction:column;gap:18px}.details{border-left:1px solid var(--line);padding:25px 22px;overflow:auto}
+.overline{font:700 10px/1.3 ui-monospace,SFMono-Regular,Consolas,monospace;letter-spacing:.20em;text-transform:uppercase;color:var(--mint)}.identity{display:flex;align-items:center;gap:13px}.mark{width:42px;height:42px;border:1px solid #80968d;border-radius:12px;display:grid;place-items:center;background:#26322d;color:#d1e2ce;font-size:20px}.brand{font-size:15px;font-weight:820;letter-spacing:.025em}.subbrand{font-size:11px;color:var(--muted)}.sideheading{margin:8px 0 0;display:flex;justify-content:space-between;align-items:center;gap:8px}.sideheading h2,.details h2{font-size:12px;letter-spacing:.1em;text-transform:uppercase;margin:0;color:#d9e1d8}.count{font:11px ui-monospace,monospace;color:var(--muted)}
+.search{width:100%;padding:10px 12px;border:1px solid #40504d;background:#101718;border-radius:8px;color:var(--text);outline:none}.search:focus{border-color:var(--mint);box-shadow:0 0 0 2px #bedcc82a}
+.filters{display:flex;flex-wrap:wrap;gap:6px}.filter{border:1px solid var(--line);border-radius:7px;padding:7px 9px;background:#1c2425;color:var(--muted);font-size:11px}.filter.active{background:#bcd6c4;color:#122019;border-color:#bcd6c4;font-weight:750}
+.model-list{display:flex;flex-direction:column;gap:7px;overflow:auto;max-height:calc(100vh - 330px);min-height:200px;padding-right:3px}.model{width:100%;text-align:left;display:grid;grid-template-columns:28px minmax(0,1fr);gap:10px;border:1px solid transparent;background:transparent;color:var(--text);padding:12px 10px;border-radius:10px;transition:background .15s,border-color .15s}.model:hover{background:#222c2e}.model.selected{border-color:#7caa94;background:#26352f}.num{font:700 11px ui-monospace,monospace;color:#82958d;padding-top:3px}.selected .num{color:var(--mint)}.model-title{font-weight:760;font-size:12.5px;line-height:1.4}.model-caption{font-size:11px;color:var(--muted);margin-top:3px}.tiny-tags{display:flex;gap:5px;margin-top:8px;flex-wrap:wrap}.tag{border:1px solid #435149;border-radius:5px;font:700 9px ui-monospace,monospace;letter-spacing:.03em;color:#bddaca;padding:2px 5px}.tag.yellow{color:var(--gold);border-color:#796649}.tag.red{color:var(--red);border-color:#76514c}
+.sidefoot{margin-top:auto;padding:13px 10px;border-top:1px solid var(--line);font-size:11px;color:var(--muted);line-height:1.55}
+.work{min-width:0;padding:28px 30px 28px;display:flex;flex-direction:column;gap:19px}.eyebrow{display:flex;justify-content:space-between;align-items:center;gap:12px}.eyebrow span:last-child{font:11px ui-monospace,monospace;color:var(--muted)}
+.headline{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap}.headline h1{margin:0;font-size:clamp(26px,3vw,45px);line-height:1;letter-spacing:-.04em;font-weight:840}.headline p{margin:9px 0 0;color:var(--muted);font-size:13px}.status{border:1px solid #41534a;color:var(--mint);padding:7px 10px;border-radius:7px;font:700 10px ui-monospace,monospace;letter-spacing:.06em;white-space:nowrap}
+.viewer-wrap{position:relative;border:1px solid #556b60;border-radius:13px;overflow:hidden;background:#090d0e;flex:1;min-height:440px;box-shadow:0 22px 65px #0005}.viewer-frame{border:0;display:block;width:100%;height:100%;min-height:440px;background:radial-gradient(circle at center,#2b3538,#060a0b)}.viewer-overlay{position:absolute;inset:0;display:grid;place-items:center;color:var(--muted);letter-spacing:.06em;font:12px ui-monospace,monospace;background:radial-gradient(circle at center,#242d30,#090b0d);pointer-events:none;transition:opacity .3s}.viewer-overlay.hide{opacity:0}
+.viewer-fallback{position:absolute;left:12px;bottom:12px;right:12px;display:flex;justify-content:flex-end;pointer-events:none}.viewer-fallback a{pointer-events:auto;display:inline-flex;align-items:center;background:#071011d9;border:1px solid #51625b;padding:7px 10px;border-radius:7px;font-size:11px;text-decoration:none}
+.controls{display:flex;align-items:center;gap:9px;flex-wrap:wrap}.btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;border:1px solid #51635b;background:#21312a;border-radius:8px;color:#e6f1e7;padding:10px 13px;font-weight:650;font-size:12px;text-decoration:none}.btn:hover{background:#34483d;color:white}.btn.ghost{background:#1a2224;border-color:#405054;color:#d5dfdb}.btn.ghost:hover{background:#273136}.btn:focus-visible,.model:focus-visible,.filter:focus-visible{outline:2px solid var(--gold);outline-offset:2px}.btn:disabled{opacity:.3;cursor:not-allowed}.spacer{flex:1}.hint{font-size:12px;color:var(--muted);margin:0}.hint strong{color:#e4eae4}.notice{border:1px solid #44534f;border-left:3px solid #c2d8c7;background:#1b2726;padding:12px 14px;border-radius:7px;font-size:12px;line-height:1.6;color:#c1d1cc}.notice strong{color:var(--text)}
+.details-title{font-size:23px!important;line-height:1.15;letter-spacing:-.025em;margin:8px 0 6px!important;text-transform:none!important;color:white!important}.detailby{color:var(--muted);font-size:12px}.detail-text{color:#cbd5d1;font-size:12px;line-height:1.65;margin:16px 0}.pills{display:flex;gap:6px;flex-wrap:wrap;margin:12px 0}.pill{border:1px solid #4c6256;color:#c5dcca;background:#22322a;padding:4px 8px;border-radius:6px;font:700 10px ui-monospace,monospace}.pill.warn{border-color:#786d51;color:#e9c78d;background:#342e20}
+.panel-section{border-top:1px solid var(--line);padding:18px 0}.meta{display:grid;grid-template-columns:100px 1fr;gap:9px 10px;margin-top:13px;font-size:12px}.meta dt{color:var(--muted)}.meta dd{margin:0;color:#e1e8df}.meta a{overflow-wrap:anywhere}.door-note{border:1px solid #526b54;background:#1c2a22;border-radius:8px;padding:11px 12px;color:#d5e3d7;font-size:12px;line-height:1.55;margin-top:13px}.door-note.warn{border-color:#706449;background:#2a271f;color:#e7d9be}
+.checks{display:grid;gap:9px;margin-top:13px}.check{display:flex;align-items:flex-start;gap:9px;color:#d0d7d2;font-size:12px;line-height:1.35;cursor:pointer}.check input{margin-top:2px;accent-color:#b1d2ba;width:15px;height:15px;flex:none}.score-row{display:flex;gap:5px;margin-top:12px;align-items:center}.score-row button{border:1px solid #57635a;background:#212c27;color:#a6b7a9;border-radius:6px;font-size:19px;width:33px;height:33px;line-height:1}.score-row button.on{color:#f2cb86;background:#382c1c;border-color:#8b7050}.score-label{font-size:11px;color:var(--muted);margin-left:4px}
+.notes{margin-top:10px;min-height:100px;width:100%;resize:vertical;border:1px solid #40534d;border-radius:8px;background:#101817;color:var(--text);padding:11px;outline:none;font-size:12px;line-height:1.5}.notes:focus{border-color:#a9c5ac}.export{width:100%;margin-top:12px}.noresults{padding:20px 10px;color:var(--muted);font-size:12px}.copyright{color:#879b95;font-size:11px;line-height:1.55}.copyright a{color:#b5cfbf}
+@media (max-width:1260px){.shell{grid-template-columns:248px minmax(0,1fr)}.details{grid-column:2;border-left:0;border-top:1px solid var(--line)}.viewer-wrap{min-height:490px}.viewer-frame{height:490px}.model-list{max-height:580px}.work{padding:24px}}
+@media (max-width:820px){.shell{display:flex;flex-direction:column}.sidebar{border-right:0;border-bottom:1px solid var(--line);padding:16px}.model-list{flex-direction:row;overflow:auto;min-height:0;max-height:145px}.model{min-width:190px}.sidefoot{display:none}.work{padding:18px}.viewer-wrap,.viewer-frame{min-height:390px;height:390px}.details{padding:22px;border:0}.spacer{display:none}.eyebrow{display:none}}
+</style>
+</head>
+<body>
+<div class="shell">
+<aside class="sidebar">
+  <div class="identity"><div class="mark" aria-hidden="true">◈</div><div><div class="brand">PINEWOOD / PROP DEPT.</div><div class="subbrand">Vehicle selection dossier · 01</div></div></div>
+  <div>
+    <div class="sideheading"><h2>Candidate library</h2><span class="count" id="count">10 MODELS</span></div>
+    <p class="hint" style="margin:8px 0 13px">Choose any car to load its interactive 3D preview.</p>
+    <input id="search" class="search" type="search" placeholder="Search era, shape, creator…" aria-label="Search models">
+  </div>
+  <div class="filters" aria-label="Filter models">
+    <button class="filter active" data-filter="all" type="button">All 10</button>
+    <button class="filter" data-filter="doors" type="button">Door-ready</button>
+    <button class="filter" data-filter="period" type="button">Period fit</button>
+    <button class="filter" data-filter="generic" type="button">Generic</button>
+  </div>
+  <div class="model-list" id="model-list" role="listbox" aria-label="3D car models"></div>
+  <div class="sidefoot">Development-time model review only. These are the creators' original previews—not imported game assets or proof of in-game fit. All notes and ratings are stored locally in your browser.</div>
+</aside>
+<main class="work">
+  <div class="eyebrow"><span class="overline">THE ATTENDANT: PINEWOOD MALL / OPENING CINEMATIC</span><span>01—10 / MATERIAL AUDIT</span></div>
+  <div class="headline"><div><h1>Vehicle auditions<span style="color:var(--mint)">.</span></h1><p>Ten alternatives to the malformed hatchback. Rotate the real models before we choose.</p></div><div class="status">◉ SOURCE MODELS • LIVE PREVIEWS</div></div>
+  <div class="viewer-wrap" id="viewer-wrap">
+    <iframe class="viewer-frame" id="viewer" title="Interactive 3D car model" allow="autoplay; fullscreen; xr-spatial-tracking" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe>
+    <div class="viewer-overlay" id="viewer-overlay" aria-live="polite">LOADING CREATOR'S 3D PREVIEW…</div>
+    <div class="viewer-fallback"><a id="open-sketchfab" href="#" target="_blank" rel="noopener noreferrer">Can't see it? Open Sketchfab directly ↗</a></div>
+  </div>
+  <div class="controls">
+    <button class="btn ghost" id="prev" type="button">← Previous</button>
+    <button class="btn ghost" id="next" type="button">Next →</button>
+    <div class="spacer"></div>
+    <button class="btn ghost" id="fullscreen" type="button">⛶ Fullscreen</button>
+    <a class="btn" id="source" target="_blank" rel="noopener noreferrer" href="#">View model &amp; download ↗</a>
+  </div>
+  <p class="hint"><strong>Inspect:</strong> drag to orbit · scroll to zoom · right-drag to pan. Use the embedded viewer's Settings/Model Inspector or fullscreen for a closer look. Some creators lock camera access or hide interior behind solid glass.</p>
+  <div class="notice"><strong>Important distinction:</strong> “Doors separate / openable” means the creator says the parts are prepared for animation; this page does <em>not</em> open doors by itself. Floor-to-window height, driver eye clearance, animation pivots, and export structure still require inspection of the downloaded file before game integration.</div>
+</main>
+<aside class="details" aria-label="Selected model analysis">
+  <span class="overline" id="position">CANDIDATE 01 / 10</span>
+  <h2 class="details-title" id="title"></h2>
+  <div class="detailby" id="creator"></div>
+  <div class="pills" id="pills"></div>
+  <p class="detail-text" id="description"></p>
+  <div class="panel-section">
+    <h2>Asset brief</h2>
+    <dl class="meta"><dt>Era / shape</dt><dd id="era"></dd><dt>Geometry</dt><dd id="triangles"></dd><dt>License</dt><dd id="license"></dd><dt>Source</dt><dd><a id="credit-link" href="#" target="_blank" rel="noopener noreferrer">Creator listing ↗</a></dd></dl>
+    <div class="door-note" id="door-note"></div>
+  </div>
+  <div class="panel-section">
+    <h2>In-person geometry check</h2>
+    <p class="hint" style="margin:7px 0 0">Tick only what you can confirm from the preview or downloaded mesh.</p>
+    <div class="checks" id="checks"></div>
+  </div>
+  <div class="panel-section">
+    <h2>Your verdict</h2>
+    <div class="score-row" id="score-row" aria-label="Rate model from one to five stars"></div>
+    <textarea class="notes" id="notes" placeholder="e.g. Driver seat seems correctly scaled; door appears to be separate; steering wheel clears dash…" aria-label="Inspection notes for this car"></textarea>
+    <p class="hint" style="margin-top:6px">Autosaved in this browser; not shared with the project.</p>
+    <button class="btn ghost export" id="export" type="button">↓ Export all ratings &amp; notes</button>
+  </div>
+  <p class="copyright">Third-party previews and models remain the property of their creators. CC BY generally permits adaptation with attribution; inspect the source listing and license terms before using an asset in the actual game. “Free Standard” has different terms. No candidate is installed in Pinewood by this review tool.</p>
+</aside>
+</div>
+<script>
+'use strict';
+const MODELS=[
+{id:'9d21deaa0174412283965baf323133a1',name:'Generic Hatchback · Game Ready',by:'Kinetic Vehicles',slug:'car-generic-hatchback-gameready-with-interior',era:'Generic hatchback · contemporary/unspecified',tris:'242.4k · LODs advertised',license:'Free Standard — verify commercial terms',door:'High potential',doorNote:'Creator explicitly lists front/rear doors as moving parts with centralized pivots, alongside steering wheel, pedals and gear shift. Strongest door-exit candidate on paper, but high triangle count and non-CC licensing deserve attention.',desc:'A full-cabin hatchback designed for simulators; interior, roof, windshield and separate driver door are the priorities to inspect. Model claims optimized LODs; visual fidelity may be more modern than Pinewood’s intended era.',doors:true,period:false,generic:true,featured:true,risk:'LICENSE CHECK'},
+{id:'d14ef521134c4627bb888614718a2dbd',name:'Volkswagen Vento VR6',by:'CCamo',slug:'game-ready-pbr-volkswagen-vento-vr6',era:'1990s-style compact sedan',tris:'36.1k',license:'CC BY · attribution required',door:'High potential',doorNote:'Creator explicitly lists separate body, wheels, doors and interior. Door movement should be feasible after import, but hinge pivots and actual openings still need checking in the source file.',desc:'Era-appropriate everyday sedan with PBR materials and an apparently complete interior. A particularly relevant realistic alternative to the current car.',doors:true,period:true,generic:false,featured:true,risk:''},
+{id:'ebe7c5e98a7448b5abb2eaf0cb22b766',name:'Low Poly Small Car',by:'scailman',slug:'low-poly-small-car',era:'Small commuter car · generic',tris:'7.3k',license:'CC BY · attribution required',door:'Confirmed by creator',doorNote:'Creator says the doors can be opened and the steering wheel and wheels are separate. Excellent low-poly mechanical candidate; inspect cabin depth and whether its simplified style fits the cinematic.',desc:'A compact, simple, animation-friendly car with an interior. Low triangle count could keep the opening lightweight.',doors:true,period:false,generic:true,featured:true,risk:''},
+{id:'aeb2699532b4402e8b75ec8888b800b9',name:'Low-Poly Sedan Car',by:'scailman',slug:'low-poly-sedan-car',era:'Everyday 4-door sedan · generic',tris:'6.3k',license:'CC BY · attribution required',door:'Confirmed by creator',doorNote:'Creator says its doors open and the wheel, lights and other parts are separate. A straightforward four-door platform if the cabin proportions check out.',desc:'Generic low-poly family sedan with interior and deliberately separated animated components.',doors:true,period:false,generic:true,featured:true,risk:''},
+{id:'6a2169dafc254f399387a679305bb1bf',name:'Abandoned Generic Sedan 1',by:'Rashad Ibrahimli',slug:'abandoned-generic-sedan-1-game-ready',era:'Weathered sedan · apocalyptic',tris:'9.6k',license:'CC BY · attribution required',door:'Confirmed by creator',doorNote:'Doors, trunk and hood are described as openable; steering wheel and wheels are separate. However, the car is rusted and its front-right wheel is missing. Better as a door/geometry reference than a ready-to-drive vehicle.',desc:'Deliberately damaged sedan with interior and usable moving panels. Repainting and repairing it would be significant extra work.',doors:true,period:false,generic:true,featured:false,risk:'DAMAGED'},
+{id:'6d5fe4b9b8744afe9eb4616c4444886f',name:'Car Pack 1 · 80s/90s',by:'buh',slug:'car-pack-1',era:'1980s–1990s vehicle collection',tris:'130.4k total pack',license:'CC BY · attribution required',door:'Not specified',doorNote:'Creator says the collection contains three cars plus a version with a detailed interior. It does not state whether doors are separate. Inspect each vehicle—only one may have the detailed cabin we need.',desc:'A visually appropriate period collection. This entry contains multiple vehicles, so the viewer is best for browsing and shortlisting a particular car in the pack.',doors:false,period:true,generic:false,featured:false,risk:'PACK'},
+{id:'5db696c6ed5d4bdc87905c1040fa072a',name:'MMC Generic Small SUV',by:'MMC Works',slug:'mmc-generic-small-suv-car',era:'Generic small utility SUV',tris:'166.9k',license:'CC BY · attribution required',door:'Requires rigging',doorNote:'Creator explicitly says no rigging or animations and describes its interior as rough. The door and seating geometry may need considerable cleanup before a first-person cutscene.',desc:'Boxy utility vehicle with a rough cabin and mechanics. Interesting for the contractor feel, though less production-ready than the door-separated cars.',doors:false,period:false,generic:true,featured:false,risk:'ROUGH CABIN'},
+{id:'8757487b606041f8b56b168c83757bb3',name:'Toyota Century 1990',by:'EZ-GAZI',slug:'toyota-century-1990',era:'1990 Japanese luxury sedan',tris:'19.4k',license:'CC BY · attribution required',door:'Not specified',doorNote:'Interior and trunk are modeled according to the creator, but there is no promise of separate door meshes. As a VIP sedan, it is less narratively plausible for an on-call maintenance worker.',desc:'Period-correct luxury saloon with modeled interior. Useful if cabin geometry is sound, though the style may be too upscale for the protagonist.',doors:false,period:true,generic:false,featured:false,risk:'LUXURY'},
+{id:'c14f271c9d414b8e8d25e7cec3bb44f5',name:'Generic USA/EU Station Wagon',by:'Anserkon',slug:'generic-usaeu-station-wagon',era:'2010-inspired family wagon',tris:'18.5k',license:'CC BY · attribution required',door:'Not specified',doorNote:'Creator notes a basic interior but does not promise animated doors. Window/floor proportions and first-person usable dashboard remain unverified.',desc:'A modest utility wagon with a basic interior; practical contractor silhouette, though newer than the target 1990s look.',doors:false,period:false,generic:true,featured:false,risk:'BASIC CABIN'},
+{id:'fe0d953112044d6893d04dbbec75ac82',name:'Sedan · GLB With Interior',by:'3DHA',slug:'sedan-glb-format-with-interior',era:'Generic sedan · unspecified',tris:'18.2k',license:'CC BY · attribution required',door:'Not specified',doorNote:'The listing title promises a GLB with interior, but the creator gives no description. Treat driver clearance, door segmentation and even interior quality as unverified until opened.',desc:'Potentially convenient GLB-format sedan; sparse creator documentation means it needs especially close inspection.',doors:false,period:false,generic:true,featured:false,risk:'UNVERIFIED'}
+];
+const CHECKS=[
+'Cabin floor below the window sill',
+'Front seat cushions below the steering wheel',
+'Seats and wheel do not intersect',
+'Roof and windshield form one plausible shell',
+'Driver-eye view has usable dashboard clearance',
+'Driver door is separate and could swing open'
+];
+const $=id=>document.getElementById(id);
+let selected=0,filter='all',query='';
+let reviews={};try{reviews=JSON.parse(localStorage.getItem('pinewoodVehicleReviews.v1')||'{}')||{}}catch(_){reviews={}}
+function save(){try{localStorage.setItem('pinewoodVehicleReviews.v1',JSON.stringify(reviews))}catch(_){}}
+function review(){const key=MODELS[selected].id;return reviews[key]||(reviews[key]={checks:[],score:0,notes:''})}
+function url(m){return 'https://sketchfab.com/3d-models/'+m.slug+'-'+m.id}
+function iframeUrl(m){return 'https://sketchfab.com/models/'+m.id+'/embed?autostart=1&ui_infos=0&ui_controls=1&ui_inspector=1&ui_theme=dark'}
+function list(){
+ const visible=MODELS.map((m,i)=>({m,i})).filter(({m})=>(filter==='all'||(filter==='doors'&&m.doors)||(filter==='period'&&m.period)||(filter==='generic'&&m.generic))&&(m.name+' '+m.by+' '+m.era).toLowerCase().includes(query));
+ $('count').textContent=visible.length+' OF 10';
+ const root=$('model-list');root.replaceChildren();
+ if(!visible.length){const p=document.createElement('p');p.className='noresults';p.textContent='No models match that search.';root.append(p);return}
+ for(const {m,i} of visible){
+  const b=document.createElement('button');b.type='button';b.className='model'+(i===selected?' selected':'');b.setAttribute('role','option');b.setAttribute('aria-selected',i===selected?'true':'false');b.innerHTML='<span class="num">'+String(i+1).padStart(2,'0')+'</span><span><span class="model-title"></span><span class="model-caption"></span><span class="tiny-tags"></span></span>';
+  b.querySelector('.model-title').textContent=m.name;b.querySelector('.model-caption').textContent=m.by;
+  const tags=b.querySelector('.tiny-tags');const t=document.createElement('span');t.className='tag'+(m.doors?'':' yellow');t.textContent=m.doors?'DOOR POTENTIAL':'DOOR UNKNOWN';tags.append(t);
+  if((reviews[m.id]||{}).score){const badge=document.createElement('span');badge.className='tag';badge.textContent='★ '+reviews[m.id].score+'/5';tags.append(badge)}
+  b.addEventListener('click',()=>select(i));root.append(b);
+ }
+}
+function detail(){
+ const m=MODELS[selected],r=review();
+ $('position').textContent='CANDIDATE '+String(selected+1).padStart(2,'0')+' / 10';
+ $('title').textContent=m.name;$('creator').textContent='Created by '+m.by;
+ $('description').textContent=m.desc;$('era').textContent=m.era;$('triangles').textContent=m.tris;$('license').textContent=m.license;
+ $('source').href=url(m);$('open-sketchfab').href=url(m);$('credit-link').href=url(m);
+ const pills=$('pills');pills.replaceChildren();
+ for(const tag of [m.doors?'SEPARATE DOORS':'DOORS UNVERIFIED',m.period?'PERIOD FIT':'STYLE CHECK',m.risk].filter(Boolean)){
+  const span=document.createElement('span');span.className='pill'+(/UNVERIFIED|CHECK|DAMAGED|ROUGH|LUXURY/.test(tag)?' warn':'');span.textContent=tag;pills.append(span)
+ }
+ $('door-note').textContent=m.door+' — '+m.doorNote;$('door-note').className='door-note'+(m.doors?'':' warn');
+ const checks=$('checks');checks.replaceChildren();
+ CHECKS.forEach((text,i)=>{const label=document.createElement('label');label.className='check';const input=document.createElement('input');input.type='checkbox';input.checked=(r.checks||[]).includes(i);input.addEventListener('change',()=>{const set=new Set(review().checks||[]);input.checked?set.add(i):set.delete(i);review().checks=[...set].sort((a,b)=>a-b);save()});label.append(input,document.createTextNode(text));checks.append(label)});
+ const score=$('score-row');score.replaceChildren();
+ for(let i=1;i<=5;i++){const b=document.createElement('button');b.type='button';b.className=i<=r.score?'on':'';b.textContent='★';b.setAttribute('aria-label','Rate '+i+' stars');b.addEventListener('click',()=>{review().score=i===review().score?0:i;save();detail();list()});score.append(b)}
+ const scoreText=document.createElement('span');scoreText.className='score-label';scoreText.textContent=r.score?r.score+'/5':'Not rated';score.append(scoreText);
+ $('notes').value=r.notes||'';$('prev').disabled=selected===0;$('next').disabled=selected===MODELS.length-1;
+}
+function select(i){
+ if(i<0||i>=MODELS.length)return;
+ selected=i;const m=MODELS[i];const viewer=$('viewer');$('viewer-overlay').classList.remove('hide');viewer.title='Interactive 3D model: '+m.name;
+ viewer.src=iframeUrl(m);list();detail();
+ const next=new URL(window.location.href);next.hash='car-'+String(i+1).padStart(2,'0');history.replaceState(null,'',next);
+}
+$('viewer').addEventListener('load',()=>{$('viewer-overlay').classList.add('hide')});
+$('search').addEventListener('input',e=>{query=e.target.value.toLowerCase().trim();list()});
+document.querySelectorAll('.filter').forEach(b=>b.addEventListener('click',()=>{filter=b.dataset.filter;document.querySelectorAll('.filter').forEach(x=>x.classList.toggle('active',x===b));list()}));
+$('prev').addEventListener('click',()=>select(selected-1));$('next').addEventListener('click',()=>select(selected+1));
+$('fullscreen').addEventListener('click',()=>{const box=$('viewer-wrap');if(!document.fullscreenElement&&box.requestFullscreen)box.requestFullscreen().catch(()=>{});else if(document.exitFullscreen)document.exitFullscreen()});
+$('notes').addEventListener('input',e=>{review().notes=e.target.value;save()});
+$('export').addEventListener('click',()=>{
+ const output={project:'The Attendant: Pinewood Mall',purpose:'vehicle auditions',exportedAt:new Date().toISOString(),models:MODELS.map(m=>({name:m.name,creator:m.by,url:url(m),license:m.license,doorClaim:m.door,review:reviews[m.id]||{checks:[],score:0,notes:''}}))};
+ const blob=new Blob([JSON.stringify(output,null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='pinewood-vehicle-auditions.json';document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),1000);
+});
+document.addEventListener('keydown',e=>{if(/INPUT|TEXTAREA/.test(document.activeElement?.tagName||''))return;if(e.key==='ArrowLeft')select(selected-1);if(e.key==='ArrowRight')select(selected+1)});
+const start=window.location.hash.match(/^#car-(\d{1,2})$/);select(start?Math.max(0,Math.min(9,Number(start[1])-1)):0);
+</script>
+</body>
+</html>
