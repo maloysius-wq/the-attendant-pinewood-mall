@@ -27,7 +27,7 @@ assert.doesNotMatch(scene,/new THREE\.(?:BoxGeometry|CylinderGeometry|SphereGeom
 assert.doesNotMatch(scene,/https?:\/\//,'No remote runtime assets');
 assert.match(intro,/enlargeImportedLandscapeV64\(this\.stage,environment\)/);
 assert.match(intro,/stage\.assetReady=this\.stage\.assetReady\.then/);
-assert.match(preview,/intro-v65\.js\?v=(?:65|72|75)/);
+assert.match(preview,/intro-v65\.js\?v=(?:65|72|75|77)/);
 // At 2x size, the imported source pot is 2.4 m across.
 // Neighbouring units need at least 0.4 m space between their footprints.
 const sorted=MALL_PLANTERS_V64.map(p=>p.x).sort((a,b)=>a-b);

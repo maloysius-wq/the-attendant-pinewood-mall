@@ -105,8 +105,9 @@ try{
    assert(natural.source==='media'&&natural.mediaSeconds>.07
      &&Math.abs(natural.captionSeconds-natural.mediaSeconds)<.13,
      layout.name+' subtitle clock does not follow playing Renee audio: '+JSON.stringify(natural));
-   assert(natural.waitSeconds>8.3&&natural.waitSeconds<8.7,
-     layout.name+' still using slow estimated-reading timeline: '+JSON.stringify(natural));
+   assert(natural.voiceSeconds>6&&natural.voiceSeconds<13
+     &&Math.abs(natural.waitSeconds-(natural.voiceSeconds+1.6))<.15,
+     layout.name+' first radio line must use real audio duration plus its authored pause: '+JSON.stringify(natural));
 
    // v62 raises the handheld later; .74 is the established pre-tap pose.
    await page.evaluate(()=>{window.__PINEWOOD_OPENING_V34__.seek(0);window.__PINEWOOD_OPENING_V34__.scrub(.74);});
