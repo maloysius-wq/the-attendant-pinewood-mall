@@ -19,6 +19,28 @@ test('constructs one physical retail floor and restricted mechanical and admin d
  assert.equal(ground.roofs.some(r=>r.type==='original-atrium-roof'),true);
 });
 
+
+test('all enclosed ground-floor rooms have real underside ceilings without covering vertical shafts',()=>{
+ const ground=g1();
+ const ceilings=ground.ceilings;
+ assert.ok(Array.isArray(ceilings)&&ceilings.length>=20,'each ground room must receive ceiling geometry');
+ for(const room of MALL.rooms.filter(r=>r.level==='G'&&r.id!=='central_gallery')){
+  const slabs=ceilings.filter(p=>p.room===room.id);
+  assert.ok(slabs.length>0,'missing overhead ceiling in '+room.id);
+  for(const p of slabs){
+   assert.ok(p.x1>=room.x1&&p.x2<=room.x2&&p.z1>=room.z1&&p.z2<=room.z2,
+    'ceiling must remain inside '+room.id);
+   assert.ok(p.y>=3.25&&p.y<=8.5,'ceiling has realistic height in '+room.id);
+  }
+ }
+ assert.ok(ground.roofs.some(r=>r.type==='atrium-skylight'&&r.y>12),
+  'central atrium must retain its tall glazed overhead rather than a low false ceiling');
+ const at=(x,z)=>ceilings.some(p=>contains(p,x,z));
+ assert.equal(at(20,-113),false,'no ceiling plate across the freight lift shaft');
+ assert.equal(at(32,-112),false,'no ceiling plate across ground-level fire stair');
+ assert.equal(at(51,-109),false,'no ceiling plate across the mezzanine stair');
+});
+
 test('preserves the real cinematic service opening and the impassable main lobby',()=>{
  const shell=g1(),service=shell.doors.find(x=>x.id==='service_entry'),boarded=shell.doors.find(x=>x.id==='main_entry');
  assert.ok(service);assert.ok(boarded);

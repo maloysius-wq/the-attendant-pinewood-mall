@@ -1,6 +1,7 @@
 import {chromium} from 'playwright';
 import {mkdir,writeFile} from 'node:fs/promises';
 import assert from 'node:assert/strict';
+import {MALL} from '../mall/masterplan-v66.mjs';
 
 const origin='http://127.0.0.1:4173',path='/review/mall-construction-v67/';
 await mkdir('mall-v67-artifacts',{recursive:true});
@@ -30,6 +31,12 @@ try{
   assert.ok(initial.modelsLoaded>=6,'CC0 ground-floor fixtures must preload');
   assert.ok(initial.walls>=80,'actual ground floor walls rendered');
   assert.equal(initial.floor,'G');
+  const expectedCeilings=MALL.rooms.filter(room=>room.level==='G'&&room.id!=='central_gallery')
+   .map(room=>room.id).sort();
+  assert.deepEqual(initial.ceilingRooms,expectedCeilings,
+   'every enclosed ground-floor room must have an actual rendered ceiling mesh');
+  assert.ok(initial.ceilingMeshes>=expectedCeilings.length,
+   'stair and elevator cutouts must retain multiple actual ceiling slab pieces');
   const cameras=[
    ['service','service-entry','G'],
    ['boarded','boarded-main-door','G'],

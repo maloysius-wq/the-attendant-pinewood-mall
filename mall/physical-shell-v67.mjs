@@ -180,6 +180,28 @@ function floorPlates(level){
   pieces(rect(r.x1,r.x2,r.z1,r.z2),r.id==='m1_stair'?[rect(49.7,52.3,-114.5,-104.0)]:[])
    .map((b,i)=>({...b,id:r.id+'_'+i,y,material:'carpet'})));
 }
+
+/** Real interior undersides, distinct from the weatherproof exterior roof.
+ * The central twelve-metre atrium already has its dedicated glazed roof.
+ * Preserve lift and stair openings so no false solid slab crosses a shaft.
+ */
+function ceilingPlates(level){
+ if(level!=='G')return [];
+ const holes=[
+  rect(18.5,22.5,-115.8,-110.5), // freight lift
+  rect(30.5,33.5,-115.5,-108),   // basement fire stair
+  rect(49.7,52.3,-114.5,-104.0) // administrative mezzanine stair
+ ];
+ return MALL.rooms.filter(r=>r.level==='G'&&r.id!=='central_gallery')
+  .flatMap(r=>{
+   const ceilingY=r.kind==='retail'?roomHeight(r)-.10:
+    (r.id==='west_gallery'||r.id==='east_gallery')?5.28:3.45;
+   return pieces(rect(r.x1,r.x2,r.z1,r.z2),holes)
+    .map((plate,i)=>({...plate,id:r.id+'_ceiling_'+i,room:r.id,
+     y:ceilingY,thickness:.18,material:r.kind==='retail'?'shop-ceiling':'plaster-ceiling'}));
+  });
+}
+
 function roofPlates(level){
  if(level!=='G')return level==='M1'?MALL.rooms.filter(r=>r.level==='M1'&&r.kind!=='stairs'&&r.kind!=='admin').map(r=>({...rect(r.x1,r.x2,r.z1,r.z2),type:'mezz-office-roof',y:8.6,material:'concrete'})):[];
  const skylight=rect(-8,8,-106,-45);
@@ -230,7 +252,7 @@ export function constructPhysicalShell({level='G',chapter=1}={}){
  const planar=MALL.links.filter(l=>l.type==='passage'&&room(l.from).level===level)
   .map(l=>openingFor(l,room(l.from),room(l.to))).filter(Boolean);
  const shell={version:67,level,chapter,y:levelData(level).y,footprints:MALL.footprints,
-  floorPlates:floorPlates(level),walls:[],portals:planar,doors:exposedDoors(level,chapter),
+  floorPlates:floorPlates(level),ceilings:ceilingPlates(level),walls:[],portals:planar,doors:exposedDoors(level,chapter),
   railings:level==='M1'?[{id:'atrium_overlook_guard',axis:'z',at:-94,start:-11,end:29,bottom:5.4,top:6.65,thickness:.12,material:'steel',role:'railing'}]:[],
   roofs:roofPlates(level),stairs:MALL.links.filter(l=>l.type==='stairs'&&[room(l.from).level,room(l.to).level].includes(level)).map(makeStairs),
   verticals:verticalTransitions(level),fixtures:fixtures(level),texturePaths:{...TEXTURES}};
@@ -273,6 +295,10 @@ export function validatePhysicalShell(shell){
  }
  for(const s of shell.stairs){
   if(Math.abs(s.topY-s.bottomY-s.rise)>EPS||s.steps.length<20)errors.push('impossible staircase '+s.id);
+ }
+ for(const c of shell.ceilings){
+  if(!(c.x1<c.x2&&c.z1<c.z2&&c.thickness>0&&c.y>shell.y))
+   errors.push('invalid ceiling '+c.id);
  }
  for(const f of shell.fixtures)if(!contains(room(f.room),f.x,f.z))errors.push('fixture outside room '+f.id);
  return errors;

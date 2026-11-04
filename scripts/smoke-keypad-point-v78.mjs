@@ -17,7 +17,8 @@ try{
  await page.locator('#newBtn').click();
  await page.waitForFunction(()=>window.__PINEWOOD_OPENING_V34__?.startupStatus?.state==='ready',null,{timeout:150000});
  const snapshot=()=>page.evaluate(()=>{
-  const q=window.__PINEWOOD_OPENING_V34__,h=q.qaPlayerHand,b=h?.bones||{};
+  const q=window.__PINEWOOD_OPENING_V34__;
+  const phone=q.qaPlayerHand,h=q.keypadView?.finger?.visible?q.qaKeypadHand:phone,b=h?.bones||{};
   if(h?.state!=='ready')return {state:h?.state,source:h?.error};
   h.model.updateMatrixWorld(true);
   const point=name=>b[name].getWorldPosition(b[name].position.clone());
@@ -39,7 +40,16 @@ try{
   const quats=Object.fromEntries(['finger1-1.R','finger1-2.R','finger1-3.R',
    ...[2,3,4,5].flatMap(n=>[1,2,3].map(k=>'finger'+n+'-'+k+'.R'))]
    .map(n=>[n,b[n].quaternion.toArray()]));
-  return {state:h.state,digit,angles,keyDistances,quats,
+  const nativeDifference={};
+  if(h.nativePose)for(const [name,raw] of Object.entries(h.nativePose)){
+   const current=b[name]?.quaternion.toArray();
+   if(!current)continue;
+   const dot=Math.abs(current.reduce((sum,v,i)=>sum+v*raw[i],0));
+   nativeDifference[name]=2*Math.acos(Math.min(1,dot));
+  }
+  const phoneGrip=phone?.bones?Object.fromEntries(Object.entries(phone.bones)
+   .filter(([n])=>/^finger[1-5]-[1-3]\.R$/.test(n)).map(([n,j])=>[n,j.quaternion.toArray()])):null;
+  return {state:h.state,digit,angles,keyDistances,quats,nativeDifference,phoneGrip,
    modelQuat:h.model.quaternion.toArray(),handVisible:q.keypadView?.finger?.visible,
    forearmVisible:q.keypadView?.forearmVisible,phoneVisible:q.handheldPhone?.visible};
  });
@@ -72,9 +82,18 @@ try{
   assert.equal(snap.digit,want,'real fingertip must follow every keyed number');
   assert.ok(snap.handVisible&&snap.forearmVisible,'connected 3D forearm must reach each key');
   assert.ok(snap.angles[2]<.28,'index PIP joint should be straight, not gripping the phone');
-  for(const n of [3,4,5])
-   assert.ok(snap.angles[n]>.70,'middle, ring and pinky must curl visibly into the palm');
-  assert.ok(snap.angles[1]>.32,'thumb must bend into the palm rather than pointing at the pad');
+  assert.ok(Object.keys(snap.nativeDifference).length>=15,'keypad hand must track original imported joint poses');
+  for(const n of [3,4,5]){
+   assert.ok(snap.angles[n]>.27&&snap.angles[n]<1.65,
+    'loose, natural bend rather than extreme knuckle contortion for finger '+n);
+  }
+  assert.ok(snap.angles[1]>.12&&snap.angles[1]<1.9,'thumb should rest naturally tucked');
+  assert.ok(snap.nativeDifference['finger2-1.R']<.80,
+   'index should start near its original native pointing posture');
+  for(const [name,before] of Object.entries(phoneBefore.phoneGrip)){
+   assert.ok(Math.hypot(...before.map((n,i)=>n-snap.phoneGrip[name][i]))<.002,
+    'keypad pose must never disturb phone grip '+name);
+  }
   assert.ok(snap.keyDistances.index<.09,'native index joint must remain behind the contacting skin');
   assert.ok(snap.keyDistances.indexSkin<.029,'actual weighted index fingertip skin must press each button');
   assert.ok(snap.keyDistances.thumb>.070,'thumb must not be the finger pressing the keypad');

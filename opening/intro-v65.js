@@ -4,7 +4,7 @@ import {installAbandonedFacadeV65} from './facade-v65.js?v=65';
 import {enlargeImportedLandscapeV64} from './landscape-scale-v64.js?v=64';
 import {renderPinewoodV69} from '../mall/render-shell-v69.js';
 import {installDashboardClockV71} from './dashboard-clock-v71.js?v=75';
-import {KeypadReachHandV72} from './keypad-reach-v72.js?v=78';
+import {KeypadReachHandV72} from './keypad-reach-v72.js?v=79';
 import {HumanCameraRig} from './camera-v65.js?v=77';
 import {OpeningAmbience} from './ambience-v62.js?v=62';
 import {HandheldCheckInPhone} from './phone-v62.js?v=62';
@@ -552,6 +552,7 @@ window.__PINEWOOD_OPENING_V34__={
   return {withArmCalls:withArm.calls,withoutArmCalls:withoutArm.calls,differentPixels,
    armOnStage:arm?.parent===active.stage.scene,framebufferPng:capture.toDataURL('image/png')};
  },
+ get qaKeypadHand(){return location.pathname.includes('/review/')?active?.keypadReach?.hand||null:null;},
  get qaPlayerHand(){return location.pathname.includes('/review/')?active?.handheld?.playerHand||null:null;},
  get captionTiming(){if(active&&!active.paused)active.renderCaption();return active?{line:active.line?.id,voiceSeconds:active.voiceSeconds,
    mediaSeconds:active.audio?.currentTime??null,captionSeconds:active.captionSeconds,

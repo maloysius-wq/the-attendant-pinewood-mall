@@ -138,7 +138,14 @@ function makeMaterials(t){
   header:material(0x475859,t.concrete,t.concreteRough)
  };
 }
-function buildRoof(group,r,mats){
+function renderCeiling(group,p,mats){
+  const mat=p.material==='shop-ceiling'?mats.shopCeiling:mats.plasterCeiling;
+  const mesh=addBox(group,'ceiling_'+p.id,(p.x1+p.x2)/2,p.y,
+   (p.z1+p.z2)/2,p.x2-p.x1,p.thickness,p.z2-p.z1,mat);
+  mesh.userData.roomCeiling=p.room;
+  return mesh;
+ }
+ function buildRoof(group,r,mats){
  const m=r.material==='glass'?mats.glass:mats.outer;
  addBox(group,r.type,(r.x1+r.x2)/2,r.y+.09,(r.z1+r.z2)/2,r.x2-r.x1,.18,r.z2-r.z1,m);
 }
@@ -160,11 +167,13 @@ export async function renderConstructionScene({scene,chapter=1}={}){
  }));
  const group=new THREE.Group();group.name='Pinewood Mall v67 physical property';
  const roofs=new THREE.Group();roofs.name='optional roof cutaway';group.add(roofs);
+  const ceilings=new THREE.Group();ceilings.name='ground-floor room ceilings';group.add(ceilings);
  const gates=new THREE.Group();gates.name='chapter-controlled gates';group.add(gates);
  const geometryGroups={};
  for(const shell of shells){
   const layer=new THREE.Group();layer.name='floor_'+shell.level;group.add(layer);geometryGroups[shell.level]=layer;
   for(const p of shell.floorPlates)renderFloor(layer,p,mats);
+   for(const c of shell.ceilings)renderCeiling(ceilings,c,mats);
   for(const w of shell.walls)wallMesh(layer,w,mats);
   for(const rail of shell.railings)wallMesh(layer,rail,mats);
   for(const stair of shell.stairs)if(stair.bottomLevel===shell.level)buildStairs(layer,stair,mats);
@@ -185,13 +194,13 @@ export async function renderConstructionScene({scene,chapter=1}={}){
  installLights(group);
  scene.add(group);
  return {
-  group,roofs,gates,geometryGroups,shells,
+  group,roofs,ceilings,gates,geometryGroups,shells,
   texturesLoaded:Object.keys(t).length,modelsLoaded:measured.length,modelManifest:measured,
   geometryErrors:[],firstFrameFullyLoaded:true,
   setChapter(next){
    for(const g of gates.children)g.visible=next<g.userData.minChapter;
   },
-  setRoofVisible(value){roofs.visible=!!value},
+  setRoofVisible(value){roofs.visible=!!value;ceilings.visible=!!value},
   dispose(){
    scene.remove(group);
    group.traverse(o=>{if(o.geometry)o.geometry.dispose()});

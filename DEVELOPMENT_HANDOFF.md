@@ -9,6 +9,14 @@
 
 ---
 
+## Native keypad hand and ground-floor ceilings: v79 (2026-11-04)
+
+**Source PR:** [#58](https://github.com/maloysius-wq/the-attendant-pinewood-mall/pull/58). User observed that v78 looked anatomically bizarre while reaching the keypad, and requested a relaxed point from the original imported finger poses, keeping the phone-grip animation **exactly unchanged**. User also requested ceilings in all ground-floor rooms.
+
+- **Hand root cause:** the v78 keypad mutated the already extensively reshaped cellphone-holding rig, then applied large multi-bone rotations to produce a clenched fist. The keypad now creates a separate instance of the same repository-local CC0 MakeHuman forearm GLB, records its genuinely original joint quaternions at load, gently straightens the source index and relaxes/curls the other three fingers, with the original weighted index flesh hitting keys 1-5-8-3. The phone rig stays attached to its original camera with no pose changes or restore action during keypad entry.
+- **Architecture:** v67 physical shell now generates distinct ground-floor ceiling undersides from each enclosed room's exact rectangle. Height follows staff and retail proportions, with separate west/east gallery ceilings; the central 12-metre atrium retains its existing glazed roof. Actual freight lift, basement fire stair and administrative stairs are cut out using the existing rectangle subtraction method. Ground ceilings are shown/hidden with the roof control for the architectural cutaway.
+- **Regression:** The pre-existing v78 desktop pointer smoke now verifies native joint pose, modest finger bends, true skinned-index contact and phone pose unaffected mid-entry. Physical shell Node test checks room coverage, height and all three shaft openings. Do not add mobile test matrices. Verify GH Actions and GitHub Pages before calling this complete.
+
 ## Contractor keypad index-pointing gesture: v78 (2026-11-04)
 
 **Source PR:** [#57](https://github.com/maloysius-wq/the-attendant-pinewood-mall/pull/57). User specifically requested that the opening cinematic's numpad entry no longer reuse the cellphone-holding grip. The index finger should point and press all four buttons; thumb, middle, ring and pinky should remain curled.
