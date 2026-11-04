@@ -1,0 +1,46 @@
+name: Pinewood v77 cinematic approach, entry and continuous mall
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'opening/**'
+      - 'scripts/test-entry-sequence-v77.mjs'
+      - 'scripts/smoke-entry-sequence-v77.mjs'
+      - '.github/workflows/entry-continuity-v77.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'opening/**'
+      - 'scripts/test-entry-sequence-v77.mjs'
+      - 'scripts/smoke-entry-sequence-v77.mjs'
+      - '.github/workflows/entry-continuity-v77.yml'
+permissions:
+  contents: read
+jobs:
+  entry-continuity-desktop:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify smooth arrival and prompt door entry
+        run: node --test scripts/test-entry-sequence-v77.mjs
+      - name: Install desktop Chromium
+        run: |
+          npm install --no-save playwright@1.55.0
+          npx playwright install chromium
+      - name: Serve Pinewood locally
+        run: |
+          python3 -m http.server 4173 --bind 127.0.0.1 >/tmp/pinewood-entry-v77-http.log 2>&1 &
+          for i in {1..30}; do curl -fsS http://127.0.0.1:4173/review/the-call-v34/ >/dev/null && exit 0; sleep 1; done
+          exit 1
+      - name: Inspect actual keypad, open doorway and unified scene
+        run: node scripts/smoke-entry-sequence-v77.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: pinewood-entry-v77-desktop
+          path: entry-v77-artifacts/
+          if-no-files-found: ignore
