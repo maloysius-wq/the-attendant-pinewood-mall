@@ -21,7 +21,7 @@ try{
   let release=()=>{},blocked=()=>{};
   const gate=new Promise(resolve=>release=resolve);
   const intercepted=new Promise(resolve=>blocked=resolve);
-  await page.route('**/opening/assets/v42/1990s-hatchback.glb',async route=>{
+  await page.route('**/opening/assets/v75/low-poly_sedan_car.glb',async route=>{
    blocked();await gate;await route.continue();
   });
   try{
@@ -29,7 +29,7 @@ try{
    await page.waitForFunction(()=>window.__PINEWOOD_OPENING_V34__&&document.querySelector('#titleScreen.show #newBtn'),null,{timeout:90000});
    await page.locator('#newBtn').click();
    await page.waitForFunction(()=>window.__PINEWOOD_OPENING_V34__?.active,null,{timeout:30000});
-   await Promise.race([intercepted,new Promise((_,reject)=>setTimeout(()=>reject(Error('Hatchback load not requested')),65000))]);
+   await Promise.race([intercepted,new Promise((_,reject)=>setTimeout(()=>reject(Error('Sedan load not requested')),65000))]);
    await page.waitForTimeout(300);
    const during=await page.evaluate(()=>{
     const a=window.__PINEWOOD_OPENING_V34__,root=document.querySelector('#pwm-opening');
@@ -79,7 +79,7 @@ try{
   }
  }
  const page=await browser.newPage({viewport:{width:1280,height:720}});
- await page.route('**/opening/assets/v42/1990s-hatchback.glb',route=>route.abort('failed'));
+ await page.route('**/opening/assets/v75/low-poly_sedan_car.glb',route=>route.abort('failed'));
  try{
   await page.goto(url,{waitUntil:'domcontentloaded',timeout:90000});
   await page.waitForFunction(()=>window.__PINEWOOD_OPENING_V34__&&document.querySelector('#titleScreen.show #newBtn'),null,{timeout:90000});

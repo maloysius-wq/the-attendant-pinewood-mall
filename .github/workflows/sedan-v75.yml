@@ -1,0 +1,47 @@
+name: Pinewood v75 locally licensed sedan and desktop cockpit
+on:
+  push:
+    branches: [main, feat/opening-sedan-v75]
+    paths:
+      - 'opening/**'
+      - 'scripts/test-sedan-v75.mjs'
+      - 'scripts/smoke-sedan-v75.mjs'
+      - '.github/workflows/sedan-v75.yml'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'opening/**'
+      - 'scripts/test-sedan-v75.mjs'
+      - 'scripts/smoke-sedan-v75.mjs'
+      - '.github/workflows/sedan-v75.yml'
+permissions:
+  contents: read
+jobs:
+  desktop-sedan:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify original selected sedan and driver geometry
+        run: node --test scripts/test-sedan-v75.mjs
+      - name: Install desktop Chromium
+        run: |
+          npm install --no-save playwright@1.55.0
+          npx playwright install chromium
+      - name: Serve Pinewood locally
+        run: |
+          python3 -m http.server 4173 --bind 127.0.0.1 >/tmp/pinewood-v75-http.log 2>&1 &
+          for i in {1..30}; do curl -fsS http://127.0.0.1:4173/review/the-call-v34/ >/dev/null && exit 0; sleep 1; done
+          exit 1
+      - name: Verify sedan cockpit, clock and driver-side exit
+        run: node scripts/smoke-sedan-v75.mjs
+      - name: Save desktop cinematic captures
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pinewood-v75-sedan-desktop
+          path: sedan-v75-artifacts/
+          retention-days: 7

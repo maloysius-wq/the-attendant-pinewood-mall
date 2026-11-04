@@ -1,11 +1,11 @@
 import * as THREE from '../vendor/three/build/three.module.js';
-import {makeOpeningScene} from './scene.js?v=65';
+import {makeOpeningScene} from './scene.js?v=75';
 import {installAbandonedFacadeV65} from './facade-v65.js?v=65';
 import {enlargeImportedLandscapeV64} from './landscape-scale-v64.js?v=64';
 import {renderPinewoodV69} from '../mall/render-shell-v69.js';
-import {installDashboardClockV71} from './dashboard-clock-v71.js?v=74';
+import {installDashboardClockV71} from './dashboard-clock-v71.js?v=75';
 import {KeypadReachHandV72} from './keypad-reach-v72.js?v=72';
-import {HumanCameraRig} from './camera-v65.js?v=74';
+import {HumanCameraRig} from './camera-v65.js?v=75';
 import {OpeningAmbience} from './ambience-v62.js?v=62';
 import {HandheldCheckInPhone} from './phone-v62.js?v=62';
 import {buildCaptionTrack,captionAt} from './caption-sync-v45.js?v=45';
@@ -325,6 +325,7 @@ class Intro{
     this.handheld?.update(this.line.id,this.elapsed,this.voiceSeconds,{reducedMotion:this.reduced});
     this.root.dataset.phoneRaised=this.handheld?.raised?'true':'false';
     this.stage.pivot.rotation.y=-Math.PI*.48*pose.doorOpen;
+     this.stage.sedanDoor?.update(this.line.id,pose.phase);
     // Visible button presses follow the voice, before Renee confirms entry.
     const accessProgress=this.line.id==='lights'
      ?clamp((this.elapsed-this.voiceSeconds)/Math.max(.1,this.line.pause||2),0,1)
@@ -432,6 +433,15 @@ window.__PINEWOOD_OPENING_V34__={
  get cameraPosition(){return active?.camera?.position.toArray()||null;},
  get eyeMotion(){const p=active?.lastCameraPose;return p?{cue:p.cue,phase:p.phase,gaze:p.gazeTarget,walking:p.isWalking,rain:p.rain,doorOpen:p.doorOpen}:null;},
  get environmentV37(){return active?.stage?.v37||null;},
+ get carDoorState(){return active?.stage?.sedanDoor?.status||null;},
+ get cockpitSightlines(){
+  const model=active?.stage?.sedanV75?.model,cam=active?.camera;
+  if(!model||!cam)return null;
+  cam.updateWorldMatrix(true,false);
+  const ray=new THREE.Raycaster();ray.setFromCamera(new THREE.Vector2(0,0),cam);ray.near=.18;
+  const hit=ray.intersectObject(model,true).find(h=>!/windows|glass/i.test(h.object.name||''));
+  return {centerForwardDistance:hit?.distance??20,hitMesh:hit?.object.name||null};
+ },
  get startupStatus(){return active?{state:active.root.dataset.preloadState,
   firstFrameRendered:!!active.firstFrameRendered,preloading:active.preloading,
   voicedLineStarted:active.index>=0}:null;},

@@ -1,5 +1,5 @@
 import * as THREE from '../vendor/three/build/three.module.js';
-import {upgradeOpeningSceneV37} from './environment-v37.js?v=43';
+import {upgradeOpeningSceneV37} from './environment-v37.js?v=75';
 import {installMallPlantersV63} from './landscape-v63.js?v=63';
 import {ENTRY_CODE,keypadCenter} from './keypad-spec-v72.mjs';
 const v=(x,y,z)=>new THREE.Vector3(x,y,z);
@@ -180,7 +180,7 @@ export function makeOpeningScene({useImportedLandscape=false,useAbandonedFacade=
  }
  // Complete enclosed CC0 1990s hatchback: real roof, seats, transparent glass.
  // No procedural car shell, truck cutaway or phone mount.
- const car=new THREE.Group();car.name='Sole full 1990s hatchback placement';car.position.set(-10,0,17.5);world.add(car);
+ const car=new THREE.Group();car.name='Sole licensed scailman low-poly sedan placement';car.position.set(-10,0,17.5);world.add(car);
  // Parking fixtures.
  for(const [x,z] of[[-21,9],[28,5],[0,28]]){cyl(world,x,3.9,z,.09,7.8,steel);box(world,x,7.75,z,.8,.2,.5,concrete);lamp(scene,x,7.3,z,0xd9c6a3,3.2,19);}
  // Keep primitive planters solely for legacy/production scenes; v63 is model-only.

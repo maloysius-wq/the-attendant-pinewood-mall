@@ -1,39 +1,39 @@
 /**
  * Small 12:47 AM factory readout. Its bezel is seated against a measured
- * surface of the original licensed enclosed hatchback, not suspended in
+ * surface of the licensed enclosed sedan, not suspended in
  * empty space or attached to a replacement dashboard.
  */
 import * as THREE from '../vendor/three/build/three.module.js';
 
 const local=(car,p)=>car.localToWorld(new THREE.Vector3(...p));
 export function installDashboardClockV71(car){
- const model=car?.children?.find(child=>child.name==='Complete Grab3D CC0 1990s Hatchback');
+ const model=car?.children?.find(child=>child.name==='Complete scailman CC-BY-4.0 Low-Poly Sedan');
  if(!car?.isGroup||!model||car.children.filter(x=>x.name===model.name).length!==1)
-  throw Error('The dashboard clock needs the complete imported hatchback');
+  throw Error('The dashboard clock needs the complete imported sedan');
  car.updateWorldMatrix(true,true);
  // The old driver eye looked through front-seat upholstery and the mount
  // search selected a seat-depth triangle (z=-.186) as "dashboard".
- const driverEye=local(car,[-.30,1.10,-.32]);
+ const driverEye=local(car,[-.33,1.22,.22]);
  const hits=[];
  // The seat is behind this driver eye. Only the physically useful first-person
  // near plane is skipped; candidate faces must actually belong to the front dash.
- for(const x of[-.30,-.20,-.10,0,.10,.20]){
-  for(const y of[.75,.80,.85,.90,1.0]){
-   for(const z of[-1.0,-1.15,-1.30,-1.45]){
+ for(const x of[-.30,-.20,-.10,0,.10,.20,.30]){
+  for(const y of[.77,.83,.89,.95,1.01,1.07]){
+   for(const z of[-.50,-.62,-.74,-.86,-.98,-1.10]){
     const direction=local(car,[x,y,z]).sub(driverEye).normalize();
     const hit=new THREE.Raycaster(driverEye,direction,.18,3)
      .intersectObject(model,true)
-     .find(h=>!/window|wheel|tire|rim/i.test(h.object.name));
+     .find(h=>!/window|wheel|tire|rim|door/i.test(h.object.name));
     if(!hit)continue;
     const point=car.worldToLocal(hit.point.clone());
-    if(point.x<-.45||point.x>.48||point.y<.73||point.y>1.05||
-       point.z>-.78||point.z<-1.50||hit.distance<.36)continue;
+    if(point.x<-.45||point.x>.48||point.y<.68||point.y>1.14||
+       point.z>-.42||point.z<-1.30||hit.distance<.45)continue;
     const normal=hit.face.normal.clone().transformDirection(hit.object.matrixWorld);
     const toEye=driverEye.clone().sub(hit.point).normalize();
     if(normal.dot(toEye)<0)normal.negate();
     if(normal.dot(toEye)<.16)continue;
-    const score=Math.abs(point.x-.05)*2+Math.abs(point.y-.87)*2+
-     Math.abs(point.z+1.0)*.7+(1-normal.dot(toEye))*.6;
+    const score=Math.abs(point.x-.04)*2+Math.abs(point.y-.97)*2+
+     Math.abs(point.z+.65)*.7+(1-normal.dot(toEye))*.6;
     hits.push({score,p:point,normal,mesh:hit.object.name,
      kind:'driver-facing-panel',hitDistance:hit.distance});
    }
@@ -94,7 +94,7 @@ export function installDashboardClockV71(car){
  if(!unobstructedFromDriver)throw Error('Dashboard clock is hidden behind original car geometry');
  return Object.freeze({
   time:'12:47 AM',localPosition:clock.position.toArray(),importedCarPreserved:true,
-  mountedToImportedDash:mount.p.z<-.78,unobstructedFromDriver,surfaceGap:0,displayWidth:.151,visibleDisplayCorners:4,
+  mountedToImportedDash:mount.p.z<-.42,unobstructedFromDriver,surfaceGap:0,displayWidth:.151,visibleDisplayCorners:4,
   mountDepth:mount.p.z,clockDistance,interiorNearPlane:.18,
   hitMesh:mount.mesh,mountKind:mount.kind,displayNormal:displayNormal.toArray(),
   importedSurfaceNormal:mount.normal.toArray(),displayReadableAngle

@@ -9,17 +9,16 @@ const lerp=(a,b,t)=>a.clone().lerp(b,t);
 const clamp=(v,a,b)=>Math.min(b,Math.max(a,v));
 const smooth=t=>{t=clamp(t,0,1);return t*t*(3-2*t)};
 const E={
- // The previous viewpoint saw oversized upholstery through the clock gaze.
- // The true front-seat eye sits 12 cm below the imported roof and forward
- // of the seatback; measured rays reach the real dash ~59 cm away.
- driver:[-10.30,1.10,17.18],dashLean:[-10.30,1.08,17.14],
- doorLean:[-10.85,1.15,17.18],doorOutside:[-11.82,1.72,17.12],
+ // The sedan's wheel is forward at car-local z ~-.45. Seat the eyes behind
+ // it at z +.22, within the GLB's real roof and front-left door opening.
+ driver:[-10.33,1.22,17.72],dashLean:[-10.33,1.18,17.67],
+ doorLean:[-10.88,1.26,17.68],doorOutside:[-11.82,1.72,17.12],
  parking:[-9.0,1.73,13.0],pavement:[0,1.73,.0],underCanopy:[8.05,1.73,-13.0],
  access:[12.80,1.63,-20.73],threshold:[12.07,1.71,-23.4],concourse:[9.0,1.72,-26.3]
 };
 const G={
  ahead:[2,2.9,-22],softAhead:[1.2,2.7,-22],softSign:[.5,3.4,-22],
- sign:[-10.5,13.13,-22],dash:[-9.9,.94,13.30],clockDash:[-9.96,.98,16.43],
+ sign:[-10.5,13.13,-22],dash:[-9.9,.94,13.30],clockDash:[-9.96,.98,16.88],
  mirror:[-12,2.06,16.1],door:[-14,1.62,17.8],mall:[12,2,-22],
  posters:[-17,3.0,-22],entrance:[12,1.5,-22],keypad:[13.65,1.37,-21.72],
  inside:[10,2.4,-48],directory:[0,2.5,-56],
