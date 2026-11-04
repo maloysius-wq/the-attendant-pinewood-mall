@@ -1,0 +1,44 @@
+name: Pinewood v78 pointing index finger at contractor keypad
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'opening/**'
+      - 'scripts/smoke-keypad-point-v78.mjs'
+      - '.github/workflows/keypad-point-v78.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'opening/**'
+      - 'scripts/smoke-keypad-point-v78.mjs'
+      - '.github/workflows/keypad-point-v78.yml'
+permissions:
+  contents: read
+jobs:
+  desktop-pointing-hand:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 24
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Check index-pointing test syntax
+        run: node --check scripts/smoke-keypad-point-v78.mjs
+      - name: Install desktop Chromium
+        run: |
+          npm install --no-save playwright@1.55.0
+          npx playwright install chromium
+      - name: Serve local Pinewood preview
+        run: |
+          python3 -m http.server 4173 --bind 127.0.0.1 >/tmp/pinewood-v78-http.log 2>&1 &
+          for i in {1..30}; do curl -fsS http://127.0.0.1:4173/review/the-call-v34/ >/dev/null && exit 0; sleep 1; done
+          exit 1
+      - name: Verify thumb curls, index reaches all four keys, phone grip restores
+        run: node scripts/smoke-keypad-point-v78.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: pinewood-pointing-index-v78-desktop
+          path: keypad-v78-artifacts/
+          if-no-files-found: ignore
