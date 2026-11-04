@@ -251,6 +251,13 @@ Pinewood's named storefront signs are generated locally because their lettering 
 - Renee's eleven opening recordings reuse the same extreme v29 handheld-radio mastering as the live game (`scripts/reprocess-renee-walkie-v28.mjs`): band pass 650–2150 Hz, 12:1 compression, 9-bit grit, filtered pink-noise bed, beginning/end squelch, and -22.5 integrated LUFS target. The source rerecording is *not* required during playback; each clip remains local.
 
 
+## The Call v75 — Scailman Low-Poly Sedan (CC BY 4.0)
+
+- **Creator:** scailman. Original [Low-Poly Sedan car](https://sketchfab.com/3d-models/low-poly-sedan-car-aeb2699532b4402e8b75ec8888b800b9) © scailman, licensed [Creative Commons Attribution 4.0](https://creativecommons.org/licenses/by/4.0/). Credit and license link required for redistribution, including this game.
+- **Runtime:** exact user-supplied converted GLB: `opening/assets/v75/low-poly_sedan_car.glb` (422,016 bytes; SHA-256 `224db7dfd80b36dccf868f8bc71e221a284df6b8e7dca9986843c382c7722b7e`). The original Sketchfab metadata is preserved in the GLB. The file has 44 meshes, separate articulated FL/FR/RL/RR door groups, separate steering wheel, interior panels, and no external images or textures.
+- **Modifications for the game:** unit normalization to a 1.86 m body width, rotation toward the mall, muted nighttime body color/glass transparency, clock mounted onto its original dashboard, and driver-side door hinge animation.
+- The v42 Grab3D hatchback documented below is historical and is no longer referenced by the opening cinematic runtime.
+
 ## The Call v42: full, enclosed CC0 hatchback and weathered mall exterior
 
 - **Complete 1990s Hatchback**: Grab3D, CC0-1.0, https://grab3d.com/models/vehicles/1990s-hatchback/ . Original vendored full-car GLB: `opening/assets/v42/1990s-hatchback.glb`. Actual source roof, front/rear seats, steering wheel, transparent window glass and exterior. Exact SHA-256 and source URL: `opening/assets/v42/manifest.json`. Browser renders this single model and no hand-authored car or phone mount.

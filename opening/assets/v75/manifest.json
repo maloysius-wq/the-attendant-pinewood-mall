@@ -1,0 +1,21 @@
+{
+  "version": 75,
+  "model": "low-poly_sedan_car.glb",
+  "source": "https://sketchfab.com/3d-models/low-poly-sedan-car-aeb2699532b4402e8b75ec8888b800b9",
+  "creator": "scailman",
+  "license": "CC-BY-4.0",
+  "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+  "sha256": "224db7dfd80b36dccf868f8bc71e221a284df6b8e7dca9986843c382c7722b7e",
+  "bytes": 422016,
+  "meshes": 44,
+  "frontLeftDoor": "FL_Door",
+  "forwardAxis": "+Z",
+  "untransformedWidth": 5.2,
+  "targetWidthM": 1.86,
+  "driverEyeLocal": [
+    -0.33,
+    1.22,
+    0.22
+  ],
+  "notes": "Converted Sketchfab GLB, user-provided; original 3D geometry with separate left/right doors and interior. No dependent image files."
+}
