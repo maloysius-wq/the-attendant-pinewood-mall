@@ -28,6 +28,10 @@ button,input,textarea{font:inherit}button{cursor:pointer}a{color:var(--mint)}a:h
 .notes{margin-top:10px;min-height:100px;width:100%;resize:vertical;border:1px solid #40534d;border-radius:8px;background:#101817;color:var(--text);padding:11px;outline:none;font-size:12px;line-height:1.5}.notes:focus{border-color:#a9c5ac}.export{width:100%;margin-top:12px}.noresults{padding:20px 10px;color:var(--muted);font-size:12px}.copyright{color:#879b95;font-size:11px;line-height:1.55}.copyright a{color:#b5cfbf}
 @media (max-width:1260px){.shell{grid-template-columns:248px minmax(0,1fr)}.details{grid-column:2;border-left:0;border-top:1px solid var(--line)}.viewer-wrap{min-height:490px}.viewer-frame{height:490px}.model-list{max-height:580px}.work{padding:24px}}
 @media (max-width:820px){.shell{display:flex;flex-direction:column}.sidebar{border-right:0;border-bottom:1px solid var(--line);padding:16px}.model-list{flex-direction:row;overflow:auto;min-height:0;max-height:145px}.model{min-width:190px}.sidefoot{display:none}.work{padding:18px}.viewer-wrap,.viewer-frame{min-height:390px;height:390px}.details{padding:22px;border:0}.spacer{display:none}.eyebrow{display:none}}
+
+/* Keep the WebGL viewport and its controls within one desktop screen. */
+.model-title,.model-caption{display:block}
+@media (min-width:821px){.work{height:100vh;max-height:100vh;position:sticky;top:0;min-height:0}.viewer-wrap{min-height:260px}.viewer-frame{min-height:0}}
 </style>
 </head>
 <body>
