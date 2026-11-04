@@ -1,10 +1,10 @@
 import * as THREE from '../vendor/three/build/three.module.js';
-import {makeOpeningScene} from './scene.js?v=80';
+import {makeOpeningScene} from './scene.js?v=81';
 import {installAbandonedFacadeV65} from './facade-v65.js?v=65';
 import {enlargeImportedLandscapeV64} from './landscape-scale-v64.js?v=64';
 import {renderPinewoodV69} from '../mall/render-shell-v69.js';
 import {installDashboardClockV71} from './dashboard-clock-v71.js?v=75';
-import {KeypadReachHandV72} from './keypad-reach-v72.js?v=79';
+import {KeypadReachHandV72} from './keypad-reach-v72.js?v=81';
 import {HumanCameraRig} from './camera-v65.js?v=77';
 import {OpeningAmbience} from './ambience-v62.js?v=62';
 import {HandheldCheckInPhone} from './phone-v62.js?v=62';
@@ -581,6 +581,22 @@ window.__PINEWOOD_OPENING_V34__={
   active.camera.lookAt(-10,1.0,17.5);
   active.renderer.render(active.stage.scene,active.camera);
   return true;
+ },
+ get exteriorDecay(){
+  if(!location.pathname.includes('/review/')||!active?.stage)return null;
+  const groups=active.stage.world.children.filter(o=>o.name?.startsWith('V63 imported CC0 exterior planter '));
+  const plants=groups.map(group=>{
+   const pot=group.children.find(o=>o.name.includes('weathering-steel-planter.glb'));
+   const bush=group.children.find(o=>o.name.includes('rounded-landscape-shrub.glb'));
+   let vertexColors=0,potColor=null,leafColor=null;
+   pot?.traverse(o=>{if(o.isMesh&&!potColor)potColor=o.material?.color?.getHexString?.()||null});
+   bush?.traverse(o=>{if(o.isMesh){vertexColors+=o.geometry?.getAttribute('color')?.count||0;
+    if(!leafColor)leafColor=o.material?.color?.getHexString?.()||null;}});
+   return {pot:!!pot,bush:!!bush,vertexColors,potColor,leafColor,
+    bushTilt:[bush?.rotation?.x||0,bush?.rotation?.z||0]};
+  });
+  return {skyIsTexture:!!active.stage.scene.background?.isTexture,
+   skyFile:active.stage.v37?.sky?.file||null,plants};
  },
  get sidewalkFinish(){
   if(!location.pathname.includes('/review/'))return null;
