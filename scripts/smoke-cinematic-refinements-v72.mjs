@@ -126,11 +126,11 @@ try{
  assert.ok(entry.keypad?.legibleDigits===9,'all nine key labels are visibly rendered');
  assert.equal(entry.keypad?.displayedCode,'158','the illuminated keypad screen must show the entered digits');
  assert.ok(entry.keypad?.forearmVisible,'a real locally vendored hand reaches the keypad');
- const wrist=entry.keypad?.finger?.wristViewport,thumb=entry.keypad?.finger?.thumbViewport;
+ const wrist=entry.keypad?.finger?.wristViewport,index=entry.keypad?.finger?.gripFingerViewport;
  assert.ok(wrist?.[0]>.05&&wrist?.[0]<.95&&wrist?.[1]>.05&&wrist?.[1]<.95&&wrist?.[2]<1,
   'the imported wrist must actually project onto the visible screen, not just be flagged visible');
- assert.ok(thumb?.[0]>.05&&thumb?.[0]<.95&&thumb?.[1]>.05&&thumb?.[1]<.95&&thumb?.[2]<1,
-  'the pressing finger must be within the visible keypad frame');
+ assert.ok(index?.[0]>.05&&index?.[0]<.95&&index?.[1]>.05&&index?.[1]<.95&&index?.[2]<1,
+  'the extended index finger must be within the visible keypad frame');
  assert.ok(entry.keypad?.finger?.skinSamplesInView>35,
   'actual skinned vertices, not only bone joints, must be visibly projected');
  assert.equal(entry.keypad?.entered.length,3,'third code digit entered during the fourth-key sequence');

@@ -6,7 +6,18 @@
 **Repository access rule:** Use the connected GitHub connector first for Pinewood repository work.  
 **Source-of-truth rule:** Read this file, `AGENTS.md`, `STORY_BIBLE.md`, and `NARRATIVE_IMPLEMENTATION_PLAN.md`, then inspect the actual current `main` HEAD and current workflow runs. The repository and the user's newest explicit request override old chat history.
 
+
 ---
+
+## Contractor keypad index-pointing gesture: v78 (2026-11-04)
+
+**Source PR:** [#57](https://github.com/maloysius-wq/the-attendant-pinewood-mall/pull/57). User specifically requested that the opening cinematic's numpad entry no longer reuse the cellphone-holding grip. The index finger should point and press all four buttons; thumb, middle, ring and pinky should remain curled.
+
+- **Root cause:** `opening/keypad-reach-v72.js` previously called `hand.update(press)`, which only flexes the cellphone grip's THUMB; its root was also anchored to the phone thumb target rather than an index finger.
+- **Gesture:** During keypad entry, reuse the same connected skinned CC0 forearm but save its exact phone grip first. Align the native index MCP away from the phone edge, straighten both index PIP and distal phalanx to the actual weighted fingertip skin, and curl the other four digits inward. Camera-aligned orientation makes the extended pointing finger legible in the first-person shot. Each 1-5-8-3 key is reached by the original weighted index fingertip skin, with a short lift between contacts. End of reach restores all 15 finger joint quaternions and the original phone-model orientation.
+- **Preserve:** Same licensed rig and asset, no extra geometry or disembodied hand, and all earlier v77 continuous-mall entry, service-door response, chosen v75 sedan, dispatch dialogue and phone animation are unchanged.
+- **Regression:** `scripts/smoke-keypad-point-v78.mjs` and `.github/workflows/keypad-point-v78.yml` measure real bone angles, all four skin-to-key contact distances, phone grip restoration on replay, and no remote assets or browser exceptions. The legacy v72 smoke assertion now follows the actual index instead of the old thumb.
+- **Verification:** [GREEN v78 desktop Chromium run 41881936079](https://github.com/maloysius-wq/the-attendant-pinewood-mall/actions/runs/41881936079) checked four actual fingertip-skin contacts, finger curl, phone-grip restoration, no browser errors or remote assets, and saved a verified camera-facing screenshot. The same diagonal build passed [v72 cockpit/keypad](https://github.com/maloysius-wq/the-attendant-pinewood-mall/actions/runs/41881936185), v75 sedan and v62 phone pacing. The older v77 continuity suite had screenshot timeouts with the crowded software WebGL runners, not assertion failures; its screenshot deadline is extended to 120 seconds without changing any gameplay or scene timing. Confirm final GitHub Pages deployment after merge.
 
 ## Contractor entrance cinematic continuity: v77 (2026-11-04)
 

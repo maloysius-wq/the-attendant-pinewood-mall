@@ -31,7 +31,7 @@ assert.match(scene,/if\(!useImportedLandscape\).*for\(let i=0;i<7/);
 assert.match(scene,/Promise\.all\(\[environmentReady,installMallPlantersV63\(world\)\]\)/);
 assert.match(intro63,/makeOpeningScene\(\{useImportedLandscape:true\}\)/);
 assert.doesNotMatch(intro62,/useImportedLandscape:true/);
-assert.match(preview,/intro-v65\.js\?v=(?:65|72|75|77)/);
+assert.match(preview,/intro-v65\.js\?v=(?:65|72|75|77|78)/);
 assert.match(imported,/GLTFLoader/);
 assert.doesNotMatch(imported,/new THREE\.(?:BoxGeometry|CylinderGeometry|SphereGeometry)/);
 assert.doesNotMatch(imported,/https?:\/\//,'No remote runtime assets');
