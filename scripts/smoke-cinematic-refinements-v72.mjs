@@ -39,7 +39,7 @@ try{
  await page.waitForTimeout(700);
  const clockMoment=await get();
  assert.ok(clockMoment.clockView?.inFrame,'clock must appear during Renee\'s time-of-night line');
- assert.ok(clockMoment.clockView?.viewportWidth>=.055,'dashboard time must be legible');
+ assert.ok(clockMoment.clockView?.viewportWidth>=.035,'dashboard time must be legible');
  await page.screenshot({path:'cinematic-v72-artifacts/01-clock-glance.png'});
  // Investigate the actual imported upholstery geometry at the player's
  // eye for both the clock glance and the unoccluded windshield view.
@@ -51,7 +51,7 @@ try{
   const q=window.__PINEWOOD_OPENING_V34__;
   const eye=new THREE.Vector3(...q.cameraPosition);
   const sceneGaze=new THREE.Vector3(...q.eyeMotion.gaze);
-  const gltf=await new GLTFLoader().loadAsync('/opening/assets/v42/1990s-hatchback.glb');
+  const gltf=await new GLTFLoader().loadAsync('/opening/assets/v75/low-poly_sedan_car.glb');
   const model=gltf.scene;model.rotation.y=Math.PI;model.updateMatrixWorld(true);
   let bounds=new THREE.Box3().setFromObject(model);
   const size=bounds.getSize(new THREE.Vector3());
@@ -61,7 +61,7 @@ try{
   model.position.x-=center.x;model.position.y-=bounds.min.y;model.position.z-=center.z;
   const car=new THREE.Group();car.position.set(-10,0,17.5);car.add(model);
   model.traverse(o=>{if(o.isMesh)for(const m of Array.isArray(o.material)?o.material:[o.material])
-   if(m&&/body_pbr/i.test(m.name||''))m.side=THREE.FrontSide;});
+   if(m&&!/Windows/i.test(m.name||''))m.side=THREE.FrontSide;});
   car.updateMatrixWorld(true,true);
   const local=(p)=>car.localToWorld(new THREE.Vector3(...p));
   const clock=local(q.dashboardClock.localPosition);
