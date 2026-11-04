@@ -26,7 +26,7 @@ try{
     d=point('finger'+n+'-3.R');
    return m.clone().sub(a).angleTo(d.clone().sub(m));
   };
-  const digit=q.keypadView?.digit;
+  const digit=q.keypadView?.finger?.digit;
   const center=digit?point('wrist.R').clone().set(
    13.52+((digit-1)%3)*.13,1.30-Math.floor((digit-1)/3)*.11,-21.647):null;
   const angles=Object.fromEntries([1,2,3,4,5].map(n=>[n,bend(n)]));
@@ -59,7 +59,7 @@ try{
  for(const [p,want]of [[.125,1],[.375,5],[.625,8],[.76,3]]){
   const state=await page.evaluate(f=>{
    const q=window.__PINEWOOD_OPENING_V34__;
-   q.scrub(f);return q.keypadView?.digit;
+   q.scrub(f);return q.keypadView?.finger?.digit;
   },phaseFor(p));
   await page.waitForTimeout(330);
   const snap=await snapshot();

@@ -4,7 +4,7 @@ import {installAbandonedFacadeV65} from './facade-v65.js?v=65';
 import {enlargeImportedLandscapeV64} from './landscape-scale-v64.js?v=64';
 import {renderPinewoodV69} from '../mall/render-shell-v69.js';
 import {installDashboardClockV71} from './dashboard-clock-v71.js?v=75';
-import {KeypadReachHandV72} from './keypad-reach-v72.js?v=77';
+import {KeypadReachHandV72} from './keypad-reach-v72.js?v=78';
 import {HumanCameraRig} from './camera-v65.js?v=77';
 import {OpeningAmbience} from './ambience-v62.js?v=62';
 import {HandheldCheckInPhone} from './phone-v62.js?v=62';
