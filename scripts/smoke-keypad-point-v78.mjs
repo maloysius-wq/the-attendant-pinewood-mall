@@ -64,6 +64,9 @@ try{
   await page.waitForTimeout(330);
   const snap=await snapshot();
   digitSamples.push(snap);
+  console.log('KEYPAD_V78_GEOMETRY '+JSON.stringify({p,want,digit:snap.digit,
+   angles:snap.angles,distances:snap.keyDistances,
+   handVisible:snap.handVisible,forearmVisible:snap.forearmVisible}));
   assert.equal(snap.digit,want,'real fingertip must follow every keyed number');
   assert.ok(snap.handVisible&&snap.forearmVisible,'connected 3D forearm must reach each key');
   assert.ok(snap.angles[2]<.28,'index PIP joint should be straight, not gripping the phone');

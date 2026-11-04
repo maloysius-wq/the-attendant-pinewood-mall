@@ -116,6 +116,11 @@ export class KeypadReachHandV72{
    if(distance>far){far=distance;chosen=i;}
   }
   this.indexSkinVertex=chosen;
+  // Straighten the final (DIP) segment as well: align the actual
+  // skin-covered fingertip with the extended index bone chain.
+  if(chosen!==null)this._aimJoint('finger2-3.R',
+   this._indexTip().sub(at('finger2-3.R')),
+   at('finger2-3.R').sub(at('finger2-2.R')));
   this.pointPose=this._capturePose();
  }
  _indexTip(){
