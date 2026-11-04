@@ -30,7 +30,7 @@ try {
  assert.equal(initial.vehicle?.cockpit?.meshes,44,'all original GLB meshes should remain');
  assert.equal(initial.vehicle?.cockpit?.hasOriginalRoof,true,'original covered roof must remain');
  assert.equal(initial.vehicle?.cockpit?.authorCreatedBodyMeshes,0,'no added vector car geometry');
- assert.ok(initial.camera?.[2]>17.5&&initial.camera?.[2]<17.95,'eye must be behind the wheel');
+ assert.ok(initial.camera?.[2]>=17.15&&initial.camera?.[2]<=17.48,'eye must be behind the wheel');
  assert.ok(initial.vehicle?.roofRayDistance>.18&&initial.vehicle?.roofRayDistance<.72,'eye must be beneath a roof');
  assert.ok(initial.sightlines?.centerForwardDistance>.45,'windshield view must not be blocked by upholstery');
  assert.equal(initial.door?.side,'FL_Door');
@@ -44,6 +44,18 @@ try {
  assert.ok(clockMoment.clockView?.inFrame,'clock appears within motivated gaze');
  assert.ok(clockMoment.clockView?.viewportWidth>=.035,'clock is legible');
  await page.screenshot({path:'sedan-v75-artifacts/02-clock-glance.png'});
+ // The eye must cross the left wall through the original front doorway, not
+ // through the adjacent rear door (which begins at world Z 17.58).
+ await page.evaluate(()=>{const q=window.__PINEWOOD_OPENING_V34__;q.seek(5);q.scrub(.215)});
+ await page.waitForTimeout(650);
+ const crossing=await read();
+ assert.ok(crossing.camera[0]<-10.77&&crossing.camera[0]>-11.30,
+  'camera must be at the driver's side threshold in this exit beat');
+ assert.ok(crossing.camera[2]>=16.65&&crossing.camera[2]<=17.47,
+  'camera must cross the front-left door opening, not the rear-door metal');
+ assert.ok(crossing.door?.openFraction>.90,
+  'the original front door must have swung clear before the character passes through');
+ await page.screenshot({path:'sedan-v75-artifacts/025-crossing-front-door.png'});
  await page.evaluate(()=>{const q=window.__PINEWOOD_OPENING_V34__;q.seek(5);q.scrub(.28)});
  await page.waitForTimeout(650);
  const opening=await read();
@@ -60,7 +72,7 @@ try {
  const departure=await read();
  assert.ok(Math.abs(departure.door?.angle||0)<.05,'driver closes the real car door before walking away');
  assert.deepEqual(errors,[]);assert.deepEqual(external,[]);
- const result={initial,clockMoment,opening,outside,departure,errors,external};
+ const result={initial,clockMoment,crossing,opening,outside,departure,errors,external};
  await writeFile('sedan-v75-artifacts/report.json',JSON.stringify(result,null,2));
  console.log('SEDAN_V75_DESKTOP_PASS '+JSON.stringify({
   source:initial.vehicle.cockpit.source,meshes:initial.vehicle.cockpit.meshes,
