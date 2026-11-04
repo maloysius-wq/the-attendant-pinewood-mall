@@ -134,7 +134,8 @@ try{
  assert.ok(entry.keypad?.finger?.skinSamplesInView>35,
   'actual skinned vertices, not only bone joints, must be visibly projected');
  assert.equal(entry.keypad?.entered.length,3,'third code digit entered during the fourth-key sequence');
- await page.screenshot({path:'cinematic-v72-artifacts/02-pressing-code.png'});
+ // The real 3D keypad frame is already captured directly from WebGL above.
+ // Avoid racing another compositor screenshot against a heavy readPixels frame.
  await page.evaluate(()=>{const q=window.__PINEWOOD_OPENING_V34__;q.seek(8);q.scrub(.75)});
  await page.waitForTimeout(700);
  const granted=await get();

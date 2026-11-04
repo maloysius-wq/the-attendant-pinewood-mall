@@ -12,12 +12,14 @@ test('eight imported planters form four mirrored pairs around the public lobby',
  for(let i=5;i<8;i++)assert.ok(Math.abs(p[i].x-p[i-1].x-3.6)<.001);
  assert.ok(p[7].x<8,'contractor door path remains clear');
 });
-test('opening uses real mall after the threshold and preserves cinematic sequencing',()=>{
+test('opening shares the licensed mall and physical contractor entrance before and after the threshold',()=>{
  const s=read('opening/intro-v65.js');
  assert.match(s,/renderPinewoodV69\(\{scene:this\.interiorScene,chapter:1\}\)/);
  assert.match(s,/this\.interiorReady/);
- assert.match(s,/this\.renderer\.render\(this\.interiorScene,this\.camera\)/);
- assert.match(s,/this\.root\.dataset\.renderWorld=useNewMall\?'unified-mall':'exterior'/);
+ assert.match(s,/this\.stage\.scene\.add\(canonical\)/,'mount real mall in one continuous scene');
+ assert.match(s,/this\.renderer\.render\(this\.stage\.scene,this\.camera\)/,'render same physical world across the threshold');
+ assert.match(s,/this\.root\.dataset\.renderWorld=throughDoor\?'unified-mall':'exterior'/,'diagnostic tag follows threshold without changing scene');
+ assert.doesNotMatch(s,/this\.renderer\.render\(this\.interiorScene,this\.camera\)/,'retired scene swap cannot reappear');
  assert.match(s,/this\.stage\.accessPad\.update\(accessProgress\)/);
  assert.match(s,/this\.elapsed-this\.voiceSeconds/,'numeric entry must follow Renee, not interrupt her');
  assert.match(s,/delta\*11\.6/,'faster rainfall');
