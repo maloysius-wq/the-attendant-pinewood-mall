@@ -1,0 +1,35 @@
+name: Vendor Pinewood Builder CC0 models
+on:
+  push:
+    branches: [design/standalone-pinewood-builder-20261105]
+    paths:
+      - 'tools/vendor-builder-cc0-v1.mjs'
+      - '.github/workflows/vendor-builder-cc0-v1.yml'
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  vendor:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Fetch pinned CC0 GLB binaries and record per-asset provenance
+        run: node tools/vendor-builder-cc0-v1.mjs
+      - name: Verify every model checksum and categories before committing
+        run: node --test scripts/audit-builder-assets-v1.mjs
+      - name: Commit locally bundled Builder models and exact licensing evidence
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -f assets/vendor/builder/LICENSE* assets/vendor/builder/catalog-v1.json assets/vendor/builder/models assets/vendor/builder/thumbs LICENSES.md || git add -f assets/vendor/builder/catalog-v1.json assets/vendor/builder/models assets/vendor/builder/thumbs LICENSES.md
+          if git diff --cached --quiet; then exit 0; fi
+          git commit -m "assets(builder): bundle pinned CC0 models with SHA-256 manifest"
+          git pull --rebase origin design/standalone-pinewood-builder-20261105
+          git push origin HEAD:design/standalone-pinewood-builder-20261105
