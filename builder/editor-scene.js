@@ -3,6 +3,7 @@ import {GLTFLoader} from '../vendor/three/examples/jsm/loaders/GLTFLoader.js';
 import {TransformControls} from '../vendor/three/examples/jsm/controls/TransformControls.js';
 import {renderPinewoodV69} from '../mall/render-shell-v69.js';
 import {FURNISHINGS_V69} from '../mall/furnishing-plan-v69.mjs';
+import {EDITOR_EXTRA_FIXTURES_V1} from '../mall/editor-baseline-v1.mjs';
 import {EDITOR_CATALOG_BY_ID} from '../mall/editor-catalog-v1.mjs';
 
 const vector=v=>({x:v.x,y:v.y,z:v.z});
@@ -22,6 +23,11 @@ export async function createBuilderScene({scene,camera,domElement,onSelect=()=>{
   if(!o)throw Error('Missing baseline licensed fixture '+f.id);
   objects.set(f.id,o);originals.set(f.id,pose(o));
   o.userData.editorId=f.id;
+ }
+ for(const f of EDITOR_EXTRA_FIXTURES_V1){
+  const o=building.group.getObjectByName('cc0_'+f.id,true);
+  if(!o)throw Error('Missing original licensed mall prop '+f.id);
+  objects.set(f.id,o);originals.set(f.id,pose(o));o.userData.editorId=f.id;
  }
  const raycaster=new THREE.Raycaster(),pointer=new THREE.Vector2();
  const loader=new GLTFLoader(),cached=new Map();
