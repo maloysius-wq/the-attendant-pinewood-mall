@@ -87,14 +87,22 @@ try {
       assert(await page.locator('#pwm-opening').getAttribute('data-paused') === 'false',
         layout.name + ': Escape did not resume');
 
-      await page.locator('[data-intro-voice]').click();
+      // These are native buttons. Activate with Enter to verify keyboard
+      // accessibility without depending on software-WebGL pointer compositing
+      // (which can leave Playwright's mouse click pending on crowded runners).
+      const activateButton = async selector => {
+        const button = page.locator(selector);
+        await button.focus();
+        await page.keyboard.press('Enter');
+      };
+      await activateButton('[data-intro-voice]');
       assert(await page.locator('[data-intro-voice]').getAttribute('aria-pressed') === 'false',
         layout.name + ': voice toggle does not expose off state');
-      await page.locator('[data-intro-captions]').click();
+      await activateButton('[data-intro-captions]');
       assert(await page.locator('[data-intro-captions]').getAttribute('aria-pressed') === 'false' &&
         await page.locator('#pwm-opening').evaluate(el => el.classList.contains('pwm-hide-captions')),
         layout.name + ': caption toggle does not expose off state');
-      await page.locator('[data-intro-captions]').click();
+      await activateButton('[data-intro-captions]');
       assert(await page.locator('[data-intro-captions]').getAttribute('aria-pressed') === 'true',
         layout.name + ': captions did not reactivate');
 
