@@ -59,3 +59,8 @@ test('event crossing emits exactly one sound per threshold; scrub does not re-fi
  assert.deepEqual(crossedSoundCues(cues,11.2,11.9).map(x=>x.digit),[8,3]);
  assert.deepEqual(crossedSoundCues(cues,11.9,10.0),[]);
 });
+
+test('production New Game and review both import the latest cinematic bundle',()=>{
+ assert.match(src('index.html'),/intro-v65\.js\?v=82/);
+ assert.match(src('review/the-call-v34/index.html'),/intro-v65\.js\?v=82/);
+});
