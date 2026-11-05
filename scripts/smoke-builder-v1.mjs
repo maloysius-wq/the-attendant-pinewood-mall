@@ -1,0 +1,81 @@
+import {chromium} from 'playwright';
+import assert from 'node:assert/strict';
+const origin='http://127.0.0.1:4173';
+const browser=await chromium.launch({headless:true,args:[
+ '--enable-webgl','--ignore-gpu-blocklist','--use-gl=swiftshader',
+ '--enable-unsafe-swiftshader','--disable-dev-shm-usage'
+]});
+try{
+ const page=await browser.newPage({viewport:{width:1600,height:900},deviceScaleFactor:1});
+ const errors=[],remote=[];
+ page.on('pageerror',e=>errors.push(e.message));
+ page.on('request',r=>{if(/^https?:/.test(r.url())&&!r.url().startsWith(origin))remote.push(r.url())});
+ const response=await page.goto(origin+'/builder/',{waitUntil:'domcontentloaded'});
+ assert.equal(response?.status(),200,'standalone builder route exists');
+ await page.waitForFunction(()=>{
+  const api=window.__PINEWOOD_BUILDER__;
+  return api&&(api.ready||api.getState().errors.length>0);
+ },null,{timeout:90000});
+ const get=()=>page.evaluate(()=>window.__PINEWOOD_BUILDER__.getState());
+ const initial=await get();
+ assert.equal(initial.ready,true,JSON.stringify(initial.errors));
+ assert.equal(initial.roomCount,41);
+ assert.equal(initial.fixtureCount,60);
+ assert.ok(initial.catalogCount>=100,'locally bundled mall asset library is available');
+ assert.ok((await page.locator('.catalog-item').count())>=100);
+ assert.equal((await page.evaluate(()=>window.__PINEWOOD_BUILDER__.getCatalog())).some(x=>/christmas|holiday|garland|snowman/i.test(x.label)),true);
+ assert.equal((await page.evaluate(()=>window.__PINEWOOD_BUILDER__.select('atrium_dry_fountain'))),true,'new CC0 fountain replaces old sculpture and is editable');
+ assert.equal(initial.draft.added.length,0);
+ assert.deepEqual(initial.errors,[]);
+ // Existing licensed furniture, not walls or cinematic props, is editable.
+ await page.evaluate(()=>window.__PINEWOOD_BUILDER__.select('security_desk'));
+ assert.equal((await get()).selected,'security_desk','original pre-v69 furniture remains editable');
+ await page.evaluate(()=>window.__PINEWOOD_BUILDER__.select('cassette_stool'));
+ assert.equal((await get()).selected,'cassette_stool');
+ await page.locator('#pos-x').fill('-38.2');
+ await page.locator('#pos-x').dispatchEvent('change');
+ assert.equal((await get()).draft.overrides.cassette_stool.position.x,-38.2);
+ await page.locator('#delete-selected').click();
+ assert.ok((await get()).draft.deleted.includes('cassette_stool'));
+ await page.locator('#undo').click();
+ assert.ok(!(await get()).draft.deleted.includes('cassette_stool'));
+ await page.locator('#redo').click();
+ assert.ok((await get()).draft.deleted.includes('cassette_stool'));
+ // Render one actual catalog GLB and ensure export/import is reversible.
+ await page.evaluate(async()=>{
+  const a=window.__PINEWOOD_BUILDER__;
+  const id=a.getCatalog().find(x=>x.id==='silted-octagonal-atrium-fountain')?.id||a.getCatalog().at(-1).id;
+  await a.place(id,{x:0,y:0,z:-60},'ci-placed-prop');
+ });
+ const added=(await get()).draft.added;
+ assert.equal(added.length,1);
+ assert.equal(added[0].id,'ci-placed-prop');
+ const exported=await page.evaluate(()=>window.__PINEWOOD_BUILDER__.exportJSON());
+ await page.reload({waitUntil:'domcontentloaded'});
+ await page.waitForFunction(()=>window.__PINEWOOD_BUILDER__?.ready,{timeout:90000});
+ assert.equal((await get()).draft.added.length,1,'IndexedDB draft persists across refresh');
+ await page.evaluate(()=>window.__PINEWOOD_BUILDER__.clearDraft());
+ assert.equal((await get()).draft.added.length,0);
+ await page.evaluate(json=>window.__PINEWOOD_BUILDER__.importJSON(json),exported);
+ assert.equal((await get()).draft.added[0].id,'ci-placed-prop');
+ const before=(await get()).selected;
+ const rejected=await page.evaluate(()=>window.__PINEWOOD_BUILDER__.select('floor_G'));
+ assert.equal(rejected,false,'structure cannot be selected for editing');
+ assert.equal((await get()).selected,before);
+ // Navigation is editor-only. The chapter/story game stays untouched.
+ await page.locator('#explore-mode').click();
+ assert.equal((await get()).navigation.mode,'walk');
+ await page.locator('#fly-toggle').click();
+ assert.equal((await get()).navigation.mode,'fly');
+ await page.evaluate(()=>window.__PINEWOOD_BUILDER__.jumpRoom('roster_records'));
+ assert.equal((await get()).navigation.floor,'M1');
+ await page.evaluate(()=>window.__PINEWOOD_BUILDER__.setDoorOpen('service_entry',true));
+ assert.equal((await get()).draft.doors.service_entry,true);
+ await page.locator('#fly-toggle').click();
+ assert.equal((await get()).navigation.mode,'walk');
+ await page.locator('#explore-mode').click();
+ assert.equal((await get()).navigation.mode,'orbit');
+ assert.deepEqual(remote,[]);
+ assert.deepEqual(errors,[]);
+ console.log('PINEWOOD_BUILDER_DESKTOP_PASS '+JSON.stringify({rooms:initial.roomCount,fixtures:initial.fixtureCount,catalog:initial.catalogCount}));
+}finally{await browser.close()}

@@ -1,0 +1,38 @@
+name: Pinewood standalone Builder v1
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'builder/**'
+      - 'assets/vendor/builder/**'
+      - 'tools/vendor-builder-cc0-v1.mjs'
+      - 'scripts/audit-builder-assets-v1.mjs'
+      - 'mall/editor-*'
+      - 'scripts/test-builder-*.mjs'
+      - 'scripts/smoke-builder-*.mjs'
+      - '.github/workflows/pinewood-builder-v1.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  builder:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Validate pure Builder model and canonical property
+        run: node --test scripts/test-builder-schema-v1.mjs scripts/test-builder-traversal-v1.mjs scripts/test-furnishing-v69.mjs scripts/audit-builder-assets-v1.mjs scripts/test-builder-overlay-v1.mjs
+      - name: Install deterministic desktop Chromium
+        run: |
+          npm install --no-save playwright@1.55.0
+          npx playwright install chromium
+      - name: Serve connected mall and standalone Builder
+        run: |
+          python3 -m http.server 4173 --bind 127.0.0.1 >/tmp/pinewood-builder-http.log 2>&1 &
+          for i in {1..30}; do curl -fsS http://127.0.0.1:4173/ >/dev/null && exit 0; sleep 1; done
+          exit 1
+      - name: Verify desktop Builder editing and persistence
+        run: node scripts/smoke-builder-v1.mjs

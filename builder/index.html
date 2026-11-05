@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>Pinewood World Builder | The Attendant</title>
+<meta name="description" content="Standalone 3D editor for decorating the abandoned Pinewood Mall.">
+<script type="importmap">{"imports":{"three":"../vendor/three/build/three.module.js"}}</script>
+<link rel="stylesheet" href="./builder.css">
+</head><body>
+<header class="topbar">
+ <div class="branding"><span class="eyebrow">THE ATTENDANT / DEVELOPMENT TOOLS</span><strong>Pinewood <em>World Builder</em></strong></div>
+ <div class="tools">
+  <button id="translate" class="active" title="Move selected object (1)">Move</button>
+  <button id="rotate" title="Rotate selected object (2)">Rotate</button>
+  <button id="resize-object" title="Scale selected object (3)">Scale</button>
+  <span class="divider"></span>
+  <button id="undo" title="Undo (Ctrl+Z)">↶ Undo</button><button id="redo" title="Redo (Ctrl+Y)">↷ Redo</button>
+  <button id="save-draft">Save</button><button id="export-draft" class="primary">Export World Layout</button>
+  <label class="file-button" for="import-file">Import JSON<input id="import-file" type="file" accept="application/json,.json" hidden></label>
+ </div>
+</header>
+<main class="layout">
+ <aside class="panel catalog">
+  <div class="panel-title"><span>01 / THE PROP ROOM</span><span id="catalog-count"></span></div>
+  <h2>Everything has its place.</h2>
+  <p class="muted">Repo-local, licensed 3D objects. Choose one to preview it, then click in the scene to place it.</p>
+  <label for="catalog-search" class="sr-only">Search objects</label>
+  <input id="catalog-search" type="search" placeholder="Search objects, category, style…" autocomplete="off">
+  <label for="catalog-category" class="sr-only">Asset category</label><select id="catalog-category"><option value="">All categories</option></select>
+  <label for="catalog-condition" class="sr-only">Prop condition</label><select id="catalog-condition"><option value="">Any condition</option><option value="weathered">Weathered / damaged</option><option value="standard">Standard / intact</option></select>
+  <div id="catalog-list" class="catalog-list"></div>
+  <div class="catalog-footer"><div class="section-label">THE SCENE</div><label for="outliner-search" class="sr-only">Search placed objects</label><input id="outliner-search" type="search" placeholder="Find a placed object…">
+   <div id="scene-outliner" class="outliner"></div></div>
+ </aside>
+ <section id="viewport" aria-label="3D Pinewood Mall scene">
+  <div id="world"></div>
+  <div class="viewport-head">
+   <div><span class="eyebrow">PINEWOOD MALL / 1990s</span><div id="view-status">Loading three connected levels…</div></div>
+   <div class="view-actions">
+    <select id="jump-room" aria-label="Go to room"><option value="">Jump to room…</option></select>
+    <label class="toggle"><input type="checkbox" id="roof"> Roof / ceilings</label>
+    <button id="explore-mode" title="Walk the mall with WASD and look using your mouse">Explore</button><button id="fly-toggle" title="Toggle gravity-free movement" disabled>Fly: Off</button><button id="reset-camera" title="Return to central atrium">Center view</button>
+   </div>
+  </div>
+  <div id="door-tools"><label for="door-select">Doors</label><select id="door-select" aria-label="Select a physical mall door"><option value="">Choose a door…</option></select><button id="door-toggle">Open / Close</button><label class="toggle"><input id="unlock-doors" type="checkbox" checked> Unlock all (Builder only)</label></div><div id="placement-tip" role="status">Orbit: drag · Pan: right-drag · Zoom: wheel · Select: click · Transform: handles or inspector</div>
+  <div id="loading" role="status"><div class="loader-copy"><span class="eyebrow">PREPARING PINEWOOD</span><strong>The doors are yours.</strong><p>Assembling the licensed mall and all 60 existing furnishings before the editing tools appear.</p><progress max="100" value="12"></progress><span id="load-error"></span></div></div>
+ </section>
+ <aside class="panel inspector">
+  <div class="panel-title"><span>02 / INSPECTOR</span><span id="save-status">Draft not saved</span></div>
+  <h2 id="selection-name">Nothing selected</h2><p class="muted" id="selection-meta">Choose an existing fixture or place something from the catalog.</p>
+  <div id="transform-fields" class="inspector-fields" hidden>
+   <div class="section-label">Position / metres</div><div class="xyz"><label>X <input id="pos-x" type="number" step="0.05"></label><label>Y <input id="pos-y" type="number" step="0.05"></label><label>Z <input id="pos-z" type="number" step="0.05"></label></div>
+   <div class="section-label">Rotation / degrees</div><div class="xyz"><label>Pitch <input id="rot-x" type="number" step="5"></label><label>Yaw <input id="rot-y" type="number" step="5"></label><label>Roll <input id="rot-z" type="number" step="5"></label></div>
+   <div class="section-label">Size</div><label class="wide-label">Scale <input id="object-scale" type="number" min=".05" max="20" step=".05"></label>
+   <div class="selection-actions"><button id="duplicate">Duplicate</button><button id="delete-selected" class="danger">Remove</button></div>
+  </div>
+  <div class="inspector-bottom">
+   <div class="section-label">YOUR BUILD</div>
+   <p class="muted" id="draft-stats">No custom placements yet.</p>
+   <button id="reset-draft" class="secondary">Reset local draft</button>
+   <p class="safety">Walls, floors, shafts, stairs and mandatory story objects stay protected. Changes live only in this browser until you export your layout and approve its incorporation into the game.</p>
+   <p class="safety"><a href="../" target="_blank" rel="noopener">Return to the playable game</a></p>
+  </div>
+ </aside>
+</main>
+<script type="module" src="./main.js"></script>
+</body></html>
