@@ -32,6 +32,11 @@ try{
    13.52+((digit-1)%3)*.13,1.30-Math.floor((digit-1)/3)*.11,-21.647):null;
   const angles=Object.fromEntries([1,2,3,4,5].map(n=>[n,bend(n)]));
   const indexSkin=q.keypadView?.finger?.indexSkinWorld;
+   const palm=point('wrist.R').clone().lerp(point('finger3-1.R'),.48);
+   const fingerPalmDistance=Object.fromEntries([1,3,4,5].map(n=>[n,{
+    tip:point('finger'+n+'-3.R').distanceTo(palm),
+    knuckle:point('finger'+n+'-1.R').distanceTo(palm)
+   }]));
   const keyDistances=center?{
    index:point('finger2-3.R').distanceTo(center),
    indexSkin:indexSkin?point('wrist.R').fromArray(indexSkin).distanceTo(center):null,
@@ -49,7 +54,7 @@ try{
   }
   const phoneGrip=phone?.bones?Object.fromEntries(Object.entries(phone.bones)
    .filter(([n])=>/^finger[1-5]-[1-3]\.R$/.test(n)).map(([n,j])=>[n,j.quaternion.toArray()])):null;
-  return {state:h.state,digit,angles,keyDistances,quats,nativeDifference,phoneGrip,
+  return {state:h.state,digit,angles,keyDistances,fingerPalmDistance,quats,nativeDifference,phoneGrip,
    modelQuat:h.model.quaternion.toArray(),handVisible:q.keypadView?.finger?.visible,
    forearmVisible:q.keypadView?.forearmVisible,phoneVisible:q.handheldPhone?.visible};
  });
@@ -77,17 +82,22 @@ try{
   const snap=await snapshot();
   digitSamples.push(snap);
   console.log('KEYPAD_V78_GEOMETRY '+JSON.stringify({p,want,digit:snap.digit,
-   angles:snap.angles,distances:snap.keyDistances,
+   angles:snap.angles,distances:snap.keyDistances,fingerPalmDistance:snap.fingerPalmDistance,
    handVisible:snap.handVisible,forearmVisible:snap.forearmVisible}));
   assert.equal(snap.digit,want,'real fingertip must follow every keyed number');
   assert.ok(snap.handVisible&&snap.forearmVisible,'connected 3D forearm must reach each key');
   assert.ok(snap.angles[2]<.28,'index PIP joint should be straight, not gripping the phone');
   assert.ok(Object.keys(snap.nativeDifference).length>=15,'keypad hand must track original imported joint poses');
   for(const n of [3,4,5]){
-   assert.ok(snap.angles[n]>.27&&snap.angles[n]<1.65,
-    'loose, natural bend rather than extreme knuckle contortion for finger '+n);
+   assert.ok(snap.angles[n]>1.45&&snap.angles[n]<2.5,
+    'the middle/ring/pinky finger must fold tightly toward the palm for a pointing fist: '+n);
   }
-  assert.ok(snap.angles[1]>.12&&snap.angles[1]<1.9,'thumb should rest naturally tucked');
+  assert.ok(snap.angles[1]>.75&&snap.angles[1]<2.3,'thumb must curl across the palm, not stick out');
+  for(const n of [3,4,5])assert.ok(
+   snap.fingerPalmDistance[n].tip<snap.fingerPalmDistance[n].knuckle*1.38,
+   'folded fingertip must sit close to the palm rather than jutting forward: '+n);
+  assert.ok(snap.fingerPalmDistance[1].tip<snap.fingerPalmDistance[1].knuckle*2.1,
+   'thumb tip must fold back toward the palm');
   assert.ok(snap.nativeDifference['finger2-1.R']<.80,
    'index should start near its original native pointing posture');
   for(const [name,before] of Object.entries(phoneBefore.phoneGrip)){
@@ -98,7 +108,7 @@ try{
   assert.ok(snap.keyDistances.indexSkin<.029,'actual weighted index fingertip skin must press each button');
   assert.ok(snap.keyDistances.thumb>.070,'thumb must not be the finger pressing the keypad');
  }
- await page.screenshot({path:'keypad-v78-artifacts/01-index-finger-at-pad.png'});
+ await page.screenshot({path:'keypad-v78-artifacts/01-index-finger-at-pad.png',timeout:120000});
  const phoneAfter=await seek(0,.74);
  for(const [name,before] of Object.entries(phoneBefore.quats)){
   const after=phoneAfter.quats[name];

@@ -38,23 +38,35 @@ export class KeypadReachHandV72{
   this.hand.model.updateMatrixWorld(true);
  }
  _curl(n){
-  // Start from the unmodified imported CC0 joints. Find the native hinge
-  // direction that brings the distal phalanx toward the palm, not away.
-  // Flex PIP strongly, DIP moderately and MCP just a touch: a relaxed
-  // folded finger rather than the over-rotated phone-hand fist of v78.
+  // Flex the original CC0 joints into a fist while leaving the index straight.
+  // Search both native hinge directions against actual palm geometry.
   const b=this.hand.bones,prox=b['finger'+n+'-1.R'],
    pip=b['finger'+n+'-2.R'],dip=b['finger'+n+'-3.R'];
-  const original=pip.quaternion.clone(),hinge=new THREE.Vector3(1,0,0);
+  const neutral=[prox,pip,dip].map(joint=>joint.quaternion.clone());
+  const hinge=new THREE.Vector3(1,0,0);
   const palm=this._point('wrist.R').clone().lerp(this._point('finger3-1.R'),.48);
-  const options=[-.94,.94].map(angle=>{
-   pip.quaternion.copy(original).multiply(new THREE.Quaternion().setFromAxisAngle(hinge,angle));
-   this.hand.model.updateMatrixWorld(true);
-   return {angle,distance:this._point('finger'+n+'-3.R').distanceTo(palm)};
-  });
-  const chosen=options[0].distance<options[1].distance?options[0].angle:options[1].angle;
-  pip.quaternion.copy(original).multiply(new THREE.Quaternion().setFromAxisAngle(hinge,chosen));
-  dip.rotateX(chosen*.32);
-  prox.rotateX(chosen*.12);
+  const thumb=n===1;
+  const bases=thumb?[0,.24,.40]:[.30,.52,.70];
+  const middles=thumb?[1.05,1.35,1.60]:[1.48,1.72,1.91];
+  let best=null;
+  for(const baseSign of [-1,1])for(const middleSign of [-1,1])
+   for(const baseAngle of bases)for(const middleAngle of middles){
+    prox.quaternion.copy(neutral[0]).multiply(
+     new THREE.Quaternion().setFromAxisAngle(hinge,baseSign*baseAngle));
+    pip.quaternion.copy(neutral[1]).multiply(
+     new THREE.Quaternion().setFromAxisAngle(hinge,middleSign*middleAngle));
+    this.hand.model.updateMatrixWorld(true);
+    const bend=this._bend(n),tip=this._point('finger'+n+'-3.R');
+    const score=tip.distanceTo(palm)+(bend<(thumb?.85:1.42)?1:0);
+    if(!best||score<best.score)
+     best={score,baseSign,baseAngle,middleSign,middleAngle};
+   }
+  prox.quaternion.copy(neutral[0]).multiply(
+   new THREE.Quaternion().setFromAxisAngle(hinge,best.baseSign*best.baseAngle));
+  pip.quaternion.copy(neutral[1]).multiply(
+   new THREE.Quaternion().setFromAxisAngle(hinge,best.middleSign*best.middleAngle));
+  dip.quaternion.copy(neutral[2]).multiply(
+   new THREE.Quaternion().setFromAxisAngle(hinge,best.middleSign*(thumb?.56:.76)));
   this.hand.model.updateMatrixWorld(true);
  }
  _indexTip(){
@@ -139,6 +151,7 @@ export class KeypadReachHandV72{
     const delta=original.angleTo(base.quaternion);
     if(delta>.76)base.quaternion.slerpQuaternions(original,base.quaternion,.76/delta);
    }
+   this._curl(1);
    this._chooseSkin();this._orient();
    this.hand.state='ready';return this.status;
   }catch(error){

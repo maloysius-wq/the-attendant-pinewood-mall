@@ -127,14 +127,14 @@ export function makeOpeningScene({useImportedLandscape=false,useAbandonedFacade=
   .079,serviceDoor.width,serviceDoor.height,serviceDoor.thickness,steel);
  box(pivot,doorMid,1.59,.17,1.38,1.0,.032,windowMat);
  box(pivot,serviceDoor.width-.25,1.06,.17,.12,.28,.05,concrete);
- box(world,13.65,1.38,-21.81,.46,.81,.18,steel);
+ box(world,13.65,1.38,-21.81,.55,.81,.18,steel);
  // Recessed glass code readout: it actually displays each digit as entered,
  // instead of a featureless mint rectangle that never changes.
- box(world,13.65,1.52,-21.676,.335,.263,.03,mat(0x102327,.68,.10));
+ box(world,13.65,1.52,-21.676,.425,.263,.03,mat(0x102327,.68,.10));
  const codeCanvas=document.createElement('canvas');codeCanvas.width=512;codeCanvas.height=256;
  const codeCtx=codeCanvas.getContext('2d');
  const codeTexture=new THREE.CanvasTexture(codeCanvas);codeTexture.colorSpace=THREE.SRGBColorSpace;
- const codeFace=new THREE.Mesh(new THREE.PlaneGeometry(.301,.195),
+ const codeFace=new THREE.Mesh(new THREE.PlaneGeometry(.394,.195),
   new THREE.MeshBasicMaterial({map:codeTexture,toneMapped:false}));
  codeFace.name='Live illuminated contractor entry digits';codeFace.position.set(13.65,1.53,-21.656);
  world.add(codeFace);

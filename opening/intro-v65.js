@@ -1,11 +1,11 @@
 import * as THREE from '../vendor/three/build/three.module.js';
-import {makeOpeningScene} from './scene.js?v=83-door5';
+import {makeOpeningScene} from './scene.js?v=83-door5-keypad85';
 import {installAbandonedFacadeV65} from './facade-v65.js?v=65';
 import {enlargeImportedLandscapeV64} from './landscape-scale-v64.js?v=64';
 import {renderPinewoodV69} from '../mall/render-shell-v69.js';
 import {installDashboardClockV71} from './dashboard-clock-v71.js?v=83-clockvent';
-import {KeypadReachHandV72} from './keypad-reach-v72.js?v=81';
-import {HumanCameraRig} from './camera-v65.js?v=83-door5';
+import {KeypadReachHandV72} from './keypad-reach-v72.js?v=81-fist85';
+import {HumanCameraRig} from './camera-v65.js?v=83-door5-approach85';
 import {OpeningAmbience} from './ambience-v62.js?v=62';
 import {OpeningCinematicSfx} from './cinematic-sfx-v82.js?v=83-door5';
 import {HandheldCheckInPhone} from './phone-v62.js?v=62';
@@ -170,7 +170,7 @@ class Intro{
    this.renderer.render(this.interiorScene,this.camera);
    // Compile the licensed keypad hand under the same opaque cover as the
    // real mall, so the physical contact animation cannot flash on first use.
-   this.camera.position.set(12.8,1.63,-20.73);
+   this.camera.position.set(13.25,1.63,-20.73);
    this.camera.lookAt(13.65,1.37,-21.68);
    this.keypadReach.update(.375,true,this.camera);
    this.renderer.render(this.stage.scene,this.camera);
