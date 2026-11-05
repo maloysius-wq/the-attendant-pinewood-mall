@@ -3,14 +3,24 @@ on:
   push:
     branches: [main, feat/opening-sedan-v75]
     paths:
-      - 'opening/**'
+      - 'opening/sedan-v75.js'
+      - 'opening/assets/v75/**'
+      - 'opening/intro-v65.js'
+      - 'opening/camera-v65.js'
+      - 'opening/dashboard-clock-v71.js'
+      - 'opening/scene.js'
       - 'scripts/test-sedan-v75.mjs'
       - 'scripts/smoke-sedan-v75.mjs'
       - '.github/workflows/sedan-v75.yml'
   pull_request:
     branches: [main]
     paths:
-      - 'opening/**'
+      - 'opening/sedan-v75.js'
+      - 'opening/assets/v75/**'
+      - 'opening/intro-v65.js'
+      - 'opening/camera-v65.js'
+      - 'opening/dashboard-clock-v71.js'
+      - 'opening/scene.js'
       - 'scripts/test-sedan-v75.mjs'
       - 'scripts/smoke-sedan-v75.mjs'
       - '.github/workflows/sedan-v75.yml'

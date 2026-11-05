@@ -3,13 +3,27 @@ on:
   pull_request:
     branches: [main]
     paths:
-      - 'opening/**'
+      - 'opening/dashboard-clock-v71.js'
+      - 'opening/camera-v65.js'
+      - 'opening/cinematic-sfx-v82.js'
+      - 'opening/cinematic-sfx-cues-v82.mjs'
+      - 'opening/intro-v65.js'
+      - 'opening/scene.js'
+      - 'opening/sedan-v75.js'
+      - 'opening/assets/v75/**'
       - 'scripts/*v83.mjs'
       - '.github/workflows/door-rain-clock-v83.yml'
   push:
     branches: [main]
     paths:
-      - 'opening/**'
+      - 'opening/dashboard-clock-v71.js'
+      - 'opening/camera-v65.js'
+      - 'opening/cinematic-sfx-v82.js'
+      - 'opening/cinematic-sfx-cues-v82.mjs'
+      - 'opening/intro-v65.js'
+      - 'opening/scene.js'
+      - 'opening/sedan-v75.js'
+      - 'opening/assets/v75/**'
       - 'scripts/*v83.mjs'
       - '.github/workflows/door-rain-clock-v83.yml'
 permissions:

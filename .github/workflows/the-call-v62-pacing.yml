@@ -9,7 +9,6 @@ on:
       - 'opening/intro-v65.js'
       - 'opening/ambience-v62.js'
       - 'opening/phone-v62.js'
-      - 'review/the-call-v34/index.html'
       - 'scripts/smoke-opening-pacing-v62.mjs'
       - '.github/workflows/the-call-v62-pacing.yml'
   pull_request:
@@ -21,7 +20,6 @@ on:
       - 'opening/intro-v65.js'
       - 'opening/ambience-v62.js'
       - 'opening/phone-v62.js'
-      - 'review/the-call-v34/index.html'
       - 'scripts/smoke-opening-pacing-v62.mjs'
       - '.github/workflows/the-call-v62-pacing.yml'
 permissions:

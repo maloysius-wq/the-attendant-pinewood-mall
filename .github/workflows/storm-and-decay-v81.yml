@@ -3,13 +3,21 @@ on:
   pull_request:
     branches: [main]
     paths:
-      - 'opening/**'
+      - 'opening/scene.js'
+      - 'opening/intro-v65.js'
+      - 'opening/landscape-v63.js'
+      - 'opening/keypad-reach-v72.js'
+      - 'opening/assets/v81/**'
       - 'scripts/*storm-decay-v81.mjs'
       - '.github/workflows/storm-and-decay-v81.yml'
   push:
     branches: [main]
     paths:
-      - 'opening/**'
+      - 'opening/scene.js'
+      - 'opening/intro-v65.js'
+      - 'opening/landscape-v63.js'
+      - 'opening/keypad-reach-v72.js'
+      - 'opening/assets/v81/**'
       - 'scripts/*storm-decay-v81.mjs'
       - '.github/workflows/storm-and-decay-v81.yml'
 permissions:

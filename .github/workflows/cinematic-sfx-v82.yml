@@ -3,13 +3,19 @@ on:
   pull_request:
     branches: [main]
     paths:
-      - 'opening/**'
+      - 'opening/cinematic-sfx-v82.js'
+      - 'opening/cinematic-sfx-cues-v82.mjs'
+      - 'opening/intro-v65.js'
+      - 'opening/assets/v82/**'
       - 'scripts/*cinematic-sfx-v82.mjs'
       - '.github/workflows/cinematic-sfx-v82.yml'
   push:
     branches: [main]
     paths:
-      - 'opening/**'
+      - 'opening/cinematic-sfx-v82.js'
+      - 'opening/cinematic-sfx-cues-v82.mjs'
+      - 'opening/intro-v65.js'
+      - 'opening/assets/v82/**'
       - 'scripts/*cinematic-sfx-v82.mjs'
       - '.github/workflows/cinematic-sfx-v82.yml'
 permissions:

@@ -7,7 +7,6 @@ on:
       - 'opening/makehuman-forearm-v57.js'
       - 'opening/phone-v45.js'
       - 'opening/intro.js'
-      - 'review/the-call-v34/index.html'
       - '.github/workflows/the-call-v57-visual.yml'
   pull_request:
     branches: [main]
@@ -16,7 +15,6 @@ on:
       - 'opening/makehuman-forearm-v57.js'
       - 'opening/phone-v45.js'
       - 'opening/intro.js'
-      - 'review/the-call-v34/index.html'
       - '.github/workflows/the-call-v57-visual.yml'
 permissions:
   contents: read

@@ -6,7 +6,6 @@ on:
       - 'opening/landscape-layout-v64.mjs'
       - 'opening/landscape-scale-v64.js'
       - 'opening/intro-v64.js'
-      - 'review/the-call-v34/index.html'
       - 'scripts/*landscape-v64.mjs'
       - '.github/workflows/the-call-v64-landscape.yml'
   push:
@@ -15,7 +14,6 @@ on:
       - 'opening/landscape-layout-v64.mjs'
       - 'opening/landscape-scale-v64.js'
       - 'opening/intro-v64.js'
-      - 'review/the-call-v34/index.html'
       - 'scripts/*landscape-v64.mjs'
       - '.github/workflows/the-call-v64-landscape.yml'
 permissions:

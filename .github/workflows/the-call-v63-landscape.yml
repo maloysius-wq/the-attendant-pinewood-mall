@@ -8,7 +8,6 @@ on:
       - 'opening/assets/v63/**'
       - 'opening/scene.js'
       - 'opening/intro-v63.js'
-      - 'review/the-call-v34/index.html'
       - 'scripts/*landscape-v63.mjs'
       - '.github/workflows/the-call-v63-landscape.yml'
   push:
@@ -19,7 +18,6 @@ on:
       - 'opening/assets/v63/**'
       - 'opening/scene.js'
       - 'opening/intro-v63.js'
-      - 'review/the-call-v34/index.html'
       - 'scripts/*landscape-v63.mjs'
       - '.github/workflows/the-call-v63-landscape.yml'
 permissions:
