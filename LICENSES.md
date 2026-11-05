@@ -330,3 +330,11 @@ Pinewood's named storefront signs are generated locally because their lettering 
 - **Weathered Planks** — Poly Haven, CC0 1.0 ([asset](https://polyhaven.com/a/weathered_planks), [license](https://polyhaven.com/license)).
 - Vendored diffuse texture: `opening/assets/v65/weathered_planks_diff_1k.jpg`, 599,581 bytes, SHA-256 `01c9a372cfd7a7bf471b59c2458ed3ccecc93448aebf7ba0cc5b3b5b6ed24349`.
 - Used only for the boarded closed main public entrance in the v65 cinematic review. The tall facade, concrete entry surround and period-inspired Pinewood Mall sign are code-native. No remote runtime asset request. See `opening/assets/v65/SOURCES.md`.
+
+## Pinewood standalone Builder CC0 model library (2026-11-05)
+
+The separately hosted Builder includes 482 locally copied self-contained GLB models. All are under CC0-1.0. The per-file assets/vendor/builder/catalog-v1.json manifest records original upstream URLs, author/pack information, exact SHA-256 and byte length for each binary; URLs are documentation only and never fetched by browser runtime.
+
+- Kenney CC0 model packs: https://kenney.nl (license https://creativecommons.org/publicdomain/zero/1.0/); self-contained mirror pinned to https://github.com/Hidencod/tge-assets/commit/ea2f2aa1ca8da0898330c97df8a5489976b051d0.
+- 3DAssets.dev individually CC0 public-domain models: https://3dassets.dev/assets and linked pack/model pages; pinned, locally downloaded from versioned immutable GLBs. This collection includes a silted ornamental fountain and seasonal retail decorations.
+- These assets do not supersede the campaign runtime v69 licensing, nor any banned Cassette Castle shelf fixture.
