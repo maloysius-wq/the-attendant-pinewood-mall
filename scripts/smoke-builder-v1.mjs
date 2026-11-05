@@ -28,6 +28,8 @@ try{
  assert.equal(initial.draft.added.length,0);
  assert.deepEqual(initial.errors,[]);
  // Existing licensed furniture, not walls or cinematic props, is editable.
+ await page.evaluate(()=>window.__PINEWOOD_BUILDER__.select('security_desk'));
+ assert.equal((await get()).selected,'security_desk','original pre-v69 furniture remains editable');
  await page.evaluate(()=>window.__PINEWOOD_BUILDER__.select('cassette_stool'));
  assert.equal((await get()).selected,'cassette_stool');
  await page.locator('#pos-x').fill('-38.2');
