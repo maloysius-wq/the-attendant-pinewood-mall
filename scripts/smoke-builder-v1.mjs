@@ -62,6 +62,34 @@ try{
  const rejected=await page.evaluate(()=>window.__PINEWOOD_BUILDER__.select('floor_G'));
  assert.equal(rejected,false,'structure cannot be selected for editing');
  assert.equal((await get()).selected,before);
+ // Preview controls: wheel rotates left/up or right/down, Shift+wheel preserves yaw.
+ await page.evaluate(()=>window.__PINEWOOD_BUILDER__.clearDraft());
+ const target=await page.evaluate(()=>window.__PINEWOOD_BUILDER__.getCatalog().find(x=>x.id==='silted-octagonal-atrium-fountain'));
+ assert.ok(target,'existing local model available for placement-wheel test');
+ const canvas=page.locator('#world canvas');
+ const canvasBox=await canvas.boundingBox();
+ assert.ok(canvasBox,'editor viewport is visible');
+ const targetX=canvasBox.x+canvasBox.width*.5,targetY=canvasBox.y+canvasBox.height*.58;
+ async function previewAndPlace(wheelY,{shiftDistance=false}={}){
+  await page.locator('.catalog-item').filter({hasText:target.label}).first().click();
+  await page.waitForFunction(()=>document.getElementById('placement-tip').textContent.startsWith('PLACE '));
+  await page.mouse.move(targetX,targetY);
+  await page.mouse.wheel(0,wheelY);
+  if(shiftDistance){
+   await page.keyboard.down('Shift');
+   await page.mouse.wheel(0,120);
+   await page.keyboard.up('Shift');
+  }
+  await page.mouse.click(targetX,targetY);
+  await page.waitForFunction(()=>window.__PINEWOOD_BUILDER__.getState().draft.added.length===1);
+  return (await get()).draft.added[0];
+ }
+ const rotatedLeft=await previewAndPlace(-120);
+ assert.ok(Math.abs(rotatedLeft.rotation.y-Math.PI/12)<.001,'scroll up rotates placed prop left by 15 degrees');
+ await page.evaluate(()=>window.__PINEWOOD_BUILDER__.clearDraft());
+ const rotatedRight=await previewAndPlace(120,{shiftDistance:true});
+ assert.ok(Math.abs(rotatedRight.rotation.y+Math.PI/12)<.001,'scroll down rotates right; Shift+wheel adjusts distance without changing rotation');
+ await page.evaluate(()=>window.__PINEWOOD_BUILDER__.clearDraft());
  // Navigation is editor-only. The chapter/story game stays untouched.
  await page.locator('#explore-mode').click();
  assert.equal((await get()).navigation.mode,'walk');
