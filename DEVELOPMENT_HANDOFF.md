@@ -1,5 +1,17 @@
 # Development Handoff: The Attendant: Pinewood Mall
 
+## Standalone Pinewood World Builder shipped (2026-11-05)
+
+**Current feature:** [PR #69](https://github.com/maloysius-wq/the-attendant-pinewood-mall/pull/69) merged into `main` as `b4e1599acabb9732a271e460a506cf99bc8715aa`. The approved standalone editor is at **`/builder/`**, separate from the playable chapters. See [builder/README.md](builder/README.md) for controls and exact source paths. Check the latest Pages run for publication status.
+
+- All 41 original rooms / three physical floors; 60 v69 licensed fixtures and seven safe pre-v69 decorative assets editable. Original building walls, stairs, shafts, chapter evidence and protected service panels remain fixed. New genuine silted CC0 fountain replaces only the old artwork in Builder preview.
+- 482 new pinned **CC0 GLBs** plus 21 existing locally licensed selectable model types (503 total), including 1989 mall/arcade, storefronts, computers, chairs, benches, food clutter, dark/fallen trees, damaged props and seasonal holiday decorations. All 482 binaries are repo-local under `assets/vendor/builder`, with per-file SHA-256/source/license records in `catalog-v1.json` and `LICENSES.md`. Development-time collection via `tools/vendor-builder-cc0-v1.mjs`; no browser CDN requests or forbidden Cassette Castle shelves.
+- Transform gizmos, searchable/filtered thumbnail catalog, ghost placements with scroll depth, move/rotate/scale/duplicate/remove, undo/redo, IndexedDB autosave and portable JSON import/export. Room jumps, WASD walk, F fly toggle, gravity fallback, and openable editor-only doors; no chapter door-lock change.
+- Opt-in `mall/editor-overlay-v1.mjs` is available **only** for a later *specific owner-approved exported layout*. Do not auto-load a user draft into the story runtime or invent an approved decoration plan.
+- Verification: focused Builder run `42121519719` passed **23 Node checks and desktop Chromium smoke**; reported 41 rooms, 60 v69 fixtures, 503 selectable model types and zero external browser requests. Separate vendoring run `42120183832` passed full SHA-256 and CC0 audit for 482 models. Do not run unrelated production hardening for minor Builder edits; follow `AGENTS.md`.
+
+---
+
 **Repository:** `maloysius-wq/the-attendant-pinewood-mall`  
 **Default branch:** `main`  
 **Deployment:** GitHub Pages from repository root  
