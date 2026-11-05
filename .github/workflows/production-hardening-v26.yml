@@ -1,33 +1,14 @@
 name: Six-chapter production hardening v27
 
+# The complete WebGL/visual suite is intentionally NOT a per-commit gate.
+# Focused opening and chapter workflows plus the runtime audit cover regular PRs.
+# Run this suite for published releases, on demand, and once a week off-path.
 on:
-  push:
-    branches: [main]
-    paths:
-      - 'game.js'
-      - 'index.html'
-      - 'patches/**'
-      - 'story/**'
-      - 'scripts/**'
-      - '.github/workflows/production-hardening-v26.yml'
-      - 'vendor/**'
-      - 'assets/vendor/**'
-      - 'assets/audio/pa/**'
-      - 'assets/audio/characters/**'
-  pull_request:
-    branches: [main]
-    paths:
-      - 'game.js'
-      - 'index.html'
-      - 'patches/**'
-      - 'story/**'
-      - 'scripts/**'
-      - '.github/workflows/production-hardening-v26.yml'
-      - 'vendor/**'
-      - 'assets/vendor/**'
-      - 'assets/audio/pa/**'
-      - 'assets/audio/characters/**'
   workflow_dispatch:
+  release:
+    types: [published]
+  schedule:
+    - cron: '0 10 * * 0'
 
 permissions:
   contents: read
