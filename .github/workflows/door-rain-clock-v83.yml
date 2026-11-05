@@ -34,5 +34,7 @@ jobs:
           python3 -m http.server 4173 --bind 127.0.0.1 >/tmp/pinewood-v83-http.log 2>&1 &
           for i in {1..30}; do curl -fsS http://127.0.0.1:4173/review/the-call-v34/ >/dev/null && exit 0; sleep 1; done
           exit 1
+      - name: Diagnose dashboard mount before scene screenshot
+        run: node scripts/smoke-clock-diagnostic-v83.mjs
       - name: Check real sedan clock placement and door animation
         run: node scripts/smoke-sedan-v75.mjs
