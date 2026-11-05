@@ -114,7 +114,13 @@ export function installDashboardClockV71(car){
  const corners=[[-.0755,-.030],[.0755,-.030],[-.0755,.030],[.0755,.030]];
  const rejectionSummary=[];
  let clockDistance=0,unobstructedFromDriver=false;
- const candidates=[...topHits,...panelHits];
+ // A lower, driver-facing dashboard recess is more believable from the seated
+ // viewpoint than an upper dash crown beside the windshield. Prefer the
+ // original sedan's LOWER, forward panel while still ray-checking every
+ // display corner; retain upper surfaces as a safe fallback only.
+ const isLowDash=hit=>hit.p.y<.93&&hit.p.z<-.80;
+ const candidates=[...topHits.filter(isLowDash),...panelHits.filter(isLowDash),
+  ...topHits.filter(hit=>!isLowDash(hit)),...panelHits.filter(hit=>!isLowDash(hit))];
  for(const candidate of candidates){
   const fromMount=eyeLocal.clone().sub(candidate.p).normalize();
   const facing=candidate.normal.clone().multiplyScalar(.25)
