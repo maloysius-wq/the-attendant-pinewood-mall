@@ -32,6 +32,11 @@ try{
    13.52+((digit-1)%3)*.13,1.30-Math.floor((digit-1)/3)*.11,-21.647):null;
   const angles=Object.fromEntries([1,2,3,4,5].map(n=>[n,bend(n)]));
   const indexSkin=q.keypadView?.finger?.indexSkinWorld;
+   const palm=point('wrist.R').clone().lerp(point('finger3-1.R'),.48);
+   const fingerPalmDistance=Object.fromEntries([1,3,4,5].map(n=>[n,{
+    tip:point('finger'+n+'-3.R').distanceTo(palm),
+    knuckle:point('finger'+n+'-1.R').distanceTo(palm)
+   }]));
   const keyDistances=center?{
    index:point('finger2-3.R').distanceTo(center),
    indexSkin:indexSkin?point('wrist.R').fromArray(indexSkin).distanceTo(center):null,

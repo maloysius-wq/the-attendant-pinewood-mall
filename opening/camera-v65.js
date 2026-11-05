@@ -16,7 +16,7 @@ const E={
  driver:[-10.33,1.22,17.42],dashLean:[-10.33,1.18,17.37],
  doorLean:[-10.88,1.26,17.19],doorOutside:[-11.82,1.72,17.05],
  parking:[-9.0,1.73,13.0],pavement:[0,1.73,.0],underCanopy:[8.05,1.73,-13.0],
- access:[12.80,1.63,-20.73],threshold:[12.07,1.71,-23.4],concourse:[9.0,1.72,-26.3]
+ access:[13.25,1.63,-20.73],threshold:[12.07,1.71,-23.4],concourse:[9.0,1.72,-26.3]
 };
 const G={
  ahead:[2,2.9,-22],softAhead:[1.2,2.7,-22],softSign:[.5,3.4,-22],
@@ -75,13 +75,14 @@ const cues={
   f(1,[6.0,1.73,-10.0],G.keypad,'walk')
  ],
  lights:[
-  // Arrive at the keypad before the last spoken word. The old route
-  // covered almost half its distance in the final 3 seconds (a sprint).
+  // Constant ~1.3m/s walking pace through the final approach. Previous
+  // .76→.82 segment traveled 2.05m in .72s, causing a visible late sprint.
+  // Stop just to the left of the keypad for a near-frontal look at the LCD.
   f(0,[6.0,1.73,-10.0],G.keypad),
-  f(.20,[7.2,1.73,-12.0],G.keypad,'walk'),
-  f(.40,[8.6,1.73,-14.4],G.keypad,'walk'),
-  f(.60,[10.0,1.73,-16.8],G.keypad,'walk'),
-  f(.76,[11.7,1.70,-19.0],G.keypad,'walk'),
+  f(.20,[7.77,1.73,-12.62],G.keypad,'walk'),
+  f(.40,[9.54,1.73,-15.24],G.keypad,'walk'),
+  f(.60,[11.31,1.72,-17.85],G.keypad,'walk'),
+  f(.76,[12.72,1.68,-19.94],G.keypad,'walk'),
   f(.82,E.access,G.keypad,'walk'),
   f(1,E.access,G.keypad)
  ],
