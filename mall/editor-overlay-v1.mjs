@@ -4,6 +4,7 @@
  * Use a separate verified loadModel(entry) that returns a fitted Three.js Group.
  */
 import {FURNISHINGS_V69} from './furnishing-plan-v69.mjs';
+import {EDITOR_EXTRA_FIXTURES_V1} from './editor-baseline-v1.mjs';
 import {importDraft} from './editor-schema-v1.mjs';
 const MODEL_PATH=/^assets\/vendor\/(?:runtime\/|builder\/models\/)[a-zA-Z0-9_./%-]+\.glb$/;
 const FOUNTAIN=Object.freeze({
@@ -13,7 +14,8 @@ const FOUNTAIN=Object.freeze({
  license:'CC0-1.0',
  path:'assets/vendor/builder/models/fountains/silted-octagonal-atrium-fountain.glb'
 });
-const LEGACY=new Set(FURNISHINGS_V69.fixtures.map(x=>x.id));
+const LEGACY=new Set([...FURNISHINGS_V69.fixtures,...EDITOR_EXTRA_FIXTURES_V1].map(x=>x.id));
+const EXTRA=new Set(EDITOR_EXTRA_FIXTURES_V1.map(x=>x.id));
 const vector=v=>({x:v.x,y:v.y,z:v.z});
 const pose=node=>({position:vector(node.position),rotation:vector(node.rotation),scale:node.scale.x,visible:node.visible});
 const setPose=(node,p)=>{
@@ -51,7 +53,7 @@ export async function applyApprovedLayout({building,plan,approved=false,loadMode
  const baseline=new Map();
  for(const id of new Set([...plan.deleted,...Object.keys(plan.overrides).filter(x=>LEGACY.has(x))])){
   if(!LEGACY.has(id))throw Error('Unapproved campaign baseline ID '+id);
-  const model=building.group.getObjectByName('furnished_'+id,true);
+  const model=building.group.getObjectByName((EXTRA.has(id)?'cc0_':'furnished_')+id,true);
   if(!model)throw Error('Missing licensed campaign fixture '+id);
   baseline.set(id,model);
  }
