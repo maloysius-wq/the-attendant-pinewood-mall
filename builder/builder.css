@@ -27,3 +27,5 @@ h2{font:normal 23px Georgia,serif;line-height:1.25;margin:10px 0}.muted{color:va
 #door-tools button{font-size:11px}
 #door-tools .toggle{font-size:10px;margin:0}
 #fly-toggle:not(:disabled){border-color:#699fc4}
+
+#catalog-condition{margin-bottom:10px}.catalog-item .asset-thumb{display:block;flex:none;width:51px;height:51px;object-fit:contain;border:1px solid #46585b;border-radius:3px;background:#27383a}.catalog-item>span:not(.plus){min-width:0;flex:1}.catalog-item strong{overflow-wrap:anywhere}
