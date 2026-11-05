@@ -5,12 +5,13 @@ import {FURNISHINGS_V69} from '../mall/furnishing-plan-v69.mjs';
 import {EDITOR_CATALOG_V1,EDITOR_CATALOG_BY_ID} from '../mall/editor-catalog-v1.mjs';
 import {createEmptyDraft,validateDraft,reduceDraft,importDraft,exportDraft} from '../mall/editor-schema-v1.mjs';
 import {createBuilderScene} from './editor-scene.js';
+import {createEditorNavigation} from './editor-navigation.js';
 
 const $=id=>document.getElementById(id);
 const status={ready:false,errors:[],selected:null,roomCount:MALL.rooms.length,
  fixtureCount:FURNISHINGS_V69.fixtures.length,catalogCount:EDITOR_CATALOG_V1.length,
- draft:createEmptyDraft()};
-let scene,camera,renderer,orbit,editor,frames=0,undoStack=[],redoStack=[],idCounter=0,savePending;
+ draft:createEmptyDraft(),navigation:{mode:'orbit',floor:'G',unlockAll:true}};
+let scene,camera,renderer,orbit,editor,navigation,frames=0,undoStack=[],redoStack=[],idCounter=0,savePending;
 const clone=v=>JSON.parse(JSON.stringify(v)),round=v=>Math.round(v*1000)/1000;
 const legacy=new Map(FURNISHINGS_V69.fixtures.map(f=>[f.id,f]));
 const catalog=EDITOR_CATALOG_V1;
@@ -28,6 +29,9 @@ const API={
  exportJSON:()=>exportDraft(status.draft),
  importJSON:json=>importJSON(json),
  clearDraft:()=>clearDraft(),
+ toggleFly:()=>navigation?.toggleFly(),
+ getNavigationState:()=>navigation?.getState(),
+ setDoorOpen:(id,open)=>setDoorOpen(id,open),
  jumpRoom:id=>jumpRoom(id)
 };
 window.__PINEWOOD_BUILDER__=API;
@@ -130,13 +134,17 @@ async function loadDraft(){
  const data=await dbAction('readonly',store=>store.get('pinewood-v69'));
  return data?importDraft(JSON.stringify(data),catalog):createEmptyDraft();
 }
+async function applyRenderedDraft(draft){
+ await editor.applyDraft(draft);
+ if(navigation)for(const [id,open] of Object.entries(draft.doors))navigation.setDoorOpen(id,open);
+}
 async function commit(action){
  const next=reduceDraft(status.draft,action),issues=validateDraft(next,catalog);
  if(issues.length)throw Error(issues.join('; '));
  undoStack.push(clone(status.draft));if(undoStack.length>100)undoStack.shift();
  redoStack=[];
  status.draft=next;
- await editor.applyDraft(next);
+ await applyRenderedDraft(next);
  if(status.selected&&editor.poseOf(status.selected))writeInspector(status.selected,editor.poseOf(status.selected));
  reflect();await saveDraft();
  return next;
@@ -163,7 +171,7 @@ async function removeSelected(){
 async function undo(){
  if(!undoStack.length)return false;
  redoStack.push(clone(status.draft));status.draft=undoStack.pop();
- await editor.applyDraft(status.draft);reflect();await saveDraft();return true;
+ await applyRenderedDraft(status.draft);reflect();await saveDraft();return true;
 }
 async function redo(){
  if(!redoStack.length)return false;
@@ -175,10 +183,19 @@ async function importJSON(json){
  await commit({type:'replace',draft});
  editor.select(null);indicate('Imported and saved locally');return true;
 }
+async function setDoorOpen(id,open){
+ if(!navigation)throw Error('Editor navigation not loaded');
+ if(!navigation.getDoorList().some(d=>d.id===id))throw Error('Unknown physical door '+id);
+ await commit({type:'door',id,open:!!open});navigation.setDoorOpen(id,!!open);
+ return true;
+}
 async function clearDraft(){
  await commit({type:'clear'});editor.select(null);return true;
 }
 function jumpRoom(id){
+ if(navigation){const room=MALL.rooms.find(x=>x.id===id);const done=navigation.gotoRoom(id);
+  if(room)$('view-status').textContent=room.label+' / '+room.level;
+  status.navigation=navigation.getState();return done;}
  const room=MALL.rooms.find(x=>x.id===id);
  if(!room||!camera||!orbit)return false;
  const level=MALL.levels.find(x=>x.id===room.level),x=(room.x1+room.x2)/2,z=(room.z1+room.z2)/2;
@@ -234,6 +251,22 @@ function wireUI(){
  });
  $('roof').addEventListener('change',e=>editor.building.setRoofVisible(e.target.checked));
  $('reset-camera').addEventListener('click',centerCamera);
+ $('explore-mode').addEventListener('click',()=>{
+  navigation.setMode(navigation.getState().mode==='orbit'?'walk':'orbit');syncNavigationControls();
+ });
+ $('fly-toggle').addEventListener('click',()=>{navigation.toggleFly();syncNavigationControls()});
+ for(const d of navigation.getDoorList()){
+  const option=document.createElement('option');option.value=d.id;option.textContent=d.label;
+  $('door-select').append(option);
+ }
+ $('door-select').value='service_entry';
+ $('door-toggle').addEventListener('click',async()=>{
+  const id=$('door-select').value;if(!id)return;
+  try{await setDoorOpen(id,!navigation.getDoorState(id))}catch(e){report(e)}
+ });
+ $('unlock-doors').addEventListener('change',e=>{
+  navigation.setUnlockAll(e.target.checked);editor.building.setChapter(e.target.checked?6:1);
+ });
  $('outliner-search').addEventListener('input',refreshOutliner);
  for(const r of MALL.rooms){
   const o=document.createElement('option');o.value=r.id;o.textContent=r.label+' ('+r.level+')';$('jump-room').append(o);
@@ -248,6 +281,17 @@ function wireUI(){
   else if(e.key==='Escape'){editor.stopPlacement();$('placement-tip').textContent='Placement canceled · Choose an object to continue';}
   else if(['1','2','3'].includes(e.key))$(e.key==='1'?'translate':e.key==='2'?'rotate':'resize-object').click();
  });
+}
+function syncNavigationControls(){
+ if(!navigation)return;
+ const next=navigation.getState();status.navigation=next;
+ $('explore-mode').textContent=next.mode==='orbit'?'Explore':'Exit Explore';
+ $('fly-toggle').disabled=next.mode==='orbit';
+ $('fly-toggle').textContent=next.mode==='fly'?'Fly: On':'Fly: Off';
+ $('placement-tip').textContent=next.mode==='orbit'?
+  'Orbit: drag · Pan: right-drag · Zoom: wheel · Select: click · Transform: handles or inspector':
+  next.mode==='fly'?'FLY · WASD move · Mouse look · Space up · Shift down · F to land · E toggle nearby door':
+  'EXPLORE · WASD walk · Mouse look · E toggle nearby door · F to fly · Esc releases cursor';
 }
 function centerCamera(){
  camera.position.set(23,13,-40);orbit.target.set(0,1.4,-71);camera.lookAt(orbit.target);orbit.update();
@@ -269,22 +313,29 @@ async function begin(){
   orbit.enableDamping=true;orbit.dampingFactor=.08;orbit.minDistance=1;orbit.maxDistance=260;
   resize();centerCamera();
   editor=await createBuilderScene({scene,camera,domElement:renderer.domElement,orbit,
+   canEdit:()=>!navigation||navigation.getState().mode==='orbit',
    onSelect:(id,p)=>writeInspector(id,p),
    onTransform:(id,p)=>changeTransform(p).catch(report),
    onPlace:(catalogId,position)=>place(catalogId,position).catch(report)
   });
+  navigation=createEditorNavigation({camera,orbit,domElement:renderer.domElement,scene,shells:editor.building.shells,
+   onChange:next=>{status.navigation=next;syncNavigationControls()},
+   onDoorChange:(id,open)=>setDoorOpen(id,open).catch(report)});
   $('loading').querySelector('progress').value=75;
   status.draft=await loadDraft();
-  await editor.applyDraft(status.draft);
-  populateCatalog();wireUI();reflect();
+  await applyRenderedDraft(status.draft);
+  populateCatalog();wireUI();reflect();syncNavigationControls();
   editor.select(null);
   status.ready=true;API.ready=true;
   $('loading').classList.add('hidden');
   indicate('Ready · local draft loaded');
-  function frame(){frames++;orbit.update();renderer.render(scene,camera);requestAnimationFrame(frame)}
+  let lastTime=performance.now();
+  function frame(t){const dt=Math.min(.05,(t-lastTime)/1000);lastTime=t;frames++;
+   navigation.update(dt);if(navigation.getState().mode==='orbit')orbit.update();
+   renderer.render(scene,camera);requestAnimationFrame(frame)}
   requestAnimationFrame(frame);
   window.addEventListener('resize',resize);
-  window.addEventListener('pagehide',()=>{editor.dispose();orbit.dispose();renderer.dispose()},{once:true});
+  window.addEventListener('pagehide',()=>{navigation.dispose();editor.dispose();orbit.dispose();renderer.dispose()},{once:true});
  }catch(err){
   report(err);$('load-error').textContent=String(err?.stack||err).slice(0,1500);
   $('loading').querySelector('strong').textContent='Builder cannot load';
