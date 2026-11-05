@@ -66,7 +66,9 @@ export function installDashboardClockV71(car){
        point.z>-.42||point.z<-1.30||hit.distance<.45)continue;
     const normal=localNormal(hit);
     const toEye=eyeLocal.clone().sub(point).normalize();
-    if(normal.dot(toEye)<.16)continue;
+    // Reject lateral console sidewalls: the face of a factory readout
+    // belongs against the dash's driver-facing front, not its left edge.
+    if(normal.dot(toEye)<.35||normal.z<.38)continue;
     const score=Math.abs(point.x+.14)*2+Math.abs(point.y-.93)*2+
      Math.abs(point.z+.9)*1.2+(1-normal.dot(toEye))*.6;
     panelHits.push({score,p:point,normal,mesh:hit.object.name,
