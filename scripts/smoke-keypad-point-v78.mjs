@@ -49,7 +49,7 @@ try{
   }
   const phoneGrip=phone?.bones?Object.fromEntries(Object.entries(phone.bones)
    .filter(([n])=>/^finger[1-5]-[1-3]\.R$/.test(n)).map(([n,j])=>[n,j.quaternion.toArray()])):null;
-  return {state:h.state,digit,angles,keyDistances,quats,nativeDifference,phoneGrip,
+  return {state:h.state,digit,angles,keyDistances,fingerPalmDistance,quats,nativeDifference,phoneGrip,
    modelQuat:h.model.quaternion.toArray(),handVisible:q.keypadView?.finger?.visible,
    forearmVisible:q.keypadView?.forearmVisible,phoneVisible:q.handheldPhone?.visible};
  });
@@ -77,17 +77,17 @@ try{
   const snap=await snapshot();
   digitSamples.push(snap);
   console.log('KEYPAD_V78_GEOMETRY '+JSON.stringify({p,want,digit:snap.digit,
-   angles:snap.angles,distances:snap.keyDistances,
+   angles:snap.angles,distances:snap.keyDistances,fingerPalmDistance:snap.fingerPalmDistance,
    handVisible:snap.handVisible,forearmVisible:snap.forearmVisible}));
   assert.equal(snap.digit,want,'real fingertip must follow every keyed number');
   assert.ok(snap.handVisible&&snap.forearmVisible,'connected 3D forearm must reach each key');
   assert.ok(snap.angles[2]<.28,'index PIP joint should be straight, not gripping the phone');
   assert.ok(Object.keys(snap.nativeDifference).length>=15,'keypad hand must track original imported joint poses');
   for(const n of [3,4,5]){
-   assert.ok(snap.angles[n]>.27&&snap.angles[n]<1.65,
-    'loose, natural bend rather than extreme knuckle contortion for finger '+n);
+   assert.ok(snap.angles[n]>1.45&&snap.angles[n]<2.5,
+    'the middle/ring/pinky finger must fold tightly toward the palm for a pointing fist: '+n);
   }
-  assert.ok(snap.angles[1]>.12&&snap.angles[1]<1.9,'thumb should rest naturally tucked');
+  assert.ok(snap.angles[1]>.75&&snap.angles[1]<2.3,'thumb must curl across the palm, not stick out');
   assert.ok(snap.nativeDifference['finger2-1.R']<.80,
    'index should start near its original native pointing posture');
   for(const [name,before] of Object.entries(phoneBefore.phoneGrip)){

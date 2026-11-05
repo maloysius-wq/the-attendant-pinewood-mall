@@ -40,6 +40,27 @@ test('exterior approach reaches the contractor pad before the first number press
   }
  }
 });
+test('last second of keypad approach remains a walking pace and never suddenly accelerates',()=>{
+ const rig=new HumanCameraRig();
+ for(const id of ['owner','entrance'])samples(rig,id,durations[id]);
+ const steps=samples(rig,'lights',durations.lights);
+ let peak=0;
+ for(let i=1;i<steps.length;i++){
+  if(steps[i].t<durations.lights*.70||steps[i].t>durations.lights*.84)continue;
+  const dt=steps[i].t-steps[i-1].t;
+  if(dt>0)peak=Math.max(peak,hypot(steps[i].pose.position.toArray(),steps[i-1].pose.position.toArray())/dt);
+ }
+ assert.ok(peak<1.85,'last-second approach must stay at walking pace (observed '+peak.toFixed(2)+' m/s)');
+});
+test('keypad is approached front-on so its screen is not hidden behind the housing side',()=>{
+ const rig=new HumanCameraRig();
+ for(const id of ['owner','entrance'])samples(rig,id,durations[id]);
+ const steps=samples(rig,'lights',durations.lights);
+ const eye=steps.at(-1).pose.position.toArray();
+ const lateral=Math.abs(13.65-eye[0]),forward=Math.abs(-21.72-eye[2]);
+ assert.ok(forward>.60,'do not walk into the keypad housing');
+ assert.ok(lateral/forward<.50,'pad must be viewed less than 27 degrees off its face (actual '+(Math.atan2(lateral,forward)*180/Math.PI).toFixed(1)+' degrees)');
+});
 test('access grant quickly swings the actual door and camera crosses during the confirmation',()=>{
  const rig=new HumanCameraRig();
  for(const id of ['owner','entrance','lights'])samples(rig,id,durations[id]);
