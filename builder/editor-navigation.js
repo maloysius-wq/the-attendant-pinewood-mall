@@ -7,7 +7,7 @@ const EYE=1.7;
 const shellLevel=y=>y>3?'M1':y<-1.5?'B1':'G';
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 const valid=v=>Number.isFinite(v);
-export function createEditorNavigation({camera,orbit,domElement,shells,scene,onChange=()=>{}}){
+export function createEditorNavigation({camera,orbit,domElement,shells,scene,onChange=()=>{},onDoorChange=()=>{}}){
  const doors=doorDescriptors(shells),doorMap=new Map();
  const layouts=new Map(MALL.levels.map(l=>[l.id,buildGameplayLayoutV70({chapter:6,level:l.id})]));
  const keys=new Set(),up=new THREE.Vector3(0,1,0);
@@ -111,9 +111,10 @@ export function createEditorNavigation({camera,orbit,domElement,shells,scene,onC
   if(mode==='orbit')return;
   keys.add(e.code);
   if(['Space','ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(e.code))e.preventDefault();
+  if(e.code==='KeyF'){toggleFly();return}
   if(e.code==='KeyE'){
    const d=nearestDoor();
-   if(d){clickDoor(d.id);notify()}
+   if(d){const open=clickDoor(d.id);onDoorChange(d.id,open);notify()}
   }
  }
  function onKeyUp(e){keys.delete(e.code)}
@@ -192,7 +193,7 @@ export function createEditorNavigation({camera,orbit,domElement,shells,scene,onC
  domElement.addEventListener('pointerup',onPointerUp);
  domElement.addEventListener('contextmenu',onContext);
  return {getState:snapshot,getDoorList:()=>doors.map(x=>({...x})),gotoRoom,setMode,toggleFly,setDoorOpen,
-  clickDoor,setUnlockAll,update:step,
+  clickDoor,getDoorState:id=>doorMap.get(id)?.target??null,setUnlockAll,update:step,
   dispose(){
    document.removeEventListener('keydown',onKeyDown);document.removeEventListener('keyup',onKeyUp);
    domElement.removeEventListener('pointerdown',onPointerDown);domElement.removeEventListener('pointermove',onPointerMove);
