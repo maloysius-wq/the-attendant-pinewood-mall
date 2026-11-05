@@ -2,7 +2,7 @@ import * as THREE from '../vendor/three/build/three.module.js';
 import {OrbitControls} from '../vendor/three/examples/jsm/controls/OrbitControls.js';
 import {MALL} from '../mall/masterplan-v66.mjs';
 import {FURNISHINGS_V69} from '../mall/furnishing-plan-v69.mjs';
-import {EDITOR_CATALOG_V1,EDITOR_CATALOG_BY_ID} from '../mall/editor-catalog-v1.mjs';
+import {EDITOR_CATALOG_V1,EDITOR_CATALOG_BY_ID,registerVendorCatalog} from '../mall/editor-catalog-v1.mjs';
 import {createEmptyDraft,validateDraft,reduceDraft,importDraft,exportDraft} from '../mall/editor-schema-v1.mjs';
 import {createBuilderScene} from './editor-scene.js';
 import {createEditorNavigation} from './editor-navigation.js';
@@ -14,7 +14,16 @@ const status={ready:false,errors:[],selected:null,roomCount:MALL.rooms.length,
 let scene,camera,renderer,orbit,editor,navigation,frames=0,undoStack=[],redoStack=[],idCounter=0,savePending;
 const clone=v=>JSON.parse(JSON.stringify(v)),round=v=>Math.round(v*1000)/1000;
 const legacy=new Map(FURNISHINGS_V69.fixtures.map(f=>[f.id,f]));
-const catalog=EDITOR_CATALOG_V1;
+const catalog=[...EDITOR_CATALOG_V1];
+async function loadVendorCatalog(){
+ const response=await fetch(new URL('../assets/vendor/builder/catalog-v1.json',import.meta.url));
+ if(!response.ok)throw Error('Pinned CC0 asset library unavailable: HTTP '+response.status);
+ const manifest=await response.json();
+ if(manifest.version!==1||!Array.isArray(manifest.models)||manifest.models.length<100)throw Error('Incomplete local CC0 library');
+ catalog.push(...registerVendorCatalog(manifest.models));
+ status.catalogCount=catalog.length;
+}
+
 const API={
  ready:false,
  getState:()=>clone(status),
@@ -35,7 +44,7 @@ const API={
  jumpRoom:id=>jumpRoom(id)
 };
 window.__PINEWOOD_BUILDER__=API;
-const labels=id=>legacy.get(id)?.id.replace(/_/g,' ')||
+const labels=id=>id==='atrium_dry_fountain'?'Silted Atrium Fountain':legacy.get(id)?.id.replace(/_/g,' ')||
  EDITOR_CATALOG_BY_ID.get(status.draft.added.find(a=>a.id===id)?.catalogId)?.label||id;
 function indicate(msg){$('save-status').textContent=msg}
 function writeInspector(id,p){
@@ -71,20 +80,22 @@ function refreshOutliner(){
  }
 }
 function populateCatalog(){
- $('catalog-count').textContent=catalog.length+' STARTER PROPS';
+ $('catalog-count').textContent=catalog.length+' VERIFIED PROPS';
  const groups=[...new Set(catalog.map(x=>x.category))].sort();
  for(const v of groups){
   const opt=document.createElement('option');opt.value=v;opt.textContent=v;$('catalog-category').append(opt);
  }
  function filter(){
-  const term=$('catalog-search').value.trim().toLowerCase(),cat=$('catalog-category').value;
+  const term=$('catalog-search').value.trim().toLowerCase(),cat=$('catalog-category').value,condition=$('catalog-condition').value;
   const parent=$('catalog-list');parent.replaceChildren();
   for(const item of catalog){
    if(cat&&item.category!==cat)continue;
-   if(term&&!(item.label+' '+item.category).toLowerCase().includes(term))continue;
+   if(condition&&item.condition!==condition)continue;
+   if(term&&!(item.label+' '+item.category+' '+(item.condition||'')).toLowerCase().includes(term))continue;
    const b=document.createElement('button');b.className='catalog-item';b.type='button';
+   if(item.thumb){const preview=document.createElement('img');preview.className='asset-thumb';preview.loading='lazy';preview.alt='';preview.src=new URL('../'+item.thumb,import.meta.url).href;b.append(preview)}
    const t=document.createElement('span'),strong=document.createElement('strong'),small=document.createElement('small');
-   strong.textContent=item.label;small.textContent=item.category;t.append(strong,small);
+   strong.textContent=item.label;small.textContent=item.category+(item.condition==='weathered'?' · weathered':'');t.append(strong,small);
    const plus=document.createElement('span');plus.className='plus';plus.textContent='＋';b.append(t,plus);
    b.title='Preview '+item.label+' in the world';
    b.addEventListener('click',async()=>{
@@ -96,6 +107,7 @@ function populateCatalog(){
  }
  $('catalog-search').addEventListener('input',filter);
  $('catalog-category').addEventListener('change',filter);
+ $('catalog-condition').addEventListener('change',filter);
  filter();
 }
 function report(err){
@@ -136,7 +148,7 @@ async function loadDraft(){
 }
 async function applyRenderedDraft(draft){
  await editor.applyDraft(draft);
- if(navigation)for(const [id,open] of Object.entries(draft.doors))navigation.setDoorOpen(id,open);
+ if(navigation)navigation.resetDoorOverrides(draft.doors);
 }
 async function commit(action){
  const next=reduceDraft(status.draft,action),issues=validateDraft(next,catalog);
@@ -176,7 +188,7 @@ async function undo(){
 async function redo(){
  if(!redoStack.length)return false;
  undoStack.push(clone(status.draft));status.draft=redoStack.pop();
- await editor.applyDraft(status.draft);reflect();await saveDraft();return true;
+ await applyRenderedDraft(status.draft);reflect();await saveDraft();return true;
 }
 async function importJSON(json){
  const draft=importDraft(json,catalog);
@@ -227,8 +239,8 @@ function wireUI(){
   const id=status.selected;if(!id)return;
   const old=status.draft.added.find(a=>a.id===id);
   const f=legacy.get(id);
-  const item=old?EDITOR_CATALOG_BY_ID.get(old.catalogId):
-   catalog.find(x=>x.path===f?.model);
+  const item=old?EDITOR_CATALOG_BY_ID.get(old.catalogId):id==='atrium_dry_fountain'?
+   EDITOR_CATALOG_BY_ID.get('silted-octagonal-atrium-fountain'):catalog.find(x=>x.path===f?.model);
   if(!item)return report(Error('This object cannot be duplicated from the licensed catalog'));
   const p=editor.poseOf(id),pos={...p.position,x:p.position.x+1};
   await place(item.id,pos);
@@ -312,6 +324,8 @@ async function begin(){
   orbit=new OrbitControls(camera,renderer.domElement);
   orbit.enableDamping=true;orbit.dampingFactor=.08;orbit.minDistance=1;orbit.maxDistance=260;
   resize();centerCamera();
+  await loadVendorCatalog();
+  $('loading').querySelector('progress').value=30;
   editor=await createBuilderScene({scene,camera,domElement:renderer.domElement,orbit,
    canEdit:()=>!navigation||navigation.getState().mode==='orbit',
    onSelect:(id,p)=>writeInspector(id,p),
