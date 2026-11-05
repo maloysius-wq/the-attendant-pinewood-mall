@@ -2,6 +2,7 @@ import * as THREE from '../vendor/three/build/three.module.js';
 import {OrbitControls} from '../vendor/three/examples/jsm/controls/OrbitControls.js';
 import {MALL} from '../mall/masterplan-v66.mjs';
 import {FURNISHINGS_V69} from '../mall/furnishing-plan-v69.mjs';
+import {EDITOR_EXTRA_FIXTURES_V1} from '../mall/editor-baseline-v1.mjs';
 import {EDITOR_CATALOG_V1,EDITOR_CATALOG_BY_ID,registerVendorCatalog} from '../mall/editor-catalog-v1.mjs';
 import {createEmptyDraft,validateDraft,reduceDraft,importDraft,exportDraft} from '../mall/editor-schema-v1.mjs';
 import {createBuilderScene} from './editor-scene.js';
@@ -13,7 +14,7 @@ const status={ready:false,errors:[],selected:null,roomCount:MALL.rooms.length,
  draft:createEmptyDraft(),navigation:{mode:'orbit',floor:'G',unlockAll:true}};
 let scene,camera,renderer,orbit,editor,navigation,frames=0,undoStack=[],redoStack=[],idCounter=0,savePending;
 const clone=v=>JSON.parse(JSON.stringify(v)),round=v=>Math.round(v*1000)/1000;
-const legacy=new Map(FURNISHINGS_V69.fixtures.map(f=>[f.id,f]));
+const legacy=new Map([...FURNISHINGS_V69.fixtures,...EDITOR_EXTRA_FIXTURES_V1].map(f=>[f.id,f]));
 const catalog=[...EDITOR_CATALOG_V1];
 async function loadVendorCatalog(){
  const response=await fetch(new URL('../assets/vendor/builder/catalog-v1.json',import.meta.url));
