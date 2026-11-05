@@ -76,13 +76,13 @@ export function installDashboardClockV71(car){
  }
  panelHits.sort((a,b)=>a.score-b.score);
  if(!topHits.length&&!panelHits.length)throw Error('No visible authentic dashboard mount surface');
- const mount=(topHits[0]||panelHits[0]),clock=new THREE.Group();
+ let mount=(topHits[0]||panelHits[0]);const clock=new THREE.Group();
  // The thin LCD bezel is seated against the imported surface. Angle its
  // face toward the driver rather than leaving it flat on the dashboard top.
  const eyeVector=eyeLocal.clone().sub(mount.p).normalize();
- const displayNormal=mount.normal.clone().multiplyScalar(.25)
+ let displayNormal=mount.normal.clone().multiplyScalar(.25)
   .addScaledVector(eyeVector,.75).normalize();
- const displayReadableAngle=displayNormal.dot(eyeVector);
+ let displayReadableAngle=displayNormal.dot(eyeVector);
  clock.name='Factory-sized recessed digital dashboard readout';
  // Bury the back/lower edge of the clock housing into the original dash
  // surface. Its raised face stays entirely clear of the top panel instead of
@@ -108,30 +108,56 @@ export function installDashboardClockV71(car){
  face.name='12:47 AM inset display';
  face.position.z=.040;clock.add(face);
  car.add(clock);
- clock.updateWorldMatrix(true,true);
- // A real GLB surface must not eat the bottom or either side of the LCD.
- // Check every screen corner against the intact vendor body, not the bezel.
+ // A top-surface hit may be mathematically valid but hidden behind the dash
+ // brow from the actual driver's eye. Check every candidate before settling
+ // the bezel; do not accept a clipped display or a floating compromise.
  const corners=[[-.0755,-.030],[.0755,-.030],[-.0755,.030],[.0755,.030]];
- const obscuredCorners=corners.filter(([x,y])=>{
-  const target=face.localToWorld(new THREE.Vector3(x,y,0));
-  const ray=target.sub(driverEye),distance=ray.length();
-  return new THREE.Raycaster(driverEye,ray.normalize(),.18,distance-.012)
+ const rejectionSummary=[];
+ let clockDistance=0,unobstructedFromDriver=false;
+ const candidates=[...topHits,...panelHits];
+ for(const candidate of candidates){
+  const fromMount=eyeLocal.clone().sub(candidate.p).normalize();
+  const facing=candidate.normal.clone().multiplyScalar(.25)
+   .addScaledVector(fromMount,.75).normalize();
+  clock.position.copy(candidate.p).addScaledVector(candidate.normal,
+   candidate.kind==='dashboard-top'?.039:.028);
+  clock.quaternion.setFromUnitVectors(new THREE.Vector3(0,0,1),facing);
+  clock.updateWorldMatrix(true,true);
+  const obscured=corners.filter(([x,y])=>{
+   const target=face.localToWorld(new THREE.Vector3(x,y,0));
+   const ray=target.sub(driverEye),distance=ray.length();
+   return new THREE.Raycaster(driverEye,ray.normalize(),.18,distance-.012)
+    .intersectObject(model,true)
+    .some(h=>!/window|wheel|tire|rim/i.test(h.object.name));
+  });
+  if(obscured.length){
+   if(rejectionSummary.length<5)rejectionSummary.push({
+    kind:candidate.kind,p:candidate.p.toArray(),corners:obscured.length});
+   continue;
+  }
+  const displayCenter=face.localToWorld(new THREE.Vector3(0,0,0));
+  const ray=displayCenter.sub(driverEye);
+  const distance=ray.length();
+  const blockers=new THREE.Raycaster(driverEye,ray.normalize(),.18,distance-.012)
    .intersectObject(model,true)
-   .some(h=>!/window|wheel|tire|rim/i.test(h.object.name));
- });
- if(obscuredCorners.length)throw Error('Dashboard panel covers a corner of the clock display');
- const visibleClockPoint=local(car,clock.position.toArray());
- const viewRay=visibleClockPoint.clone().sub(driverEye);
- const clockDistance=viewRay.length();
- const blockers=new THREE.Raycaster(driverEye,viewRay.normalize(),.18,clockDistance-.018)
-  .intersectObject(model,true).filter(h=>!/window|wheel|tire|rim/i.test(h.object.name));
- const unobstructedFromDriver=blockers.length===0;
- if(!unobstructedFromDriver)throw Error('Dashboard clock is hidden behind original car geometry');
+   .filter(h=>!/window|wheel|tire|rim/i.test(h.object.name));
+  if(blockers.length){
+   if(rejectionSummary.length<5)rejectionSummary.push({
+    kind:candidate.kind,p:candidate.p.toArray(),blocker:blockers[0].object.name});
+   continue;
+  }
+  mount=candidate;displayNormal=facing;displayReadableAngle=facing.dot(fromMount);
+  clockDistance=distance;unobstructedFromDriver=true;
+  break;
+ }
+ if(!unobstructedFromDriver)throw Error('No unobstructed imported dashboard clock mount: '+
+  JSON.stringify({top:topHits.length,panel:panelHits.length,rejected:rejectionSummary}));
  return Object.freeze({
   time:'12:47 AM',localPosition:clock.position.toArray(),importedCarPreserved:true,
   mountedToImportedDash:mount.p.z<-.42,unobstructedFromDriver,surfaceGap:0,displayWidth:.151,visibleDisplayCorners:4,
   mountDepth:mount.p.z,clockDistance,interiorNearPlane:.18,
-  mountCandidates:{dashboardTop:topHits.length,frontPanel:panelHits.length},
+  mountCandidates:{dashboardTop:topHits.length,frontPanel:panelHits.length,
+   checked:candidates.indexOf(mount)+1},
   hitMesh:mount.mesh,mountKind:mount.kind,displayNormal:displayNormal.toArray(),
   importedSurfaceNormal:mount.normal.toArray(),displayReadableAngle
  });
