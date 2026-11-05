@@ -118,7 +118,7 @@ function packItems(j){
 function asAsset(item,pack){
  const image=Object.values(item).find(v=>typeof v==='string'&&v.includes('cdn.3dassets.dev/assets/')&&/\.glb/.test(v));
  const id=item.assetId||item.asset_id||item.id||item.model?.id;
- let modelUrl=item.model_url||item.modelUrl||item.glb_url||item.glbUrl||item.download_url||item.downloadUrl||item.file_url||item.fileUrl||item.urls?.glb||item.model?.url||item.cdnUrl||image;
+ let modelUrl=item.model_url||item.modelUrl||item.glb_url||item.glbUrl||item.cdnUrl||item.download_url||item.downloadUrl||item.file_url||item.fileUrl||item.urls?.glb||item.model?.url||item.cdnUrl||image;
  if(typeof modelUrl!=='string'&&Number.isFinite(Number(id)))modelUrl='https://cdn.3dassets.dev/assets/'+id+'/v1/model.glb';
  if(typeof modelUrl!=='string'||!/^https:\/\/cdn\.3dassets\.dev\/assets\/\d+\/v\d+\/model\.glb$/.test(modelUrl))return null;
  const label=item.title||item.name||item.label||item.slug||('Asset '+id);
