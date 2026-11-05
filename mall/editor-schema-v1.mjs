@@ -1,6 +1,6 @@
 /** Validated reversible Pinewood Builder v1 authoring state; no campaign save side effects. */
 import {FURNISHINGS_V69} from './furnishing-plan-v69.mjs';
-const LEGACY=new Set(FURNISHINGS_V69.fixtures.map(f=>f.id));
+const LEGACY=new Set([...FURNISHINGS_V69.fixtures.map(f=>f.id),'atrium_dry_fountain']);
 const ID=/^[a-zA-Z0-9][a-zA-Z0-9_-]{0,79}$/;
 const vector=v=>v&&typeof v==='object'&&!Array.isArray(v)&&
  ['x','y','z'].every(k=>typeof v[k]==='number'&&Number.isFinite(v[k])&&Math.abs(v[k])<=1000);
