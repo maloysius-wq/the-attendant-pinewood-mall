@@ -2,6 +2,16 @@
 
 All third-party visual and audio assets used by this build were selected because their source licensing could be verified as **Creative Commons Zero (CC0 1.0)** unless otherwise noted below.
 
+## Owner-supplied opening cinematic sound effects: v82 (2026-11-05)
+
+These five WAV recordings were supplied directly by the project owner for this specific opening cinematic. Preserve their original bytes; they are not third-party CC0 claims. Runtime paths are same-origin and bundled locally under `opening/audio/cinematic/v82/`.
+
+- `opening/audio/cinematic/v82/Beep.wav` — unmodified owner-provided audio; SHA-256 `126e4543b169105dccd8c0c1129513ffed22ca52eff41d33a48c9198c1e8b9c7`.
+- `opening/audio/cinematic/v82/MetalDoorOpen.wav` — unmodified owner-provided audio; SHA-256 `22cc1374f09e697907966dc2210613f2e682a2074aa1232ff1827ede76639acc`.
+- `opening/audio/cinematic/v82/MetalDoorClose.wav` — unmodified owner-provided audio; SHA-256 `65593760b14117379e05f002fc800dbbb78540fa2892f9b855dc8e4f7fa8fc2c`.
+- `opening/audio/cinematic/v82/CarDoorOpen.wav` — unmodified owner-provided audio; SHA-256 `c02fc7489f76e3682b6303990eabfe0b5a7c63acbfd8a822129a30e2e1059e52`.
+- `opening/audio/cinematic/v82/CarDoorClose.wav` — unmodified owner-provided audio; SHA-256 `86e8f8fe30fe7e239094a54a912747889a59802f415030cb6cc66d465565c310`.
+
 ## Original v81 storm-night panorama and decayed landscaping (2026-11-04)
 
 - `opening/assets/v81/storm-night-sky.jpg` — original, locally generated and reviewed 1536×768 equirectangular dark midnight thundercloud panorama. Its SHA-256 is `4d755d1d4def3ead403a0eeb1bf634483115cec03dcc3be6d42ccc433a9aecc6`. Runtime loads only this same-origin JPEG and waits for it before showing the cinematic.

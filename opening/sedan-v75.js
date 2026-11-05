@@ -83,10 +83,13 @@ export async function installSedanV75({car,stage,status,loader}){
  const closedAngle=door.rotation.y;
  const movement={
   status:{side:'FL_Door',angle:closedAngle,openFraction:0},
-  update(cue,phase){
+  update(cue,phase,elapsedSeconds=0,waitSeconds=0){
+   // The driver's front door clears the exit at .215 and remains open past
+   // .42. It starts shutting exactly four cinematic seconds after the
+   // departure sound at .21 of the owner's dialogue.
+   const startClose=waitSeconds*.21+4;
    const fraction=cue==='owner'
-    ?smooth((phase-.06)/.14)
-    :cue==='entrance' ? 1-smooth((phase-.03)/.33)
+    ?smooth((phase-.06)/.14)*(1-smooth((elapsedSeconds-startClose)/.65))
     :0;
    door.rotation.y=closedAngle-1.12*fraction;
    this.status={side:'FL_Door',angle:door.rotation.y,openFraction:fraction};

@@ -36,8 +36,8 @@ test('car door closes exactly four seconds after opening near exit',async()=>{
  const owner=soundCuesFor('owner',16.636,18.236);
  assert.deepEqual(owner.map(x=>x.name),['CarDoorOpen','CarDoorClose']);
  assert.ok(Math.abs(owner[1].at-owner[0].at-4)<1e-9);
- assert.ok(owner[0].at>2&&owner[0].at<3.5);
- assert.ok(owner[1].at>6.7&&owner[1].at<7.2);
+ assert.ok(owner[0].at>3.7&&owner[0].at<4.0);
+ assert.ok(owner[1].at>7.7&&owner[1].at<8.0);
 });
 test('metal door sound tracks opening and closing after entering vestibule',async()=>{
  assert.ok(existsSync(at('opening/cinematic-sfx-cues-v82.mjs')));

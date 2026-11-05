@@ -7,6 +7,7 @@ import {installDashboardClockV71} from './dashboard-clock-v71.js?v=75';
 import {KeypadReachHandV72} from './keypad-reach-v72.js?v=81';
 import {HumanCameraRig} from './camera-v65.js?v=77';
 import {OpeningAmbience} from './ambience-v62.js?v=62';
+import {OpeningCinematicSfx} from './cinematic-sfx-v82.js?v=82';
 import {HandheldCheckInPhone} from './phone-v62.js?v=62';
 import {buildCaptionTrack,captionAt} from './caption-sync-v45.js?v=45';
 const $=id=>document.getElementById(id);
@@ -116,6 +117,7 @@ class Intro{
   // Open the local rain buffers while the scene loads, at zero gain. The
   // first voiced line and all scene animation wait until the first full frame.
   this.ambience.start();
+  this.sfx=new OpeningCinematicSfx(this.ambience.ctx);
   // Prime Renee's FIRST clip silently from the New Game gesture, so a slow
   // 3D load cannot turn voice playback into blocked post-gesture autoplay.
   this.primedVoice=this.lineAudio(this.lines[0].id);
@@ -129,7 +131,7 @@ class Intro{
  async prepareAssets(){
   try{
    const [environment,interior]=await Promise.all([
-    this.stage.assetReady,this.interiorReady,this.handheld.handLoad,this.keypadReach.ready,this.ambience.ready
+    this.stage.assetReady,this.interiorReady,this.handheld.handLoad,this.keypadReach.ready,this.ambience.ready,this.sfx.ready
    ]);
    this.interiorBuilding=interior;
    if(this.finished){this.disposeScenes();return;}
@@ -328,6 +330,8 @@ class Intro{
    const pose=this.eyeRig.sample(this.line.id,this.elapsed,this.wait,delta,{reducedMotion:this.reduced});
    this.lastCameraPose=pose;
    this.ambience.update(delta,this.line.shot,!!this.audio&&!this.audio.ended&&!this.audio.paused,pose.rain);
+   this.sfx?.update(this.line.id,this.elapsed,this.voiceSeconds,this.wait,
+    {scrubbing:this.scrubOverride!==null});
    if(this.stage&&this.renderer){
     this.camera.position.copy(pose.position);
     this.camera.lookAt(pose.lookAt);
@@ -339,7 +343,7 @@ class Intro{
     this.handheld?.update(this.line.id,this.elapsed,this.voiceSeconds,{reducedMotion:this.reduced});
     this.root.dataset.phoneRaised=this.handheld?.raised?'true':'false';
     this.stage.pivot.rotation.y=-Math.PI*.48*pose.doorOpen;
-     this.stage.sedanDoor?.update(this.line.id,pose.phase);
+     this.stage.sedanDoor?.update(this.line.id,pose.phase,this.elapsed,this.wait);
     // Visible button presses follow the voice, before Renee confirms entry.
     const accessProgress=this.line.id==='lights'
      ?clamp((this.elapsed-this.voiceSeconds)/Math.max(.1,this.line.pause||2),0,1)
@@ -395,7 +399,7 @@ class Intro{
   try {
    if(this.audio){this.audio.pause();this.audio.removeAttribute('src');this.audio.load();}
    if(this.primedVoice){this.primedVoice.pause();this.primedVoice.removeAttribute('src');this.primedVoice.load();this.primedVoice=null;}
-   this.ambience.destroy();
+   this.sfx?.destroy();this.ambience.destroy();
    this.handheld?.dispose();
    if(this.stage?.canonicalMall)this.stage.scene.remove(this.stage.canonicalMall);
    this.interiorBuilding?.dispose();
@@ -449,6 +453,12 @@ window.__PINEWOOD_OPENING_V34__={
  get eyeMotion(){const p=active?.lastCameraPose;return p?{cue:p.cue,phase:p.phase,gaze:p.gazeTarget,walking:p.isWalking,rain:p.rain,doorOpen:p.doorOpen}:null;},
  get environmentV37(){return active?.stage?.v37||null;},
  get carDoorState(){return active?.stage?.sedanDoor?.status||null;},
+ get cinematicSfx(){return location.pathname.includes('/review/')?active?.sfx?.status||null:null;},
+ qaSfxAdvance({cue,elapsed,voiceSeconds,waitSeconds}={}){
+  if(!location.pathname.includes('/review/')||!active?.sfx)return null;
+  active.sfx.update(cue,elapsed,voiceSeconds,waitSeconds);
+  return active.sfx.status;
+ },
  get cockpitSightlines(){
   const model=active?.stage?.sedanV75?.model,cam=active?.camera;
   if(!model||!cam)return null;
