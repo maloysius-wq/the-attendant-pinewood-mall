@@ -69,14 +69,16 @@ try{
    assert(!stowed.phone?.visible&&stowed.phone?.screenState==='confirmed',
      layout+' handset still hangs in view after first second of next line: '+JSON.stringify(stowed.phone));
    await page.screenshot({path:'opening-v62-artifacts/'+layout+'-phone-stowed.png'});
-   const inside=await snap(5,.25,780);
-   const outside=await snap(5,.40,210);
+   // v83: move the acoustic boundary to the first physical door swing
+   // (.06), not the later crossing of the driver's side threshold.
+   const inside=await snap(5,.025,780);
+   const outside=await snap(5,.15,780);
    assert(inside.rain?.car?.readyState===4&&inside.rain?.outside?.readyState===4,
-     layout+' both local rain beds must be ready when the cinematic starts: '+JSON.stringify(inside.rain));
+     layout+' both local rain beds must be ready before the car door moves: '+JSON.stringify(inside.rain));
    assert(inside.rain?.car?.volume>.28&&inside.rain?.outside?.volume<.10,
-     layout+' indoor rain must dominate before the driver steps out: '+JSON.stringify(inside.rain));
+     layout+' cabin rain must dominate before door movement: '+JSON.stringify(inside.rain));
    assert(outside.rain?.outside?.volume>.40&&outside.rain?.car?.volume<.13,
-     layout+' outside rain does not become immediate at the exit: '+JSON.stringify(outside.rain));
+     layout+' outside rain must already play as the door swings, before exit: '+JSON.stringify(outside.rain));
    console.log('V62_'+layout.toUpperCase()+'='+JSON.stringify({
     driverZ:driver.camera[2],gazeSamples,phone:{pre:pre.phone?.tap,post:duringTap.phone?.tap,
      released:afterTap.phone?.screenState,stowed:!stowed.phone?.visible},
