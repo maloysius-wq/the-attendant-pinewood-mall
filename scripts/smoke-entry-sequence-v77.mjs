@@ -26,7 +26,7 @@ try{
   return state;
  };
  const approach=await snap(7,.835,'01-arrived-before-keypress.png');
- assert.ok(Math.hypot(approach.eye[0]-12.8,approach.eye[2]+20.73)<.45,
+ assert.ok(Math.hypot(approach.eye[0]-13.25,approach.eye[2]+20.73)<.28,
   'player must reach the keypad before numbers start');
  assert.equal(approach.access.entered,'');
  const typing=await snap(7,.97,'02-physically-pressing-code.png');

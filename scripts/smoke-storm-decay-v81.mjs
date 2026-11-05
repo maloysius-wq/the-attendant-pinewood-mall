@@ -47,7 +47,7 @@ try{
  assert.equal(pose.digit,5);
  assert.ok(pose.visible);
  assert.ok(pose.angles[2]<.28,'native index remains pointing');
- for(const n of [3,4,5])assert.ok(pose.angles[n]>.42&&pose.angles[n]<1.65,
+ for(const n of [3,4,5])assert.ok(pose.angles[n]>1.45&&pose.angles[n]<2.5,
   'native finger '+n+' folds naturally toward palm');
  await page.screenshot({path:'storm-v81-artifacts/03-natural-keypad-curl.png',timeout:120000});
  const probe=await page.evaluate(()=>window.__PINEWOOD_OPENING_V34__.qaCockpitProbe({
