@@ -32,10 +32,10 @@ try{
   window.__PINEWOOD_OPENING_V34__.qaSfxAdvance(data),
   {cue,elapsed,voiceSeconds,waitSeconds}
  );
- await advance('owner',3.7,16.636,18.236);
- let result=await advance('owner',3.9,16.636,18.236);
+ await advance('owner',.8,16.636,18.236);
+ let result=await advance('owner',1.15,16.636,18.236);
  assert.deepEqual(result.played.map(x=>x.name),['CarDoorOpen']);
- result=await advance('owner',7.9,16.636,18.236);
+ result=await advance('owner',5.2,16.636,18.236);
  assert.deepEqual(result.played.map(x=>x.name),['CarDoorOpen','CarDoorClose']);
  assert.ok(Math.abs(result.played[1].at-result.played[0].at-4)<.001,
   'car close occurs exactly four seconds after leaving the vehicle');

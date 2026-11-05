@@ -31,7 +31,7 @@ try{
  assert.equal(initial.clock?.visibleDisplayCorners,4,'all four LCD corners must be free of vendor dashboard geometry');
  assert.ok(initial.clock?.surfaceGap<=.02,'clock display cannot float in the cabin');
  assert.equal(initial.clock?.unobstructedFromDriver,true,'clock must be visible from the real driver seat, not hidden by car mesh');
- assert.equal(initial.clock?.mountKind,'driver-facing-panel','the digital readout must be integrated into a dashboard panel, not perched along the windshield');
+ assert.equal(initial.clock?.mountKind,'dashboard-top','the readout must sit on the original dashboard upper surface');
  assert.ok(initial.clock?.displayReadableAngle>.70,'clock face must point toward the driver, not lie edge-on to view');
  assert.ok(initial.roof>.08&&initial.roof<.67,'driver eye must remain physically beneath the actual imported roof');
  assert.equal(initial.world?.retiredInteriorMeshes,0,'retired miniature mall must be absent from arrival scene');

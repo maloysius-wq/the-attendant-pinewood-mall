@@ -1,0 +1,38 @@
+name: Pinewood v83 car-door rain and dashboard clock
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'opening/**'
+      - 'scripts/*v83.mjs'
+      - '.github/workflows/door-rain-clock-v83.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'opening/**'
+      - 'scripts/*v83.mjs'
+      - '.github/workflows/door-rain-clock-v83.yml'
+permissions:
+  contents: read
+jobs:
+  door-and-dash:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Check exact door and rain onset
+        run: node --test scripts/test-door-rain-clock-v83.mjs
+      - name: Install desktop Chromium
+        run: |
+          npm install --no-save playwright@1.55.0
+          npx playwright install chromium
+      - name: Serve opening
+        run: |
+          python3 -m http.server 4173 --bind 127.0.0.1 >/tmp/pinewood-v83-http.log 2>&1 &
+          for i in {1..30}; do curl -fsS http://127.0.0.1:4173/review/the-call-v34/ >/dev/null && exit 0; sleep 1; done
+          exit 1
+      - name: Check real sedan clock placement and door animation
+        run: node scripts/smoke-sedan-v75.mjs

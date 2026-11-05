@@ -52,7 +52,10 @@ test('exit route crosses the real left-side threshold without jumping outdoors e
  const firstOutside=frames.findIndex(p=>p.position.x<=-11.15);
  assert.ok(firstOutside>0,'driver must cross left door during owner cue');
  assert.ok(frames[firstOutside].rain.outside>.9);
- assert.ok(frames[firstOutside-1].rain.car>.9);
+ const beforeDoor=rig.sample('owner',23*.05,23,23/90);
+ const afterDoor=rig.sample('owner',23*.07,23,23/90);
+ assert.ok(beforeDoor.rain.car>.95,'inside sound until door starts opening');
+ assert.ok(afterDoor.rain.outside>.95,'outside rain before physically crossing door');
 });
 
 test('exit crosses the front-left opening, never the solid rear door',()=>{
