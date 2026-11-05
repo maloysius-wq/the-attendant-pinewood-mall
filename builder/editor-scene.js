@@ -59,7 +59,10 @@ export async function createBuilderScene({scene,camera,domElement,onSelect=()=>{
   const bounds=new THREE.Box3().setFromObject(o),c=bounds.getCenter(new THREE.Vector3());
   o.position.set(-c.x,-bounds.min.y,-c.z);
   o.traverse(x=>{if(x.isMesh){x.receiveShadow=true;x.castShadow=false;}});
-  return o;
+  // Author transforms apply to the wrapper. The measured physical fit of
+  // the vendor mesh must never be erased by an editable scale of 1.
+  const anchor=new THREE.Group();anchor.add(o);
+  return anchor;
  }
  async function applyDraft(draft){
   for(const [id,defaultPose] of originals){
