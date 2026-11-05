@@ -117,7 +117,12 @@ export async function createBuilderScene({scene,camera,domElement,onSelect=()=>{
   const floors=[];
   building.group.traverse(o=>{if(o.isMesh&&o.userData.walkableFloor)floors.push(o)});
   const hit=raycaster.intersectObjects(floors,false)[0];
-  if(hit)return hit.point;
+  if(hit){
+   // Wheel changes the ray distance along the actual walkable plane; keep
+   // furniture grounded even when the camera is aimed at a floor.
+   const p=camera.position.clone().lerp(hit.point,depth/9);
+   return p.setY(hit.point.y);
+  }
   return raycaster.ray.at(depth,new THREE.Vector3());
  }
  async function beginPlacement(catalogId){
