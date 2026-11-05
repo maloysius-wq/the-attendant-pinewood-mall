@@ -28,3 +28,21 @@ for(const f of FURNISHINGS_V69.fixtures){
 }
 export const EDITOR_CATALOG_V1=Object.freeze([...ordered.values()]);
 export const EDITOR_CATALOG_BY_ID=new Map(EDITOR_CATALOG_V1.map(x=>[x.id,x]));
+
+/** Register only locally bundled, individually checked CC0 GLBs after catalog fetch. */
+export function registerVendorCatalog(models){
+ if(!Array.isArray(models))throw Error('Unrecognized Builder asset manifest');
+ const added=[];
+ for(const entry of models){
+  if(!entry||!/^[a-z0-9_-]+$/.test(entry.id)||
+   !/^assets\/vendor\/builder\/models\/[a-z0-9_/-]+\.glb$/.test(entry.path)||
+   entry.license!=='CC0-1.0'||!/^[a-f0-9]{64}$/.test(entry.sha256)||
+   !(entry.targetHeight>0)||!(entry.radius>0)||
+   /cassetteShelfLarge|cassetteShelfSmall|ShelfLarge|ShelfSmall|Shelf%20Large|Shelf%20Small/i.test(entry.id+' '+entry.path))
+   throw Error('Unpinned/unsafe Builder asset '+(entry?.id||'?'));
+  if(EDITOR_CATALOG_BY_ID.has(entry.id))throw Error('Duplicate Builder asset '+entry.id);
+  const item=Object.freeze({...entry});
+  EDITOR_CATALOG_BY_ID.set(item.id,item);added.push(item);
+ }
+ return added;
+}
