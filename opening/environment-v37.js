@@ -4,7 +4,7 @@
  */
 import * as THREE from '../vendor/three/build/three.module.js';
 import {GLTFLoader} from '../vendor/three/examples/jsm/loaders/GLTFLoader.js';
-import {installSedanV75} from './sedan-v75.js?v=84';
+import {installSedanV75} from './sedan-v75.js?v=83-door5';
 const base=new URL('./assets/v37/',import.meta.url);
 const loader=new GLTFLoader();
 const textureLoader=new THREE.TextureLoader();
