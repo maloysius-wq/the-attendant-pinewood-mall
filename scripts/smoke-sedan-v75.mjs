@@ -35,6 +35,8 @@ try {
  assert.ok(initial.sightlines?.centerForwardDistance>.45,'windshield view must not be blocked by upholstery');
  assert.equal(initial.door?.side,'FL_Door');
  assert.ok(Math.abs(initial.door?.angle||0)<.01,'door starts closed');
+ assert.equal(initial.clock?.hitMesh,'Interior_InteriorPanel_0',
+  'factory readout must attach to the imported interior dashboard, not outer chassis or a sidewall');
  assert.equal(initial.clock?.unobstructedFromDriver,true,'clock visible from driver');
  assert.equal(initial.clock?.visibleDisplayCorners,4,'no clock digits clipped');
  assert.ok(initial.clock?.mountDepth<-.80,'clock must sit farther forward on dashboard');
