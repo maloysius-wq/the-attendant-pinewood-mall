@@ -3,7 +3,7 @@ import {ENTRY_CODE} from './keypad-spec-v72.mjs';
 // Timeline times are measured from each cue's real media clock, including its
 // post-voice pause. The same thresholds drive both sound and visible doors.
 export const CAR_DOOR_OPEN_PHASE=.06;
-export const CAR_DOOR_CLOSE_DELAY_SECONDS=5;
+export const CAR_DOOR_CLOSE_DELAY_SECONDS=6;
 export const VESTIBULE_CLOSE_PHASE=.54;
 
 export function soundCuesFor(cue,voiceSeconds,waitSeconds){
