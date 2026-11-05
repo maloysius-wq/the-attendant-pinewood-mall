@@ -5,7 +5,7 @@
  * Licensed CC BY 4.0. Only transforms/material tuning/door articulation here.
  */
 import * as THREE from '../vendor/three/build/three.module.js';
-import {CAR_DOOR_OPEN_PHASE,CAR_DOOR_CLOSE_DELAY_SECONDS} from './cinematic-sfx-cues-v82.mjs?v=84';
+import {CAR_DOOR_OPEN_PHASE,CAR_DOOR_CLOSE_DELAY_SECONDS} from './cinematic-sfx-cues-v82.mjs?v=83-door5';
 
 const assetBase=new URL('./assets/v75/',import.meta.url);
 const clamp=t=>Math.max(0,Math.min(1,t));
