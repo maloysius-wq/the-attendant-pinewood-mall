@@ -77,6 +77,16 @@ Cassette Castle fixture/merchandise placement rules:
 - Place tabletop/shelf objects from measured support surfaces or fixture geometry.
 - If a required CC0 model/component cannot be loaded or reliably supported, omit it rather than leave it floating or create a visible procedural stand-in.
 
+## Fast, scoped CI rule (2026-11-05)
+
+**Do not make a small Pinewood edit wait for the full six-chapter production hardening suite.**
+
+- For an isolated opening, animation, sound, visual, or accessibility change, run/inspect the relevant focused GitHub Actions workflow and any directly affected audit. Do not gate that work on unrelated chapter-wide screenshots or tests.
+- Keep local-runtime-asset validation mandatory whenever shipped browser/runtime asset references change; the reduced CI scope never weakens the permanent local-asset rule.
+- The comprehensive `.github/workflows/production-hardening-v26.yml` is reserved for manual dispatch, published releases, and its weekly scheduled regression run. For coordinated cross-chapter or release-level changes, request or arrange a full run explicitly.
+- For runtime changes, verify the GitHub Pages deployment and relevant targeted checks. Report unrelated asynchronous/background CI separately; do not stall the development handoff waiting for every workflow in the repository.
+- Do not expand focused-workflow path filters into all of `scripts/**` unless there is a concrete dependency that justifies it.
+
 ## Session startup
 
 1. Use the GitHub plugin.
