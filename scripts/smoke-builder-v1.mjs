@@ -21,7 +21,10 @@ try{
  assert.equal(initial.ready,true,JSON.stringify(initial.errors));
  assert.equal(initial.roomCount,41);
  assert.equal(initial.fixtureCount,60);
- assert.ok(initial.catalogCount>=10);
+ assert.ok(initial.catalogCount>=100,'locally bundled mall asset library is available');
+ assert.ok((await page.locator('.catalog-item').count())>=100);
+ assert.equal((await page.evaluate(()=>window.__PINEWOOD_BUILDER__.getCatalog())).some(x=>/christmas|holiday|garland|snowman/i.test(x.label)),true);
+ assert.equal((await page.evaluate(()=>window.__PINEWOOD_BUILDER__.select('atrium_dry_fountain'))),true,'new CC0 fountain replaces old sculpture and is editable');
  assert.equal(initial.draft.added.length,0);
  assert.deepEqual(initial.errors,[]);
  // Existing licensed furniture, not walls or cinematic props, is editable.
@@ -39,7 +42,7 @@ try{
  // Render one actual catalog GLB and ensure export/import is reversible.
  await page.evaluate(async()=>{
   const a=window.__PINEWOOD_BUILDER__;
-  const id=a.getCatalog()[0].id;
+  const id=a.getCatalog().find(x=>x.id==='silted-octagonal-atrium-fountain')?.id||a.getCatalog().at(-1).id;
   await a.place(id,{x:0,y:0,z:-60},'ci-placed-prop');
  });
  const added=(await get()).draft.added;
