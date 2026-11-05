@@ -24,4 +24,11 @@ try{
  console.log('CLOCK_V83_DIAGNOSTIC '+JSON.stringify(status));
  assert.equal(status.startup?.state,'ready',
   'preload must succeed before checking clock placement: '+status.message);
+ assert.equal(status.clock?.mountKind,'center-console-under-vent',
+  'clock must be mounted immediately beneath the original vent');
+ assert.ok(status.clock?.ventCenterOffsetX<.015,'clock must be on the vent centerline');
+ assert.ok(status.clock?.ventCenter[1]-status.clock?.localPosition[1]>.09,
+  'clock must sit below the bottom vent slats');
+ assert.ok(status.clock?.displayVentNormalDot>.999,'clock and vent must face the same direction');
+ assert.equal(status.clock?.unobstructedFromDriver,true,'four LCD corners must be visible from driver');
 }finally{await browser.close()}

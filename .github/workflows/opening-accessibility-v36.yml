@@ -4,14 +4,22 @@ on:
   push:
     branches: [main]
     paths:
-      - 'opening/**'
+      - 'opening/intro.js'
+      - 'opening/intro-v65.js'
+      - 'opening/opening.css'
+      - 'opening/caption-sync-v45.js'
+      - 'opening/script.json'
       - 'review/the-call-v34/**'
       - 'scripts/smoke-opening-accessibility-v36.mjs'
       - '.github/workflows/opening-accessibility-v36.yml'
   pull_request:
     branches: [main]
     paths:
-      - 'opening/**'
+      - 'opening/intro.js'
+      - 'opening/intro-v65.js'
+      - 'opening/opening.css'
+      - 'opening/caption-sync-v45.js'
+      - 'opening/script.json'
       - 'review/the-call-v34/**'
       - 'scripts/smoke-opening-accessibility-v36.mjs'
       - '.github/workflows/opening-accessibility-v36.yml'

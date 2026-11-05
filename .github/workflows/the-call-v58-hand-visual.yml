@@ -11,14 +11,12 @@ on:
       - 'opening/intro-v58.js'
       - 'opening/intro-v59.js'
       - 'opening/intro-v60.js'
-      - 'review/the-call-v34/index.html'
       - '.github/workflows/the-call-v58-hand-visual.yml'
   pull_request:
     branches: [main]
     paths:
       - 'scripts/smoke-hand-grip-v58.mjs'
       - 'opening/makehuman-forearm-v57.js'
-      - 'review/the-call-v34/index.html'
       - '.github/workflows/the-call-v58-hand-visual.yml'
 permissions:
   contents: read

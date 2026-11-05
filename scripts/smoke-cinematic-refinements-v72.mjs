@@ -31,8 +31,10 @@ try{
  assert.equal(initial.clock?.visibleDisplayCorners,4,'all four LCD corners must be free of vendor dashboard geometry');
  assert.ok(initial.clock?.surfaceGap<=.02,'clock display cannot float in the cabin');
  assert.equal(initial.clock?.unobstructedFromDriver,true,'clock must be visible from the real driver seat, not hidden by car mesh');
- assert.ok(['dashboard-top','driver-facing-panel'].includes(initial.clock?.mountKind),
-  'the readout must be attached to an authentic surface of the imported dashboard');
+ assert.equal(initial.clock?.mountKind,'center-console-under-vent',
+  'the readout must be directly below the imported sedan center vent');
+ assert.ok(initial.clock?.ventCenterOffsetX<.015,'clock must align with the grille centerline');
+ assert.ok(initial.clock?.displayVentNormalDot>.999,'clock face must match the grille pitch');
  assert.ok(initial.clock?.localPosition?.[1]<.97,
   'the readout must be lower on the dashboard rather than high by the windshield');
  assert.ok(initial.clock?.displayReadableAngle>.70,'clock face must point toward the driver, not lie edge-on to view');

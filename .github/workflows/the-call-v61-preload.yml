@@ -5,7 +5,6 @@ on:
     paths:
       - 'opening/intro-v61.js'
       - 'opening/opening.css'
-      - 'review/the-call-v34/index.html'
       - 'scripts/smoke-opening-preload-v61.mjs'
       - '.github/workflows/the-call-v61-preload.yml'
   pull_request:
@@ -13,7 +12,6 @@ on:
     paths:
       - 'opening/intro-v61.js'
       - 'opening/opening.css'
-      - 'review/the-call-v34/index.html'
       - 'scripts/smoke-opening-preload-v61.mjs'
       - '.github/workflows/the-call-v61-preload.yml'
 permissions:

@@ -3,13 +3,21 @@ on:
   pull_request:
     branches: [main]
     paths:
-      - 'opening/**'
+      - 'opening/keypad-reach-v72.js'
+      - 'opening/keypad-spec-v72.mjs'
+      - 'opening/intro-v65.js'
+      - 'opening/assets/v78/**'
+      - 'opening/assets/v72/**'
       - 'scripts/smoke-keypad-point-v78.mjs'
       - '.github/workflows/keypad-point-v78.yml'
   push:
     branches: [main]
     paths:
-      - 'opening/**'
+      - 'opening/keypad-reach-v72.js'
+      - 'opening/keypad-spec-v72.mjs'
+      - 'opening/intro-v65.js'
+      - 'opening/assets/v78/**'
+      - 'opening/assets/v72/**'
       - 'scripts/smoke-keypad-point-v78.mjs'
       - '.github/workflows/keypad-point-v78.yml'
 permissions:

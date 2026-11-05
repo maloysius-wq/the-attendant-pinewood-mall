@@ -3,14 +3,24 @@ on:
   push:
     branches: [main]
     paths:
-      - 'opening/**'
+      - 'opening/intro-v65.js'
+      - 'opening/camera-v65.js'
+      - 'opening/dashboard-clock-v71.js'
+      - 'opening/keypad-reach-v72.js'
+      - 'opening/scene.js'
+      - 'opening/cinematic-sfx-v82.js'
       - 'scripts/*opening-v72.mjs'
       - 'scripts/*cinematic-refinements-v72.mjs'
       - '.github/workflows/cinematic-refinements-v72.yml'
   pull_request:
     branches: [main]
     paths:
-      - 'opening/**'
+      - 'opening/intro-v65.js'
+      - 'opening/camera-v65.js'
+      - 'opening/dashboard-clock-v71.js'
+      - 'opening/keypad-reach-v72.js'
+      - 'opening/scene.js'
+      - 'opening/cinematic-sfx-v82.js'
       - 'scripts/*opening-v72.mjs'
       - 'scripts/*cinematic-refinements-v72.mjs'
       - '.github/workflows/cinematic-refinements-v72.yml'

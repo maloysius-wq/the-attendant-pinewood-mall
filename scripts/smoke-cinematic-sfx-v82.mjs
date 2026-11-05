@@ -35,10 +35,10 @@ try{
  await advance('owner',.8,16.636,18.236);
  let result=await advance('owner',1.15,16.636,18.236);
  assert.deepEqual(result.played.map(x=>x.name),['CarDoorOpen']);
- result=await advance('owner',5.2,16.636,18.236);
+ result=await advance('owner',6.2,16.636,18.236);
  assert.deepEqual(result.played.map(x=>x.name),['CarDoorOpen','CarDoorClose']);
- assert.ok(Math.abs(result.played[1].at-result.played[0].at-4)<.001,
-  'car close occurs exactly four seconds after leaving the vehicle');
+ assert.ok(Math.abs(result.played[1].at-result.played[0].at-5)<.001,
+  'car close occurs exactly five seconds after the opening sound');
  await advance('lights',10.15,10.06,12.06);
  for(const elapsed of [10.35,10.85,11.35,11.85])result=await advance('lights',elapsed,10.06,12.06);
  assert.deepEqual(result.played.filter(x=>x.name==='Beep').map(x=>x.digit),[1,5,8,3]);

@@ -39,10 +39,14 @@ try {
   'factory readout must attach to the imported interior dashboard, not outer chassis or a sidewall');
  assert.equal(initial.clock?.unobstructedFromDriver,true,'clock visible from driver');
  assert.equal(initial.clock?.visibleDisplayCorners,4,'no clock digits clipped');
- assert.ok(initial.clock?.mountDepth<-.80,'clock must sit farther forward on dashboard');
+ assert.ok(initial.clock?.mountDepth<-.69&&initial.clock.mountDepth>-.83,'clock must attach to center panel immediately below the vent');
  assert.ok(initial.clock?.localPosition?.[1]<.97,'clock must sit lower on dashboard');
- assert.ok(['dashboard-top','driver-facing-panel'].includes(initial.clock?.mountKind),
-  'clock must sit on an authentic surface of the original dashboard');
+ assert.equal(initial.clock?.mountKind,'center-console-under-vent','clock must mount directly beneath the original center vent');
+ assert.ok(initial.clock?.ventCenterOffsetX<.015,'readout must be horizontally centered on the grille');
+ assert.ok(initial.clock?.ventCenter?.[1]-initial.clock?.localPosition?.[1]>.09,
+  'readout must sit beneath, not on top of, the center vent');
+ assert.ok(initial.clock?.displayVentNormalDot>.999,
+  'readout face must share the authentic center vent facing angle');
  await page.screenshot({path:'sedan-v75-artifacts/01-seated-driver.png'});
  await page.evaluate(()=>{const q=window.__PINEWOOD_OPENING_V34__;q.seek(1);q.scrub(.38)});
  await page.waitForTimeout(650);

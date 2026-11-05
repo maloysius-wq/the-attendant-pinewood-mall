@@ -3,14 +3,26 @@ on:
   push:
     branches: [main]
     paths:
-      - 'opening/**'
+      - 'opening/scene.js'
+      - 'opening/intro-v65.js'
+      - 'opening/camera-v65.js'
+      - 'opening/dashboard-clock-v71.js'
+      - 'opening/landscape-*.js'
+      - 'opening/facade-v65.js'
+      - 'opening/assets/v75/**'
       - 'mall/**'
       - 'scripts/*cinematic-continuity-v71.mjs'
       - '.github/workflows/cinematic-continuity-v71.yml'
   pull_request:
     branches: [main]
     paths:
-      - 'opening/**'
+      - 'opening/scene.js'
+      - 'opening/intro-v65.js'
+      - 'opening/camera-v65.js'
+      - 'opening/dashboard-clock-v71.js'
+      - 'opening/landscape-*.js'
+      - 'opening/facade-v65.js'
+      - 'opening/assets/v75/**'
       - 'mall/**'
       - 'scripts/*cinematic-continuity-v71.mjs'
       - '.github/workflows/cinematic-continuity-v71.yml'

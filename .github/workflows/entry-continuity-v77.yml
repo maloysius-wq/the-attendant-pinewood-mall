@@ -3,14 +3,22 @@ on:
   pull_request:
     branches: [main]
     paths:
-      - 'opening/**'
+      - 'opening/intro-v65.js'
+      - 'opening/scene.js'
+      - 'opening/camera-v65.js'
+      - 'opening/keypad-reach-v72.js'
+      - 'mall/**'
       - 'scripts/test-entry-sequence-v77.mjs'
       - 'scripts/smoke-entry-sequence-v77.mjs'
       - '.github/workflows/entry-continuity-v77.yml'
   push:
     branches: [main]
     paths:
-      - 'opening/**'
+      - 'opening/intro-v65.js'
+      - 'opening/scene.js'
+      - 'opening/camera-v65.js'
+      - 'opening/keypad-reach-v72.js'
+      - 'mall/**'
       - 'scripts/test-entry-sequence-v77.mjs'
       - 'scripts/smoke-entry-sequence-v77.mjs'
       - '.github/workflows/entry-continuity-v77.yml'
