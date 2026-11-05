@@ -20,7 +20,7 @@ Give the owner a practical desktop 3D editor for dressing the existing late-1990
 - Keep all current authored assets, story placements, evidence locations, original cinematic service entrance at x=12, boarded main entrance and East Wing layout.
 - Only CC0 asset-catalog entries, with exact creator/source/license, pinned download hash, measurements, local repository path and any compressed texture dependencies; no third-party browser fetches. An already-present non-CC0 environment mesh (e.g. the licensed sedan) is not silently reclassified as CC0 or offered as a CC0 prop.
 - The permanent Cassette Castle shelf bans, desktop-only automated testing, and no manual WASD playtest rule remain in force.
-- Architecture is structural, not a generic editable prop: floors, load-bearing walls, shafts, stairs and mandatory story/evidence triggers are selectable for inspection but locked against deletion in v1. All furnishings, decorative fixtures, planted objects and replacement fountains are editable.
+- Architecture is structural, not a generic editable prop: floors, load-bearing walls, shafts, stairs, mandatory story/evidence triggers **and any visible support object physically bound to a mandatory story/evidence interaction** are selectable for inspection but locked against moving/deletion in v1. Noncritical furnishings, decorative fixtures, plants and fountains are editable. Story-critical props are clearly labeled in the inspector, so the user can dress freely around them.
 
 ## User experience
 
@@ -52,7 +52,7 @@ There is **no misleading Publish button**: the editor provides Export World Layo
 
 - Preserve the existing 39 pinned 3D model sources in the runtime manifest (some are architectural and remain locked); reuse their measured fixtures.
 - Curate at least **100 distinct selectable CC0 model entries** for the first full Builder release, then support additive catalog batches. Prefer Kenney's Furniture (140 models), Nature (330), Food (200) and Holiday kits, select Poly Haven's worn/weathered electronics/furniture/vegetation/lighting, and individually verified CC0 Poly Pizza models (including a fountain and vintage-style computer pieces).
-- The central gallery dry fountain at world x=0, z=-71 receives an actual imported sculpted fountain basin/model, appropriately scaled and weathered. It stays dry and abandoned; its original story evidence anchors remain reachable.
+- The central gallery dry fountain at world x=0, z=-71 receives an actual imported sculpted fountain basin/model, appropriately scaled and weathered. It stays dry and abandoned. This is a **visual replacement of the existing fountain**, not a relocation or removal of any mandatory evidence: integration must preserve and verify the original story evidence anchor, interaction range and physical approach. Any future relocation of story-bound props requires a separate approved story-anchor migration and route test.
 - Select low/medium-polygon GLB/glTF assets, convert/compress source packs at **build/vendor time**, store hashes and provenance in `LICENSES.md` and a catalog manifest. Lazy-load catalog models and thumbnails only when used; cache loaded assets, bound GPU memory and instance repeated props. The game never fetches Kenney/Poly Haven/Poly Pizza at runtime.
 
 **Research entry points:** https://kenney.nl/assets/furniture-kit ; https://kenney.nl/assets/nature-kit ; https://kenney.nl/assets/food-kit ; https://kenney.nl/assets/holiday-kit ; https://polyhaven.com/models ; https://poly.pizza/m/WHc7dwttlk . Each individual binary still requires per-asset license/source/hash validation before vendoring.
@@ -74,6 +74,6 @@ Create focused modules under `builder/` for UI/interaction, `mall/editor-*` for 
 
 - Standalone editor + local autosave + downloadable JSON, not a live authenticated publisher.
 - At least 100 first-release selectable CC0 entries; load on demand instead of all at startup.
-- Decor and furnishings are editable; critical architecture and story objects protected.
+- Noncritical decor and furnishings are editable; critical architecture, story/evidence anchors, and their physically bound visible supports are protected. The fountain may be visually replaced only with its evidence interaction preserved.
 - All areas and doors are accessible **in Builder**, while campaign-specific locks and plot triggers remain intact.
 - No mobile controls or manual WASD playtest runs.
