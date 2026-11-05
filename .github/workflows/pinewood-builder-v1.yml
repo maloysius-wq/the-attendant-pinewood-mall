@@ -1,0 +1,24 @@
+name: Pinewood standalone Builder v1
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'builder/**'
+      - 'mall/editor-*'
+      - 'scripts/test-builder-*.mjs'
+      - 'scripts/smoke-builder-*.mjs'
+      - '.github/workflows/pinewood-builder-v1.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  builder:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Validate pure Builder model and canonical property
+        run: node --test scripts/test-builder-schema-v1.mjs scripts/test-furnishing-v69.mjs
