@@ -5,6 +5,7 @@
  * Licensed CC BY 4.0. Only transforms/material tuning/door articulation here.
  */
 import * as THREE from '../vendor/three/build/three.module.js';
+import {CAR_DOOR_OPEN_PHASE} from './cinematic-sfx-cues-v82.mjs?v=83';
 
 const assetBase=new URL('./assets/v75/',import.meta.url);
 const clamp=t=>Math.max(0,Math.min(1,t));
@@ -84,10 +85,9 @@ export async function installSedanV75({car,stage,status,loader}){
  const movement={
   status:{side:'FL_Door',angle:closedAngle,openFraction:0},
   update(cue,phase,elapsedSeconds=0,waitSeconds=0){
-   // The driver's front door clears the exit at .215 and remains open past
-   // .42. It starts shutting exactly four cinematic seconds after the
-   // departure sound at .21 of the owner's dialogue.
-   const startClose=waitSeconds*.21+4;
+   // Door starts opening at .06; it remains fully open for the physical exit,
+   // and the real mesh closes four seconds after the matching opening sound.
+   const startClose=waitSeconds*CAR_DOOR_OPEN_PHASE+4;
    const fraction=cue==='owner'
     ?smooth((phase-.06)/.14)*(1-smooth((elapsedSeconds-startClose)/.65))
     :0;

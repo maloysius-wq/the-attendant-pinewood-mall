@@ -35,5 +35,5 @@ test('native keypad index stays independent, other fingers curl toward palm, and
  assert.match(hand,/dip\.rotateX\(chosen\*\.32\)/);
  assert.match(hand,/prox\.rotateX\(chosen\*\.12\)/);
  assert.match(intro,/keypad-reach-v72\.js\?v=81/);
- assert.match(intro,/scene\.js\?v=81/);
+ assert.match(intro,/scene\.js\?v=(?:81|83)/);
 });

@@ -40,7 +40,7 @@ test('exterior front walkway has real UV-scaled texture and it preloads behind c
  assert.match(scene,/new URL\('\.\/assets\/v80\/worn-sidewalk-albedo\.jpg'/);
  assert.match(scene,/Promise\.all\(\[environmentReady,sidewalkReady,stormSkyReady\]\)/);
  assert.match(scene,/sidewalkMaterial\.map=texture/);
- assert.match(intro,/scene\.js\?v=81/);
+ assert.match(intro,/scene\.js\?v=(?:81|83)/);
  assert.match(source('mall/render-shell-v68.js'),/render-shell-v67\.js\?v=80/);
 });
 test('all three original square 1024px albedo assets are pinned and valid JPEGs',()=>{

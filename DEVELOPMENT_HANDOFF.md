@@ -9,6 +9,16 @@
 
 ---
 
+## Car-door onset, exterior rain, and dashboard clock: v83 (2026-11-05)
+
+**User request:** Start CarDoorOpen and outside rain at the first actual driver-door movement (not when the character finishes exiting), and move the 12:47 AM clock farther onto the sedan dashboard. Provide the unedited full dialogue for user-directed possible cuts; do not change the script without specific edits.
+
+- First door rotation begins at owner phase .06. `opening/cinematic-sfx-cues-v82.mjs` exports shared `CAR_DOOR_OPEN_PHASE=.06`; `opening/camera-v65.js` hands off car/outside rain on that same frame; `opening/sedan-v75.js` closes its original physical front-left door exactly four seconds after the opening sound. Existing 1-5-8-3 beeps and contractor door sounds remain unchanged.
+- `opening/dashboard-clock-v71.js` now searches actual upward-facing surfaces of the original sedan dashboard, converts the raycast surface normal to the same car-local coordinate system as the clock, and angles the screen toward the driver's seat. Keeps original GLB, covered roof, view clearance, 12:47 AM raster-style face and no substitute dashboard model.
+- Both production New Game and review load v83 modules with cache-busting imports. Regression `scripts/test-door-rain-clock-v83.mjs`, v82 sounds, v72 acoustic tests, v75 sedan desktop screenshots and v72 dashboard integration checks. The original spoken dialogue in `opening/script.json` is intentionally untouched, pending the user's selection of cuts.
+
+**Status:** Await CI and GitHub Pages for merge; see latest Actions source of truth.
+
 ## Original owner-provided opening sound effects: v82 (2026-11-05)
 
 **User request:** Beep on each physical keypad touch; contractor metal door open when it swings open and close as the player crosses into the vestibule; car door open as the player exits and close exactly four seconds later.
