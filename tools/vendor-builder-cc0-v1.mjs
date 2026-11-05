@@ -118,13 +118,14 @@ function packItems(j){
 function asAsset(item,pack){
  const image=Object.values(item).find(v=>typeof v==='string'&&v.includes('cdn.3dassets.dev/assets/')&&/\.glb/.test(v));
  const id=item.assetId||item.asset_id||item.id||item.model?.id;
- let modelUrl=item.model_url||item.modelUrl||item.glb_url||item.glbUrl||item.download_url||item.downloadUrl||item.file_url||item.fileUrl||item.urls?.glb||item.model?.url||image;
+ let modelUrl=item.model_url||item.modelUrl||item.glb_url||item.glbUrl||item.download_url||item.downloadUrl||item.file_url||item.fileUrl||item.urls?.glb||item.model?.url||item.cdnUrl||image;
  if(typeof modelUrl!=='string'&&Number.isFinite(Number(id)))modelUrl='https://cdn.3dassets.dev/assets/'+id+'/v1/model.glb';
  if(typeof modelUrl!=='string'||!/^https:\/\/cdn\.3dassets\.dev\/assets\/\d+\/v\d+\/model\.glb$/.test(modelUrl))return null;
  const label=item.title||item.name||item.label||item.slug||('Asset '+id);
- const page=item.page_url||item.pageUrl||item.asset_url||'https://3dassets.dev/packs/'+pack;
+ const page=item.url||item.page_url||item.pageUrl||item.asset_url||'https://3dassets.dev/packs/'+pack;
+ if(item.license?.slug&&item.license.slug!=='cc0-1.0')return null;
  const dimensions=item.dimensions||item.size||item.dimensions_m;
- return {id:'three-d-'+pack+'-'+(item.slug||id||slug(label)),label:String(label),pack,modelUrl,sourcePage:page,dimensions:dimensions&&typeof dimensions==='object'?{x:Number(dimensions.x??dimensions[0]),y:Number(dimensions.y??dimensions[1]),z:Number(dimensions.z??dimensions[2])}:null};
+ return {id:'three-d-'+pack+'-'+(item.slug||id||slug(label)),label:String(label),pack,modelUrl,sourcePage:page,thumbUrl:item.thumbnailUrl,dimensions:dimensions&&typeof dimensions==='object'?{x:Number(dimensions.x??dimensions[0]),y:Number(dimensions.y??dimensions[1]),z:Number(dimensions.z??dimensions[2])}:null};
 }
 for(const [pack,limit] of Object.entries(packLimit)){
  try{
