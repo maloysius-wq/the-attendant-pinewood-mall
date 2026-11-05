@@ -13,7 +13,7 @@ const applyPose=(obj,p)=>{
  obj.scale.setScalar(p.scale);
  obj.updateMatrixWorld(true);
 };
-export async function createBuilderScene({scene,camera,domElement,onSelect=()=>{},onTransform=()=>{},onPlace=()=>{},orbit=null}){
+export async function createBuilderScene({scene,camera,domElement,onSelect=()=>{},onTransform=()=>{},onPlace=()=>{},canEdit=()=>true,orbit=null}){
  const building=await renderPinewoodV69({scene,chapter:6});
  building.setChapter(6);building.setRoofVisible(false);
  const objects=new Map(),originals=new Map();
@@ -126,7 +126,7 @@ export async function createBuilderScene({scene,camera,domElement,onSelect=()=>{
   return vector(ghost.position);
  }
  async function pointerDown(e){
-  if(e.button!==0||transform.dragging)return;
+  if(e.button!==0||transform.dragging||!canEdit())return;
   setPointer(e);
   if(placing){
    const position=currentPlacement();
