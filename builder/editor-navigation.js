@@ -86,6 +86,11 @@ export function createEditorNavigation({camera,orbit,domElement,shells,scene,onC
   const d=doorMap.get(id);if(!d)throw Error('No physical doorway '+id);
   d.target=!!open;return d.target;
  }
+ function resetDoorOverrides(overrides={}){
+  for(const d of doorMap.values()){
+   d.target=Object.prototype.hasOwnProperty.call(overrides,d.id)?!!overrides[d.id]:d.id!=='main_entry';
+  }
+ }
  function doorsOpenSet(){return new Set([...doorMap.values()].filter(d=>d.target).map(d=>d.id))}
  function setUnlockAll(value){
   unlockAll=!!value;
@@ -193,7 +198,7 @@ export function createEditorNavigation({camera,orbit,domElement,shells,scene,onC
  domElement.addEventListener('pointerup',onPointerUp);
  domElement.addEventListener('contextmenu',onContext);
  return {getState:snapshot,getDoorList:()=>doors.map(x=>({...x})),gotoRoom,setMode,toggleFly,setDoorOpen,
-  clickDoor,getDoorState:id=>doorMap.get(id)?.target??null,setUnlockAll,update:step,
+  clickDoor,getDoorState:id=>doorMap.get(id)?.target??null,resetDoorOverrides,setUnlockAll,update:step,
   dispose(){
    document.removeEventListener('keydown',onKeyDown);document.removeEventListener('keyup',onKeyUp);
    domElement.removeEventListener('pointerdown',onPointerDown);domElement.removeEventListener('pointermove',onPointerMove);
