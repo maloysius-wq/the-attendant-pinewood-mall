@@ -17,7 +17,7 @@
 - `opening/dashboard-clock-v71.js` now searches actual upward-facing surfaces of the original sedan dashboard, converts the raycast surface normal to the same car-local coordinate system as the clock, and angles the screen toward the driver's seat. Keeps original GLB, covered roof, view clearance, 12:47 AM raster-style face and no substitute dashboard model.
 - Both production New Game and review load v83 modules with cache-busting imports. Regression `scripts/test-door-rain-clock-v83.mjs`, v82 sounds, v72 acoustic tests, v75 sedan desktop screenshots and v72 dashboard integration checks. The original spoken dialogue in `opening/script.json` is intentionally untouched, pending the user's selection of cuts.
 
-**Status:** Await CI and GitHub Pages for merge; see latest Actions source of truth.
+**Status:** [PR #63](https://github.com/maloysius-wq/the-attendant-pinewood-mall/pull/63) squash-merged to `main` as `86c5116aa40eda7b02d1dc9c1924e49b5aa3f633`. Desktop v83 sound/physical-door tests and v72 cockpit/rain/clock checks passed on the development branch, with the clock measured on `Interior_InteriorPanel_0` at car-local y≈0.868 m, facing the driver with all four display corners unobstructed. Main-branch CI and Pages publish are asynchronous; consult current GitHub Actions runs before reporting their final status.
 
 ## Original owner-provided opening sound effects: v82 (2026-11-05)
 
