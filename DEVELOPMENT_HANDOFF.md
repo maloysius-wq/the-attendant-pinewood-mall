@@ -9,6 +9,17 @@
 
 ---
 
+## Original owner-provided opening sound effects: v82 (2026-11-05)
+
+**User request:** Beep on each physical keypad touch; contractor metal door open when it swings open and close as the player crosses into the vestibule; car door open as the player exits and close exactly four seconds later.
+
+- Five unaltered owner-provided PCM WAV assets are bundled at `opening/audio/cinematic/v82/` with SHA-256 hashes in `LICENSES.md`. No external audio requests.
+- `opening/cinematic-sfx-cues-v82.mjs` schedules original 1-5-8-3 contact beats on the media timeline, owner exit at phase .21 with exact +4-second closing, contractor door at inside phase .01 and .54. `opening/cinematic-sfx-v82.js` decodes all effects behind the loading cover and shares the existing gesture-unlocked, pause-aware rain AudioContext.
+- `opening/sedan-v75.js` closes the real car mesh after the delayed slam; `opening/camera-v65.js` closes the actual service door once the character enters the vestibule. Original phone grip, keypad pose, mall geometry, dialogue and hand-authored camera route are unchanged.
+- Regression: `scripts/test-cinematic-sfx-v82.mjs` and desktop Chromium `scripts/smoke-cinematic-sfx-v82.mjs` in `.github/workflows/cinematic-sfx-v82.yml`. No mobile/manual controls testing.
+
+**Verification:** PR #62 and GitHub Actions; validate Pages after merge.
+
 ## Stormy night sky, neglected planters and natural keypad curl: v81 (2026-11-04)
 
 **User request:** Retain the independent phone grip and the v79 pointing index, curl the middle/ring/pinky farther inward toward the palm while tapping contractor keys, replace the flat outdoor sky with a storm-cloud nighttime texture, and make all eight imported planter shrubs dying/overgrown with pots as dark green as the Pinewood Mall sign background.

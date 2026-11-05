@@ -168,7 +168,9 @@ export class HumanCameraRig{
   // The contractor latch grants access at the end of 'lights', so the steel
   // door begins opening immediately on the confirmation instead of waiting
   // ten seconds for the end of the following dialogue.
-  const doorOpen=interior?1:id==='inside'?smooth(clamp((phase-.01)/.12,0,1)):0;
+  const doorOpen=id==='inside'
+   ?smooth(clamp((phase-.01)/.12,0,1))*(1-smooth(clamp((phase-.54)/.08,0,1)))
+   :0;
   // Acoustic boundary at the moment the driver passes the open car door:
   // switch to the already-decoded outdoor bed, not a multi-second blend.
   let carWeight=['arrival','clock','closed','work','safety'].includes(id)?1:0;
