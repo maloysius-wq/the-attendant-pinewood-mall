@@ -30,14 +30,15 @@ test('contractor keypad taps 1-5-8-3 with beep at actual contact centers',async(
  assert.deepEqual(cues.map(x=>x.digit),[1,5,8,3]);
  assert.deepEqual(cues.map(x=>+x.at.toFixed(3)),[10.31,10.81,11.31,11.81]);
 });
-test('car door closes exactly four seconds after opening near exit',async()=>{
+test('car door closes exactly five seconds after opening near exit',async()=>{
  assert.ok(existsSync(at('opening/cinematic-sfx-cues-v82.mjs')));
- const {soundCuesFor}=await import('../opening/cinematic-sfx-cues-v82.mjs');
+ const {soundCuesFor,CAR_DOOR_CLOSE_DELAY_SECONDS}=await import('../opening/cinematic-sfx-cues-v82.mjs');
+ assert.equal(CAR_DOOR_CLOSE_DELAY_SECONDS,5);
  const owner=soundCuesFor('owner',16.636,18.236);
  assert.deepEqual(owner.map(x=>x.name),['CarDoorOpen','CarDoorClose']);
- assert.ok(Math.abs(owner[1].at-owner[0].at-4)<1e-9);
+ assert.ok(Math.abs(owner[1].at-owner[0].at-5)<1e-9);
  assert.ok(owner[0].at>1.09&&owner[0].at<1.10,'car open sound starts with visible movement');
- assert.ok(owner[1].at>5.09&&owner[1].at<5.10);
+ assert.ok(owner[1].at>6.09&&owner[1].at<6.10);
 });
 test('metal door sound tracks opening and closing after entering vestibule',async()=>{
  assert.ok(existsSync(at('opening/cinematic-sfx-cues-v82.mjs')));
@@ -47,6 +48,7 @@ test('metal door sound tracks opening and closing after entering vestibule',asyn
  assert.ok(cues[0].at<.25&&cues[1].at>7.5&&cues[1].at<8.4);
  const camera=src('opening/camera-v65.js'),sedan=src('opening/sedan-v75.js');
  assert.match(camera,/phase-\.54/,'door must visibly close after vestibule entry');
+ assert.match(sedan,/CAR_DOOR_CLOSE_DELAY_SECONDS/,'sedan door must share the sound close delay');
  assert.match(sedan,/elapsedSeconds-startClose/,'sedan door must close in sync with its sound');
 });
 test('event crossing emits exactly one sound per threshold; scrub does not re-fire',async()=>{

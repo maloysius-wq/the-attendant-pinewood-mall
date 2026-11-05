@@ -61,17 +61,19 @@ try {
   'camera must cross the front-left door opening, not the rear-door metal');
  assert.ok(crossing.door?.openFraction>.90,
   'the original front door must have swung clear before the character passes through');
+ assert.ok(crossing.door?.angle<-1.35,
+  'the real driver door must swing more than 77 degrees clear of the player during crossing');
  await page.screenshot({path:'sedan-v75-artifacts/025-crossing-front-door.png'});
  await page.evaluate(()=>{const q=window.__PINEWOOD_OPENING_V34__;q.seek(5);q.scrub(.28)});
  await page.waitForTimeout(650);
  const opening=await read();
- assert.ok(opening.door?.angle<-.65,'original front-left door opens outward as player gets up');
+ assert.ok(opening.door?.angle<-1.35,'original front-left door opens more fully as player gets up');
  await page.screenshot({path:'sedan-v75-artifacts/03-driver-door-opening.png'});
  await page.evaluate(()=>{const q=window.__PINEWOOD_OPENING_V34__;q.seek(5);q.scrub(.42)});
  await page.waitForTimeout(650);
  const outside=await read();
  assert.ok(outside.camera[0]<-11.15,'player exits through driver door to outside');
- assert.ok(Math.abs(outside.door?.angle||0)<.05,'door closes four seconds after opening');
+ assert.ok(Math.abs(outside.door?.angle||0)<.05,'door closes five seconds after opening');
  await page.screenshot({path:'sedan-v75-artifacts/04-exiting-car.png'});
  await page.evaluate(()=>{const q=window.__PINEWOOD_OPENING_V34__;q.seek(6);q.scrub(.6)});
  await page.waitForTimeout(650);

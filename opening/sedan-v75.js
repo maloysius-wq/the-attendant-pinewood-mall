@@ -5,7 +5,7 @@
  * Licensed CC BY 4.0. Only transforms/material tuning/door articulation here.
  */
 import * as THREE from '../vendor/three/build/three.module.js';
-import {CAR_DOOR_OPEN_PHASE} from './cinematic-sfx-cues-v82.mjs?v=83';
+import {CAR_DOOR_OPEN_PHASE,CAR_DOOR_CLOSE_DELAY_SECONDS} from './cinematic-sfx-cues-v82.mjs?v=83-door5';
 
 const assetBase=new URL('./assets/v75/',import.meta.url);
 const clamp=t=>Math.max(0,Math.min(1,t));
@@ -86,12 +86,12 @@ export async function installSedanV75({car,stage,status,loader}){
   status:{side:'FL_Door',angle:closedAngle,openFraction:0},
   update(cue,phase,elapsedSeconds=0,waitSeconds=0){
    // Door starts opening at .06; it remains fully open for the physical exit,
-   // and the real mesh closes four seconds after the matching opening sound.
-   const startClose=waitSeconds*CAR_DOOR_OPEN_PHASE+4;
+   // and the real mesh closes five seconds after the matching opening sound.
+   const startClose=waitSeconds*CAR_DOOR_OPEN_PHASE+CAR_DOOR_CLOSE_DELAY_SECONDS;
    const fraction=cue==='owner'
-    ?smooth((phase-.06)/.14)*(1-smooth((elapsedSeconds-startClose)/.65))
+    ?smooth((phase-CAR_DOOR_OPEN_PHASE)/.14)*(1-smooth((elapsedSeconds-startClose)/.65))
     :0;
-   door.rotation.y=closedAngle-1.12*fraction;
+   door.rotation.y=closedAngle-1.45*fraction;
    this.status={side:'FL_Door',angle:door.rotation.y,openFraction:fraction};
   }
  };

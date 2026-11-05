@@ -4,7 +4,7 @@
  * moments, and damp walking transitions instead of whip-panning to targets.
  */
 import * as THREE from '../vendor/three/build/three.module.js';
-import {CAR_DOOR_OPEN_PHASE} from './cinematic-sfx-cues-v82.mjs?v=83';
+import {CAR_DOOR_OPEN_PHASE} from './cinematic-sfx-cues-v82.mjs?v=83-door5';
 const vec=a=>new THREE.Vector3(...a);
 const lerp=(a,b,t)=>a.clone().lerp(b,t);
 const clamp=(v,a,b)=>Math.min(b,Math.max(a,v));
