@@ -57,6 +57,19 @@ try{
  const rejected=await page.evaluate(()=>window.__PINEWOOD_BUILDER__.select('floor_G'));
  assert.equal(rejected,false,'structure cannot be selected for editing');
  assert.equal((await get()).selected,before);
+ // Navigation is editor-only. The chapter/story game stays untouched.
+ await page.locator('#explore-mode').click();
+ assert.equal((await get()).navigation.mode,'walk');
+ await page.locator('#fly-toggle').click();
+ assert.equal((await get()).navigation.mode,'fly');
+ await page.evaluate(()=>window.__PINEWOOD_BUILDER__.jumpRoom('roster_records'));
+ assert.equal((await get()).navigation.floor,'M1');
+ await page.evaluate(()=>window.__PINEWOOD_BUILDER__.setDoorOpen('service_entry',true));
+ assert.equal((await get()).draft.doors.service_entry,true);
+ await page.locator('#fly-toggle').click();
+ assert.equal((await get()).navigation.mode,'walk');
+ await page.locator('#explore-mode').click();
+ assert.equal((await get()).navigation.mode,'orbit');
  assert.deepEqual(remote,[]);
  assert.deepEqual(errors,[]);
  console.log('PINEWOOD_BUILDER_DESKTOP_PASS '+JSON.stringify({rooms:initial.roomCount,fixtures:initial.fixtureCount,catalog:initial.catalogCount}));
