@@ -39,10 +39,10 @@
    <div class="view-actions">
     <select id="jump-room" aria-label="Go to room"><option value="">Jump to room…</option></select>
     <label class="toggle"><input type="checkbox" id="roof"> Roof / ceilings</label>
-    <button id="reset-camera" title="Return to central atrium">Center view</button>
+    <button id="explore-mode" title="Walk the mall with WASD and look using your mouse">Explore</button><button id="fly-toggle" title="Toggle gravity-free movement" disabled>Fly: Off</button><button id="reset-camera" title="Return to central atrium">Center view</button>
    </div>
   </div>
-  <div id="placement-tip" role="status">Orbit: drag · Pan: right-drag · Zoom: wheel · Select: click · Transform: handles or inspector</div>
+  <div id="door-tools"><label for="door-select">Doors</label><select id="door-select" aria-label="Select a physical mall door"><option value="">Choose a door…</option></select><button id="door-toggle">Open / Close</button><label class="toggle"><input id="unlock-doors" type="checkbox" checked> Unlock all (Builder only)</label></div><div id="placement-tip" role="status">Orbit: drag · Pan: right-drag · Zoom: wheel · Select: click · Transform: handles or inspector</div>
   <div id="loading" role="status"><div class="loader-copy"><span class="eyebrow">PREPARING PINEWOOD</span><strong>The doors are yours.</strong><p>Assembling the licensed mall and all 60 existing furnishings before the editing tools appear.</p><progress max="100" value="12"></progress><span id="load-error"></span></div></div>
  </section>
  <aside class="panel inspector">
