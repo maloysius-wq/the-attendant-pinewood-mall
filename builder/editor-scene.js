@@ -47,7 +47,7 @@ export async function createBuilderScene({scene,camera,domElement,onSelect=()=>{
  }
  async function template(id){
   const item=EDITOR_CATALOG_BY_ID.get(id);if(!item)throw Error('Unknown local asset '+id);
-  if(!item.path.startsWith('assets/vendor/runtime/')||!/\.glb$/i.test(item.path))throw Error('Nonlocal asset forbidden');
+  if(!/^assets\/vendor\/(?:runtime|builder\/models)\//.test(item.path)||!/\.glb$/i.test(item.path))throw Error('Nonlocal asset forbidden');
   if(!cached.has(id))cached.set(id,loader.loadAsync(new URL('../'+item.path,import.meta.url).href));
   const gltf=await cached.get(id),o=gltf.scene.clone(true);
   const b=new THREE.Box3().setFromObject(o),s=b.getSize(new THREE.Vector3());
@@ -64,6 +64,19 @@ export async function createBuilderScene({scene,camera,domElement,onSelect=()=>{
   const anchor=new THREE.Group();anchor.add(o);
   return anchor;
  }
+
+ // Preserve the canonical architectural basin and all evidence geometry while
+ // replacing only the old centre sculpture in this standalone authoring world.
+ const oldSculpture=building.group.getObjectByName('cc0_dry_fountain_art',true);
+ if(oldSculpture)oldSculpture.visible=false;
+ const fountain=await template('silted-octagonal-atrium-fountain');
+ fountain.name='builder_atrium_dry_fountain';
+ fountain.userData.editorId='atrium_dry_fountain';
+ fountain.position.set(0,.07,-71);
+ fountain.scale.setScalar(2);
+ building.group.add(fountain);
+ objects.set('atrium_dry_fountain',fountain);
+ originals.set('atrium_dry_fountain',pose(fountain));
  async function applyDraft(draft){
   for(const [id,defaultPose] of originals){
    const o=objects.get(id);
