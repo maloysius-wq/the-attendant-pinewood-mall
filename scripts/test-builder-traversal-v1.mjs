@@ -18,7 +18,8 @@ test('fly-off restores last safe position if there is no landing surface',()=>{
  const last={x:0,y:1.7,z:-70},far={x:300,y:20,z:300};
  assert.deepEqual(resolveFlyLanding(far,last,shells),last);
  const valid=resolveFlyLanding({x:65,y:9,z:-100},last,shells);
- assert.deepEqual(valid,{x:65,y:7.1,z:-100},'eyes rest at measured M1 height');
+ assert.equal(valid.x,65);assert.equal(valid.z,-100);
+ assert.ok(Math.abs(valid.y-7.1)<1e-8,'eyes rest at measured M1 height');
 });
 test('every real interior door and all three exterior thresholds are addressable',()=>{
  const doors=doorDescriptors(shells);
