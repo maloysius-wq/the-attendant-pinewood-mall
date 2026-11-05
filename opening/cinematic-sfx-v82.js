@@ -1,4 +1,4 @@
-import {soundCuesFor,crossedSoundCues} from './cinematic-sfx-cues-v82.mjs';
+import {soundCuesFor,crossedSoundCues} from './cinematic-sfx-cues-v82.mjs?v=83';
 
 const filenames=['Beep','MetalDoorOpen','MetalDoorClose','CarDoorOpen','CarDoorClose'];
 const volume={Beep:.34,MetalDoorOpen:.55,MetalDoorClose:.56,

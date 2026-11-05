@@ -1,5 +1,5 @@
 import * as THREE from '../vendor/three/build/three.module.js';
-import {upgradeOpeningSceneV37} from './environment-v37.js?v=75';
+import {upgradeOpeningSceneV37} from './environment-v37.js?v=83';
 import {installMallPlantersV63} from './landscape-v63.js?v=81';
 import {ENTRY_CODE,keypadCenter} from './keypad-spec-v72.mjs';
 const v=(x,y,z)=>new THREE.Vector3(x,y,z);

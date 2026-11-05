@@ -4,6 +4,7 @@
  * moments, and damp walking transitions instead of whip-panning to targets.
  */
 import * as THREE from '../vendor/three/build/three.module.js';
+import {CAR_DOOR_OPEN_PHASE} from './cinematic-sfx-cues-v82.mjs?v=83';
 const vec=a=>new THREE.Vector3(...a);
 const lerp=(a,b,t)=>a.clone().lerp(b,t);
 const clamp=(v,a,b)=>Math.min(b,Math.max(a,v));
@@ -171,16 +172,14 @@ export class HumanCameraRig{
   const doorOpen=id==='inside'
    ?smooth(clamp((phase-.01)/.12,0,1))*(1-smooth(clamp((phase-.54)/.08,0,1)))
    :0;
-  // Acoustic boundary at the moment the driver passes the open car door:
-  // switch to the already-decoded outdoor bed, not a multi-second blend.
+  // Rain crosses from cabin to outdoors on the first door-opening movement:
+  // both ambience sources are already decoded for an immediate 45ms handoff.
   let carWeight=['arrival','clock','closed','work','safety'].includes(id)?1:0;
   let exteriorWeight=['entrance','lights'].includes(id)?1:id==='inside'?(at.z>=-22.55?1:0):0;
   if(id==='owner'){
-   // A real car-door boundary, not a fraction of Renee's long speech.
-   // The driver clears the left door when the camera crosses this X-plane.
-   // Keep the exterior bed after exiting; walking back toward the mall
-   // increases world X, but does NOT put the player back inside the sedan.
-   const outside=at.x<=-11.15||phase>=.37;
+   // The exterior bed starts precisely as the door first swings, before the
+   // camera crosses the sill. Never revert while walking toward the mall.
+   const outside=phase>=CAR_DOOR_OPEN_PHASE;
    carWeight=outside?0:1;exteriorWeight=outside?1:0;
   }
   // Once the player crosses the threshold, indoor acoustics take over.

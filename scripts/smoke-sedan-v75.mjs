@@ -35,8 +35,14 @@ try {
  assert.ok(initial.sightlines?.centerForwardDistance>.45,'windshield view must not be blocked by upholstery');
  assert.equal(initial.door?.side,'FL_Door');
  assert.ok(Math.abs(initial.door?.angle||0)<.01,'door starts closed');
+ assert.equal(initial.clock?.hitMesh,'Interior_InteriorPanel_0',
+  'factory readout must attach to the imported interior dashboard, not outer chassis or a sidewall');
  assert.equal(initial.clock?.unobstructedFromDriver,true,'clock visible from driver');
  assert.equal(initial.clock?.visibleDisplayCorners,4,'no clock digits clipped');
+ assert.ok(initial.clock?.mountDepth<-.80,'clock must sit farther forward on dashboard');
+ assert.ok(initial.clock?.localPosition?.[1]<.97,'clock must sit lower on dashboard');
+ assert.ok(['dashboard-top','driver-facing-panel'].includes(initial.clock?.mountKind),
+  'clock must sit on an authentic surface of the original dashboard');
  await page.screenshot({path:'sedan-v75-artifacts/01-seated-driver.png'});
  await page.evaluate(()=>{const q=window.__PINEWOOD_OPENING_V34__;q.seek(1);q.scrub(.38)});
  await page.waitForTimeout(650);
@@ -65,7 +71,7 @@ try {
  await page.waitForTimeout(650);
  const outside=await read();
  assert.ok(outside.camera[0]<-11.15,'player exits through driver door to outside');
- assert.ok(outside.door?.angle<-.9,'door stays open while exiting');
+ assert.ok(Math.abs(outside.door?.angle||0)<.05,'door closes four seconds after opening');
  await page.screenshot({path:'sedan-v75-artifacts/04-exiting-car.png'});
  await page.evaluate(()=>{const q=window.__PINEWOOD_OPENING_V34__;q.seek(6);q.scrub(.6)});
  await page.waitForTimeout(650);

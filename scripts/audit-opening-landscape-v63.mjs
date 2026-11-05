@@ -32,7 +32,7 @@ assert.match(scene,/Promise\.all\(\[environmentReady,sidewalkReady,stormSkyReady
 assert.match(scene,/Promise\.all\(\[exteriorReady,installMallPlantersV63\(world,\{decayed:useAbandonedFacade\}\)\]\)/);
 assert.match(intro63,/makeOpeningScene\(\{useImportedLandscape:true\}\)/);
 assert.doesNotMatch(intro62,/useImportedLandscape:true/);
-assert.match(preview,/intro-v65\.js\?v=(?:65|72|75|77|78|79|81|82)/);
+assert.match(preview,/intro-v65\.js\?v=(?:65|72|75|77|78|79|81|82|83)/);
 assert.match(imported,/GLTFLoader/);
 assert.doesNotMatch(imported,/new THREE\.(?:BoxGeometry|CylinderGeometry|SphereGeometry)/);
 assert.doesNotMatch(imported,/https?:\/\//,'No remote runtime assets');
