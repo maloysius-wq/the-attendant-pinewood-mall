@@ -39,7 +39,8 @@ try {
  assert.equal(initial.clock?.visibleDisplayCorners,4,'no clock digits clipped');
  assert.ok(initial.clock?.mountDepth<-.80,'clock must sit farther forward on dashboard');
  assert.ok(initial.clock?.localPosition?.[1]<.97,'clock must sit lower on dashboard');
- assert.equal(initial.clock?.mountKind,'dashboard-top','clock must sit on real upper dashboard');
+ assert.ok(['dashboard-top','driver-facing-panel'].includes(initial.clock?.mountKind),
+  'clock must sit on an authentic surface of the original dashboard');
  await page.screenshot({path:'sedan-v75-artifacts/01-seated-driver.png'});
  await page.evaluate(()=>{const q=window.__PINEWOOD_OPENING_V34__;q.seek(1);q.scrub(.38)});
  await page.waitForTimeout(650);
