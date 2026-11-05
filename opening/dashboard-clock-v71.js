@@ -59,7 +59,7 @@ export function installDashboardClockV71(car){
     const direction=local(car,[x,y,z]).sub(driverEye).normalize();
     const hit=new THREE.Raycaster(driverEye,direction,.18,3)
      .intersectObject(model,true)
-     .find(h=>!/window|wheel|tire|rim|door/i.test(h.object.name));
+     .find(h=>/Interior_InteriorPanel_0/i.test(h.object.name));
     if(!hit?.face)continue;
     const point=car.worldToLocal(hit.point.clone());
     if(point.x<-.45||point.x>.48||point.y<.68||point.y>1.14||
