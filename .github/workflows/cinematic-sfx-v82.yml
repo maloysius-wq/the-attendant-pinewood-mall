@@ -1,0 +1,38 @@
+name: Pinewood v82 user-provided cinematic sound cues
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'opening/**'
+      - 'scripts/*cinematic-sfx-v82.mjs'
+      - '.github/workflows/cinematic-sfx-v82.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'opening/**'
+      - 'scripts/*cinematic-sfx-v82.mjs'
+      - '.github/workflows/cinematic-sfx-v82.yml'
+permissions:
+  contents: read
+jobs:
+  cinematic-sfx-desktop:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify five WAV originals, timings and precise one-shot schedule
+        run: node --test scripts/test-cinematic-sfx-v82.mjs
+      - name: Install desktop Chromium
+        run: |
+          npm install --no-save playwright@1.55.0
+          npx playwright install chromium
+      - name: Serve opening cinematic
+        run: |
+          python3 -m http.server 4173 --bind 127.0.0.1 >/tmp/pinewood-sfx-v82-http.log 2>&1 &
+          for i in {1..30}; do curl -fsS http://127.0.0.1:4173/review/the-call-v34/ >/dev/null && exit 0; sleep 1; done
+          exit 1
+      - name: Check sound buffer preloads, sequencing, mute/pause and local requests
+        run: node scripts/smoke-cinematic-sfx-v82.mjs
