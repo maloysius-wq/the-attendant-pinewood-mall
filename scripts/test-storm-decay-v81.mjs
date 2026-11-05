@@ -31,9 +31,9 @@ test('native keypad index stays independent, other fingers curl toward palm, and
  const hand=source('opening/keypad-reach-v72.js'),intro=source('opening/intro-v65.js');
  assert.match(hand,/this\.hand\.nativePose=/);
  assert.match(hand,/for\(const n of \[3,4,5\]\)this\._curl\(n\)/);
- assert.match(hand,/const chosen=options\[0\]\.distance<options\[1\]\.distance/);
- assert.match(hand,/dip\.rotateX\(chosen\*\.32\)/);
- assert.match(hand,/prox\.rotateX\(chosen\*\.12\)/);
+ assert.match(hand,/const score=tip\.distanceTo\(palm\)/);
+ assert.match(hand,/dip\.quaternion\.copy\(neutral\[2\]\)/);
+ assert.match(hand,/this\._curl\(1\)/);
  assert.match(intro,/keypad-reach-v72\.js\?v=81/);
  assert.match(intro,/scene\.js\?v=(?:81|83)/);
 });

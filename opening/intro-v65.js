@@ -1,11 +1,11 @@
 import * as THREE from '../vendor/three/build/three.module.js';
-import {makeOpeningScene} from './scene.js?v=85-keypad-wide';
+import {makeOpeningScene} from './scene.js?v=83-door5&keypad=85';
 import {installAbandonedFacadeV65} from './facade-v65.js?v=65';
 import {enlargeImportedLandscapeV64} from './landscape-scale-v64.js?v=64';
 import {renderPinewoodV69} from '../mall/render-shell-v69.js';
 import {installDashboardClockV71} from './dashboard-clock-v71.js?v=83-clockvent';
-import {KeypadReachHandV72} from './keypad-reach-v72.js?v=85-fist';
-import {HumanCameraRig} from './camera-v65.js?v=85-approach';
+import {KeypadReachHandV72} from './keypad-reach-v72.js?v=81&fist=85';
+import {HumanCameraRig} from './camera-v65.js?v=83-door5&approach=85';
 import {OpeningAmbience} from './ambience-v62.js?v=62';
 import {OpeningCinematicSfx} from './cinematic-sfx-v82.js?v=83-door5';
 import {HandheldCheckInPhone} from './phone-v62.js?v=62';
