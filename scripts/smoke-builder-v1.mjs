@@ -39,6 +39,7 @@ try{
  await page.locator('#roof').check();
  assert.deepEqual(await page.evaluate(()=>window.__PINEWOOD_BUILDER__.getRoofState()),roofOn,
   'switch restores the roof and atrium skylight');
+ await page.locator('#roof').uncheck(); // Keep the existing editing smoke in cutaway mode.
  // The exterior is the same fully loaded cinematic set, in the SAME editable 3D world.
  const outside=await page.evaluate(()=>window.__PINEWOOD_BUILDER__.getExteriorState());
  assert.equal(outside.ready,true,'cinematic exterior is mounted in the Builder');
