@@ -30,6 +30,7 @@ export async function createBuilderScene({scene,camera,domElement,onSelect=()=>{
   objects.set(f.id,o);originals.set(f.id,pose(o));o.userData.editorId=f.id;
  }
  const raycaster=new THREE.Raycaster(),pointer=new THREE.Vector2();
+ const floors=[];building.group.traverse(o=>{if(o.isMesh&&o.userData.walkableFloor)floors.push(o)});
  const loader=new GLTFLoader(),cached=new Map();
  const transform=new TransformControls(camera,domElement);
  scene.add(transform.getHelper());
@@ -38,7 +39,8 @@ export async function createBuilderScene({scene,camera,domElement,onSelect=()=>{
  const editable=[...objects.values()];
  function setPointer(e){
   const r=domElement.getBoundingClientRect();
-  pointer.set(((e.clientX-r.left)/r.width)*2-1,-((e.clientY-r.top)/r.height)*2+1);
+  if(document.pointerLockElement===domElement)pointer.set(0,0);
+  else pointer.set(((e.clientX-r.left)/r.width)*2-1,-((e.clientY-r.top)/r.height)*2+1);
   raycaster.setFromCamera(pointer,camera);
  }
  const findObject=(hit)=>{
@@ -120,8 +122,6 @@ export async function createBuilderScene({scene,camera,domElement,onSelect=()=>{
   transform.setMode(mode);
  }
  function pointOnRay(){
-  const floors=[];
-  building.group.traverse(o=>{if(o.isMesh&&o.userData.walkableFloor)floors.push(o)});
   const hit=raycaster.intersectObjects(floors,false)[0];
   if(hit){
    // Wheel changes the ray distance along the actual walkable plane; keep
@@ -169,6 +169,12 @@ export async function createBuilderScene({scene,camera,domElement,onSelect=()=>{
   }
  }
  function pointerMove(e){if(!placing)return;setPointer(e);currentPlacement();}
+ function refreshPlacement(){
+  if(!ghost||!placing)return;
+  if(document.pointerLockElement===domElement)pointer.set(0,0);
+  raycaster.setFromCamera(pointer,camera);
+  currentPlacement();
+ }
  function onWheel(e){
   if(!placing||!ghost)return;
   e.preventDefault();
@@ -189,7 +195,7 @@ export async function createBuilderScene({scene,camera,domElement,onSelect=()=>{
  domElement.addEventListener('pointermove',pointerMove);
  domElement.addEventListener('wheel',onWheel,{passive:false});
  return {
-  building,objects,select,applyDraft,beginPlacement,stopPlacement,setTransformMode,
+  building,objects,select,applyDraft,beginPlacement,stopPlacement,setTransformMode,refreshPlacement,
   poseOf:id=>objects.has(id)?pose(objects.get(id)):null,
   pickAt:(x,y)=>{setPointer({clientX:x,clientY:y});return pointOnRay()},
   get selected(){return selected},
