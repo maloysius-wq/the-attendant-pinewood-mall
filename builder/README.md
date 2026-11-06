@@ -32,6 +32,28 @@ The editor saves automatically to **IndexedDB in this browser** after each edit.
 
 The builder never fetches third-party runtime assets. The one-off vendoring tool `tools/vendor-builder-cc0-v1.mjs` is development-only and is executed by a GitHub Actions runner. `scripts/audit-builder-assets-v1.mjs` checks every local GLB signature, byte length and checksum.
 
+## Image textures versus solid-color materials
+
+The 482 newly imported CC0 GLBs are a mixture of asset styles. A complete
+GLB material audit on 2026-11-06 found **324 models using solid material colors**
+without embedded images, and **158 models containing embedded image maps**.
+All had valid material assignments and no missing texture references, external
+image dependencies, or missing texture-coordinate attributes. Lack of photo
+detail in a color-only source model is not a missing-file bug.
+
+The 21 original selectable fixtures are also checked: 12 have solid-color materials and 9 contain image maps; their eight relative image-file references resolve to locally bundled files.
+
+Use **Surface material type** in the prop catalog to filter by **With embedded
+image maps** or **Solid-color materials**. Each imported model also shows its
+material type beneath the title. This filter does not modify your layout or
+alter existing assets. It also does not promise realistic detail: some embedded
+maps are palette/color atlases rather than photographic wear or woodgrain.
+
+For more detailed 1990s surfaces, replace selected CC0 color-only models with
+genuinely textured CC0 GLBs, or author appropriate texture maps and vendor
+them locally with license/source/hash records. Avoid blanket texture
+assignments across unrelated materials such as glass, CRTs, metals and plants.
+
 ## Campaign safety
 
 The builder is intentionally independent from the chapter/story runtime. The export is **not** silently applied to playable chapters. `mall/editor-overlay-v1.mjs` supplies a guarded `prepareApprovedLayout` and opt-in, reversible `applyApprovedLayout` interface for a **future owner-reviewed** exported world. Applying that world to the actual campaign requires explicit owner approval of the specific exported JSON; story door locks and evidence/architectural geometry are never taken from the edit preview.

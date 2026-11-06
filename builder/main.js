@@ -19,11 +19,26 @@ const clone=v=>JSON.parse(JSON.stringify(v)),round=v=>Math.round(v*1000)/1000;
 const legacy=new Map([...FURNISHINGS_V69.fixtures,...EDITOR_EXTRA_FIXTURES_V1].map(f=>[f.id,f]));
 const catalog=[...EDITOR_CATALOG_V1];
 async function loadVendorCatalog(){
- const response=await fetch(new URL('../assets/vendor/builder/catalog-v1.json',import.meta.url));
+ const [response,styleResponse]=await Promise.all([
+  fetch(new URL('../assets/vendor/builder/catalog-v1.json',import.meta.url)),
+  fetch(new URL('../assets/vendor/builder/material-index-v1.json',import.meta.url))
+ ]);
  if(!response.ok)throw Error('Pinned CC0 asset library unavailable: HTTP '+response.status);
- const manifest=await response.json();
+ if(!styleResponse.ok)throw Error('Pinned CC0 material index unavailable: HTTP '+styleResponse.status);
+ const manifest=await response.json(),styleIndex=await styleResponse.json();
  if(manifest.version!==1||!Array.isArray(manifest.models)||manifest.models.length<100)throw Error('Incomplete local CC0 library');
- catalog.push(...registerVendorCatalog(manifest.models));
+ if(styleIndex.version!==1||styleIndex.totalModels!==manifest.models.length||!Array.isArray(styleIndex.imageBearingIds))throw Error('Outdated CC0 material classification');
+ if(styleIndex.existingTotalModels!==catalog.length||!Array.isArray(styleIndex.existingImageBearingIds))throw Error('Outdated original-fixture classification');
+ const existingImages=new Set(styleIndex.existingImageBearingIds),existingIds=new Set(catalog.map(m=>m.id));
+ if(existingImages.size!==styleIndex.existingImageBearingIds.length||[...existingImages].some(id=>!existingIds.has(id)))throw Error('Invalid original-fixture classification');
+ for(let i=0;i<catalog.length;i++){
+  catalog[i]={...catalog[i],materialStyle:existingImages.has(catalog[i].id)?'image-mapped':'color-only'};
+ }
+ const images=new Set(styleIndex.imageBearingIds),validIds=new Set(manifest.models.map(m=>m.id));
+ if(images.size!==styleIndex.imageBearingIds.length||[...images].some(id=>!validIds.has(id)))throw Error('Invalid CC0 material classification');
+ catalog.push(...registerVendorCatalog(manifest.models.map(m=>({
+  ...m,materialStyle:images.has(m.id)?'image-mapped':'color-only'
+ }))));
  status.catalogCount=catalog.length;
 }
 
@@ -62,7 +77,10 @@ function indicate(msg){$('save-status').textContent=msg}
 function writeInspector(id,p){
  status.selected=id;
  $('selection-name').textContent=id?labels(id):'Nothing selected';
- $('selection-meta').textContent=id?(legacy.has(id)?'Existing licensed mall fixture':'Placed custom model'):'Choose an existing fixture or place something from the catalog.';
+ const placed=status.draft.added.find(a=>a.id===id);
+ const surface=placed?EDITOR_CATALOG_BY_ID.get(placed.catalogId)?.materialStyle:null;
+ $('selection-meta').textContent=id?(legacy.has(id)?'Existing licensed mall fixture':'Placed custom model')+
+  (surface==='color-only'?' · Original model uses solid colors, no image maps':surface==='image-mapped'?' · Original model includes embedded image maps':''):'Choose an existing fixture or place something from the catalog.';
  $('transform-fields').hidden=!id;
  if(!id||!p){refreshOutliner();return}
  for(const k of ['x','y','z']){
@@ -98,21 +116,24 @@ function populateCatalog(){
   const opt=document.createElement('option');opt.value=v;opt.textContent=v;$('catalog-category').append(opt);
  }
  function filter(){
-  const term=$('catalog-search').value.trim().toLowerCase(),cat=$('catalog-category').value,condition=$('catalog-condition').value;
+  const term=$('catalog-search').value.trim().toLowerCase(),cat=$('catalog-category').value,
+  condition=$('catalog-condition').value,material=$('catalog-material').value;
   const parent=$('catalog-list');parent.replaceChildren();
   for(const item of catalog){
    if(cat&&item.category!==cat)continue;
    if(condition&&item.condition!==condition)continue;
+   if(material&&item.materialStyle!==material)continue;
    if(term&&!(item.label+' '+item.category+' '+(item.condition||'')).toLowerCase().includes(term))continue;
    const b=document.createElement('button');b.className='catalog-item';b.type='button';
    if(item.thumb){const preview=document.createElement('img');preview.className='asset-thumb';preview.loading='lazy';preview.alt='';preview.src=new URL('../'+item.thumb,import.meta.url).href;b.append(preview)}
    const t=document.createElement('span'),strong=document.createElement('strong'),small=document.createElement('small');
-   strong.textContent=item.label;small.textContent=item.category+(item.condition==='weathered'?' · weathered':'');t.append(strong,small);
+   const materialLabel=item.materialStyle==='image-mapped'?' · image maps':item.materialStyle==='color-only'?' · solid colors':'';
+   strong.textContent=item.label;small.textContent=item.category+(item.condition==='weathered'?' · weathered':'')+materialLabel;t.append(strong,small);
    const plus=document.createElement('span');plus.className='plus';plus.textContent='＋';b.append(t,plus);
-   b.title='Preview '+item.label+' in the world';
+   b.title='Preview '+item.label+' in the world'+(item.materialStyle==='color-only'?' · This source model uses material colors, not image texture maps':item.materialStyle==='image-mapped'?' · Includes embedded image maps':'');
    b.addEventListener('click',async()=>{
     try{await editor.beginPlacement(item.id);
-     $('placement-tip').textContent='PLACE '+item.label.toUpperCase()+' · Move mouse to position · Wheel rotate · Shift+wheel distance · Click to place · Esc to cancel';
+     $('placement-tip').textContent='PLACE '+item.label.toUpperCase()+' · Move mouse to position · Wheel rotate · Shift+wheel distance · Click to place · Esc to cancel'+(item.materialStyle==='color-only'?' · Source uses solid colors, no image textures':'');
     }catch(e){report(e)}
    });parent.append(b);
   }
@@ -120,6 +141,7 @@ function populateCatalog(){
  $('catalog-search').addEventListener('input',filter);
  $('catalog-category').addEventListener('change',filter);
  $('catalog-condition').addEventListener('change',filter);
+ $('catalog-material').addEventListener('change',filter);
  filter();
 }
 function report(err){

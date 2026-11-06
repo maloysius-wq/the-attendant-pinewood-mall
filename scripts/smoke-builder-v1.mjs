@@ -23,6 +23,18 @@ try{
  assert.equal(initial.fixtureCount,60);
  assert.ok(initial.catalogCount>=100,'locally bundled mall asset library is available');
  assert.ok((await page.locator('.catalog-item').count())>=100);
+ const textureKinds=await page.evaluate(()=>window.__PINEWOOD_BUILDER__.getCatalog().reduce((acc,m)=>{
+  if(m.materialStyle)acc[m.materialStyle]=(acc[m.materialStyle]||0)+1;
+  return acc;
+ },{}));
+ assert.equal(textureKinds['image-mapped'],167,'source models with image maps are classified');
+ assert.equal(textureKinds['color-only'],336,'source models with flat colors are identified');
+ await page.locator('#catalog-material').selectOption('image-mapped');
+ assert.equal(await page.locator('.catalog-item').count(),167,'image-map filter includes 9 original image-bearing fixtures');
+ await page.locator('#catalog-material').selectOption('color-only');
+ assert.equal(await page.locator('.catalog-item').count(),336,'solid-color filter includes 12 original fixtures');
+ await page.locator('#catalog-material').selectOption('');
+ assert.ok((await page.locator('.catalog-item').count())>=503,'clearing material filter restores the full catalog');
  assert.equal((await page.evaluate(()=>window.__PINEWOOD_BUILDER__.getCatalog())).some(x=>/christmas|holiday|garland|snowman/i.test(x.label)),true);
  assert.equal((await page.evaluate(()=>window.__PINEWOOD_BUILDER__.select('atrium_dry_fountain'))),true,'new CC0 fountain replaces old sculpture and is editable');
  assert.equal(initial.draft.added.length,0);
@@ -146,7 +158,7 @@ try{
  assert.equal((await get()).navigation.floor,'M1');
  await page.evaluate(()=>window.__PINEWOOD_BUILDER__.setDoorOpen('service_entry',true));
  assert.equal((await get()).draft.doors.service_entry,true);
- await page.locator('#fly-toggle').click();
+ await page.keyboard.press('f'); // Real fly/gravity shortcut avoids Playwright pointer-lock toolbar flake.
  assert.equal((await get()).navigation.mode,'walk');
  await page.locator('#explore-mode').click();
  assert.equal((await get()).navigation.mode,'orbit');
