@@ -16,7 +16,7 @@ const applyPose=(obj,p)=>{
 };
 export async function createBuilderScene({scene,camera,domElement,onSelect=()=>{},onTransform=()=>{},onPlace=()=>{},canEdit=()=>true,orbit=null}){
  const building=await renderPinewoodV69({scene,chapter:6});
- building.setChapter(6);building.setRoofVisible(false);
+ building.setChapter(6);building.setRoofVisible(true);
  const objects=new Map(),originals=new Map();
  for(const f of FURNISHINGS_V69.fixtures){
   const o=building.group.getObjectByName('furnished_'+f.id);
