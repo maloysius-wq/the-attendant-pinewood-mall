@@ -10,6 +10,7 @@ The editor loads the same canonical 41-room, three-level Pinewood Mall shell and
 | --- | --- |
 | Orbit / pan / zoom | Left drag / right drag / mouse wheel |
 | Search models | Search and filter by category or condition in the left panel |
+| Work lights | Toggle **Work lights** near the roof controls to brighten the entire Builder with neutral fill light, clearer distance and higher exposure; uncheck for the exact atmospheric original. This does not change the playable game or exported layouts. |
 | Add a model | Choose a prop; aim in Orbit or Explore/Fly (screen center when mouse-look is locked); wheel up turns left, down turns right in 15° steps; Shift+wheel moves near/far; left click places with that rotation |
 | Select an existing prop | Click it in the scene or the scene outliner |
 | Move / rotate / scale | Top toolbar, gizmo, or exact Inspector values; shortcuts 1 / 2 / 3 |
