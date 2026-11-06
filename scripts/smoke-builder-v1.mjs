@@ -95,6 +95,13 @@ try{
  assert.equal((await get()).navigation.mode,'walk');
  await page.locator('#fly-toggle').click();
  assert.equal((await get()).navigation.mode,'fly');
+ // The editor must still accept left-click placement while flying.
+ const flyProp=await page.evaluate(()=>window.__PINEWOOD_BUILDER__.getCatalog().find(x=>x.id==='silted-octagonal-atrium-fountain'));
+ await page.locator('.catalog-item').filter({hasText:flyProp.label}).first().click();
+ await page.waitForFunction(()=>document.getElementById('placement-tip').textContent.startsWith('PLACE '));
+ await page.mouse.click(targetX,canvasBox.y+canvasBox.height*.5);
+ await page.waitForFunction(()=>window.__PINEWOOD_BUILDER__.getState().draft.added.length===1,{timeout:8000});
+ await page.keyboard.press('Escape');
  await page.evaluate(()=>window.__PINEWOOD_BUILDER__.jumpRoom('roster_records'));
  assert.equal((await get()).navigation.floor,'M1');
  await page.evaluate(()=>window.__PINEWOOD_BUILDER__.setDoorOpen('service_entry',true));
