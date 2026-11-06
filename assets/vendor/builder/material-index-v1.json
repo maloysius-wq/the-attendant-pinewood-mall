@@ -160,5 +160,17 @@
     "three-d-retro-arcade-and-mall-1989-retro-arcade-and-mall-1989-upright-cabinet-a95c6fdc",
     "three-d-retro-arcade-and-mall-1989-retro-arcade-and-mall-1989-upright-cabinet-magenta-626a886f",
     "three-d-retro-arcade-and-mall-1989-retro-arcade-and-mall-1989-whack-a-mole-0107eb83"
+  ],
+  "existingTotalModels": 21,
+  "existingImageBearingIds": [
+    "local-8023a1e257e42500-claw-machine",
+    "local-8fcc6eb8e8f17912-air-hockey",
+    "local-27d4b43c5e16d9ea-basketball-game",
+    "local-856bdfdf2197a32e-vhs_cassette",
+    "local-6a62ba711ba90736-pizza-box",
+    "local-f576c2b30a9defad-cup",
+    "local-67fae2655401a093-machine-window",
+    "local-6aeac44b7c9c0f17-cash-register",
+    "local-5b4443e3640efa71-arcade-machine"
   ]
 }
