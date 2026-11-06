@@ -24,7 +24,7 @@ jobs:
         with:
           node-version: '22'
       - name: Validate pure Builder model and canonical property
-        run: node --test scripts/test-builder-schema-v1.mjs scripts/test-builder-traversal-v1.mjs scripts/test-furnishing-v69.mjs scripts/audit-builder-assets-v1.mjs scripts/test-builder-overlay-v1.mjs
+        run: node --test scripts/test-builder-work-lights-v1.mjs scripts/test-builder-schema-v1.mjs scripts/test-builder-traversal-v1.mjs scripts/test-furnishing-v69.mjs scripts/audit-builder-assets-v1.mjs scripts/test-builder-overlay-v1.mjs
       - name: Install deterministic desktop Chromium
         run: |
           npm install --no-save playwright@1.55.0
