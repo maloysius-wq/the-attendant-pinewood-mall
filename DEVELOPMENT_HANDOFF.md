@@ -1,5 +1,13 @@
 # Development Handoff: The Attendant: Pinewood Mall
 
+## Central atrium ceiling shown in World Builder (2026-11-06)
+
+[PR #75](https://github.com/maloysius-wq/the-attendant-pinewood-mall/pull/75) merged as `d1430628e8c052568b9b2bb40d867a5227142b79`. The physical shell already includes a glazed, twelve-metre-high central atrium skylight (`atrium-skylight`) and separate ground-floor room ceilings, but `builder/editor-scene.js` explicitly initialized `setRoofVisible(false)`, and the `Roof / ceilings` checkbox started unchecked. The standalone Builder now starts with both roof groups visible and the checkbox checked. The owner can still uncheck it to cut the roof away for top-down placement; the story runtime is unchanged.
+
+Focused Builder run `42267392663` passed all pure model checks and full desktop Chromium editing smoke (`PINEWOOD_BUILDER_DESKTOP_PASS`, 41 rooms, 60 existing fixtures, 503 catalog models), including direct mesh/group presence and reversible visibility assertions. GitHub Pages build `42268381463` produced an artifact successfully but the deployment service left the rollout in `deployment_queued` before failing. Confirm a subsequent successful Pages run before claiming the public URL is updated.
+
+---
+
 ## Connected cinematic parking lot in standalone Builder (2026-11-06)
 
 [PR #73](https://github.com/maloysius-wq/the-attendant-pinewood-mall/pull/73) merged as `31b8838e9a318dbd589dc34db9c2b7acd88141ff`. The standalone `/builder/` mounts the SAME original opening-cinematic exterior from `opening/scene.js` and `opening/facade-v65.js` after preloading it: licensed sedan, asphalt, streetlights, rain, storm sky, cracked sidewalk, weathered boarded facade and all eight scaled dying-planter GLBs. The canonical mall's overlapping old front elevation is retired in the Builder as it is in the cinematic. The original staging assets remain protected; new catalog props can be placed on transparent raycast parking/sidewalk surfaces and persist in the existing draft.
