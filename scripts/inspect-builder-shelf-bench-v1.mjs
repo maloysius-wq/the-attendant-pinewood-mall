@@ -9,6 +9,7 @@ try{
  const page=await browser.newPage({viewport:{width:800,height:600}});
  const res=await page.goto(origin+'/LICENSES.md',{waitUntil:'domcontentloaded'});
  assert.equal(res.status(),200);
+ await page.setContent('<!doctype html><script type="importmap">{"imports":{"three":"/vendor/three/build/three.module.js"}}</script>');
  const report=await page.evaluate(async()=>{
   const THREE=await import('/vendor/three/build/three.module.js');
   const {GLTFLoader}=await import('/vendor/three/examples/jsm/loaders/GLTFLoader.js');
