@@ -27,6 +27,19 @@ try{
  assert.equal((await page.evaluate(()=>window.__PINEWOOD_BUILDER__.select('atrium_dry_fountain'))),true,'new CC0 fountain replaces old sculpture and is editable');
  assert.equal(initial.draft.added.length,0);
  assert.deepEqual(initial.errors,[]);
+ assert.equal(await page.locator('#roof').isChecked(),true,
+  'ceiling and atrium skylight are shown when the standalone Builder opens');
+ const roofOn=await page.evaluate(()=>window.__PINEWOOD_BUILDER__.getRoofState());
+ assert.deepEqual(roofOn,{roofVisible:true,ceilingsVisible:true,atriumSkylightPresent:true},
+  'real mall roof, room ceilings, and central atrium glazing exist in the world');
+ await page.locator('#roof').uncheck();
+ const roofOff=await page.evaluate(()=>window.__PINEWOOD_BUILDER__.getRoofState());
+ assert.equal(roofOff.roofVisible,false,'cutaway toggle hides roof for editing');
+ assert.equal(roofOff.ceilingsVisible,false,'cutaway toggle hides room ceilings for editing');
+ await page.locator('#roof').check();
+ assert.deepEqual(await page.evaluate(()=>window.__PINEWOOD_BUILDER__.getRoofState()),roofOn,
+  'switch restores the roof and atrium skylight');
+ await page.locator('#roof').uncheck(); // Keep the existing editing smoke in cutaway mode.
  // The exterior is the same fully loaded cinematic set, in the SAME editable 3D world.
  const outside=await page.evaluate(()=>window.__PINEWOOD_BUILDER__.getExteriorState());
  assert.equal(outside.ready,true,'cinematic exterior is mounted in the Builder');
