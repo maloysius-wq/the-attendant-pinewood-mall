@@ -119,7 +119,7 @@ test('catalog material audit distinguishes color-only props from missing image t
 
 test('original repo-pinned Builder fixtures expose their actual material provenance',()=>{
  let colorOnly=0,imageBearing=0,missingMaterial=0,externalImages=0,dataUriImages=0,missingUV=0;
- const missingImageFiles=[],relativeImageFiles=[];
+ const missingImageFiles=[],relativeImageFiles=[],existingImageBearingIds=[];
  const examples={colorOnly:[],imageBearing:[],missingMaterial:[]};
  for(const item of EDITOR_CATALOG_V1){
   const gl=decodeGlbJson(fs.readFileSync(item.path),item.id);
@@ -146,9 +146,10 @@ test('original repo-pinned Builder fixtures expose their actual material provena
     if(!fs.existsSync(location))missingImageFiles.push({id:item.id,uri:img.uri});
    }else missingImageFiles.push({id:item.id,uri:img.uri||null});
   }
-  if(images.length){imageBearing++;if(examples.imageBearing.length<5)examples.imageBearing.push(item.id);}
+  if(images.length){imageBearing++;existingImageBearingIds.push(item.id);if(examples.imageBearing.length<5)examples.imageBearing.push(item.id);}
   else{colorOnly++;if(examples.colorOnly.length<5)examples.colorOnly.push(item.id);}
  }
+ console.log('PINEWOOD_BUILDER_EXISTING_MATERIAL_INDEX '+JSON.stringify(existingImageBearingIds));
  console.log('PINEWOOD_BUILDER_EXISTING_MATERIAL_AUDIT_PASS',JSON.stringify({
   count:EDITOR_CATALOG_V1.length,colorOnly,imageBearing,missingMaterial,externalImages,dataUriImages,missingUV,missingImageFiles,relativeImageFiles,examples
  }));
