@@ -23,6 +23,18 @@ try{
  assert.equal(initial.fixtureCount,60);
  assert.ok(initial.catalogCount>=100,'locally bundled mall asset library is available');
  assert.ok((await page.locator('.catalog-item').count())>=100);
+ const textureKinds=await page.evaluate(()=>window.__PINEWOOD_BUILDER__.getCatalog().reduce((acc,m)=>{
+  if(m.materialStyle)acc[m.materialStyle]=(acc[m.materialStyle]||0)+1;
+  return acc;
+ },{}));
+ assert.equal(textureKinds['image-mapped'],158,'embedded-image CC0 models are classified');
+ assert.equal(textureKinds['color-only'],324,'flat-color CC0 models are visibly identified');
+ await page.locator('#catalog-material').selectOption('image-mapped');
+ assert.equal(await page.locator('.catalog-item').count(),158,'image-map filter shows only catalog models with embedded images');
+ await page.locator('#catalog-material').selectOption('color-only');
+ assert.equal(await page.locator('.catalog-item').count(),324,'solid-color filter shows only source-color models');
+ await page.locator('#catalog-material').selectOption('');
+ assert.ok((await page.locator('.catalog-item').count())>=503,'clearing material filter restores the full catalog');
  assert.equal((await page.evaluate(()=>window.__PINEWOOD_BUILDER__.getCatalog())).some(x=>/christmas|holiday|garland|snowman/i.test(x.label)),true);
  assert.equal((await page.evaluate(()=>window.__PINEWOOD_BUILDER__.select('atrium_dry_fountain'))),true,'new CC0 fountain replaces old sculpture and is editable');
  assert.equal(initial.draft.added.length,0);
