@@ -1,5 +1,13 @@
 # Development Handoff: The Attendant: Pinewood Mall
 
+## Connected cinematic parking lot in standalone Builder (2026-11-06)
+
+[PR #73](https://github.com/maloysius-wq/the-attendant-pinewood-mall/pull/73) merged as `31b8838e9a318dbd589dc34db9c2b7acd88141ff`. The standalone `/builder/` mounts the SAME original opening-cinematic exterior from `opening/scene.js` and `opening/facade-v65.js` after preloading it: licensed sedan, asphalt, streetlights, rain, storm sky, cracked sidewalk, weathered boarded facade and all eight scaled dying-planter GLBs. The canonical mall's overlapping old front elevation is retired in the Builder as it is in the cinematic. The original staging assets remain protected; new catalog props can be placed on transparent raycast parking/sidewalk surfaces and persist in the existing draft.
+
+The `Parking Lot (Cinematic Exterior)` jump option connects orbit, walk and fly navigation to the lot. `mall/editor-traversal-v1.mjs` uses the exact slab and sidewalk footprints for gravity landings; game chapters and story doors are unchanged. New focused regression `scripts/test-builder-parking-v1.mjs` plus desktop `scripts/smoke-builder-v1.mjs` passed the complete Builder workflow (26 Node tests, 503 models, mouse-click placement on asphalt), and cinematic continuity workflows passed on the PR. Consult the latest GitHub Pages run before reporting publication; the first deployment timed out in GitHub's `updating_pages` state and a same-run retry was canceled.
+
+---
+
 ## Standalone Pinewood World Builder shipped (2026-11-05)
 
 **Current feature:** [PR #69](https://github.com/maloysius-wq/the-attendant-pinewood-mall/pull/69) merged into `main` as `b4e1599acabb9732a271e460a506cf99bc8715aa`. The approved standalone editor is at **`/builder/`**, separate from the playable chapters. See [builder/README.md](builder/README.md) for controls and exact source paths. Check the latest Pages run for publication status.
