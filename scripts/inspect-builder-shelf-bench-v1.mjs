@@ -13,6 +13,7 @@ try{
  const report=await page.evaluate(async()=>{
   const THREE=await import('/vendor/three/build/three.module.js');
   const {GLTFLoader}=await import('/vendor/three/examples/jsm/loaders/GLTFLoader.js');
+  const {createWorkLighting}=await import('/builder/work-lighting.js');
   const loader=new GLTFLoader(),results=[];
   const catalog=await (await fetch('/assets/vendor/builder/catalog-v1.json')).json();
   const picks=[
@@ -31,6 +32,8 @@ try{
   const renderer=new THREE.WebGLRenderer({antialias:false,preserveDrawingBuffer:true});
   renderer.setSize(width,height,false);renderer.setPixelRatio(1);renderer.outputColorSpace=THREE.SRGBColorSpace;
   renderer.toneMapping=THREE.ACESFilmicToneMapping;
+  renderer.toneMappingExposure=1.14;
+  const workLighting=createWorkLighting(scene,renderer);
   const gl=renderer.getContext();
   const measure=()=>{
    renderer.render(scene,camera);
@@ -59,10 +62,11 @@ try{
    camera.position.set(distance*.68,distance*.47,distance);
    camera.lookAt(0,0,0);
    camera.updateProjectionMatrix();
-   renderer.toneMappingExposure=1.14;hemi.intensity=0;
+   hemi.intensity=0;workLighting.setEnabled(false);
    const normal=measure();
-   renderer.toneMappingExposure=1.881;hemi.intensity=3;
+   workLighting.setEnabled(true);
    const bright=measure();
+   workLighting.setEnabled(false);
    const alternatives=[];
    for(const {fill,exposure} of [
     {fill:.9,exposure:1.55},{fill:1.2,exposure:1.4},
@@ -80,8 +84,20 @@ try{
    results.push({id,label:item.label,materials:materials.slice(0,8),normal,bright,alternatives});
    scene.remove(model);
   }
+  workLighting.dispose();
   renderer.dispose();
   return results;
  });
- for(const item of report)console.log('PINEWOOD_SURFACE_RENDER '+JSON.stringify(item));
+ for(const item of report){
+  console.log('PINEWOOD_SURFACE_RENDER '+JSON.stringify(item));
+  if(/kenney-furniture-kit-(bench|bookcase)/.test(item.id)){
+   assert.ok(item.bright.mean[0]<222,'Work lights must preserve the brown Kenney wood color: '+item.id);
+   assert.ok(item.bright.meanChannelSpread>=35,'Wood is washed out: '+item.id);
+   assert.ok(item.bright.mean[0]>item.normal.mean[0]+55,'Work lights must make the scene brighter: '+item.id);
+  }
+  if(item.id.includes('wall-bay-shelf-and-rail')){
+   assert.ok(item.bright.whiteRatio<.1,'Shelf should not turn white under Work lights');
+  }
+ }
+ console.log('PINEWOOD_BUILDER_FURNITURE_COLOR_PASS',JSON.stringify({models:report.length}));
 }finally{await browser.close()}
