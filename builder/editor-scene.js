@@ -34,7 +34,7 @@ export async function createBuilderScene({scene,camera,domElement,onSelect=()=>{
  const transform=new TransformControls(camera,domElement);
  scene.add(transform.getHelper());
  transform.setMode('translate');
- let selected=null,ghost=null,placing=null,depth=9,blocked=false;
+ let selected=null,ghost=null,placing=null,depth=9,blocked=false,orbitZoomBeforePlacement=null;
  const editable=[...objects.values()];
  function setPointer(e){
   const r=domElement.getBoundingClientRect();
@@ -135,6 +135,7 @@ export async function createBuilderScene({scene,camera,domElement,onSelect=()=>{
   if(ghost){ghost.removeFromParent();ghost=null}
   placing=catalogId;depth=9;
   ghost=await template(catalogId);
+  if(orbit && orbitZoomBeforePlacement===null){orbitZoomBeforePlacement=orbit.enableZoom;orbit.enableZoom=false;}
   ghost.name='preview placement';
   ghost.traverse(o=>{if(o.isMesh){o.material=o.material.clone();o.material.transparent=true;o.material.opacity=.45;o.material.depthWrite=false;}});
   building.group.add(ghost);
@@ -142,6 +143,7 @@ export async function createBuilderScene({scene,camera,domElement,onSelect=()=>{
  function stopPlacement(){
   placing=null;
   if(ghost){ghost.removeFromParent();ghost=null}
+  if(orbit && orbitZoomBeforePlacement!==null){orbit.enableZoom=orbitZoomBeforePlacement;orbitZoomBeforePlacement=null;}
  }
  function currentPlacement(){
   if(!ghost||!placing)return null;
@@ -154,9 +156,10 @@ export async function createBuilderScene({scene,camera,domElement,onSelect=()=>{
   setPointer(e);
   if(placing){
    const position=currentPlacement();
+   const rotation=vector(ghost.rotation);
    const id=placing;
    stopPlacement();
-   await onPlace(id,position);
+   await onPlace(id,position,rotation);
    return;
   }
   const hits=raycaster.intersectObjects([...objects.values()],true);
@@ -167,8 +170,11 @@ export async function createBuilderScene({scene,camera,domElement,onSelect=()=>{
  }
  function pointerMove(e){if(!placing)return;setPointer(e);currentPlacement();}
  function onWheel(e){
-  if(!placing)return;
-  e.preventDefault();depth=Math.min(120,Math.max(.75,depth+Math.sign(e.deltaY)*(e.shiftKey?.25:1)));
+  if(!placing||!ghost)return;
+  e.preventDefault();
+  if(!e.deltaY)return;
+  if(e.shiftKey)depth=Math.min(120,Math.max(.75,depth+Math.sign(e.deltaY)));
+  else ghost.rotation.y-=Math.sign(e.deltaY)*Math.PI/12;
   currentPlacement();
  }
  transform.addEventListener('dragging-changed',e=>{blocked=e.value;if(orbit)orbit.enabled=!blocked;});

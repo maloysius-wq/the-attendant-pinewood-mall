@@ -101,7 +101,7 @@ function populateCatalog(){
    b.title='Preview '+item.label+' in the world';
    b.addEventListener('click',async()=>{
     try{await editor.beginPlacement(item.id);
-     $('placement-tip').textContent='PLACE '+item.label.toUpperCase()+' · Move mouse to position · Wheel for depth · Click to place · Esc to cancel';
+     $('placement-tip').textContent='PLACE '+item.label.toUpperCase()+' · Move mouse to position · Wheel rotate · Shift+wheel distance · Click to place · Esc to cancel';
     }catch(e){report(e)}
    });parent.append(b);
   }
@@ -166,11 +166,11 @@ function changeTransform(changes){
  const id=status.selected;if(!id)return Promise.resolve(false);
  return commit({type:'transform',id,...changes}).catch(report);
 }
-async function place(catalogId,position,id){
+async function place(catalogId,position,id,rotation={x:0,y:0,z:0}){
  if(!EDITOR_CATALOG_BY_ID.has(catalogId))throw Error('Unknown catalog item '+catalogId);
  const instance={id:id||'custom-'+Date.now().toString(36)+'-'+(++idCounter).toString(36),
   catalogId,position:{x:position.x,y:position.y,z:position.z},
-  rotation:{x:0,y:0,z:0},scale:1};
+  rotation:{x:rotation.x,y:rotation.y,z:rotation.z},scale:1};
  await commit({type:'place',instance});
  editor.select(instance.id);
  $('placement-tip').textContent='Placed '+EDITOR_CATALOG_BY_ID.get(catalogId).label+' · Adjust with handles or inspector.';
@@ -331,7 +331,7 @@ async function begin(){
    canEdit:()=>!navigation||navigation.getState().mode==='orbit',
    onSelect:(id,p)=>writeInspector(id,p),
    onTransform:(id,p)=>changeTransform(p).catch(report),
-   onPlace:(catalogId,position)=>place(catalogId,position).catch(report)
+   onPlace:(catalogId,position,rotation)=>place(catalogId,position,undefined,rotation).catch(report)
   });
   navigation=createEditorNavigation({camera,orbit,domElement:renderer.domElement,scene,shells:editor.building.shells,
    onChange:next=>{status.navigation=next;syncNavigationControls()},

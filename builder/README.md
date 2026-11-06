@@ -10,7 +10,7 @@ The editor loads the same canonical 41-room, three-level Pinewood Mall shell and
 | --- | --- |
 | Orbit / pan / zoom | Left drag / right drag / mouse wheel |
 | Search models | Search and filter by category or condition in the left panel |
-| Add a model | Choose a prop; move the ghost; wheel for near/far; left click to place |
+| Add a model | Choose a prop; move the preview; wheel up rotates left and wheel down rotates right in 15° steps; Shift+wheel moves near/far; left click places with the chosen rotation |
 | Select an existing prop | Click it in the scene or the scene outliner |
 | Move / rotate / scale | Top toolbar, gizmo, or exact Inspector values; shortcuts 1 / 2 / 3 |
 | Duplicate / remove | Inspector; Delete removes selected |
