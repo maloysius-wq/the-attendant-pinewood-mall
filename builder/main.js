@@ -8,12 +8,13 @@ import {createEmptyDraft,validateDraft,reduceDraft,importDraft,exportDraft} from
 import {createBuilderScene} from './editor-scene.js';
 import {createEditorNavigation} from './editor-navigation.js';
 import {createWorkLighting} from './work-lighting.js';
+import {mountCinematicParkingLot} from './exterior-scene.js';
 
 const $=id=>document.getElementById(id);
 const status={ready:false,errors:[],selected:null,roomCount:MALL.rooms.length,
  fixtureCount:FURNISHINGS_V69.fixtures.length,catalogCount:EDITOR_CATALOG_V1.length,
  draft:createEmptyDraft(),navigation:{mode:'orbit',floor:'G',unlockAll:true},workLights:false};
-let scene,camera,renderer,orbit,editor,navigation,workLighting,frames=0,undoStack=[],redoStack=[],idCounter=0,savePending;
+let scene,camera,renderer,orbit,editor,navigation,workLighting,exterior,frames=0,undoStack=[],redoStack=[],idCounter=0,savePending;
 const clone=v=>JSON.parse(JSON.stringify(v)),round=v=>Math.round(v*1000)/1000;
 const legacy=new Map([...FURNISHINGS_V69.fixtures,...EDITOR_EXTRA_FIXTURES_V1].map(f=>[f.id,f]));
 const catalog=[...EDITOR_CATALOG_V1];
@@ -43,6 +44,8 @@ const API={
  toggleFly:()=>navigation?.toggleFly(),
  getNavigationState:()=>navigation?.getState(),
  getLightingState:()=>workLighting?.getState(),
+ getExteriorState:()=>exterior?.state,
+ jumpParkingLot:()=>jumpParkingLot(),
  setWorkLights:enabled=>setWorkLights(enabled),
  setDoorOpen:(id,open)=>setDoorOpen(id,open),
  jumpRoom:id=>jumpRoom(id)
@@ -220,6 +223,14 @@ function jumpRoom(id){
  orbit.target.set(x,level.y+1.35,z);camera.lookAt(orbit.target);orbit.update();
  $('view-status').textContent=room.label+' / '+room.level;return true;
 }
+function jumpParkingLot(){
+ if(!navigation)return false;
+ const moved=navigation.gotoParkingLot();
+ $('view-status').textContent='Cinematic Parking Lot / Exterior';
+ $('jump-room').value='__parking_lot__';
+ status.navigation=navigation.getState();
+ return moved;
+}
 function updateFromInputs(){
  if(!status.selected)return;
  const p=editor.poseOf(status.selected);if(!p)return;
@@ -295,7 +306,13 @@ function wireUI(){
  for(const r of MALL.rooms){
   const o=document.createElement('option');o.value=r.id;o.textContent=r.label+' ('+r.level+')';$('jump-room').append(o);
  }
- $('jump-room').addEventListener('change',e=>{if(e.target.value)jumpRoom(e.target.value)});
+ const parkingOption=document.createElement('option');
+ parkingOption.value='__parking_lot__';parkingOption.textContent='Parking Lot (Cinematic Exterior)';
+ $('jump-room').prepend(parkingOption);
+ $('jump-room').addEventListener('change',e=>{
+  if(e.target.value==='__parking_lot__')jumpParkingLot();
+  else if(e.target.value)jumpRoom(e.target.value);
+ });
  window.addEventListener('keydown',e=>{
   const active=document.activeElement?.tagName;
   if(['INPUT','TEXTAREA','SELECT'].includes(active))return;
@@ -346,6 +363,9 @@ async function begin(){
    onTransform:(id,p)=>changeTransform(p).catch(report),
    onPlace:(catalogId,position,rotation)=>place(catalogId,position,undefined,rotation).catch(report)
   });
+  exterior=await mountCinematicParkingLot({scene,building:editor.building});
+  editor.addPlacementSurfaces(exterior.placementSurfaces);
+  $('loading').querySelector('progress').value=58;
   navigation=createEditorNavigation({camera,orbit,domElement:renderer.domElement,scene,shells:editor.building.shells,
    onChange:next=>{status.navigation=next;syncNavigationControls()},
    onDoorChange:(id,open)=>setDoorOpen(id,open).catch(report)});
@@ -365,7 +385,7 @@ async function begin(){
    renderer.render(scene,camera);requestAnimationFrame(frame)}
   requestAnimationFrame(frame);
   window.addEventListener('resize',resize);
-  window.addEventListener('pagehide',()=>{navigation.dispose();editor.dispose();workLighting.dispose();orbit.dispose();renderer.dispose()},{once:true});
+  window.addEventListener('pagehide',()=>{navigation.dispose();editor.dispose();exterior.dispose();workLighting.dispose();orbit.dispose();renderer.dispose()},{once:true});
  }catch(err){
   report(err);$('load-error').textContent=String(err?.stack||err).slice(0,1500);
   $('loading').querySelector('strong').textContent='Builder cannot load';

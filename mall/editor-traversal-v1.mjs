@@ -1,7 +1,10 @@
 import {MALL} from './masterplan-v66.mjs';
 const inPlate=(x,z,p)=>x>=p.x1&&x<=p.x2&&z>=p.z1&&z<=p.z2;
-const exteriorSurface=(x,z)=>
- (x>=-50&&x<=90&&z>=-22.5&&z<=43)||
+// Exact opening/scene.js parking slab (115 x 88, centered at z=24.5),
+// plus the 103 x 9.6 concrete frontage and the remote employee-exit apron.
+export const isExteriorSurface=(x,z)=>
+ (x>=-57.5&&x<=57.5&&z>=-19.5&&z<=68.5)||
+ (x>=-51.5&&x<=51.5&&z>=-22.35&&z<=-12.75)||
  (x>=86&&x<=91&&z>=-44&&z<=-39);
 
 /** Highest structural floor beneath avatar feet, using the v67 shaft-cut plates. */
@@ -13,7 +16,7 @@ export function findGroundBelow(x,y,z,shells){
    if(inPlate(x,z,p)&&p.y<=y+.0001)candidates.push(p.y);
   }
  }
- if(exteriorSurface(x,z)&&y>=0)candidates.push(0);
+ if(isExteriorSurface(x,z)&&y>=0)candidates.push(0);
  return candidates.length?Math.max(...candidates):null;
 }
 

@@ -27,6 +27,28 @@ try{
  assert.equal((await page.evaluate(()=>window.__PINEWOOD_BUILDER__.select('atrium_dry_fountain'))),true,'new CC0 fountain replaces old sculpture and is editable');
  assert.equal(initial.draft.added.length,0);
  assert.deepEqual(initial.errors,[]);
+ // The exterior is the same fully loaded cinematic set, in the SAME editable 3D world.
+ const outside=await page.evaluate(()=>window.__PINEWOOD_BUILDER__.getExteriorState());
+ assert.equal(outside.ready,true,'cinematic exterior is mounted in the Builder');
+ assert.equal(outside.sedanLoaded,true,'the actual cinematic vehicle is visible outdoors');
+ assert.equal(outside.facadeLoaded,true,'the boarded cinematic facade is present');
+ assert.equal(outside.planterCount,8,'all eight weathered cinematic planters remain');
+ assert.ok(outside.placementSurfaces>=2,'parking and sidewalk are raycast placement targets');
+ assert.equal(await page.locator('#jump-room option[value="__parking_lot__"]').count(),1,
+  'parking is a discoverable jump destination');
+ assert.equal(await page.evaluate(()=>window.__PINEWOOD_BUILDER__.jumpParkingLot()),true);
+ assert.ok((await get()).navigation.position.z>0,'jump arrives at the outdoor parking area');
+ const parkProp=await page.evaluate(()=>window.__PINEWOOD_BUILDER__.getCatalog().find(x=>x.id==='silted-octagonal-atrium-fountain'));
+ await page.locator('.catalog-item').filter({hasText:parkProp.label}).first().click();
+ const parkCanvas=await page.locator('#world canvas').boundingBox();
+ await page.mouse.move(parkCanvas.x+parkCanvas.width/2,parkCanvas.y+parkCanvas.height/2);
+ await page.mouse.click(parkCanvas.x+parkCanvas.width/2,parkCanvas.y+parkCanvas.height/2);
+ await page.waitForFunction(()=>window.__PINEWOOD_BUILDER__.getState().draft.added.length===1);
+ const parkAdded=(await get()).draft.added[0];
+ assert.ok(parkAdded.position.z>0&&parkAdded.position.z<68.5,'clicked prop lands outside on the asphalt');
+ assert.ok(Math.abs(parkAdded.position.y)<.5,'outside placement grounds the prop on the surface');
+ await page.evaluate(()=>window.__PINEWOOD_BUILDER__.clearDraft());
+ await page.evaluate(()=>window.__PINEWOOD_BUILDER__.jumpRoom('central_gallery'));
  // Lighting is an editor-only, reversible accessibility aid.
  assert.equal(await page.locator('#work-lights').count(),1,'work-light switch is available');
  const dark=await page.evaluate(()=>window.__PINEWOOD_BUILDER__.getLightingState());

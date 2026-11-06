@@ -197,6 +197,10 @@ export async function createBuilderScene({scene,camera,domElement,onSelect=()=>{
  return {
   building,objects,select,applyDraft,beginPlacement,stopPlacement,setTransformMode,refreshPlacement,
   poseOf:id=>objects.has(id)?pose(objects.get(id)):null,
+  addPlacementSurfaces:surfaces=>{
+   for(const surface of surfaces){if(surface?.isMesh)floors.push(surface)}
+   return floors.length;
+  },
   pickAt:(x,y)=>{setPointer({clientX:x,clientY:y});return pointOnRay()},
   get selected(){return selected},
   dispose(){

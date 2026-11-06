@@ -2,7 +2,7 @@
 
 Standalone desktop editor: **`/builder/`** (a separate page from the playable game).
 
-The editor loads the same canonical 41-room, three-level Pinewood Mall shell and all 60 existing v69 furniture pieces. A dry ornamental fountain replaces only the old sculpture in this editor preview. The architectural basin, walls, stairs, shafts and chapter evidence remain protected.
+The editor loads the same canonical 41-room, three-level Pinewood Mall shell and all 60 existing v69 furniture pieces. A dry ornamental fountain replaces only the old sculpture in this editor preview. The architectural basin, walls, stairs, shafts and chapter evidence remain protected. The Builder also mounts the **same fully licensed cinematic parking-lot set** (sedan, lamp fixtures, cracked sidewalk, boarded facade, rain and eight aged planters) as a connected exterior staging area; original cinematic set pieces remain protected while new objects can be placed around them.
 
 ## Controls
 
@@ -19,7 +19,7 @@ The editor loads the same canonical 41-room, three-level Pinewood Mall shell and
 | Walk | Explore, WASD and mouse |
 | Fly with no collision | Explore, Fly or F; Space up, Shift down |
 | Return to gravity | F or Fly again; player descends to a physically supported surface |
-| Visit another room/floor | Jump-to-room selector (41 actual rooms) |
+| Visit another room/floor | Jump-to-room selector (41 actual rooms) |\n| Visit the cinematic exterior | Choose **Parking Lot (Cinematic Exterior)** in Jump-to-room; orbit, walk and fly all work outside, with parking asphalt and sidewalk as placement surfaces |
 | Operate doors | Select door/Open–Close tool; E near a doorway in Explore |
 | Turn off builder-only unlocked access | Unlock all toggle (does not alter story locks) |
 
