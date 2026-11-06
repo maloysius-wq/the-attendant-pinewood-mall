@@ -15,7 +15,7 @@ test('temporary work lights brighten real scene illumination and restore the atm
  workLighting.setEnabled(true);
  const brighter=workLighting.getState();
  assert.equal(brighter.enabled,true);
- assert.ok(brighter.fillIntensity>=2,'work mode adds strong scene illumination');
+ assert.ok(brighter.fillIntensity>=1&&brighter.fillIntensity<=1.5,'work mode adds sufficient fill without bleaching CC0 colors');
  assert.equal(fill.intensity,brighter.fillIntensity,'lighting state changes the actual light');
  assert.ok(brighter.exposure>original.exposure,'work mode raises actual WebGL exposure');
  assert.ok(brighter.fogDensity<original.fogDensity,'work mode reveals distant mall areas');
