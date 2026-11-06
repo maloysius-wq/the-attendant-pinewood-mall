@@ -43,6 +43,11 @@ const API={
  clearDraft:()=>clearDraft(),
  toggleFly:()=>navigation?.toggleFly(),
  getNavigationState:()=>navigation?.getState(),
+ getRoofState:()=>editor?({
+  roofVisible:editor.building.roofs.visible,
+  ceilingsVisible:editor.building.ceilings.visible,
+  atriumSkylightPresent:!!editor.building.roofs.getObjectByName('atrium-skylight',true)
+ }):null,
  getLightingState:()=>workLighting?.getState(),
  getExteriorState:()=>exterior?.state,
  jumpParkingLot:()=>jumpParkingLot(),
