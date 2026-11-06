@@ -27,12 +27,12 @@ try{
   if(m.materialStyle)acc[m.materialStyle]=(acc[m.materialStyle]||0)+1;
   return acc;
  },{}));
- assert.equal(textureKinds['image-mapped'],158,'embedded-image CC0 models are classified');
- assert.equal(textureKinds['color-only'],324,'flat-color CC0 models are visibly identified');
+ assert.equal(textureKinds['image-mapped'],167,'source models with image maps are classified');
+ assert.equal(textureKinds['color-only'],336,'source models with flat colors are identified');
  await page.locator('#catalog-material').selectOption('image-mapped');
- assert.equal(await page.locator('.catalog-item').count(),158,'image-map filter shows only catalog models with embedded images');
+ assert.equal(await page.locator('.catalog-item').count(),167,'image-map filter includes 9 original image-bearing fixtures');
  await page.locator('#catalog-material').selectOption('color-only');
- assert.equal(await page.locator('.catalog-item').count(),324,'solid-color filter shows only source-color models');
+ assert.equal(await page.locator('.catalog-item').count(),336,'solid-color filter includes 12 original fixtures');
  await page.locator('#catalog-material').selectOption('');
  assert.ok((await page.locator('.catalog-item').count())>=503,'clearing material filter restores the full catalog');
  assert.equal((await page.evaluate(()=>window.__PINEWOOD_BUILDER__.getCatalog())).some(x=>/christmas|holiday|garland|snowman/i.test(x.label)),true);
