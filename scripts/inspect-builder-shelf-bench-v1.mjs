@@ -63,13 +63,21 @@ try{
    const normal=measure();
    renderer.toneMappingExposure=1.881;hemi.intensity=3;
    const bright=measure();
+   const alternatives=[];
+   for(const {fill,exposure} of [
+    {fill:.9,exposure:1.55},{fill:1.2,exposure:1.4},
+    {fill:1.4,exposure:1.25},{fill:1.6,exposure:1.3},{fill:1.1,exposure:1.6}
+   ]){
+    hemi.intensity=fill;renderer.toneMappingExposure=exposure;
+    alternatives.push({fill,exposure,...measure()});
+   }
    const materials=[];
    model.traverse(o=>{if(o.isMesh){
     for(const m of (Array.isArray(o.material)?o.material:[o.material])){
      materials.push({name:m.name,type:m.type,color:m.color?.getHexString(),map:!!m.map,toneMapped:m.toneMapped,transparent:m.transparent});
     }
    }});
-   results.push({id,label:item.label,materials:materials.slice(0,8),normal,bright});
+   results.push({id,label:item.label,materials:materials.slice(0,8),normal,bright,alternatives});
    scene.remove(model);
   }
   renderer.dispose();
