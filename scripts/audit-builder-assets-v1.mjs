@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import crypto from 'node:crypto';
+import {EDITOR_CATALOG_V1} from '../mall/editor-catalog-v1.mjs';
 const file='assets/vendor/builder/catalog-v1.json';
 const catalog=JSON.parse(fs.readFileSync(file,'utf8'));
 test('builder ships a broad selection of real individually pinned CC0 meshes',()=>{
@@ -112,4 +113,36 @@ test('catalog material audit distinguishes color-only props from missing image t
  }
  console.log('PINEWOOD_BUILDER_MATERIAL_INDEX '+JSON.stringify(imageBearingIds));
  console.log('PINEWOOD_BUILDER_MATERIAL_AUDIT_PASS',JSON.stringify({...summary,totalPrimitives,allMaterials}));
+});
+
+
+test('original repo-pinned Builder fixtures expose their actual material provenance',()=>{
+ let colorOnly=0,imageBearing=0,missingMaterial=0,externalImages=0,missingUV=0;
+ const examples={colorOnly:[],imageBearing:[],missingMaterial:[]};
+ for(const item of EDITOR_CATALOG_V1){
+  const gl=decodeGlbJson(fs.readFileSync(item.path),item.id);
+  const materials=gl.materials||[],images=gl.images||[],textures=gl.textures||[];
+  for(const mesh of gl.meshes||[])for(const p of mesh.primitives||[]){
+   if(p.material===undefined){missingMaterial++;if(examples.missingMaterial.length<6)examples.missingMaterial.push(item.id);continue;}
+   assert.ok(materials[p.material],'Invalid material in original Builder model '+item.id);
+   const m=materials[p.material],pbr=m.pbrMetallicRoughness||{};
+   for(const slot of [pbr.baseColorTexture,m.normalTexture,pbr.metallicRoughnessTexture,m.emissiveTexture,m.occlusionTexture]){
+    if(!slot)continue;
+    const t=textures[slot.index];assert.ok(t,'Invalid texture index in '+item.id);
+    const src=t.source??t.extensions?.KHR_texture_basisu?.source??t.extensions?.EXT_texture_webp?.source;
+    assert.ok(src!==undefined&&images[src],'Texture image absent from '+item.id);
+    const uv='TEXCOORD_'+(slot.texCoord??slot.extensions?.KHR_texture_transform?.texCoord??0);
+    if(!(uv in (p.attributes||{})))missingUV++;
+   }
+  }
+  for(const img of images)if(img.bufferView===undefined)externalImages++;
+  if(images.length){imageBearing++;if(examples.imageBearing.length<5)examples.imageBearing.push(item.id);}
+  else{colorOnly++;if(examples.colorOnly.length<5)examples.colorOnly.push(item.id);}
+ }
+ console.log('PINEWOOD_BUILDER_EXISTING_MATERIAL_AUDIT_PASS',JSON.stringify({
+  count:EDITOR_CATALOG_V1.length,colorOnly,imageBearing,missingMaterial,externalImages,missingUV,examples
+ }));
+ assert.equal(missingMaterial,0,'Original Builder meshes must reference concrete materials');
+ assert.equal(externalImages,0,'Original GLB image dependencies must be embedded');
+ assert.equal(missingUV,0,'Original textured materials must have UVs');
 });
