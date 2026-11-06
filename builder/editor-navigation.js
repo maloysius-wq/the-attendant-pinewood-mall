@@ -1,7 +1,7 @@
 import * as THREE from '../vendor/three/build/three.module.js';
 import {MALL} from '../mall/masterplan-v66.mjs';
 import {buildGameplayLayoutV70} from '../mall/gameplay-layout-v70.mjs';
-import {doorDescriptors,findGroundBelow,resolveFlyLanding,crossesClosedDoor} from '../mall/editor-traversal-v1.mjs';
+import {doorDescriptors,findGroundBelow,resolveFlyLanding,crossesClosedDoor,isExteriorSurface} from '../mall/editor-traversal-v1.mjs';
 
 const EYE=1.7;
 const shellLevel=y=>y>3?'M1':y<-1.5?'B1':'G';
@@ -56,6 +56,17 @@ export function createEditorNavigation({camera,orbit,domElement,shells,scene,onC
    orbit.target.copy(view);orbit.update();
   }else{
    lastGrounded={x:p.x,y:p.y,z:p.z};gravityTarget=null;
+  }
+  notify();return true;
+ }
+ function gotoParkingLot(){
+  floor='G';gravityTarget=null;
+  if(mode==='orbit'){
+   camera.position.set(-7,10,49);
+   orbit.target.set(-9,1.2,13);camera.lookAt(orbit.target);orbit.update();
+  }else{
+   camera.position.set(6,EYE,33);camera.lookAt(6,EYE,-18);
+   lastGrounded={x:6,y:EYE,z:33};
   }
   notify();return true;
  }
@@ -184,7 +195,7 @@ export function createEditorNavigation({camera,orbit,domElement,shells,scene,onC
    if(crossesClosedDoor(from,to,doors,doorsOpenSet()))return;
    if(ground===null||!layout?.canStand(next.x,next.z)){
     // Exterior apron is walkable even though it isn't a named interior room.
-    if(!(next.z>-22.5&&next.z<43&&next.x>=-50&&next.x<=90))return;
+    if(!isExteriorSurface(next.x,next.z))return;
    }
    next.y=(ground??0)+EYE;
    lastGrounded={x:next.x,y:next.y,z:next.z};floor=possibleLevel;
@@ -197,7 +208,7 @@ export function createEditorNavigation({camera,orbit,domElement,shells,scene,onC
  domElement.addEventListener('pointermove',onPointerMove);
  domElement.addEventListener('pointerup',onPointerUp);
  domElement.addEventListener('contextmenu',onContext);
- return {getState:snapshot,getDoorList:()=>doors.map(x=>({...x})),gotoRoom,setMode,toggleFly,setDoorOpen,
+ return {getState:snapshot,getDoorList:()=>doors.map(x=>({...x})),gotoRoom,gotoParkingLot,setMode,toggleFly,setDoorOpen,
   clickDoor,getDoorState:id=>doorMap.get(id)?.target??null,resetDoorOverrides,setUnlockAll,update:step,
   dispose(){
    document.removeEventListener('keydown',onKeyDown);document.removeEventListener('keyup',onKeyUp);
