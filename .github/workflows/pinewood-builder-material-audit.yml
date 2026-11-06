@@ -1,0 +1,21 @@
+name: Pinewood Builder GLB material audit
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'scripts/audit-builder-assets-v1.mjs'
+      - '.github/workflows/pinewood-builder-material-audit.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  audit:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Validate and classify local CC0 materials
+        run: node --test scripts/audit-builder-assets-v1.mjs
