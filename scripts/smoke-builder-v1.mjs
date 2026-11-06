@@ -158,7 +158,7 @@ try{
  assert.equal((await get()).navigation.floor,'M1');
  await page.evaluate(()=>window.__PINEWOOD_BUILDER__.setDoorOpen('service_entry',true));
  assert.equal((await get()).draft.doors.service_entry,true);
- await page.locator('#fly-toggle').click();
+ await page.keyboard.press('f'); // Real fly/gravity shortcut avoids Playwright pointer-lock toolbar flake.
  assert.equal((await get()).navigation.mode,'walk');
  await page.locator('#explore-mode').click();
  assert.equal((await get()).navigation.mode,'orbit');
