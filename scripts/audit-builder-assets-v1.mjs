@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import crypto from 'node:crypto';
+import path from 'node:path';
 import {EDITOR_CATALOG_V1} from '../mall/editor-catalog-v1.mjs';
 const file='assets/vendor/builder/catalog-v1.json';
 const catalog=JSON.parse(fs.readFileSync(file,'utf8'));
@@ -117,7 +118,8 @@ test('catalog material audit distinguishes color-only props from missing image t
 
 
 test('original repo-pinned Builder fixtures expose their actual material provenance',()=>{
- let colorOnly=0,imageBearing=0,missingMaterial=0,externalImages=0,missingUV=0;
+ let colorOnly=0,imageBearing=0,missingMaterial=0,externalImages=0,dataUriImages=0,missingUV=0;
+ const missingImageFiles=[],relativeImageFiles=[];
  const examples={colorOnly:[],imageBearing:[],missingMaterial:[]};
  for(const item of EDITOR_CATALOG_V1){
   const gl=decodeGlbJson(fs.readFileSync(item.path),item.id);
@@ -135,14 +137,22 @@ test('original repo-pinned Builder fixtures expose their actual material provena
     if(!(uv in (p.attributes||{})))missingUV++;
    }
   }
-  for(const img of images)if(img.bufferView===undefined)externalImages++;
+  for(const img of images)if(img.bufferView===undefined){
+   if(typeof img.uri==='string'&&img.uri.startsWith('data:'))dataUriImages++;
+   else if(typeof img.uri==='string'&&!/^https?:/i.test(img.uri)){
+    externalImages++;
+    const location=path.join(path.dirname(item.path),decodeURIComponent(img.uri));
+    relativeImageFiles.push({id:item.id,uri:img.uri,found:fs.existsSync(location)});
+    if(!fs.existsSync(location))missingImageFiles.push({id:item.id,uri:img.uri});
+   }else missingImageFiles.push({id:item.id,uri:img.uri||null});
+  }
   if(images.length){imageBearing++;if(examples.imageBearing.length<5)examples.imageBearing.push(item.id);}
   else{colorOnly++;if(examples.colorOnly.length<5)examples.colorOnly.push(item.id);}
  }
  console.log('PINEWOOD_BUILDER_EXISTING_MATERIAL_AUDIT_PASS',JSON.stringify({
-  count:EDITOR_CATALOG_V1.length,colorOnly,imageBearing,missingMaterial,externalImages,missingUV,examples
+  count:EDITOR_CATALOG_V1.length,colorOnly,imageBearing,missingMaterial,externalImages,dataUriImages,missingUV,missingImageFiles,relativeImageFiles,examples
  }));
  assert.equal(missingMaterial,0,'Original Builder meshes must reference concrete materials');
- assert.equal(externalImages,0,'Original GLB image dependencies must be embedded');
+ assert.deepEqual(missingImageFiles,[],'Original GLB image dependencies must resolve locally');
  assert.equal(missingUV,0,'Original textured materials must have UVs');
 });
