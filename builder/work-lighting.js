@@ -17,8 +17,11 @@ export function createWorkLighting(scene,renderer){
  });
  function setEnabled(value){
   enabled=!!value;
-  fill.intensity=enabled?3:0;
-  renderer.toneMappingExposure=enabled?Math.max(originalExposure*1.65,1.8):originalExposure;
+  // Strong fill plus ~1.9 exposure washed authored wood and shelf colors
+  // toward white. Calibrated against the original CC0 bench/bookcase/shelf
+  // GLBs: keep work mode bright without flattening their material palette.
+  fill.intensity=enabled?1.2:0;
+  renderer.toneMappingExposure=enabled?Math.max(originalExposure*1.23,1.4):originalExposure;
   if(originalFogDensity!==null&&scene.fog===originalFog){
    scene.fog.density=enabled?Math.min(originalFogDensity,.00125):originalFogDensity;
   }

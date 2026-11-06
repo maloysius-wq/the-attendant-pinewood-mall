@@ -81,8 +81,8 @@ try{
  await page.locator('#work-lights').check();
  const lit=await page.evaluate(()=>window.__PINEWOOD_BUILDER__.getLightingState());
  assert.equal(lit.enabled,true);
- assert.ok(lit.fillIntensity>=2&&lit.exposure>dark.exposure&&lit.fogDensity<dark.fogDensity,
-  'switch enables brighter 3D illumination, not merely a visual label');
+ assert.ok(lit.fillIntensity>=1&&lit.fillIntensity<=1.5&&lit.exposure>dark.exposure&&lit.fogDensity<dark.fogDensity,
+  'switch adds bright but color-preserving fill, not merely a visual label');
  await page.locator('#work-lights').uncheck();
  assert.deepEqual(await page.evaluate(()=>window.__PINEWOOD_BUILDER__.getLightingState()),dark,
   'switch off restores original fog, exposure and fill lighting');
