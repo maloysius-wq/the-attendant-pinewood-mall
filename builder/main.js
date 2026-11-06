@@ -7,12 +7,13 @@ import {EDITOR_CATALOG_V1,EDITOR_CATALOG_BY_ID,registerVendorCatalog} from '../m
 import {createEmptyDraft,validateDraft,reduceDraft,importDraft,exportDraft} from '../mall/editor-schema-v1.mjs';
 import {createBuilderScene} from './editor-scene.js';
 import {createEditorNavigation} from './editor-navigation.js';
+import {createWorkLighting} from './work-lighting.js';
 
 const $=id=>document.getElementById(id);
 const status={ready:false,errors:[],selected:null,roomCount:MALL.rooms.length,
  fixtureCount:FURNISHINGS_V69.fixtures.length,catalogCount:EDITOR_CATALOG_V1.length,
- draft:createEmptyDraft(),navigation:{mode:'orbit',floor:'G',unlockAll:true}};
-let scene,camera,renderer,orbit,editor,navigation,frames=0,undoStack=[],redoStack=[],idCounter=0,savePending;
+ draft:createEmptyDraft(),navigation:{mode:'orbit',floor:'G',unlockAll:true},workLights:false};
+let scene,camera,renderer,orbit,editor,navigation,workLighting,frames=0,undoStack=[],redoStack=[],idCounter=0,savePending;
 const clone=v=>JSON.parse(JSON.stringify(v)),round=v=>Math.round(v*1000)/1000;
 const legacy=new Map([...FURNISHINGS_V69.fixtures,...EDITOR_EXTRA_FIXTURES_V1].map(f=>[f.id,f]));
 const catalog=[...EDITOR_CATALOG_V1];
@@ -41,6 +42,8 @@ const API={
  clearDraft:()=>clearDraft(),
  toggleFly:()=>navigation?.toggleFly(),
  getNavigationState:()=>navigation?.getState(),
+ getLightingState:()=>workLighting?.getState(),
+ setWorkLights:enabled=>setWorkLights(enabled),
  setDoorOpen:(id,open)=>setDoorOpen(id,open),
  jumpRoom:id=>jumpRoom(id)
 };
@@ -227,6 +230,13 @@ function updateFromInputs(){
  p.scale=Number($('object-scale').value);
  changeTransform(p);
 }
+function setWorkLights(enabled){
+ if(!workLighting)return null;
+ const state=workLighting.setEnabled(enabled);
+ status.workLights=state.enabled;
+ $('work-lights').checked=state.enabled;
+ return state;
+}
 function wireUI(){
  for(const id of ['pos-x','pos-y','pos-z','rot-x','rot-y','rot-z','object-scale'])
   $(id).addEventListener('change',updateFromInputs);
@@ -263,6 +273,7 @@ function wireUI(){
   if(window.confirm('Discard all locally saved Pinewood Builder changes?'))clearDraft().catch(report);
  });
  $('roof').addEventListener('change',e=>editor.building.setRoofVisible(e.target.checked));
+ $('work-lights').addEventListener('change',e=>setWorkLights(e.target.checked));
  $('reset-camera').addEventListener('click',centerCamera);
  $('explore-mode').addEventListener('click',()=>{
   navigation.setMode(navigation.getState().mode==='orbit'?'walk':'orbit');syncNavigationControls();
@@ -321,7 +332,9 @@ async function begin(){
   renderer=new THREE.WebGLRenderer({antialias:true,powerPreference:'high-performance'});
   renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,1.25));
   renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;
-  renderer.toneMappingExposure=1.14;$('world').append(renderer.domElement);
+  renderer.toneMappingExposure=1.14;
+  workLighting=createWorkLighting(scene,renderer);
+  $('world').append(renderer.domElement);
   orbit=new OrbitControls(camera,renderer.domElement);
   orbit.enableDamping=true;orbit.dampingFactor=.08;orbit.minDistance=1;orbit.maxDistance=260;
   resize();centerCamera();
@@ -352,7 +365,7 @@ async function begin(){
    renderer.render(scene,camera);requestAnimationFrame(frame)}
   requestAnimationFrame(frame);
   window.addEventListener('resize',resize);
-  window.addEventListener('pagehide',()=>{navigation.dispose();editor.dispose();orbit.dispose();renderer.dispose()},{once:true});
+  window.addEventListener('pagehide',()=>{navigation.dispose();editor.dispose();workLighting.dispose();orbit.dispose();renderer.dispose()},{once:true});
  }catch(err){
   report(err);$('load-error').textContent=String(err?.stack||err).slice(0,1500);
   $('loading').querySelector('strong').textContent='Builder cannot load';
