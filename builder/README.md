@@ -41,6 +41,8 @@ All had valid material assignments and no missing texture references, external
 image dependencies, or missing texture-coordinate attributes. Lack of photo
 detail in a color-only source model is not a missing-file bug.
 
+The 21 original selectable fixtures are also checked: 12 have solid-color materials and 9 contain image maps; their eight relative image-file references resolve to locally bundled files.
+
 Use **Surface material type** in the prop catalog to filter by **With embedded
 image maps** or **Solid-color materials**. Each imported model also shows its
 material type beneath the title. This filter does not modify your layout or
