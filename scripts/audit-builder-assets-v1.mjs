@@ -59,7 +59,7 @@ test('catalog material audit distinguishes color-only props from missing image t
  const summary={colorOnly:0,withEmbeddedImages:0,withoutMaterial:0,brokenExternalImages:0,
   modelsWithMissingTexcoord:0,embeddedPng:0,embeddedWebp:0,withUnlit:0,
   examples:{colorOnly:[],textured:[],materialless:[],missingTexcoord:[]}};
- let totalPrimitives=0,allMaterials=0;
+ let totalPrimitives=0,allMaterials=0;const imageBearingIds=[];
  for(const item of catalog.models){
   const gltf=decodeGlbJson(fs.readFileSync(item.path),item.id);
   const meshes=gltf.meshes||[],materials=gltf.materials||[],textures=gltf.textures||[],images=gltf.images||[];
@@ -82,7 +82,7 @@ test('catalog material audit distinguishes color-only props from missing image t
   if(missingMaterial){summary.withoutMaterial++;if(summary.examples.materialless.length<10)summary.examples.materialless.push({id:item.id,primitives:missingMaterial});}
   if(missingUV){summary.modelsWithMissingTexcoord++;if(summary.examples.missingTexcoord.length<10)summary.examples.missingTexcoord.push(item.id);}
   if(images.length){
-   summary.withEmbeddedImages++;
+   summary.withEmbeddedImages++;imageBearingIds.push(item.id);
    if(summary.examples.textured.length<6)summary.examples.textured.push(item.id);
   }else{
    summary.colorOnly++;
@@ -103,5 +103,13 @@ test('catalog material audit distinguishes color-only props from missing image t
   }
  }
  assert.equal(summary.brokenExternalImages,0);
+ const materialIndex='assets/vendor/builder/material-index-v1.json';
+ if(fs.existsSync(materialIndex)){
+  const index=JSON.parse(fs.readFileSync(materialIndex,'utf8'));
+  assert.equal(index.version,1);
+  assert.equal(index.totalModels,catalog.models.length);
+  assert.deepEqual(index.imageBearingIds,imageBearingIds,'Material classification must match the pinned GLB files');
+ }
+ console.log('PINEWOOD_BUILDER_MATERIAL_INDEX '+JSON.stringify(imageBearingIds));
  console.log('PINEWOOD_BUILDER_MATERIAL_AUDIT_PASS',JSON.stringify({...summary,totalPrimitives,allMaterials}));
 });
