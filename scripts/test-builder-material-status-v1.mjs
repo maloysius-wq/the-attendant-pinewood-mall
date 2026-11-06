@@ -9,6 +9,8 @@ test('model surface classification is complete and accurately exposed by Builder
  assert.equal(index.version,1);
  assert.equal(index.totalModels,manifest.models.length);
  assert.equal(index.imageBearingIds.length,158);
+ assert.equal(index.existingTotalModels,21);
+ assert.equal(index.existingImageBearingIds.length,9);
  assert.equal(new Set(index.imageBearingIds).size,index.imageBearingIds.length);
  assert.ok(index.imageBearingIds.every(id=>ids.has(id)));
  const page=fs.readFileSync('builder/index.html','utf8');
