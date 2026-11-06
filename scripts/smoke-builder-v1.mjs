@@ -27,6 +27,18 @@ try{
  assert.equal((await page.evaluate(()=>window.__PINEWOOD_BUILDER__.select('atrium_dry_fountain'))),true,'new CC0 fountain replaces old sculpture and is editable');
  assert.equal(initial.draft.added.length,0);
  assert.deepEqual(initial.errors,[]);
+ // Lighting is an editor-only, reversible accessibility aid.
+ assert.equal(await page.locator('#work-lights').count(),1,'work-light switch is available');
+ const dark=await page.evaluate(()=>window.__PINEWOOD_BUILDER__.getLightingState());
+ assert.equal(dark.enabled,false);
+ await page.locator('#work-lights').check();
+ const lit=await page.evaluate(()=>window.__PINEWOOD_BUILDER__.getLightingState());
+ assert.equal(lit.enabled,true);
+ assert.ok(lit.fillIntensity>=2&&lit.exposure>dark.exposure&&lit.fogDensity<dark.fogDensity,
+  'switch enables brighter 3D illumination, not merely a visual label');
+ await page.locator('#work-lights').uncheck();
+ assert.deepEqual(await page.evaluate(()=>window.__PINEWOOD_BUILDER__.getLightingState()),dark,
+  'switch off restores original fog, exposure and fill lighting');
  // Existing licensed furniture, not walls or cinematic props, is editable.
  await page.evaluate(()=>window.__PINEWOOD_BUILDER__.select('security_desk'));
  assert.equal((await get()).selected,'security_desk','original pre-v69 furniture remains editable');
