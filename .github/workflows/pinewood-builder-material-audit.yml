@@ -4,6 +4,9 @@ on:
     branches: [main]
     paths:
       - 'scripts/audit-builder-assets-v1.mjs'
+      - 'scripts/smoke-builder-material-v1.mjs'
+      - 'builder/**'
+      - 'assets/vendor/builder/material-index-v1.json'
       - '.github/workflows/pinewood-builder-material-audit.yml'
   workflow_dispatch:
 permissions:
@@ -19,3 +22,22 @@ jobs:
           node-version: '22'
       - name: Validate and classify local CC0 materials
         run: node --test scripts/audit-builder-assets-v1.mjs
+  material-browser:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install deterministic desktop Chromium
+        run: |
+          npm install --no-save playwright@1.55.0
+          npx playwright install chromium
+      - name: Serve local mall Builder
+        run: |
+          python3 -m http.server 4173 --bind 127.0.0.1 >/tmp/pinewood-material-http.log 2>&1 &
+          for i in {1..30}; do curl -fsS http://127.0.0.1:4173/ >/dev/null && exit 0; sleep 1; done
+          exit 1
+      - name: Check material catalog UI in desktop Chromium
+        run: node scripts/smoke-builder-material-v1.mjs
