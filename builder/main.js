@@ -328,7 +328,7 @@ async function begin(){
   await loadVendorCatalog();
   $('loading').querySelector('progress').value=30;
   editor=await createBuilderScene({scene,camera,domElement:renderer.domElement,orbit,
-   canEdit:()=>!navigation||navigation.getState().mode==='orbit',
+   canEdit:()=>true,
    onSelect:(id,p)=>writeInspector(id,p),
    onTransform:(id,p)=>changeTransform(p).catch(report),
    onPlace:(catalogId,position,rotation)=>place(catalogId,position,undefined,rotation).catch(report)
@@ -346,7 +346,9 @@ async function begin(){
   indicate('Ready · local draft loaded');
   let lastTime=performance.now();
   function frame(t){const dt=Math.min(.05,(t-lastTime)/1000);lastTime=t;frames++;
-   navigation.update(dt);if(navigation.getState().mode==='orbit')orbit.update();
+   navigation.update(dt);
+   if(navigation.getState().mode==='orbit')orbit.update();
+   else editor.refreshPlacement();
    renderer.render(scene,camera);requestAnimationFrame(frame)}
   requestAnimationFrame(frame);
   window.addEventListener('resize',resize);
