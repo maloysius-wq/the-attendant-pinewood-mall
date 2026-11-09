@@ -32,7 +32,7 @@ try{
  await page.locator('#catalog-material').selectOption('image-mapped');
  assert.equal(await page.locator('.catalog-item').count(),172,'image-map filter includes 9 original image-bearing fixtures');
  await page.locator('#catalog-material').selectOption('color-only');
- assert.equal(await page.locator('.catalog-item').count(),338,'solid-color filter includes 12 original fixtures');
+ assert.equal(await page.locator('.catalog-item').count(),338,'solid-color filter excludes retired LCD but retains other source colors');
  await page.locator('#catalog-material').selectOption('');
  assert.ok((await page.locator('.catalog-item').count())>=510,'clearing material filter restores the full catalog');
  assert.equal((await page.evaluate(()=>window.__PINEWOOD_BUILDER__.getCatalog())).some(x=>/christmas|holiday|garland|snowman/i.test(x.label)),true);
