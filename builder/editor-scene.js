@@ -198,6 +198,8 @@ export async function createBuilderScene({scene,camera,domElement,onSelect=()=>{
  }
  function setGhostAppearance(valid,reason=''){
   ghostValid=valid;ghostReason=reason;
+  // Canceling an invalid ghost must also restore the normal reticle.
+  document.getElementById('aim-reticle')?.classList.toggle('invalid',!valid);
   if(!ghost)return;
   ghost.traverse(o=>{if(!o.isMesh)return;
    const materials=Array.isArray(o.material)?o.material:[o.material];
@@ -208,7 +210,6 @@ export async function createBuilderScene({scene,camera,domElement,onSelect=()=>{
     if(!valid)m.color.lerp(new THREE.Color(0xff514a),.75);
    }
   });
-  document.getElementById('aim-reticle')?.classList.toggle('invalid',!valid);
  }
  async function beginPlacement(catalogId){
   const generation=++placementGeneration;
@@ -304,7 +305,9 @@ export async function createBuilderScene({scene,camera,domElement,onSelect=()=>{
  domElement.addEventListener('wheel',onWheel,{passive:false,capture:true});
  return {
   building,objects,select,applyDraft,beginPlacement,stopPlacement,setTransformMode,refreshPlacement,
-  get placing(){return !!placing},get placementValidity(){return {valid:ghostValid,reason:ghostReason}},
+  get placing(){return !!placing},
+  get isGizmoActive(){return !!transform.axis||transform.dragging},
+  get placementValidity(){return {valid:ghostValid,reason:ghostReason}},
   get placementPosition(){return ghost?vector(ghost.position):null},
   get placementRotation(){return ghost?vector(ghost.rotation):null},
   validatePose,validateNewPlacement,validateBounds:box=>checkBounds(box),
