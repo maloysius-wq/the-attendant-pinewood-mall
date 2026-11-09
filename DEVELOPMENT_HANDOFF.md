@@ -9,6 +9,8 @@
 
 `assets/vendor/builder/era-catalog-v87.json` registers eight fully local original GLBs: the genuine **MadeByYeshe (CrazyDrPants)** 1990s CRT desktop computer remixed by **TTT/tt-toe** (CC-BY-4.0 with full source/license/attribution in `LICENSES.md`), two CC0 desktop tower computers and five CC0 abandoned-mall debris/refuse/1989 magazines props. All source hashes and license pages are pinned. The Kenney flat-screen LCD model is hidden from new placement choices; old saved instances using that ID are remapped visually to the real CRT. No third-party browser runtime URL is used. Development-only one-time asset-vendoring write-enabled workflows were deleted after pinning source models and materials.
 
+Follow-up polish: Explore-mode clicks on hovered/dragged transform gizmo handles are now excluded from camera pointer-lock, and canceling an invalid placement always clears the red reticle even after the preview disappears. This does not modify campaign controls.
+
 Testing: `scripts/test-builder-v87.mjs` audits SHA/license/source, backwards-compatible finish persistence; `scripts/smoke-builder-v87.mjs` tests actual Chromium preview scroll/camera isolation, reticle, snap intervals, collision default/explicit overlap, independent finish rendering, undo/redo/export/reload. Focused GitHub Action `pinewood-builder-v87.yml`. Initial targeted v87 Chromium run `42695770361` passed including desktop WebGL (`PINEWOOD_BUILDER_V87_DESKTOP_PASS`) and Node/local-asset audits. Existing broader v1 smoke uses explicit overlap opt-in for its historical intentionally arbitrary placement coordinates, rather than weakening the new default. Confirm final PR/CI and GitHub Pages status before calling v87 published.
 
 ---
