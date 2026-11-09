@@ -29,3 +29,17 @@ h2{font:normal 23px Georgia,serif;line-height:1.25;margin:10px 0}.muted{color:va
 #fly-toggle:not(:disabled){border-color:#699fc4}
 
 #catalog-condition{margin-bottom:10px}.catalog-item .asset-thumb{display:block;flex:none;width:51px;height:51px;object-fit:contain;border:1px solid #46585b;border-radius:3px;background:#27383a}.catalog-item>span:not(.plus){min-width:0;flex:1}.catalog-item strong{overflow-wrap:anywhere}
+
+/* Precision reticle follows the pointer (or screen center in pointer-lock). */
+#aim-reticle{position:absolute;left:50%;top:50%;width:23px;height:23px;z-index:2;transform:translate(-50%,-50%);pointer-events:none;filter:drop-shadow(0 1px 2px #000d)}
+#aim-reticle::before,#aim-reticle::after{content:"";position:absolute;left:50%;top:50%;background:#ffe4a2;transform:translate(-50%,-50%)}
+#aim-reticle::before{width:1.5px;height:23px}
+#aim-reticle::after{height:1.5px;width:23px}
+#aim-reticle{background:radial-gradient(circle at center,transparent 0 3px,#0d1413 3px 4px,transparent 4px)}
+#aim-reticle.invalid::before,#aim-reticle.invalid::after{background:#ff7970}
+#grid-size{width:88px;min-width:76px;font-size:11px;padding:6px 4px}
+.view-actions{flex-wrap:wrap;justify-content:flex-end;max-width:76%}
+.room-finishes{border-top:1px solid var(--line);margin-top:18px;padding-top:6px}
+.room-finishes label{display:block;font-size:11px;margin:10px 0 4px;color:#d5c09d}
+.room-finishes select{width:100%;font-size:12px}
+.room-finishes button{margin-top:12px}
