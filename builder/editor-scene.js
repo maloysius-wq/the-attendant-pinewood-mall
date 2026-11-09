@@ -63,7 +63,10 @@ export async function createBuilderScene({scene,camera,domElement,onSelect=()=>{
   selected=id;transform.attach(objects.get(id));onSelect(id,pose(objects.get(id)));return true;
  }
  async function template(id){
-  const item=EDITOR_CATALOG_BY_ID.get(id);if(!item)throw Error('Unknown local asset '+id);
+  // Keep previously saved LCD instance IDs but draw the vetted 1990s CRT.
+  // The discontinued flat-screen Kenney model stays in the provenance manifest.
+  const sourceId=id==='kenney-furniture-kit-computerscreen'?'retro-crt-pc-1990s':id;
+  const item=EDITOR_CATALOG_BY_ID.get(sourceId);if(!item)throw Error('Unknown local asset '+id);
   if(!/^assets\/vendor\/(?:runtime|builder\/models)\//.test(item.path)||!/\.glb$/i.test(item.path))throw Error('Nonlocal asset forbidden');
   if(!cached.has(id))cached.set(id,loader.loadAsync(new URL('../'+item.path,import.meta.url).href));
   const gltf=await cached.get(id),o=gltf.scene.clone(true);
