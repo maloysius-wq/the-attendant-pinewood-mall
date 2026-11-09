@@ -19,6 +19,12 @@ export async function mountCinematicParkingLot({scene,building}){
  if(!asphalt)throw Error('Cinematic 115 x 88 m parking slab was not found');
  const planters=stage.world.children.filter(o=>o.name?.startsWith('V63 imported CC0 exterior planter '));
  if(planters.length!==8)throw Error('Expected eight opening cinematic planters');
+ const parkingPaint=stage.world.getObjectByName('V84 coherent mall parking-space and street PAINT',true);
+ const parkingProps=stage.world.getObjectByName('V84 sourced CC0 parking-lot bins and struggling trees',true);
+ if(!parkingPaint?.userData.paintedOnly||parkingPaint.userData.markingCounts.stalls<150)
+  throw Error('Opening cinematic coherent parking lines are missing');
+ if(!parkingProps||parkingProps.children.length!==8)
+  throw Error('Expected all eight licensed CC0 lot trees and trash receptacles');
 
  // This matches the canonical cinematic's one-world handoff: retire only the
  // duplicate front elevation of the canonical mall, never its architecture.
@@ -55,7 +61,10 @@ export async function mountCinematicParkingLot({scene,building}){
  const state={
   ready:true,sedanLoaded:stage.car.children.length>0,
   facadeLoaded:facade.state==='ready',planterCount:planters.length,
-  placementSurfaces:surfaces.length,hiddenFrontWalls
+  placementSurfaces:surfaces.length,hiddenFrontWalls,
+  markedStalls:parkingPaint.userData.markingCounts.stalls,
+  paintedSegments:parkingPaint.userData.markingCounts.segments,
+  licensedParkingProps:parkingProps.children.length
  };
  return {
   state,placementSurfaces:surfaces,
