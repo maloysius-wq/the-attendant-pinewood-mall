@@ -279,12 +279,12 @@ export function makeOpeningScene({useImportedLandscape=false,useAbandonedFacade=
   return status;
  });
  stage.assetReady=useImportedLandscape
-  ?Promise.all([
-    exteriorReady,
-    installMallPlantersV63(world,{decayed:useAbandonedFacade}),
-    installParkingPropsV84(world)
-   ]).then(([status,landscape,parkingProps])=>{
-    status.landscape=landscape;status.parkingProps={state:parkingProps.state,
+  ?Promise.all([exteriorReady,installMallPlantersV63(world,{decayed:useAbandonedFacade})])
+   .then(async([status,landscape])=>{
+    // Preserve the previously approved cinematic landscape loading order.
+    status.landscape=landscape;
+    const parkingProps=await installParkingPropsV84(world);
+    status.parkingProps={state:parkingProps.state,
      count:parkingProps.count,sourceIds:parkingProps.sourceIds};
     return status;
    })
