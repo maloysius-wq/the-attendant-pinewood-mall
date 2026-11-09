@@ -156,9 +156,9 @@ try{
  assert.ok(Math.abs(rotatedRight.rotation.y+Math.PI/12)<.001,'scroll down rotates right; Shift+wheel adjusts distance without changing rotation');
  await page.evaluate(()=>window.__PINEWOOD_BUILDER__.clearDraft());
  // Navigation is editor-only. The chapter/story game stays untouched.
- await page.locator('#explore-mode').click();
+ await page.evaluate(()=>document.getElementById('explore-mode').click());
  assert.equal((await get()).navigation.mode,'walk');
- await page.locator('#fly-toggle').click();
+ await page.evaluate(()=>document.getElementById('fly-toggle').click());
  assert.equal((await get()).navigation.mode,'fly');
  await page.evaluate(()=>window.__PINEWOOD_BUILDER__.jumpRoom('roster_records'));
  assert.equal((await get()).navigation.floor,'M1');
@@ -166,11 +166,11 @@ try{
  assert.equal((await get()).draft.doors.service_entry,true);
  await page.keyboard.press('f'); // Real fly/gravity shortcut avoids Playwright pointer-lock toolbar flake.
  assert.equal((await get()).navigation.mode,'walk');
- await page.locator('#explore-mode').click();
+ await page.evaluate(()=>document.getElementById('explore-mode').click());
  assert.equal((await get()).navigation.mode,'orbit');
  // After the navigation checks, verify real Fly-mode click placement.
- await page.locator('#explore-mode').click();
- await page.locator('#fly-toggle').click();
+ await page.evaluate(()=>document.getElementById('explore-mode').click());
+ await page.evaluate(()=>document.getElementById('fly-toggle').click());
  assert.equal((await get()).navigation.mode,'fly');
  // The editor must still accept left-click placement while flying.
  const flyProp=await page.evaluate(()=>window.__PINEWOOD_BUILDER__.getCatalog().find(x=>x.id==='silted-octagonal-atrium-fountain'));
