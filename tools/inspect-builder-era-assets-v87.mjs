@@ -13,3 +13,14 @@ for(const q of queries){
    description:(x.summary||x.description||'').slice(0,135),url:x.cdnUrl||x.downloadUrl,
    license:x.license?.id||x.license,triangles:x.stats?.triangles}))}));
 }
+
+for(const id of ['Bw55oYsbp8','8jVB0zIXKCv']){
+ const uri='https://poly.pizza/m/'+id;
+ try{
+  const res=await fetch(uri,{signal:AbortSignal.timeout(15000)});
+  const body=await res.text();
+  const snippets=[...body.matchAll(/.{0,85}(?:\.glb|static\.poly\.pizza|Download|gltf|\.fbx).{0,90}/gi)]
+   .slice(0,20).map(m=>m[0].slice(0,250));
+  console.log('PINEWOOD_POLYPIZZA_PAGE',JSON.stringify({id,status:res.status,bytes:body.length,snippets}));
+ }catch(e){console.log('PINEWOOD_POLYPIZZA_ERROR',id,String(e).slice(0,180))}
+}
