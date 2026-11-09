@@ -46,6 +46,17 @@ and your saved draft remain unaffected. See
 `assets/vendor/builder/catalog-v1.json`; leafless tree provenance is in
 `opening/assets/v85/manifest.json`.
 
+
+## Precision editing and 1990s materials (v87)
+
+The viewport now shows a pointer-tracking **reticle**, switching to screen-center while Explore/Fly pointer-lock is active. Click a catalog item to load its preview; preview loading must complete before placing is enabled. The wheel rotates **only the preview object** by 15° per notch (Shift+wheel changes preview depth), not the camera; clicking a placement or an already-selected fixture cannot unexpectedly capture the cursor and flip the view.
+
+The checked **Snap** option quantizes object placement and transform gizmo moves to a visible grid. Choose **0.25 m / 0.5 m / 1 m** steps or uncheck Snap for free placement. The grid follows the active support surface including other elevations. The unchecked **Allow overlap** option means new placements and edits are checked against real mall walls and floor support; items overlapping architecture, entering floor holes, or hovering without support cannot be confirmed by default. Check **Allow overlap** when intentionally placing objects through surfaces or making theatrical set dressings. Existing saved placements are preserved without migration or deletion. Placing computers on desks uses the licensed furniture's existing top surface as support.
+
+The **Room surface finishes** inspector decorates one of 41 rooms, with separate **Walls**, **Floor**, and **Ceiling** selectors. The original floor/wall/ceiling geometry is immutable; each choice produces an independent, room-limited cosmetic surface. Ceiling finishes never copy the wall finish. Existing chapter-specific ceilings and atrium skylight are unchanged, and rooms without editable ceilings disable the ceiling finish control. All finishes are saved in the existing portable v1 JSON as the optional `surfaces` map and obey Save, Import, Undo, Redo and Reset. Old v1 JSON files without `surfaces` still import unchanged. Six new [Poly Haven](https://polyhaven.com) CC0 textures complement the existing 1990s terrazzo/tile/carpet, concrete, acoustic tile and aged plaster.
+
+The catalog now includes the [MadeByYeshe / TTT CC-BY 4.0](../LICENSES.md) **1990s CRT desktop PC (with keyboard and mouse)**, two sourced CC0 desktop computer towers, and five licensed abandonment props: shattered tiles, concrete/rebar rubble, a dented bin spilling trash, bags of rubbish and a stack of old magazines. The outdated Kenney LCD is no longer offered for new placements, but existing saved IDs resolve to the real CRT so no draft is lost. All new binaries and texture maps are pinned locally with SHA-256/source/licensing records, and the campaign remains unchanged. Desktop CI: `scripts/test-builder-v87.mjs`, `scripts/smoke-builder-v87.mjs` and `.github/workflows/pinewood-builder-v87.yml`.
+
 ## Controls
 
 | Action | Control |
