@@ -86,12 +86,13 @@ export const PARKING_MARKING_COUNTS_V84=Object.freeze({
  * No original asset models are designed or generated for this update.
  */
 export const PARKING_PROPS_V84=Object.freeze([
- // Crooked / fallen pines occupy the narrow empty islands and perimeter,
- // away from the sedan, its service-door walking path and the marked stalls.
- Object.freeze({id:'crooked-west',assetId:'kenney-graveyard-kit-pine-crooked',x:-23,z:35.4,targetHeight:5.2,yaw:.28}),
- Object.freeze({id:'crooked-east',assetId:'kenney-graveyard-kit-pine-crooked',x:23,z:35.4,targetHeight:4.6,yaw:-.57}),
- Object.freeze({id:'crooked-back',assetId:'kenney-graveyard-kit-pine-crooked',x:0,z:53.9,targetHeight:4.9,yaw:.44}),
- Object.freeze({id:'fallen-back',assetId:'kenney-graveyard-kit-pine-fall-crooked',x:-52,z:60,targetMaxSpan:5.2,yaw:1.1}),
+ // Genuine source-authored leafless dead trees, not needles, green pines,
+ // foliage recolors, or procedural substitutes. In the landscaped islands
+ // and at the outer edge, far from the licensed sedan/service-door approach.
+ Object.freeze({id:'bare-west',assetId:'cc0-dead-tree-gothic',x:-23,z:35.4,targetHeight:5.7,yaw:.28}),
+ Object.freeze({id:'bare-east',assetId:'cc0-dead-tree-survival',x:23,z:35.4,targetHeight:4.9,yaw:-.57}),
+ Object.freeze({id:'bare-back',assetId:'cc0-dead-tree-gothic',x:0,z:53.9,targetHeight:5.5,yaw:1.5}),
+ Object.freeze({id:'bare-perimeter',assetId:'cc0-dead-tree-survival',x:-52,z:60,targetHeight:4.5,yaw:1.1}),
  // Existing Kenney CC0 trash receptacle, physically sized to ~1 m high.
  Object.freeze({id:'trash-front-west',assetId:'kenney-furniture-kit-trashcan',x:-40,z:-10.65,targetHeight:1.05,yaw:.2}),
  Object.freeze({id:'trash-front-east',assetId:'kenney-furniture-kit-trashcan',x:33,z:-10.65,targetHeight:1.05,yaw:-.14}),
