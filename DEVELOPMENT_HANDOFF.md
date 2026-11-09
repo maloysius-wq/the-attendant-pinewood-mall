@@ -1,5 +1,16 @@
 # Development Handoff: The Attendant: Pinewood Mall
 
+## Open-front parking bays and truly leafless sourced trees (2026-11-09)
+
+The owner rejected the boxed-in 196 stall outlines and original pine-like parking trees. [PR #80](https://github.com/maloysius-wq/the-attendant-pinewood-mall/pull/80) redefines each v84 row's open aisle-facing side in `opening/parking-layout-v84.mjs`, draws side stripes and **only the closed rear line**, and deduplicates the rear seam shared by back-to-back rows: 279 painted segments (versus 319 before), with all 196 spaces still aligned, the original licensed sedan centered, and the contractor lane unobstructed.
+
+Four original pines have been removed and replaced by **two each of two unmodified leafless CC0 models**, source-pinned locally at `opening/assets/v85/`: gnarled Gothic dead tree and bare post-apocalyptic dead tree. The manifest records original model pages, immutable upstream download versions, source authors/license, bytes, and SHA-256; `scripts/test-parking-v84.mjs` independently checks both hashes and forbids outside network references, procedural replacement props and any return of pines. Four existing Kenney trash cans stay. The one-time GitHub Actions vendoring writer was deleted after both unchanged GLB files were committed; the development-only vendoring script is retained for provenance/reproducibility, not used by runtime.
+
+The cinematic and standalone Builder still share the same exterior. `scripts/smoke-parking-v84.mjs` checks 196 open parking spaces, 279 paint segments, four verified bare trees, eight total licensed decorations, original eight weathered planters, exact sedan and original façade, no external browser assets and intact walkable parking/saving. No changes to the protected campaign narrative or user Builder draft. Verify current PR and GitHub Pages deployment status before reporting the live site updated.
+
+---
+
+
 ## Central atrium ceiling shown in World Builder (2026-11-06)
 
 [PR #75](https://github.com/maloysius-wq/the-attendant-pinewood-mall/pull/75) merged as `d1430628e8c052568b9b2bb40d867a5227142b79`. The physical shell already includes a glazed, twelve-metre-high central atrium skylight (`atrium-skylight`) and separate ground-floor room ceilings, but `builder/editor-scene.js` explicitly initialized `setRoofVisible(false)`, and the `Roof / ceilings` checkbox started unchecked. The standalone Builder now starts with both roof groups visible and the checkbox checked. The owner can still uncheck it to cut the roof away for top-down placement; the story runtime is unchanged.
