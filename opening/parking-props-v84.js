@@ -54,9 +54,14 @@ export async function installParkingPropsV84(world){
   instance.name='V84 licensed CC0 parking prop '+prop.id;
   instance.userData.parkingPropId=prop.id;
   instance.userData.assetId=prop.assetId;
+  // Used by Builder verification and cinematic tests: exactly these three
+  // positions line up with existing, approved V64 frontage planters.
+  if(prop.planterIndex!==undefined)instance.userData.planterIndex=prop.planterIndex;
   instance.userData.sourcePath=source.item.path;
   instance.userData.license='CC0-1.0';
-  instance.position.set(prop.x,0,prop.z);instance.rotation.y=prop.yaw;
+  // Raised only for trees rooted in an existing enlarged licensed planter.
+  // Their feet meet the planter's source-authored soil surface, not asphalt.
+  instance.position.set(prop.x,prop.y??0,prop.z);instance.rotation.y=prop.yaw;
   copy.traverse(node=>{if(node.isMesh){node.castShadow=false;node.receiveShadow=true;}});
   instance.add(copy);group.add(instance);
  }

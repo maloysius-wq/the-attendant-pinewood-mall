@@ -1,3 +1,5 @@
+import {MALL_PLANTERS_V64,MALL_PLANTER_SCALE_V64} from './landscape-layout-v64.mjs';
+
 /**
  * Pinewood's single authoritative front parking-lot paint plan (metres).
  * This describes ONLY painted linework. Nothing in this module creates
@@ -85,13 +87,24 @@ export const PARKING_MARKING_COUNTS_V84=Object.freeze({
  * catalogued in assets/vendor/builder/catalog-v1.json (with source and hash).
  * No original asset models are designed or generated for this update.
  */
+// Most of the original trees were behind the player's actual cinematic
+// camera. Reuse the approved V64 weathered steel landscape planters beside
+// the mall façade instead. The soil plane of each 2x-scaled source planter is
+// at y=.55*2 = 1.1 m. No new planter, planter-bed or tree model is authored.
+const rootedInPlanter=(id,assetId,planterIndex,targetHeight,yaw)=>{
+ const p=MALL_PLANTERS_V64[planterIndex];
+ if(!p)throw Error('Unknown licensed mall planter index '+planterIndex);
+ return Object.freeze({id,assetId,planterIndex,x:p.x,z:p.z,
+  y:.55*MALL_PLANTER_SCALE_V64,targetHeight,yaw});
+};
 export const PARKING_PROPS_V84=Object.freeze([
- // Genuine source-authored leafless dead trees, not needles, green pines,
- // foliage recolors, or procedural substitutes. In the landscaped islands
- // and at the outer edge, far from the licensed sedan/service-door approach.
- Object.freeze({id:'bare-west',assetId:'cc0-dead-tree-gothic',x:-23,z:35.4,targetHeight:5.7,yaw:.28}),
- Object.freeze({id:'bare-east',assetId:'cc0-dead-tree-survival',x:23,z:35.4,targetHeight:4.9,yaw:-.57}),
- Object.freeze({id:'bare-back',assetId:'cc0-dead-tree-gothic',x:0,z:53.9,targetHeight:5.5,yaw:1.5}),
+ // Real leafless, source-authored CC0 silhouettes are now placed within the
+ // actual enlarged weathered planters. These sit across the seated car /
+ // exit / approach camera view, but OUTSIDE the contractor's walking route.
+ rootedInPlanter('bare-west','cc0-dead-tree-gothic',1,5.7,.28),
+ rootedInPlanter('bare-east','cc0-dead-tree-survival',3,4.9,-.57),
+ rootedInPlanter('bare-back','cc0-dead-tree-gothic',6,5.5,1.5),
+ // One fourth tree stays on the far lot perimeter for the wider Builder view.
  Object.freeze({id:'bare-perimeter',assetId:'cc0-dead-tree-survival',x:-52,z:60,targetHeight:4.5,yaw:1.1}),
  // Existing Kenney CC0 trash receptacle, physically sized to ~1 m high.
  Object.freeze({id:'trash-front-west',assetId:'kenney-furniture-kit-trashcan',x:-40,z:-10.65,targetHeight:1.05,yaw:.2}),

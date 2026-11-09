@@ -1,5 +1,15 @@
 # Development Handoff: The Attendant: Pinewood Mall
 
+
+## Camera-visible dead-tree relocation (2026-11-09)
+
+Owner observed that the four genuine leafless dead trees were all too far behind the opening camera to be appreciated. PR #81 moves **three existing CC0 models**, without modifying GLBs, into the soil of three original **V64** enlarged licensed mall-front weathered planters at x=-24.7, -17.5, and +3.7 (z≈-18.9; soil y=1.10 m). The original v63 shrub/pot assets, planter count (8), opening sedan, façade, service door, all 196 open-ended marked parking spaces, licensed props and saved Builder draft remain unchanged. One fourth bare tree remains on the outer lot perimeter for wide exploration. No new scenery geometry is authored or fetched.
+
+`opening/parking-layout-v84.mjs` now imports the authoritative `opening/landscape-layout-v64.mjs` planter positions instead of guessing where soil is located, and `opening/parking-props-v84.js` respects the soil-height offset. Focused `scripts/test-parking-tree-sightlines-v86.mjs` uses the ACTUAL `HumanCameraRig` and 66° cinematic lens: all three foreground trees appear at multiple authored camera phases; real seated arrival, car-exit and mall-approach shots all frame dead-tree silhouettes. Regression checks also enforce >5 m of contractor walking-route clearance and the existence of the original licensed planters. Desktop `scripts/smoke-parking-v84.mjs` confirms three frontage trees, four total original dead tree models, eight licensed props, unchanged 279 painted markings and usable Editor. Read latest PR workflow and GitHub Pages run before claiming live.
+
+---
+
+
 ## Open-front parking bays and truly leafless sourced trees (2026-11-09)
 
 The owner rejected the boxed-in 196 stall outlines and original pine-like parking trees. [PR #80](https://github.com/maloysius-wq/the-attendant-pinewood-mall/pull/80) redefines each v84 row's open aisle-facing side in `opening/parking-layout-v84.mjs`, draws side stripes and **only the closed rear line**, and deduplicates the rear seam shared by back-to-back rows: 279 painted segments (versus 319 before), with all 196 spaces still aligned, the original licensed sedan centered, and the contractor lane unobstructed.

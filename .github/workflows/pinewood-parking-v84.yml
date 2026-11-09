@@ -7,6 +7,7 @@ on:
       - 'opening/parking-*-v84.*'
       - 'builder/exterior-scene.js'
       - 'scripts/test-parking-v84.mjs'
+      - 'scripts/test-parking-tree-sightlines-v86.mjs'
       - 'scripts/smoke-parking-v84.mjs'
       - '.github/workflows/pinewood-parking-v84.yml'
   workflow_dispatch:
@@ -22,7 +23,7 @@ jobs:
         with:
           node-version: '22'
       - name: Check painted lot plan and verified CC0 originals
-        run: node --test scripts/test-parking-v84.mjs scripts/test-builder-parking-v1.mjs
+        run: node --test scripts/test-parking-v84.mjs scripts/test-parking-tree-sightlines-v86.mjs scripts/test-builder-parking-v1.mjs
       - name: Check every locally pinned CC0 asset
         run: node --test scripts/audit-builder-assets-v1.mjs
       - name: Install desktop Chromium
