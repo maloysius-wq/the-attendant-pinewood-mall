@@ -1,0 +1,65 @@
+{
+  "version": 87,
+  "finishes": [
+    {
+      "id": "concrete_wall_003",
+      "path": "assets/vendor/builder/finishes/concrete_wall_003_diff_1k.jpg",
+      "sha256": "7d1d4b9f5ed1aa3e6385ef3232e26e123a3dac5f364e44f9f34784e39bf8d6bb",
+      "bytes": 264756,
+      "source": "https://polyhaven.com/a/concrete_wall_003",
+      "downloadSource": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/concrete_wall_003/concrete_wall_003_diff_1k.jpg",
+      "license": "CC0-1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/"
+    },
+    {
+      "id": "concrete_wall_004",
+      "path": "assets/vendor/builder/finishes/concrete_wall_004_diff_1k.jpg",
+      "sha256": "446261c8d9ae49e5ca9858fe590a71a53cbd3c3b5fcf54f6adcc5c14a649c14f",
+      "bytes": 531968,
+      "source": "https://polyhaven.com/a/concrete_wall_004",
+      "downloadSource": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/concrete_wall_004/concrete_wall_004_diff_1k.jpg",
+      "license": "CC0-1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/"
+    },
+    {
+      "id": "worn_tile_floor",
+      "path": "assets/vendor/builder/finishes/worn_tile_floor_diff_1k.jpg",
+      "sha256": "37ae54f7dc6801cff9024ef8cf5d1b9eb91055743cd3438a45dd01b4cdc9d267",
+      "bytes": 847890,
+      "source": "https://polyhaven.com/a/worn_tile_floor",
+      "downloadSource": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/worn_tile_floor/worn_tile_floor_diff_1k.jpg",
+      "license": "CC0-1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/"
+    },
+    {
+      "id": "interior_tiles",
+      "path": "assets/vendor/builder/finishes/interior_tiles_diff_1k.jpg",
+      "sha256": "f267c4357e629f5ca2ab86f30da4fb0ae8c655a566cec6d81278df8d78dcca4a",
+      "bytes": 694562,
+      "source": "https://polyhaven.com/a/interior_tiles",
+      "downloadSource": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/interior_tiles/interior_tiles_diff_1k.jpg",
+      "license": "CC0-1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/"
+    },
+    {
+      "id": "dirty_tiles",
+      "path": "assets/vendor/builder/finishes/dirty_tiles_diff_1k.jpg",
+      "sha256": "33b9caead078f88174553d1ba5fdbb627464cb6ff0b56e7eaee7c01fa2464958",
+      "bytes": 585084,
+      "source": "https://polyhaven.com/a/dirty_tiles",
+      "downloadSource": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/dirty_tiles/dirty_tiles_diff_1k.jpg",
+      "license": "CC0-1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/"
+    },
+    {
+      "id": "concrete_floor",
+      "path": "assets/vendor/builder/finishes/concrete_floor_diff_1k.jpg",
+      "sha256": "5e06d0fb226f671470f59bf7798954b6965c9ed56dd45084dfd012e15737e444",
+      "bytes": 927975,
+      "source": "https://polyhaven.com/a/concrete_floor",
+      "downloadSource": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/concrete_floor/concrete_floor_diff_1k.jpg",
+      "license": "CC0-1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/"
+    }
+  ]
+}
