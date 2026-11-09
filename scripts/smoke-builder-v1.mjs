@@ -176,6 +176,12 @@ try{
  assert.equal((await get()).navigation.mode,'walk');
  await clickToolbar('explore-mode');
  assert.equal((await get()).navigation.mode,'orbit');
+ // This historical smoke tests arbitrary Fly-mode clicks, not safe grounding.
+ // A flying camera can aim through empty air, so explicitly opt into
+ // intentional unsupported staging rather than weakening v87 defaults.
+ assert.equal(await page.locator('#allow-clipping').isChecked(),false);
+ await checkToolbar('allow-clipping',true);
+ assert.equal((await get()).placementOptions.allowClipping,true);
  // After the navigation checks, verify real Fly-mode click placement.
  await clickToolbar('explore-mode');
  await clickToolbar('fly-toggle');
