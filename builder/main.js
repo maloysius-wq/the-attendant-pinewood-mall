@@ -488,6 +488,7 @@ async function begin(){
   $('loading').querySelector('progress').value=58;
   navigation=createEditorNavigation({camera,orbit,domElement:renderer.domElement,scene,shells:editor.building.shells,
    isPlacing:()=>editor?.placing||false,
+   isGizmoActive:()=>editor?.isGizmoActive||false,
    onChange:next=>{status.navigation=next;syncNavigationControls()},
    onDoorChange:(id,open)=>setDoorOpen(id,open).catch(report)});
   $('loading').querySelector('progress').value=75;
