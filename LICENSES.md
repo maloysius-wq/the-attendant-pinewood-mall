@@ -338,3 +338,13 @@ The separately hosted Builder includes 482 locally copied self-contained GLB mod
 - Kenney CC0 model packs: https://kenney.nl (license https://creativecommons.org/publicdomain/zero/1.0/); self-contained mirror pinned to https://github.com/Hidencod/tge-assets/commit/ea2f2aa1ca8da0898330c97df8a5489976b051d0.
 - 3DAssets.dev individually CC0 public-domain models: https://3dassets.dev/assets and linked pack/model pages; pinned, locally downloaded from versioned immutable GLBs. This collection includes a silted ornamental fountain and seasonal retail decorations.
 - These assets do not supersede the campaign runtime v69 licensing, nor any banned Cassette Castle shelf fixture.
+
+## V84 cinematic/front parking-lot dressing (2026-11-09)
+
+No new model meshes, decals, textures, or scenery assets were authored or downloaded for this update. Four trash receptacles and four crooked/fallen trees are **instances of three already bundled Kenney CC0 GLB files**:
+
+- `kenney-furniture-kit-trashcan` (4 instances; Kenney Furniture Kit)
+- `kenney-graveyard-kit-pine-crooked` (3 instances; Kenney Graveyard Kit)
+- `kenney-graveyard-kit-pine-fall-crooked` (1 instance; Kenney Graveyard Kit)
+
+Exact local paths, creator pages, provenance, CC0-1.0 license URLs, byte lengths and SHA-256 hashes for these same unchanged GLBs remain recorded in `assets/vendor/builder/catalog-v1.json`. No third-party runtime URLs are used. Only parking-stall, lane, stop and pedestrian-crossing *painted lines* are code-authored using thin instanced box surfaces in `opening/parking-markings-v84.js`; they are not independent 3D prop models. Existing CC BY sedan and all previously approved façade/planters remain unchanged.

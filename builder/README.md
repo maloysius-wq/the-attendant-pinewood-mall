@@ -4,6 +4,31 @@ Standalone desktop editor: **`/builder/`** (a separate page from the playable ga
 
 The editor loads the same canonical 41-room, three-level Pinewood Mall shell and all 60 existing v69 furniture pieces. A dry ornamental fountain replaces only the old sculpture in this editor preview. The architectural basin, walls, stairs, shafts and chapter evidence remain protected. The Builder also mounts the **same fully licensed cinematic parking-lot set** (sedan, lamp fixtures, cracked sidewalk, boarded facade, rain and eight aged planters) as a connected exterior staging area; original cinematic set pieces remain protected while new objects can be placed around them.
 
+## Coherent cinematic front parking lot (v84)
+
+The actual opening-cinematic asphalt (115 × 88 m) has been repainted into
+**196 perpendicular parking spaces** in seven rows, with consistent 2.75–3.0 m
+stall widths, 5.6 m depths, 7.4 m two-way aisles, a mall-front drive lane,
+and a pedestrian painted crossing aimed at the existing service entrance.
+The original cinematic sedan at x=-10, z=17.5 now sits centered between
+two genuine stall markings. The old random angled dashes were removed.
+
+Exactly eight exterior decorations were added by **placing existing, locally
+vendored Kenney CC0 GLB assets**, never by making original 3D props:
+three crooked cemetery-kit pines, one fallen crooked pine and four furniture-kit
+trash cans. The existing eight weathered mall planters, sedan, façade and
+lamps are preserved. The same physically placed objects and painted markings
+appear in both the actual opening cinematic and the standalone Builder.
+
+Only painted asphalt line geometry is authored here. The paint is an
+instanced, non-colliding overlay; there are no new asphalt, curb, planter,
+tree, receptacle, or street-sign meshes. Original licensed cinematic props
+remain part of the protected exterior set; new Builder catalog placements
+and your saved draft remain unaffected. See
+`opening/parking-layout-v84.mjs`, `opening/parking-markings-v84.js` and
+`opening/parking-props-v84.js`. Source hashes/licensing are already recorded
+in `assets/vendor/builder/catalog-v1.json`.
+
 ## Controls
 
 | Action | Control |
