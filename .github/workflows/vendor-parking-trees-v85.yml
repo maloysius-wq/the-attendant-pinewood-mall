@@ -1,0 +1,34 @@
+name: Vendor dead-tree CC0 sources (development only)
+on:
+  push:
+    branches:
+      - fix/parking-open-stalls-dead-trees-v85
+    paths:
+      - 'tools/vendor-parking-dead-trees-v85.mjs'
+      - '.github/workflows/vendor-parking-trees-v85.yml'
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  pin-unchanged-original-models:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: fix/parking-open-stalls-dead-trees-v85
+          persist-credentials: true
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Download source-licensed CC0 GLBs and record SHA-256 provenance
+        run: node tools/vendor-parking-dead-trees-v85.mjs
+      - name: Commit local immutable binary models to the development branch
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add opening/assets/v85/
+          if ! git diff --cached --quiet; then
+            git commit -m "assets(parking): pin original CC0 dead tree GLBs and provenance"
+            git push origin HEAD:fix/parking-open-stalls-dead-trees-v85
+          fi
