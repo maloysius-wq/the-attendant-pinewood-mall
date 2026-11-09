@@ -1,6 +1,20 @@
 # Development Handoff: The Attendant: Pinewood Mall
 
 
+## Builder v87 precision placement, independent finishes and 1990s CC0 props (2026-11-09)
+
+[PR #82](https://github.com/maloysius-wq/the-attendant-pinewood-mall/pull/82) upgrades only the standalone World Builder. The main campaign/story and canonical structure remain protected and unchanged. New viewport precision reticle follows pointer or locked screen center. Default `Snap` = 0.5 m with 0.25/0.5/1.0 m real grid options; optional free placement. Default `Allow overlap` is OFF: new props/inspector/gizmo transforms are checked against original wall bounding volumes and actual walkable floor or existing furniture support, rejecting unsupported/wall-clipped items unless the checkbox is enabled. Do not force migrated old drafts through new collision rules on load: old layouts remain valid. Preview wheel rotates **only prop**, Shift+wheel changes depth. Selecting/placing a model no longer initiates unintended camera pointer-lock; asynchronous model loading is tokenized so a stale CRT preview cannot later replace a new selection.
+
+`builder/room-finishes-v87.js` uses room-clipped, zero-collision cosmetic surfaces over the real floor plates, partition interiors and room ceilings. Walls/floors/ceilings are separately selected per room and do NOT share material mutations or paint each other. Works with existing roof cutaway, original atrium, collision, chapter geometry. Original five runtime materials and acoustic ceiling images are reused. Six additional source-authenticated 1K CC0 Poly Haven wall/floor JPGs were pinned at `assets/vendor/builder/finishes/` with SHA-256 in `manifest-v87.json`. Optional v1 `draft.surfaces` persists via the same IndexedDB/save/export/import/undo/redo; old v1 JSON imports without a surfaces map still work.
+
+`assets/vendor/builder/era-catalog-v87.json` registers eight fully local original GLBs: the genuine **MadeByYeshe (CrazyDrPants)** 1990s CRT desktop computer remixed by **TTT/tt-toe** (CC-BY-4.0 with full source/license/attribution in `LICENSES.md`), two CC0 desktop tower computers and five CC0 abandoned-mall debris/refuse/1989 magazines props. All source hashes and license pages are pinned. The Kenney flat-screen LCD model is hidden from new placement choices; old saved instances using that ID are remapped visually to the real CRT. No third-party browser runtime URL is used. Development-only one-time asset-vendoring write-enabled workflows were deleted after pinning source models and materials.
+
+Testing: `scripts/test-builder-v87.mjs` audits SHA/license/source, backwards-compatible finish persistence; `scripts/smoke-builder-v87.mjs` tests actual Chromium preview scroll/camera isolation, reticle, snap intervals, collision default/explicit overlap, independent finish rendering, undo/redo/export/reload. Focused GitHub Action `pinewood-builder-v87.yml`. Initial targeted v87 Chromium run `42695770361` passed including desktop WebGL (`PINEWOOD_BUILDER_V87_DESKTOP_PASS`) and Node/local-asset audits. Existing broader v1 smoke uses explicit overlap opt-in for its historical intentionally arbitrary placement coordinates, rather than weakening the new default. Confirm final PR/CI and GitHub Pages status before calling v87 published.
+
+---
+
+
+
 ## Camera-visible dead-tree relocation (2026-11-09)
 
 Owner observed that the four genuine leafless dead trees were all too far behind the opening camera to be appreciated. PR #81 moves **three existing CC0 models**, without modifying GLBs, into the soil of three original **V64** enlarged licensed mall-front weathered planters at x=-24.7, -17.5, and +3.7 (z≈-18.9; soil y=1.10 m). The original v63 shrub/pot assets, planter count (8), opening sedan, façade, service door, all 196 open-ended marked parking spaces, licensed props and saved Builder draft remain unchanged. One fourth bare tree remains on the outer lot perimeter for wide exploration. No new scenery geometry is authored or fetched.
