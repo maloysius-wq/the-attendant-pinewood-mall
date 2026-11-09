@@ -32,7 +32,7 @@ try{
  assert.equal(await page.evaluate(()=>window.__PINEWOOD_BUILDER__.jumpParkingLot()),true);
  const after=await page.evaluate(()=>window.__PINEWOOD_BUILDER__.getNavigationState());
  assert.ok(after.position.z>0,'jump arrives in the lot, not inside mall');
- assert.equal(summary.builder.catalogCount,503,'all existing selectable CC0 assets remain intact');
+ assert.equal(summary.builder.catalogCount,511,'all existing selectable CC0 assets remain intact');
  assert.deepEqual(remote,[],'no third-party browser asset loads');
  assert.deepEqual(errors,[],'no browser asset/scene errors');
  console.log('PINEWOOD_PARKING_V84_DESKTOP_PASS '+JSON.stringify({
