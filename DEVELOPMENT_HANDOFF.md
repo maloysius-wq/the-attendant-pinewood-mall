@@ -1,6 +1,15 @@
 # Development Handoff: The Attendant: Pinewood Mall
 
 
+## Builder v89: scroll rotates existing selected objects, not the camera (2026-11-09)
+
+Owner reported scrolling still zoomed the camera instead of rotating the **selected object**. Root cause: v87's `editor-scene.js` wheel handler returned immediately unless `placing && ghost`, so it covered only a model's pre-placement preview; selecting a saved or baseline object left the wheel for OrbitControls. v89 intercepts ordinary canvas wheel input whenever an existing prop is selected, dispatches 15-degree yaw changes through the same collision-checked, undoable, IndexedDB-persisted transform pipeline, and serializes rapid wheel gestures to avoid lost rotations. **Shift+wheel** zooms the camera while an existing item is selected; ordinary wheel zoom works when nothing is selected. Preview rotation and Shift+wheel depth are unchanged.
+
+For slow-loading GLB previews, orbit navigation is disabled as soon as loading starts, and wheel turns made during loading are applied to the model once ready. Escape and load errors restore Orbit controls. Explore/Fly navigation also treats a pending preview as a placement interaction. Visual text in the inspector and Builder guide now explains both selected and preview behavior. Focused desktop regression `scripts/smoke-builder-v87.mjs` exercises real wheel input on an existing catalog prop **after** placement, original baseline furniture, multiple rapid turns, persisted transforms, undo/redo, and camera zoom only after deselection; previously missing in the v87 preview-only coverage. Campaign, Chapter scripts, assets, user drafts and runtime library code are unchanged. Check the dedicated Builder v87 workflow and GitHub Pages after merge; do not claim published until Pages succeeds.
+
+---
+
+
 ## Builder v87 precision placement, independent finishes and 1990s CC0 props (2026-11-09)
 
 [PR #82](https://github.com/maloysius-wq/the-attendant-pinewood-mall/pull/82) upgrades only the standalone World Builder. The main campaign/story and canonical structure remain protected and unchanged. New viewport precision reticle follows pointer or locked screen center. Default `Snap` = 0.5 m with 0.25/0.5/1.0 m real grid options; optional free placement. Default `Allow overlap` is OFF: new props/inspector/gizmo transforms are checked against original wall bounding volumes and actual walkable floor or existing furniture support, rejecting unsupported/wall-clipped items unless the checkbox is enabled. Do not force migrated old drafts through new collision rules on load: old layouts remain valid. Preview wheel rotates **only prop**, Shift+wheel changes depth. Selecting/placing a model no longer initiates unintended camera pointer-lock; asynchronous model loading is tokenized so a stale CRT preview cannot later replace a new selection.
