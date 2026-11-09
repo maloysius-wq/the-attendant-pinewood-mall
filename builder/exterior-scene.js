@@ -25,6 +25,9 @@ export async function mountCinematicParkingLot({scene,building}){
   throw Error('Opening cinematic coherent parking lines are missing');
  if(!parkingProps||parkingProps.children.length!==8)
   throw Error('Expected all eight licensed CC0 lot trees and trash receptacles');
+ const deadTrees=parkingProps.children.filter(o=>o.userData.assetId?.startsWith('cc0-dead-tree-'));
+ if(deadTrees.length!==4||deadTrees.some(o=>!o.userData.sourcePath?.startsWith('opening/assets/v85/')))
+  throw Error('Expected four genuinely leafless source-licensed exterior trees');
 
  // This matches the canonical cinematic's one-world handoff: retire only the
  // duplicate front elevation of the canonical mall, never its architecture.
@@ -64,7 +67,8 @@ export async function mountCinematicParkingLot({scene,building}){
   placementSurfaces:surfaces.length,hiddenFrontWalls,
   markedStalls:parkingPaint.userData.markingCounts.stalls,
   paintedSegments:parkingPaint.userData.markingCounts.segments,
-  licensedParkingProps:parkingProps.children.length
+  licensedParkingProps:parkingProps.children.length,
+  leaflessDeadTrees:deadTrees.length
  };
  return {
   state,placementSurfaces:surfaces,
