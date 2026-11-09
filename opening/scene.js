@@ -1,6 +1,8 @@
 import * as THREE from '../vendor/three/build/three.module.js';
 import {upgradeOpeningSceneV37} from './environment-v37.js?v=83-door5';
 import {installMallPlantersV63} from './landscape-v63.js?v=81';
+import {installParkingMarkingsV84} from './parking-markings-v84.js';
+import {installParkingPropsV84} from './parking-props-v84.js';
 import {ENTRY_CODE,keypadCenter} from './keypad-spec-v72.mjs';
 const v=(x,y,z)=>new THREE.Vector3(x,y,z);
 const mat=(color,roughness=.85,metalness=0)=>new THREE.MeshStandardMaterial({color,roughness,metalness});
@@ -67,7 +69,7 @@ export function makeOpeningScene({useImportedLandscape=false,useAbandonedFacade=
  const frontSidewalk=tileBoxUV(box(world,0,-.07,-17.55,103,.22,9.6,sidewalkMaterial),3.4);
  frontSidewalk.name='front_mall_sidewalk';
  box(world,0,.07,-13.75,103,.24,.35,concrete);
- for(let x=-39;x<45;x+=6){const p=box(world,x,.012,13,2.6,.018,.1,mat(0x898779));p.rotation.y=-.1;}
+ const parkingPaint=installParkingMarkingsV84(world);
  // V46: One authoritative door dimension set drives the slab, the wall
  // cutout, the steel jambs, header, reveal and sill. Do not independently
  // resize the frame: it used to leave a glaring ~90mm gap on EACH side.
@@ -212,7 +214,7 @@ export function makeOpeningScene({useImportedLandscape=false,useAbandonedFacade=
  for(let i=0;i<rainCount;i++){positions[i*3]=((i*41.71)%108)-54;positions[i*3+1]=((i*17.23)%13)+.3;positions[i*3+2]=((i*29.31)%55)-11;}
  const geom=new THREE.BufferGeometry();geom.setAttribute('position',new THREE.BufferAttribute(positions,3));
  const rain=new THREE.Points(geom,new THREE.PointsMaterial({color:0x93aec0,size:.055,transparent:true,opacity:.52,depthWrite:false}));world.add(rain);
- const stage={scene,world,pivot,rain,car,retiredInteriorMeshes:useAbandonedFacade?0:1,
+ const stage={scene,world,pivot,rain,car,parkingPaint,retiredInteriorMeshes:useAbandonedFacade?0:1,
    accessPad:{
     status:{pressed:0,entered:'',displayedCode:'',legibleDigits:accessKeys.length,granted:false,progress:0},
     update(progress){
@@ -277,8 +279,14 @@ export function makeOpeningScene({useImportedLandscape=false,useAbandonedFacade=
   return status;
  });
  stage.assetReady=useImportedLandscape
-  ?Promise.all([exteriorReady,installMallPlantersV63(world,{decayed:useAbandonedFacade})]).then(([status,landscape])=>{
-    status.landscape=landscape;return status;
+  ?Promise.all([
+    exteriorReady,
+    installMallPlantersV63(world,{decayed:useAbandonedFacade}),
+    installParkingPropsV84(world)
+   ]).then(([status,landscape,parkingProps])=>{
+    status.landscape=landscape;status.parkingProps={state:parkingProps.state,
+     count:parkingProps.count,sourceIds:parkingProps.sourceIds};
+    return status;
    })
   :exteriorReady;
  return stage;
