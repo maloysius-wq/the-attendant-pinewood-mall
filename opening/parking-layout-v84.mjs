@@ -21,13 +21,13 @@ export const PARKING_LOT_V84=Object.freeze({
  // Back-to-back modules leave 7.4 m, two-way aisles. The central
  // rows are aligned to the sedan and preserve the cinematic approach.
  rows:Object.freeze([
-  Object.freeze({id:'front',z1:-4.5,z2:1.1}),
-  Object.freeze({id:'near-north',z1:8.5,z2:14.1}),
-  Object.freeze({id:'sedan-row',z1:14.1,z2:19.7}),
-  Object.freeze({id:'middle-north',z1:27.1,z2:32.7}),
-  Object.freeze({id:'middle-south',z1:32.7,z2:38.3}),
-  Object.freeze({id:'rear-north',z1:45.7,z2:51.3}),
-  Object.freeze({id:'rear-south',z1:51.3,z2:56.9})
+  Object.freeze({id:'front',z1:-4.5,z2:1.1,openAt:'z1'}),
+  Object.freeze({id:'near-north',z1:8.5,z2:14.1,openAt:'z1'}),
+  Object.freeze({id:'sedan-row',z1:14.1,z2:19.7,openAt:'z2'}),
+  Object.freeze({id:'middle-north',z1:27.1,z2:32.7,openAt:'z1'}),
+  Object.freeze({id:'middle-south',z1:32.7,z2:38.3,openAt:'z2'}),
+  Object.freeze({id:'rear-north',z1:45.7,z2:51.3,openAt:'z1'}),
+  Object.freeze({id:'rear-south',z1:51.3,z2:56.9,openAt:'z2'})
  ]),
  cinematicCar:Object.freeze({x:-10,z:17.5}),
  serviceApproach:Object.freeze({x:12,z:-19.5})
@@ -42,17 +42,25 @@ const add=(kind,x1,z1,x2,z2,width=.12)=>{
   throw Error('Parking marking exceeds actual cinematic asphalt slab');
  lines.push(line(kind,x1,z1,x2,z2,width));
 };
-// Single continuous backlines and repeatable, perpendicular stall separators
-// replace the original tilted, floating-looking single-dash row.
+// Actual open-front 90-degree parking stalls, not enclosed rectangles.
+// Each stall has two longitudinal dividers and only its CLOSED rear line.
+// The drive-in end faces an aisle and deliberately has NO transverse stripe.
+// Back-to-back rows share one rear paint line, not two overlapping strokes.
+const backlineKeys=new Set();
 for(const row of PARKING_LOT_V84.rows){
+ if(!['z1','z2'].includes(row.openAt))throw Error('Parking row must name its open aisle-facing end');
+ const rearZ=row.openAt==='z1'?row.z2:row.z1;
  for(const block of PARKING_LOT_V84.blocks){
   const step=(block.x2-block.x1)/block.spaces;
   for(let j=0;j<=block.spaces;j++){
    const x=block.x1+j*step;
    add('stall',x,row.z1,x,row.z2,.105);
   }
-  add('stall-back',block.x1,row.z1,block.x2,row.z1,.095);
-  add('stall-back',block.x1,row.z2,block.x2,row.z2,.095);
+  const key=[block.x1,block.x2,rearZ].join(':');
+  if(!backlineKeys.has(key)){
+   add('stall-back',block.x1,rearZ,block.x2,rearZ,.095);
+   backlineKeys.add(key);
+  }
  }
 }
 // Dashed two-way circulation lane through the original mall-front apron.
@@ -78,12 +86,13 @@ export const PARKING_MARKING_COUNTS_V84=Object.freeze({
  * No original asset models are designed or generated for this update.
  */
 export const PARKING_PROPS_V84=Object.freeze([
- // Crooked / fallen pines occupy the narrow empty islands and perimeter,
- // away from the sedan, its service-door walking path and the marked stalls.
- Object.freeze({id:'crooked-west',assetId:'kenney-graveyard-kit-pine-crooked',x:-23,z:35.4,targetHeight:5.2,yaw:.28}),
- Object.freeze({id:'crooked-east',assetId:'kenney-graveyard-kit-pine-crooked',x:23,z:35.4,targetHeight:4.6,yaw:-.57}),
- Object.freeze({id:'crooked-back',assetId:'kenney-graveyard-kit-pine-crooked',x:0,z:53.9,targetHeight:4.9,yaw:.44}),
- Object.freeze({id:'fallen-back',assetId:'kenney-graveyard-kit-pine-fall-crooked',x:-52,z:60,targetMaxSpan:5.2,yaw:1.1}),
+ // Genuine source-authored leafless dead trees, not needles, green pines,
+ // foliage recolors, or procedural substitutes. In the landscaped islands
+ // and at the outer edge, far from the licensed sedan/service-door approach.
+ Object.freeze({id:'bare-west',assetId:'cc0-dead-tree-gothic',x:-23,z:35.4,targetHeight:5.7,yaw:.28}),
+ Object.freeze({id:'bare-east',assetId:'cc0-dead-tree-survival',x:23,z:35.4,targetHeight:4.9,yaw:-.57}),
+ Object.freeze({id:'bare-back',assetId:'cc0-dead-tree-gothic',x:0,z:53.9,targetHeight:5.5,yaw:1.5}),
+ Object.freeze({id:'bare-perimeter',assetId:'cc0-dead-tree-survival',x:-52,z:60,targetHeight:4.5,yaw:1.1}),
  // Existing Kenney CC0 trash receptacle, physically sized to ~1 m high.
  Object.freeze({id:'trash-front-west',assetId:'kenney-furniture-kit-trashcan',x:-40,z:-10.65,targetHeight:1.05,yaw:.2}),
  Object.freeze({id:'trash-front-east',assetId:'kenney-furniture-kit-trashcan',x:33,z:-10.65,targetHeight:1.05,yaw:-.14}),

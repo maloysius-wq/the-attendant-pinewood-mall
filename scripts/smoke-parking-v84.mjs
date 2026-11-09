@@ -23,8 +23,9 @@ try{
  assert.equal(summary.exterior.facadeLoaded,true,'same abandoned mall entrance remains loaded');
  assert.equal(summary.exterior.planterCount,8,'all prior licensed planters retained');
  assert.equal(summary.exterior.markedStalls,196,'seven coherent marked rows with 196 spaces');
- assert.ok(summary.exterior.paintedSegments>=280,'complete painted layout is mounted');
+ assert.equal(summary.exterior.paintedSegments,279,'open-front painted stalls and all lane markings are mounted');
  assert.equal(summary.exterior.licensedParkingProps,8,'eight existing CC0 parking decorations loaded');
+ assert.equal(summary.exterior.leaflessDeadTrees,4,'four truly leafless source-licensed CC0 trees loaded');
  assert.equal(summary.exterior.placementSurfaces,2,'walkable lot and sidewalk remain intact');
  assert.equal(windowHasBrokenCanvas(summary),false);
  assert.equal(await page.evaluate(()=>window.__PINEWOOD_BUILDER__.jumpParkingLot()),true);
@@ -37,6 +38,7 @@ try{
   markedStalls:summary.exterior.markedStalls,
   paintedSegments:summary.exterior.paintedSegments,
   licensedProps:summary.exterior.licensedParkingProps,
+  deadTrees:summary.exterior.leaflessDeadTrees,
   existingPlanters:summary.exterior.planterCount
  }));
 }finally{await browser.close()}

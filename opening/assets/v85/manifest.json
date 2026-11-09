@@ -1,0 +1,44 @@
+{
+  "version": 85,
+  "license": "CC0-1.0",
+  "models": [
+    {
+      "id": "cc0-dead-tree-gothic",
+      "path": "opening/assets/v85/dead-tree-gothic.glb",
+      "sha256": "41d6b432268e7bc44a1c2ebfcf06de1340a1f20577ca1ac258c0f7c7179ac618",
+      "bytes": 15764,
+      "sourcePage": "https://3dassets.dev/assets/vampire-crypt-and-gothic-cathedral-dead-tree-0c7883bc",
+      "sourceModel": "https://cdn.3dassets.dev/assets/23051/v1/model.glb",
+      "author": "3DAssets.dev",
+      "description": "Gnarled 5.42-metre leafless dead tree with twelve bare limbs and surface roots",
+      "license": "CC0-1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "upstreamAssetId": 23051,
+      "version": 1,
+      "meshCount": 1,
+      "materials": 1,
+      "images": 1,
+      "original": true,
+      "leafless": true
+    },
+    {
+      "id": "cc0-dead-tree-survival",
+      "path": "opening/assets/v85/dead-tree-survival.glb",
+      "sha256": "26c0b53ba23f740e1e6d2a40582783767ea9e1fb638f3801f8d9d935cee54e8b",
+      "bytes": 15476,
+      "sourcePage": "https://3dassets.dev/assets/wipe-day-survival-island-dead-tree-c66812b4",
+      "sourceModel": "https://cdn.3dassets.dev/assets/27431/v1/model.glb",
+      "author": "3DAssets.dev",
+      "description": "Bare, four-fork 4.48-metre dead tree with no foliage",
+      "license": "CC0-1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "upstreamAssetId": 27431,
+      "version": 1,
+      "meshCount": 1,
+      "materials": 1,
+      "images": 0,
+      "original": true,
+      "leafless": true
+    }
+  ]
+}

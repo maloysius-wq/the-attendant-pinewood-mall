@@ -10,13 +10,19 @@ The actual opening-cinematic asphalt (115 × 88 m) has been repainted into
 **196 perpendicular parking spaces** in seven rows, with consistent 2.75–3.0 m
 stall widths, 5.6 m depths, 7.4 m two-way aisles, a mall-front drive lane,
 and a pedestrian painted crossing aimed at the existing service entrance.
-The original cinematic sedan at x=-10, z=17.5 now sits centered between
-two genuine stall markings. The old random angled dashes were removed.
+**Each space has two side stripes and one rear stripe, with the drive-in end
+unpainted/open.** Back-to-back bays share a single rear stripe. The original
+cinematic sedan at x=-10, z=17.5 remains centered in a parking space.
+The old scattered angled dashes and enclosed rectangular stalls are gone.
 
-Exactly eight exterior decorations were added by **placing existing, locally
-vendored Kenney CC0 GLB assets**, never by making original 3D props:
-three crooked cemetery-kit pines, one fallen crooked pine and four furniture-kit
-trash cans. The existing eight weathered mall planters, sedan, façade and
+Exactly eight exterior decorations use **source-licensed, repository-local
+CC0 GLBs** without any custom prop modelling: four genuinely leafless trees
+(two original Gothic dead-tree instances and two original post-apocalyptic
+dead-tree instances) plus the four existing Kenney furniture-kit trash cans.
+The earlier crooked/fallen *pines* have been removed because they looked too
+lush and stylized for Pinewood's abandoned setting. Both replacement tree
+GLBs are pinned with SHA-256 hashes, original source pages and CC0 license in
+`opening/assets/v85/manifest.json`, with no runtime CDN requests. The existing eight weathered mall planters, sedan, façade and
 lamps are preserved. The same physically placed objects and painted markings
 appear in both the actual opening cinematic and the standalone Builder.
 
@@ -26,8 +32,9 @@ tree, receptacle, or street-sign meshes. Original licensed cinematic props
 remain part of the protected exterior set; new Builder catalog placements
 and your saved draft remain unaffected. See
 `opening/parking-layout-v84.mjs`, `opening/parking-markings-v84.js` and
-`opening/parking-props-v84.js`. Source hashes/licensing are already recorded
-in `assets/vendor/builder/catalog-v1.json`.
+`opening/parking-props-v84.js`. Trash-can source hashes and licensing remain in
+`assets/vendor/builder/catalog-v1.json`; leafless tree provenance is in
+`opening/assets/v85/manifest.json`.
 
 ## Controls
 
