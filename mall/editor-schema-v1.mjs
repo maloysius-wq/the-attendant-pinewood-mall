@@ -95,6 +95,20 @@ export function reduceDraft(draft,action){
   case 'door':
    if(typeof action.open!=='boolean'||typeof id!=='string'||!ID.test(id))throw Error('Invalid door operation');
    next.doors[id]=action.open;break;
+  case 'finishes': {
+   const {roomId,finishes}=action;
+   if(!ROOM_IDS.has(roomId)||!finishes||typeof finishes!=='object')throw Error('Invalid room finishes');
+   if(Object.keys(finishes).some(part=>!ROOM_FINISH_IDS_V87[part]?.has(finishes[part])))
+    throw Error('Unsupported room finish');
+   if(!next.surfaces)next.surfaces={};
+   const selected={...next.surfaces[roomId]};
+   for(const [part,finishId] of Object.entries(finishes)){
+    if(finishId==='original')delete selected[part];else selected[part]=finishId;
+   }
+   if(Object.keys(selected).length)next.surfaces[roomId]=selected;
+   else delete next.surfaces[roomId];
+   break;
+  }
   case 'finish': {
    const {roomId,part,finishId}=action;
    if(!ROOM_IDS.has(roomId)||!ROOM_FINISH_IDS_V87[part]?.has(finishId))
