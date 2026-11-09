@@ -119,7 +119,11 @@ try{
    next.position.y-before.position.y,next.position.z-before.position.z)>.005;
  },freeCamera,{timeout:10000});
  await page.evaluate(()=>window.__PINEWOOD_BUILDER__.clearDraft());
- await page.locator('#allow-clipping').uncheck();
+ // The 3D canvas may hold pointer capture during Playwright's stability
+ // polling. Dispatch this unrelated checkbox action directly, as in v1 CI.
+ await page.evaluate(()=>{const input=document.getElementById('allow-clipping');
+  input.checked=false;input.dispatchEvent(new Event('change',{bubbles:true}));});
+ assert.equal((await state()).placementOptions.allowClipping,false);
 
  // Distinct room finishes must appear in THREE scene and survive undo and reload.
  await page.locator('#finish-room').selectOption('security');
