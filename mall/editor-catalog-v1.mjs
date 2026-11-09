@@ -37,7 +37,10 @@ export function registerVendorCatalog(models){
  for(const entry of models){
   if(!entry||!/^[a-z0-9_-]+$/.test(entry.id)||
    !/^assets\/vendor\/builder\/models\/[a-z0-9_/-]+\.glb$/.test(entry.path)||
-   entry.license!=='CC0-1.0'||!/^[a-f0-9]{64}$/.test(entry.sha256)||
+   !(entry.license==='CC0-1.0'||(entry.id==='retro-crt-pc-1990s'&&
+    entry.license==='CC-BY-4.0'&&entry.originalAuthor==='MadeByYeshe (CrazyDrPants)'&&
+    /^https:\/\/crazydrpants\.itch\.io\//.test(entry.originalSource||'')))||
+   !/^[a-f0-9]{64}$/.test(entry.sha256)||
    !(entry.targetHeight>0)||!(entry.radius>0)||
    /cassetteShelfLarge|cassetteShelfSmall|ShelfLarge|ShelfSmall|Shelf%20Large|Shelf%20Small/i.test(entry.id+' '+entry.path))
    throw Error('Unpinned/unsafe Builder asset '+(entry?.id||'?'));
