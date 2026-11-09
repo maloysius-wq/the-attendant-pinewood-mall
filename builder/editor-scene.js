@@ -38,7 +38,7 @@ export async function createBuilderScene({scene,camera,domElement,onSelect=()=>{
  const transform=new TransformControls(camera,domElement);
  scene.add(transform.getHelper());
  transform.setMode('translate');
- let selected=null,ghost=null,placing=null,depth=9,blocked=false,orbitBeforePlacement=null;
+ let selected=null,ghost=null,placing=null,depth=9,blocked=false,orbitBeforePlacement=null,placementGeneration=0;
  let snapSize=.5,allowClipping=false,ghostValid=true,ghostReason='';
  const grid=new THREE.GridHelper(200,400,0x8ba198,0x455a58);
  grid.position.y=.018;grid.material.transparent=true;grid.material.opacity=.19;
@@ -211,9 +211,12 @@ export async function createBuilderScene({scene,camera,domElement,onSelect=()=>{
   document.getElementById('aim-reticle')?.classList.toggle('invalid',!valid);
  }
  async function beginPlacement(catalogId){
+  const generation=++placementGeneration;
   if(ghost){ghost.removeFromParent();ghost=null}
-  placing=catalogId;depth=9;
-  ghost=await template(catalogId);
+  placing=null;depth=9;
+  const nextGhost=await template(catalogId);
+  if(generation!==placementGeneration)return false; // stale async model load
+  ghost=nextGhost;placing=catalogId;
   if(orbit && orbitBeforePlacement===null){
    orbitBeforePlacement={enabled:orbit.enabled,zoom:orbit.enableZoom,rotate:orbit.enableRotate,pan:orbit.enablePan};
    orbit.enabled=false;orbit.enableZoom=false;orbit.enableRotate=false;orbit.enablePan=false;
@@ -229,6 +232,7 @@ export async function createBuilderScene({scene,camera,domElement,onSelect=()=>{
   building.group.add(ghost);
  }
  function stopPlacement(){
+  placementGeneration++;
   placing=null;
   if(ghost){ghost.removeFromParent();ghost=null}
   if(orbit && orbitBeforePlacement!==null){
