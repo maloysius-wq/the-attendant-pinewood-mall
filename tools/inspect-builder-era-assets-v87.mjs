@@ -1,7 +1,7 @@
 // Development-time discovery only, no remote browser-runtime requests.
 const queries=['crt','retro computer','vintage computer','computer','desktop tower',
  'old computer','rubble','trash pile','debris','garbage','broken tiles','broken glass','trash bags'];
-for(const q of queries){
+for(const q of [...queries,'crt computer monitor','old desktop monitor','1990s monitor','retro pc','classic computer','computer 1995','office terminal','horizontal computer','beige desktop','computer monitor vintage']){
  const url='https://3dassets.dev/api/v1/assets?q='+encodeURIComponent(q)+'&limit=25';
  const response=await fetch(url,{signal:AbortSignal.timeout(25000)});
  if(!response.ok){console.log('PINEWOOD_ASSET_SEARCH_ERROR',q,response.status);continue;}
