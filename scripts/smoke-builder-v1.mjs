@@ -62,6 +62,12 @@ try{
  assert.equal(await page.locator('#jump-room option[value="__parking_lot__"]').count(),1,
   'parking is a discoverable jump destination');
  assert.equal(await page.evaluate(()=>window.__PINEWOOD_BUILDER__.jumpParkingLot()),true);
+ // Historical editing smoke tests deliberately use arbitrary positions to
+ // check save/undo/navigation rather than grounded safety. Explicitly enable
+ // the new supported opt-in; v87 desktop smoke separately verifies that the
+ // DEFAULT (unchecked) blocks unsupported placements and wall penetration.
+ assert.equal(await page.locator('#allow-clipping').isChecked(),false);
+ await page.locator('#allow-clipping').check();
  assert.ok((await get()).navigation.position.z>0,'jump arrives at the outdoor parking area');
  const parkProp=await page.evaluate(()=>window.__PINEWOOD_BUILDER__.getCatalog().find(x=>x.id==='silted-octagonal-atrium-fountain'));
  await page.locator('.catalog-item').filter({hasText:parkProp.label}).first().click();
