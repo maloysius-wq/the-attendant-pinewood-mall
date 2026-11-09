@@ -91,6 +91,7 @@ try{
  await page.mouse.wheel(0,-120);
  await page.mouse.wheel(0,-120);
  await page.waitForFunction(()=>Math.abs(window.__PINEWOOD_BUILDER__.getState().draft.added[0].rotation.y-3*Math.PI/12)<.001);
+ await page.evaluate(()=>window.__PINEWOOD_BUILDER__.waitForWheelEdits());
  assert.equal((await state()).draft.added[0].rotation.y,Math.PI/4,
   'three rapid wheel steps are serialized rather than lost during autosave');
  await page.evaluate(()=>window.__PINEWOOD_BUILDER__.undo());
