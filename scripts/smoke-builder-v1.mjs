@@ -17,6 +17,14 @@ try{
   return api&&(api.ready||api.getState().errors.length>0);
  },null,{timeout:90000});
  const get=()=>page.evaluate(()=>window.__PINEWOOD_BUILDER__.getState());
+ // The full WebGL scene can keep pointer capture during Playwright's
+ // post-click stability polling. Exercise toolbar DOM handlers directly;
+ // the dedicated v87 smoke covers real mouse wheel and preview behavior.
+ const clickToolbar=id=>page.evaluate(id=>document.getElementById(id).click(),id);
+ const checkToolbar=(id,checked)=>page.evaluate(([id,checked])=>{
+  const element=document.getElementById(id);element.checked=checked;
+  element.dispatchEvent(new Event('change',{bubbles:true}));
+ },[id,checked]);
  const initial=await get();
  assert.equal(initial.ready,true,JSON.stringify(initial.errors));
  assert.equal(initial.roomCount,41);
@@ -44,14 +52,14 @@ try{
  const roofOn=await page.evaluate(()=>window.__PINEWOOD_BUILDER__.getRoofState());
  assert.deepEqual(roofOn,{roofVisible:true,ceilingsVisible:true,atriumSkylightPresent:true},
   'real mall roof, room ceilings, and central atrium glazing exist in the world');
- await page.locator('#roof').uncheck();
+ await checkToolbar('roof',false);
  const roofOff=await page.evaluate(()=>window.__PINEWOOD_BUILDER__.getRoofState());
  assert.equal(roofOff.roofVisible,false,'cutaway toggle hides roof for editing');
  assert.equal(roofOff.ceilingsVisible,false,'cutaway toggle hides room ceilings for editing');
- await page.locator('#roof').check();
+ await checkToolbar('roof',true);
  assert.deepEqual(await page.evaluate(()=>window.__PINEWOOD_BUILDER__.getRoofState()),roofOn,
   'switch restores the roof and atrium skylight');
- await page.locator('#roof').uncheck(); // Keep the existing editing smoke in cutaway mode.
+ await checkToolbar('roof',false); // Keep the existing editing smoke in cutaway mode.
  // The exterior is the same fully loaded cinematic set, in the SAME editable 3D world.
  const outside=await page.evaluate(()=>window.__PINEWOOD_BUILDER__.getExteriorState());
  assert.equal(outside.ready,true,'cinematic exterior is mounted in the Builder');
@@ -67,7 +75,7 @@ try{
  // the new supported opt-in; v87 desktop smoke separately verifies that the
  // DEFAULT (unchecked) blocks unsupported placements and wall penetration.
  assert.equal(await page.locator('#allow-clipping').isChecked(),false);
- await page.locator('#allow-clipping').check();
+ await checkToolbar('allow-clipping',true);
  assert.ok((await get()).navigation.position.z>0,'jump arrives at the outdoor parking area');
  const parkProp=await page.evaluate(()=>window.__PINEWOOD_BUILDER__.getCatalog().find(x=>x.id==='silted-octagonal-atrium-fountain'));
  await page.locator('.catalog-item').filter({hasText:parkProp.label}).first().click();
@@ -84,12 +92,12 @@ try{
  assert.equal(await page.locator('#work-lights').count(),1,'work-light switch is available');
  const dark=await page.evaluate(()=>window.__PINEWOOD_BUILDER__.getLightingState());
  assert.equal(dark.enabled,false);
- await page.locator('#work-lights').check();
+ await checkToolbar('work-lights',true);
  const lit=await page.evaluate(()=>window.__PINEWOOD_BUILDER__.getLightingState());
  assert.equal(lit.enabled,true);
  assert.ok(lit.fillIntensity>=1&&lit.fillIntensity<=1.5&&lit.exposure>dark.exposure&&lit.fogDensity<dark.fogDensity,
   'switch adds bright but color-preserving fill, not merely a visual label');
- await page.locator('#work-lights').uncheck();
+ await checkToolbar('work-lights',false);
  assert.deepEqual(await page.evaluate(()=>window.__PINEWOOD_BUILDER__.getLightingState()),dark,
   'switch off restores original fog, exposure and fill lighting');
  // Existing licensed furniture, not walls or cinematic props, is editable.
@@ -100,11 +108,11 @@ try{
  await page.locator('#pos-x').fill('-38.2');
  await page.locator('#pos-x').dispatchEvent('change');
  assert.equal((await get()).draft.overrides.cassette_stool.position.x,-38.2);
- await page.locator('#delete-selected').click();
+ await clickToolbar('delete-selected');
  assert.ok((await get()).draft.deleted.includes('cassette_stool'));
- await page.locator('#undo').click();
+ await clickToolbar('undo');
  assert.ok(!(await get()).draft.deleted.includes('cassette_stool'));
- await page.locator('#redo').click();
+ await clickToolbar('redo');
  assert.ok((await get()).draft.deleted.includes('cassette_stool'));
  // Render one actual catalog GLB and ensure export/import is reversible.
  await page.evaluate(async()=>{
@@ -156,9 +164,9 @@ try{
  assert.ok(Math.abs(rotatedRight.rotation.y+Math.PI/12)<.001,'scroll down rotates right; Shift+wheel adjusts distance without changing rotation');
  await page.evaluate(()=>window.__PINEWOOD_BUILDER__.clearDraft());
  // Navigation is editor-only. The chapter/story game stays untouched.
- await page.evaluate(()=>document.getElementById('explore-mode').click());
+ await clickToolbar('explore-mode');
  assert.equal((await get()).navigation.mode,'walk');
- await page.evaluate(()=>document.getElementById('fly-toggle').click());
+ await clickToolbar('fly-toggle');
  assert.equal((await get()).navigation.mode,'fly');
  await page.evaluate(()=>window.__PINEWOOD_BUILDER__.jumpRoom('roster_records'));
  assert.equal((await get()).navigation.floor,'M1');
@@ -166,11 +174,11 @@ try{
  assert.equal((await get()).draft.doors.service_entry,true);
  await page.keyboard.press('f'); // Real fly/gravity shortcut avoids Playwright pointer-lock toolbar flake.
  assert.equal((await get()).navigation.mode,'walk');
- await page.evaluate(()=>document.getElementById('explore-mode').click());
+ await clickToolbar('explore-mode');
  assert.equal((await get()).navigation.mode,'orbit');
  // After the navigation checks, verify real Fly-mode click placement.
- await page.evaluate(()=>document.getElementById('explore-mode').click());
- await page.evaluate(()=>document.getElementById('fly-toggle').click());
+ await clickToolbar('explore-mode');
+ await clickToolbar('fly-toggle');
  assert.equal((await get()).navigation.mode,'fly');
  // The editor must still accept left-click placement while flying.
  const flyProp=await page.evaluate(()=>window.__PINEWOOD_BUILDER__.getCatalog().find(x=>x.id==='silted-octagonal-atrium-fountain'));
