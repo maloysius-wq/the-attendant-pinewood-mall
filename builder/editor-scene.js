@@ -40,6 +40,10 @@ export async function createBuilderScene({scene,camera,domElement,onSelect=()=>{
  transform.setMode('translate');
  let selected=null,ghost=null,placing=null,depth=9,blocked=false,orbitBeforePlacement=null,placementGeneration=0;
  let snapSize=.5,allowClipping=false,ghostValid=true,ghostReason='';
+ let previewPending=false,pendingPreviewYaw=0;
+ // Serialize selected-object wheel edits so rapid wheel events cannot overwrite
+ // each other while a layout change and IndexedDB autosave are still running.
+ let wheelTransforms=Promise.resolve();
  const grid=new THREE.GridHelper(200,400,0x8ba198,0x455a58);
  grid.position.y=.018;grid.material.transparent=true;grid.material.opacity=.19;
  grid.name='Builder-only placement grid';grid.visible=true;grid.raycast=()=>{};
@@ -214,27 +218,37 @@ export async function createBuilderScene({scene,camera,domElement,onSelect=()=>{
  async function beginPlacement(catalogId){
   const generation=++placementGeneration;
   if(ghost){ghost.removeFromParent();ghost=null}
-  placing=null;depth=9;
-  const nextGhost=await template(catalogId);
-  if(generation!==placementGeneration)return false; // stale async model load
-  ghost=nextGhost;placing=catalogId;
+  placing=null;previewPending=true;pendingPreviewYaw=0;depth=9;
+  // The catalog model is loaded asynchronously. Disable orbit immediately:
+  // a wheel turn during this interval must not accidentally zoom the camera.
   if(orbit && orbitBeforePlacement===null){
    orbitBeforePlacement={enabled:orbit.enabled,zoom:orbit.enableZoom,rotate:orbit.enableRotate,pan:orbit.enablePan};
    orbit.enabled=false;orbit.enableZoom=false;orbit.enableRotate=false;orbit.enablePan=false;
   }
-  ghost.name='preview placement';
-  ghost.traverse(o=>{if(!o.isMesh)return;
-   const ghostMaterial=m=>{
-    const clone=m.clone();clone.transparent=true;clone.opacity=.45;clone.depthWrite=false;
-    return clone;
-   };
-   o.material=Array.isArray(o.material)?o.material.map(ghostMaterial):ghostMaterial(o.material);
-  });
-  building.group.add(ghost);
+  try{
+   const nextGhost=await template(catalogId);
+   if(generation!==placementGeneration)return false; // stale async model load
+   ghost=nextGhost;placing=catalogId;previewPending=false;
+   ghost.rotation.y=pendingPreviewYaw;
+   ghost.name='preview placement';
+   ghost.traverse(o=>{if(!o.isMesh)return;
+    const ghostMaterial=m=>{
+     const clone=m.clone();clone.transparent=true;clone.opacity=.45;clone.depthWrite=false;
+     return clone;
+    };
+    o.material=Array.isArray(o.material)?o.material.map(ghostMaterial):ghostMaterial(o.material);
+   });
+   building.group.add(ghost);
+   refreshPlacement();
+   return true;
+  }catch(error){
+   if(generation===placementGeneration)stopPlacement();
+   throw error;
+  }
  }
  function stopPlacement(){
   placementGeneration++;
-  placing=null;
+  placing=null;previewPending=false;pendingPreviewYaw=0;
   if(ghost){ghost.removeFromParent();ghost=null}
   if(orbit && orbitBeforePlacement!==null){
    orbit.enabled=orbitBeforePlacement.enabled;orbit.enableZoom=orbitBeforePlacement.zoom;
@@ -255,6 +269,8 @@ export async function createBuilderScene({scene,camera,domElement,onSelect=()=>{
  }
  async function pointerDown(e){
   if(e.button!==0||transform.dragging||!canEdit())return;
+  // Do not allow a click to enter camera look while an asset preview loads.
+  if(previewPending){e.stopImmediatePropagation();return;}
   setPointer(e);
   if(placing){
    // Suppress the later navigation left-click pointer-lock handler. It
@@ -285,12 +301,31 @@ export async function createBuilderScene({scene,camera,domElement,onSelect=()=>{
   currentPlacement();
  }
  function onWheel(e){
-  if(!placing||!ghost)return;
+  // New-model preview, including its async loading window: wheel rotates
+  // the prop; Shift+wheel changes distance. Neither should zoom the camera.
+  if(placing||previewPending){
+   e.preventDefault();e.stopImmediatePropagation();
+   if(!e.deltaY)return;
+   if(e.shiftKey)depth=Math.min(120,Math.max(.75,depth+Math.sign(e.deltaY)));
+   else if(ghost)ghost.rotation.y-=Math.sign(e.deltaY)*Math.PI/12;
+   else pendingPreviewYaw-=Math.sign(e.deltaY)*Math.PI/12;
+   if(ghost)currentPlacement();
+   return;
+  }
+  // Existing/just-placed selected props also rotate with the normal wheel.
+  // Shift+wheel deliberately keeps camera zoom available while selected.
+  if(!selected||e.shiftKey||!canEdit())return;
   e.preventDefault();e.stopImmediatePropagation();
-  if(!e.deltaY)return;
-  if(e.shiftKey)depth=Math.min(120,Math.max(.75,depth+Math.sign(e.deltaY)));
-  else ghost.rotation.y-=Math.sign(e.deltaY)*Math.PI/12;
-  currentPlacement();
+  if(!e.deltaY||transform.dragging)return;
+  const id=selected,turn=-Math.sign(e.deltaY)*Math.PI/12;
+  wheelTransforms=wheelTransforms.catch(()=>{}).then(async()=>{
+   if(selected!==id||!objects.get(id)?.visible)return;
+   const next=pose(objects.get(id));
+   next.rotation.y+=turn;
+   // Reuse the normal change/validation/save pipeline, including undo/redo,
+   // collision protection and the selected item's inspector fields.
+   await onTransform(id,next);
+  }).catch(error=>console.error('Builder wheel rotation failed',error));
  }
  transform.addEventListener('dragging-changed',e=>{blocked=e.value;if(orbit)orbit.enabled=!blocked;});
  transform.addEventListener('objectChange',()=>{
@@ -306,6 +341,7 @@ export async function createBuilderScene({scene,camera,domElement,onSelect=()=>{
  return {
   building,objects,select,applyDraft,beginPlacement,stopPlacement,setTransformMode,refreshPlacement,
   get placing(){return !!placing},
+  get placementPending(){return previewPending},
   get isGizmoActive(){return !!transform.axis||transform.dragging},
   get placementValidity(){return {valid:ghostValid,reason:ghostReason}},
   get placementPosition(){return ghost?vector(ghost.position):null},
