@@ -75,7 +75,8 @@ const API={
  }):null,
  getLightingState:()=>workLighting?.getState(),
  getExteriorState:()=>exterior?.state,
- getPlacementState:()=>({placing:editor?.placing||false,...(editor?.placementValidity||{}),
+ getPlacementState:()=>({placing:editor?.placing||false,
+  loading:editor?.placementPending||false,...(editor?.placementValidity||{}),
   position:editor?.placementPosition||null,rotation:editor?.placementRotation||null,
   pointerLocked:document.pointerLockElement===renderer?.domElement,
   ...status.placementOptions}),
@@ -105,6 +106,7 @@ function writeInspector(id,p){
   (surface==='color-only'?' · Original model uses solid colors, no image maps':surface==='image-mapped'?' · Original model includes embedded image maps':''):'Choose an existing fixture or place something from the catalog.';
  $('transform-fields').hidden=!id;
  if(!id||!p){refreshOutliner();return}
+ $('placement-tip').textContent='Selected '+labels(id)+' · Wheel rotates 15° · Shift+wheel zooms camera · Drag handles for precise placement';
  for(const k of ['x','y','z']){
   $('pos-'+k).value=round(p.position[k]);
   $('rot-'+k).value=round(THREE.MathUtils.radToDeg(p.rotation[k]));
@@ -157,7 +159,10 @@ function populateCatalog(){
    const plus=document.createElement('span');plus.className='plus';plus.textContent='＋';b.append(t,plus);
    b.title='Preview '+item.label+' in the world'+(item.materialStyle==='color-only'?' · This source model uses material colors, not image texture maps':item.materialStyle==='image-mapped'?' · Includes embedded image maps':'');
    b.addEventListener('click',async()=>{
-    try{await editor.beginPlacement(item.id);
+    try{
+     $('placement-tip').textContent='Loading '+item.label+' · Wheel will rotate the preview';
+     await editor.beginPlacement(item.id);
+     if(!editor.placing)return; // superseded by another selection
      $('placement-tip').textContent='PLACE '+item.label.toUpperCase()+' · Move mouse to position · Wheel rotate · Shift+wheel distance · Click to place · Esc to cancel'+(item.materialStyle==='color-only'?' · Source uses solid colors, no image textures':'');
     }catch(e){report(e)}
    });parent.append(b);
@@ -242,7 +247,7 @@ async function place(catalogId,position,id,rotation={x:0,y:0,z:0}){
   rotation:{x:rotation.x,y:rotation.y,z:rotation.z},scale:1};
  await commit({type:'place',instance});
  editor.select(instance.id);
- $('placement-tip').textContent='Placed '+EDITOR_CATALOG_BY_ID.get(catalogId).label+' · Adjust with handles or inspector.';
+ $('placement-tip').textContent='Placed '+EDITOR_CATALOG_BY_ID.get(catalogId).label+' · Wheel rotates 15° · Shift+wheel zooms camera';
  return instance.id;
 }
 async function removeSelected(){
@@ -487,7 +492,7 @@ async function begin(){
   editor.addPlacementSurfaces(exterior.placementSurfaces);
   $('loading').querySelector('progress').value=58;
   navigation=createEditorNavigation({camera,orbit,domElement:renderer.domElement,scene,shells:editor.building.shells,
-   isPlacing:()=>editor?.placing||false,
+   isPlacing:()=>editor?.placing||editor?.placementPending||false,
    isGizmoActive:()=>editor?.isGizmoActive||false,
    onChange:next=>{status.navigation=next;syncNavigationControls()},
    onDoorChange:(id,open)=>setDoorOpen(id,open).catch(report)});
