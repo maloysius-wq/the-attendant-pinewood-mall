@@ -169,6 +169,12 @@ export async function createBuilderScene({scene,camera,domElement,onSelect=()=>{
    return {valid:false,reason:'No continuous floor support. Use Allow overlap for unsupported placements.'};
   return {valid:true,reason:''};
  }
+ async function validateNewPlacement(catalogId,position,rotation={x:0,y:0,z:0}){
+  if(allowClipping)return {valid:true,reason:''};
+  const obj=await template(catalogId);
+  applyPose(obj,{position,rotation,scale:1});
+  return checkBounds(new THREE.Box3().setFromObject(obj));
+ }
  function validatePose(id,p){
   const obj=objects.get(id);if(!obj)return {valid:false,reason:'Unknown selected object'};
   const before=pose(obj);applyPose(obj,p);
@@ -275,7 +281,7 @@ export async function createBuilderScene({scene,camera,domElement,onSelect=()=>{
   building,objects,select,applyDraft,beginPlacement,stopPlacement,setTransformMode,refreshPlacement,
   get placing(){return !!placing},get placementValidity(){return {valid:ghostValid,reason:ghostReason}},
   get placementPosition(){return ghost?vector(ghost.position):null},
-  validatePose,validateBounds:box=>checkBounds(box),
+  validatePose,validateNewPlacement,validateBounds:box=>checkBounds(box),
   setPlacementOptions:({gridSize=snapSize,overlap=allowClipping}={})=>{
    if(![0,.25,.5,1].includes(gridSize))throw Error('Invalid grid size');
    snapSize=gridSize;allowClipping=!!overlap;
