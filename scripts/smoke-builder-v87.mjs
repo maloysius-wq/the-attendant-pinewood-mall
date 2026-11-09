@@ -77,8 +77,53 @@ try{
  assert.equal((await state()).placementOptions.allowClipping,true);
  await page.evaluate(pos=>window.__PINEWOOD_BUILDER__.place('kenney-food-kit-can',pos,'ci-allowed'),outsidePosition);
  assert.equal((await state()).draft.added.length,1,'overlap explicitly allows out-of-bounds props');
+
+ // Regression for the reported bug: after a prop is PLACED and SELECTED,
+ // ordinary wheel steps rotate that existing prop without camera zoom.
+ // Previous v87 coverage only tested the ghost/preview before placement.
+ assert.equal((await state()).selected,'ci-allowed');
+ await page.mouse.move(rect.x+rect.width*.55,rect.y+rect.height*.55);
+ const cameraBeforeSelectedWheel=await page.evaluate(()=>window.__PINEWOOD_BUILDER__.getCameraPose());
+ await page.mouse.wheel(0,-120);
+ await page.waitForFunction(()=>Math.abs(window.__PINEWOOD_BUILDER__.getState().draft.added[0].rotation.y-Math.PI/12)<.001);
+ assert.deepEqual(await page.evaluate(()=>window.__PINEWOOD_BUILDER__.getCameraPose()),
+  cameraBeforeSelectedWheel,'selected-item wheel must not zoom or move the observer');
+ await page.mouse.wheel(0,-120);
+ await page.mouse.wheel(0,-120);
+ await page.waitForFunction(()=>Math.abs(window.__PINEWOOD_BUILDER__.getState().draft.added[0].rotation.y-3*Math.PI/12)<.001);
+ await page.evaluate(()=>window.__PINEWOOD_BUILDER__.waitForWheelEdits());
+ assert.equal((await state()).draft.added[0].rotation.y,Math.PI/4,
+  'three rapid wheel steps are serialized rather than lost during autosave');
+ await page.evaluate(()=>window.__PINEWOOD_BUILDER__.undo());
+ assert.ok(Math.abs((await state()).draft.added[0].rotation.y-Math.PI/6)<.001,
+  'selected wheel rotation is undoable');
+ await page.evaluate(()=>window.__PINEWOOD_BUILDER__.redo());
+ assert.ok(Math.abs((await state()).draft.added[0].rotation.y-Math.PI/4)<.001,
+  'selected wheel rotation is redoable');
+ // Existing baseline furniture uses the SAME wheel behavior and persists
+ // its rotation as a reversible original-fixture override.
+ await page.evaluate(()=>window.__PINEWOOD_BUILDER__.select('cassette_stool'));
+ const baselineYaw=Number(await page.locator('#rot-y').inputValue());
+ await page.mouse.wheel(0,-120);
+ await page.waitForFunction(previous=>
+  Math.abs(Number(document.getElementById('rot-y').value)-previous-15)<.1,
+  baselineYaw,{timeout:15000});
+ assert.ok((await state()).draft.overrides.cassette_stool?.rotation,
+  'selected original fixtures rotate and persist an override');
+ await page.evaluate(()=>window.__PINEWOOD_BUILDER__.select(null));
+ const freeCamera=await page.evaluate(()=>window.__PINEWOOD_BUILDER__.getCameraPose());
+ await page.mouse.wheel(0,120);
+ await page.waitForFunction(before=>{
+  const next=window.__PINEWOOD_BUILDER__.getCameraPose();
+  return Math.hypot(next.position.x-before.position.x,
+   next.position.y-before.position.y,next.position.z-before.position.z)>.005;
+ },freeCamera,{timeout:10000});
  await page.evaluate(()=>window.__PINEWOOD_BUILDER__.clearDraft());
- await page.locator('#allow-clipping').uncheck();
+ // The 3D canvas may hold pointer capture during Playwright's stability
+ // polling. Dispatch this unrelated checkbox action directly, as in v1 CI.
+ await page.evaluate(()=>{const input=document.getElementById('allow-clipping');
+  input.checked=false;input.dispatchEvent(new Event('change',{bubbles:true}));});
+ assert.equal((await state()).placementOptions.allowClipping,false);
 
  // Distinct room finishes must appear in THREE scene and survive undo and reload.
  await page.locator('#finish-room').selectOption('security');

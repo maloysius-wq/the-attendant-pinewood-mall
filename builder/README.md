@@ -49,7 +49,7 @@ and your saved draft remain unaffected. See
 
 ## Precision editing and 1990s materials (v87)
 
-The viewport now shows a pointer-tracking **reticle**, switching to screen-center while Explore/Fly pointer-lock is active. Click a catalog item to load its preview; preview loading must complete before placing is enabled. The wheel rotates **only the preview object** by 15° per notch (Shift+wheel changes preview depth), not the camera; clicking a placement or an already-selected fixture cannot unexpectedly capture the cursor and flip the view.
+The viewport shows a pointer-tracking **reticle**, switching to screen-center while Explore/Fly pointer-lock is active. Click a catalog item to load its preview; preview loading must complete before placing is enabled. Scrolling while a new prop preview is loading or visible rotates **the preview object** by 15° per notch (Shift+wheel changes preview depth), never the camera. After placing or selecting an existing prop, the ordinary wheel also rotates that selected prop by 15° per notch (Shift+wheel zooms the camera instead). With nothing selected, the wheel zooms the camera normally. Clicking a placement or an already-selected fixture cannot unexpectedly capture the cursor and flip the view.
 
 The checked **Snap** option quantizes object placement and transform gizmo moves to a visible grid. Choose **0.25 m / 0.5 m / 1 m** steps or uncheck Snap for free placement. The grid follows the active support surface including other elevations. The unchecked **Allow overlap** option means new placements and edits are checked against real mall walls and floor support; items overlapping architecture, entering floor holes, or hovering without support cannot be confirmed by default. Check **Allow overlap** when intentionally placing objects through surfaces or making theatrical set dressings. Existing saved placements are preserved without migration or deletion. Placing computers on desks uses the licensed furniture's existing top surface as support.
 
@@ -61,13 +61,13 @@ The catalog now includes the [MadeByYeshe / TTT CC-BY 4.0](../LICENSES.md) **199
 
 | Action | Control |
 | --- | --- |
-| Orbit / pan / zoom | Left drag / right drag / mouse wheel |
+| Orbit / pan / zoom | Left drag / right drag / mouse wheel with no selection; Shift+wheel zooms with an existing object selected |
 | Search models | Search and filter by category or condition in the left panel |
 | Work lights | Toggle **Work lights** near the roof controls for a brighter decorating view with reduced fog, gently increased exposure and calibrated neutral fill. The calibrated mode preserves the browns and grays of authored furniture instead of bleaching solid-color benches and shelves nearly white. Uncheck to restore the exact atmospheric original. This never changes the playable game or exported layouts. |
 | Atrium skylight / roof cutaway | **Roof / ceilings** starts checked: the central glass skylight and ground-floor ceilings are visible when the Builder opens. Uncheck it for unobstructed top-down furnishing; check it to review the enclosed mall again. This switch affects only the editor view, not the exported layout or chapter game. |
 | Add a model | Choose a prop; aim in Orbit or Explore/Fly (screen center when mouse-look is locked); wheel up turns left, down turns right in 15° steps; Shift+wheel moves near/far; left click places with that rotation |
 | Select an existing prop | Click it in the scene or the scene outliner |
-| Move / rotate / scale | Top toolbar, gizmo, or exact Inspector values; shortcuts 1 / 2 / 3 |
+| Move / rotate / scale | Top toolbar, gizmo, or exact Inspector values; shortcuts 1 / 2 / 3. With an existing object selected, wheel rotates it 15° and saves the edit (undo/redo supported) |
 | Duplicate / remove | Inspector; Delete removes selected |
 | Undo / redo | Toolbar or Ctrl+Z / Ctrl+Y |
 | Walk | Explore, WASD and mouse |
