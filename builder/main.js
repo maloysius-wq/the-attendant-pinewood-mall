@@ -76,7 +76,13 @@ const API={
  getLightingState:()=>workLighting?.getState(),
  getExteriorState:()=>exterior?.state,
  getPlacementState:()=>({placing:editor?.placing||false,...(editor?.placementValidity||{}),
-  position:editor?.placementPosition||null,...status.placementOptions}),
+  position:editor?.placementPosition||null,rotation:editor?.placementRotation||null,
+  pointerLocked:document.pointerLockElement===renderer?.domElement,
+  ...status.placementOptions}),
+ getCameraPose:()=>camera?({
+  position:{x:camera.position.x,y:camera.position.y,z:camera.position.z},
+  rotation:{x:camera.rotation.x,y:camera.rotation.y,z:camera.rotation.z}
+ }):null,
  setPlacementOptions:options=>setPlacementOptions(options),
  getRoomFinishCounts:()=>roomFinishes?.getCounts(),
  getRoomFinishes:()=>clone(status.draft.surfaces||{}),
