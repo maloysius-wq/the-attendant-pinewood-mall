@@ -225,6 +225,9 @@ export async function createBuilderScene({scene,camera,domElement,onSelect=()=>{
   if(e.button!==0||transform.dragging||!canEdit())return;
   setPointer(e);
   if(placing){
+   // Suppress the later navigation left-click pointer-lock handler. It
+   // used to swivel the entire camera as a placed prop was confirmed.
+   e.stopImmediatePropagation();
    const position=currentPlacement();
    if(!ghostValid){
     document.getElementById('placement-tip').textContent=ghostReason;
@@ -239,7 +242,7 @@ export async function createBuilderScene({scene,camera,domElement,onSelect=()=>{
   const hits=raycaster.intersectObjects([...objects.values()],true);
   for(const h of hits){
    const o=findObject(h.object);
-   if(o){select(o.userData.editorId);return;}
+   if(o){e.stopImmediatePropagation();select(o.userData.editorId);return;}
   }
  }
  function pointerMove(e){if(!placing)return;setPointer(e);currentPlacement();}
