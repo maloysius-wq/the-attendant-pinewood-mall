@@ -26,7 +26,7 @@ test('starter catalog offers pinned CC0 GLB models, excluding banned shelves',()
 
 test('createEmptyDraft gives a deterministic, v69-based portable layout',()=>{
  assert.deepEqual(createEmptyDraft(),{
-  version:1,baseMapVersion:69,added:[],overrides:{},deleted:[],doors:{}
+  version:1,baseMapVersion:69,added:[],overrides:{},deleted:[],doors:{},surfaces:{}
  });
 });
 

@@ -7,7 +7,7 @@ const EYE=1.7;
 const shellLevel=y=>y>3?'M1':y<-1.5?'B1':'G';
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 const valid=v=>Number.isFinite(v);
-export function createEditorNavigation({camera,orbit,domElement,shells,scene,onChange=()=>{},onDoorChange=()=>{}}){
+export function createEditorNavigation({camera,orbit,domElement,shells,scene,isPlacing=()=>false,isGizmoActive=()=>false,onChange=()=>{},onDoorChange=()=>{}}){
  const doors=doorDescriptors(shells),doorMap=new Map();
  const layouts=new Map(MALL.levels.map(l=>[l.id,buildGameplayLayoutV70({chapter:6,level:l.id})]));
  const keys=new Set(),up=new THREE.Vector3(0,1,0);
@@ -135,12 +135,12 @@ export function createEditorNavigation({camera,orbit,domElement,shells,scene,onC
  }
  function onKeyUp(e){keys.delete(e.code)}
  function onPointerDown(e){
-  if(mode==='orbit')return;
+  if(mode==='orbit'||isPlacing()||isGizmoActive())return;
   if(e.button===2){dragMouse=true;lastPointer={x:e.clientX,y:e.clientY}}
   if(e.button===0&&document.pointerLockElement!==domElement&&domElement.requestPointerLock)domElement.requestPointerLock();
  }
  function onPointerMove(e){
-  if(mode==='orbit')return;
+  if(mode==='orbit'||isPlacing())return;
   if(document.pointerLockElement!==domElement&&!dragMouse)return;
   const dx=document.pointerLockElement===domElement?e.movementX:e.clientX-lastPointer.x;
   const dy=document.pointerLockElement===domElement?e.movementY:e.clientY-lastPointer.y;

@@ -16,21 +16,21 @@ try{
  const api=await page.evaluate(()=>window.__PINEWOOD_BUILDER__.getState());
  assert.equal(api.ready,true,JSON.stringify(api.errors));
  const catalog=await page.evaluate(()=>window.__PINEWOOD_BUILDER__.getCatalog());
- assert.equal(catalog.length,503);
- assert.equal(catalog.filter(x=>x.materialStyle==='image-mapped').length,167);
- assert.equal(catalog.filter(x=>x.materialStyle==='color-only').length,336);
+ assert.equal(catalog.length,511);
+ assert.equal(catalog.filter(x=>x.materialStyle==='image-mapped').length,172);
+ assert.equal(catalog.filter(x=>x.materialStyle==='color-only').length,339);
  const picker=page.locator('#catalog-material');
  await picker.selectOption('image-mapped');
- assert.equal(await page.locator('.catalog-item').count(),167);
+ assert.equal(await page.locator('.catalog-item').count(),172);
  await picker.selectOption('color-only');
- assert.equal(await page.locator('.catalog-item').count(),336);
+ assert.equal(await page.locator('.catalog-item').count(),338);
  const bench=page.locator('.catalog-item').filter({hasText:'Bench'}).first();
  assert.ok((await bench.count())>=1,'color-only bench remains selectable');
  assert.match(await bench.getAttribute('title'),/material colors, not image texture maps/);
  await picker.selectOption('');
- assert.equal(await page.locator('.catalog-item').count(),503);
+ assert.equal(await page.locator('.catalog-item').count(),510);
  assert.equal((await page.locator('#catalog-material option').count()),3);
  assert.deepEqual(remote,[],'all runtime resources are served locally');
  assert.deepEqual(errors,[]);
- console.log('PINEWOOD_BUILDER_MATERIAL_DESKTOP_PASS',JSON.stringify({total:catalog.length,imageMapped:167,colorOnly:336}));
+ console.log('PINEWOOD_BUILDER_MATERIAL_DESKTOP_PASS',JSON.stringify({total:catalog.length,imageMapped:172,colorOnly:339}));
 }finally{await browser.close()}

@@ -9,22 +9,28 @@ import {createBuilderScene} from './editor-scene.js';
 import {createEditorNavigation} from './editor-navigation.js';
 import {createWorkLighting} from './work-lighting.js';
 import {mountCinematicParkingLot} from './exterior-scene.js';
+import {createRoomFinishesV87} from './room-finishes-v87.js';
+import {ROOM_FINISHES_V87} from './room-finishes-options-v87.mjs';
 
 const $=id=>document.getElementById(id);
 const status={ready:false,errors:[],selected:null,roomCount:MALL.rooms.length,
  fixtureCount:FURNISHINGS_V69.fixtures.length,catalogCount:EDITOR_CATALOG_V1.length,
- draft:createEmptyDraft(),navigation:{mode:'orbit',floor:'G',unlockAll:true},workLights:false};
-let scene,camera,renderer,orbit,editor,navigation,workLighting,exterior,frames=0,undoStack=[],redoStack=[],idCounter=0,savePending;
+ draft:createEmptyDraft(),navigation:{mode:'orbit',floor:'G',unlockAll:true},workLights:false,
+ placementOptions:{gridSize:.5,allowClipping:false},finishMeshes:{floor:0,wall:0,ceiling:0}};
+let scene,camera,renderer,orbit,editor,navigation,workLighting,exterior,roomFinishes,
+ frames=0,undoStack=[],redoStack=[],idCounter=0,savePending;
 const clone=v=>JSON.parse(JSON.stringify(v)),round=v=>Math.round(v*1000)/1000;
 const legacy=new Map([...FURNISHINGS_V69.fixtures,...EDITOR_EXTRA_FIXTURES_V1].map(f=>[f.id,f]));
 const catalog=[...EDITOR_CATALOG_V1];
 async function loadVendorCatalog(){
- const [response,styleResponse]=await Promise.all([
+ const [response,styleResponse,eraResponse]=await Promise.all([
   fetch(new URL('../assets/vendor/builder/catalog-v1.json',import.meta.url)),
-  fetch(new URL('../assets/vendor/builder/material-index-v1.json',import.meta.url))
+  fetch(new URL('../assets/vendor/builder/material-index-v1.json',import.meta.url)),
+  fetch(new URL('../assets/vendor/builder/era-catalog-v87.json',import.meta.url))
  ]);
  if(!response.ok)throw Error('Pinned CC0 asset library unavailable: HTTP '+response.status);
  if(!styleResponse.ok)throw Error('Pinned CC0 material index unavailable: HTTP '+styleResponse.status);
+ if(!eraResponse.ok)throw Error('Pinned period-correct CRT/debris library unavailable: HTTP '+eraResponse.status);
  const manifest=await response.json(),styleIndex=await styleResponse.json();
  if(manifest.version!==1||!Array.isArray(manifest.models)||manifest.models.length<100)throw Error('Incomplete local CC0 library');
  if(styleIndex.version!==1||styleIndex.totalModels!==manifest.models.length||!Array.isArray(styleIndex.imageBearingIds))throw Error('Outdated CC0 material classification');
@@ -39,6 +45,10 @@ async function loadVendorCatalog(){
  catalog.push(...registerVendorCatalog(manifest.models.map(m=>({
   ...m,materialStyle:images.has(m.id)?'image-mapped':'color-only'
  }))));
+ const era=await eraResponse.json();
+ if(era.version!==87||!Array.isArray(era.models)||era.models.length!==8)
+  throw Error('Outdated period-correct source model catalog');
+ catalog.push(...registerVendorCatalog(era.models));
  status.catalogCount=catalog.length;
 }
 
@@ -65,6 +75,18 @@ const API={
  }):null,
  getLightingState:()=>workLighting?.getState(),
  getExteriorState:()=>exterior?.state,
+ getPlacementState:()=>({placing:editor?.placing||false,...(editor?.placementValidity||{}),
+  position:editor?.placementPosition||null,rotation:editor?.placementRotation||null,
+  pointerLocked:document.pointerLockElement===renderer?.domElement,
+  ...status.placementOptions}),
+ getCameraPose:()=>camera?({
+  position:{x:camera.position.x,y:camera.position.y,z:camera.position.z},
+  rotation:{x:camera.rotation.x,y:camera.rotation.y,z:camera.rotation.z}
+ }):null,
+ setPlacementOptions:options=>setPlacementOptions(options),
+ getRoomFinishCounts:()=>roomFinishes?.getCounts(),
+ getRoomFinishes:()=>clone(status.draft.surfaces||{}),
+ applyRoomFinishes:(roomId,finishes)=>commit({type:'finishes',roomId,finishes}),
  jumpParkingLot:()=>jumpParkingLot(),
  setWorkLights:enabled=>setWorkLights(enabled),
  setDoorOpen:(id,open)=>setDoorOpen(id,open),
@@ -120,6 +142,9 @@ function populateCatalog(){
   condition=$('catalog-condition').value,material=$('catalog-material').value;
   const parent=$('catalog-list');parent.replaceChildren();
   for(const item of catalog){
+   // Retire the Kenney flat LCD from NEW placement choices; saved drafts
+   // using its ID remain compatible and render with the true source CRT.
+   if(item.id==='kenney-furniture-kit-computerscreen')continue;
    if(cat&&item.category!==cat)continue;
    if(condition&&item.condition!==condition)continue;
    if(material&&item.materialStyle!==material)continue;
@@ -182,7 +207,9 @@ async function loadDraft(){
 }
 async function applyRenderedDraft(draft){
  await editor.applyDraft(draft);
+ if(roomFinishes)status.finishMeshes=await roomFinishes.apply(draft.surfaces||{});
  if(navigation)navigation.resetDoorOverrides(draft.doors);
+ syncFinishInputs();
 }
 async function commit(action){
  const next=reduceDraft(status.draft,action),issues=validateDraft(next,catalog);
@@ -195,12 +222,21 @@ async function commit(action){
  reflect();await saveDraft();
  return next;
 }
-function changeTransform(changes){
- const id=status.selected;if(!id)return Promise.resolve(false);
+async function changeTransform(changes){
+ const id=status.selected;if(!id)return false;
+ const original=editor.poseOf(id);
+ const check=editor.validatePose(id,{...original,...changes});
+ if(!check.valid){
+  await applyRenderedDraft(status.draft);
+  indicate('Blocked: '+check.reason);
+  return false;
+ }
  return commit({type:'transform',id,...changes}).catch(report);
 }
 async function place(catalogId,position,id,rotation={x:0,y:0,z:0}){
  if(!EDITOR_CATALOG_BY_ID.has(catalogId))throw Error('Unknown catalog item '+catalogId);
+ const check=await editor.validateNewPlacement(catalogId,position,rotation);
+ if(!check.valid)throw Error(check.reason);
  const instance={id:id||'custom-'+Date.now().toString(36)+'-'+(++idCounter).toString(36),
   catalogId,position:{x:position.x,y:position.y,z:position.z},
   rotation:{x:rotation.x,y:rotation.y,z:rotation.z},scale:1};
@@ -240,7 +276,8 @@ async function clearDraft(){
 }
 function jumpRoom(id){
  if(navigation){const room=MALL.rooms.find(x=>x.id===id);const done=navigation.gotoRoom(id);
-  if(room)$('view-status').textContent=room.label+' / '+room.level;
+  if(room){$('view-status').textContent=room.label+' / '+room.level;
+   $('finish-room').value=room.id;syncFinishInputs();}
   status.navigation=navigation.getState();return done;}
  const room=MALL.rooms.find(x=>x.id===id);
  if(!room||!camera||!orbit)return false;
@@ -267,6 +304,25 @@ function updateFromInputs(){
  }
  p.scale=Number($('object-scale').value);
  changeTransform(p);
+}
+function setPlacementOptions(options={}){
+ if(!editor)return null;
+ const next=editor.setPlacementOptions(options);
+ status.placementOptions={gridSize:next.gridSize,allowClipping:next.allowClipping};
+ $('snap-grid').checked=next.gridSize>0;
+ if(next.gridSize)$('grid-size').value=String(next.gridSize);
+ $('allow-clipping').checked=next.allowClipping;
+ return next;
+}
+function syncFinishInputs(){
+ if(!roomFinishes||!$('finish-room'))return;
+ const id=$('finish-room').value,selection=status.draft.surfaces?.[id]||{};
+ for(const part of ['wall','floor','ceiling']){
+  const select=$('finish-'+part);
+  select.value=selection[part]||'original';
+  select.disabled=!id||(part==='ceiling'&&!roomFinishes.counts(id)?.ceiling);
+ }
+ $('finish-apply').disabled=!id;
 }
 function setWorkLights(enabled){
  if(!workLighting)return null;
@@ -312,6 +368,41 @@ function wireUI(){
  });
  $('roof').addEventListener('change',e=>editor.building.setRoofVisible(e.target.checked));
  $('work-lights').addEventListener('change',e=>setWorkLights(e.target.checked));
+ $('snap-grid').addEventListener('change',e=>setPlacementOptions({
+  gridSize:e.target.checked?Number($('grid-size').value):0,
+  overlap:$('allow-clipping').checked
+ }));
+ $('grid-size').addEventListener('change',()=>setPlacementOptions({
+  gridSize:$('snap-grid').checked?Number($('grid-size').value):0,
+  overlap:$('allow-clipping').checked
+ }));
+ $('allow-clipping').addEventListener('change',e=>setPlacementOptions({
+  gridSize:$('snap-grid').checked?Number($('grid-size').value):0,
+  overlap:e.target.checked
+ }));
+ for(const room of MALL.rooms){
+  const option=document.createElement('option');
+  option.value=room.id;option.textContent=room.label+' ('+room.level+')';
+  $('finish-room').append(option);
+ }
+ for(const part of ['wall','floor','ceiling']){
+  for(const item of ROOM_FINISHES_V87[part]){
+   const option=document.createElement('option');
+   option.value=item.id;option.textContent=item.label;
+   $('finish-'+part).append(option);
+  }
+ }
+ $('finish-room').addEventListener('change',syncFinishInputs);
+ $('finish-apply').addEventListener('click',async()=>{
+  const roomId=$('finish-room').value;if(!roomId)return;
+  const finishes=Object.fromEntries(['wall','floor','ceiling'].filter(
+   part=>!$('finish-'+part).disabled
+  ).map(part=>[part,$('finish-'+part).value]));
+  try{await commit({type:'finishes',roomId,finishes});
+   indicate('Applied finishes to '+MALL.rooms.find(r=>r.id===roomId).label);
+  }catch(err){report(err)}
+ });
+ syncFinishInputs();
  $('reset-camera').addEventListener('click',centerCamera);
  $('explore-mode').addEventListener('click',()=>{
   navigation.setMode(navigation.getState().mode==='orbit'?'walk':'orbit');syncNavigationControls();
@@ -356,6 +447,7 @@ function syncNavigationControls(){
  $('explore-mode').textContent=next.mode==='orbit'?'Explore':'Exit Explore';
  $('fly-toggle').disabled=next.mode==='orbit';
  $('fly-toggle').textContent=next.mode==='fly'?'Fly: On':'Fly: Off';
+ if(editor?.placing)return;
  $('placement-tip').textContent=next.mode==='orbit'?
   'Orbit: drag · Pan: right-drag · Zoom: wheel · Select: click · Transform: handles or inspector':
   next.mode==='fly'?'FLY · WASD move · Mouse look · Space up · Shift down · F to land · E toggle nearby door':
@@ -390,16 +482,35 @@ async function begin(){
    onTransform:(id,p)=>changeTransform(p).catch(report),
    onPlace:(catalogId,position,rotation)=>place(catalogId,position,undefined,rotation).catch(report)
   });
+  roomFinishes=createRoomFinishesV87(editor.building);
   exterior=await mountCinematicParkingLot({scene,building:editor.building});
   editor.addPlacementSurfaces(exterior.placementSurfaces);
   $('loading').querySelector('progress').value=58;
   navigation=createEditorNavigation({camera,orbit,domElement:renderer.domElement,scene,shells:editor.building.shells,
+   isPlacing:()=>editor?.placing||false,
+   isGizmoActive:()=>editor?.isGizmoActive||false,
    onChange:next=>{status.navigation=next;syncNavigationControls()},
    onDoorChange:(id,open)=>setDoorOpen(id,open).catch(report)});
   $('loading').querySelector('progress').value=75;
   status.draft=await loadDraft();
   await applyRenderedDraft(status.draft);
   populateCatalog();wireUI();reflect();syncNavigationControls();
+  setPlacementOptions({gridSize:.5,overlap:false});
+  const reticle=$('aim-reticle'),canvas=renderer.domElement;
+  const repositionReticle=e=>{
+   const bounds=canvas.getBoundingClientRect();
+   if(document.pointerLockElement===canvas){
+    reticle.style.left=(bounds.left-$('viewport').getBoundingClientRect().left+bounds.width/2)+'px';
+    reticle.style.top=(bounds.top-$('viewport').getBoundingClientRect().top+bounds.height/2)+'px';
+   }else if(e){
+    const view=$('viewport').getBoundingClientRect();
+    reticle.style.left=(e.clientX-view.left)+'px';
+    reticle.style.top=(e.clientY-view.top)+'px';
+   }
+  };
+  canvas.addEventListener('pointermove',repositionReticle);
+  document.addEventListener('pointerlockchange',()=>repositionReticle());
+  repositionReticle();
   editor.select(null);
   status.ready=true;API.ready=true;
   $('loading').classList.add('hidden');
@@ -412,7 +523,7 @@ async function begin(){
    renderer.render(scene,camera);requestAnimationFrame(frame)}
   requestAnimationFrame(frame);
   window.addEventListener('resize',resize);
-  window.addEventListener('pagehide',()=>{navigation.dispose();editor.dispose();exterior.dispose();workLighting.dispose();orbit.dispose();renderer.dispose()},{once:true});
+  window.addEventListener('pagehide',()=>{navigation.dispose();roomFinishes.dispose();editor.dispose();exterior.dispose();workLighting.dispose();orbit.dispose();renderer.dispose()},{once:true});
  }catch(err){
   report(err);$('load-error').textContent=String(err?.stack||err).slice(0,1500);
   $('loading').querySelector('strong').textContent='Builder cannot load';

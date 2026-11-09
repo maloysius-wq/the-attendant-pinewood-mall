@@ -36,12 +36,16 @@
  </aside>
  <section id="viewport" aria-label="3D Pinewood Mall scene">
   <div id="world"></div>
+  <div id="aim-reticle" aria-hidden="true"></div>
   <div class="viewport-head">
    <div><span class="eyebrow">PINEWOOD MALL / 1990s</span><div id="view-status">Loading three connected levels…</div></div>
    <div class="view-actions">
     <select id="jump-room" aria-label="Go to room"><option value="">Jump to room…</option></select>
     <label class="toggle"><input type="checkbox" id="roof" checked> Roof / ceilings</label>
     <label class="toggle" title="Temporary bright scene lighting for decorating; never changes the game"><input type="checkbox" id="work-lights"> Work lights</label>
+    <label class="toggle" title="Quantize new placements and gizmo moves to a real-world grid"><input type="checkbox" id="snap-grid" checked> Snap</label>
+    <select id="grid-size" aria-label="Grid spacing"><option value="0.25">0.25 m</option><option value="0.5" selected>0.5 m</option><option value="1">1 m</option></select>
+    <label class="toggle" title="Allow props to intersect walls, pass through floors or hover without a support surface"><input type="checkbox" id="allow-clipping"> Allow overlap</label>
     <button id="explore-mode" title="Walk the mall with WASD and look using your mouse">Explore</button><button id="fly-toggle" title="Toggle gravity-free movement" disabled>Fly: Off</button><button id="reset-camera" title="Return to central atrium">Center view</button>
    </div>
   </div>
@@ -57,6 +61,16 @@
    <div class="section-label">Size</div><label class="wide-label">Scale <input id="object-scale" type="number" min=".05" max="20" step=".05"></label>
    <div class="selection-actions"><button id="duplicate">Duplicate</button><button id="delete-selected" class="danger">Remove</button></div>
   </div>
+  <section id="room-finishes" class="room-finishes">
+   <div class="section-label">Room surface finishes</div>
+   <label for="finish-room">Choose room</label>
+   <select id="finish-room" aria-label="Room to decorate"><option value="">Select a room…</option></select>
+   <p class="muted">Walls, floors and ceilings are independent, room-specific finishes. Only your Builder layout changes.</p>
+   <label for="finish-wall">Walls</label><select id="finish-wall"></select>
+   <label for="finish-floor">Floor</label><select id="finish-floor"></select>
+   <label for="finish-ceiling">Ceiling</label><select id="finish-ceiling"></select>
+   <button id="finish-apply" class="secondary">Apply room finishes</button>
+  </section>
   <div class="inspector-bottom">
    <div class="section-label">YOUR BUILD</div>
    <p class="muted" id="draft-stats">No custom placements yet.</p>

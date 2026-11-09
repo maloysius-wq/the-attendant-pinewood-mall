@@ -348,3 +348,15 @@ The original four crooked/fallen Kenney pine models were removed from the staged
 - `kenney-furniture-kit-trashcan` (4 instances): original unaltered Kenney CC0 trash cans, as pinned in `assets/vendor/builder/catalog-v1.json`.
 
 The new trees are **third-party source models** with provenance in `opening/assets/v85/manifest.json` (CC0 Universal: https://creativecommons.org/publicdomain/zero/1.0/). No foliage was procedurally stripped, no material was generated, and no prop models were invented. The only newly authored visual geometry remains the stall-side, closed-rear, lane, stop, and crossing painted marks in `opening/parking-markings-v84.js`. Every parking entrance remains unpainted. No third-party URL is a browser runtime fetch target. The original sedan, façade, and eight weathered planter models remain unchanged.
+
+## Builder v87: room finishes and period-correct technology (2026-11-09)
+
+All of the following are **bundled repository-local** files. Provenance, exact SHA-256 and byte lengths are in `assets/vendor/builder/finishes/manifest-v87.json` and `assets/vendor/builder/era-catalog-v87.json`. No browser downloads assets from their upstream hosts.
+
+**Room finishes:** Six 1K color/albedo images from [Poly Haven](https://polyhaven.com) under [CC0 1.0](https://creativecommons.org/publicdomain/zero/1.0/): `concrete_wall_003`, `concrete_wall_004`, `worn_tile_floor`, `interior_tiles`, `dirty_tiles`, `concrete_floor`. They are stored under `assets/vendor/builder/finishes/`. The original Terrazo, tile, dirty carpet, concrete and aged-ceiling textures retain their previously recorded sources.
+
+**Period-accurate CRT:** `retro-crt-pc-1990s.glb` is an existing sourced model, **not authored by Pinewood**, under [Creative Commons Attribution 4.0](https://creativecommons.org/licenses/by/4.0/). **Original author: MadeByYeshe (CrazyDrPants)**, original model/source: https://crazydrpants.itch.io/retro-crt-computer ; **adapted/GLB remix by TTT (tt-toe)**, https://github.com/tt-toe/bevy_tui_texture/blob/main/examples/assets/models/retro_crt.glb . The source and authors are credited here to satisfy attribution. The file is vendored at `assets/vendor/builder/models/era-v87/retro-crt-pc-1990s.glb` with SHA-256 `b934a33047b3cccf476b89f84ab19fb51a40ffbe0ece8ea95e442340befaaf78`. No modifications beyond model scaling at runtime. It replaces the visibly modern, flat LCD in the new Builder catalog; old saved IDs remain supported but render the period CRT.
+
+**Additional original CC0 props:** `old-pc-compact-tower`, `old-pc-tower`, `tile-rubble-pile`, `charred-rubble-pile`, `spilled-trash-can`, `refuse-bags`, and `period-magazines`, sourced as unchanged, versioned GLBs from [3DAssets.dev](https://3dassets.dev/assets), all [CC0 1.0](https://creativecommons.org/publicdomain/zero/1.0/). Their individual licensed source pages, immutable versioned download URLs, model sizes, and hashes are all recorded in `assets/vendor/builder/era-catalog-v87.json`.
+
+These are Builder-only additions. Protected story/shell geometry and original story-campaign runtime assets remain unchanged.
