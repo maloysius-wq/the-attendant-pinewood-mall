@@ -341,10 +341,10 @@ The separately hosted Builder includes 482 locally copied self-contained GLB mod
 
 ## V84 cinematic/front parking-lot dressing (2026-11-09)
 
-No new model meshes, decals, textures, or scenery assets were authored or downloaded for this update. Four trash receptacles and four crooked/fallen trees are **instances of three already bundled Kenney CC0 GLB files**:
+The original four crooked/fallen Kenney pine models were removed from the staged exterior in v85. They did not read as dead enough. Their replacements are unmodified CC0 source models, now downloaded and pinned **inside this repository**, not authored by this project:
 
-- `kenney-furniture-kit-trashcan` (4 instances; Kenney Furniture Kit)
-- `kenney-graveyard-kit-pine-crooked` (3 instances; Kenney Graveyard Kit)
-- `kenney-graveyard-kit-pine-fall-crooked` (1 instance; Kenney Graveyard Kit)
+- `cc0-dead-tree-gothic` (2 instances): original gnarled, leafless dead tree, original source: https://3dassets.dev/assets/vampire-crypt-and-gothic-cathedral-dead-tree-0c7883bc ; immutable upstream GLB https://cdn.3dassets.dev/assets/23051/v1/model.glb ; SHA-256 `41d6b432268e7bc44a1c2ebfcf06de1340a1f20577ca1ac258c0f7c7179ac618`; local `opening/assets/v85/dead-tree-gothic.glb`; CC0-1.0.
+- `cc0-dead-tree-survival` (2 instances): original bare, forked dead tree, original source: https://3dassets.dev/assets/wipe-day-survival-island-dead-tree-c66812b4 ; immutable upstream GLB https://cdn.3dassets.dev/assets/27431/v1/model.glb ; SHA-256 `26c0b53ba23f740e1e6d2a40582783767ea9e1fb638f3801f8d9d935cee54e8b`; local `opening/assets/v85/dead-tree-survival.glb`; CC0-1.0.
+- `kenney-furniture-kit-trashcan` (4 instances): original unaltered Kenney CC0 trash cans, as pinned in `assets/vendor/builder/catalog-v1.json`.
 
-Exact local paths, creator pages, provenance, CC0-1.0 license URLs, byte lengths and SHA-256 hashes for these same unchanged GLBs remain recorded in `assets/vendor/builder/catalog-v1.json`. No third-party runtime URLs are used. Only parking-stall, lane, stop and pedestrian-crossing *painted lines* are code-authored using thin instanced box surfaces in `opening/parking-markings-v84.js`; they are not independent 3D prop models. Existing CC BY sedan and all previously approved façade/planters remain unchanged.
+The new trees are **third-party source models** with provenance in `opening/assets/v85/manifest.json` (CC0 Universal: https://creativecommons.org/publicdomain/zero/1.0/). No foliage was procedurally stripped, no material was generated, and no prop models were invented. The only newly authored visual geometry remains the stall-side, closed-rear, lane, stop, and crossing painted marks in `opening/parking-markings-v84.js`. Every parking entrance remains unpainted. No third-party URL is a browser runtime fetch target. The original sedan, façade, and eight weathered planter models remain unchanged.
