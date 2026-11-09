@@ -22,9 +22,19 @@ dead-tree instances) plus the four existing Kenney furniture-kit trash cans.
 The earlier crooked/fallen *pines* have been removed because they looked too
 lush and stylized for Pinewood's abandoned setting. Both replacement tree
 GLBs are pinned with SHA-256 hashes, original source pages and CC0 license in
-`opening/assets/v85/manifest.json`, with no runtime CDN requests. The existing eight weathered mall planters, sedan, façade and
-lamps are preserved. The same physically placed objects and painted markings
-appear in both the actual opening cinematic and the standalone Builder.
+`opening/assets/v85/manifest.json`, with no runtime CDN requests.
+
+**Camera-facing landscaping (v86):** Three of the original leafless CC0
+tree instances now grow from the soil surfaces of three **existing**
+weathered steel mall-front planters at x=-24.7, -17.5 and +3.7
+(z≈-18.9); the remaining fourth tree dresses the lot perimeter. The
+existing pots and withered shrubs stay. These placements were checked
+against the real 66° opening-camera cues: the silhouettes register during
+seated windshield arrival, car exit and walking toward the entrance, while
+the contractor's walking path and service door stay clear. The cinematic
+and standalone Builder share these positions; no additional scenery
+models are created. The original eight weathered planters, sedan,
+façade and lamps remain.
 
 Only painted asphalt line geometry is authored here. The paint is an
 instanced, non-colliding overlay; there are no new asphalt, curb, planter,
