@@ -43,7 +43,7 @@ test('original cinematic 115 × 88 m lot has consistent 90-degree stalls and car
 test('every parking stall has an OPEN drive-in end, side stripes and just one rear line',()=>{
  assert.equal(PARKING_MARKING_COUNTS_V84.stalls,196);
  assert.equal(PARKING_MARKING_COUNTS_V84.segments,PARKING_MARKINGS_V84.length);
- assert.ok(PARKING_MARKINGS_V84.length>=270);
+ assert.equal(PARKING_MARKINGS_V84.length,279,'open-front rows need 279 painted segments');
  assert.deepEqual([...new Set(PARKING_MARKINGS_V84.map(m=>m.kind))].sort(),
   ['crosswalk','lane','stall','stall-back','stop'].sort());
  for(const m of PARKING_MARKINGS_V84){
