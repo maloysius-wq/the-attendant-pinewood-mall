@@ -56,7 +56,9 @@ export async function installParkingPropsV84(world){
   instance.userData.assetId=prop.assetId;
   instance.userData.sourcePath=source.item.path;
   instance.userData.license='CC0-1.0';
-  instance.position.set(prop.x,0,prop.z);instance.rotation.y=prop.yaw;
+  // Raised only for trees rooted in an existing enlarged licensed planter.
+  // Their feet meet the planter's source-authored soil surface, not asphalt.
+  instance.position.set(prop.x,prop.y??0,prop.z);instance.rotation.y=prop.yaw;
   copy.traverse(node=>{if(node.isMesh){node.castShadow=false;node.receiveShadow=true;}});
   instance.add(copy);group.add(instance);
  }
