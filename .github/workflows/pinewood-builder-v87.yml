@@ -1,0 +1,40 @@
+name: Pinewood Builder precision and room finishes v87
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'builder/**'
+      - 'mall/editor-*.mjs'
+      - 'assets/vendor/builder/era-catalog-v87.json'
+      - 'assets/vendor/builder/models/era-v87/**'
+      - 'assets/vendor/builder/finishes/**'
+      - 'scripts/test-builder-v87.mjs'
+      - 'scripts/smoke-builder-v87.mjs'
+      - '.github/workflows/pinewood-builder-v87.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  precision:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 17
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify pinned 1990s CRT, rubble, and independent room finishes
+        run: node --test scripts/test-builder-v87.mjs scripts/test-builder-schema-v1.mjs
+      - name: Verify original CC0 library unchanged
+        run: node --test scripts/audit-builder-assets-v1.mjs
+      - name: Install deterministic desktop Chromium
+        run: |
+          npm install --no-save playwright@1.55.0
+          npx playwright install chromium
+      - name: Serve protected local mall and standalone editor
+        run: |
+          python3 -m http.server 4173 --bind 127.0.0.1 >/tmp/pinewood-builder-v87-http.log 2>&1 &
+          for i in {1..30}; do curl -fsS http://127.0.0.1:4173/builder/ >/dev/null && exit 0; sleep 1; done
+          exit 1
+      - name: Test reticle, no-clipping, placement rotation, room material persistence
+        run: node scripts/smoke-builder-v87.mjs
