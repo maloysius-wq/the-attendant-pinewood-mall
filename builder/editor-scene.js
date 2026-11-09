@@ -342,6 +342,7 @@ export async function createBuilderScene({scene,camera,domElement,onSelect=()=>{
   building,objects,select,applyDraft,beginPlacement,stopPlacement,setTransformMode,refreshPlacement,
   get placing(){return !!placing},
   get placementPending(){return previewPending},
+  waitForWheelEdits:()=>wheelTransforms,
   get isGizmoActive(){return !!transform.axis||transform.dragging},
   get placementValidity(){return {valid:ghostValid,reason:ghostReason}},
   get placementPosition(){return ghost?vector(ghost.position):null},
