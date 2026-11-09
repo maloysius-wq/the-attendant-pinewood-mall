@@ -28,6 +28,9 @@ export async function mountCinematicParkingLot({scene,building}){
  const deadTrees=parkingProps.children.filter(o=>o.userData.assetId?.startsWith('cc0-dead-tree-'));
  if(deadTrees.length!==4||deadTrees.some(o=>!o.userData.sourcePath?.startsWith('opening/assets/v85/')))
   throw Error('Expected four genuinely leafless source-licensed exterior trees');
+ const rooted=deadTrees.filter(o=>Number.isInteger(o.userData.planterIndex));
+ if(rooted.length!==3||rooted.some(o=>Math.abs(o.position.y-1.1)>.01))
+  throw Error('The cinematic must show three leafless trees rooted in real front planters');
 
  // This matches the canonical cinematic's one-world handoff: retire only the
  // duplicate front elevation of the canonical mall, never its architecture.
@@ -68,7 +71,8 @@ export async function mountCinematicParkingLot({scene,building}){
   markedStalls:parkingPaint.userData.markingCounts.stalls,
   paintedSegments:parkingPaint.userData.markingCounts.segments,
   licensedParkingProps:parkingProps.children.length,
-  leaflessDeadTrees:deadTrees.length
+  leaflessDeadTrees:deadTrees.length,
+  frontageDeadTrees:rooted.length
  };
  return {
   state,placementSurfaces:surfaces,
