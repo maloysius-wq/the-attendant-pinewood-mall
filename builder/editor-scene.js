@@ -30,12 +30,21 @@ export async function createBuilderScene({scene,camera,domElement,onSelect=()=>{
   objects.set(f.id,o);originals.set(f.id,pose(o));o.userData.editorId=f.id;
  }
  const raycaster=new THREE.Raycaster(),pointer=new THREE.Vector2();
- const floors=[];building.group.traverse(o=>{if(o.isMesh&&o.userData.walkableFloor)floors.push(o)});
+ const floors=[],walls=[];building.group.traverse(o=>{
+  if(o.isMesh&&o.userData.walkableFloor)floors.push(o);
+  if(o.isMesh&&o.userData.architecturalCollider&&o.userData.boundary?.role!=='railing')walls.push(o);
+ });
  const loader=new GLTFLoader(),cached=new Map();
  const transform=new TransformControls(camera,domElement);
  scene.add(transform.getHelper());
  transform.setMode('translate');
- let selected=null,ghost=null,placing=null,depth=9,blocked=false,orbitZoomBeforePlacement=null;
+ let selected=null,ghost=null,placing=null,depth=9,blocked=false,orbitBeforePlacement=null;
+ let snapSize=.5,allowClipping=false,ghostValid=true,ghostReason='';
+ const grid=new THREE.GridHelper(200,400,0x8ba198,0x455a58);
+ grid.position.y=.018;grid.material.transparent=true;grid.material.opacity=.19;
+ grid.name='Builder-only placement grid';grid.visible=true;grid.raycast=()=>{};
+ scene.add(grid);
+ const snap=v=>Math.round(v/snapSize)*snapSize;
  const editable=[...objects.values()];
  function setPointer(e){
   const r=domElement.getBoundingClientRect();
@@ -131,11 +140,64 @@ export async function createBuilderScene({scene,camera,domElement,onSelect=()=>{
   }
   return raycaster.ray.at(depth,new THREE.Vector3());
  }
+ // AABB collision is intentionally strict for walls/floor penetration.
+ // Existing saved layouts remain loadable; new edits are blocked by default.
+ function checkBounds(box){
+  if(allowClipping)return {valid:true,reason:''};
+  const small=box.clone().expandByScalar(-.012);
+  if(small.isEmpty())small.copy(box);
+  for(const wall of walls){
+   if(!wall.visible)continue;
+   const wbox=new THREE.Box3().setFromObject(wall);
+   if(small.intersectsBox(wbox))return {valid:false,reason:'Wall intersection. Move the prop or enable Allow overlap.'};
+  }
+  // A grounded placement must have support under its footprint. Detect
+  // falling through floors or spanning a hole, not just its center point.
+  const y=box.min.y, inset=Math.min(.04,(box.max.x-box.min.x)/4,(box.max.z-box.min.z)/4);
+  const points=[
+   [box.min.x+inset,box.min.z+inset],[box.max.x-inset,box.min.z+inset],
+   [box.min.x+inset,box.max.z-inset],[box.max.x-inset,box.max.z-inset],
+   [(box.min.x+box.max.x)/2,(box.min.z+box.max.z)/2]
+  ];
+  const support=floors.map(f=>{
+   const b=new THREE.Box3().setFromObject(f);
+   return b;
+  });
+  const onSupport=(x,z)=>support.some(b=>x>=b.min.x-.015&&x<=b.max.x+.015&&
+   z>=b.min.z-.015&&z<=b.max.z+.015&&Math.abs(y-b.max.y)<.085);
+  if(!points.every(([x,z])=>onSupport(x,z)))
+   return {valid:false,reason:'No continuous floor support. Use Allow overlap for unsupported placements.'};
+  return {valid:true,reason:''};
+ }
+ function validatePose(id,p){
+  const obj=objects.get(id);if(!obj)return {valid:false,reason:'Unknown selected object'};
+  const before=pose(obj);applyPose(obj,p);
+  const result=checkBounds(new THREE.Box3().setFromObject(obj));
+  applyPose(obj,before);
+  return result;
+ }
+ function setGhostAppearance(valid,reason=''){
+  ghostValid=valid;ghostReason=reason;
+  if(!ghost)return;
+  ghost.traverse(o=>{if(!o.isMesh)return;
+   const materials=Array.isArray(o.material)?o.material:[o.material];
+   for(const m of materials){
+    if(!m.color)continue;
+    if(!m.userData.builderOriginalColor)m.userData.builderOriginalColor=m.color.clone();
+    m.color.copy(m.userData.builderOriginalColor);
+    if(!valid)m.color.lerp(new THREE.Color(0xff514a),.75);
+   }
+  });
+  document.getElementById('aim-reticle')?.classList.toggle('invalid',!valid);
+ }
  async function beginPlacement(catalogId){
   if(ghost){ghost.removeFromParent();ghost=null}
   placing=catalogId;depth=9;
   ghost=await template(catalogId);
-  if(orbit && orbitZoomBeforePlacement===null){orbitZoomBeforePlacement=orbit.enableZoom;orbit.enableZoom=false;}
+  if(orbit && orbitBeforePlacement===null){
+   orbitBeforePlacement={enabled:orbit.enabled,zoom:orbit.enableZoom,rotate:orbit.enableRotate,pan:orbit.enablePan};
+   orbit.enabled=false;orbit.enableZoom=false;orbit.enableRotate=false;orbit.enablePan=false;
+  }
   ghost.name='preview placement';
   ghost.traverse(o=>{if(o.isMesh){o.material=o.material.clone();o.material.transparent=true;o.material.opacity=.45;o.material.depthWrite=false;}});
   building.group.add(ghost);
@@ -143,12 +205,20 @@ export async function createBuilderScene({scene,camera,domElement,onSelect=()=>{
  function stopPlacement(){
   placing=null;
   if(ghost){ghost.removeFromParent();ghost=null}
-  if(orbit && orbitZoomBeforePlacement!==null){orbit.enableZoom=orbitZoomBeforePlacement;orbitZoomBeforePlacement=null;}
+  if(orbit && orbitBeforePlacement!==null){
+   orbit.enabled=orbitBeforePlacement.enabled;orbit.enableZoom=orbitBeforePlacement.zoom;
+   orbit.enableRotate=orbitBeforePlacement.rotate;orbit.enablePan=orbitBeforePlacement.pan;
+   orbitBeforePlacement=null;
+  }
+  setGhostAppearance(true);
  }
  function currentPlacement(){
   if(!ghost||!placing)return null;
   const point=pointOnRay(),box=new THREE.Box3().setFromObject(ghost);
-  ghost.position.set(point.x,point.y-(box.min.y-ghost.position.y),point.z);
+  ghost.position.set(snapSize?snap(point.x):point.x,
+   point.y-(box.min.y-ghost.position.y),snapSize?snap(point.z):point.z);
+  const verdict=checkBounds(new THREE.Box3().setFromObject(ghost));
+  setGhostAppearance(verdict.valid,verdict.reason);
   return vector(ghost.position);
  }
  async function pointerDown(e){
@@ -156,6 +226,10 @@ export async function createBuilderScene({scene,camera,domElement,onSelect=()=>{
   setPointer(e);
   if(placing){
    const position=currentPlacement();
+   if(!ghostValid){
+    document.getElementById('placement-tip').textContent=ghostReason;
+    return;
+   }
    const rotation=vector(ghost.rotation);
    const id=placing;
    stopPlacement();
@@ -177,7 +251,7 @@ export async function createBuilderScene({scene,camera,domElement,onSelect=()=>{
  }
  function onWheel(e){
   if(!placing||!ghost)return;
-  e.preventDefault();
+  e.preventDefault();e.stopImmediatePropagation();
   if(!e.deltaY)return;
   if(e.shiftKey)depth=Math.min(120,Math.max(.75,depth+Math.sign(e.deltaY)));
   else ghost.rotation.y-=Math.sign(e.deltaY)*Math.PI/12;
@@ -193,9 +267,20 @@ export async function createBuilderScene({scene,camera,domElement,onSelect=()=>{
  });
  domElement.addEventListener('pointerdown',pointerDown);
  domElement.addEventListener('pointermove',pointerMove);
- domElement.addEventListener('wheel',onWheel,{passive:false});
+ domElement.addEventListener('wheel',onWheel,{passive:false,capture:true});
  return {
   building,objects,select,applyDraft,beginPlacement,stopPlacement,setTransformMode,refreshPlacement,
+  get placing(){return !!placing},get placementValidity(){return {valid:ghostValid,reason:ghostReason}},
+  get placementPosition(){return ghost?vector(ghost.position):null},
+  validatePose,validateBounds:box=>checkBounds(box),
+  setPlacementOptions:({gridSize=snapSize,overlap=allowClipping}={})=>{
+   if(![0,.25,.5,1].includes(gridSize))throw Error('Invalid grid size');
+   snapSize=gridSize;allowClipping=!!overlap;
+   transform.setTranslationSnap(snapSize||null);
+   grid.visible=snapSize>0;grid.position.y=0.018;
+   if(placing)refreshPlacement();
+   return {gridSize:snapSize,allowClipping};
+  },
   poseOf:id=>objects.has(id)?pose(objects.get(id)):null,
   addPlacementSurfaces:surfaces=>{
    for(const surface of surfaces){if(surface?.isMesh)floors.push(surface)}
@@ -206,8 +291,9 @@ export async function createBuilderScene({scene,camera,domElement,onSelect=()=>{
   dispose(){
    domElement.removeEventListener('pointerdown',pointerDown);
    domElement.removeEventListener('pointermove',pointerMove);
-   domElement.removeEventListener('wheel',onWheel);
-   stopPlacement();transform.detach();scene.remove(transform.getHelper());transform.dispose();building.dispose();
+   domElement.removeEventListener('wheel',onWheel,true);
+   stopPlacement();transform.detach();scene.remove(transform.getHelper());transform.dispose();
+   scene.remove(grid);grid.geometry.dispose();grid.material.dispose();building.dispose();
   }
  };
 }
