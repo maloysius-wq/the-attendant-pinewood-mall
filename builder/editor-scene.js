@@ -208,7 +208,13 @@ export async function createBuilderScene({scene,camera,domElement,onSelect=()=>{
    orbit.enabled=false;orbit.enableZoom=false;orbit.enableRotate=false;orbit.enablePan=false;
   }
   ghost.name='preview placement';
-  ghost.traverse(o=>{if(o.isMesh){o.material=o.material.clone();o.material.transparent=true;o.material.opacity=.45;o.material.depthWrite=false;}});
+  ghost.traverse(o=>{if(!o.isMesh)return;
+   const ghostMaterial=m=>{
+    const clone=m.clone();clone.transparent=true;clone.opacity=.45;clone.depthWrite=false;
+    return clone;
+   };
+   o.material=Array.isArray(o.material)?o.material.map(ghostMaterial):ghostMaterial(o.material);
+  });
   building.group.add(ghost);
  }
  function stopPlacement(){
