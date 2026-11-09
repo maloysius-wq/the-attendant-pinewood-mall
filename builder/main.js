@@ -23,12 +23,14 @@ const clone=v=>JSON.parse(JSON.stringify(v)),round=v=>Math.round(v*1000)/1000;
 const legacy=new Map([...FURNISHINGS_V69.fixtures,...EDITOR_EXTRA_FIXTURES_V1].map(f=>[f.id,f]));
 const catalog=[...EDITOR_CATALOG_V1];
 async function loadVendorCatalog(){
- const [response,styleResponse]=await Promise.all([
+ const [response,styleResponse,eraResponse]=await Promise.all([
   fetch(new URL('../assets/vendor/builder/catalog-v1.json',import.meta.url)),
-  fetch(new URL('../assets/vendor/builder/material-index-v1.json',import.meta.url))
+  fetch(new URL('../assets/vendor/builder/material-index-v1.json',import.meta.url)),
+  fetch(new URL('../assets/vendor/builder/era-catalog-v87.json',import.meta.url))
  ]);
  if(!response.ok)throw Error('Pinned CC0 asset library unavailable: HTTP '+response.status);
  if(!styleResponse.ok)throw Error('Pinned CC0 material index unavailable: HTTP '+styleResponse.status);
+ if(!eraResponse.ok)throw Error('Pinned period-correct CRT/debris library unavailable: HTTP '+eraResponse.status);
  const manifest=await response.json(),styleIndex=await styleResponse.json();
  if(manifest.version!==1||!Array.isArray(manifest.models)||manifest.models.length<100)throw Error('Incomplete local CC0 library');
  if(styleIndex.version!==1||styleIndex.totalModels!==manifest.models.length||!Array.isArray(styleIndex.imageBearingIds))throw Error('Outdated CC0 material classification');
@@ -43,6 +45,10 @@ async function loadVendorCatalog(){
  catalog.push(...registerVendorCatalog(manifest.models.map(m=>({
   ...m,materialStyle:images.has(m.id)?'image-mapped':'color-only'
  }))));
+ const era=await eraResponse.json();
+ if(era.version!==87||!Array.isArray(era.models)||era.models.length!==8)
+  throw Error('Outdated period-correct source model catalog');
+ catalog.push(...registerVendorCatalog(era.models));
  status.catalogCount=catalog.length;
 }
 
@@ -130,6 +136,9 @@ function populateCatalog(){
   condition=$('catalog-condition').value,material=$('catalog-material').value;
   const parent=$('catalog-list');parent.replaceChildren();
   for(const item of catalog){
+   // Retire the Kenney flat LCD from NEW placement choices; saved drafts
+   // using its ID remain compatible and render with the true source CRT.
+   if(item.id==='kenney-furniture-kit-computerscreen')continue;
    if(cat&&item.category!==cat)continue;
    if(condition&&item.condition!==condition)continue;
    if(material&&item.materialStyle!==material)continue;
