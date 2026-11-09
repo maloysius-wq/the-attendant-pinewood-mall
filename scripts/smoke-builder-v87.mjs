@@ -99,6 +99,16 @@ try{
  await page.evaluate(()=>window.__PINEWOOD_BUILDER__.redo());
  assert.ok(Math.abs((await state()).draft.added[0].rotation.y-Math.PI/4)<.001,
   'selected wheel rotation is redoable');
+ // Existing baseline furniture uses the SAME wheel behavior and persists
+ // its rotation as a reversible original-fixture override.
+ await page.evaluate(()=>window.__PINEWOOD_BUILDER__.select('cassette_stool'));
+ const baselineYaw=Number(await page.locator('#rot-y').inputValue());
+ await page.mouse.wheel(0,-120);
+ await page.waitForFunction(previous=>
+  Math.abs(Number(document.getElementById('rot-y').value)-previous-15)<.1,
+  baselineYaw,{timeout:15000});
+ assert.ok((await state()).draft.overrides.cassette_stool?.rotation,
+  'selected original fixtures rotate and persist an override');
  await page.evaluate(()=>window.__PINEWOOD_BUILDER__.select(null));
  const freeCamera=await page.evaluate(()=>window.__PINEWOOD_BUILDER__.getCameraPose());
  await page.mouse.wheel(0,120);
