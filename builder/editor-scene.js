@@ -46,6 +46,7 @@ export async function createBuilderScene({scene,camera,domElement,onSelect=()=>{
  scene.add(grid);
  const snap=v=>Math.round(v/snapSize)*snapSize;
  const editable=[...objects.values()];
+ const _tmpQuat=new THREE.Quaternion();
  function setPointer(e){
   const r=domElement.getBoundingClientRect();
   if(document.pointerLockElement===domElement)pointer.set(0,0);
@@ -134,10 +135,18 @@ export async function createBuilderScene({scene,camera,domElement,onSelect=()=>{
   transform.setMode(mode);
  }
  function pointOnRay(){
-  const hit=raycaster.intersectObjects(floors,false)[0];
+  // Furniture tops are real support targets, not merely decorative assets.
+  // This makes a 1990s CRT/desktop case placeable ON a desk by default.
+  const candidates=raycaster.intersectObjects([...floors,...objects.values()],true);
+  const upward=new THREE.Vector3();
+  const hit=candidates.find(h=>{
+   if(floors.includes(h.object))return true;
+   if(!h.face)return false;
+   h.object.getWorldQuaternion(_tmpQuat);
+   upward.copy(h.face.normal).applyQuaternion(_tmpQuat);
+   return upward.y>.65;
+  });
   if(hit){
-   // Wheel changes the ray distance along the actual walkable plane; keep
-   // furniture grounded even when the camera is aimed at a floor.
    const p=camera.position.clone().lerp(hit.point,depth/9);
    return p.setY(hit.point.y);
   }
@@ -145,7 +154,7 @@ export async function createBuilderScene({scene,camera,domElement,onSelect=()=>{
  }
  // AABB collision is intentionally strict for walls/floor penetration.
  // Existing saved layouts remain loadable; new edits are blocked by default.
- function checkBounds(box){
+ function checkBounds(box,ignoreId=null){
   if(allowClipping)return {valid:true,reason:''};
   const small=box.clone().expandByScalar(-.012);
   if(small.isEmpty())small.copy(box);
@@ -162,10 +171,12 @@ export async function createBuilderScene({scene,camera,domElement,onSelect=()=>{
    [box.min.x+inset,box.max.z-inset],[box.max.x-inset,box.max.z-inset],
    [(box.min.x+box.max.x)/2,(box.min.z+box.max.z)/2]
   ];
-  const support=floors.map(f=>{
-   const b=new THREE.Box3().setFromObject(f);
-   return b;
-  });
+  const support=[
+   ...floors.filter(f=>f.visible).map(f=>new THREE.Box3().setFromObject(f)),
+   ...[...objects.entries()].filter(([id,o])=>
+    id!==ignoreId&&o.visible&&o.parent).map(([,o])=>
+    new THREE.Box3().setFromObject(o))
+  ];
   const onSupport=(x,z)=>support.some(b=>x>=b.min.x-.015&&x<=b.max.x+.015&&
    z>=b.min.z-.015&&z<=b.max.z+.015&&Math.abs(y-b.max.y)<.085);
   if(!points.every(([x,z])=>onSupport(x,z)))
@@ -181,7 +192,7 @@ export async function createBuilderScene({scene,camera,domElement,onSelect=()=>{
  function validatePose(id,p){
   const obj=objects.get(id);if(!obj)return {valid:false,reason:'Unknown selected object'};
   const before=pose(obj);applyPose(obj,p);
-  const result=checkBounds(new THREE.Box3().setFromObject(obj));
+  const result=checkBounds(new THREE.Box3().setFromObject(obj),id);
   applyPose(obj,before);
   return result;
  }
@@ -230,6 +241,7 @@ export async function createBuilderScene({scene,camera,domElement,onSelect=()=>{
  function currentPlacement(){
   if(!ghost||!placing)return null;
   const point=pointOnRay(),box=new THREE.Box3().setFromObject(ghost);
+  grid.position.set(Math.round(point.x/10)*10,point.y+.016,Math.round(point.z/10)*10);
   ghost.position.set(snapSize?snap(point.x):point.x,
    point.y-(box.min.y-ghost.position.y),snapSize?snap(point.z):point.z);
   const verdict=checkBounds(new THREE.Box3().setFromObject(ghost));
@@ -295,7 +307,14 @@ export async function createBuilderScene({scene,camera,domElement,onSelect=()=>{
    if(![0,.25,.5,1].includes(gridSize))throw Error('Invalid grid size');
    snapSize=gridSize;allowClipping=!!overlap;
    transform.setTranslationSnap(snapSize||null);
-   grid.visible=snapSize>0;grid.position.y=0.018;
+   grid.visible=snapSize>0;
+   // Grid spacing must match the actual snap distance, not stay at .5m.
+   const gridStep=snapSize||.5;
+   const divisions=Math.round(200/gridStep);
+   const newGrid=new THREE.GridHelper(200,divisions,0x8ba198,0x455a58);
+   grid.geometry.dispose();grid.geometry=newGrid.geometry;
+   newGrid.material.dispose();
+   grid.position.y=0.018;
    if(placing)refreshPlacement();
    return {gridSize:snapSize,allowClipping};
   },
