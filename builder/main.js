@@ -80,6 +80,7 @@ const API={
   position:editor?.placementPosition||null,rotation:editor?.placementRotation||null,
   pointerLocked:document.pointerLockElement===renderer?.domElement,
   ...status.placementOptions}),
+ waitForWheelEdits:()=>editor?.waitForWheelEdits()??Promise.resolve(),
  getCameraPose:()=>camera?({
   position:{x:camera.position.x,y:camera.position.y,z:camera.position.z},
   rotation:{x:camera.rotation.x,y:camera.rotation.y,z:camera.rotation.z}
