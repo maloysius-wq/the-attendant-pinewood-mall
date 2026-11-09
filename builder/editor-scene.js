@@ -302,6 +302,7 @@ export async function createBuilderScene({scene,camera,domElement,onSelect=()=>{
   building,objects,select,applyDraft,beginPlacement,stopPlacement,setTransformMode,refreshPlacement,
   get placing(){return !!placing},get placementValidity(){return {valid:ghostValid,reason:ghostReason}},
   get placementPosition(){return ghost?vector(ghost.position):null},
+  get placementRotation(){return ghost?vector(ghost.rotation):null},
   validatePose,validateNewPlacement,validateBounds:box=>checkBounds(box),
   setPlacementOptions:({gridSize=snapSize,overlap=allowClipping}={})=>{
    if(![0,.25,.5,1].includes(gridSize))throw Error('Invalid grid size');
