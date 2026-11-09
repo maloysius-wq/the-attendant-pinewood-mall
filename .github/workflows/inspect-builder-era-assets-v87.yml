@@ -1,0 +1,20 @@
+name: Inspect licensed mall-era Builder prop candidates
+on:
+  push:
+    branches:
+      - feat/builder-placement-room-finishes-era-props-v87
+    paths:
+      - 'tools/inspect-builder-era-assets-v87.mjs'
+      - '.github/workflows/inspect-builder-era-assets-v87.yml'
+permissions:
+  contents: read
+jobs:
+  inspect:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: node tools/inspect-builder-era-assets-v87.mjs
