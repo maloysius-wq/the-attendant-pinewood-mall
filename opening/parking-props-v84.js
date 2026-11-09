@@ -23,7 +23,7 @@ export async function installParkingPropsV84(world){
  for(const model of treeManifest.models){
   if(!expected.has(model.id)||expected.get(model.id)!==model.sha256||
    model.original!==true||model.leafless!==true||
-   !/^opening\\/assets\\/v85\\/dead-tree-[a-z]+\\.glb$/.test(model.path))
+   !['opening/assets/v85/dead-tree-gothic.glb','opening/assets/v85/dead-tree-survival.glb'].includes(model.path))
    throw Error('Unexpected unverified source-authored dead tree '+model.id);
   lookup.set(model.id,model);
  }
