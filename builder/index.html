@@ -66,9 +66,12 @@
    <label for="finish-room">Choose room</label>
    <select id="finish-room" aria-label="Room to decorate"><option value="">Select a room…</option></select>
    <p class="muted">Walls, floors and ceilings are independent, room-specific finishes. Only your Builder layout changes.</p>
-   <label for="finish-wall">Walls</label><select id="finish-wall"></select>
-   <label for="finish-floor">Floor</label><select id="finish-floor"></select>
-   <label for="finish-ceiling">Ceiling</label><select id="finish-ceiling"></select>
+   <label for="finish-wall">Walls</label>
+   <div class="finish-choice"><select id="finish-wall"></select><div id="finish-preview-wall" class="finish-swatch" role="img" aria-label="Walls texture preview">Original</div></div>
+   <label for="finish-floor">Floor</label>
+   <div class="finish-choice"><select id="finish-floor"></select><div id="finish-preview-floor" class="finish-swatch" role="img" aria-label="Floor texture preview">Original</div></div>
+   <label for="finish-ceiling">Ceiling</label>
+   <div class="finish-choice"><select id="finish-ceiling"></select><div id="finish-preview-ceiling" class="finish-swatch" role="img" aria-label="Ceiling texture preview">Original</div></div>
    <button id="finish-apply" class="secondary">Apply room finishes</button>
   </section>
   <div class="inspector-bottom">

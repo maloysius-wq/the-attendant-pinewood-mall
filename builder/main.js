@@ -56,6 +56,8 @@ const API={
  ready:false,
  getState:()=>clone(status),
  getCatalog:()=>catalog.map(x=>({...x})),
+ getMaterialStats:()=>editor?.getMaterialStats()??null,
+ inspectObjectMaterials:id=>editor?.inspectObjectMaterials(id)??null,
  select:id=>editor?.select(id)??false,
  place:(catalogId,position,id)=>place(catalogId,position,id),
  applyTransform:changes=>changeTransform(changes),
@@ -105,7 +107,7 @@ function writeInspector(id,p){
  const placed=status.draft.added.find(a=>a.id===id);
  const surface=placed?EDITOR_CATALOG_BY_ID.get(placed.catalogId)?.materialStyle:null;
  $('selection-meta').textContent=id?(legacy.has(id)?'Existing licensed mall fixture':'Placed custom model')+
-  (surface==='color-only'?' · Original model uses solid colors, no image maps':surface==='image-mapped'?' · Original model includes embedded image maps':''):'Choose an existing fixture or place something from the catalog.';
+  (surface==='color-only'?' · Color-only source with material-aware Builder texturing':surface==='image-mapped'?' · Original model includes embedded image maps':''):'Choose an existing fixture or place something from the catalog.';
  $('transform-fields').hidden=!id;
  if(!id||!p){refreshOutliner();return}
  $('placement-tip').textContent='Selected '+labels(id)+' · Wheel rotates 15° · Shift+wheel zooms camera · Drag handles for precise placement';
@@ -156,16 +158,16 @@ function populateCatalog(){
    const b=document.createElement('button');b.className='catalog-item';b.type='button';
    if(item.thumb){const preview=document.createElement('img');preview.className='asset-thumb';preview.loading='lazy';preview.alt='';preview.src=new URL('../'+item.thumb,import.meta.url).href;b.append(preview)}
    const t=document.createElement('span'),strong=document.createElement('strong'),small=document.createElement('small');
-   const materialLabel=item.materialStyle==='image-mapped'?' · image maps':item.materialStyle==='color-only'?' · solid colors':'';
+   const materialLabel=item.materialStyle==='image-mapped'?' · image maps':item.materialStyle==='color-only'?' · enhanced materials':'';
    strong.textContent=item.label;small.textContent=item.category+(item.condition==='weathered'?' · weathered':'')+materialLabel;t.append(strong,small);
    const plus=document.createElement('span');plus.className='plus';plus.textContent='＋';b.append(t,plus);
-   b.title='Preview '+item.label+' in the world'+(item.materialStyle==='color-only'?' · This source model uses material colors, not image texture maps':item.materialStyle==='image-mapped'?' · Includes embedded image maps':'');
+   b.title='Preview '+item.label+' in the world'+(item.materialStyle==='color-only'?' · Original CC0 source uses flat colors; compatible surfaces are textured in the Builder':item.materialStyle==='image-mapped'?' · Includes embedded image maps':'');
    b.addEventListener('click',async()=>{
     try{
      $('placement-tip').textContent='Loading '+item.label+' · Wheel will rotate the preview';
      await editor.beginPlacement(item.id);
      if(!editor.placing)return; // superseded by another selection
-     $('placement-tip').textContent='PLACE '+item.label.toUpperCase()+' · Move mouse to position · Wheel rotate · Shift+wheel distance · Click to place · Esc to cancel'+(item.materialStyle==='color-only'?' · Source uses solid colors, no image textures':'');
+     $('placement-tip').textContent='PLACE '+item.label.toUpperCase()+' · Move mouse to position · Wheel rotate · Shift+wheel distance · Click to place · Esc to cancel'+(item.materialStyle==='color-only'?' · Builder adds textures to compatible material groups':'');
     }catch(e){report(e)}
    });parent.append(b);
   }
@@ -321,6 +323,16 @@ function setPlacementOptions(options={}){
  $('allow-clipping').checked=next.allowClipping;
  return next;
 }
+function updateFinishSwatch(part){
+ const select=$('finish-'+part),swatch=$('finish-preview-'+part);
+ if(!swatch)return;
+ const finish=ROOM_FINISHES_V87[part].find(o=>o.id===select.value);
+ swatch.style.backgroundImage=finish?.path?
+  'url("'+new URL('../'+finish.path,import.meta.url).href+'")':'none';
+ swatch.dataset.textured=String(!!finish?.path);
+ swatch.textContent=finish?.path?'':'Original';
+ swatch.setAttribute('aria-label',(finish?.label||'Original')+' '+part+' texture preview');
+}
 function syncFinishInputs(){
  if(!roomFinishes||!$('finish-room'))return;
  const id=$('finish-room').value,selection=status.draft.surfaces?.[id]||{};
@@ -328,6 +340,7 @@ function syncFinishInputs(){
   const select=$('finish-'+part);
   select.value=selection[part]||'original';
   select.disabled=!id||(part==='ceiling'&&!roomFinishes.counts(id)?.ceiling);
+  updateFinishSwatch(part);
  }
  $('finish-apply').disabled=!id;
 }
@@ -400,6 +413,7 @@ function wireUI(){
   }
  }
  $('finish-room').addEventListener('change',syncFinishInputs);
+ for(const part of ['wall','floor','ceiling'])$('finish-'+part).addEventListener('change',()=>updateFinishSwatch(part));
  $('finish-apply').addEventListener('click',async()=>{
   const roomId=$('finish-room').value;if(!roomId)return;
   const finishes=Object.fromEntries(['wall','floor','ceiling'].filter(

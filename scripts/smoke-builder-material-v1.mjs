@@ -26,7 +26,7 @@ try{
  assert.equal(await page.locator('.catalog-item').count(),338);
  const bench=page.locator('.catalog-item').filter({hasText:'Bench'}).first();
  assert.ok((await bench.count())>=1,'color-only bench remains selectable');
- assert.match(await bench.getAttribute('title'),/material colors, not image texture maps/);
+ assert.match(await bench.getAttribute('title'),/Original CC0 source uses flat colors; compatible surfaces are textured in the Builder/);
  await picker.selectOption('');
  assert.equal(await page.locator('.catalog-item').count(),510);
  assert.equal((await page.locator('#catalog-material option').count()),3);

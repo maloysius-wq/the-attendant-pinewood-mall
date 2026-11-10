@@ -32,7 +32,7 @@ export function createRoomFinishesV87(building){
  async function textureFor(part,id){
   const source=ROOM_FINISHES_V87[part]?.find(x=>x.id===id)?.path;
   if(!source)throw Error('Unknown/empty finish '+part+' '+id);
-  if(!/^(assets\/vendor\/(?:builder\/finishes|runtime)\/|opening\/assets\/v80\/)[\w/-]+\.jpe?g$/.test(source))
+  if(!/^(assets\/vendor\/(?:builder\/(?:finishes|materials-v91)|runtime)\/|opening\/assets\/v80\/)[\w/-]+\.jpe?g$/.test(source))
    throw Error('Nonlocal room material blocked: '+source);
   if(!textureCache.has(source)){
    const pending=new THREE.TextureLoader().loadAsync(new URL('../'+source,import.meta.url).href)

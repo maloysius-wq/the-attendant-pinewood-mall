@@ -1,0 +1,769 @@
+{
+  "version": 91,
+  "generatedOn": "2026-11-10",
+  "sourceApi": "https://api.polyhaven.com/assets?t=textures",
+  "materialCount": 50,
+  "materials": [
+    {
+      "id": "blue_metal_plate",
+      "label": "Painted industrial metal",
+      "roomParts": [],
+      "propRoles": [
+        "paintedMetalBlue"
+      ],
+      "path": "assets/vendor/builder/materials-v91/blue_metal_plate_diff_1k.jpg",
+      "sha256": "a0162bffce47d4a35613a12af22571b28c18412dc5805cbb69eac343554ef750",
+      "bytes": 395923,
+      "source": "https://polyhaven.com/a/blue_metal_plate",
+      "downloadSource": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/blue_metal_plate/blue_metal_plate_diff_1k.jpg",
+      "license": "CC0-1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/"
+    },
+    {
+      "id": "blue_plaster_wall",
+      "label": "Faded blue plaster",
+      "roomParts": [
+        "wall"
+      ],
+      "propRoles": [],
+      "path": "assets/vendor/builder/materials-v91/blue_plaster_wall_diff_1k.jpg",
+      "sha256": "e578c59abefcc0c2a1f95af5b16b3c3ba561efa5f0bc10d825e3a787fde84924",
+      "bytes": 593044,
+      "source": "https://polyhaven.com/a/blue_plaster_wall",
+      "downloadSource": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/blue_plaster_wall/blue_plaster_wall_diff_1k.jpg",
+      "license": "CC0-1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/"
+    },
+    {
+      "id": "blue_plaster_weathered",
+      "label": "Blue painted wall, peeling",
+      "roomParts": [
+        "wall"
+      ],
+      "propRoles": [],
+      "path": "assets/vendor/builder/materials-v91/blue_plaster_weathered_diff_1k.jpg",
+      "sha256": "76a149dc21c5e53db9a61e7d65e9398fbaa217f9e75b4206695e32a05dc1e2d3",
+      "bytes": 710236,
+      "source": "https://polyhaven.com/a/blue_plaster_weathered",
+      "downloadSource": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/blue_plaster_weathered/blue_plaster_weathered_diff_1k.jpg",
+      "license": "CC0-1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/"
+    },
+    {
+      "id": "brick_wall_006",
+      "label": "1970s brick",
+      "roomParts": [
+        "wall"
+      ],
+      "propRoles": [],
+      "path": "assets/vendor/builder/materials-v91/brick_wall_006_diff_1k.jpg",
+      "sha256": "4af90c68ddaee080daaa41f3c3d974d47d7549fdf33014d756dd0d6d75622819",
+      "bytes": 1107155,
+      "source": "https://polyhaven.com/a/brick_wall_006",
+      "downloadSource": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/brick_wall_006/brick_wall_006_diff_1k.jpg",
+      "license": "CC0-1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/"
+    },
+    {
+      "id": "brick_wall_02",
+      "label": "Dark red brick",
+      "roomParts": [
+        "wall"
+      ],
+      "propRoles": [],
+      "path": "assets/vendor/builder/materials-v91/brick_wall_02_diff_1k.jpg",
+      "sha256": "e80aad85ff49b70af5e554d28adf1009adca409fe5d89c2647595254f972df9c",
+      "bytes": 1032279,
+      "source": "https://polyhaven.com/a/brick_wall_02",
+      "downloadSource": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/brick_wall_02/brick_wall_02_diff_1k.jpg",
+      "license": "CC0-1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/"
+    },
+    {
+      "id": "brick_wall_10",
+      "label": "Worn commercial brick",
+      "roomParts": [
+        "wall"
+      ],
+      "propRoles": [],
+      "path": "assets/vendor/builder/materials-v91/brick_wall_10_diff_1k.jpg",
+      "sha256": "6acfca2cecd9861f0531b7bc2179c8ca74c9f8535f53166de676af40f2e8f6df",
+      "bytes": 772402,
+      "source": "https://polyhaven.com/a/brick_wall_10",
+      "downloadSource": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/brick_wall_10/brick_wall_10_diff_1k.jpg",
+      "license": "CC0-1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/"
+    },
+    {
+      "id": "broken_wall",
+      "label": "Broken plaster and exposed brick",
+      "roomParts": [
+        "wall"
+      ],
+      "propRoles": [],
+      "path": "assets/vendor/builder/materials-v91/broken_wall_diff_1k.jpg",
+      "sha256": "f51cd1d6be47770b8b5d4a11b0eac3711b04bb3c2794a882d60180f21b356896",
+      "bytes": 650170,
+      "source": "https://polyhaven.com/a/broken_wall",
+      "downloadSource": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/broken_wall/broken_wall_diff_1k.jpg",
+      "license": "CC0-1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/"
+    },
+    {
+      "id": "brushed_concrete",
+      "label": "Rough stone and masonry",
+      "roomParts": [],
+      "propRoles": [
+        "stone"
+      ],
+      "path": "assets/vendor/builder/materials-v91/brushed_concrete_diff_1k.jpg",
+      "sha256": "4054ed6eb65cd063356ffb4a88706b7d7b78c5435051c48bf0ee64290f04bc8c",
+      "bytes": 847278,
+      "source": "https://polyhaven.com/a/brushed_concrete",
+      "downloadSource": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/brushed_concrete/brushed_concrete_diff_1k.jpg",
+      "license": "CC0-1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/"
+    },
+    {
+      "id": "cherry_veneer",
+      "label": "Cherry veneer",
+      "roomParts": [],
+      "propRoles": [
+        "woodCherry"
+      ],
+      "path": "assets/vendor/builder/materials-v91/cherry_veneer_diff_1k.jpg",
+      "sha256": "d50fed9f9964721d6b18581cadb6d95717a714b85361b22078e7d913ba5ce4d2",
+      "bytes": 485750,
+      "source": "https://polyhaven.com/a/cherry_veneer",
+      "downloadSource": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/cherry_veneer/cherry_veneer_diff_1k.jpg",
+      "license": "CC0-1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/"
+    },
+    {
+      "id": "concrete_floor_worn_001",
+      "label": "Scuffed service concrete",
+      "roomParts": [
+        "floor"
+      ],
+      "propRoles": [],
+      "path": "assets/vendor/builder/materials-v91/concrete_floor_worn_001_diff_1k.jpg",
+      "sha256": "6e40c0fc908f4d66431836f5abe203f3a4eb064e88824378a91a46a26e2f464c",
+      "bytes": 118806,
+      "source": "https://polyhaven.com/a/concrete_floor_worn_001",
+      "downloadSource": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/concrete_floor_worn_001/concrete_floor_worn_001_diff_1k.jpg",
+      "license": "CC0-1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/"
+    },
+    {
+      "id": "concrete_tiles_02",
+      "label": "Stained square concrete tiles",
+      "roomParts": [
+        "floor"
+      ],
+      "propRoles": [],
+      "path": "assets/vendor/builder/materials-v91/concrete_tiles_02_diff_1k.jpg",
+      "sha256": "2b0af74cd45e3e0e31ad309499929b8957eab624994e820ac39ed4c0d1022b39",
+      "bytes": 599451,
+      "source": "https://polyhaven.com/a/concrete_tiles_02",
+      "downloadSource": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/concrete_tiles_02/concrete_tiles_02_diff_1k.jpg",
+      "license": "CC0-1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/"
+    },
+    {
+      "id": "concrete_wall_009",
+      "label": "Water-streaked concrete",
+      "roomParts": [
+        "wall"
+      ],
+      "propRoles": [],
+      "path": "assets/vendor/builder/materials-v91/concrete_wall_009_diff_1k.jpg",
+      "sha256": "59811fad71658323462287b072eef22ebb857c13bba63eeff34842a4d4dba8fe",
+      "bytes": 626688,
+      "source": "https://polyhaven.com/a/concrete_wall_009",
+      "downloadSource": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/concrete_wall_009/concrete_wall_009_diff_1k.jpg",
+      "license": "CC0-1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/"
+    },
+    {
+      "id": "cracked_concrete_wall",
+      "label": "Cracked utilitarian concrete",
+      "roomParts": [
+        "wall"
+      ],
+      "propRoles": [],
+      "path": "assets/vendor/builder/materials-v91/cracked_concrete_wall_diff_1k.jpg",
+      "sha256": "f910cbaff5a0fbd778a8c41947ac826f2313e70e9b4077bc39221a417fa8d5b4",
+      "bytes": 1073985,
+      "source": "https://polyhaven.com/a/cracked_concrete_wall",
+      "downloadSource": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/cracked_concrete_wall/cracked_concrete_wall_diff_1k.jpg",
+      "license": "CC0-1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/"
+    },
+    {
+      "id": "damaged_plaster",
+      "label": "Flaking damaged plaster",
+      "roomParts": [
+        "wall",
+        "ceiling"
+      ],
+      "propRoles": [],
+      "path": "assets/vendor/builder/materials-v91/damaged_plaster_diff_1k.jpg",
+      "sha256": "391649dbb391c978b0d95cdd2351617fe3b7a577e432b94171208e576c9b2c63",
+      "bytes": 850524,
+      "source": "https://polyhaven.com/a/damaged_plaster",
+      "downloadSource": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/damaged_plaster/damaged_plaster_diff_1k.jpg",
+      "license": "CC0-1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/"
+    },
+    {
+      "id": "denim_fabric_04",
+      "label": "Faded heavy cloth",
+      "roomParts": [],
+      "propRoles": [
+        "fabricBlue"
+      ],
+      "path": "assets/vendor/builder/materials-v91/denim_fabric_04_diff_1k.jpg",
+      "sha256": "fc2527c166196684e588ef858daf977285b6701a3c4a68ef71da0c8f01f00263",
+      "bytes": 942399,
+      "source": "https://polyhaven.com/a/denim_fabric_04",
+      "downloadSource": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/denim_fabric_04/denim_fabric_04_diff_1k.jpg",
+      "license": "CC0-1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/"
+    },
+    {
+      "id": "granite_tile",
+      "label": "Faded granite tile",
+      "roomParts": [
+        "floor"
+      ],
+      "propRoles": [],
+      "path": "assets/vendor/builder/materials-v91/granite_tile_diff_1k.jpg",
+      "sha256": "9df48b66055588708d446e69f37ea6146b8d5d3df54cd1ff088ec688acdca95c",
+      "bytes": 676597,
+      "source": "https://polyhaven.com/a/granite_tile",
+      "downloadSource": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/granite_tile/granite_tile_diff_1k.jpg",
+      "license": "CC0-1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/"
+    },
+    {
+      "id": "herringbone_parquet",
+      "label": "Herringbone parquet",
+      "roomParts": [
+        "floor"
+      ],
+      "propRoles": [],
+      "path": "assets/vendor/builder/materials-v91/herringbone_parquet_diff_1k.jpg",
+      "sha256": "d6c66492a6c4cfd4e8ed18c9cdd4e0303f3de4e04613d2adca8bc2b8f2dd2350",
+      "bytes": 829046,
+      "source": "https://polyhaven.com/a/herringbone_parquet",
+      "downloadSource": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/herringbone_parquet/herringbone_parquet_diff_1k.jpg",
+      "license": "CC0-1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/"
+    },
+    {
+      "id": "laminate_floor_02",
+      "label": "1990s commercial laminate",
+      "roomParts": [
+        "floor"
+      ],
+      "propRoles": [],
+      "path": "assets/vendor/builder/materials-v91/laminate_floor_02_diff_1k.jpg",
+      "sha256": "c112a8fb107d8600a2974af2f9fa9b595c491a33a59982e22706e9650990bf8f",
+      "bytes": 721641,
+      "source": "https://polyhaven.com/a/laminate_floor_02",
+      "downloadSource": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/laminate_floor_02/laminate_floor_02_diff_1k.jpg",
+      "license": "CC0-1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/"
+    },
+    {
+      "id": "laminate_floor_03",
+      "label": "Dark laminate floor",
+      "roomParts": [
+        "floor"
+      ],
+      "propRoles": [],
+      "path": "assets/vendor/builder/materials-v91/laminate_floor_03_diff_1k.jpg",
+      "sha256": "ce2813cdc714fc5a2d816c9b79a0b4aece71c8d5bf56db52331cf413d950eae3",
+      "bytes": 701368,
+      "source": "https://polyhaven.com/a/laminate_floor_03",
+      "downloadSource": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/laminate_floor_03/laminate_floor_03_diff_1k.jpg",
+      "license": "CC0-1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/"
+    },
+    {
+      "id": "large_floor_tiles_02",
+      "label": "Large 1980s ceramic tile",
+      "roomParts": [
+        "floor"
+      ],
+      "propRoles": [],
+      "path": "assets/vendor/builder/materials-v91/large_floor_tiles_02_diff_1k.jpg",
+      "sha256": "3865ed2510bad61c7c62fe9f854d5af57f1bc37e4b6d8931f03b12d033f9e17c",
+      "bytes": 557814,
+      "source": "https://polyhaven.com/a/large_floor_tiles_02",
+      "downloadSource": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/large_floor_tiles_02/large_floor_tiles_02_diff_1k.jpg",
+      "license": "CC0-1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/"
+    },
+    {
+      "id": "oak_veneer_01",
+      "label": "Light oak veneer",
+      "roomParts": [],
+      "propRoles": [
+        "woodLight"
+      ],
+      "path": "assets/vendor/builder/materials-v91/oak_veneer_01_diff_1k.jpg",
+      "sha256": "c14681f72f59f17bff568cae7a837641443b607b899f0c279cd64a5638f877a7",
+      "bytes": 641756,
+      "source": "https://polyhaven.com/a/oak_veneer_01",
+      "downloadSource": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/oak_veneer_01/oak_veneer_01_diff_1k.jpg",
+      "license": "CC0-1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/"
+    },
+    {
+      "id": "old_wooden_floor_01",
+      "label": "Aged parquet boards",
+      "roomParts": [
+        "floor"
+      ],
+      "propRoles": [],
+      "path": "assets/vendor/builder/materials-v91/old_wooden_floor_01_diff_1k.jpg",
+      "sha256": "e7d18d40d5b75ce197578c9ba07de76b5e457ad53c66a662a3d913bf95cf48ef",
+      "bytes": 606736,
+      "source": "https://polyhaven.com/a/old_wooden_floor_01",
+      "downloadSource": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/old_wooden_floor_01/old_wooden_floor_01_diff_1k.jpg",
+      "license": "CC0-1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/"
+    },
+    {
+      "id": "painted_metal_shutter",
+      "label": "Worn retail security shutter",
+      "roomParts": [
+        "wall"
+      ],
+      "propRoles": [],
+      "path": "assets/vendor/builder/materials-v91/painted_metal_shutter_diff_1k.jpg",
+      "sha256": "278394aabcb5a5bd560d9904358682acc5af23666b22bd1f12558789da4aa4d2",
+      "bytes": 627333,
+      "source": "https://polyhaven.com/a/painted_metal_shutter",
+      "downloadSource": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/painted_metal_shutter/painted_metal_shutter_diff_1k.jpg",
+      "license": "CC0-1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/"
+    },
+    {
+      "id": "painted_plaster_wall",
+      "label": "Aged painted plaster",
+      "roomParts": [
+        "wall",
+        "ceiling"
+      ],
+      "propRoles": [],
+      "path": "assets/vendor/builder/materials-v91/painted_plaster_wall_diff_1k.jpg",
+      "sha256": "440310f05af089f2c93353167573403cbc3f805948203237b5d26431eeb9e19c",
+      "bytes": 686726,
+      "source": "https://polyhaven.com/a/painted_plaster_wall",
+      "downloadSource": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/painted_plaster_wall/painted_plaster_wall_diff_1k.jpg",
+      "license": "CC0-1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/"
+    },
+    {
+      "id": "patterned_terracotta_tiling",
+      "label": "Retro patterned terracotta",
+      "roomParts": [
+        "floor"
+      ],
+      "propRoles": [],
+      "path": "assets/vendor/builder/materials-v91/patterned_terracotta_tiling_diff_1k.jpg",
+      "sha256": "b5f61a20b1eea8fdc940e3e9067c9b5884d4d897fab79750798a2a7077c10f6b",
+      "bytes": 515985,
+      "source": "https://polyhaven.com/a/patterned_terracotta_tiling",
+      "downloadSource": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/patterned_terracotta_tiling/patterned_terracotta_tiling_diff_1k.jpg",
+      "license": "CC0-1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/"
+    },
+    {
+      "id": "plaster_brick_pattern",
+      "label": "Painted brickwork",
+      "roomParts": [
+        "wall"
+      ],
+      "propRoles": [],
+      "path": "assets/vendor/builder/materials-v91/plaster_brick_pattern_diff_1k.jpg",
+      "sha256": "aa819b67a5b156c9a853f27b3391fb4a608780435c8b4123e7d57996549802fb",
+      "bytes": 544108,
+      "source": "https://polyhaven.com/a/plaster_brick_pattern",
+      "downloadSource": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/plaster_brick_pattern/plaster_brick_pattern_diff_1k.jpg",
+      "license": "CC0-1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/"
+    },
+    {
+      "id": "plastered_wall",
+      "label": "Worn retail plaster",
+      "roomParts": [
+        "wall",
+        "ceiling"
+      ],
+      "propRoles": [],
+      "path": "assets/vendor/builder/materials-v91/plastered_wall_diff_1k.jpg",
+      "sha256": "73312ebb6eabc8e0a55addd8a82a8924bcd1e717b9488a887cc77f14b6ea554e",
+      "bytes": 617080,
+      "source": "https://polyhaven.com/a/plastered_wall",
+      "downloadSource": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/plastered_wall/plastered_wall_diff_1k.jpg",
+      "license": "CC0-1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/"
+    },
+    {
+      "id": "plastered_wall_04",
+      "label": "Scuffed pale plaster",
+      "roomParts": [
+        "wall",
+        "ceiling"
+      ],
+      "propRoles": [],
+      "path": "assets/vendor/builder/materials-v91/plastered_wall_04_diff_1k.jpg",
+      "sha256": "52d789111bbe93d311c22e49d28b56256593c8f84c75742642403da857a36503",
+      "bytes": 299230,
+      "source": "https://polyhaven.com/a/plastered_wall_04",
+      "downloadSource": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/plastered_wall_04/plastered_wall_04_diff_1k.jpg",
+      "license": "CC0-1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/"
+    },
+    {
+      "id": "plastered_wall_05",
+      "label": "Weathered cream plaster",
+      "roomParts": [
+        "wall",
+        "ceiling"
+      ],
+      "propRoles": [],
+      "path": "assets/vendor/builder/materials-v91/plastered_wall_05_diff_1k.jpg",
+      "sha256": "b10e2fc12c6f6bb8a355fe7c5d6eab19222337414ce055df0701e75f5f603764",
+      "bytes": 557082,
+      "source": "https://polyhaven.com/a/plastered_wall_05",
+      "downloadSource": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/plastered_wall_05/plastered_wall_05_diff_1k.jpg",
+      "license": "CC0-1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/"
+    },
+    {
+      "id": "plywood",
+      "label": "Utility plywood",
+      "roomParts": [],
+      "propRoles": [
+        "plywood"
+      ],
+      "path": "assets/vendor/builder/materials-v91/plywood_diff_1k.jpg",
+      "sha256": "800905650fc6cab2fe7c77c41851f8ea89669f1287ad5ce67c48f435654c0af8",
+      "bytes": 882059,
+      "source": "https://polyhaven.com/a/plywood",
+      "downloadSource": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/plywood/plywood_diff_1k.jpg",
+      "license": "CC0-1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/"
+    },
+    {
+      "id": "polystyrene",
+      "label": "Old acoustic foam / insulation",
+      "roomParts": [
+        "ceiling"
+      ],
+      "propRoles": [
+        "plastic"
+      ],
+      "path": "assets/vendor/builder/materials-v91/polystyrene_diff_1k.jpg",
+      "sha256": "9dc9b2b6ef7767c81799db7ef170b8924a85339e1a30b16986aa96667c5ca4bb",
+      "bytes": 623314,
+      "source": "https://polyhaven.com/a/polystyrene",
+      "downloadSource": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/polystyrene/polystyrene_diff_1k.jpg",
+      "license": "CC0-1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/"
+    },
+    {
+      "id": "rectangular_parquet",
+      "label": "Rectangular wood block floor",
+      "roomParts": [
+        "floor"
+      ],
+      "propRoles": [],
+      "path": "assets/vendor/builder/materials-v91/rectangular_parquet_diff_1k.jpg",
+      "sha256": "e700a99972e3c9bb523b9cfaf436d0d77a9b65df3d3d347c980e4bf5b4ae22b4",
+      "bytes": 632054,
+      "source": "https://polyhaven.com/a/rectangular_parquet",
+      "downloadSource": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/rectangular_parquet/rectangular_parquet_diff_1k.jpg",
+      "license": "CC0-1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/"
+    },
+    {
+      "id": "red_plaster_weathered",
+      "label": "Worn red accent wall",
+      "roomParts": [
+        "wall"
+      ],
+      "propRoles": [],
+      "path": "assets/vendor/builder/materials-v91/red_plaster_weathered_diff_1k.jpg",
+      "sha256": "b49519d865609f137b1796114234183f512d936a51989b74a17a67b47d3bf668",
+      "bytes": 710340,
+      "source": "https://polyhaven.com/a/red_plaster_weathered",
+      "downloadSource": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/red_plaster_weathered/red_plaster_weathered_diff_1k.jpg",
+      "license": "CC0-1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/"
+    },
+    {
+      "id": "rough_linen",
+      "label": "Worn woven upholstery",
+      "roomParts": [],
+      "propRoles": [
+        "fabric"
+      ],
+      "path": "assets/vendor/builder/materials-v91/rough_linen_diff_1k.jpg",
+      "sha256": "04897d7611d7390ddf5b2c6f7273f448dfc48341fdbd1f4f207fa30b331d7f57",
+      "bytes": 835801,
+      "source": "https://polyhaven.com/a/rough_linen",
+      "downloadSource": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/rough_linen/rough_linen_diff_1k.jpg",
+      "license": "CC0-1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/"
+    },
+    {
+      "id": "rusty_metal_02",
+      "label": "Weathered steel",
+      "roomParts": [],
+      "propRoles": [
+        "metal"
+      ],
+      "path": "assets/vendor/builder/materials-v91/rusty_metal_02_diff_1k.jpg",
+      "sha256": "adaf094391518b6afe787a123942110aa88ef521c844f970b124420f5ed5d3d9",
+      "bytes": 564932,
+      "source": "https://polyhaven.com/a/rusty_metal_02",
+      "downloadSource": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/rusty_metal_02/rusty_metal_02_diff_1k.jpg",
+      "license": "CC0-1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/"
+    },
+    {
+      "id": "rusty_metal_04",
+      "label": "Rusted drawer pulls",
+      "roomParts": [],
+      "propRoles": [
+        "metalRusted"
+      ],
+      "path": "assets/vendor/builder/materials-v91/rusty_metal_04_diff_1k.jpg",
+      "sha256": "37c6757c5b6b2229f61423c7e5013f970e4dafb48070d35f53ed6d08958ed288",
+      "bytes": 938338,
+      "source": "https://polyhaven.com/a/rusty_metal_04",
+      "downloadSource": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/rusty_metal_04/rusty_metal_04_diff_1k.jpg",
+      "license": "CC0-1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/"
+    },
+    {
+      "id": "rusty_painted_metal",
+      "label": "Scratched painted metal",
+      "roomParts": [],
+      "propRoles": [
+        "paintedMetal"
+      ],
+      "path": "assets/vendor/builder/materials-v91/rusty_painted_metal_diff_1k.jpg",
+      "sha256": "b086937b45c3628116a838363364a29bd3c5d2542cff906ec1d92d681ee80e15",
+      "bytes": 471866,
+      "source": "https://polyhaven.com/a/rusty_painted_metal",
+      "downloadSource": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/rusty_painted_metal/rusty_painted_metal_diff_1k.jpg",
+      "license": "CC0-1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/"
+    },
+    {
+      "id": "scuba_suede",
+      "label": "Textured faux leather",
+      "roomParts": [],
+      "propRoles": [
+        "leather"
+      ],
+      "path": "assets/vendor/builder/materials-v91/scuba_suede_diff_1k.jpg",
+      "sha256": "ec8af4e3cfa5a1ec30fd9fb116e1821bca1e847d7458ebd9a1ad49254a817c3f",
+      "bytes": 784559,
+      "source": "https://polyhaven.com/a/scuba_suede",
+      "downloadSource": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/scuba_suede/scuba_suede_diff_1k.jpg",
+      "license": "CC0-1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/"
+    },
+    {
+      "id": "velour_velvet",
+      "label": "Old velvet upholstery",
+      "roomParts": [],
+      "propRoles": [
+        "velvet"
+      ],
+      "path": "assets/vendor/builder/materials-v91/velour_velvet_diff_1k.jpg",
+      "sha256": "e6e92d808b3456deb892ff17905f3b44717fcfbcbce9fcf03ad7abcabda799df",
+      "bytes": 735556,
+      "source": "https://polyhaven.com/a/velour_velvet",
+      "downloadSource": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/velour_velvet/velour_velvet_diff_1k.jpg",
+      "license": "CC0-1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/"
+    },
+    {
+      "id": "weathered_plank_siding",
+      "label": "Weathered wood panel wall",
+      "roomParts": [
+        "wall"
+      ],
+      "propRoles": [],
+      "path": "assets/vendor/builder/materials-v91/weathered_plank_siding_diff_1k.jpg",
+      "sha256": "dad0442114f1efd9a25195f2e2ac480693c2a6199f3987f4cfac4002b2820fbd",
+      "bytes": 567956,
+      "source": "https://polyhaven.com/a/weathered_plank_siding",
+      "downloadSource": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/weathered_plank_siding/weathered_plank_siding_diff_1k.jpg",
+      "license": "CC0-1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/"
+    },
+    {
+      "id": "white_plaster_02",
+      "label": "Cracked white plaster",
+      "roomParts": [
+        "wall",
+        "ceiling"
+      ],
+      "propRoles": [],
+      "path": "assets/vendor/builder/materials-v91/white_plaster_02_diff_1k.jpg",
+      "sha256": "a1ebbe091bd1ae93d2abd5de8d69f9003a8d0ee6532bcf9a87c2492c97051f23",
+      "bytes": 527219,
+      "source": "https://polyhaven.com/a/white_plaster_02",
+      "downloadSource": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/white_plaster_02/white_plaster_02_diff_1k.jpg",
+      "license": "CC0-1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/"
+    },
+    {
+      "id": "wood_cabinet_worn_long",
+      "label": "Worn wooden cabinet veneer",
+      "roomParts": [],
+      "propRoles": [
+        "woodDark"
+      ],
+      "path": "assets/vendor/builder/materials-v91/wood_cabinet_worn_long_diff_1k.jpg",
+      "sha256": "97edb74098efc27ca9891cb9dbab6d74b91f635d9fad5eba4f317b1e8e408a55",
+      "bytes": 420840,
+      "source": "https://polyhaven.com/a/wood_cabinet_worn_long",
+      "downloadSource": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/wood_cabinet_worn_long/wood_cabinet_worn_long_diff_1k.jpg",
+      "license": "CC0-1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/"
+    },
+    {
+      "id": "wood_floor",
+      "label": "Worn varnished wood floor",
+      "roomParts": [
+        "floor"
+      ],
+      "propRoles": [],
+      "path": "assets/vendor/builder/materials-v91/wood_floor_diff_1k.jpg",
+      "sha256": "2a1c07687b6dbb214c4b9213739c6d92d425f1f0fc8ab3ac157f105d78240789",
+      "bytes": 734493,
+      "source": "https://polyhaven.com/a/wood_floor",
+      "downloadSource": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/wood_floor/wood_floor_diff_1k.jpg",
+      "license": "CC0-1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/"
+    },
+    {
+      "id": "wood_floor_worn",
+      "label": "Scuffed strip wood floor",
+      "roomParts": [
+        "floor"
+      ],
+      "propRoles": [
+        "woodFloor"
+      ],
+      "path": "assets/vendor/builder/materials-v91/wood_floor_worn_diff_1k.jpg",
+      "sha256": "db386853009b92b9edd7255b35c9f7b0d4b7de16837a7a9da8422148754bc758",
+      "bytes": 629271,
+      "source": "https://polyhaven.com/a/wood_floor_worn",
+      "downloadSource": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/wood_floor_worn/wood_floor_worn_diff_1k.jpg",
+      "license": "CC0-1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/"
+    },
+    {
+      "id": "wood_plank_wall",
+      "label": "Aged tongue-and-groove panelling",
+      "roomParts": [
+        "wall"
+      ],
+      "propRoles": [],
+      "path": "assets/vendor/builder/materials-v91/wood_plank_wall_diff_1k.jpg",
+      "sha256": "680a9959d3f805254e00b3ce9adaffb7b01dccbe84f3e89379bb5f91a116ada5",
+      "bytes": 498698,
+      "source": "https://polyhaven.com/a/wood_plank_wall",
+      "downloadSource": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/wood_plank_wall/wood_plank_wall_diff_1k.jpg",
+      "license": "CC0-1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/"
+    },
+    {
+      "id": "wood_planks",
+      "label": "Old timber grain",
+      "roomParts": [],
+      "propRoles": [
+        "woodOld"
+      ],
+      "path": "assets/vendor/builder/materials-v91/wood_planks_diff_1k.jpg",
+      "sha256": "3b0669f683e4bf10f5a55a381cfa9669a7b8dfd921901829daa3b35acc2bbdec",
+      "bytes": 609525,
+      "source": "https://polyhaven.com/a/wood_planks",
+      "downloadSource": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/wood_planks/wood_planks_diff_1k.jpg",
+      "license": "CC0-1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/"
+    },
+    {
+      "id": "wood_table",
+      "label": "Old varnished wood tabletop",
+      "roomParts": [],
+      "propRoles": [
+        "woodTable"
+      ],
+      "path": "assets/vendor/builder/materials-v91/wood_table_diff_1k.jpg",
+      "sha256": "f81642ae141958feac6c5acac03e2aeb6cfe049dff301d0627e3c17f2dc5c7a5",
+      "bytes": 987969,
+      "source": "https://polyhaven.com/a/wood_table",
+      "downloadSource": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/wood_table/wood_table_diff_1k.jpg",
+      "license": "CC0-1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/"
+    },
+    {
+      "id": "wood_table_worn",
+      "label": "Desk wood veneer, worn",
+      "roomParts": [],
+      "propRoles": [
+        "wood"
+      ],
+      "path": "assets/vendor/builder/materials-v91/wood_table_worn_diff_1k.jpg",
+      "sha256": "092ab3465a6a24b24d092ea86865f332c3bd239b8eb2fd664b70357082031a3f",
+      "bytes": 761543,
+      "source": "https://polyhaven.com/a/wood_table_worn",
+      "downloadSource": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/wood_table_worn/wood_table_worn_diff_1k.jpg",
+      "license": "CC0-1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/"
+    },
+    {
+      "id": "wooden_floor_02",
+      "label": "Old wood plank floor",
+      "roomParts": [
+        "floor"
+      ],
+      "propRoles": [],
+      "path": "assets/vendor/builder/materials-v91/wooden_floor_02_diff_1k.jpg",
+      "sha256": "82e56941b7554ad8069d3e5fffa149165b01f52bafa2f631f1618a6cf166fd88",
+      "bytes": 729028,
+      "source": "https://polyhaven.com/a/wooden_floor_02",
+      "downloadSource": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/wooden_floor_02/wooden_floor_02_diff_1k.jpg",
+      "license": "CC0-1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/"
+    },
+    {
+      "id": "wooden_panels",
+      "label": "Wood-panelled retail ceiling",
+      "roomParts": [
+        "wall",
+        "ceiling"
+      ],
+      "propRoles": [],
+      "path": "assets/vendor/builder/materials-v91/wooden_panels_diff_1k.jpg",
+      "sha256": "736793db480954a1da44280522dfe86cededf6f3891344db76d5d0329cbf168d",
+      "bytes": 657473,
+      "source": "https://polyhaven.com/a/wooden_panels",
+      "downloadSource": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/wooden_panels/wooden_panels_diff_1k.jpg",
+      "license": "CC0-1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/"
+    }
+  ]
+}

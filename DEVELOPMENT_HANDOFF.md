@@ -1,5 +1,17 @@
 # Development Handoff: The Attendant: Pinewood Mall
 
+## Builder v91: 50 new CC0 room materials and multi-surface 1990s props (2026-11-10)
+
+User requested as many additional appropriate **wall, ceiling and floor textures** as possible and a comprehensive improvement of currently flat-colored asset materials. The original source audit had **324 of 482 new CC0 GLBs with no embedded image** plus **12 of 21** original selectable source models. Inspection of **1,051 primitive parts** revealed **458 primitives without usable TEXCOORD_0**, and revealed actual Kenney material groups: desks have `wood` and `metal`, and cabinet drawers have `wood`, `woodDark` and `metal`.
+
+A one-time, write-controlled vendor used the official Poly Haven CC0 material catalog/API to select and download **50 genuine 1K JPEG diffuse photos** directly into `assets/vendor/builder/materials-v91/`; all are locally pinned to **official source page, source URL, SHA-256, bytes and CC0** in `manifest-v91.json` and `LICENSES.md`. One verified asset lacked the requested JPEG and was skipped; only successfully pinned IDs were added to the generated `builder/material-options-v91.mjs` allowlist. **20 new wall, 13 floor, 8 ceiling choices** supplement, never replace, previous immutable saved IDs; swatch thumbnails in the room finish inspector show the actual selected image. Two of the 50 are shared between room and prop roles; the material role map offers **18 semantic prop texture styles**. The temporary write-enabled GitHub vendor workflow was removed from main and feature branch after successful vendoring. The reproducible `tools/vendor-builder-materials-v91.mjs` is development-only; it is NEVER shipped as a browser fetch path.
+
+New `builder/prop-materials-v91.js` applies CC0 images on separate original named GLB material surfaces, preserving original wood and metal tint instead of coating entire models or changing original .glb bytes. Named wood/woodDark/metal/fabric/leather/stone/panels are mapped individually; plain palette accents, transparent glass, CRT screens, emissive glows, plants and preserved original image maps remain untouched. For missing/degenerate source UVs, generator clones the mesh geometry and creates per-triangle box-projected UVs without changing positions, model scale, groups, or collider geometry. The original 41-room mall, playable campaign and v1 JSON layout schema remain unchanged.
+
+`scripts/test-builder-material-v91.mjs` independently verified 50 SHA/source/CC0 records, complete 324 color-only source audit, and true desk/cabinet GLB material names. **258/324** source color-only new models contained appropriate named parts for enhancements (436 source material groups); the other 66 remain the source colors rather than receiving inappropriate blanket maps. `scripts/smoke-builder-material-v91.mjs` passed in desktop Chromium: original 68 Builder fixtures inspected, 55 independently texture-enhanced; placed desk had **different wood and metal JPEGs** and cabinet had **three distinct wood/woodDark/metal maps**; 41-room finish choice, original save/JSON import/reload, no external visitor network requests and no runtime errors passed. Focused workflow `.github/workflows/pinewood-builder-material-v91.yml` and existing v1/v87/90/asset checks. [PR #86](https://github.com/maloysius-wq/the-attendant-pinewood-mall/pull/86). Confirm final PR head checks and Pages rollout before claiming live.
+
+---
+
 
 ## Builder v90: contractor vestibule and every room's visible wall finishes (2026-11-09)
 

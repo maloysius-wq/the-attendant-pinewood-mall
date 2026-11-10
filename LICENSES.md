@@ -360,3 +360,10 @@ All of the following are **bundled repository-local** files. Provenance, exact S
 **Additional original CC0 props:** `old-pc-compact-tower`, `old-pc-tower`, `tile-rubble-pile`, `charred-rubble-pile`, `spilled-trash-can`, `refuse-bags`, and `period-magazines`, sourced as unchanged, versioned GLBs from [3DAssets.dev](https://3dassets.dev/assets), all [CC0 1.0](https://creativecommons.org/publicdomain/zero/1.0/). Their individual licensed source pages, immutable versioned download URLs, model sizes, and hashes are all recorded in `assets/vendor/builder/era-catalog-v87.json`.
 
 These are Builder-only additions. Protected story/shell geometry and original story-campaign runtime assets remain unchanged.
+
+
+## Builder v91: 50 locally pinned Poly Haven CC0 material photographs
+
+All **50** Builder v91 1K JPEG albedo source photographs are published by [Poly Haven](https://polyhaven.com/textures) under [CC0 1.0](https://creativecommons.org/publicdomain/zero/1.0/). Each individual texture's **official asset page, official 1K download URL, exact original file byte length, and SHA-256** are recorded in [assets/vendor/builder/materials-v91/manifest-v91.json](assets/vendor/builder/materials-v91/manifest-v91.json). All 50 files live locally in `assets/vendor/builder/materials-v91/`. Their new Builder surface and prop mappings are recorded in `builder/material-options-v91.mjs`; no runtime network requests go to Poly Haven.
+
+The set adds **20 wall**, **13 floor**, and **8 ceiling** room-finish options, with shared materials deliberately available on more than one type of surface. It also contains **18 material-role mappings** (including warm and dark wood, furniture veneer, steel hardware, fabric, painted metal, brick/concrete, and stone) for material-by-material enhancement of source color-only CC0 GLBs. Some photographs serve both room finishes and props. The model GLBs are never altered; their original per-part material names, original colors, embedded image maps, and authorship remain intact. Browser-only UV projection and cloned shader materials apply to the Builder view; the game campaign and saved placement schema are unchanged.
