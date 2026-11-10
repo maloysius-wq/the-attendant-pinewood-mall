@@ -1,0 +1,24 @@
+name: Pinewood Builder material analysis v91
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'builder/**'
+      - 'scripts/audit-builder-materials-v91.mjs'
+      - '.github/workflows/pinewood-builder-material-v91.yml'
+      - 'tools/vendor-builder-materials-v91.mjs'
+      - 'assets/vendor/builder/materials-v91/**'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  inspect-materials:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Analyze individual color-only surface groups and missing UVs
+        run: node scripts/audit-builder-materials-v91.mjs
