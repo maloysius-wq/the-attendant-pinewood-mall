@@ -2,6 +2,7 @@ import * as THREE from '../vendor/three/build/three.module.js';
 import {makeOpeningScene} from '../opening/scene.js';
 import {installAbandonedFacadeV65} from '../opening/facade-v65.js';
 import {enlargeImportedLandscapeV64} from '../opening/landscape-scale-v64.js';
+import {getCinematicFrontWallV90} from './room-wall-layout-v90.mjs';
 
 // Mount the SAME locally licensed exterior staging as the opening cinematic.
 // Only the Builder sees these extra meshes; its original campaign is untouched.
@@ -13,6 +14,9 @@ export async function mountCinematicParkingLot({scene,building}){
  if(environment?.state!=='ready'||environment.car!=='loaded'||facade?.state!=='ready')
   throw Error('Opening cinematic exterior assets did not finish loading');
  enlargeImportedLandscapeV64(stage,environment);
+ // The cinematic replaces the canonical front wall with thicker real meshes.
+ // Measure their room-facing surface AND the opening/header, not the hidden wall.
+ const frontWall=getCinematicFrontWallV90(stage);
  const asphalt=stage.world.children.find(o=>
   o.isMesh&&o.geometry?.parameters?.width===115&&
   o.geometry.parameters.height===.43&&o.geometry.parameters.depth===88);
@@ -72,10 +76,12 @@ export async function mountCinematicParkingLot({scene,building}){
   paintedSegments:parkingPaint.userData.markingCounts.segments,
   licensedParkingProps:parkingProps.children.length,
   leaflessDeadTrees:deadTrees.length,
-  frontageDeadTrees:rooted.length
+  frontageDeadTrees:rooted.length,
+  frontWallSegments:frontWall.segments.length,
+  frontWallInteriorZ:frontWall.interiorFaceZ
  };
  return {
-  state,placementSurfaces:surfaces,
+  state,placementSurfaces:surfaces,frontWall,
   dispose(){
    for(const surface of surfaces){scene.remove(surface);surface.geometry.dispose();surface.material.dispose()}
    for(const lamp of lamps)scene.remove(lamp);

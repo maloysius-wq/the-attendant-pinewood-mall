@@ -57,6 +57,12 @@ The **Room surface finishes** inspector decorates one of 41 rooms, with separate
 
 The catalog now includes the [MadeByYeshe / TTT CC-BY 4.0](../LICENSES.md) **1990s CRT desktop PC (with keyboard and mouse)**, two sourced CC0 desktop computer towers, and five licensed abandonment props: shattered tiles, concrete/rebar rubble, a dented bin spilling trash, bags of rubbish and a stack of old magazines. The outdated Kenney LCD is no longer offered for new placements, but existing saved IDs resolve to the real CRT so no draft is lost. All new binaries and texture maps are pinned locally with SHA-256/source/licensing records, and the campaign remains unchanged. Desktop CI: `scripts/test-builder-v87.mjs`, `scripts/smoke-builder-v87.mjs` and `.github/workflows/pinewood-builder-v87.yml`.
 
+## Complete room-wall finish coverage (v90)
+
+Room **Walls** finishes now follow the actual, visible wall faces rather than only the nominal architectural outlines. The opening cinematic's thicker front facade replaces the hidden original exterior wall in the Builder, so the Contractor Service Vestibule and Boarded Main Entry receive their chosen wall finish on the **inside of the visible facade**. The contractor doorway itself stays open, while the genuine wall header above its door also receives the selected finish.
+
+A shared 41-room audit handles partitions and outer walls on all three floors. Wall finishes stop at the corresponding room ceiling or physical room height rather than continuing up the entire multi-storey exterior; adjoining rooms can select different textures, and overlaps between real wall segments are resolved instead of drawing multiple coplanar skins. Empty passageways, skylights, original doors, architectural collisions and the campaign are unchanged. Builder room finish layouts remain backwards compatible with v1 saved JSON. Source and desktop verification: `scripts/test-builder-room-walls-v90.mjs`, `scripts/smoke-builder-room-walls-v90.mjs`, and `.github/workflows/pinewood-builder-room-walls-v90.yml`.
+
 ## Controls
 
 | Action | Control |
