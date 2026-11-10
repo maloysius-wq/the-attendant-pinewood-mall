@@ -349,6 +349,26 @@ export async function createBuilderScene({scene,camera,domElement,onSelect=()=>{
   get placing(){return !!placing},
   get placementPending(){return previewPending},
   getMaterialStats:()=>materialEnhancer.getStats(),
+  inspectObjectMaterials:id=>{
+   const o=objects.get(id),materials=[];
+   if(!o)return null;
+   o.traverse(m=>{
+    if(!m.isMesh)return;
+    for(const source of (Array.isArray(m.material)?m.material:[m.material])){
+     if(!source)continue;
+     materials.push({
+      mesh:m.name,material:source.name,
+      role:source.userData?.builderEnhancedV91||null,
+      textured:!!source.map,
+      sourceMapPreserved:!!source.map&&!source.userData?.builderEnhancedV91,
+      uvReady:!!m.geometry?.getAttribute('uv'),
+      generatedUV:!!m.geometry?.userData?.builderGeneratedUVV91,
+      mapPath:source.map?.image?.currentSrc||source.map?.image?.src||null
+     });
+    }
+   });
+   return materials;
+  },
   waitForWheelEdits:()=>wheelTransforms,
   get isGizmoActive(){return !!transform.axis||transform.dragging},
   get placementValidity(){return {valid:ghostValid,reason:ghostReason}},
