@@ -38,39 +38,45 @@ try{
  const canvas=await page.locator('#world canvas').boundingBox();
  await page.mouse.move(canvas.x+canvas.width*.53,canvas.y+canvas.height*.55);
  const camera=await page.evaluate(()=>window.__PINEWOOD_BUILDER__.getCameraPose());
+ // Test genuine repeated mouse-wheel events on the original asset.
+ // Fail as soon as the first blocked scroll is detected to avoid a
+ // multi-minute CI timeout hiding the actual collision failure.
  const results=[];
- for(let n=1;n<=28;n++){
-  await page.mouse.wheel(0,-120);
-  await page.evaluate(()=>window.__PINEWOOD_BUILDER__.waitForWheelEdits());
-  const r=await page.evaluate(id=>{
-   const api=window.__PINEWOOD_BUILDER__,s=api.getState();
-   const inst=s.draft.added.find(a=>a.id===id);
-   return {yaw:inst?.rotation.y,status:document.getElementById('save-status')?.textContent};
-  },crt);
-  results.push(r);
-  if(n===4||n===12||n===24)
-   console.log('PINEWOOD_CRT_V94_ROTATE_STEP '+JSON.stringify({n,...r}));
+ for(const [direction,count] of [[-120,7],[120,3]]){
+  for(let n=1;n<=count;n++){
+   await page.mouse.wheel(0,direction);
+   await page.evaluate(()=>window.__PINEWOOD_BUILDER__.waitForWheelEdits());
+   const actual=await page.evaluate(id=>{
+    const api=window.__PINEWOOD_BUILDER__,state=api.getState();
+    return {yaw:state.draft.added.find(x=>x.id===id)?.rotation.y,
+     message:document.getElementById('save-status')?.textContent};
+   },crt);
+   const expected=results.length<count&&direction<0?n*Math.PI/12:(7-n)*Math.PI/12;
+   results.push({direction,n,...actual});
+   console.log('PINEWOOD_CRT_V94_ROTATE_STEP '+JSON.stringify({direction,n,...actual,expected}));
+   assert.ok(Math.abs(actual.yaw-expected)<.001,
+    'CRT blocked at turn '+n+' (direction '+direction+'): '+actual.message);
+  }
  }
- console.log('PINEWOOD_CRT_V94_ROTATION_SWEEP '+JSON.stringify(results));
- const final=(await page.evaluate(id=>window.__PINEWOOD_BUILDER__.getState().draft.added.find(a=>a.id===id),crt));
- assert.ok(Math.abs(final.rotation.y-28*Math.PI/12)<.001,
-  'actual desktop CRT rotates beyond one scroll step through 360 degrees with Allow overlap OFF');
+ const final=await page.evaluate(id=>window.__PINEWOOD_BUILDER__.getState().draft.added.find(a=>a.id===id),crt);
+ assert.ok(Math.abs(final.rotation.y-4*Math.PI/12)<.001,
+  '7 forward and 3 reverse wheel turns work with Allow overlap OFF');
  assert.deepEqual(await page.evaluate(()=>window.__PINEWOOD_BUILDER__.getCameraPose()),camera,
   'rotating CRT never zooms or rotates user camera');
  await page.evaluate(()=>window.__PINEWOOD_BUILDER__.undo());
  assert.ok(Math.abs((await page.evaluate(id=>window.__PINEWOOD_BUILDER__.getState().draft.added.find(a=>a.id===id),crt)).rotation.y-
-  27*Math.PI/12)<.001,'selected CRT wheel rotation remains undoable');
+  5*Math.PI/12)<.001,'selected CRT wheel rotation remains undoable');
  await page.evaluate(()=>window.__PINEWOOD_BUILDER__.redo());
  const exported=await page.evaluate(()=>window.__PINEWOOD_BUILDER__.exportJSON());
  await page.reload({waitUntil:'domcontentloaded'});
  await page.waitForFunction(()=>window.__PINEWOOD_BUILDER__?.ready||
   window.__PINEWOOD_BUILDER__?.getState().errors.length>0,null,{timeout:130000});
  const persisted=await page.evaluate(id=>window.__PINEWOOD_BUILDER__.getState().draft.added.find(a=>a.id===id),crt);
- assert.ok(Math.abs(persisted.rotation.y-28*Math.PI/12)<.001);
+ assert.ok(Math.abs(persisted.rotation.y-4*Math.PI/12)<.001);
  await page.evaluate(()=>window.__PINEWOOD_BUILDER__.clearDraft());
  await page.evaluate(json=>window.__PINEWOOD_BUILDER__.importJSON(json),exported);
  await page.evaluate(()=>window.__PINEWOOD_BUILDER__.clearDraft());
  assert.deepEqual(remote,[]);
  assert.deepEqual(errors,[]);
- console.log('PINEWOOD_BUILDER_CRT_V94_WHEEL_PASS '+JSON.stringify({turns:28,support:'real Kenney desk',overlap:false,legacySave:true}));
+ console.log('PINEWOOD_BUILDER_CRT_V94_WHEEL_PASS '+JSON.stringify({turns:10,support:'real Kenney desk',overlap:false,legacySave:true}));
 }finally{await browser.close()}
