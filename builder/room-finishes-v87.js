@@ -1,6 +1,7 @@
 import * as THREE from '../vendor/three/build/three.module.js';
 import {MALL} from '../mall/masterplan-v66.mjs';
 import {ROOM_FINISHES_V87} from './room-finishes-options-v87.mjs';
+import {planRoomWallFacesV90} from './room-wall-layout-v90.mjs';
 
 /**
  * Builder-only cosmetic finishes. Never change the canonical shared
@@ -17,6 +18,11 @@ export function createRoomFinishesV87(building){
   (name==='ceiling'?building.ceilings:building.group).add(g);
  }
  const textureCache=new Map();
+ let cinematicFrontWall=null;
+ const wallPlan=id=>{
+  const room=roomById.get(id);
+  return room?planRoomWallFacesV90(room,levelShells.get(room.level),cinematicFrontWall):[];
+ };
  const scaleUV=(geo,width,height,tile=2.6)=>{
   const uv=geo.getAttribute('uv');
   for(let i=0;i<uv.count;i++)uv.setXY(i,uv.getX(i)*Math.max(.1,width/tile),
@@ -62,23 +68,12 @@ export function createRoomFinishesV87(building){
   }
  }
  function renderWalls(room,id,texture){
-  const shell=levelShells.get(room.level),layer=finishes.wall;
-  for(const w of shell.walls){
-   if(w.role==='railing'||w.role==='gate'||w.top-w.bottom<.25)continue;
-   const axisX=w.axis==='x';
-   const at=axisX?[room.x1,room.x2]:[room.z1,room.z2];
-   const side=at.findIndex(edge=>Math.abs(w.at-edge)<.07);
-   if(side<0)continue;
-   const limits=axisX?[room.z1,room.z2]:[room.x1,room.x2];
-   const [lo,hi]=overlap(w.start,w.end,...limits);
-   if(hi-lo<.08)continue;
-   const length=hi-lo,height=w.top-w.bottom-.05;
-   const inset=(side===0?1:-1)*(w.thickness/2+.013);
-   const x=axisX?w.at+inset:(lo+hi)/2;
-   const z=axisX?(lo+hi)/2:w.at+inset;
-   // Axis-X partitions run along Z; Axis-Z partitions run along X.
-   const rot=axisX?(side===0?Math.PI/2:-Math.PI/2):(side===0?0:Math.PI);
-   paint(layer,'wall',room,id,texture,length,height,x,w.bottom+(w.top-w.bottom)/2,z,rot);
+  // The front-facing cinematic facade replaces the hidden shell wall.
+  // The shared planner also clips wall finish to each room's actual ceiling
+  // and resolves overlaps between differently sized adjacent partitions.
+  for(const p of wallPlan(room.id)){
+   paint(finishes.wall,'wall',room,id,texture,p.width,p.height,
+    p.x,p.y,p.z,p.rotationY);
   }
  }
  function renderCeiling(room,id,texture){
@@ -95,9 +90,7 @@ export function createRoomFinishesV87(building){
  function counts(roomId){
   const room=roomById.get(roomId);if(!room)return null;
   const shell=levelShells.get(room.level);
-  return {wall:shell.walls.filter(w=>w.role!=='railing'&&
-    ((w.axis==='x'&&[room.x1,room.x2].some(a=>Math.abs(w.at-a)<.07))||
-     (w.axis==='z'&&[room.z1,room.z2].some(a=>Math.abs(w.at-a)<.07)))).length,
+  return {wall:wallPlan(roomId).length,
    floor:shell.floorPlates.filter(p=>p.x1<room.x2&&p.x2>room.x1&&p.z1<room.z2&&p.z2>room.z1).length,
    ceiling:shell.ceilings.filter(p=>p.room===room.id).length};
  }
@@ -132,7 +125,10 @@ export function createRoomFinishesV87(building){
   for(const promise of textureCache.values())promise.then(t=>t.dispose()).catch(()=>{});
   textureCache.clear();
  }
- return {apply,counts,getCounts:()=>({
+ return {apply,counts,
+  setCinematicFrontWall:front=>{cinematicFrontWall=front;},
+  getWallPlans:wallPlan,
+  getCounts:()=>({
   floor:finishes.floor.children.length,wall:finishes.wall.children.length,
   ceiling:finishes.ceiling.children.length}),dispose};
 }
