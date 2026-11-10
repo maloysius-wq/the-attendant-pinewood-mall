@@ -1,6 +1,6 @@
 import * as THREE from '../vendor/three/build/three.module.js';
 import {PROP_MATERIALS_V91} from './material-options-v91.mjs';
-import {keepPeripheralColorsV92,isFurnitureV92,sourceTextureRoleV92} from './material-scale-v92.mjs';
+import {keepPeripheralColorsV92,isFurnitureV92,sourceTextureRoleV92,isBroadSurfacePropV97} from './material-scale-v92.mjs';
 import {CARDBOARD_MAPS_V93,isCardboardBoxV93,cardboardMaterialRoleV93} from './cardboard-materials-v93.mjs';
 
 /**
@@ -169,7 +169,7 @@ export function createBuilderMaterialEnhancerV91(){
    // Color-only furniture gets an entire photo per broad panel, even when
    // the original UV atlas technically exists but repeats excessively.
    // Keep all original embedded image UVs completely untouched.
-   if(canProject&&(isFurnitureV92(modelId+' '+mesh.name)||isCardboardBoxV93(modelId+' '+mesh.name))){
+   if(canProject&&(isFurnitureV92(modelId+' '+mesh.name)||isCardboardBoxV93(modelId+' '+mesh.name)||isBroadSurfacePropV97(modelId+' '+mesh.name))){
     mesh.geometry=boxProjectFurnitureUVV92(mesh.geometry,{
      repeatsAcrossLongest:isCardboardBoxV93(modelId+' '+mesh.name)?.82:.92
     });

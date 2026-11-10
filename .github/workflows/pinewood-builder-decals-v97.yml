@@ -1,0 +1,44 @@
+name: Pinewood Builder CC0 surface grime and broad prop materials v97
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'assets/vendor/builder/decals-v97/**'
+      - 'builder/decals-v97.js'
+      - 'builder/editor-scene.js'
+      - 'builder/main.js'
+      - 'builder/index.html'
+      - 'builder/material-scale-v92.mjs'
+      - 'builder/prop-materials-v91.js'
+      - 'mall/editor-schema-v1.mjs'
+      - 'scripts/test-builder-decals-v97.mjs'
+      - 'scripts/smoke-builder-decals-v97.mjs'
+      - '.github/workflows/pinewood-builder-decals-v97.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  licensed-decals-desktop:
+    if: github.repository == 'maloysius-wq/the-attendant-pinewood-mall'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 16
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Validate all 36 source-pinned CC0 grime decals and original source models
+        run: |
+          node --test scripts/test-builder-decals-v97.mjs scripts/test-builder-v87.mjs
+          node --test scripts/audit-builder-assets-v1.mjs
+      - name: Install desktop-only Chromium
+        run: |
+          npm install --no-save playwright@1.55.0
+          npx playwright install chromium
+      - name: Serve repository-local game and 640px alpha stamps
+        run: |
+          python3 -m http.server 4173 --bind 127.0.0.1 >/tmp/pinewood-v97-http.log 2>&1 &
+          for i in {1..30}; do curl -fsS http://127.0.0.1:4173/builder/ >/dev/null && exit 0; sleep 1; done
+          exit 1
+      - name: Test floor and wall decal placement, opacity, assets, broad textures and defaults
+        run: node scripts/smoke-builder-decals-v97.mjs

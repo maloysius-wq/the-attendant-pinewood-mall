@@ -22,12 +22,12 @@ try{
  let s=await state();
  assert.equal(s.ready,true,JSON.stringify(s.errors));
  assert.equal(s.roomCount,41);
- assert.equal(s.catalogCount,511,'503 original models plus 8 vetted era-appropriate props');
- assert.equal(await page.locator('.catalog-item').count(),510,'retired modern LCD excluded from new placements');
+ assert.equal(s.catalogCount,547,'503 source models, 8 era props and 36 CC0 grime decals');
+ assert.equal(await page.locator('.catalog-item').count(),546,'retired modern LCD excluded, 36 new decals included');
  assert.equal(await page.locator('#aim-reticle').count(),1);
- assert.equal(await page.locator('#snap-grid').isChecked(),true);
- assert.equal(await page.locator('#allow-clipping').isChecked(),false);
- assert.deepEqual(s.placementOptions,{gridSize:.5,allowClipping:false});
+ assert.equal(await page.locator('#snap-grid').isChecked(),false);
+ assert.equal(await page.locator('#allow-clipping').isChecked(),true);
+ assert.deepEqual(s.placementOptions,{gridSize:0,allowClipping:true});
 
  // Render the actual 1990s CRT and ensure the preview rotates, NOT the user.
  await page.locator('#catalog-search').fill('CRT desktop computer');
@@ -57,13 +57,17 @@ try{
 
  // Snap must use the selected physical interval, and be switchable.
  await page.locator('#grid-size').selectOption('0.25');
+ assert.equal((await state()).placementOptions.gridSize,0,'changing grid spacing does not re-enable snap');
+ await page.locator('#snap-grid').check();
  assert.equal((await state()).placementOptions.gridSize,.25);
  await page.locator('#snap-grid').uncheck();
  assert.equal((await state()).placementOptions.gridSize,0);
  await page.locator('#snap-grid').check();
  assert.equal((await state()).placementOptions.gridSize,.25);
 
- // Collisions are blocked for new placement and transformations by default.
+ // Owner-selected default allows overlap; strict collisions remain available.
+ await page.locator('#allow-clipping').uncheck();
+ assert.equal((await state()).placementOptions.allowClipping,false);
  const outsidePosition={x:555,y:-5,z:555};
  const blocked=await page.evaluate(async pos=>{
   try{
@@ -155,6 +159,6 @@ try{
  assert.deepEqual(errors,[],'no uncaught Builder errors');
  console.log('PINEWOOD_BUILDER_V87_DESKTOP_PASS',JSON.stringify({
   catalog:511,visible:510,finishes:counts,reticle:true,snapping:true,
-  collisionDefault:true,overlapOptIn:true,crtWheelRotation:true,persistence:true
+  collisionOptOut:true,overlapByDefault:true,crtWheelRotation:true,persistence:true
  }));
 }finally{await browser.close()}

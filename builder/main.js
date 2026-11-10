@@ -12,12 +12,13 @@ import {mountCinematicParkingLot} from './exterior-scene.js';
 import {createRoomFinishesV87} from './room-finishes-v87.js';
 import {ROOM_FINISHES_V87} from './room-finishes-options-v87.mjs';
 import {blockedOperationV95,blockedMessageV95} from './blocked-feedback-v95.mjs';
+import {registerDecalCatalogV97,isDecalV97} from './decals-v97.js';
 
 const $=id=>document.getElementById(id);
 const status={ready:false,errors:[],selected:null,roomCount:MALL.rooms.length,
  fixtureCount:FURNISHINGS_V69.fixtures.length,catalogCount:EDITOR_CATALOG_V1.length,
  draft:createEmptyDraft(),navigation:{mode:'orbit',floor:'G',unlockAll:true},workLights:false,
- placementOptions:{gridSize:.5,allowClipping:false},finishMeshes:{floor:0,wall:0,ceiling:0}};
+ placementOptions:{gridSize:0,allowClipping:true},finishMeshes:{floor:0,wall:0,ceiling:0}};
 let scene,camera,renderer,orbit,editor,navigation,workLighting,exterior,roomFinishes,
  frames=0,undoStack=[],redoStack=[],idCounter=0,savePending;
 let blockedWarning=null;
@@ -51,6 +52,9 @@ async function loadVendorCatalog(){
  if(era.version!==87||!Array.isArray(era.models)||era.models.length!==8)
   throw Error('Outdated period-correct source model catalog');
  catalog.push(...registerVendorCatalog(era.models));
+ const decalsResp=await fetch(new URL('../assets/vendor/builder/decals-v97/manifest-v97.json',import.meta.url));
+ if(!decalsResp.ok)throw Error('The pinned CC0 surface decal catalog is unavailable');
+ registerDecalCatalogV97(await decalsResp.json(),catalog,EDITOR_CATALOG_BY_ID);
  status.catalogCount=catalog.length;
 }
 
@@ -153,11 +157,14 @@ function writeInspector(id,p){
  status.selected=id;
  $('selection-name').textContent=id?labels(id):'Nothing selected';
  const placed=status.draft.added.find(a=>a.id===id);
- const surface=placed?EDITOR_CATALOG_BY_ID.get(placed.catalogId)?.materialStyle:null;
+ const item=placed?EDITOR_CATALOG_BY_ID.get(placed.catalogId):null;
+ const surface=item?.materialStyle;
  $('selection-meta').textContent=id?(legacy.has(id)?'Existing licensed mall fixture':'Placed custom model')+
-  (surface==='color-only'?' · Color-only source with material-aware Builder texturing':surface==='image-mapped'?' · Original model includes embedded image maps':''):'Choose an existing fixture or place something from the catalog.';
+  (isDecalV97(item)?' · Transparent CC0 '+item.surface+' decal':surface==='color-only'?' · Color-only source with material-aware Builder texturing':surface==='image-mapped'?' · Original model includes embedded image maps':''):'Choose an existing fixture or place something from the catalog.';
  $('transform-fields').hidden=!id;
+ $('decal-opacity-field').hidden=!isDecalV97(item);
  if(!id||!p){refreshOutliner();return}
+ if(isDecalV97(item))$('decal-opacity').value=String(placed?.opacity??item.opacity);
  $('placement-tip').textContent='Selected '+labels(id)+' · Wheel rotates 15° · Shift+wheel zooms camera · Drag handles for precise placement';
  for(const k of ['x','y','z']){
   $('pos-'+k).value=round(p.position[k]);
@@ -206,7 +213,7 @@ function populateCatalog(){
    const b=document.createElement('button');b.className='catalog-item';b.type='button';
    if(item.thumb){const preview=document.createElement('img');preview.className='asset-thumb';preview.loading='lazy';preview.alt='';preview.src=new URL('../'+item.thumb,import.meta.url).href;b.append(preview)}
    const t=document.createElement('span'),strong=document.createElement('strong'),small=document.createElement('small');
-   const materialLabel=item.materialStyle==='image-mapped'?' · image maps':item.materialStyle==='color-only'?' · enhanced materials':'';
+   const materialLabel=isDecalV97(item)?' · '+item.surface+' decal':item.materialStyle==='image-mapped'?' · image maps':item.materialStyle==='color-only'?' · enhanced materials':'';
    strong.textContent=item.label;small.textContent=item.category+(item.condition==='weathered'?' · weathered':'')+materialLabel;t.append(strong,small);
    const plus=document.createElement('span');plus.className='plus';plus.textContent='＋';b.append(t,plus);
    b.title='Preview '+item.label+' in the world'+(item.materialStyle==='color-only'?' · Original CC0 source uses flat colors; compatible surfaces are textured in the Builder':item.materialStyle==='image-mapped'?' · Includes embedded image maps':'');
@@ -215,7 +222,9 @@ function populateCatalog(){
      $('placement-tip').textContent='Loading '+item.label+' · Wheel will rotate the preview';
      await editor.beginPlacement(item.id);
      if(!editor.placing)return; // superseded by another selection
-     $('placement-tip').textContent='PLACE '+item.label.toUpperCase()+' · Move mouse to position · Wheel rotate · Shift+wheel distance · Click to place · Esc to cancel'+(item.materialStyle==='color-only'?' · Builder adds textures to compatible material groups':'');
+     $('placement-tip').textContent=isDecalV97(item)?
+      'PLACE '+item.label.toUpperCase()+' · Aim at a '+item.surface+' · Wheel rotate · Click to stick decal · Esc to cancel':
+      'PLACE '+item.label.toUpperCase()+' · Move mouse to position · Wheel rotate · Shift+wheel distance · Click to place · Esc to cancel'+(item.materialStyle==='color-only'?' · Builder adds textures to compatible material groups':'');
     }catch(e){report(e)}
    });parent.append(b);
   }
@@ -293,13 +302,14 @@ async function changeTransform(changes){
  if(applied)clearCollisionWarning();
  return applied;
 }
-async function place(catalogId,position,id,rotation={x:0,y:0,z:0}){
+async function place(catalogId,position,id,rotation={x:0,y:0,z:0},opacity){
  if(!EDITOR_CATALOG_BY_ID.has(catalogId))throw Error('Unknown catalog item '+catalogId);
  const check=await editor.validateNewPlacement(catalogId,position,rotation);
  if(!check.valid)throw Error(check.reason);
  const instance={id:id||'custom-'+Date.now().toString(36)+'-'+(++idCounter).toString(36),
   catalogId,position:{x:position.x,y:position.y,z:position.z},
   rotation:{x:rotation.x,y:rotation.y,z:rotation.z},scale:1};
+ if(isDecalV97(EDITOR_CATALOG_BY_ID.get(catalogId))&&opacity!==undefined)instance.opacity=opacity;
  await commit({type:'place',instance});
  editor.select(instance.id);
  $('placement-tip').textContent='Placed '+EDITOR_CATALOG_BY_ID.get(catalogId).label+' · Wheel rotates 15° · Shift+wheel zooms camera';
@@ -365,6 +375,9 @@ function updateFromInputs(){
   p.rotation[axis]=THREE.MathUtils.degToRad(Number($('rot-'+axis).value));
  }
  p.scale=Number($('object-scale').value);
+ const placed=status.draft.added.find(a=>a.id===status.selected);
+ if(isDecalV97(EDITOR_CATALOG_BY_ID.get(placed?.catalogId)))
+  p.opacity=Number($('decal-opacity').value);
  changeTransform(p);
 }
 function setPlacementOptions(options={}){
@@ -406,7 +419,7 @@ function setWorkLights(enabled){
  return state;
 }
 function wireUI(){
- for(const id of ['pos-x','pos-y','pos-z','rot-x','rot-y','rot-z','object-scale'])
+ for(const id of ['pos-x','pos-y','pos-z','rot-x','rot-y','rot-z','object-scale','decal-opacity'])
   $(id).addEventListener('change',updateFromInputs);
  const modes=[['translate','translate'],['rotate','rotate'],['resize-object','scale']];
  for(const [button,mode] of modes)$(button).addEventListener('click',()=>{
@@ -422,7 +435,8 @@ function wireUI(){
    EDITOR_CATALOG_BY_ID.get('silted-octagonal-atrium-fountain'):catalog.find(x=>x.path===f?.model);
   if(!item)return report(Error('This object cannot be duplicated from the licensed catalog'));
   const p=editor.poseOf(id),pos={...p.position,x:p.position.x+1};
-  await place(item.id,pos);
+  const duplicateId=await place(item.id,pos,undefined,p.rotation,old?.opacity);
+  if(Math.abs(p.scale-1)>.0001)await changeTransform({scale:p.scale});
  });
  $('undo').addEventListener('click',()=>undo().catch(report));
  $('redo').addEventListener('click',()=>redo().catch(report));
@@ -571,7 +585,7 @@ async function begin(){
   status.draft=await loadDraft();
   await applyRenderedDraft(status.draft);
   populateCatalog();wireUI();reflect();syncNavigationControls();
-  setPlacementOptions({gridSize:.5,overlap:false});
+  setPlacementOptions({gridSize:0,overlap:true});
   const reticle=$('aim-reticle'),canvas=renderer.domElement;
   const repositionReticle=e=>{
    const bounds=canvas.getBoundingClientRect();

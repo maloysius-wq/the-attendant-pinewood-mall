@@ -96,6 +96,16 @@ finish. See `builder/material-scale-v92.mjs`,
 `scripts/test-builder-material-v92.mjs`, the focused v91/v92 Builder
 material CI workflow, and its desktop regression.
 
+## Placeable surface grime, scuffs and leaks (v97)
+
+The **Surface Decals & Grime** prop category contains **36** different locally pinned, semi-transparent dust, dirt, coffee/drink/rust stains, shoe scuffs, scratches, wall water leaks, smears and old adhesive marks. These are individually placed transparent overlays, not room-wide finish replacements. Their original source imagery is from seven legally verified **ambientCG CC0** 1K materials, with SHA-256 hashes and download provenance in `assets/vendor/builder/decals-v97/manifest-v97.json`. The 640px transparent RGBA derivative decals are local to the repository, with softly feathered edges to avoid ugly flat boxes. Their browser runtime does not fetch from a CDN or outside service.
+
+Select one in the catalog and aim at a **floor** or **wall**. The preview attaches itself to the real matching mall surface at a slight z-fighting-safe offset; click to commit, wheel to rotate the stamp, Esc to cancel. Decal props are decorative, non-colliding layers, so they are not blocked by the physical-prop placement validator. Floor decals lie horizontally; wall decals align to the detected wall-facing normal. Use the existing Inspector Scale/Pitch/Yaw/Roll fields, move/rotate gizmo and the new **Decal opacity** control to make subtle layered grime. Duplicate, undo/redo, save/export/import/reload retain individual placements and custom opacity without changing the underlying Builder draft version.
+
+**New default preferences:** Snap starts **Off**, Allow overlap starts **On**. You can turn either back on/off from the normal Builder toolbar; this changes only the standalone Builder, not game collision detection.
+
+**Source trash can and coffee machine texture fix:** Kenney `Trashcan` and `Kitchencoffeemachine` now project full-sized textures across their panels instead of repeating them at miniature UV intervals. Existing placed objects use the improvement automatically; they do not need replacement.
+
 ## CRT monitors are powered off (v96)
 
 The original licensed **1990s CRT desktop computer (keyboard + mouse)** now has a genuinely **blank, powered-off near-black glass display**, with no baked green imagery, screen glow or emission. A separate reflection overlay from the source model is hidden so no green monitor content remains; the tube still has a restrained physical glass sheen under the existing lighting. The original cream monitor housing, PC case, detailed image-mapped keyboard and mouse are all preserved exactly.
