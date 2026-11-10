@@ -45,6 +45,10 @@ try{
  assert.ok(materials.some(x=>x.role==='metal'&&x.textured),
   'metal drawer handles remain a distinct mapped metal material');
  const wood=materials.find(x=>x.role==='wood'),metal=materials.find(x=>x.role==='metal');
+ assert.ok(wood.furnitureUV&&wood.furnitureMaxRepeats<=1.05,
+  'desk wood photo spans an entire surface, not dozens of repeated tiny squares');
+ assert.ok(wood.mapPath.includes('oak_veneer_01_diff_1k.jpg'),
+  'desk uses calmer furniture oak veneer instead of the v91 mottled worn tabletop');
  assert.notEqual(wood.mapPath,metal.mapPath,'desk handles must NEVER share the wood image');
  assert.ok(wood.uvReady&&metal.uvReady);
  assert.ok(wood.mapPath.includes('/assets/vendor/builder/materials-v91/'));
@@ -60,6 +64,24 @@ try{
   assert.ok(cabinet.some(x=>x.role===role&&x.textured),role+' is independently mapped on cabinets');
  assert.equal(new Set(cabinet.filter(x=>x.role).map(x=>x.mapPath)).size,3,
   'light wood, stained wood and drawer hardware have separate texture files');
+ // Keyboard and mouse are intentionally still the original authored color-only
+ // GLBs, even though some of their internal color materials have wood/metal names.
+ for(const [catalogId,id,x] of [
+  ['kenney-furniture-kit-computerkeyboard','ci-original-keyboard',562],
+  ['kenney-furniture-kit-computermouse','ci-original-mouse',564]
+ ]){
+  await page.evaluate(([source,placedId,x])=>window.__PINEWOOD_BUILDER__.place(
+   source,{x,y:1,z:555},placedId),[catalogId,id,x]);
+  const components=await page.evaluate(target=>
+   window.__PINEWOOD_BUILDER__.inspectObjectMaterials(target),id);
+  assert.ok(components?.length>0,'inspected GLB components for '+catalogId);
+  assert.ok(components.every(c=>!c.role&&!c.textured),
+   catalogId+' remains original solid colors without any surface map');
+  assert.ok(components.every(c=>!c.furnitureUV),
+   catalogId+' UVs unchanged');
+ }
+ const peripheralStats=await page.evaluate(()=>window.__PINEWOOD_BUILDER__.getMaterialStats());
+ assert.ok(peripheralStats.peripheralsPreserved>=2,'real keyboard and mouse were bypassed');
  await page.evaluate(()=>window.__PINEWOOD_BUILDER__.applyRoomFinishes('service_vestibule',{
   wall:'v91-painted_plaster_wall',floor:'v91-laminate_floor_02',ceiling:'v91-white_plaster_02'
  }));
