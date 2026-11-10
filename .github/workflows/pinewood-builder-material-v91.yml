@@ -1,24 +1,40 @@
-name: Pinewood Builder material analysis v91
+name: Pinewood Builder material library v91
 on:
   pull_request:
     branches: [main]
     paths:
       - 'builder/**'
+      - 'assets/vendor/builder/materials-v91/**'
+      - 'scripts/test-builder-material-v91.mjs'
+      - 'scripts/smoke-builder-material-v91.mjs'
       - 'scripts/audit-builder-materials-v91.mjs'
       - '.github/workflows/pinewood-builder-material-v91.yml'
-      - 'tools/vendor-builder-materials-v91.mjs'
-      - 'assets/vendor/builder/materials-v91/**'
   workflow_dispatch:
 permissions:
   contents: read
 jobs:
-  inspect-materials:
+  verify-materials:
     runs-on: ubuntu-24.04
-    timeout-minutes: 5
+    timeout-minutes: 18
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - name: Analyze individual color-only surface groups and missing UVs
+      - name: Verify all 50 pinned CC0 source images, multi-material semantics and generated UVs
+        run: node --test scripts/test-builder-material-v91.mjs scripts/test-builder-v87.mjs
+      - name: Preserve full existing CC0 GLB asset hashes and classification
+        run: node --test scripts/audit-builder-assets-v1.mjs
+      - name: Summarize real source meshes in all color-only GLBs
         run: node scripts/audit-builder-materials-v91.mjs
+      - name: Install desktop Chromium
+        run: |
+          npm install --no-save playwright@1.55.0
+          npx playwright install chromium
+      - name: Serve repository-local Pinewood Builder materials
+        run: |
+          python3 -m http.server 4173 --bind 127.0.0.1 >/tmp/pinewood-v91-http.log 2>&1 &
+          for i in {1..30}; do curl -fsS http://127.0.0.1:4173/builder/ >/dev/null && exit 0; sleep 1; done
+          exit 1
+      - name: Desktop verify real wooden desks, metal drawer handles, 41-room surfaces and persistence
+        run: node scripts/smoke-builder-material-v91.mjs
