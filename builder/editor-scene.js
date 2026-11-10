@@ -7,6 +7,7 @@ import {EDITOR_EXTRA_FIXTURES_V1} from '../mall/editor-baseline-v1.mjs';
 import {EDITOR_CATALOG_BY_ID} from '../mall/editor-catalog-v1.mjs';
 import {createBuilderMaterialEnhancerV91} from './prop-materials-v91.js';
 import {isSourcePeripheralV93,isolateSourcePeripheralV93} from './source-peripherals-v93.mjs';
+import {makeCrtPoweredOffV96} from './crt-powered-off-v96.js';
 
 const vector=v=>({x:v.x,y:v.y,z:v.z});
 const pose=o=>({position:vector(o.position),rotation:vector(o.rotation),scale:o.scale.x});
@@ -81,6 +82,9 @@ export async function createBuilderScene({scene,camera,domElement,onSelect=()=>{
   if(!/^assets\/vendor\/(?:runtime|builder\/models)\//.test(item.path)||!/\.glb$/i.test(item.path))throw Error('Nonlocal asset forbidden');
   if(!cached.has(id))cached.set(id,loader.loadAsync(new URL('../'+item.path,import.meta.url).href));
   const gltf=await cached.get(id),o=gltf.scene.clone(true);
+  // Target only the source CRT screen. All instances, including pre-existing
+  // saved placements and the retired LCD's CRT alias, use this same template.
+  makeCrtPoweredOffV96(o,sourceId);
   // Restore the literal original Kenney source materials + mesh copies for
   // standalone keyboards/mice. Do not conflate them with the image-mapped
   // keyboard and mouse already included in the licensed 1990s CRT GLB.
@@ -371,6 +375,14 @@ export async function createBuilderScene({scene,camera,domElement,onSelect=()=>{
       furnitureUV:!!m.geometry?.userData?.builderFurnitureUVV92,
       originalPeripheral:!!m.userData?.builderOriginalPeripheralV93,
       sourceColor:source.color?.getHexString?.()??null,
+      poweredOff:!!source.userData?.builderCrtPoweredOffV96,
+      reflectionDisabled:!!m.userData?.builderCrtReflectionDisabledV96,
+      meshVisible:m.visible,
+      emissiveHex:source.emissive?.getHexString?.()??null,
+      emissiveMapPresent:!!source.emissiveMap,
+      alphaMapPresent:!!source.alphaMap,
+      transparent:!!source.transparent,
+      opacity:source.opacity??null,
       sourceMetalness:source.metalness??null,
       sourceRoughness:source.roughness??null,
       furnitureMaxRepeats:m.geometry?.userData?.builderPatternRepeatsV92??null,
