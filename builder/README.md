@@ -96,6 +96,14 @@ finish. See `builder/material-scale-v92.mjs`,
 `scripts/test-builder-material-v92.mjs`, the focused v91/v92 Builder
 material CI workflow, and its desktop regression.
 
+## CRT monitors are powered off (v96)
+
+The original licensed **1990s CRT desktop computer (keyboard + mouse)** now has a genuinely **blank, powered-off near-black glass display**, with no baked green imagery, screen glow or emission. A separate reflection overlay from the source model is hidden so no green monitor content remains; the tube still has a restrained physical glass sheen under the existing lighting. The original cream monitor housing, PC case, detailed image-mapped keyboard and mouse are all preserved exactly.
+
+This applies to **all current and saved Builder CRT instances**, newly placed previews, and previously saved entries for the retired LCD catalog ID (already redirected to the 1990s CRT). The original binary GLB and its 20 image assets remain pinned and unchanged. Builder-only treatment is implemented in `builder/crt-powered-off-v96.js`, called by `builder/editor-scene.js` when preparing CRT instances. The game campaign and all unrelated assets remain untouched.
+
+Tests: `scripts/test-builder-crt-powered-off-v96.mjs`, `scripts/smoke-builder-crt-off-v96.mjs`, the focused `.github/workflows/pinewood-builder-crt-off-v96.yml` workflow, plus unchanged CC0 source asset audits.
+
 ## Visible selected-object collision warnings (v95)
 
 If a wheel rotation, inspector move, gizmo placement or scale adjustment is rejected by the **existing strict collision protection**, the standalone Builder now shows a **prominent nonmodal warning directly near the selected object in the 3D viewport**. It follows the object as the camera moves, remains visible rather than fading before it can be read, and explains whether a **Rotation**, **Move** or **Scale** was blocked. It names the reason (wall intersection versus missing continuous floor/furniture support) and suggests moving the object or selecting **Allow overlap** when deliberate clipping is needed. The prior save-status text remains unchanged for accessibility and compatibility.

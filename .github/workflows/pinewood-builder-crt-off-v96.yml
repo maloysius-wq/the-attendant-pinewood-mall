@@ -1,0 +1,37 @@
+name: Pinewood CRT powered-off screen v96
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'builder/crt-powered-off-v96.js'
+      - 'builder/editor-scene.js'
+      - 'scripts/test-builder-crt-powered-off-v96.mjs'
+      - 'scripts/smoke-builder-crt-off-v96.mjs'
+      - '.github/workflows/pinewood-builder-crt-off-v96.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  dark-screen:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Pin and inspect original licensed CRT source screen and keyboard
+        run: node --test scripts/test-builder-crt-powered-off-v96.mjs scripts/test-builder-cardboard-peripherals-v93.mjs
+      - name: Verify all local source models unchanged
+        run: node --test scripts/audit-builder-assets-v1.mjs
+      - name: Install desktop Chromium
+        run: |
+          npm install --no-save playwright@1.55.0
+          npx playwright install chromium
+      - name: Serve entirely local 1990s CRT material scene
+        run: |
+          python3 -m http.server 4173 --bind 127.0.0.1 >/tmp/pinewood-crt-off-v96-http.log 2>&1 &
+          for i in {1..30}; do curl -fsS http://127.0.0.1:4173/builder/ >/dev/null && exit 0; sleep 1; done
+          exit 1
+      - name: Desktop verify CRT unpowered glass, detailed source peripherals and saved layout
+        run: node scripts/smoke-builder-crt-off-v96.mjs
