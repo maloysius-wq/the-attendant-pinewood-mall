@@ -323,6 +323,16 @@ function setPlacementOptions(options={}){
  $('allow-clipping').checked=next.allowClipping;
  return next;
 }
+function updateFinishSwatch(part){
+ const select=$('finish-'+part),swatch=$('finish-preview-'+part);
+ if(!swatch)return;
+ const finish=ROOM_FINISHES_V87[part].find(o=>o.id===select.value);
+ swatch.style.backgroundImage=finish?.path?
+  'url("'+new URL('../'+finish.path,import.meta.url).href+'")':'none';
+ swatch.dataset.textured=String(!!finish?.path);
+ swatch.textContent=finish?.path?'':'Original';
+ swatch.setAttribute('aria-label',(finish?.label||'Original')+' '+part+' texture preview');
+}
 function syncFinishInputs(){
  if(!roomFinishes||!$('finish-room'))return;
  const id=$('finish-room').value,selection=status.draft.surfaces?.[id]||{};
@@ -330,6 +340,7 @@ function syncFinishInputs(){
   const select=$('finish-'+part);
   select.value=selection[part]||'original';
   select.disabled=!id||(part==='ceiling'&&!roomFinishes.counts(id)?.ceiling);
+  updateFinishSwatch(part);
  }
  $('finish-apply').disabled=!id;
 }
@@ -402,6 +413,7 @@ function wireUI(){
   }
  }
  $('finish-room').addEventListener('change',syncFinishInputs);
+ for(const part of ['wall','floor','ceiling'])$('finish-'+part).addEventListener('change',()=>updateFinishSwatch(part));
  $('finish-apply').addEventListener('click',async()=>{
   const roomId=$('finish-room').value;if(!roomId)return;
   const finishes=Object.fromEntries(['wall','floor','ceiling'].filter(
