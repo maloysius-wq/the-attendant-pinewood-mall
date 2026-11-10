@@ -1,5 +1,21 @@
 # Development Handoff: The Attendant: Pinewood Mall
 
+## Builder v97: 36 surface grime decals, targeted appliance texture scale and preferred defaults (2026-11-10)
+
+The owner approved adding individually placeable **floor and wall stains, dust, scuffs, water streaks and grime** to the standalone Pinewood Mall Builder, and requested fixes for obvious tiny repeated patterns on the **Kenney Trashcan** and **Kitchencoffeemachine** plus defaults **Snap Off / Allow overlap On**.
+
+The development-only `tools/vendor-builder-decals-v97.py` downloaded seven CC0 ambientCG official 1K JPEG source archives (SurfaceImperfections004/005/006, Smear005, Fingerprints001/002, Scratches005). It generated **36 individually named, soft alpha-masked 640px RGBA PNGs** with nonrepeating irregular edge silhouettes, including dust accumulation, scuffed tile, grime and oil/rust/coffee stains, floor puddle rings and varied vertical wall runoff/water damage. All 7 official source ZIP SHA-256s and member IDs, each exported PNG SHA-256/size, source pages and license are pinned in `assets/vendor/builder/decals-v97/manifest-v97.json`. All public browser asset URLs are local. The temporary privileged one-time vendoring workflow was deleted after pinning.
+
+`builder/decals-v97.js` validates the exact on-disk manifest and registers 36 image-bearing catalog entries in new **Surface Decals & Grime** category, without weakening GLB-only vendor registration. It builds noncolliding, transparent two-sided planes with local CC0 RGBA maps, size and opacity presets; `builder/editor-scene.js` raycasts **architectural floors or walls**, rejects preview clicks without a real matching surface, orients the decal along the actual struck surface normal, offsets slightly to avoid z-fighting, lets the mouse wheel rotate within the attached plane, and includes them in existing select/move/scale/undo/redo/export/import/IndexedDB saved layouts. The inspector exposes an optional 0.08..1 opacity slider for only decals. Schema remains `version:1`; an optional per-decal `opacity` property is allowed in placed entries without invalidating legacy layouts. Existing mall shell, ceiling, room materials and story campaign stay untouched.
+
+To fix the two remaining user-reported miniature tiled photo patterns, `isBroadSurfacePropV97` targets just Kenney `Trashcan` and `Kitchencoffeemachine`, routing their source color-only material groups through a single broad panel projection (<=0.92 repeats on the largest mesh axis), while preserving all existing original material roles, geometry, and dark/silver details. Decal additions do not affect fixed model source files or the saved room finish IDs.
+
+Startup now calls `setPlacementOptions({gridSize:0,overlap:true})`, initial DOM and inspector state agree. This is only a Builder preference; the existing strict validation remains fully available on unchecking Allow overlap and never applies to the playable campaign. Old v1/v87 desktop expectations updated.
+
+Focused `scripts/test-builder-decals-v97.mjs` validates 36 RGBA hashes/source ZIP provenance and glTF hash/scale mapping, canvas orientation, and v1 opacity persistence. `scripts/smoke-builder-decals-v97.mjs` validates live desktop Chromium including initial settings, source can/coffee meshes, real local textures, opacity changes, reload/export, no external requests. Focused CI `.github/workflows/pinewood-builder-decals-v97.yml`; existing v1/v87/v91 material workflows. PR #92. Confirm CI and GitHub Pages before claiming live.
+
+---
+
 ## Builder v96: de-energize original 1990s CRT screen (2026-11-10)
 
 User requests that placed desktop computer screens appear **blank and unpowered**, replacing the green imagery currently baked onto their faces. The exact source is the already licensed CC-BY GLB at `assets/vendor/builder/models/era-v87/retro-crt-pc-1990s.glb`. Its separately authored `Monitor_Glass` material contains the display texture; the named `Additional_Reflection` mesh / `Monitor_Reflection` geometry is a composited overlay. The original model has twelve meshes, eight materials and twenty embedded source images. The 1990s case, cream housing, keyboard (source material `Ucupaint_Keyboard_Creme`) and mouse (`Mouse_Cream`) must retain their image maps.
