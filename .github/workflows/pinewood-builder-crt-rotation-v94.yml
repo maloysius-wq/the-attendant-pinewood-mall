@@ -1,0 +1,38 @@
+name: Pinewood selected CRT wheel rotation v94
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'builder/editor-scene.js'
+      - 'builder/main.js'
+      - 'builder/rotation-support-v94.mjs'
+      - 'scripts/test-builder-rotation-support-v94.mjs'
+      - 'scripts/smoke-builder-crt-rotation-v94.mjs'
+      - '.github/workflows/pinewood-builder-crt-rotation-v94.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  desktop-crt:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 16
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify unchanged pinned models and new rotation support logic
+        run: |
+          node --test scripts/test-builder-v87.mjs
+          if test -f scripts/test-builder-rotation-support-v94.mjs; then node --test scripts/test-builder-rotation-support-v94.mjs; fi
+      - name: Install desktop Chromium
+        run: |
+          npm install --no-save playwright@1.55.0
+          npx playwright install chromium
+      - name: Serve repository-local Builder
+        run: |
+          python3 -m http.server 4173 --bind 127.0.0.1 >/tmp/pinewood-v94-http.log 2>&1 &
+          for i in {1..30}; do curl -fsS http://127.0.0.1:4173/builder/ >/dev/null && exit 0; sleep 1; done
+          exit 1
+      - name: Sweep real CRT on real desk through 28 selected wheel turns
+        run: node scripts/smoke-builder-crt-rotation-v94.mjs
