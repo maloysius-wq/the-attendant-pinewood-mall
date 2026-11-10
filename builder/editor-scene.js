@@ -402,6 +402,11 @@ export async function createBuilderScene({scene,camera,domElement,onSelect=()=>{
    return {gridSize:snapSize,allowClipping};
   },
   poseOf:id=>objects.has(id)?pose(objects.get(id)):null,
+  boundsOf:id=>{
+   const obj=objects.get(id);if(!obj)return null;
+   const box=new THREE.Box3().setFromObject(obj);
+   return {min:vector(box.min),max:vector(box.max)};
+  },
   addPlacementSurfaces:surfaces=>{
    for(const surface of surfaces){if(surface?.isMesh)floors.push(surface)}
    return floors.length;
