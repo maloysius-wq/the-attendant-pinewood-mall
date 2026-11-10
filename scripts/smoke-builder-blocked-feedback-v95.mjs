@@ -22,22 +22,21 @@ try{
  assert.equal(await bubble.getAttribute('aria-live'),'assertive');
 
  // A rejected inspector move on a real, visible, unmodified mall fixture.
- assert.equal(await page.evaluate(()=>window.__PINEWOOD_BUILDER__.jumpRoom('cassette_castle')),true);
- assert.equal(await page.evaluate(()=>window.__PINEWOOD_BUILDER__.select('cassette_stool')),true);
+ assert.equal(await page.evaluate(()=>window.__PINEWOOD_BUILDER__.select('atrium_dry_fountain')),true);
  const original=await page.evaluate(()=>window.__PINEWOOD_BUILDER__.getState().selected);
- assert.equal(original,'cassette_stool');
+ assert.equal(original,'atrium_dry_fountain');
  const blocked=await page.evaluate(()=>window.__PINEWOOD_BUILDER__.applyTransform({
   position:{x:555,y:-5,z:555}
  }));
  assert.equal(blocked,false,'collision still blocks unsupported inspector movement');
- assert.equal((await state()).selected,'cassette_stool');
+ assert.equal((await state()).selected,'atrium_dry_fountain');
  assert.equal(await bubble.isVisible(),true);
  assert.equal(await page.locator('#collision-warning-title').textContent(),'Move blocked');
  assert.match(await page.locator('#collision-warning-detail').textContent(),/floor or furniture support/);
  assert.match(await page.locator('#collision-warning-hint').textContent(),/Allow overlap/);
  assert.match(await page.locator('#save-status').textContent(),/Blocked:/);
  assert.deepEqual(await page.evaluate(()=>window.__PINEWOOD_BUILDER__.getCollisionWarning()),
-  {id:'cassette_stool',title:'Move blocked',
+  {id:'atrium_dry_fountain',title:'Move blocked',
    detail:'The object would not have continuous floor or furniture support.',
    hint:'Keep the object supported, or enable Allow overlap to bypass this check.'});
  assert.equal(await bubble.evaluate(e=>getComputedStyle(e).pointerEvents),'none');
@@ -48,6 +47,8 @@ try{
  assert.ok(rect&&view&&rect.x>=view.x-3&&rect.x+rect.width<=view.x+view.width+3,
   'warning is inside the 3D viewport rather than buried in the inspector');
  assert.ok(rect.y>=view.y-3&&rect.y+rect.height<=view.y+view.height+3);
+ assert.equal(await bubble.getAttribute('data-offscreen'),'false',
+  'warning follows real object visible in central atrium camera');
  console.log('PINEWOOD_V95_INSPECTOR_BLOCK_VISIBLE '+JSON.stringify({
   text:await bubble.innerText(),nearSelected:await bubble.getAttribute('data-offscreen')==='false'
  }));
@@ -79,6 +80,9 @@ try{
  await page.locator('#allow-clipping').check();
  assert.equal(await bubble.isHidden(),true,'enabling overlap immediately clears the warning');
  assert.equal((await state()).placementOptions.allowClipping,true);
+ // The checkbox click moves Playwright's mouse outside the canvas. Return
+ // it to the world before testing that the wheel again rotates the CRT.
+ await page.mouse.move(canvas.x+canvas.width*.55,canvas.y+canvas.height*.55);
  await page.mouse.wheel(0,-120);
  await page.evaluate(()=>window.__PINEWOOD_BUILDER__.waitForWheelEdits());
  const allowed=(await state()).draft.added.find(a=>a.id===crt);
