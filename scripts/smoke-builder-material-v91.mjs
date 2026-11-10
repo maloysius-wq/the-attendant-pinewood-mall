@@ -23,6 +23,14 @@ try{
   const options=await page.locator('#finish-'+part+' option').allTextContents();
   assert.ok(options.length>extra+2,part+' offers 1990s finishes');
  }
+ await page.locator('#finish-room').selectOption('service_vestibule');
+ for(const [part,id] of [['wall','v91-painted_plaster_wall'],
+  ['floor','v91-laminate_floor_02'],['ceiling','v91-white_plaster_02']]){
+  await page.locator('#finish-'+part).selectOption(id);
+  assert.equal(await page.locator('#finish-preview-'+part).getAttribute('data-textured'),'true');
+  assert.match(await page.locator('#finish-preview-'+part).getAttribute('style'),
+   /assets\\/vendor\\/builder\\/materials-v91\\/.*_diff_1k\\.jpg/);
+ }
  const initialStats=await page.evaluate(()=>window.__PINEWOOD_BUILDER__.getMaterialStats());
  assert.ok(initialStats.modelsInspected>=60,'original mall furniture gets its own material audit');
  assert.ok(initialStats.modelsEnhanced>=5,'some original mall furniture must be genuinely textured');
