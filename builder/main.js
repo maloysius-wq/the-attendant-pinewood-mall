@@ -57,6 +57,7 @@ const API={
  getState:()=>clone(status),
  getCatalog:()=>catalog.map(x=>({...x})),
  getMaterialStats:()=>editor?.getMaterialStats()??null,
+ getObjectBounds:id=>editor?.boundsOf(id)??null,
  inspectObjectMaterials:id=>editor?.inspectObjectMaterials(id)??null,
  select:id=>editor?.select(id)??false,
  place:(catalogId,position,id)=>place(catalogId,position,id),
