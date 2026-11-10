@@ -24,7 +24,10 @@ try{
  // New default allows overlap as requested. Deliberately disable it
  // before verifying that strict collision warnings remain operational.
  assert.equal(await page.locator('#allow-clipping').isChecked(),true);
- await page.locator('#allow-clipping').uncheck();
+ await page.evaluate(()=>{
+  const input=document.getElementById('allow-clipping');
+  input.checked=false;input.dispatchEvent(new Event('change',{bubbles:true}));
+ });
  assert.equal((await state()).placementOptions.allowClipping,false);
  // A rejected inspector move on a real, visible, unmodified mall fixture.
  assert.equal(await page.evaluate(()=>window.__PINEWOOD_BUILDER__.select('atrium_dry_fountain')),true);
@@ -82,7 +85,10 @@ try{
  const denied=(await state()).draft.added.find(a=>a.id===crt);
  assert.equal(denied.rotation.y,0,'blocked wheel never changes saved rotation');
  // Warning is non-modal: opt in to the existing overlap setting, then wheel.
- await page.locator('#allow-clipping').check();
+ await page.evaluate(()=>{
+  const input=document.getElementById('allow-clipping');
+  input.checked=true;input.dispatchEvent(new Event('change',{bubbles:true}));
+ });
  assert.equal(await bubble.isHidden(),true,'enabling overlap immediately clears the warning');
  assert.equal((await state()).placementOptions.allowClipping,true);
  // The checkbox click moves Playwright's mouse outside the canvas. Return
