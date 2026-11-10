@@ -62,8 +62,10 @@ try{
   assert.equal(parts[0].opacity,.9);
  }
  assert.equal(await page.locator('#decal-opacity-field').isVisible(),true);
- await page.locator('#decal-opacity').fill('0.42');
- await page.locator('#decal-opacity').dispatchEvent('change');
+ await page.evaluate(()=>{
+  const slider=document.getElementById('decal-opacity');
+  slider.value='.42';slider.dispatchEvent(new Event('change',{bubbles:true}));
+ });
  await page.waitForFunction(()=>window.__PINEWOOD_BUILDER__.getState().draft.added
   .find(a=>a.id==='ci-wall-decals')?.opacity===.42,{timeout:10000});
  let wall=await page.evaluate(()=>window.__PINEWOOD_BUILDER__.inspectObjectMaterials('ci-wall-decals'));
