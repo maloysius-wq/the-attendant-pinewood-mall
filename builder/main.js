@@ -87,6 +87,7 @@ const API={
  }):null,
  setPlacementOptions:options=>setPlacementOptions(options),
  getRoomFinishCounts:()=>roomFinishes?.getCounts(),
+ getRoomWallPlan:id=>roomFinishes?.getWallPlans(id)||[],
  getRoomFinishes:()=>clone(status.draft.surfaces||{}),
  applyRoomFinishes:(roomId,finishes)=>commit({type:'finishes',roomId,finishes}),
  jumpParkingLot:()=>jumpParkingLot(),
@@ -490,6 +491,7 @@ async function begin(){
   });
   roomFinishes=createRoomFinishesV87(editor.building);
   exterior=await mountCinematicParkingLot({scene,building:editor.building});
+  roomFinishes.setCinematicFrontWall(exterior.frontWall);
   editor.addPlacementSurfaces(exterior.placementSurfaces);
   $('loading').querySelector('progress').value=58;
   navigation=createEditorNavigation({camera,orbit,domElement:renderer.domElement,scene,shells:editor.building.shells,
