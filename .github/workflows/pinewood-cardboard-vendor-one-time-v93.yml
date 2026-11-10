@@ -1,0 +1,32 @@
+name: Pinewood cardboard CC0 one-time source vendor v93
+on:
+  push:
+    branches: [fix/builder-cardboard-peripheral-v93]
+    paths:
+      - 'tools/vendor-builder-cardboard-v93.mjs'
+      - '.github/workflows/pinewood-cardboard-vendor-one-time-v93.yml'
+permissions:
+  contents: write
+jobs:
+  pin-cardboard:
+    if: github.repository == 'maloysius-wq/the-attendant-pinewood-mall'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: fix/builder-cardboard-peripheral-v93
+          persist-credentials: true
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Vendor authentic 1K CC0 worn and smooth cardboard textures
+        run: node tools/vendor-builder-cardboard-v93.mjs
+      - name: Commit source-pinned local CC0 JPG files and manifest
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add assets/vendor/builder/materials-v93/
+          git diff --cached --quiet && exit 0
+          git commit -m "Pin local CC0 smooth and worn cardboard texture sources v93"
+          git push origin HEAD:refs/heads/fix/builder-cardboard-peripheral-v93
