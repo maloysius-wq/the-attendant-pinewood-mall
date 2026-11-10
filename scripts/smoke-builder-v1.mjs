@@ -35,10 +35,10 @@ try{
   if(m.materialStyle)acc[m.materialStyle]=(acc[m.materialStyle]||0)+1;
   return acc;
  },{}));
- assert.equal(textureKinds['image-mapped'],172,'source models with image maps are classified');
+ assert.equal(textureKinds['image-mapped'],208,'172 image-bearing models plus 36 verified RGBA grime decals');
  assert.equal(textureKinds['color-only'],339,'source models with flat colors are identified');
  await page.locator('#catalog-material').selectOption('image-mapped');
- assert.equal(await page.locator('.catalog-item').count(),172,'image-map filter includes 9 original image-bearing fixtures');
+ assert.equal(await page.locator('.catalog-item').count(),208,'image-map filter includes 36 new surface decals');
  await page.locator('#catalog-material').selectOption('color-only');
  assert.equal(await page.locator('.catalog-item').count(),338,'solid-color filter excludes retired LCD but retains other source colors');
  await page.locator('#catalog-material').selectOption('');
@@ -74,7 +74,7 @@ try{
  // check save/undo/navigation rather than grounded safety. Explicitly enable
  // the new supported opt-in; v87 desktop smoke separately verifies that the
  // DEFAULT (unchecked) blocks unsupported placements and wall penetration.
- assert.equal(await page.locator('#allow-clipping').isChecked(),false);
+ assert.equal(await page.locator('#allow-clipping').isChecked(),true);
  await checkToolbar('allow-clipping',true);
  assert.ok((await get()).navigation.position.z>0,'jump arrives at the outdoor parking area');
  const parkProp=await page.evaluate(()=>window.__PINEWOOD_BUILDER__.getCatalog().find(x=>x.id==='silted-octagonal-atrium-fountain'));
@@ -179,7 +179,7 @@ try{
  // This historical smoke tests arbitrary Fly-mode clicks, not safe grounding.
  // A flying camera can aim through empty air, so explicitly opt into
  // intentional unsupported staging rather than weakening v87 defaults.
- assert.equal(await page.locator('#allow-clipping').isChecked(),false);
+ assert.equal(await page.locator('#allow-clipping').isChecked(),true);
  await checkToolbar('allow-clipping',true);
  assert.equal((await get()).placementOptions.allowClipping,true);
  // After the navigation checks, verify real Fly-mode click placement.
