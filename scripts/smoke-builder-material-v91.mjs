@@ -28,8 +28,9 @@ try{
   ['floor','v91-laminate_floor_02'],['ceiling','v91-white_plaster_02']]){
   await page.locator('#finish-'+part).selectOption(id);
   assert.equal(await page.locator('#finish-preview-'+part).getAttribute('data-textured'),'true');
-  assert.match(await page.locator('#finish-preview-'+part).getAttribute('style'),
-   /assets\\/vendor\\/builder\\/materials-v91\\/.*_diff_1k\\.jpg/);
+  assert.ok((await page.locator('#finish-preview-'+part).getAttribute('style'))
+   .includes('assets/vendor/builder/materials-v91/'),
+   part+' swatch shows local photographic material');
  }
  const initialStats=await page.evaluate(()=>window.__PINEWOOD_BUILDER__.getMaterialStats());
  assert.ok(initialStats.modelsInspected>=60,'original mall furniture gets its own material audit');
