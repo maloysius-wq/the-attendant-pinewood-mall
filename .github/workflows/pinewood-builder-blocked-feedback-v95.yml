@@ -1,0 +1,37 @@
+name: Pinewood Builder visible collision warning v95
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'builder/index.html'
+      - 'builder/builder.css'
+      - 'builder/main.js'
+      - 'builder/blocked-feedback-v95.mjs'
+      - 'scripts/test-builder-blocked-feedback-v95.mjs'
+      - 'scripts/smoke-builder-blocked-feedback-v95.mjs'
+      - '.github/workflows/pinewood-builder-blocked-feedback-v95.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  desktop-collision-warning:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 14
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify error messages and collision schema without changing safety rules
+        run: node --test scripts/test-builder-blocked-feedback-v95.mjs scripts/test-builder-schema-v1.mjs
+      - name: Install desktop Chromium
+        run: |
+          npm install --no-save playwright@1.55.0
+          npx playwright install chromium
+      - name: Serve original locally licensed world builder
+        run: |
+          python3 -m http.server 4173 --bind 127.0.0.1 >/tmp/pinewood-v95-http.log 2>&1 &
+          for i in {1..30}; do curl -fsS http://127.0.0.1:4173/builder/ >/dev/null && exit 0; sleep 1; done
+          exit 1
+      - name: Verify selected-object warnings, failed wheel turns and overlap opt-in
+        run: node scripts/smoke-builder-blocked-feedback-v95.mjs
