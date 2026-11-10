@@ -7,6 +7,7 @@ on:
       - 'assets/vendor/builder/materials-v91/**'
       - 'scripts/test-builder-material-v91.mjs'
       - 'scripts/test-builder-material-v92.mjs'
+      - 'scripts/inspect-builder-asset-sources-v93.mjs'
       - 'builder/material-scale-v92.mjs'
       - 'scripts/smoke-builder-material-v91.mjs'
       - 'scripts/audit-builder-materials-v91.mjs'
@@ -23,6 +24,8 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
+      - name: Inspect original cardboard and input-device material anatomy
+        run: node scripts/inspect-builder-asset-sources-v93.mjs
       - name: Verify all 50 pinned CC0 source images, multi-material semantics and generated UVs
         run: node --test scripts/test-builder-material-v91.mjs scripts/test-builder-material-v92.mjs scripts/test-builder-v87.mjs
       - name: Preserve full existing CC0 GLB asset hashes and classification
