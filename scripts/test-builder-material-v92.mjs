@@ -55,11 +55,14 @@ test('large desktop photograph projects less than once across a whole panel, not
  const uv=original.getAttribute('uv');
  for(let i=0;i<uv.count;i++)uv.setXY(i,uv.getX(i)*7,uv.getY(i)*7);
  const priorUV=[...uv.array],priorPositions=[...original.getAttribute('position').array];
+ const expanded=original.index?original.toNonIndexed():original.clone();
  const groups=JSON.stringify(original.groups);
  const projected=boxProjectFurnitureUVV92(original);
  assert.notEqual(projected,original);
  assert.deepEqual([...original.getAttribute('uv').array],priorUV,'do not mutate the original source mesh');
- assert.deepEqual([...projected.getAttribute('position').array],priorPositions);
+ assert.deepEqual([...original.getAttribute('position').array],priorPositions,'original mesh stays unchanged');
+ assert.deepEqual([...projected.getAttribute('position').array],[...expanded.getAttribute('position').array],
+  'indexed mesh expansion preserves every original triangle vertex');
  assert.equal(JSON.stringify(projected.groups),groups,'same distinct desk wood/metal material assignments');
  assert.equal(projected.userData.builderFurnitureUVV92,true);
  const uv2=projected.getAttribute('uv');
@@ -71,8 +74,8 @@ test('large desktop photograph projects less than once across a whole panel, not
  assert.ok(maxU-minU<=.93,'no small stamps repeat across the entire desktop');
  assert.ok(maxV-minV<=.93,'no small stamps repeat across depth');
  assert.ok(maxU-minU>.85,'one broad photo spans the main desktop');
- assert.equal(projected.getAttribute('position').count,original.getAttribute('position').count);
- original.dispose();projected.dispose();
+ assert.equal(projected.getAttribute('position').count,expanded.getAttribute('position').count);
+ original.dispose();expanded.dispose();projected.dispose();
 });
 test('room wallpapers and soft floor finishes get fewer repeats; intentionally tiled ceilings remain',()=>{
  const carpet=roomFinishRepeatsV92('floor','dirty-carpet',9,7);
