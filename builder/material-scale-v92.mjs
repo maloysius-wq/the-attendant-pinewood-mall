@@ -33,3 +33,11 @@ export function roomFinishRepeatsV92(part,id,width,height){
  const count=n=>Math.min(maxRepeat,Math.max(.15,n/span));
  return {u:count(w),v:count(h)};
 }
+
+/** v97: Kenney trashcan and coffee maker still used miniature original UV
+ * atlases, so their v91 images repeated in obvious postage-stamp patterns.
+ * Only these specific user-reported source props use broad single-photo UVs.
+ */
+export function isBroadSurfacePropV97(value=''){
+ return /kenney-furniture-kit-(?:trashcan|kitchencoffeemachine)|(?:^|[^a-z])(?:trashcan|kitchencoffeemachine)(?:[^a-z]|$)/i.test(String(value));
+}
