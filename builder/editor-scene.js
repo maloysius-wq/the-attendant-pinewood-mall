@@ -6,6 +6,7 @@ import {FURNISHINGS_V69} from '../mall/furnishing-plan-v69.mjs';
 import {EDITOR_EXTRA_FIXTURES_V1} from '../mall/editor-baseline-v1.mjs';
 import {EDITOR_CATALOG_BY_ID} from '../mall/editor-catalog-v1.mjs';
 import {createBuilderMaterialEnhancerV91} from './prop-materials-v91.js';
+import {isStableYawEditV94,supportProbePointsV94} from './rotation-support-v94.mjs';
 import {isSourcePeripheralV93,isolateSourcePeripheralV93} from './source-peripherals-v93.mjs';
 
 const vector=v=>({x:v.x,y:v.y,z:v.z});
@@ -180,27 +181,11 @@ export async function createBuilderScene({scene,camera,domElement,onSelect=()=>{
   }
   // A grounded placement must have support under its footprint. Detect
   // falling through floors or spanning a hole, not just its center point.
-  const y=box.min.y, inset=Math.min(.04,(box.max.x-box.min.x)/4,(box.max.z-box.min.z)/4);
-  // AABB CORNERS are a correct conservative new-placement test, but not
-  // a real contact footprint for yaw of an already placed object. Rotating
-  // the same CRT on a desk expands its world AABB, creating imaginary
-  // unsupported corners far outside its actual grounded pivot. Keep all
-  // five strict samples for placement / translation / tilt / scale; for
-  // yaw-only changes use the unchanged physical anchor and a small stable
-  // 7-cm contact patch. We still enforce wall intersections (above) and
-  // continuous real desk/floor support (below), with Allow overlap OFF.
-  const cx=(box.min.x+box.max.x)/2,cz=(box.min.z+box.max.z)/2;
-  const points=stableRotationAnchor?[
-   [stableRotationAnchor.x,stableRotationAnchor.z],
-   [stableRotationAnchor.x-.035,stableRotationAnchor.z],
-   [stableRotationAnchor.x+.035,stableRotationAnchor.z],
-   [stableRotationAnchor.x,stableRotationAnchor.z-.035],
-   [stableRotationAnchor.x,stableRotationAnchor.z+.035]
-  ]:[
-   [box.min.x+inset,box.min.z+inset],[box.max.x-inset,box.min.z+inset],
-   [box.min.x+inset,box.max.z-inset],[box.max.x-inset,box.max.z-inset],
-   [cx,cz]
-  ];
+  const y=box.min.y;
+  // AABB corner probes protect new placements, translations and scale edits.
+  // A pure yaw of an already placed object retains its real-world support
+  // anchor even as the bounding box expands around that anchor.
+  const points=supportProbePointsV94(box,stableRotationAnchor);
   const support=[
    ...floors.filter(f=>f.visible).map(f=>new THREE.Box3().setFromObject(f)),
    ...[...objects.entries()].filter(([id,o])=>
@@ -224,11 +209,7 @@ export async function createBuilderScene({scene,camera,domElement,onSelect=()=>{
   const before=pose(obj);
   // The same world-space pivot and ground contact height are preserved by
   // pure yaw. This does NOT relax moving, resizing or tilting an asset.
-  const sameLocation=['x','y','z'].every(k=>Math.abs(p.position[k]-before.position[k])<1e-7);
-  const stableYawOnly=sameLocation&&Math.abs(p.scale-before.scale)<1e-7&&
-   Math.abs(p.rotation.x-before.rotation.x)<1e-7&&
-   Math.abs(p.rotation.z-before.rotation.z)<1e-7&&
-   Math.abs(p.rotation.y-before.rotation.y)>1e-7;
+  const stableYawOnly=isStableYawEditV94(before,p);
   // Anchors are measured before applying the candidate transform and
   // therefore cannot drift with the growing AABB of the rotated model.
   const anchor=stableYawOnly?obj.getWorldPosition(new THREE.Vector3()):null;
