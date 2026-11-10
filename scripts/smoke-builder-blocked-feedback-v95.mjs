@@ -21,6 +21,11 @@ try{
  assert.equal(await bubble.getAttribute('role'),'alert');
  assert.equal(await bubble.getAttribute('aria-live'),'assertive');
 
+ // New default allows overlap as requested. Deliberately disable it
+ // before verifying that strict collision warnings remain operational.
+ assert.equal(await page.locator('#allow-clipping').isChecked(),true);
+ await page.locator('#allow-clipping').uncheck();
+ assert.equal((await state()).placementOptions.allowClipping,false);
  // A rejected inspector move on a real, visible, unmodified mall fixture.
  assert.equal(await page.evaluate(()=>window.__PINEWOOD_BUILDER__.select('atrium_dry_fountain')),true);
  const original=await page.evaluate(()=>window.__PINEWOOD_BUILDER__.getState().selected);
