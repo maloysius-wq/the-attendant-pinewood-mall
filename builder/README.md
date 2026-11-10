@@ -63,6 +63,39 @@ Room **Walls** finishes now follow the actual, visible wall faces rather than on
 
 A shared 41-room audit handles partitions and outer walls on all three floors. Wall finishes stop at the corresponding room ceiling or physical room height rather than continuing up the entire multi-storey exterior; adjoining rooms can select different textures, and overlaps between real wall segments are resolved instead of drawing multiple coplanar skins. Empty passageways, skylights, original doors, architectural collisions and the campaign are unchanged. Builder room finish layouts remain backwards compatible with v1 saved JSON. Source and desktop verification: `scripts/test-builder-room-walls-v90.mjs`, `scripts/smoke-builder-room-walls-v90.mjs`, and `.github/workflows/pinewood-builder-room-walls-v90.yml`.
 
+## Furniture texture scale and original-color peripherals (v92)
+
+A visual review of a desk with a 1990s desktop computer revealed the v91
+furniture photographs had an obvious miniature repeated pattern, including on
+the wooden desk surface and small hardware. v92 improves the **standalone
+Builder** without touching any original GLB bytes or the saved world format.
+
+For **desks, counters, cabinets, drawers, shelving, seating, benches and other
+furniture**, photographs are projected over entire mesh panels at an
+aspect-preserving scale, rather than every ~48 cm. Existing furniture image UVs
+are replaced only on isolated copies of geometries that have **no source image
+textures**. Any authored embedded image UVs are retained. The old noisy
+worn-table photo is replaced with the already licensed, locally pinned
+**light oak veneer** on ordinary furniture wood, with the source colors
+still contributing tint. Dark wood and metal hardware remain separately
+mapped and preserve their own shader finishes. Other color-only meshes
+without UVs use a larger source-relative texture scale so stone, wood and
+fabric patterns do not become tiny stamps.
+
+**Computer keyboards and mice keep their original solid-color source
+materials.** Their standalone models and keyboard/mouse submeshes are excluded
+from the material enhancer, including when previously placed or imported in
+saved layouts. This does not remove those props.
+
+Room-specific finishes also use fewer repetitions on carpet, plaster, bare
+concrete and similar organic surfaces; intended repeating terrazzo/tile
+patterns remain at moderate scale and the acoustic ceiling grid remains at its
+intended 2.6 m span. This changes only how the selected local JPEG is mapped,
+not the original finish catalog IDs, shell geometry or any room's chosen
+finish. See `builder/material-scale-v92.mjs`,
+`scripts/test-builder-material-v92.mjs`, the focused v91/v92 Builder
+material CI workflow, and its desktop regression.
+
 ## Expanded textures and detailed prop materials (v91)
 
 The standalone Builder now offers **50 more fully local, source-verified Poly Haven CC0 1K textures**: 20 new wall options, 13 floor options and 8 ceiling options (some source images are useful in more than one place). The original finishes remain, with all previous saved finish IDs unchanged. Interior options include chipped and faded wall plaster, brick and weathered retail cladding, 1980s-style tile, parquet, laminate, aged wood floors, stained plaster and old ceiling insulation. The Wall, Floor and Ceiling selectors include **live image swatches** of the actual chosen local texture, making the material appearance visible before applying it. The original architectural rooms, skylight, doors, walls, collision and campaign are untouched.
