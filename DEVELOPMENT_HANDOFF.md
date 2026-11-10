@@ -1,5 +1,22 @@
 # Development Handoff: The Attendant: Pinewood Mall
 
+## Builder v93: cardboard box physical-material correction and source keyboard/mouse restoration (2026-11-10)
+
+Owner supplied a screenshot of both existing Kenney `Cardboardboxopen` and `Cardboardboxclosed` still showing intense timber-like surface pattern after v92, and reported that keyboard and mouse accessories lost their previous visual detail; requested exactly their **pre-material-change original model appearance**, not another computer accessory texture.
+
+Full source GLB inspection (using connected GitHub Action `scripts/inspect-builder-asset-sources-v93.mjs`) confirmed:
+- Both box GLBs contain one mesh with **88 source vertices / two material groups**, but those two source material names are **`wood` and `woodDark`**, misclassified as wood instead of cardboard. Neither box has image maps; the original shapes, interior folds and group boundaries are retained.
+- The standalone original `kenney-furniture-kit-computerkeyboard` is a 38-vertex two-color low-poly GLB with source materials **`metalDark` and `metalMedium`**; the standalone mouse has 113 vertices and source material **`metalDark`**. Their original sources have **zero** embedded image maps, so do not invent texture detail or swap in other models under those existing IDs.
+- The completely separate and more detailed CC-BY 1990s CRT bundle has **20 source images**, with dedicated original `Ucupaint_Keyboard_Creme` and `Mouse_Cream` image maps that must remain intact.
+
+Created `builder/cardboard-materials-v93.mjs` for exactly the original two cardboard model/material names and `builder/prop-materials-v91.js` routes those roles to locally pinned correct **ambientCG CC0 real cardboard photos** instead of wood. Two 1K diffuse JPEGs are vendored under `assets/vendor/builder/materials-v93/` (Cardboard001 worn for open, Cardboard002 smooth for closed). The manifest and LICENSES record official URL, archive SHA-256 and source and distributed JPG hashes. Photo projection uses **0.82 broad repeats per cardboard panel**, preserves 2 distinct source surfaces, and applies properly matte nonmetallic shading instead of wood or metallic. Source GLBs are never modified. One-time write-enabled material-download workflow deleted from branch after source pinning.
+
+`builder/source-peripherals-v93.mjs` explicitly clones the exact original standalone keyboard/mouse source GLB meshes and materials per Builder instance and bypasses auto-texturing, preventing shared GLTF clones from altering their original color palettes. The original mapped CRT keyboard and mouse are untouched and remain inside the CRT bundle. Existing Builder saved JSON, 41 rooms, canonical mall geometry and campaign remain unchanged.
+
+Focused source/license/geometry/restore checks in `scripts/test-builder-cardboard-peripherals-v93.mjs`; desktop Chromium in `scripts/smoke-builder-material-v91.mjs` includes exact material roles, source image paths, box surface scaling, peripheral original color, CRT source images and import/reload. Update all old v91 source material role audits with the specific two legal cardboard roles. PR #88. Verify current CI and Pages after merge before claiming public.
+ 
+---
+
 ## Builder v92: whole-panel texture scale and colored keyboard/mouse (2026-11-10)
 
 User supplied a real Builder screenshot of a desk with CRT, keyboard and mouse
