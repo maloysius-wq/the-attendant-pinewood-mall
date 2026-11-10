@@ -96,6 +96,14 @@ finish. See `builder/material-scale-v92.mjs`,
 `scripts/test-builder-material-v92.mjs`, the focused v91/v92 Builder
 material CI workflow, and its desktop regression.
 
+## Authentic cardboard boxes and original keyboard/mouse materials (v93)
+
+After the expanded v91/v92 material library, the **Cardboardboxopen** and **Cardboardboxclosed** models still looked wooden with obvious tiny stamped patterns. This was caused by the original Kenney GLBs naming their paper materials `wood` and `woodDark`. Their material names are not physically accurate. Both original box meshes are now **explicitly classified as paperboard**, not timber. An **open box gets worn cardboard** and a **closed box gets clean brown cardboard**, each a source-verified, locally bundled **ambientCG CC0 1K JPEG** applied over a full broad face instead of tiny repeating tiles. The original folds, separate dark interiors, old placements, model IDs and saved layouts are preserved.
+
+**Keyboard and mouse:** The standalone original Kenney keyboard always had two solid-colored materials and the mouse one; neither original source GLB contained image textures. Their source geometry and original colors are now explicitly cloned per placement and protected from all automatic photo texturing. The separately sourced, detailed 1990s **CRT computer with keyboard + mouse** retains its original image-mapped keyboard and mouse pieces without modification. To use that more detailed cream-colored equipment, choose the bundled **CRT desktop computer** model rather than standalone low-poly Kenney peripherals.
+
+New sources and per-file SHA/licenses: `assets/vendor/builder/materials-v93/manifest-v93.json` and `LICENSES.md`. Safe remapping in `builder/cardboard-materials-v93.mjs` and exact peripheral-source isolation in `builder/source-peripherals-v93.mjs`; original `.glb` binaries remain unchanged. Automated checks: `scripts/test-builder-cardboard-peripherals-v93.mjs`, original asset SHA audit and desktop `scripts/smoke-builder-material-v91.mjs`. All resources load locally.
+
 ## Expanded textures and detailed prop materials (v91)
 
 The standalone Builder now offers **50 more fully local, source-verified Poly Haven CC0 1K textures**: 20 new wall options, 13 floor options and 8 ceiling options (some source images are useful in more than one place). The original finishes remain, with all previous saved finish IDs unchanged. Interior options include chipped and faded wall plaster, brick and weathered retail cladding, 1980s-style tile, parquet, laminate, aged wood floors, stained plaster and old ceiling insulation. The Wall, Floor and Ceiling selectors include **live image swatches** of the actual chosen local texture, making the material appearance visible before applying it. The original architectural rooms, skylight, doors, walls, collision and campaign are untouched.
