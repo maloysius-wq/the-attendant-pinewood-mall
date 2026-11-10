@@ -1,5 +1,15 @@
 # Development Handoff: The Attendant: Pinewood Mall
 
+## Builder v96: de-energize original 1990s CRT screen (2026-11-10)
+
+User requests that placed desktop computer screens appear **blank and unpowered**, replacing the green imagery currently baked onto their faces. The exact source is the already licensed CC-BY GLB at `assets/vendor/builder/models/era-v87/retro-crt-pc-1990s.glb`. Its separately authored `Monitor_Glass` material contains the display texture; the named `Additional_Reflection` mesh / `Monitor_Reflection` geometry is a composited overlay. The original model has twelve meshes, eight materials and twenty embedded source images. The 1990s case, cream housing, keyboard (source material `Ucupaint_Keyboard_Creme`) and mouse (`Mouse_Cream`) must retain their image maps.
+
+Builder-only `builder/crt-powered-off-v96.js` now replaces **only** `Monitor_Glass` on each cloned GLTF instance with near-black, fully opaque neutral `MeshPhysicalMaterial`, with emissive black, no map/alpha/emission texture and a small physically lit glass clearcoat sheen. The source's separate reflection overlay is hidden without deleting its geometry. It fails loudly if the expected named screen and reflection anatomy change, to avoid accidentally recoloring the beige case or peripherals. `builder/editor-scene.js` invokes this during `template()`, therefore it applies equally to newly placed CRTs, existing saved placements, previews and the legacy Kenney LCD catalog alias that was previously redirected to the exact CRT model. Original source GLB bytes, 20 source textures, licenses, catalog and playable game are unchanged. No new runtime downloads.
+
+Unit tests in `scripts/test-builder-crt-powered-off-v96.mjs` validate source model hash/parts, unpowered screen texture and emission, disabled baked overlay and non-mutated original model material with intact image-bearing keyboard/mouse. Desktop Chromium in `scripts/smoke-builder-crt-off-v96.mjs` verifies the real loaded GLB in three placements including the old LCD alias, screen/overlay state, preserved source case/keyboard/mouse, reload/import persistence, and no external network loading. Focused `pinewood-builder-crt-off-v96.yml`; asset audit. PR #91. Confirm targeted tests and GitHub Pages publication before claiming live.
+
+---
+
 ## Builder v95: visible warnings for failed selected-object transforms (2026-11-10)
 
 User confirmed a selected desktop CRT stopped rotating because **Allow overlap** was disabled and its existing collision check was rejecting further yaw turns; the true reason was already in the small save-status text but went unnoticed. User approved adding a more obvious in-scene warning. The previous speculative v94 PR #89 (changing support collision semantics) was **closed unmerged**; core collision validation on main remains unchanged.
