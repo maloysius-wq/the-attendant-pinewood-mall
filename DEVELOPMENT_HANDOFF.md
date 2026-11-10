@@ -1,6 +1,17 @@
 # Development Handoff: The Attendant: Pinewood Mall
 
 
+## Builder v90: contractor vestibule and every room's visible wall finishes (2026-11-09)
+
+Owner found **Contractor Service Vestibule**'s outside mall wall did not change with the room's wall texture and requested a full-mall audit. Root cause in v87: `renderWalls` measured the nominal 0.46m canonical exterior wall, but the Builder hides the canonical front elevation and mounts the opening cinematic's real 0.90m-thick facade. The material plane was hidden inside the replacement solid. The previous renderer also painted some 12.8m exterior walls all the way above rooms' actual ceilings, and overlapping room-wall source segments could produce coplanar duplicate finishes.
+
+New **Builder-only** `builder/room-wall-layout-v90.mjs` reads all FIVE actual local opening-scene facade wall meshes (left/right broad wall, two service-side infills and the door header) from `stage.world` via its unchanged source `serviceEntry` references. `builder/exterior-scene.js` exposes this physically measured source, `builder/main.js` passes it to the finish renderer, and `builder/room-finishes-v87.js` uses a shared geometry planner. Actual wall rectangles are clipped to each room and the real ceiling underside (or B1/M1 room height), face into the room rather than hiding in the wall, and partition overlaps are resolved into non-overlapping faces. Contractor door opening stays fully clear; the true head above it now takes the finish. Adjacent Boarded Main Entry gets its own finish. Preserve all 41 original rooms, existing walls/colliders, genuine facade, story doors, user layouts and campaign. No new assets, third-party runtime loads, invented mesh architecture, or schema migration.
+
+`scripts/test-builder-room-walls-v90.mjs` runs a **41-room, three-level** source-wall geometry audit including exact staged door opening, independent vertical bounds, source wall face coverage and non-overlapping skins. `scripts/smoke-builder-room-walls-v90.mjs` checks the actual Builder in desktop Chromium, the real exterior geometry, per-room rendered panel counts and persistence/undo/redo. Focused workflow `.github/workflows/pinewood-builder-room-walls-v90.yml` plus existing v87/v1 Builder suites. Verify CI and Pages before claiming public deployment.
+
+---
+
+
 ## Builder v89: scroll rotates existing selected objects, not the camera (2026-11-09)
 
 Owner reported scrolling still zoomed the camera instead of rotating the **selected object**. Root cause: v87's `editor-scene.js` wheel handler returned immediately unless `placing && ghost`, so it covered only a model's pre-placement preview; selecting a saved or baseline object left the wheel for OrbitControls. v89 intercepts ordinary canvas wheel input whenever an existing prop is selected, dispatches 15-degree yaw changes through the same collision-checked, undoable, IndexedDB-persisted transform pipeline, and serializes rapid wheel gestures to avoid lost rotations. **Shift+wheel** zooms the camera while an existing item is selected; ordinary wheel zoom works when nothing is selected. Preview rotation and Shift+wheel depth are unchanged.
