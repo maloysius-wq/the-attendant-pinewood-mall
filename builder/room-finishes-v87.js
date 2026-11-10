@@ -2,6 +2,7 @@ import * as THREE from '../vendor/three/build/three.module.js';
 import {MALL} from '../mall/masterplan-v66.mjs';
 import {ROOM_FINISHES_V87} from './room-finishes-options-v87.mjs';
 import {planRoomWallFacesV90} from './room-wall-layout-v90.mjs';
+import {roomFinishRepeatsV92} from './material-scale-v92.mjs';
 
 /**
  * Builder-only cosmetic finishes. Never change the canonical shared
@@ -23,10 +24,14 @@ export function createRoomFinishesV87(building){
   const room=roomById.get(id);
   return room?planRoomWallFacesV90(room,levelShells.get(room.level),cinematicFrontWall):[];
  };
- const scaleUV=(geo,width,height,tile=2.6)=>{
-  const uv=geo.getAttribute('uv');
-  for(let i=0;i<uv.count;i++)uv.setXY(i,uv.getX(i)*Math.max(.1,width/tile),
-   uv.getY(i)*Math.max(.1,height/tile));
+ const scaleUV=(geo,width,height,part,id)=>{
+  // V91 repeated every 2.6 metres, including mottled carpet and plaster.
+  // Limit copies per panel for organic finishes while keeping a realistic
+  // pattern on intentional terrazzo/tile and acoustic ceiling grids.
+  const repeats=roomFinishRepeatsV92(part,id,width,height),uv=geo.getAttribute('uv');
+  for(let i=0;i<uv.count;i++){
+   uv.setXY(i,uv.getX(i)*repeats.u,uv.getY(i)*repeats.v);
+  }
   uv.needsUpdate=true;return geo;
  };
  async function textureFor(part,id){
@@ -43,7 +48,7 @@ export function createRoomFinishesV87(building){
   return textureCache.get(source);
  }
  function paint(group,part,room,id,texture,w,h,x,y,z,ry=0,rx=0){
-  const geo=scaleUV(new THREE.PlaneGeometry(w,h),w,h);
+  const geo=scaleUV(new THREE.PlaneGeometry(w,h),w,h,part,id);
   const mat=new THREE.MeshStandardMaterial({color:0xffffff,map:texture,
    roughness:part==='floor'?.82:.96,metalness:0,side:THREE.DoubleSide,
    polygonOffset:true,polygonOffsetFactor:-1,polygonOffsetUnits:-1});

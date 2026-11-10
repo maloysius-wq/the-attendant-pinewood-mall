@@ -1,5 +1,6 @@
 import * as THREE from '../vendor/three/build/three.module.js';
 import {PROP_MATERIALS_V91} from './material-options-v91.mjs';
+import {keepPeripheralColorsV92,isFurnitureV92,sourceTextureRoleV92} from './material-scale-v92.mjs';
 
 /**
  * Non-destructive Builder-only PBR enhancement of source GLBs whose materials
@@ -78,11 +79,50 @@ export function boxProjectMissingUVV91(geometry,{tileMeters=.65}={}){
  return g;
 }
 
+/**
+ * Project one clean veneer image across an entire furniture piece, with
+ * aspect ratio preserved. Unlike the v91 .48 m tiling, neither a 2-metre
+ * desk nor a drawer front repeats its photo ten times. Handles share the
+ * same UV coordinate space but retain their independently named material.
+ * Never reproject a mesh that has authored image-bearing materials.
+ */
+export function boxProjectFurnitureUVV92(geometry,{repeatsAcrossLongest=.92}={}){
+ const g=geometry.index?geometry.toNonIndexed():geometry.clone();
+ const position=g.getAttribute('position');
+ if(!position||position.count%3!==0)throw Error('Cannot project non-triangle furniture');
+ g.computeBoundingBox();
+ const bounds=g.boundingBox;
+ const size=bounds.getSize(new THREE.Vector3());
+ const span=Math.max(.001,size.x,size.y,size.z);
+ const scale=Math.max(.1,Math.min(1.15,repeatsAcrossLongest))/span;
+ const uv=new Float32Array(position.count*2);
+ const a=new THREE.Vector3(),b=new THREE.Vector3(),c=new THREE.Vector3();
+ const ab=new THREE.Vector3(),ac=new THREE.Vector3(),n=new THREE.Vector3();
+ for(let i=0;i<position.count;i+=3){
+  a.fromBufferAttribute(position,i);
+  b.fromBufferAttribute(position,i+1);
+  c.fromBufferAttribute(position,i+2);
+  n.crossVectors(ab.subVectors(b,a),ac.subVectors(c,a));
+  const ax=Math.abs(n.x),ay=Math.abs(n.y),az=Math.abs(n.z);
+  const side=ay>=ax&&ay>=az?1:ax>=az?0:2;
+  for(let j=0;j<3;j++){
+   const x=position.getX(i+j)-bounds.min.x;
+   const y=position.getY(i+j)-bounds.min.y;
+   const z=position.getZ(i+j)-bounds.min.z;
+   uv[(i+j)*2]=(side===0?z:x)*scale;
+   uv[(i+j)*2+1]=(side===1?z:y)*scale;
+  }
+ }
+ g.setAttribute('uv',new THREE.BufferAttribute(uv,2));
+ g.userData={...g.userData,builderFurnitureUVV92:true,builderPatternRepeatsV92:repeatsAcrossLongest};
+ return g;
+}
+
 const props=new Set(Object.values(PROP_MATERIALS_V91));
 export function createBuilderMaterialEnhancerV91(){
  const loader=new THREE.TextureLoader(),cache=new Map(),stats={
   modelsInspected:0,modelsEnhanced:0,meshesEnhanced:0,materialSurfacesEnhanced:0,
-  generatedUVs:0,embeddedPreserved:0,semanticPreserved:0,usedRoles:{}
+  generatedUVs:0,furnitureUVs:0,peripheralsPreserved:0,embeddedPreserved:0,semanticPreserved:0,usedRoles:{}
  };
  async function texture(role){
   const path=PROP_MATERIALS_V91[role];
@@ -96,9 +136,15 @@ export function createBuilderMaterialEnhancerV91(){
  }
  async function enhance(root,modelId=''){
   stats.modelsInspected++;
+  if(keepPeripheralColorsV92(modelId)){
+   stats.peripheralsPreserved++;return {enhanced:0,roles:[]};
+  }
   const meshRecords=[],required=new Set();
   root.traverse(o=>{
    if(!o.isMesh||o.isSkinnedMesh||!o.geometry?.getAttribute('position'))return;
+   if(keepPeripheralColorsV92(o.name)){
+    stats.peripheralsPreserved++;return;
+   }
    const materials=Array.isArray(o.material)?o.material:[o.material];
    const roles=materials.map(m=>{
     if(!m||!m.isMeshStandardMaterial||m.map||m.normalMap||m.emissiveMap||m.alphaMap||
@@ -107,26 +153,34 @@ export function createBuilderMaterialEnhancerV91(){
      return null;
     }
     const role=materialRoleV91(m.name,modelId+' '+o.name);
-    if(role)required.add(role);else stats.semanticPreserved++;
+    if(role)required.add(sourceTextureRoleV92(role,modelId+' '+o.name));else stats.semanticPreserved++;
     return role;
    });
-   if(roles.some(Boolean))meshRecords.push({mesh:o,materials,roles});
+   if(roles.some(Boolean))meshRecords.push({mesh:o,materials,roles,canProject:!materials.some(m=>m?.map||m?.normalMap||m?.emissiveMap||m?.alphaMap)});
   });
   if(!meshRecords.length)return {enhanced:0,roles:[]};
   // Every new source map is a local file verified by the manifest hash.
   const loaded=new Map(await Promise.all([...required].map(async role=>[role,await texture(role)])));
   let enhanced=0;
-  for(const {mesh,materials,roles} of meshRecords){
-   if(!hasValidUV(mesh.geometry)){
+  for(const {mesh,materials,roles,canProject} of meshRecords){
+   // Color-only furniture gets an entire photo per broad panel, even when
+   // the original UV atlas technically exists but repeats excessively.
+   // Keep all original embedded image UVs completely untouched.
+   if(canProject&&isFurnitureV92(modelId+' '+mesh.name)){
+    mesh.geometry=boxProjectFurnitureUVV92(mesh.geometry);
+    stats.furnitureUVs++;
+   }else if(!hasValidUV(mesh.geometry)&&canProject){
+    const bounds=mesh.geometry.boundingBox||new THREE.Box3().setFromBufferAttribute(mesh.geometry.getAttribute('position'));
+    const span=bounds.getSize(new THREE.Vector3()).length();
     mesh.geometry=boxProjectMissingUVV91(mesh.geometry,{
-     tileMeters:roles.some(x=>x==='wood'||x==='woodDark'||x==='woodLight')?.48:.72
+     tileMeters:Math.max(1.5,span/1.8)
     });
     stats.generatedUVs++;
    }
    const next=materials.map((m,i)=>{
     const role=roles[i];if(!role)return m;
     const copy=m.clone();
-    copy.map=loaded.get(role);
+    copy.map=loaded.get(sourceTextureRoleV92(role,modelId+' '+mesh.name));
     // Multiplicative original base-color tint preserves distinct handles,
     // dark stained wood, fabric colors, and any original colored paint.
     // Brighten modestly so the source color doesn't hide subtle image grain.

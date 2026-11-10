@@ -1,4 +1,4 @@
-name: Pinewood Builder material library v91
+name: Pinewood Builder texture realism v92 and material library v91
 on:
   pull_request:
     branches: [main]
@@ -6,6 +6,8 @@ on:
       - 'builder/**'
       - 'assets/vendor/builder/materials-v91/**'
       - 'scripts/test-builder-material-v91.mjs'
+      - 'scripts/test-builder-material-v92.mjs'
+      - 'builder/material-scale-v92.mjs'
       - 'scripts/smoke-builder-material-v91.mjs'
       - 'scripts/audit-builder-materials-v91.mjs'
       - '.github/workflows/pinewood-builder-material-v91.yml'
@@ -22,7 +24,7 @@ jobs:
         with:
           node-version: '22'
       - name: Verify all 50 pinned CC0 source images, multi-material semantics and generated UVs
-        run: node --test scripts/test-builder-material-v91.mjs scripts/test-builder-v87.mjs
+        run: node --test scripts/test-builder-material-v91.mjs scripts/test-builder-material-v92.mjs scripts/test-builder-v87.mjs
       - name: Preserve full existing CC0 GLB asset hashes and classification
         run: node --test scripts/audit-builder-assets-v1.mjs
       - name: Summarize real source meshes in all color-only GLBs
@@ -36,5 +38,5 @@ jobs:
           python3 -m http.server 4173 --bind 127.0.0.1 >/tmp/pinewood-v91-http.log 2>&1 &
           for i in {1..30}; do curl -fsS http://127.0.0.1:4173/builder/ >/dev/null && exit 0; sleep 1; done
           exit 1
-      - name: Desktop verify real wooden desks, metal drawer handles, 41-room surfaces and persistence
+      - name: Desktop verify furniture texture scale, original-color peripherals and finish persistence
         run: node scripts/smoke-builder-material-v91.mjs

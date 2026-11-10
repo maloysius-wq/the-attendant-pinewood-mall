@@ -363,6 +363,8 @@ export async function createBuilderScene({scene,camera,domElement,onSelect=()=>{
       sourceMapPreserved:!!source.map&&!source.userData?.builderEnhancedV91,
       uvReady:!!m.geometry?.getAttribute('uv'),
       generatedUV:!!m.geometry?.userData?.builderGeneratedUVV91,
+      furnitureUV:!!m.geometry?.userData?.builderFurnitureUVV92,
+      furnitureMaxRepeats:m.geometry?.userData?.builderPatternRepeatsV92??null,
       mapPath:source.map?.image?.currentSrc||source.map?.image?.src||null
      });
     }

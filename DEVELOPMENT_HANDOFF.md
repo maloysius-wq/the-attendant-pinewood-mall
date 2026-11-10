@@ -1,5 +1,47 @@
 # Development Handoff: The Attendant: Pinewood Mall
 
+## Builder v92: whole-panel texture scale and colored keyboard/mouse (2026-11-10)
+
+User supplied a real Builder screenshot of a desk with CRT, keyboard and mouse
+showing painfully obvious small repeated image stamps on desk wood and
+metal hardware. They specifically requested **less repetition / much bigger
+tile scale or stretch**, and **return keyboards and mice to their original
+solid colors**. Root cause: v91 assigned every source-colored GLB texture
+a small per-face projected UV grid (`tileMeters: .48` on wood, `.72` on
+other materials). Some source color-only GLBs also had usable but repetitive
+original UVs, so only changing missing UV projection would be insufficient.
+Room finishes likewise repeated every 2.6 m, including carpet and plaster.
+
+Builder-only `builder/material-scale-v92.mjs` implements precise reusable
+policies. `builder/prop-materials-v91.js` now projects photographs across
+**a single broad furniture panel** with source-geometry aspect ratio
+(`boxProjectFurnitureUVV92`, <=0.92 repeats on its longest axis), even
+where a source color-only mesh has existing UVs. This happens on cloned
+geometry only when no material in that mesh has a source image map, to
+avoid destroying licensed source UVs. Furniture ordinary `wood` maps to
+the already pinned smooth `oak_veneer_01` photo rather than v91's
+noisy `wood_table_worn`. Distinct `woodDark` and `metal` group
+assignment remains. Nonfurniture UV-free meshes receive a larger
+proportional repeat scale. Name-based protection bypasses every standalone
+keyboard and mouse source and keyboard/mouse child mesh, even when named
+wood/metal. Original colors, geometry, saved layouts, story runtime and
+binary asset hashes are protected.
+
+Room-finish UV scale now caps repeating carpets, plaster and organic surfaces
+at 1.55 cycles per panel, intentionally patterned tile floors at 2.7,
+and leaves 1990s acoustic ceiling tile grid at 2.6-m cycle spacing.
+Both original and new room finish IDs are preserved. Tests:
+`scripts/test-builder-material-v92.mjs` validates actual source keyboard
+and mouse GLBs, exclusion behavior, full desktop UV spread, role mapping
+and room finish repeat bounds. Expanded desktop smoke
+`scripts/smoke-builder-material-v91.mjs` checks actual desk full-panel
+oak veneer/independent metal plus real keyboard/mouse remaining texture-free,
+alongside existing room-finish persistence and no external network.
+The focused `pinewood-builder-material-v91.yml` workflow runs v91 and v92
+tests. PR #87. Review targeted CI and GitHub Pages after merge.
+
+---
+
 ## Builder v91: 50 new CC0 room materials and multi-surface 1990s props (2026-11-10)
 
 User requested as many additional appropriate **wall, ceiling and floor textures** as possible and a comprehensive improvement of currently flat-colored asset materials. The original source audit had **324 of 482 new CC0 GLBs with no embedded image** plus **12 of 21** original selectable source models. Inspection of **1,051 primitive parts** revealed **458 primitives without usable TEXCOORD_0**, and revealed actual Kenney material groups: desks have `wood` and `metal`, and cabinet drawers have `wood`, `woodDark` and `metal`.
