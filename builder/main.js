@@ -11,6 +11,7 @@ import {createWorkLighting} from './work-lighting.js';
 import {mountCinematicParkingLot} from './exterior-scene.js';
 import {createRoomFinishesV87} from './room-finishes-v87.js';
 import {ROOM_FINISHES_V87} from './room-finishes-options-v87.mjs';
+import {blockedOperationV95,blockedMessageV95} from './blocked-feedback-v95.mjs';
 
 const $=id=>document.getElementById(id);
 const status={ready:false,errors:[],selected:null,roomCount:MALL.rooms.length,
@@ -19,6 +20,7 @@ const status={ready:false,errors:[],selected:null,roomCount:MALL.rooms.length,
  placementOptions:{gridSize:.5,allowClipping:false},finishMeshes:{floor:0,wall:0,ceiling:0}};
 let scene,camera,renderer,orbit,editor,navigation,workLighting,exterior,roomFinishes,
  frames=0,undoStack=[],redoStack=[],idCounter=0,savePending;
+let blockedWarning=null;
 const clone=v=>JSON.parse(JSON.stringify(v)),round=v=>Math.round(v*1000)/1000;
 const legacy=new Map([...FURNISHINGS_V69.fixtures,...EDITOR_EXTRA_FIXTURES_V1].map(f=>[f.id,f]));
 const catalog=[...EDITOR_CATALOG_V1];
@@ -57,6 +59,7 @@ const API={
  getState:()=>clone(status),
  getCatalog:()=>catalog.map(x=>({...x})),
  getMaterialStats:()=>editor?.getMaterialStats()??null,
+ getCollisionWarning:()=>blockedWarning?clone(blockedWarning):null,
  inspectObjectMaterials:id=>editor?.inspectObjectMaterials(id)??null,
  select:id=>editor?.select(id)??false,
  place:(catalogId,position,id)=>place(catalogId,position,id),
@@ -101,7 +104,52 @@ window.__PINEWOOD_BUILDER__=API;
 const labels=id=>id==='atrium_dry_fountain'?'Silted Atrium Fountain':legacy.get(id)?.id.replace(/_/g,' ')||
  EDITOR_CATALOG_BY_ID.get(status.draft.added.find(a=>a.id===id)?.catalogId)?.label||id;
 function indicate(msg){$('save-status').textContent=msg}
+function clearCollisionWarning(){
+ blockedWarning=null;
+ const bubble=$('collision-warning');
+ if(bubble)bubble.hidden=true;
+}
+function showCollisionWarning(id,reason,operation){
+ const message=blockedMessageV95(reason,operation);
+ blockedWarning={id,...message};
+ $('collision-warning-title').textContent=message.title;
+ $('collision-warning-detail').textContent=message.detail;
+ $('collision-warning-hint').textContent=message.hint;
+ const bubble=$('collision-warning');
+ bubble.hidden=false;
+ positionCollisionWarning();
+}
+function positionCollisionWarning(){
+ if(!blockedWarning||!editor||!camera)return;
+ const selected=editor.objects.get(blockedWarning.id);
+ if(!selected?.visible||status.selected!==blockedWarning.id){
+  clearCollisionWarning();return;
+ }
+ const viewport=$('viewport'),bubble=$('collision-warning');
+ const w=viewport.clientWidth,h=viewport.clientHeight;
+ const box=new THREE.Box3().setFromObject(selected);
+ const center=box.getCenter(new THREE.Vector3());
+ center.y=box.max.y+.16;
+ camera.updateMatrixWorld();
+ const worldDirection=new THREE.Vector3();
+ camera.getWorldDirection(worldDirection);
+ const inFront=center.clone().sub(camera.position).dot(worldDirection)>0;
+ const projected=center.clone().project(camera);
+ const offscreen=!inFront||projected.z>1||projected.z< -1;
+ const desiredX=offscreen?w/2:(projected.x*.5+.5)*w;
+ const half=Math.min(160,Math.max(12,w/2-12));
+ const x=Math.max(half,Math.min(w-half,desiredX));
+ const y=offscreen?150:(1-(projected.y*.5+.5))*h;
+ const above=!offscreen&&y>h-155;
+ const top=above?Math.max(155,Math.min(h-20,y-14)):
+  Math.max(130,Math.min(h-120,y+18));
+ bubble.dataset.position=above?'above':'below';
+ bubble.style.left=x+'px';
+ bubble.style.top=top+'px';
+ bubble.dataset.offscreen=String(offscreen);
+}
 function writeInspector(id,p){
+ if(status.selected!==id)clearCollisionWarning();
  status.selected=id;
  $('selection-name').textContent=id?labels(id):'Nothing selected';
  const placed=status.draft.added.find(a=>a.id===id);
@@ -238,9 +286,12 @@ async function changeTransform(changes){
  if(!check.valid){
   await applyRenderedDraft(status.draft);
   indicate('Blocked: '+check.reason);
+  if(status.selected===id)showCollisionWarning(id,check.reason,blockedOperationV95(original,{...original,...changes}));
   return false;
  }
- return commit({type:'transform',id,...changes}).catch(report);
+ const applied=await commit({type:'transform',id,...changes}).catch(report);
+ if(applied)clearCollisionWarning();
+ return applied;
 }
 async function place(catalogId,position,id,rotation={x:0,y:0,z:0}){
  if(!EDITOR_CATALOG_BY_ID.has(catalogId))throw Error('Unknown catalog item '+catalogId);
@@ -261,11 +312,13 @@ async function removeSelected(){
 }
 async function undo(){
  if(!undoStack.length)return false;
+ clearCollisionWarning();
  redoStack.push(clone(status.draft));status.draft=undoStack.pop();
  await applyRenderedDraft(status.draft);reflect();await saveDraft();return true;
 }
 async function redo(){
  if(!redoStack.length)return false;
+ clearCollisionWarning();
  undoStack.push(clone(status.draft));status.draft=redoStack.pop();
  await applyRenderedDraft(status.draft);reflect();await saveDraft();return true;
 }
@@ -316,6 +369,7 @@ function updateFromInputs(){
 }
 function setPlacementOptions(options={}){
  if(!editor)return null;
+ if(options.overlap===true||options.overlap===false&&status.placementOptions.allowClipping)clearCollisionWarning();
  const next=editor.setPlacementOptions(options);
  status.placementOptions={gridSize:next.gridSize,allowClipping:next.allowClipping};
  $('snap-grid').checked=next.gridSize>0;
@@ -542,6 +596,7 @@ async function begin(){
    navigation.update(dt);
    if(navigation.getState().mode==='orbit')orbit.update();
    else editor.refreshPlacement();
+   if(blockedWarning)positionCollisionWarning();
    renderer.render(scene,camera);requestAnimationFrame(frame)}
   requestAnimationFrame(frame);
   window.addEventListener('resize',resize);

@@ -96,6 +96,14 @@ finish. See `builder/material-scale-v92.mjs`,
 `scripts/test-builder-material-v92.mjs`, the focused v91/v92 Builder
 material CI workflow, and its desktop regression.
 
+## Visible selected-object collision warnings (v95)
+
+If a wheel rotation, inspector move, gizmo placement or scale adjustment is rejected by the **existing strict collision protection**, the standalone Builder now shows a **prominent nonmodal warning directly near the selected object in the 3D viewport**. It follows the object as the camera moves, remains visible rather than fading before it can be read, and explains whether a **Rotation**, **Move** or **Scale** was blocked. It names the reason (wall intersection versus missing continuous floor/furniture support) and suggests moving the object or selecting **Allow overlap** when deliberate clipping is needed. The prior save-status text remains unchanged for accessibility and compatibility.
+
+The warning is not part of the saved draft. It clears immediately after a successful edit, deselection/object switch, Undo/Redo, or change to the Allow overlap setting. It is pointer-transparent and does not intercept gizmo drags, camera movements, or the normal mousewheel. The core v87 collision check, existing 41 rooms, Builder saved layouts, and playable campaign are **unchanged**. The visible status is also `role="alert"` for assistive technology.
+
+Implementation: `builder/blocked-feedback-v95.mjs`, `builder/main.js`, `builder/index.html`, `builder/builder.css`; focused tests `scripts/test-builder-blocked-feedback-v95.mjs`, `scripts/smoke-builder-blocked-feedback-v95.mjs`, and `.github/workflows/pinewood-builder-blocked-feedback-v95.yml`.
+
 ## Authentic cardboard boxes and original keyboard/mouse materials (v93)
 
 After the expanded v91/v92 material library, the **Cardboardboxopen** and **Cardboardboxclosed** models still looked wooden with obvious tiny stamped patterns. This was caused by the original Kenney GLBs naming their paper materials `wood` and `woodDark`. Their material names are not physically accurate. Both original box meshes are now **explicitly classified as paperboard**, not timber. An **open box gets worn cardboard** and a **closed box gets clean brown cardboard**, each a source-verified, locally bundled **ambientCG CC0 1K JPEG** applied over a full broad face instead of tiny repeating tiles. The original folds, separate dark interiors, old placements, model IDs and saved layouts are preserved.

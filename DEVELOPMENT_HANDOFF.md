@@ -1,5 +1,15 @@
 # Development Handoff: The Attendant: Pinewood Mall
 
+## Builder v95: visible warnings for failed selected-object transforms (2026-11-10)
+
+User confirmed a selected desktop CRT stopped rotating because **Allow overlap** was disabled and its existing collision check was rejecting further yaw turns; the true reason was already in the small save-status text but went unnoticed. User approved adding a more obvious in-scene warning. The previous speculative v94 PR #89 (changing support collision semantics) was **closed unmerged**; core collision validation on main remains unchanged.
+
+Builder-only v95 adds a viewport overlay `#collision-warning`, with `role="alert"` and `pointer-events:none`, that appears **anchored near the selected object's world-space bounding-box top**, follows the camera frame by frame, clamps to viewport, and uses a fallback location if offscreen. Persistent until resolved or dismissed via successful edit, deselection/new selection, Undo/Redo, or updating **Allow overlap**. `blocked-feedback-v95.mjs` translates existing validator reasons into specific **Rotation blocked**, **Move blocked**, **Scale blocked** warnings, plus a direct, relevant explanation and the optional Allow overlap tip. The existing inspector save-status message stays in place. It is purely ephemeral UI state and deliberately NEVER touches exported JSON, IndexedDB or reversible draft history.
+
+Desktop Chromium regression `scripts/smoke-builder-blocked-feedback-v95.mjs` tests a real baseline stool's rejected inspector move, banner visibility/accessibility/position and unchanged draft, and a real placed CRT's rejected wheel rotation outside floor support, warning persistence, Allow overlap checkbox clearing it, and successful wheel rotation afterward. Unit tests exercise warning reason classification. Dedicated focused workflow `.github/workflows/pinewood-builder-blocked-feedback-v95.yml`; normal Builder v87 checks run independently. No new assets, physics/validation changes, campaign changes or remote runtime fetches. PR #90. Confirm PR checks and GitHub Pages before reporting live.
+
+---
+
 ## Builder v93: cardboard box physical-material correction and source keyboard/mouse restoration (2026-11-10)
 
 Owner supplied a screenshot of both existing Kenney `Cardboardboxopen` and `Cardboardboxclosed` still showing intense timber-like surface pattern after v92, and reported that keyboard and mouse accessories lost their previous visual detail; requested exactly their **pre-material-change original model appearance**, not another computer accessory texture.

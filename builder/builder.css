@@ -49,3 +49,26 @@ h2{font:normal 23px Georgia,serif;line-height:1.25;margin:10px 0}.muted{color:va
 .finish-choice select{flex:1;min-width:0}
 .finish-swatch{flex:0 0 66px;min-height:43px;background:#1b2728;background-position:center;background-size:cover;background-repeat:repeat;border:1px solid #586f6a;border-radius:4px;color:#91a39e;display:flex;align-items:center;justify-content:center;text-align:center;font-size:9px;letter-spacing:.04em;overflow:hidden}
 .finish-swatch[data-textured="true"]{color:transparent}
+
+
+/* v95: sticky, in-scene collision feedback for a blocked selected-object edit.
+ * Pointer-events stay off, so this never traps gizmo clicks or mousewheel turns.
+ * Status is intentionally not auto-dismissed: it clears on a successful edit,
+ * deselection, or an explicit Allow overlap change. */
+.collision-warning{
+ position:absolute;z-index:3;pointer-events:none;width:min(310px,calc(100% - 24px));
+ padding:11px 13px 12px;border:1px solid #e9a36f;border-radius:7px;
+ background:#2b1917f2;color:#fff0df;box-shadow:0 6px 26px #000c;
+ text-align:left;line-height:1.4;transform:translate(-50%,0);
+ overflow-wrap:anywhere;
+}
+.collision-warning[hidden]{display:none!important}
+.collision-warning[data-position="above"]{transform:translate(-50%,-100%)}
+.collision-warning::before{content:"";position:absolute;top:-6px;left:calc(50% - 5px);
+ width:10px;height:10px;transform:rotate(45deg);background:#2b1917;
+ border-top:1px solid #e9a36f;border-left:1px solid #e9a36f}
+.collision-warning[data-position="above"]::before{top:auto;bottom:-6px;
+ transform:rotate(225deg)}
+.collision-warning strong{display:block;color:#ffc28f;font-size:13px;letter-spacing:.02em}
+.collision-warning span{display:block;font-size:12px;margin-top:2px}
+.collision-warning small{display:block;font-size:11px;color:#e4bdab;margin-top:6px;line-height:1.45}
