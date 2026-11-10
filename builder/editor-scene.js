@@ -6,6 +6,7 @@ import {FURNISHINGS_V69} from '../mall/furnishing-plan-v69.mjs';
 import {EDITOR_EXTRA_FIXTURES_V1} from '../mall/editor-baseline-v1.mjs';
 import {EDITOR_CATALOG_BY_ID} from '../mall/editor-catalog-v1.mjs';
 import {createBuilderMaterialEnhancerV91} from './prop-materials-v91.js';
+import {isSourcePeripheralV93,isolateSourcePeripheralV93} from './source-peripherals-v93.mjs';
 
 const vector=v=>({x:v.x,y:v.y,z:v.z});
 const pose=o=>({position:vector(o.position),rotation:vector(o.rotation),scale:o.scale.x});
@@ -80,6 +81,10 @@ export async function createBuilderScene({scene,camera,domElement,onSelect=()=>{
   if(!/^assets\/vendor\/(?:runtime|builder\/models)\//.test(item.path)||!/\.glb$/i.test(item.path))throw Error('Nonlocal asset forbidden');
   if(!cached.has(id))cached.set(id,loader.loadAsync(new URL('../'+item.path,import.meta.url).href));
   const gltf=await cached.get(id),o=gltf.scene.clone(true);
+  // Restore the literal original Kenney source materials + mesh copies for
+  // standalone keyboards/mice. Do not conflate them with the image-mapped
+  // keyboard and mouse already included in the licensed 1990s CRT GLB.
+  if(isSourcePeripheralV93(sourceId))isolateSourcePeripheralV93(o,sourceId);
   if(item.materialStyle!=='image-mapped')await materialEnhancer.enhance(o,item.label||id);
   const b=new THREE.Box3().setFromObject(o),s=b.getSize(new THREE.Vector3());
   if(!Number.isFinite(s.x+s.y+s.z)||s.y<.001)throw Error('Model has no physical dimensions: '+id);
@@ -364,6 +369,10 @@ export async function createBuilderScene({scene,camera,domElement,onSelect=()=>{
       uvReady:!!m.geometry?.getAttribute('uv'),
       generatedUV:!!m.geometry?.userData?.builderGeneratedUVV91,
       furnitureUV:!!m.geometry?.userData?.builderFurnitureUVV92,
+      originalPeripheral:!!m.userData?.builderOriginalPeripheralV93,
+      sourceColor:source.color?.getHexString?.()??null,
+      sourceMetalness:source.metalness??null,
+      sourceRoughness:source.roughness??null,
       furnitureMaxRepeats:m.geometry?.userData?.builderPatternRepeatsV92??null,
       mapPath:source.map?.image?.currentSrc||source.map?.image?.src||null
      });
