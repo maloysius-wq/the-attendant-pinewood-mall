@@ -169,7 +169,7 @@ export async function createBuilderScene({scene,camera,domElement,onSelect=()=>{
  }
  // AABB collision is intentionally strict for walls/floor penetration.
  // Existing saved layouts remain loadable; new edits are blocked by default.
- function checkBounds(box,ignoreId=null){
+ function checkBounds(box,ignoreId=null,stableRotationAnchor=null){
   if(allowClipping)return {valid:true,reason:''};
   const small=box.clone().expandByScalar(-.012);
   if(small.isEmpty())small.copy(box);
@@ -181,10 +181,25 @@ export async function createBuilderScene({scene,camera,domElement,onSelect=()=>{
   // A grounded placement must have support under its footprint. Detect
   // falling through floors or spanning a hole, not just its center point.
   const y=box.min.y, inset=Math.min(.04,(box.max.x-box.min.x)/4,(box.max.z-box.min.z)/4);
-  const points=[
+  // AABB CORNERS are a correct conservative new-placement test, but not
+  // a real contact footprint for yaw of an already placed object. Rotating
+  // the same CRT on a desk expands its world AABB, creating imaginary
+  // unsupported corners far outside its actual grounded pivot. Keep all
+  // five strict samples for placement / translation / tilt / scale; for
+  // yaw-only changes use the unchanged physical anchor and a small stable
+  // 7-cm contact patch. We still enforce wall intersections (above) and
+  // continuous real desk/floor support (below), with Allow overlap OFF.
+  const cx=(box.min.x+box.max.x)/2,cz=(box.min.z+box.max.z)/2;
+  const points=stableRotationAnchor?[
+   [stableRotationAnchor.x,stableRotationAnchor.z],
+   [stableRotationAnchor.x-.035,stableRotationAnchor.z],
+   [stableRotationAnchor.x+.035,stableRotationAnchor.z],
+   [stableRotationAnchor.x,stableRotationAnchor.z-.035],
+   [stableRotationAnchor.x,stableRotationAnchor.z+.035]
+  ]:[
    [box.min.x+inset,box.min.z+inset],[box.max.x-inset,box.min.z+inset],
    [box.min.x+inset,box.max.z-inset],[box.max.x-inset,box.max.z-inset],
-   [(box.min.x+box.max.x)/2,(box.min.z+box.max.z)/2]
+   [cx,cz]
   ];
   const support=[
    ...floors.filter(f=>f.visible).map(f=>new THREE.Box3().setFromObject(f)),
@@ -206,8 +221,19 @@ export async function createBuilderScene({scene,camera,domElement,onSelect=()=>{
  }
  function validatePose(id,p){
   const obj=objects.get(id);if(!obj)return {valid:false,reason:'Unknown selected object'};
-  const before=pose(obj);applyPose(obj,p);
-  const result=checkBounds(new THREE.Box3().setFromObject(obj),id);
+  const before=pose(obj);
+  // The same world-space pivot and ground contact height are preserved by
+  // pure yaw. This does NOT relax moving, resizing or tilting an asset.
+  const sameLocation=['x','y','z'].every(k=>Math.abs(p.position[k]-before.position[k])<1e-7);
+  const stableYawOnly=sameLocation&&Math.abs(p.scale-before.scale)<1e-7&&
+   Math.abs(p.rotation.x-before.rotation.x)<1e-7&&
+   Math.abs(p.rotation.z-before.rotation.z)<1e-7&&
+   Math.abs(p.rotation.y-before.rotation.y)>1e-7;
+  // Anchors are measured before applying the candidate transform and
+  // therefore cannot drift with the growing AABB of the rotated model.
+  const anchor=stableYawOnly?obj.getWorldPosition(new THREE.Vector3()):null;
+  applyPose(obj,p);
+  const result=checkBounds(new THREE.Box3().setFromObject(obj),id,anchor);
   applyPose(obj,before);
   return result;
  }
