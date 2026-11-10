@@ -79,6 +79,42 @@ try{
    catalogId+' remains original solid colors without any surface map');
   assert.ok(components.every(c=>!c.furnitureUV),
    catalogId+' UVs unchanged');
+  assert.ok(components.every(c=>c.originalPeripheral),
+   catalogId+' uses an independent copy of EXACT source materials and geometry');
+  const expected=catalogId.endsWith('computerkeyboard')?
+   ['metalDark','metalMedium']:['metalDark'];
+  assert.deepEqual(components.map(c=>c.material).sort(),expected.sort(),
+   catalogId+' restored original named material groups');
+  assert.ok(components.every(c=>c.sourceColor&&!c.mapPath),
+   catalogId+' retains actual source colors, no replacement materials');
+ }
+ // These two boxes were accidentally classified as wood / woodDark in v91
+ // because Kenney misnamed their original CARD material groups. The original
+ // two-color folded geometry must now receive real paper on both faces.
+ for(const [source,id,x,expected,filename] of [
+  ['kenney-furniture-kit-cardboardboxopen','ci-cardboard-open',566,'cardboardWorn','cardboard_worn_color_1k.jpg'],
+  ['kenney-furniture-kit-cardboardboxclosed','ci-cardboard-closed',568,'cardboardClean','cardboard_clean_color_1k.jpg']
+ ]){
+  await page.evaluate(([catalogId,placedId,x])=>window.__PINEWOOD_BUILDER__.place(
+   catalogId,{x,y:1,z:555},placedId),[source,id,x]);
+  const parts=await page.evaluate(placedId=>
+   window.__PINEWOOD_BUILDER__.inspectObjectMaterials(placedId),id);
+  assert.equal(parts.length,2,'preserve separate outer cardboard and interior / fold material');
+  assert.ok(parts.every(p=>p.role===expected&&p.textured),'cardboard not classified as wood');
+  assert.ok(parts.every(p=>p.mapPath?.endsWith(filename)),
+   'authentic locally vendored paper texture, not wood grain');
+  assert.ok(parts.every(p=>p.furnitureUV&&p.furnitureMaxRepeats<=.83),
+   'entire cardboard face uses one broad photograph, not little repeats');
+  assert.ok(parts.every(p=>p.sourceMetalness===0&&p.sourceRoughness>=.95),
+   'cardboard remains matte paper, never metallic');
+ }
+ const sourceCRT=await page.evaluate(()=>window.__PINEWOOD_BUILDER__.place(
+  'retro-crt-pc-1990s',{x:570,y:1,z:555},'ci-original-crt'));
+ assert.equal(sourceCRT,'ci-original-crt');
+ const crtParts=await page.evaluate(id=>window.__PINEWOOD_BUILDER__.inspectObjectMaterials(id),sourceCRT);
+ for(const sourceName of ['Ucupaint_Keyboard_Creme','Mouse_Cream']){
+  assert.ok(crtParts.some(p=>p.material===sourceName&&p.sourceMapPreserved),
+   'original detailed 1990s CRT '+sourceName+' retains source-authored image map');
  }
  const peripheralStats=await page.evaluate(()=>window.__PINEWOOD_BUILDER__.getMaterialStats());
  assert.ok(peripheralStats.peripheralsPreserved>=2,'real keyboard and mouse were bypassed');
@@ -97,6 +133,12 @@ try{
   window.__PINEWOOD_BUILDER__?.getState().errors.length>0,null,{timeout:140000});
  assert.deepEqual((await state()).draft.surfaces.service_vestibule,draft.draft.surfaces.service_vestibule,
   'new room texture choices persist after reload');
+ for(const [id,role] of [['ci-cardboard-open','cardboardWorn'],
+  ['ci-cardboard-closed','cardboardClean']]){
+  const parts=await page.evaluate(id=>window.__PINEWOOD_BUILDER__.inspectObjectMaterials(id),id);
+  assert.ok(parts?.every(p=>p.role===role&&p.textured),
+   id+' remains paper after saved layout reload');
+ }
  const afterReload=await page.evaluate(()=>window.__PINEWOOD_BUILDER__.inspectObjectMaterials('ci-separate-wood-metal'));
  assert.ok(afterReload.some(x=>x.role==='metal'&&x.textured),'desk hardware remains textured after load');
  await page.evaluate(()=>window.__PINEWOOD_BUILDER__.clearDraft());
