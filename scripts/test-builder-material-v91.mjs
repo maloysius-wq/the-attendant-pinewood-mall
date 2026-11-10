@@ -6,6 +6,7 @@ import * as THREE from '../vendor/three/build/three.module.js';
 import {ROOM_FINISHES_V87} from '../builder/room-finishes-options-v87.mjs';
 import {PROP_MATERIALS_V91,ROOM_MATERIALS_V91} from '../builder/material-options-v91.mjs';
 import {materialRoleV91,boxProjectMissingUVV91} from '../builder/prop-materials-v91.js';
+import {CARDBOARD_MAPS_V93} from '../builder/cardboard-materials-v93.mjs';
 
 const manifest=JSON.parse(fs.readFileSync('assets/vendor/builder/materials-v91/manifest-v91.json','utf8'));
 const original=JSON.parse(fs.readFileSync('assets/vendor/builder/catalog-v1.json','utf8'));
@@ -84,7 +85,8 @@ test('all 324 source color-only GLBs inspected and semantic parts assigned witho
    stats.sourceMaterials++;
    const role=materialRoleV91(m.name,item.label);
    if(!role)continue;
-   assert.ok(PROP_MATERIALS_V91[role],'unmapped role '+role+' in '+item.id);
+   assert.ok(PROP_MATERIALS_V91[role]||CARDBOARD_MAPS_V93[role],
+    'unmapped role '+role+' in '+item.id);
    stats.enhancedParts++;stats.roles[role]=(stats.roles[role]||0)+1;
    hit++;
   }

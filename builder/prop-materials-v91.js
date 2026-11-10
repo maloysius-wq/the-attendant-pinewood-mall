@@ -1,6 +1,7 @@
 import * as THREE from '../vendor/three/build/three.module.js';
 import {PROP_MATERIALS_V91} from './material-options-v91.mjs';
 import {keepPeripheralColorsV92,isFurnitureV92,sourceTextureRoleV92} from './material-scale-v92.mjs';
+import {CARDBOARD_MAPS_V93,isCardboardBoxV93,cardboardMaterialRoleV93} from './cardboard-materials-v93.mjs';
 
 /**
  * Non-destructive Builder-only PBR enhancement of source GLBs whose materials
@@ -10,6 +11,8 @@ import {keepPeripheralColorsV92,isFurnitureV92,sourceTextureRoleV92} from './mat
  */
 export function materialRoleV91(name='',modelName=''){
  const n=String(name).toLowerCase(),model=String(modelName).toLowerCase();
+ const cardboard=cardboardMaterialRoleV93(n,model);
+ if(cardboard)return cardboard;
  if(/glass|glow|emiss|light|lamp|screen|displayglass|water|snow|leaf|plant|grass|weed|silt|flame|glare|neon|crt|chrome|mirror|transparent/.test(n))
   return null;
  if(/wooddark|wood_dark|darkwood/.test(n))return 'woodDark';
@@ -118,15 +121,15 @@ export function boxProjectFurnitureUVV92(geometry,{repeatsAcrossLongest=.92}={})
  return g;
 }
 
-const props=new Set(Object.values(PROP_MATERIALS_V91));
+const props=new Set([...Object.values(PROP_MATERIALS_V91),...Object.values(CARDBOARD_MAPS_V93)]);
 export function createBuilderMaterialEnhancerV91(){
  const loader=new THREE.TextureLoader(),cache=new Map(),stats={
   modelsInspected:0,modelsEnhanced:0,meshesEnhanced:0,materialSurfacesEnhanced:0,
   generatedUVs:0,furnitureUVs:0,peripheralsPreserved:0,embeddedPreserved:0,semanticPreserved:0,usedRoles:{}
  };
  async function texture(role){
-  const path=PROP_MATERIALS_V91[role];
-  if(!path||!props.has(path)||!/^assets\/vendor\/builder\/materials-v91\/[a-z0-9_]+_diff_1k\.jpg$/.test(path))
+  const path=PROP_MATERIALS_V91[role]||CARDBOARD_MAPS_V93[role];
+  if(!path||!props.has(path)||!/^assets\/vendor\/builder\/(?:materials-v91\/[a-z0-9_]+_diff_1k|materials-v93\/cardboard_(?:clean|worn)_color_1k)\.jpg$/.test(path))
    throw Error('Unpinned Builder material '+role);
   if(!cache.has(role))cache.set(role,loader.loadAsync(new URL('../'+path,import.meta.url).href).then(t=>{
    t.colorSpace=THREE.SRGBColorSpace;t.wrapS=t.wrapT=THREE.RepeatWrapping;t.anisotropy=4;
@@ -166,8 +169,10 @@ export function createBuilderMaterialEnhancerV91(){
    // Color-only furniture gets an entire photo per broad panel, even when
    // the original UV atlas technically exists but repeats excessively.
    // Keep all original embedded image UVs completely untouched.
-   if(canProject&&isFurnitureV92(modelId+' '+mesh.name)){
-    mesh.geometry=boxProjectFurnitureUVV92(mesh.geometry);
+   if(canProject&&(isFurnitureV92(modelId+' '+mesh.name)||isCardboardBoxV93(modelId+' '+mesh.name))){
+    mesh.geometry=boxProjectFurnitureUVV92(mesh.geometry,{
+     repeatsAcrossLongest:isCardboardBoxV93(modelId+' '+mesh.name)?.82:.92
+    });
     stats.furnitureUVs++;
    }else if(!hasValidUV(mesh.geometry)&&canProject){
     const bounds=mesh.geometry.boundingBox||new THREE.Box3().setFromBufferAttribute(mesh.geometry.getAttribute('position'));
@@ -185,7 +190,13 @@ export function createBuilderMaterialEnhancerV91(){
     // dark stained wood, fabric colors, and any original colored paint.
     // Brighten modestly so the source color doesn't hide subtle image grain.
     copy.color.copy(m.color).lerp(new THREE.Color(0xffffff),.38);
-    if(role.startsWith('metal')||role==='paintedMetal'||role==='paintedMetalBlue'){
+    if(role.startsWith('cardboard')){
+     // The photo already contains the proper tan paper color. Multiplying
+     // it by Kenney's original dark orange "wood" color made boxes nearly
+     // black. Keep a subtle source distinction between outside and inside.
+     copy.color.setScalar(/dark/i.test(m.name)?0.82:1);
+     copy.metalness=0;copy.roughness=.98;
+    }else if(role.startsWith('metal')||role==='paintedMetal'||role==='paintedMetalBlue'){
      copy.metalness=role==='paintedMetal'?.32:Math.max(.55,m.metalness);
      copy.roughness=Math.min(.77,Math.max(.42,m.roughness*.72));
     }else if(role==='fabric'||role==='fabricBlue'||role==='velvet'||role==='leather'){
