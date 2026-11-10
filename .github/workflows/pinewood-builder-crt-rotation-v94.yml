@@ -34,5 +34,5 @@ jobs:
           python3 -m http.server 4173 --bind 127.0.0.1 >/tmp/pinewood-v94-http.log 2>&1 &
           for i in {1..30}; do curl -fsS http://127.0.0.1:4173/builder/ >/dev/null && exit 0; sleep 1; done
           exit 1
-      - name: Sweep real CRT on real desk through 28 selected wheel turns
+      - name: Sweep real CRT on real desk through repeated forward/backward wheel turns
         run: node scripts/smoke-builder-crt-rotation-v94.mjs
