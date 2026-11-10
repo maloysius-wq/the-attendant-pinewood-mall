@@ -26,6 +26,7 @@ export function validateDraft(draft,catalog){
  if(!draft.doors||typeof draft.doors!=='object'||Array.isArray(draft.doors))errors.push('Doors must be a map');
  if(errors.length)return errors;
  const allowed=new Set((catalog||[]).map(x=>x.id));
+ const assetById=new Map((catalog||[]).map(x=>[x.id,x]));
  const ids=new Set(LEGACY);
  for(const a of draft.added){
   if(!a||typeof a!=='object'){errors.push('Invalid placed object');continue;}
@@ -33,6 +34,10 @@ export function validateDraft(draft,catalog){
   ids.add(a.id);
   if(!allowed.has(a.catalogId))errors.push('Unknown/unlicensed catalog model '+a.catalogId);
   if(!vector(a.position)||!vector(a.rotation)||!scale(a.scale))errors.push('Invalid placed transform '+a.id);
+  if(has(a,'opacity')&&(
+   assetById.get(a.catalogId)?.kind!=='surface-decal'||
+   typeof a.opacity!=='number'||!Number.isFinite(a.opacity)||a.opacity<.08||a.opacity>1
+  ))errors.push('Invalid decal opacity '+a.id);
  }
  const deleted=new Set();
  for(const id of draft.deleted){
@@ -75,7 +80,7 @@ export function reduceDraft(draft,action){
   }
   case 'transform': {
    const update={};
-   for(const k of ['position','rotation','scale'])if(has(action,k))update[k]=copy(action[k]);
+   for(const k of ['position','rotation','scale','opacity'])if(has(action,k))update[k]=copy(action[k]);
    const instance=next.added.find(a=>a.id===id);
    if(instance)Object.assign(instance,update);
    else if(LEGACY.has(id))next.overrides[id]={...(next.overrides[id]||{}),...update};
