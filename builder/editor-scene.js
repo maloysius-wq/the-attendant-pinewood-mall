@@ -8,6 +8,7 @@ import {EDITOR_CATALOG_BY_ID} from '../mall/editor-catalog-v1.mjs';
 import {createBuilderMaterialEnhancerV91} from './prop-materials-v91.js';
 import {isSourcePeripheralV93,isolateSourcePeripheralV93} from './source-peripherals-v93.mjs';
 import {makeCrtPoweredOffV96} from './crt-powered-off-v96.js';
+import {createDecalFactoryV97,isDecalV97,wallDecalQuaternionV97} from './decals-v97.js';
 
 const vector=v=>({x:v.x,y:v.y,z:v.z});
 const pose=o=>({position:vector(o.position),rotation:vector(o.rotation),scale:o.scale.x});
@@ -20,6 +21,7 @@ const applyPose=(obj,p)=>{
 export async function createBuilderScene({scene,camera,domElement,onSelect=()=>{},onTransform=()=>{},onPlace=()=>{},canEdit=()=>true,orbit=null}){
  const building=await renderPinewoodV69({scene,chapter:6});
  const materialEnhancer=createBuilderMaterialEnhancerV91();
+ const decalFactory=createDecalFactoryV97();
  building.setChapter(6);building.setRoofVisible(true);
  const objects=new Map(),originals=new Map();
  for(const f of FURNISHINGS_V69.fixtures){
@@ -46,7 +48,7 @@ export async function createBuilderScene({scene,camera,domElement,onSelect=()=>{
  scene.add(transform.getHelper());
  transform.setMode('translate');
  let selected=null,ghost=null,placing=null,depth=9,blocked=false,orbitBeforePlacement=null,placementGeneration=0;
- let snapSize=.5,allowClipping=false,ghostValid=true,ghostReason='';
+ let snapSize=0,allowClipping=true,ghostValid=true,ghostReason='';
  let previewPending=false,pendingPreviewYaw=0;
  // Serialize selected-object wheel edits so rapid wheel events cannot overwrite
  // each other while a layout change and IndexedDB autosave are still running.
@@ -79,6 +81,7 @@ export async function createBuilderScene({scene,camera,domElement,onSelect=()=>{
   // The discontinued flat-screen Kenney model stays in the provenance manifest.
   const sourceId=id==='kenney-furniture-kit-computerscreen'?'retro-crt-pc-1990s':id;
   const item=EDITOR_CATALOG_BY_ID.get(sourceId);if(!item)throw Error('Unknown local asset '+id);
+  if(isDecalV97(item))return decalFactory.make(item);
   if(!/^assets\/vendor\/(?:runtime|builder\/models)\//.test(item.path)||!/\.glb$/i.test(item.path))throw Error('Nonlocal asset forbidden');
   if(!cached.has(id))cached.set(id,loader.loadAsync(new URL('../'+item.path,import.meta.url).href));
   const gltf=await cached.get(id),o=gltf.scene.clone(true);
@@ -144,6 +147,8 @@ export async function createBuilderScene({scene,camera,domElement,onSelect=()=>{
     building.group.add(o);objects.set(inst.id,o);
    }
    applyPose(o,{position:inst.position,rotation:inst.rotation,scale:inst.scale});
+   const entry=EDITOR_CATALOG_BY_ID.get(inst.catalogId);
+   if(isDecalV97(entry))decalFactory.opacity(o,inst.opacity??entry.opacity);
    o.visible=true;
   }
   if(selected&&!objects.get(selected)?.visible)select(null);
@@ -203,6 +208,9 @@ export async function createBuilderScene({scene,camera,domElement,onSelect=()=>{
   return {valid:true,reason:''};
  }
  async function validateNewPlacement(catalogId,position,rotation={x:0,y:0,z:0}){
+  // Cosmetic transparent stamps have no solid collider or support footprint.
+  // Their creation UI raycasts actual floor/wall surfaces instead.
+  if(isDecalV97(EDITOR_CATALOG_BY_ID.get(catalogId)))return {valid:true,reason:''};
   if(allowClipping)return {valid:true,reason:''};
   const obj=await template(catalogId);
   applyPose(obj,{position,rotation,scale:1});
@@ -210,6 +218,7 @@ export async function createBuilderScene({scene,camera,domElement,onSelect=()=>{
  }
  function validatePose(id,p){
   const obj=objects.get(id);if(!obj)return {valid:false,reason:'Unknown selected object'};
+  if(obj.userData.builderSurfaceDecalV97)return {valid:true,reason:''};
   const before=pose(obj);applyPose(obj,p);
   const result=checkBounds(new THREE.Box3().setFromObject(obj),id);
   applyPose(obj,before);
@@ -274,6 +283,34 @@ export async function createBuilderScene({scene,camera,domElement,onSelect=()=>{
  }
  function currentPlacement(){
   if(!ghost||!placing)return null;
+  const decal=EDITOR_CATALOG_BY_ID.get(placing);
+  if(isDecalV97(decal)){
+   // Decal placements must hit an actual architectural floor or wall.
+   // Unlike physical props they deliberately intersect their supporting
+   // surface by a tiny offset, and never create a collision volume.
+   const targets=decal.surface==='wall'?walls:floors;
+   const hits=raycaster.intersectObjects(targets.filter(x=>x.visible),true);
+   const nMatrix=new THREE.Matrix3(),n=new THREE.Vector3();
+   const candidate=hits.find(hit=>{
+    if(!hit.face)return false;
+    n.copy(hit.face.normal).applyNormalMatrix(nMatrix.getNormalMatrix(hit.object.matrixWorld)).normalize();
+    return decal.surface==='floor'?n.y>.70:Math.abs(n.y)<.50;
+   });
+   if(!candidate){
+    ghost.visible=false;
+    setGhostAppearance(false,'Point at a '+decal.surface+' to attach this decal');
+    return null;
+   }
+   n.copy(candidate.face.normal).applyNormalMatrix(nMatrix.getNormalMatrix(candidate.object.matrixWorld)).normalize();
+   if(n.dot(raycaster.ray.direction)>0)n.negate();
+   ghost.visible=true;
+   ghost.position.copy(candidate.point).addScaledVector(n,.018);
+   if(decal.surface==='wall')ghost.quaternion.copy(wallDecalQuaternionV97(n,pendingPreviewYaw));
+   else ghost.rotation.set(0,pendingPreviewYaw,0);
+   ghost.updateMatrixWorld(true);
+   setGhostAppearance(true);
+   return vector(ghost.position);
+  }
   const point=pointOnRay(),box=new THREE.Box3().setFromObject(ghost);
   grid.position.set(Math.round(point.x/10)*10,point.y+.016,Math.round(point.z/10)*10);
   ghost.position.set(snapSize?snap(point.x):point.x,
@@ -322,7 +359,9 @@ export async function createBuilderScene({scene,camera,domElement,onSelect=()=>{
    e.preventDefault();e.stopImmediatePropagation();
    if(!e.deltaY)return;
    if(e.shiftKey)depth=Math.min(120,Math.max(.75,depth+Math.sign(e.deltaY)));
-   else if(ghost)ghost.rotation.y-=Math.sign(e.deltaY)*Math.PI/12;
+   else if(isDecalV97(EDITOR_CATALOG_BY_ID.get(placing))){
+    pendingPreviewYaw-=Math.sign(e.deltaY)*Math.PI/12;
+   }else if(ghost)ghost.rotation.y-=Math.sign(e.deltaY)*Math.PI/12;
    else pendingPreviewYaw-=Math.sign(e.deltaY)*Math.PI/12;
    if(ghost)currentPlacement();
    return;
@@ -426,7 +465,7 @@ export async function createBuilderScene({scene,camera,domElement,onSelect=()=>{
    domElement.removeEventListener('wheel',onWheel,true);
    stopPlacement();transform.detach();scene.remove(transform.getHelper());transform.dispose();
    scene.remove(grid);grid.geometry.dispose();grid.material.dispose();
-   materialEnhancer.dispose();building.dispose();
+   decalFactory.dispose();materialEnhancer.dispose();building.dispose();
   }
  };
 }
