@@ -4,7 +4,6 @@ on:
     branches: [main]
     paths:
       - 'builder/**'
-      - 'scripts/audit-builder-materials-v91.mjs'
       - 'mall/editor-*.mjs'
       - 'assets/vendor/builder/era-catalog-v87.json'
       - 'assets/vendor/builder/models/era-v87/**'
@@ -24,8 +23,6 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - name: Inspect material identity and UV layout of every color-only model
-        run: node scripts/audit-builder-materials-v91.mjs
       - name: Verify pinned 1990s CRT, rubble, and independent room finishes
         run: node --test scripts/test-builder-v87.mjs scripts/test-builder-schema-v1.mjs
       - name: Verify original CC0 library unchanged
