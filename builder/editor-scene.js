@@ -5,6 +5,7 @@ import {renderPinewoodV69} from '../mall/render-shell-v69.js';
 import {FURNISHINGS_V69} from '../mall/furnishing-plan-v69.mjs';
 import {EDITOR_EXTRA_FIXTURES_V1} from '../mall/editor-baseline-v1.mjs';
 import {EDITOR_CATALOG_BY_ID} from '../mall/editor-catalog-v1.mjs';
+import {createBuilderMaterialEnhancerV91} from './prop-materials-v91.js';
 
 const vector=v=>({x:v.x,y:v.y,z:v.z});
 const pose=o=>({position:vector(o.position),rotation:vector(o.rotation),scale:o.scale.x});
@@ -16,6 +17,7 @@ const applyPose=(obj,p)=>{
 };
 export async function createBuilderScene({scene,camera,domElement,onSelect=()=>{},onTransform=()=>{},onPlace=()=>{},canEdit=()=>true,orbit=null}){
  const building=await renderPinewoodV69({scene,chapter:6});
+ const materialEnhancer=createBuilderMaterialEnhancerV91();
  building.setChapter(6);building.setRoofVisible(true);
  const objects=new Map(),originals=new Map();
  for(const f of FURNISHINGS_V69.fixtures){
@@ -29,6 +31,9 @@ export async function createBuilderScene({scene,camera,domElement,onSelect=()=>{
   if(!o)throw Error('Missing original licensed mall prop '+f.id);
   objects.set(f.id,o);originals.set(f.id,pose(o));o.userData.editorId=f.id;
  }
+ // Enhance source color-only material groups without changing GLB binaries
+ // or touching embedded image maps; original fixtures are Builder-scoped.
+ await Promise.all([...objects].map(([id,o])=>materialEnhancer.enhance(o,id)));
  const raycaster=new THREE.Raycaster(),pointer=new THREE.Vector2();
  const floors=[],walls=[];building.group.traverse(o=>{
   if(o.isMesh&&o.userData.walkableFloor)floors.push(o);
@@ -75,6 +80,7 @@ export async function createBuilderScene({scene,camera,domElement,onSelect=()=>{
   if(!/^assets\/vendor\/(?:runtime|builder\/models)\//.test(item.path)||!/\.glb$/i.test(item.path))throw Error('Nonlocal asset forbidden');
   if(!cached.has(id))cached.set(id,loader.loadAsync(new URL('../'+item.path,import.meta.url).href));
   const gltf=await cached.get(id),o=gltf.scene.clone(true);
+  if(item.materialStyle!=='image-mapped')await materialEnhancer.enhance(o,item.label||id);
   const b=new THREE.Box3().setFromObject(o),s=b.getSize(new THREE.Vector3());
   if(!Number.isFinite(s.x+s.y+s.z)||s.y<.001)throw Error('Model has no physical dimensions: '+id);
   const cap=Math.max(.2,1.32*item.radius);
@@ -342,6 +348,7 @@ export async function createBuilderScene({scene,camera,domElement,onSelect=()=>{
   building,objects,select,applyDraft,beginPlacement,stopPlacement,setTransformMode,refreshPlacement,
   get placing(){return !!placing},
   get placementPending(){return previewPending},
+  getMaterialStats:()=>materialEnhancer.getStats(),
   waitForWheelEdits:()=>wheelTransforms,
   get isGizmoActive(){return !!transform.axis||transform.dragging},
   get placementValidity(){return {valid:ghostValid,reason:ghostReason}},
@@ -375,7 +382,8 @@ export async function createBuilderScene({scene,camera,domElement,onSelect=()=>{
    domElement.removeEventListener('pointermove',pointerMove);
    domElement.removeEventListener('wheel',onWheel,true);
    stopPlacement();transform.detach();scene.remove(transform.getHelper());transform.dispose();
-   scene.remove(grid);grid.geometry.dispose();grid.material.dispose();building.dispose();
+   scene.remove(grid);grid.geometry.dispose();grid.material.dispose();
+   materialEnhancer.dispose();building.dispose();
   }
  };
 }
