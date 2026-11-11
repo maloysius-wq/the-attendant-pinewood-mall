@@ -161,7 +161,7 @@ export async function createBuilderScene({scene,camera,domElement,onSelect=()=>{
  function pointOnRay(){
   // Furniture tops are real support targets, not merely decorative assets.
   // This makes a 1990s CRT/desktop case placeable ON a desk by default.
-  const candidates=raycaster.intersectObjects([...floors,...objects.values()],true);
+  const candidates=raycaster.intersectObjects([...floors,...[...objects.values()].filter(o=>!o.userData.builderSurfaceDecalV97)],true);
   const upward=new THREE.Vector3();
   const hit=candidates.find(h=>{
    if(floors.includes(h.object))return true;
@@ -198,7 +198,7 @@ export async function createBuilderScene({scene,camera,domElement,onSelect=()=>{
   const support=[
    ...floors.filter(f=>f.visible).map(f=>new THREE.Box3().setFromObject(f)),
    ...[...objects.entries()].filter(([id,o])=>
-    id!==ignoreId&&o.visible&&o.parent).map(([,o])=>
+    id!==ignoreId&&o.visible&&o.parent&&!o.userData.builderSurfaceDecalV97).map(([,o])=>
     new THREE.Box3().setFromObject(o))
   ];
   const onSupport=(x,z)=>support.some(b=>x>=b.min.x-.015&&x<=b.max.x+.015&&
@@ -288,6 +288,11 @@ export async function createBuilderScene({scene,camera,domElement,onSelect=()=>{
    // Decal placements must hit an actual architectural floor or wall.
    // Unlike physical props they deliberately intersect their supporting
    // surface by a tiny offset, and never create a collision volume.
+   if(decal.surface==='ceiling'&&!building.ceilings.visible){
+    ghost.visible=false;
+    setGhostAppearance(false,'Show roof / ceilings to attach cobwebs to a room ceiling');
+    return null;
+   }
    const targets=decal.surface==='wall'?walls:
     decal.surface==='ceiling'?building.ceilings.children:floors;
    const hits=raycaster.intersectObjects(targets.filter(x=>x.visible),true);
