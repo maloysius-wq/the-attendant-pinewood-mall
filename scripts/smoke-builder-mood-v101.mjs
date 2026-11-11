@@ -55,14 +55,11 @@ try{
  // its selection forever unless another object was explicitly selected.
  await page.evaluate(()=>window.__PINEWOOD_BUILDER__.select('ci-v101-0'));
  assert.equal((await state()).selected,'ci-v101-0');
- const cleared=await page.evaluate(()=>{
-  const canvas=document.querySelector('#viewport canvas');
-  const r=canvas.getBoundingClientRect();
-  const x=r.left+10,y=r.top+10;
-  canvas.dispatchEvent(new PointerEvent('pointermove',{bubbles:true,button:0,clientX:x,clientY:y}));
-  canvas.dispatchEvent(new PointerEvent('pointerdown',{bubbles:true,button:0,clientX:x,clientY:y}));
-  return window.__PINEWOOD_BUILDER__.getState().selected;
- });
+ const rect=await page.locator('#viewport canvas').boundingBox();
+ assert.ok(rect,'Builder must expose its desktop canvas');
+ await page.mouse.move(rect.x+10,rect.y+10);
+ await page.mouse.click(rect.x+10,rect.y+10);
+ const cleared=(await state()).selected;
  assert.equal(cleared,null,'empty architectural scene click clears gizmo and inspector');
  await page.evaluate(()=>window.__PINEWOOD_BUILDER__.select('ci-v101-1'));
  assert.equal((await state()).selected,'ci-v101-1','another object replaces selected item');
