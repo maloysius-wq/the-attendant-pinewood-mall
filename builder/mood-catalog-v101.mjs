@@ -16,14 +16,14 @@ const PHOTO_SOURCES={
 };
 const PLANTS={
  'mood-v101-haworthia': ['haworthia','James Ray Cock','https://polyhaven.com/a/potted_plant_04',
-  'potted-zebra-haworthia-4acc845e6'],
+  'potted-zebra-haworthia-4acc845e'],
  'mood-v101-heartleaf':['heartleaf','Rico Cilliers','https://polyhaven.com/a/potted_plant_02',
   'potted-plant-in-a-terracotta-pot-fd420e6b'],
  'mood-v101-snake-plant':['snake-plant','Innerscene',
   'https://www.innerscene.com/tools/library/3d-parts/sword-plant-plant-accessory-8a944229',
   'sword-plant-plant-accessory-8a944229'],
  'mood-v101-browning-haworthia':['haworthia','James Ray Cock','https://polyhaven.com/a/potted_plant_04',
-  'potted-zebra-haworthia-4acc845e6']
+  'potted-zebra-haworthia-4acc845e']
 };
 const CALENDARS=['facilities-year-planner','service-shift-calendar',
  'family-month-calendar','small-desk-wall-calendar'];
