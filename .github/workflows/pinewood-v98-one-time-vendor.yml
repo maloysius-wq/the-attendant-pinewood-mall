@@ -1,0 +1,33 @@
+name: Pinewood v98 once-only licensed vestibule model and art vendor
+on:
+  push:
+    branches: [feat/builder-vestibule-wall-cobwebs-v98]
+    paths:
+      - 'tools/vendor-vestibule-v98.py'
+      - '.github/workflows/pinewood-v98-one-time-vendor.yml'
+permissions:
+  contents: write
+jobs:
+  vendor:
+    if: github.repository == 'maloysius-wq/the-attendant-pinewood-mall'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 17
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feat/builder-vestibule-wall-cobwebs-v98
+          persist-credentials: true
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install 'pillow==11.3.0' 'numpy==2.2.6' 'trimesh==4.8.3'
+      - name: Verify remote source CC0 mirrors, pin GLB and original 1990s wall graphics
+        run: python tools/vendor-vestibule-v98.py
+      - name: Commit immutable local geometry, artwork and provenance
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add assets/vendor/builder/vestibule-v98/
+          git diff --cached --quiet && exit 0
+          git commit -m "Pin 19 sourced/original contractor 3D props and 36 wall and cobweb textures"
+          git push origin HEAD:refs/heads/feat/builder-vestibule-wall-cobwebs-v98
