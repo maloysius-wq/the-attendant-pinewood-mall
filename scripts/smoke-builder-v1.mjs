@@ -35,10 +35,10 @@ try{
   if(m.materialStyle)acc[m.materialStyle]=(acc[m.materialStyle]||0)+1;
   return acc;
  },{}));
- assert.equal(textureKinds['image-mapped'],269,'source image maps + 36 grime + 36 wall/cobweb images + 19 external CC0 contractor models and 8 source-backed v100 wall decor assets');
+ assert.equal(textureKinds['image-mapped'],277,'source image maps + 36 grime + 36 wall/cobweb images + 19 external CC0 contractor models and 8 source-backed v100 wall decor assets');
  assert.equal(textureKinds['color-only'],341,'source palette models plus two real CC0 contractor models with colored native materials');
  await page.locator('#catalog-material').selectOption('image-mapped');
- assert.equal(await page.locator('.catalog-item').count(),269,'image-map filter includes wall and ceiling decor plus externally mapped contractor models');
+ assert.equal(await page.locator('.catalog-item').count(),277,'image-map filter includes wall and ceiling decor plus externally mapped contractor models');
  await page.locator('#catalog-material').selectOption('color-only');
  assert.equal(await page.locator('.catalog-item').count(),340,'solid-color filter excludes retired LCD and includes source-colored contractor models');
  await page.locator('#catalog-material').selectOption('');
