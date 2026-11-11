@@ -1,5 +1,13 @@
 # Development Handoff: The Attendant: Pinewood Mall
 
+## Builder v98 post-merge CI reliability follow-up (2026-11-11)
+
+Builder v98 (PR #93) is on main at `97920279d949f7ace3c25fc1127159139133c152`; its focused Builder v98, v97, v96, v95, v93, v87, v90, and v1 PR checks passed, and Pages deployment `43049201291` succeeded. The unrelated, main-push **Store visual regression** `43049203314` failed **before** running screenshots or story/audio checks because `npx playwright install --with-deps chromium` tried to download optional Ubuntu fonts during a GitHub-hosted package mirror DNS outage. There was no evidenced game regression in that failed run.
+
+The minimal workflow-only fix was squash-merged via [PR #94](https://github.com/maloysius-wq/the-attendant-pinewood-mall/pull/94) as `01de7449b035f0d8b512377a81adb94653fb3512`: full-store CI now uses the same `npx playwright install chromium` as the successful v98 focused desktop tests. The rerun on the new main SHA is [Store visual run 43053151036](https://github.com/maloysius-wq/the-attendant-pinewood-mall/actions/runs/43053151036); its installation and local-server steps passed, and full deterministic captures began. [Pages run 43053152707](https://github.com/maloysius-wq/the-attendant-pinewood-mall/actions/runs/43053152707) succeeded. **Check the store run's terminal result before calling the entire regression suite green.** No gameplay, Builder, source GLB, saved draft, collision, cinematic, licensing, or audio changes were made for this CI fix.
+
+---
+
 ## Builder v98: placeable contractor vestibule, wall notices, and ceiling cobwebs (2026-11-11)
 
 The user requested **ceiling spider webs**, more period-appropriate wall décor (**adverts, whiteboards, paper calendars, notices and bulletin boards**) plus **wooden pallets, compact forklift and contractor vestibule props**. Built on v97 without changing canonical mall shells, game story, saved layout schema, room finishes, or previously placed props.
