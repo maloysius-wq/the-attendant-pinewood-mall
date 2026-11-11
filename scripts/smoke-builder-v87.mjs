@@ -22,8 +22,8 @@ try{
  let s=await state();
  assert.equal(s.ready,true,JSON.stringify(s.errors));
  assert.equal(s.roomCount,41);
- assert.equal(s.catalogCount,602,'503 source models, 8 era props, 36 grime decals and 55 contractor/wall/web assets');
- assert.equal(await page.locator('.catalog-item').count(),601,'retired modern LCD excluded, 55 new contractor assets included');
+ assert.equal(s.catalogCount,610,'503 source models, 8 era props, 36 grime decals and 55 contractor/wall/web assets');
+ assert.equal(await page.locator('.catalog-item').count(),609,'retired modern LCD excluded, 55 contractor assets and 8 weathered wall additions included');
  assert.equal(await page.locator('#aim-reticle').count(),1);
  assert.equal(await page.locator('#snap-grid').isChecked(),false);
  assert.equal(await page.locator('#allow-clipping').isChecked(),true);
