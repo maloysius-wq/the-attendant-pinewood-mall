@@ -3,7 +3,7 @@ import * as THREE from '../vendor/three/build/three.module.js';
 const ROOT='assets/vendor/builder/decals-v97/';
 export const SURFACE_DECAL_CATEGORY_V97='Surface Decals & Grime';
 export const isDecalV97=item=>item?.kind==='surface-decal'&&
- (item.surface==='floor'||item.surface==='wall');
+ (['floor','wall','ceiling'].includes(item.surface));
 export function validateDecalManifestV97(manifest){
  if(manifest?.version!==97||manifest.license!=='CC0-1.0'||
   !Array.isArray(manifest.decals)||manifest.decals.length!==36||
@@ -17,7 +17,7 @@ export function validateDecalManifestV97(manifest){
     !/^[a-f0-9]{64}$/.test(s.downloadSHA256))throw Error('Unverified CC0 image source');
  }
  for(const d of manifest.decals){
-  if(!isDecalV97(d)||!/^[a-z0-9-]+$/.test(d.id)||
+  if(!isDecalV97(d)||!['floor','wall'].includes(d.surface)||!/^[a-z0-9-]+$/.test(d.id)||
    ids.has(d.id)||d.category!==SURFACE_DECAL_CATEGORY_V97||
    d.materialStyle!=='image-mapped'||d.license!=='CC0-1.0'||
    !sources.has(d.sourceId)||!Number.isFinite(d.width)||d.width<=0||d.width>4||
@@ -44,7 +44,7 @@ export function registerDecalCatalogV97(manifest,catalog,index){
 export function createDecalFactoryV97(){
  const loader=new THREE.TextureLoader(),cache=new Map();
  async function make(item){
-  if(!isDecalV97(item)||!/^assets\/vendor\/builder\/decals-v97\/[a-z0-9-]+\.png$/.test(item.path))
+  if(!isDecalV97(item)||!/^assets\/vendor\/builder\/(?:decals-v97\/|vestibule-v98\/images\/)[a-z0-9-]+\.png$/.test(item.path))
    throw Error('Unsafe local decal source');
   if(!cache.has(item.id))cache.set(item.id,loader.loadAsync(
    new URL('../'+item.path,import.meta.url).href).then(t=>{

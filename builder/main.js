@@ -13,6 +13,7 @@ import {createRoomFinishesV87} from './room-finishes-v87.js';
 import {ROOM_FINISHES_V87} from './room-finishes-options-v87.mjs';
 import {blockedOperationV95,blockedMessageV95} from './blocked-feedback-v95.mjs';
 import {registerDecalCatalogV97,isDecalV97} from './decals-v97.js';
+import {registerVestibuleCatalogV98} from './vestibule-catalog-v98.mjs';
 
 const $=id=>document.getElementById(id);
 const status={ready:false,errors:[],selected:null,roomCount:MALL.rooms.length,
@@ -55,6 +56,9 @@ async function loadVendorCatalog(){
  const decalsResp=await fetch(new URL('../assets/vendor/builder/decals-v97/manifest-v97.json',import.meta.url));
  if(!decalsResp.ok)throw Error('The pinned CC0 surface decal catalog is unavailable');
  registerDecalCatalogV97(await decalsResp.json(),catalog,EDITOR_CATALOG_BY_ID);
+ const vestibuleResp=await fetch(new URL('../assets/vendor/builder/vestibule-v98/manifest-v98.json',import.meta.url));
+ if(!vestibuleResp.ok)throw Error('Pinned local contractor, wall signage and cobweb library is unavailable');
+ registerVestibuleCatalogV98(await vestibuleResp.json(),catalog,EDITOR_CATALOG_BY_ID);
  status.catalogCount=catalog.length;
 }
 
