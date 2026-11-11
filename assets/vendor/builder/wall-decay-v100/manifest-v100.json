@@ -49,7 +49,8 @@
       "sourceImageCount": 3,
       "sourceMaterialCount": 1,
       "bytes": 605280,
-      "sha256": "9c6db20c2ded65451ffbea528e561ad7dbf353d15933a94d2ee677c6048e09fe"
+      "sha256": "9c6db20c2ded65451ffbea528e561ad7dbf353d15933a94d2ee677c6048e09fe",
+      "mountSurface": "wall"
     }
   ],
   "posters": [
