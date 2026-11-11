@@ -145,7 +145,7 @@ for slug,label,width,height,seed,photoSlug,style in variants:
   license="Source-derived PD/CC0",originalAuthor=sourceDocs[0 if photoSlug=='public-domain-wall-calendar' else 1]['author'],
   originalSource=sourceDocs[0 if photoSlug=='public-domain-wall-calendar' else 1]['sourcePage'],
   sourceId=photoSlug,derivation="Public-domain/CC0 original calendar photograph as material substrate; accurate 1997 printed month grid and period-styled frame newly composited. Not an external 3D calendar model.",
-  path=str(p),thumb=str(p),width=width,height=height,opacity:.93,calendarStyle=style,year=1997,**info))
+  path=str(p),thumb=str(p),width=width,height=height,opacity=.93,calendarStyle=style,year=1997,**info))
  print('CALENDAR',slug,info['bytes'],info['sha256'],flush=True)
 manifest=dict(version=101,plants=outModels,calendars=items,sources=sourceDocs,
  notes="All plant GLBs are exact unmodified CC0 source files, one withering material variant reuses original geometry. Calendar assets are authored 2D wall calendar designs composited from PD/CC0 photographs, with accurate year 1997 typography. No claim to externally modeled 3D calendar geometry.")
