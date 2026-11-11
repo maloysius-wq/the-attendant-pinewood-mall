@@ -1,6 +1,7 @@
 import * as THREE from '../vendor/three/build/three.module.js';
 import {makePeelingPosterGeometryV100} from './peeling-poster-v100.mjs';
 import {isGrimeDecalV101,prepareGrimeTextureV101} from './decal-visibility-v101.mjs';
+import {makeCalendarPaperV101} from './mood-materials-v101.mjs';
 
 const ROOT='assets/vendor/builder/decals-v97/';
 export const SURFACE_DECAL_CATEGORY_V97='Surface Decals & Grime';
@@ -46,7 +47,7 @@ export function registerDecalCatalogV97(manifest,catalog,index){
 export function createDecalFactoryV97(){
  const loader=new THREE.TextureLoader(),cache=new Map();
  async function make(item){
-  if(!isDecalV97(item)||!/^assets\/vendor\/builder\/(?:decals-v97\/|vestibule-v98\/images\/|wall-decay-v100\/posters\/)[a-z0-9-]+\.png$/.test(item.path))
+  if(!isDecalV97(item)||!/^assets\/vendor\/builder\/(?:decals-v97\/|vestibule-v98\/images\/|wall-decay-v100\/posters\/|mood-v101\/calendars\/)[a-z0-9-]+\.png$/.test(item.path))
    throw Error('Unsafe local decal source');
   if(!cache.has(item.id))cache.set(item.id,loader.loadAsync(
    new URL('../'+item.path,import.meta.url).href).then(t=>{
@@ -61,6 +62,7 @@ export function createDecalFactoryV97(){
    }));
   const tex=await cache.get(item.id);
   const geometry=item.peelStyle?makePeelingPosterGeometryV100(THREE,item):
+   item.calendarStyle?makeCalendarPaperV101(THREE,item):
    new THREE.PlaneGeometry(item.width,item.height);
   // Posters/notices obey real light. Grime is deliberately dark ink (not
   // emitted light) laid over the room finish, so it remains discernible in
