@@ -82,7 +82,7 @@ export async function createBuilderScene({scene,camera,domElement,onSelect=()=>{
   const sourceId=id==='kenney-furniture-kit-computerscreen'?'retro-crt-pc-1990s':id;
   const item=EDITOR_CATALOG_BY_ID.get(sourceId);if(!item)throw Error('Unknown local asset '+id);
   if(isDecalV97(item))return decalFactory.make(item);
-  if(!/^assets\/vendor\/(?:runtime|builder\/models|builder\/vestibule-v98\/models)\//.test(item.path)||!/\.glb$/i.test(item.path))throw Error('Nonlocal asset forbidden');
+  if(!/^assets\/vendor\/(?:runtime|builder\/models|builder\/vestibule-v98\/models|builder\/wall-decay-v100\/models)\//.test(item.path)||!/\.glb$/i.test(item.path))throw Error('Nonlocal asset forbidden');
   if(!cached.has(id))cached.set(id,loader.loadAsync(new URL('../'+item.path,import.meta.url).href));
   const gltf=await cached.get(id),o=gltf.scene.clone(true);
   // Target only the source CRT screen. All instances, including pre-existing
