@@ -23,7 +23,7 @@ try{
  assert.equal(await page.locator('#allow-clipping').isChecked(),true);
  assert.equal(await page.locator('#catalog-category option[value="Surface Decals & Grime"]').count(),1);
  const options=await page.evaluate(()=>window.__PINEWOOD_BUILDER__.getCatalog()
-  .filter(item=>item.kind==='surface-decal'));
+  .filter(item=>item.kind==='surface-decal'&&item.path.includes('/decals-v97/')));
  assert.equal(options.length,36);
  assert.ok(options.some(x=>x.surface==='wall'));
  assert.ok(options.some(x=>x.surface==='floor'));
