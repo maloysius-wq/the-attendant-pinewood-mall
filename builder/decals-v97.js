@@ -1,5 +1,6 @@
 import * as THREE from '../vendor/three/build/three.module.js';
 import {makePeelingPosterGeometryV100} from './peeling-poster-v100.mjs';
+import {isGrimeDecalV101,prepareGrimeTextureV101} from './decal-visibility-v101.mjs';
 
 const ROOT='assets/vendor/builder/decals-v97/';
 export const SURFACE_DECAL_CATEGORY_V97='Surface Decals & Grime';
@@ -52,17 +53,26 @@ export function createDecalFactoryV97(){
     t.colorSpace=THREE.SRGBColorSpace;
     t.wrapS=t.wrapT=THREE.ClampToEdgeWrapping;
     t.anisotropy=4;t.minFilter=THREE.LinearMipmapLinearFilter;
+    if(isGrimeDecalV101(item)){
+     const enhanced=prepareGrimeTextureV101(THREE,t,item);
+     t.dispose();return enhanced;
+    }
     return t;
    }));
   const tex=await cache.get(item.id);
   const geometry=item.peelStyle?makePeelingPosterGeometryV100(THREE,item):
    new THREE.PlaneGeometry(item.width,item.height);
-  const material=new THREE.MeshBasicMaterial({
+  // Posters/notices obey real light. Grime is deliberately dark ink (not
+  // emitted light) laid over the room finish, so it remains discernible in
+  // the shadowed contractor vestibule at the user's chosen opacity.
+  const material=new (isGrimeDecalV101(item)?THREE.MeshBasicMaterial:THREE.MeshStandardMaterial)({
    name:'GrimeDecal_'+item.id,map:tex,
    transparent:true,opacity:item.opacity,depthWrite:false,depthTest:true,
    polygonOffset:true,polygonOffsetFactor:-2,polygonOffsetUnits:-2,
-   side:THREE.DoubleSide,toneMapped:true
+   side:THREE.DoubleSide,toneMapped:true,
+   ...(isGrimeDecalV101(item)?{color:0xffffff}:{color:0xffffff,metalness:0,roughness:1,emissive:0x000000,emissiveIntensity:0})
   });
+  material.userData.builderMaterialLightingV101=isGrimeDecalV101(item)?'darken-only-photo':'fully-lit-paper';
   material.userData={builderSurfaceDecalV97:true,originalOpacity:item.opacity};
   const mesh=new THREE.Mesh(geometry,material);
   mesh.name='Surface decal '+item.label;
