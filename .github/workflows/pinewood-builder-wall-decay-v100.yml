@@ -1,0 +1,47 @@
+name: Pinewood Builder v100 sourced boards and peeling poster regression
+on:
+  push:
+    branches: [feat/builder-v100-weathered-wall-decor]
+    paths: ['.github/workflows/pinewood-builder-wall-decay-v100.yml']
+  pull_request:
+    branches: [main]
+    paths:
+      - 'assets/vendor/builder/wall-decay-v100/**'
+      - 'builder/wall-decay-v100.mjs'
+      - 'builder/peeling-poster-v100.mjs'
+      - 'builder/decals-v97.js'
+      - 'builder/editor-scene.js'
+      - 'builder/main.js'
+      - 'scripts/test-builder-wall-decay-v100.mjs'
+      - 'scripts/smoke-builder-wall-decay-v100.mjs'
+      - '.github/workflows/pinewood-builder-wall-decay-v100.yml'
+permissions:
+  contents: read
+jobs:
+  source-boards-and-posters:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 24
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify pinned CC0 source GLBs, poster image and saved schema
+        run: |
+          node --test scripts/test-builder-wall-decay-v100.mjs scripts/test-builder-third-party-v99.mjs scripts/test-builder-vestibule-v98.mjs scripts/test-builder-decals-v97.mjs
+          node --test scripts/audit-builder-assets-v1.mjs
+      - name: Install Chromium for desktop regression
+        run: |
+          npm install --no-save playwright@1.55.0
+          npx playwright install chromium
+      - name: Start local Builder
+        run: |
+          python3 -m http.server 4173 --bind 127.0.0.1 >/tmp/v100-builder-http.log 2>&1 &
+          for i in {1..30}; do curl -fsS http://127.0.0.1:4173/builder/ >/dev/null && exit 0; sleep 1; done
+          exit 1
+      - name: Verify real source textures, warping, source boards, save and reload
+        run: node scripts/smoke-builder-wall-decay-v100.mjs
+      - name: Recheck previous mapped catalog and original contractor wall decorations
+        run: |
+          node scripts/smoke-builder-material-v1.mjs
+          node scripts/smoke-builder-vestibule-v98.mjs

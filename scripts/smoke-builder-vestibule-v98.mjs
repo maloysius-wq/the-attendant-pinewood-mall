@@ -20,7 +20,7 @@ try{
  const s=await state();
  assert.equal(s.ready,true,JSON.stringify(s.errors));
  assert.equal(s.roomCount,41);
- assert.equal(s.catalogCount,602);
+ assert.equal(s.catalogCount,610);
  const catalog=await page.evaluate(()=>window.__PINEWOOD_BUILDER__.getCatalog());
  const assetSets={};
  for(const [category,n] of [['Contractor Vestibule & Loading',19],
@@ -34,7 +34,7 @@ try{
    assert.equal(await page.locator('.catalog-item img.asset-thumb').count(),n);
  }
  await page.locator('#catalog-category').selectOption('');
- assert.equal(await page.locator('.catalog-item').count(),601);
+ assert.equal(await page.locator('.catalog-item').count(),609);
  assert.deepEqual(s.placementOptions,{gridSize:0,allowClipping:true});
  assert.equal(await page.locator('#roof').isChecked(),true);
  // Place real vendored wood pallets, authored physical forklifts + manual
@@ -98,6 +98,6 @@ try{
  console.log('PINEWOOD_BUILDER_V98_CONTRACTOR_WALL_COBWEBS_PASS '+JSON.stringify({
   ...assetSets,models:19,decals:36,samples:props.length,
   opacity:.42,persistence:true,licensedSourcesLocal:true,
-  previousAssetCount:547,currentAssetCount:602
+  previousAssetCount:547,currentAssetCount:610
  }));
 }finally{await browser.close()}

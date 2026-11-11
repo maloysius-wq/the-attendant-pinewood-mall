@@ -9,6 +9,7 @@ import {createBuilderMaterialEnhancerV91} from './prop-materials-v91.js';
 import {isSourcePeripheralV93,isolateSourcePeripheralV93} from './source-peripherals-v93.mjs';
 import {makeCrtPoweredOffV96} from './crt-powered-off-v96.js';
 import {createDecalFactoryV97,isDecalV97,wallDecalQuaternionV97} from './decals-v97.js';
+import {weatherSourceBoardV100,attachBoardGrimeV100,disposeBoardGrimeV100} from './peeling-poster-v100.mjs';
 
 const vector=v=>({x:v.x,y:v.y,z:v.z});
 const pose=o=>({position:vector(o.position),rotation:vector(o.rotation),scale:o.scale.x});
@@ -82,7 +83,7 @@ export async function createBuilderScene({scene,camera,domElement,onSelect=()=>{
   const sourceId=id==='kenney-furniture-kit-computerscreen'?'retro-crt-pc-1990s':id;
   const item=EDITOR_CATALOG_BY_ID.get(sourceId);if(!item)throw Error('Unknown local asset '+id);
   if(isDecalV97(item))return decalFactory.make(item);
-  if(!/^assets\/vendor\/(?:runtime|builder\/models|builder\/vestibule-v98\/models)\//.test(item.path)||!/\.glb$/i.test(item.path))throw Error('Nonlocal asset forbidden');
+  if(!/^assets\/vendor\/(?:runtime|builder\/models|builder\/vestibule-v98\/models|builder\/wall-decay-v100\/models)\//.test(item.path)||!/\.glb$/i.test(item.path))throw Error('Nonlocal asset forbidden');
   if(!cached.has(id))cached.set(id,loader.loadAsync(new URL('../'+item.path,import.meta.url).href));
   const gltf=await cached.get(id),o=gltf.scene.clone(true);
   // Target only the source CRT screen. All instances, including pre-existing
@@ -93,6 +94,7 @@ export async function createBuilderScene({scene,camera,domElement,onSelect=()=>{
   // keyboard and mouse already included in the licensed 1990s CRT GLB.
   if(isSourcePeripheralV93(sourceId))isolateSourcePeripheralV93(o,sourceId);
   if(item.materialStyle!=='image-mapped'&&!item.skipMaterialEnhancement)await materialEnhancer.enhance(o,item.label||id);
+  weatherSourceBoardV100(o,sourceId);
   const b=new THREE.Box3().setFromObject(o),s=b.getSize(new THREE.Vector3());
   if(!Number.isFinite(s.x+s.y+s.z)||s.y<.001)throw Error('Model has no physical dimensions: '+id);
   const cap=Math.max(.2,1.32*item.radius);
@@ -105,6 +107,7 @@ export async function createBuilderScene({scene,camera,domElement,onSelect=()=>{
   // Author transforms apply to the wrapper. The measured physical fit of
   // the vendor mesh must never be erased by an editable scale of 1.
   const anchor=new THREE.Group();anchor.add(o);
+  await attachBoardGrimeV100(THREE,anchor,sourceId);
   return anchor;
  }
 
@@ -148,6 +151,7 @@ export async function createBuilderScene({scene,camera,domElement,onSelect=()=>{
    }
    applyPose(o,{position:inst.position,rotation:inst.rotation,scale:inst.scale});
    const entry=EDITOR_CATALOG_BY_ID.get(inst.catalogId);
+   o.userData.builderWallMountedV100=entry?.mountSurface==='wall';
    if(isDecalV97(entry))decalFactory.opacity(o,inst.opacity??entry.opacity);
    o.visible=true;
   }
@@ -210,7 +214,8 @@ export async function createBuilderScene({scene,camera,domElement,onSelect=()=>{
  async function validateNewPlacement(catalogId,position,rotation={x:0,y:0,z:0}){
   // Cosmetic transparent stamps have no solid collider or support footprint.
   // Their creation UI raycasts actual floor/wall surfaces instead.
-  if(isDecalV97(EDITOR_CATALOG_BY_ID.get(catalogId)))return {valid:true,reason:''};
+  const item=EDITOR_CATALOG_BY_ID.get(catalogId);
+  if(isDecalV97(item)||item?.mountSurface==='wall')return {valid:true,reason:''};
   if(allowClipping)return {valid:true,reason:''};
   const obj=await template(catalogId);
   applyPose(obj,{position,rotation,scale:1});
@@ -218,7 +223,7 @@ export async function createBuilderScene({scene,camera,domElement,onSelect=()=>{
  }
  function validatePose(id,p){
   const obj=objects.get(id);if(!obj)return {valid:false,reason:'Unknown selected object'};
-  if(obj.userData.builderSurfaceDecalV97)return {valid:true,reason:''};
+  if(obj.userData.builderSurfaceDecalV97||obj.userData.builderWallMountedV100)return {valid:true,reason:''};
   const before=pose(obj);applyPose(obj,p);
   const result=checkBounds(new THREE.Box3().setFromObject(obj),id);
   applyPose(obj,before);
@@ -284,6 +289,29 @@ export async function createBuilderScene({scene,camera,domElement,onSelect=()=>{
  function currentPlacement(){
   if(!ghost||!placing)return null;
   const decal=EDITOR_CATALOG_BY_ID.get(placing);
+  if(decal?.mountSurface==='wall'){
+   const hits=raycaster.intersectObjects(walls.filter(x=>x.visible),true);
+   const normalMatrix=new THREE.Matrix3(),normal=new THREE.Vector3();
+   const candidate=hits.find(hit=>{
+    if(!hit.face)return false;
+    normal.copy(hit.face.normal).applyNormalMatrix(normalMatrix.getNormalMatrix(hit.object.matrixWorld)).normalize();
+    return Math.abs(normal.y)<.5;
+   });
+   if(!candidate){
+    ghost.visible=false;
+    setGhostAppearance(false,'Point at a wall to hang this cork bulletin board');
+    return null;
+   }
+   normal.copy(candidate.face.normal).applyNormalMatrix(normalMatrix.getNormalMatrix(candidate.object.matrixWorld)).normalize();
+   if(normal.dot(raycaster.ray.direction)>0)normal.negate();
+   ghost.visible=true;
+   ghost.position.copy(candidate.point).addScaledVector(normal,.035);
+   ghost.position.y-=decal.targetHeight/2;
+   ghost.quaternion.copy(wallDecalQuaternionV97(normal,pendingPreviewYaw));
+   ghost.updateMatrixWorld(true);
+   setGhostAppearance(true);
+   return vector(ghost.position);
+  }
   if(isDecalV97(decal)){
    // Decal placements must hit an actual architectural floor or wall.
    // Unlike physical props they deliberately intersect their supporting
@@ -365,7 +393,8 @@ export async function createBuilderScene({scene,camera,domElement,onSelect=()=>{
    e.preventDefault();e.stopImmediatePropagation();
    if(!e.deltaY)return;
    if(e.shiftKey)depth=Math.min(120,Math.max(.75,depth+Math.sign(e.deltaY)));
-   else if(isDecalV97(EDITOR_CATALOG_BY_ID.get(placing))){
+   else if(isDecalV97(EDITOR_CATALOG_BY_ID.get(placing))||
+    EDITOR_CATALOG_BY_ID.get(placing)?.mountSurface==='wall'){
     pendingPreviewYaw-=Math.sign(e.deltaY)*Math.PI/12;
    }else if(ghost)ghost.rotation.y-=Math.sign(e.deltaY)*Math.PI/12;
    else pendingPreviewYaw-=Math.sign(e.deltaY)*Math.PI/12;
@@ -471,7 +500,7 @@ export async function createBuilderScene({scene,camera,domElement,onSelect=()=>{
    domElement.removeEventListener('wheel',onWheel,true);
    stopPlacement();transform.detach();scene.remove(transform.getHelper());transform.dispose();
    scene.remove(grid);grid.geometry.dispose();grid.material.dispose();
-   decalFactory.dispose();materialEnhancer.dispose();building.dispose();
+   decalFactory.dispose();disposeBoardGrimeV100();materialEnhancer.dispose();building.dispose();
   }
  };
 }

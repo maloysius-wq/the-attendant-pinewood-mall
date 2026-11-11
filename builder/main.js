@@ -14,6 +14,7 @@ import {ROOM_FINISHES_V87} from './room-finishes-options-v87.mjs';
 import {blockedOperationV95,blockedMessageV95} from './blocked-feedback-v95.mjs';
 import {registerDecalCatalogV97,isDecalV97} from './decals-v97.js';
 import {registerVestibuleCatalogV98} from './vestibule-catalog-v98.mjs';
+import {registerWallDecayV100} from './wall-decay-v100.mjs';
 
 const $=id=>document.getElementById(id);
 const status={ready:false,errors:[],selected:null,roomCount:MALL.rooms.length,
@@ -59,6 +60,9 @@ async function loadVendorCatalog(){
  const vestibuleResp=await fetch(new URL('../assets/vendor/builder/vestibule-v98/manifest-v98.json',import.meta.url));
  if(!vestibuleResp.ok)throw Error('Pinned local contractor, wall signage and cobweb library is unavailable');
  registerVestibuleCatalogV98(await vestibuleResp.json(),catalog,EDITOR_CATALOG_BY_ID);
+ const decayResp=await fetch(new URL('../assets/vendor/builder/wall-decay-v100/manifest-v100.json',import.meta.url));
+ if(!decayResp.ok)throw Error('Pinned sourced whiteboards and peeling posters are unavailable');
+ registerWallDecayV100(await decayResp.json(),catalog,EDITOR_CATALOG_BY_ID);
  status.catalogCount=catalog.length;
 }
 
@@ -228,6 +232,7 @@ function populateCatalog(){
      if(!editor.placing)return; // superseded by another selection
      $('placement-tip').textContent=isDecalV97(item)?
       'PLACE '+item.label.toUpperCase()+' · Aim at a '+item.surface+' · Wheel rotate · Click to stick decal · Esc to cancel':
+      item.mountSurface==='wall'?'PLACE '+item.label.toUpperCase()+' · Aim at a wall · Wheel spins it against wall · Click to hang · Esc to cancel':
       'PLACE '+item.label.toUpperCase()+' · Move mouse to position · Wheel rotate · Shift+wheel distance · Click to place · Esc to cancel'+(item.materialStyle==='color-only'?' · Builder adds textures to compatible material groups':'');
     }catch(e){report(e)}
    });parent.append(b);
