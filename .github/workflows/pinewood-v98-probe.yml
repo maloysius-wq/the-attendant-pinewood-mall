@@ -1,0 +1,19 @@
+name: Pinewood v98 one-time inspect model source delivery
+on:
+  push:
+    branches: [feat/builder-vestibule-wall-cobwebs-v98]
+    paths:
+      - 'tools/probe-vestibule-sources-v98.py'
+      - '.github/workflows/pinewood-v98-probe.yml'
+permissions:
+  contents: read
+jobs:
+  inspect:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 4
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python tools/probe-vestibule-sources-v98.py
