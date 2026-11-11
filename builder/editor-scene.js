@@ -470,7 +470,8 @@ export async function createBuilderScene({scene,camera,domElement,onSelect=()=>{
       mapPath:source.map?.image?.currentSrc||source.map?.image?.src||
        source.map?.userData?.originalSourceUrl||null,
       materialType:source.type,
-      lightResponse:source.userData?.builderMaterialLightingV101||null
+      lightResponse:source.userData?.builderMaterialLightingV101||null,
+      enhancedGrimeCC0:!!source.map?.userData?.enhancedCC0V101
      });
     }
    });
