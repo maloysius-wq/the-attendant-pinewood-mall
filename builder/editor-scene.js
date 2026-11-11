@@ -9,7 +9,7 @@ import {createBuilderMaterialEnhancerV91} from './prop-materials-v91.js';
 import {isSourcePeripheralV93,isolateSourcePeripheralV93} from './source-peripherals-v93.mjs';
 import {makeCrtPoweredOffV96} from './crt-powered-off-v96.js';
 import {createDecalFactoryV97,isDecalV97,wallDecalQuaternionV97} from './decals-v97.js';
-import {weatherSourceBoardV100} from './peeling-poster-v100.mjs';
+import {weatherSourceBoardV100,attachBoardGrimeV100,disposeBoardGrimeV100} from './peeling-poster-v100.mjs';
 
 const vector=v=>({x:v.x,y:v.y,z:v.z});
 const pose=o=>({position:vector(o.position),rotation:vector(o.rotation),scale:o.scale.x});
@@ -107,6 +107,7 @@ export async function createBuilderScene({scene,camera,domElement,onSelect=()=>{
   // Author transforms apply to the wrapper. The measured physical fit of
   // the vendor mesh must never be erased by an editable scale of 1.
   const anchor=new THREE.Group();anchor.add(o);
+  await attachBoardGrimeV100(THREE,anchor,sourceId);
   return anchor;
  }
 
@@ -499,7 +500,7 @@ export async function createBuilderScene({scene,camera,domElement,onSelect=()=>{
    domElement.removeEventListener('wheel',onWheel,true);
    stopPlacement();transform.detach();scene.remove(transform.getHelper());transform.dispose();
    scene.remove(grid);grid.geometry.dispose();grid.material.dispose();
-   decalFactory.dispose();materialEnhancer.dispose();building.dispose();
+   decalFactory.dispose();disposeBoardGrimeV100();materialEnhancer.dispose();building.dispose();
   }
  };
 }
