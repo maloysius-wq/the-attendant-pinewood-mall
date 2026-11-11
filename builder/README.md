@@ -1,5 +1,11 @@
 # Pinewood World Builder
 
+## Atmospheric wall/calendar and realistic desk-plant update (v101)
+
+Previously bright poster/notice surfaces now use fully scene-lit, non-emissive paper materials in dark rooms. Original ambientCG grime/photo masks are boosted in-memory and darkened, so the existing saved opacity slider visibly changes the dirt strength. Clicking empty Builder space deselects the current prop and detaches its gizmo without breaking switching to another item.
+
+Four new photo-based 1997 wall calendars (two larger commercial and two personal sizes) can be hung/rotated/scaled using the existing transparent wall-stamp system. Three sourced CC0 PBR desk-plant 3D models plus a browning, retextured variation of one of them are added. The source GLB geometry and embedded photo maps remain untouched. **Calendars are period-correct composites based on independently released PD/CC0 photographs of real calendar objects, not independently sourced 3D calendar models.** See `LICENSES.md` and the v101 manifest for full provenance. Target library count is 618. No existing catalog IDs or saved world layouts are changed.
+
 
 ## Scuffed office boards and peeling paper (v100)
 
