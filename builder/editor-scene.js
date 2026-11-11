@@ -10,6 +10,7 @@ import {isSourcePeripheralV93,isolateSourcePeripheralV93} from './source-periphe
 import {makeCrtPoweredOffV96} from './crt-powered-off-v96.js';
 import {createDecalFactoryV97,isDecalV97,wallDecalQuaternionV97} from './decals-v97.js';
 import {weatherSourceBoardV100,attachBoardGrimeV100,disposeBoardGrimeV100} from './peeling-poster-v100.mjs';
+import {ageRealPlantV101} from './mood-materials-v101.mjs';
 
 const vector=v=>({x:v.x,y:v.y,z:v.z});
 const pose=o=>({position:vector(o.position),rotation:vector(o.rotation),scale:o.scale.x});
@@ -83,7 +84,7 @@ export async function createBuilderScene({scene,camera,domElement,onSelect=()=>{
   const sourceId=id==='kenney-furniture-kit-computerscreen'?'retro-crt-pc-1990s':id;
   const item=EDITOR_CATALOG_BY_ID.get(sourceId);if(!item)throw Error('Unknown local asset '+id);
   if(isDecalV97(item))return decalFactory.make(item);
-  if(!/^assets\/vendor\/(?:runtime|builder\/models|builder\/vestibule-v98\/models|builder\/wall-decay-v100\/models)\//.test(item.path)||!/\.glb$/i.test(item.path))throw Error('Nonlocal asset forbidden');
+  if(!/^assets\/vendor\/(?:runtime|builder\/models|builder\/vestibule-v98\/models|builder\/wall-decay-v100\/models|builder\/mood-v101\/models)\//.test(item.path)||!/\.glb$/i.test(item.path))throw Error('Nonlocal asset forbidden');
   if(!cached.has(id))cached.set(id,loader.loadAsync(new URL('../'+item.path,import.meta.url).href));
   const gltf=await cached.get(id),o=gltf.scene.clone(true);
   // Target only the source CRT screen. All instances, including pre-existing
@@ -95,6 +96,7 @@ export async function createBuilderScene({scene,camera,domElement,onSelect=()=>{
   if(isSourcePeripheralV93(sourceId))isolateSourcePeripheralV93(o,sourceId);
   if(item.materialStyle!=='image-mapped'&&!item.skipMaterialEnhancement)await materialEnhancer.enhance(o,item.label||id);
   weatherSourceBoardV100(o,sourceId);
+  ageRealPlantV101(THREE,o,sourceId);
   const b=new THREE.Box3().setFromObject(o),s=b.getSize(new THREE.Vector3());
   if(!Number.isFinite(s.x+s.y+s.z)||s.y<.001)throw Error('Model has no physical dimensions: '+id);
   const cap=Math.max(.2,1.32*item.radius);
