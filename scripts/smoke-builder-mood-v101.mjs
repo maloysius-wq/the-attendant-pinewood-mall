@@ -34,10 +34,21 @@ try{
   catalog.find(c=>c.id==='grime-water-wall-streak')
  ].filter(Boolean);
  assert.equal(samples.length,12);
+ // Load all twelve source meshes and lit paper/decal states through the
+ // real v1 import/commit/render pipeline in ONE transaction. Repeating the
+ // full 41-room scene commit once per object made the CI test unnecessarily
+ // O(n²) without increasing source-material or persistence coverage.
+ const initialEntries=samples.map((x,i)=>({
+  id:'ci-v101-'+i,catalogId:x.id,position:{x:550+i*3,y:i<4?1:1.8,z:550},
+  rotation:{x:0,y:0,z:0},scale:1
+ }));
+ await page.evaluate(async entries=>{
+  const initial=JSON.parse(window.__PINEWOOD_BUILDER__.exportJSON());
+  initial.added=entries;
+  await window.__PINEWOOD_BUILDER__.importJSON(JSON.stringify(initial));
+ },initialEntries);
  for(const [i,x] of samples.entries()){
   const id='ci-v101-'+i;
-  await page.evaluate(async([source,id,i])=>window.__PINEWOOD_BUILDER__
-   .place(source,{x:550+i*3,y:i<4?1:1.8,z:550},id),[x.id,id,i]);
   const mat=await page.evaluate(id=>window.__PINEWOOD_BUILDER__.inspectObjectMaterials(id),id);
   assert.ok(mat?.length>=1,x.id+' should render');
   if(x.category==='Realistic Desk Plants'){
