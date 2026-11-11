@@ -32,7 +32,7 @@ test('publisher source GLB mesh and image texture anatomy, local hashes, no new 
   'browning plant is a non-destructive version of the same actual source GLB');
  assert.equal(new Set(plants.map(x=>x.sha256)).size,3);
 });
-test('four dated 1996 wall calendars based on pinned real public-domain/CC0 photographs',()=>{
+test('four dated 1997 wall calendars based on pinned real public-domain/CC0 photographs',()=>{
  assert.equal(calendars.length,4);
  assert.equal(calendars.filter(c=>c.calendarStyle==='commercial').length,2);
  assert.equal(calendars.filter(c=>c.calendarStyle==='personal').length,2);
