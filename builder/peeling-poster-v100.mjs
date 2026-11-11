@@ -51,7 +51,8 @@ export function weatherSourceBoardV100(root,id){
  let seen=0,mapped=0;
  root.traverse(o=>{
   if(!o.isMesh)return;
-  o.material=(Array.isArray(o.material)?o.material:[o.material]).map(material=>{
+  const hadArray=Array.isArray(o.material);
+  const updated=(hadArray?o.material:[o.material]).map(material=>{
    if(!material)return material;
    const m=material.clone();
    // Leave enamel white-ish, but older and less plasticky. Cork and wooden
@@ -63,7 +64,7 @@ export function weatherSourceBoardV100(root,id){
    seen++;
    return m;
   });
-  if(!Array.isArray(o.material))o.material=o.material[0];
+  o.material=hadArray?updated:updated[0];
  });
  if(seen<1||mapped<1)throw Error('Untextured third-party board: '+id);
  root.userData.weatheredSourceV100=true;
