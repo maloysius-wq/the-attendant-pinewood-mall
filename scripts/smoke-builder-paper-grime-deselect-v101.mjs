@@ -15,7 +15,7 @@ try{
   window.__PINEWOOD_BUILDER__?.getState().errors.length>0,null,{timeout:155000});
  const state=()=>page.evaluate(()=>window.__PINEWOOD_BUILDER__.getState());
  assert.equal((await state()).ready,true,JSON.stringify((await state()).errors));
- assert.equal((await state()).catalogCount,610,'lighting/selection patch does not change pinned catalog');
+ assert.equal((await state()).catalogCount,618,'new source-backed plant/calendar props are present alongside all old assets');
  for(const [i,source]of [
   'wall-mall-advert-weekend','wall-site-safety','v100-poster-top-corner-peel',
   'grime-dust-floor-soft','grime-water-wall-streak'].entries()){
