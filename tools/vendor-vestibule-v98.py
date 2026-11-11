@@ -429,7 +429,7 @@ for i,(slug,label,surface,kind,width,height) in enumerate(cobwebs):
   'materialStyle':'image-mapped','license':'Original-Pinewood','originalAuthor':'Pinewood Builder',
   'originalSource':'tools/vendor-vestibule-v98.py',
   'path':str(p),'thumb':str(p),'opacity':.74,'width':width,'height':height,**stats})
-assert len(models)==18 and len(decals)==36,(len(models),len(decals))
+assert len(models)==19 and len(decals)==36,(len(models),len(decals))
 manifest={'version':98,'models':models,'decals':decals,
  'provenance':{'quaterniusLicense':'CC0-1.0',
     'quaterniusLicensePage':'https://quaternius.com/faq.html',
