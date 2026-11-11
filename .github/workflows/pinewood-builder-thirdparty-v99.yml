@@ -1,0 +1,43 @@
+name: Pinewood Builder v99 real third-party model integrity and desktop smoke
+on:
+  push:
+    branches: [feat/builder-v99-third-party-props]
+    paths: ['.github/workflows/pinewood-builder-thirdparty-v99.yml']
+  pull_request:
+    branches: [main]
+    paths:
+      - 'assets/vendor/builder/vestibule-v98/**'
+      - 'builder/vestibule-catalog-v98.mjs'
+      - 'scripts/test-builder-third-party-v99.mjs'
+      - 'scripts/smoke-builder-third-party-v99.mjs'
+      - '.github/workflows/pinewood-builder-thirdparty-v99.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  full-replacement:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 24
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Validate all source GLBs, exact publisher hashes, source mapping and legacy save schema
+        run: |
+          node --test scripts/test-builder-third-party-v99.mjs scripts/test-builder-vestibule-v98.mjs scripts/test-builder-decals-v97.mjs
+          node --test scripts/audit-builder-assets-v1.mjs
+      - name: Install desktop Chromium
+        run: |
+          npm install --no-save playwright@1.55.0
+          npx playwright install chromium
+      - name: Serve standalone local game and Builder
+        run: |
+          python3 -m http.server 4173 --bind 127.0.0.1 >/tmp/pinewood-v99-http.log 2>&1 &
+          for i in {1..30}; do curl -fsS http://127.0.0.1:4173/builder/ >/dev/null && exit 0; sleep 1; done
+          exit 1
+      - name: Desktop inspect and persist all ten genuine third-party models
+        run: |
+          node scripts/smoke-builder-third-party-v99.mjs
+          node scripts/smoke-builder-vestibule-v98.mjs
+          node scripts/smoke-builder-v1.mjs
