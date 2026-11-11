@@ -409,7 +409,7 @@ The ten model files are local, with source geometry/materials preserved. The ori
 
 ## Builder v100: textured source boards and worn, peeling posters (2026-11-11)
 
-The independent 3D whiteboard and wall-mounted cork board were **downloaded from published third-party assets**, not modeled in this project. Their exact original GLB binary bytes, 2K PBR image maps and mesh anatomy are retained, with a modest Builder-only color/roughness patina that keeps every source map intact.
+The independent 3D whiteboard and wall-mounted cork board were **downloaded from published third-party assets**, not modeled in this project. Their exact original GLB binary bytes, 2K PBR image maps and mesh anatomy are retained, with a modest Builder-only color/roughness patina that keeps every source map intact. Additional surface handling marks come from the project's already pinned real ambientCG CC0 photographs under `assets/vendor/builder/decals-v97/grime-wall-smears.png` (Fingerprints001) and `wall-dust-bloom.png` (SurfaceImperfections004), softly mapped onto both board faces without altering source geometry or PBR texture coordinates.
 
 - [Grab3D Whiteboard](https://grab3d.com/models/furniture/whiteboard/): CC0, 13,236 triangles, actual flip-panel wheeled presentation board with charts, drawn scribbles, eraser and markers, measured 1.38 × 0.56 × 1.74 metres. Original file: https://grab3d.com/dl/whiteboard/whiteboard.glb
 - [Grab3D Cork Board](https://grab3d.com/models/furniture/cork-board/): CC0, 5,810 triangles, 0.90 × 0.06 × 0.60 m wall board, with a cork surface, pinned notes, curled paper, photo and push pins. Original file: https://grab3d.com/dl/cork-board/cork-board.glb
