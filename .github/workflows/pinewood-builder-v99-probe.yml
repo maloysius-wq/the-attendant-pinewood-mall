@@ -1,0 +1,35 @@
+name: Pinewood v99 third-party source delivery probe
+on:
+  push:
+    branches: [feat/builder-v99-third-party-props]
+    paths: ['.github/workflows/pinewood-builder-v99-probe.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  probe:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 6
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify external model download delivery and Poly Haven API shape
+        run: |
+          python3 - <<'PY'
+          import urllib.request,json,hashlib
+          URLs=[
+            'https://www.innerscene.com/api/library/manual-pallet-jack-5ff28a4a/download',
+            'https://www.innerscene.com/api/library/electric-counterbalance-forklift-7acc0547/download'
+          ]
+          for url in URLs:
+            try:
+              with urllib.request.urlopen(urllib.request.Request(url,headers={'User-Agent':'PinewoodMallAssetResearch/1.0'}),timeout=45) as res:
+                data=res.read(10_000_000);print('SOURCE',url,'status',res.status,'resolved',res.geturl(),'bytes',len(data),'header',data[:12].hex(),'sha256',hashlib.sha256(data).hexdigest(),flush=True)
+            except Exception as e:print('FAIL',url,repr(e),flush=True)
+          for slug in ['metal_toolbox','plastic_broom','industrial_storage_cart','modular_electric_cables']:
+            url='https://api.polyhaven.com/files/'+slug
+            try:
+              with urllib.request.urlopen(urllib.request.Request(url,headers={'User-Agent':'PinewoodMallAssetResearch/1.0'}),timeout=30) as res:d=json.load(res)
+              print('POLY',slug,'keys',list(d),flush=True)
+              print('POLY_GLTF',slug,json.dumps(d.get('gltf',d.get('glTF',{})),ensure_ascii=False)[:3500],flush=True)
+            except Exception as e:print('POLY_FAIL',slug,repr(e),flush=True)
+          PY
