@@ -1,6 +1,19 @@
 # Development Handoff: The Attendant: Pinewood Mall
 
 
+## Builder v101: lighting-aware posters, visible dirt, wall calendars, real PBR desk plants and deselection (2026-11-11)
+
+Owner requests: stop all poster graphics glowing in the unlit mall; fix nearly invisible ambientCG surface grime despite full opacity; add several wall-hung calendars (large commercial and smaller personal); add properly sourced real desk plants with a neglected/dying option; allow clicking off an object to clear selection, while clicking another selects it.
+
+**Code:** `builder/decals-v97.js` uses a physically lit rough/no-emission Standard material for paper/posters. Existing v97 grime maps are processed in-memory only to strengthen nonzero alpha and darken real CC0 photographs at all user opacity settings, retaining hashed on-disk PNG originals and legacy saved opacity. `builder/editor-scene.js` now deselects when left-click misses any editable object, guarding transform handles. All poster/notice, grime and calendar decals share the exact unchanged saved v1 schema.
+
+**Asset provenance:** 3 real original image-bearing CC0 GLBs from Poly Haven/Innerscene; a fourth withering entry transparently reuses an original model's source geometry, textures and light response with a material tint. Four accurate dated 1997 personal/commercial wall calendar decals use independently sourced PD/CC0 photos of real wall calendars as paper substrate; 1997 grids and branding are new modifications, not independently found 3D calendar meshes. Source authors/downloads and local SHA-256 detailed in `assets/vendor/builder/mood-v101/manifest-v101.json` and `LICENSES.md`. All source URLs only in documentation/vendor script; no browser runtime remote loads. The 1997 year references canon in `STORY_BIBLE.md` (Nov 14 Last Shift) but introduces no new plot facts.
+
+**Safeguards:** 618 catalog entries expected (610 pre-v101), 41 rooms, saved draft v1 and old IDs, sourced material protections, Snap OFF and Allow Overlap ON, desk support and decals as before. Test `scripts/test-builder-mood-v101.mjs` and `scripts/smoke-builder-mood-v101.mjs` plus v100/v99/v98/v97/v1 focused tests. Temporary write-enabled asset download workflow must be removed before merge; verify GitHub Pages before claiming public rollout.
+
+---
+
+
 ## Builder v100: independently sourced used whiteboard, cork board and damaged posters (2026-11-11)
 
 The user explicitly asked for *actual* textured source assets, not newly fabricated 3D stand-ins. Added two publisher-supplied unmodified GLBs (Grab3D CC0 whiteboard with existing charts/marker tray, and Grab3D CC0 cork bulletin board with pinned curled notes) plus six aged wall-poster decals processed from one independently sourced GGBotNet CC0 torn-poster image. The source model GLBs retain embedded PBR maps; their Builder-only roughness/neutral aging patina preserves every source image. The runtime now also lays transparent photo-derived ambientCG v97 `grime-wall-smears` / `wall-dust-bloom` overlays over the board panels (no invented grime or replacement mesh), with textures cached and disposed by `attachBoardGrimeV100`. Paper decals vary alpha tears, missing edges, lifted corners and curling geometry, using actual licensed poster imagery as input. **Provenance distinction:** Grab3D's publisher license documents Blender procedural scripts with AI-assisted coding (not human hand-sculpted); GGBotNet created one source poster collage, and six derivative decals were processed from it. Do not claim these are six distinct authored poster models.
