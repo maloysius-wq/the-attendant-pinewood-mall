@@ -1,4 +1,4 @@
-/** Publisher-verified PBR desk plants and PD/CC0 photo-derived 1996 calendars. */
+/** Publisher-verified PBR desk plants and PD/CC0 photo-derived 1997 calendars. */
 export const MOOD_V101_COUNT={plants:4,calendars:4};
 const ROOT='assets/vendor/builder/mood-v101/';
 const SHA=/^[a-f0-9]{64}$/;
@@ -67,7 +67,7 @@ export function validateMoodV101(m){
   const id='mood-v101-calendar-'+slug;
   if(!x||x.id!==id||ids.has(id)||x.category!=='Wall Calendars & Planners'||
    x.kind!=='surface-decal'||x.surface!=='wall'||x.materialStyle!=='image-mapped'||
-   x.condition!=='weathered'||x.year!==1996||x.license!=='Source-derived PD/CC0'||
+   x.condition!=='weathered'||x.year!==1997||x.license!=='Source-derived PD/CC0'||
    !sources.has(x.sourceId)||x.originalSource!==sources.get(x.sourceId).sourcePage||
    x.originalAuthor!==sources.get(x.sourceId).author||
    x.path!==ROOT+'calendars/'+slug+'.png'||x.thumb!==x.path||
@@ -75,7 +75,7 @@ export function validateMoodV101(m){
    !Number.isFinite(x.height)||x.height<=.2||x.height>2||
    !Number.isFinite(x.opacity)||x.opacity<.08||x.opacity>1||
    x.calendarStyle!==(i<2?'commercial':'personal'))
-   throw Error('Unverified 1996 calendar image '+id);
+   throw Error('Unverified 1997 calendar image '+id);
   ids.add(id);
  }
  if(ids.size!==8)throw Error('Duplicate v101 ID');
