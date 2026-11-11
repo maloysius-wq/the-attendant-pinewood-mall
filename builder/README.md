@@ -4,7 +4,21 @@
 
 Previously bright poster/notice surfaces now use fully scene-lit, non-emissive paper materials in dark rooms. Original ambientCG grime/photo masks are boosted in-memory and darkened, so the existing saved opacity slider visibly changes the dirt strength. Clicking empty Builder space deselects the current prop and detaches its gizmo without breaking switching to another item.
 
-Four new photo-based 1997 wall calendars (two larger commercial and two personal sizes) can be hung/rotated/scaled using the existing transparent wall-stamp system. Three sourced CC0 PBR desk-plant 3D models plus a browning, retextured variation of one of them are added. The source GLB geometry and embedded photo maps remain untouched. **Calendars are period-correct composites based on independently released PD/CC0 photographs of real calendar objects, not independently sourced 3D calendar models.** See `LICENSES.md` and the v101 manifest for full provenance. Target library count is 618. No existing catalog IDs or saved world layouts are changed.
+Four new photo-based 1997 wall calendars (two larger commercial and two personal sizes) can be hung/rotated/scaled using the existing transparent wall-stamp system. Three sourced CC0 PBR desk-plant 3D models plus a browning, retextured variation of one of them are added. The source GLB geometry and embedded photo maps remain untouched. **Calendars are period-correct composites based on independently released PD/CC0 photographs of real calendar objects, not independently sourced 3D calendar models.** See `LICENSES.md` and the v101 manifest for full provenance. Builder library count is 618. No existing catalog IDs or saved world layouts are changed.
+
+
+---
+
+## Builder lighting + grime visibility + click-off deselection (2026-11-11)
+
+This is an isolated fix that **does not depend on the not-yet-downloaded calendars/plants v101 asset bundle**.
+
+- The old wall-paper/poster/notice/cobweb and v100 peeling paper decals were created with `MeshBasicMaterial`, ignoring any scene light. Now paper uses **`MeshStandardMaterial`**, roughness 1, metalness 0, black zero-intensity emissive, preserving the real pinned source image and alpha, so they stop glowing inside the abandoned dark mall.
+- The 36 pinned `ambientCG` CC0 dirt/glass/water/fingerprint decals remained nearly invisible at 100% because their authored alpha was low. A new in-memory `CanvasTexture` recalibrates **only nonzero alpha and photo-derived pigment** of the exact original pinned CC0 PNGs. No source PNG changes and no invented photo patches; saved opacity sliders still control strength between .08 and 1. Material is dark (not emitted light).
+- `builder/editor-scene.js` left-clicking the empty world now calls the existing `select(null)` to clear selected object and 3D handles; clicking an actual different object still selects it, and a transform handle is exempt.
+- These are **Builder-only**, with all 610 existing catalog entries and 41-room architecture, user save/import schema and source/license manifests untouched. No cinema/game/story modification, no new network dependencies.
+
+Dedicated desktop smoke `scripts/smoke-builder-paper-grime-deselect-v101.mjs` tests all three kinds of paper, two grime samples, and empty-click selection followed by JSON/IndexedDB persistence. Focused workflow: `.github/workflows/pinewood-builder-atmosphere-fix-v101.yml`. The following v101 asset update subsequently downloaded/pinned all source binaries and is tracked in the newer section above.
 
 
 ## Scuffed office boards and peeling paper (v100)

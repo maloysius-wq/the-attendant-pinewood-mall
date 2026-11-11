@@ -1,6 +1,5 @@
 # Development Handoff: The Attendant: Pinewood Mall
 
-
 ## Builder v101: lighting-aware posters, visible dirt, wall calendars, real PBR desk plants and deselection (2026-11-11)
 
 Owner requests: stop all poster graphics glowing in the unlit mall; fix nearly invisible ambientCG surface grime despite full opacity; add several wall-hung calendars (large commercial and smaller personal); add properly sourced real desk plants with a neglected/dying option; allow clicking off an object to clear selection, while clicking another selects it.
@@ -9,9 +8,23 @@ Owner requests: stop all poster graphics glowing in the unlit mall; fix nearly i
 
 **Asset provenance:** 3 real original image-bearing CC0 GLBs from Poly Haven/Innerscene; a fourth withering entry transparently reuses an original model's source geometry, textures and light response with a material tint. Four accurate dated 1997 personal/commercial wall calendar decals use independently sourced PD/CC0 photos of real wall calendars as paper substrate; 1997 grids and branding are new modifications, not independently found 3D calendar meshes. Source authors/downloads and local SHA-256 detailed in `assets/vendor/builder/mood-v101/manifest-v101.json` and `LICENSES.md`. All source URLs only in documentation/vendor script; no browser runtime remote loads. The 1997 year references canon in `STORY_BIBLE.md` (Nov 14 Last Shift) but introduces no new plot facts.
 
-**Safeguards:** 618 catalog entries expected (610 pre-v101), 41 rooms, saved draft v1 and old IDs, sourced material protections, Snap OFF and Allow Overlap ON, desk support and decals as before. Test `scripts/test-builder-mood-v101.mjs` and `scripts/smoke-builder-mood-v101.mjs` plus v100/v99/v98/v97/v1 focused tests. Temporary write-enabled asset download workflow must be removed before merge; verify GitHub Pages before claiming public rollout.
+**Safeguards:** 618 catalog entries (610 pre-v101), 41 rooms, saved draft v1 and old IDs, sourced material protections, Snap OFF and Allow Overlap ON, desk support and decals as before. Test `scripts/test-builder-mood-v101.mjs` and `scripts/smoke-builder-mood-v101.mjs` plus v100/v99/v98/v97/v1 focused tests. All original CC0 GLBs and photo calendars have been downloaded and SHA-256 pinned. Temporary write-enabled vendor workflows were removed. Run focused tests and confirm Pages after merge.
 
 ---
+
+
+---
+
+## Builder lighting + grime visibility + click-off deselection (2026-11-11)
+
+This is an isolated fix that **does not depend on the not-yet-downloaded calendars/plants v101 asset bundle**.
+
+- The old wall-paper/poster/notice/cobweb and v100 peeling paper decals were created with `MeshBasicMaterial`, ignoring any scene light. Now paper uses **`MeshStandardMaterial`**, roughness 1, metalness 0, black zero-intensity emissive, preserving the real pinned source image and alpha, so they stop glowing inside the abandoned dark mall.
+- The 36 pinned `ambientCG` CC0 dirt/glass/water/fingerprint decals remained nearly invisible at 100% because their authored alpha was low. A new in-memory `CanvasTexture` recalibrates **only nonzero alpha and photo-derived pigment** of the exact original pinned CC0 PNGs. No source PNG changes and no invented photo patches; saved opacity sliders still control strength between .08 and 1. Material is dark (not emitted light).
+- `builder/editor-scene.js` left-clicking the empty world now calls the existing `select(null)` to clear selected object and 3D handles; clicking an actual different object still selects it, and a transform handle is exempt.
+- These are **Builder-only**, with all 610 existing catalog entries and 41-room architecture, user save/import schema and source/license manifests untouched. No cinema/game/story modification, no new network dependencies.
+
+Dedicated desktop smoke `scripts/smoke-builder-paper-grime-deselect-v101.mjs` tests all three kinds of paper, two grime samples, and empty-click selection followed by JSON/IndexedDB persistence. Focused workflow: `.github/workflows/pinewood-builder-atmosphere-fix-v101.yml`. The following v101 asset update subsequently downloaded/pinned all source binaries and is tracked in the newer section above.
 
 
 ## Builder v100: independently sourced used whiteboard, cork board and damaged posters (2026-11-11)
