@@ -1,0 +1,49 @@
+name: Pinewood Builder v101 non-glowing posters realistic calendars plants and selection
+on:
+  push:
+    branches: [feat/builder-v101-mood-calendar-plants-selection]
+    paths:
+      - 'assets/vendor/builder/mood-v101/manifest-v101.json'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'builder/decal-visibility-v101.mjs'
+      - 'builder/decals-v97.js'
+      - 'builder/editor-scene.js'
+      - 'builder/main.js'
+      - 'builder/mood-*.mjs'
+      - 'assets/vendor/builder/mood-v101/**'
+      - 'scripts/*builder*mood-v101.mjs'
+      - '.github/workflows/pinewood-builder-mood-v101.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  source-and-desktop:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Check original sourced PBR plants and 1997 photographic calendars
+        run: |
+          node --test scripts/test-builder-mood-v101.mjs scripts/test-builder-wall-decay-v100.mjs scripts/test-builder-third-party-v99.mjs scripts/test-builder-vestibule-v98.mjs scripts/test-builder-decals-v97.mjs
+          node --test scripts/audit-builder-assets-v1.mjs
+      - name: Install desktop Chromium
+        run: |
+          npm install --no-save playwright@1.55.0
+          npx playwright install chromium
+      - name: Host local game/Builder assets
+        run: |
+          python3 -m http.server 4173 --bind 127.0.0.1 >/tmp/pinewood-v101-http.log 2>&1 &
+          for i in {1..30}; do curl -fsS http://127.0.0.1:4173/builder/ >/dev/null && exit 0; sleep 1; done
+          exit 1
+      - name: Desktop test calendar sheets, real plant GLBs, visible grime, no glow and blank clicks
+        run: node scripts/smoke-builder-mood-v101.mjs
+      - name: Previous wall decor, original grime, and material regression
+        run: |
+          node scripts/smoke-builder-wall-decay-v100.mjs
+          node scripts/smoke-builder-material-v1.mjs
+          node scripts/smoke-builder-v87.mjs
