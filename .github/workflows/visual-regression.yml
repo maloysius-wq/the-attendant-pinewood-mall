@@ -30,7 +30,10 @@ jobs:
       - name: Install Playwright
         run: |
           npm install --no-save playwright@1.55.0
-          npx playwright install --with-deps chromium
+          # GitHub's ubuntu-24.04 runners already supply the Chromium system libraries.
+          # Avoid transient apt mirror/DNS failures from --with-deps; the focused
+          # Builder Chromium jobs use this same browser-only installation.
+          npx playwright install chromium
       - name: Start local Pinewood server
         run: |
           test -f "$GITHUB_WORKSPACE/vendor/three/build/three.module.js"
