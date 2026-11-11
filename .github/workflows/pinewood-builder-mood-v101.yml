@@ -42,8 +42,8 @@ jobs:
           exit 1
       - name: Desktop test calendar sheets, real plant GLBs, visible grime, no glow and blank clicks
         run: node scripts/smoke-builder-mood-v101.mjs
-      - name: Previous wall decor, original grime, and material regression
-        run: |
-          node scripts/smoke-builder-wall-decay-v100.mjs
-          node scripts/smoke-builder-material-v1.mjs
-          node scripts/smoke-builder-v87.mjs
+      # Prior wall-decor, grime and 41-room precision regressions run in
+      # their own independent existing Builder workflows on the same PR.
+      # Re-running those heavyweight Chromium scenes in this v101 job caused
+      # duplicate world initialization, slow CI, and misleading timeouts.
+      # Keep v101's complete source audit and all-12-item visual/save smoke.
