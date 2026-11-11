@@ -44,7 +44,7 @@ export function registerDecalCatalogV97(manifest,catalog,index){
 export function createDecalFactoryV97(){
  const loader=new THREE.TextureLoader(),cache=new Map();
  async function make(item){
-  if(!isDecalV97(item)||!/^assets\/vendor\/builder\/(?:decals-v97\/|vestibule-v98\/images\/)[a-z0-9-]+\.png$/.test(item.path))
+  if(!isDecalV97(item)||!/^assets\/vendor\/builder\/(?:decals-v97\/|vestibule-v98\/images\/|wall-decay-v100\/posters\/)[a-z0-9-]+\.png$/.test(item.path))
    throw Error('Unsafe local decal source');
   if(!cache.has(item.id))cache.set(item.id,loader.loadAsync(
    new URL('../'+item.path,import.meta.url).href).then(t=>{
