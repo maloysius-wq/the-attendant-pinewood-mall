@@ -18,6 +18,7 @@ try{
  assert.equal(initial.catalogCount,610);
  assert.deepEqual(initial.placementOptions,{gridSize:0,allowClipping:true});
  const catalog=await page.evaluate(()=>window.__PINEWOOD_BUILDER__.getCatalog());
+ assert.equal(catalog.find(x=>x.id==='v100-aged-cork-bulletin-board')?.mountSurface,'wall','corkboard mounts on genuine architectural walls');
  for(const [category,count] of [['Abandoned Office Boards',2],['Peeling Posters & Paper',6]]){
   assert.equal(catalog.filter(c=>c.category===category).length,count,category);
   await page.locator('#catalog-category').selectOption(category);
@@ -42,6 +43,8 @@ try{
    assert.ok(mats.some(m=>m.transparent),'torn source posters must retain alpha edges');
   }else{
    assert.ok(mats.some(m=>m.sourceMapPreserved),'actual model source map retained '+source);
+   assert.ok(mats.some(m=>m.material?.startsWith('CC0_original_patina_')),'real scanned CC0 dirt texture overlay is present '+source);
+   assert.ok(mats.some(m=>m.mapPath?.includes('/decals-v97/')),'surface patina must use pinned CC0 imagery '+source);
    assert.ok(mats.every(m=>!m.role),'not automatically retextured from palette');
   }
  }
