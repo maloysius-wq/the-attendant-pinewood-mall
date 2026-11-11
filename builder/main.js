@@ -15,6 +15,7 @@ import {blockedOperationV95,blockedMessageV95} from './blocked-feedback-v95.mjs'
 import {registerDecalCatalogV97,isDecalV97} from './decals-v97.js';
 import {registerVestibuleCatalogV98} from './vestibule-catalog-v98.mjs';
 import {registerWallDecayV100} from './wall-decay-v100.mjs';
+import {registerMoodV101} from './mood-catalog-v101.mjs';
 
 const $=id=>document.getElementById(id);
 const status={ready:false,errors:[],selected:null,roomCount:MALL.rooms.length,
@@ -63,6 +64,9 @@ async function loadVendorCatalog(){
  const decayResp=await fetch(new URL('../assets/vendor/builder/wall-decay-v100/manifest-v100.json',import.meta.url));
  if(!decayResp.ok)throw Error('Pinned sourced whiteboards and peeling posters are unavailable');
  registerWallDecayV100(await decayResp.json(),catalog,EDITOR_CATALOG_BY_ID);
+ const moodResp=await fetch(new URL('../assets/vendor/builder/mood-v101/manifest-v101.json',import.meta.url));
+ if(!moodResp.ok)throw Error('The pinned 1996 calendar and realistic plant library is unavailable');
+ registerMoodV101(await moodResp.json(),catalog,EDITOR_CATALOG_BY_ID);
  status.catalogCount=catalog.length;
 }
 
