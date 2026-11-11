@@ -69,3 +69,49 @@ export function weatherSourceBoardV100(root,id){
  if(seen<1||mapped<1)throw Error('Untextured third-party board: '+id);
  root.userData.weatheredSourceV100=true;
 }
+
+
+// The stains were already derived from independently sourced ambientCG CC0
+// photographs and pinned by the original v97 grime manifest. Reuse those
+// real scanned source images for the new boards rather than drawing fake dirt.
+const overlayTextures=new Map();
+export async function attachBoardGrimeV100(THREE,root,id){
+ const whiteboard=id==='v100-vintage-office-whiteboard';
+ const cork=id==='v100-aged-cork-bulletin-board';
+ if(!whiteboard&&!cork)return;
+ const name=whiteboard?'grime-wall-smears.png':'wall-dust-bloom.png';
+ if(!overlayTextures.has(name)){
+  const path=new URL('../assets/vendor/builder/decals-v97/'+name,import.meta.url).href;
+  overlayTextures.set(name,new THREE.TextureLoader().loadAsync(path).then(t=>{
+   t.colorSpace=THREE.SRGBColorSpace;
+   t.wrapS=t.wrapT=THREE.ClampToEdgeWrapping;
+   t.anisotropy=4;
+   return t;
+  }));
+ }
+ const texture=await overlayTextures.get(name);
+ const width=whiteboard?1.06:.74;
+ const height=whiteboard?.67:.47;
+ const y=whiteboard?1.22:.31;
+ const distance=whiteboard?.083:.040;
+ for(const front of [true,false]){
+  const mat=new THREE.MeshBasicMaterial({
+   name:'CC0_original_patina_'+name,map:texture,
+   transparent:true,opacity:whiteboard?.18:.13,depthWrite:false,depthTest:true,
+   polygonOffset:true,polygonOffsetFactor:-2,polygonOffsetUnits:-2,
+   side:THREE.DoubleSide,toneMapped:true
+  });
+  mat.userData={builderRealCC0PatinaV100:true,source:'ambientCG CC0 v97 scan',sourceMapPreserved:true};
+  const mesh=new THREE.Mesh(new THREE.PlaneGeometry(width,height),mat);
+  mesh.position.set(0,y,front?distance:-distance);
+  if(!front)mesh.rotation.y=Math.PI;
+  mesh.name='Pinned source CC0 dirt overlay '+id;
+  mesh.userData.builderRealCC0PatinaV100=true;
+  mesh.receiveShadow=false;mesh.castShadow=false;
+  root.add(mesh);
+ }
+}
+export function disposeBoardGrimeV100(){
+ for(const promise of overlayTextures.values())promise.then(t=>t.dispose()).catch(()=>{});
+ overlayTextures.clear();
+}
