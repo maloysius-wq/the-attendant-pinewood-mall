@@ -1,0 +1,37 @@
+name: Pinewood v98 one-time CC0 vestibule source pinning
+on:
+  push:
+    branches: [feat/builder-vestibule-cobweb-wall-props-v98]
+    paths:
+      - 'tools/vendor-vestibule-models-v98.py'
+      - 'tools/generate-vestibule-surfaces-v98.py'
+      - '.github/workflows/pinewood-vestibule-v98-one-time.yml'
+permissions:
+  contents: write
+jobs:
+  pin-assets:
+    if: github.repository == 'maloysius-wq/the-attendant-pinewood-mall'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feat/builder-vestibule-cobweb-wall-props-v98
+          persist-credentials: true
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Set up pinned original art renderer
+        run: python -m pip install 'pillow==11.3.0'
+      - name: Vendor the eleven verified CC0 models from original source URLs
+        run: python tools/vendor-vestibule-models-v98.py
+      - name: Render original 1990s mall wall items and soft cobweb layers
+        run: python tools/generate-vestibule-surfaces-v98.py
+      - name: Commit immutable locally served GLBs and PNGs with provenance
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add assets/vendor/builder/models/vestibule-v98/ assets/vendor/builder/wall-and-web-v98/
+          git diff --cached --quiet && exit 0
+          git commit -m "Pin local licensed CC0 contractor fixtures and original cobweb/notice textures v98"
+          git push origin HEAD:refs/heads/feat/builder-vestibule-cobweb-wall-props-v98
