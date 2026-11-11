@@ -1,0 +1,43 @@
+name: Pinewood Builder readable grime and light-aware posters v101
+on:
+  push:
+    branches: [fix/builder-v101-paper-grime-empty-click]
+    paths: ['.github/workflows/pinewood-builder-atmosphere-fix-v101.yml']
+  pull_request:
+    branches: [main]
+    paths:
+      - 'builder/decals-v97.js'
+      - 'builder/editor-scene.js'
+      - 'builder/decal-visibility-v101.mjs'
+      - 'scripts/smoke-builder-paper-grime-deselect-v101.mjs'
+      - '.github/workflows/pinewood-builder-atmosphere-fix-v101.yml'
+permissions:
+  contents: read
+jobs:
+  desktop:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Validate source decal licenses and v1 save schema
+        run: |
+          node --test scripts/test-builder-decals-v97.mjs scripts/test-builder-vestibule-v98.mjs scripts/test-builder-wall-decay-v100.mjs
+          node --test scripts/audit-builder-assets-v1.mjs
+      - name: Install Chromium
+        run: |
+          npm install --no-save playwright@1.55.0
+          npx playwright install chromium
+      - name: Serve local Builder and source images
+        run: |
+          python3 -m http.server 4173 --bind 127.0.0.1 >/tmp/pinewood-atmo.log 2>&1 &
+          for i in {1..30}; do curl -fsS http://127.0.0.1:4173/builder/ >/dev/null && exit 0; sleep 1; done
+          exit 1
+      - name: Validate darkness, improved alpha, and click-to-deselect in desktop Chromium
+        run: node scripts/smoke-builder-paper-grime-deselect-v101.mjs
+      - name: Recheck original grime, posters and saved layouts
+        run: |
+          node scripts/smoke-builder-decals-v97.mjs
+          node scripts/smoke-builder-wall-decay-v100.mjs
