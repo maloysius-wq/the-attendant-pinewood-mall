@@ -150,6 +150,7 @@ export async function createBuilderScene({scene,camera,domElement,onSelect=()=>{
    }
    applyPose(o,{position:inst.position,rotation:inst.rotation,scale:inst.scale});
    const entry=EDITOR_CATALOG_BY_ID.get(inst.catalogId);
+   o.userData.builderWallMountedV100=entry?.mountSurface==='wall';
    if(isDecalV97(entry))decalFactory.opacity(o,inst.opacity??entry.opacity);
    o.visible=true;
   }
@@ -212,7 +213,8 @@ export async function createBuilderScene({scene,camera,domElement,onSelect=()=>{
  async function validateNewPlacement(catalogId,position,rotation={x:0,y:0,z:0}){
   // Cosmetic transparent stamps have no solid collider or support footprint.
   // Their creation UI raycasts actual floor/wall surfaces instead.
-  if(isDecalV97(EDITOR_CATALOG_BY_ID.get(catalogId)))return {valid:true,reason:''};
+  const item=EDITOR_CATALOG_BY_ID.get(catalogId);
+  if(isDecalV97(item)||item?.mountSurface==='wall')return {valid:true,reason:''};
   if(allowClipping)return {valid:true,reason:''};
   const obj=await template(catalogId);
   applyPose(obj,{position,rotation,scale:1});
@@ -220,7 +222,7 @@ export async function createBuilderScene({scene,camera,domElement,onSelect=()=>{
  }
  function validatePose(id,p){
   const obj=objects.get(id);if(!obj)return {valid:false,reason:'Unknown selected object'};
-  if(obj.userData.builderSurfaceDecalV97)return {valid:true,reason:''};
+  if(obj.userData.builderSurfaceDecalV97||obj.userData.builderWallMountedV100)return {valid:true,reason:''};
   const before=pose(obj);applyPose(obj,p);
   const result=checkBounds(new THREE.Box3().setFromObject(obj),id);
   applyPose(obj,before);
@@ -286,6 +288,29 @@ export async function createBuilderScene({scene,camera,domElement,onSelect=()=>{
  function currentPlacement(){
   if(!ghost||!placing)return null;
   const decal=EDITOR_CATALOG_BY_ID.get(placing);
+  if(decal?.mountSurface==='wall'){
+   const hits=raycaster.intersectObjects(walls.filter(x=>x.visible),true);
+   const normalMatrix=new THREE.Matrix3(),normal=new THREE.Vector3();
+   const candidate=hits.find(hit=>{
+    if(!hit.face)return false;
+    normal.copy(hit.face.normal).applyNormalMatrix(normalMatrix.getNormalMatrix(hit.object.matrixWorld)).normalize();
+    return Math.abs(normal.y)<.5;
+   });
+   if(!candidate){
+    ghost.visible=false;
+    setGhostAppearance(false,'Point at a wall to hang this cork bulletin board');
+    return null;
+   }
+   normal.copy(candidate.face.normal).applyNormalMatrix(normalMatrix.getNormalMatrix(candidate.object.matrixWorld)).normalize();
+   if(normal.dot(raycaster.ray.direction)>0)normal.negate();
+   ghost.visible=true;
+   ghost.position.copy(candidate.point).addScaledVector(normal,.035);
+   ghost.position.y-=decal.targetHeight/2;
+   ghost.quaternion.copy(wallDecalQuaternionV97(normal,pendingPreviewYaw));
+   ghost.updateMatrixWorld(true);
+   setGhostAppearance(true);
+   return vector(ghost.position);
+  }
   if(isDecalV97(decal)){
    // Decal placements must hit an actual architectural floor or wall.
    // Unlike physical props they deliberately intersect their supporting
@@ -367,7 +392,8 @@ export async function createBuilderScene({scene,camera,domElement,onSelect=()=>{
    e.preventDefault();e.stopImmediatePropagation();
    if(!e.deltaY)return;
    if(e.shiftKey)depth=Math.min(120,Math.max(.75,depth+Math.sign(e.deltaY)));
-   else if(isDecalV97(EDITOR_CATALOG_BY_ID.get(placing))){
+   else if(isDecalV97(EDITOR_CATALOG_BY_ID.get(placing))||
+    EDITOR_CATALOG_BY_ID.get(placing)?.mountSurface==='wall'){
     pendingPreviewYaw-=Math.sign(e.deltaY)*Math.PI/12;
    }else if(ghost)ghost.rotation.y-=Math.sign(e.deltaY)*Math.PI/12;
    else pendingPreviewYaw-=Math.sign(e.deltaY)*Math.PI/12;
