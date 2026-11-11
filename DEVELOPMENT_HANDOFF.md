@@ -8,16 +8,13 @@ Owner requests: stop all poster graphics glowing in the unlit mall; fix nearly i
 
 **Asset provenance:** 3 real original image-bearing CC0 GLBs from Poly Haven/Innerscene; a fourth withering entry transparently reuses an original model's source geometry, textures and light response with a material tint. Four accurate dated 1997 personal/commercial wall calendar decals use independently sourced PD/CC0 photos of real wall calendars as paper substrate; 1997 grids and branding are new modifications, not independently found 3D calendar meshes. Source authors/downloads and local SHA-256 detailed in `assets/vendor/builder/mood-v101/manifest-v101.json` and `LICENSES.md`. All source URLs only in documentation/vendor script; no browser runtime remote loads. The 1997 year references canon in `STORY_BIBLE.md` (Nov 14 Last Shift) but introduces no new plot facts.
 
-**Safeguards:** 618 catalog entries (610 pre-v101), 41 rooms, saved draft v1 and old IDs, sourced material protections, Snap OFF and Allow Overlap ON, desk support and decals as before. Test `scripts/test-builder-mood-v101.mjs` and `scripts/smoke-builder-mood-v101.mjs` plus v100/v99/v98/v97/v1 focused tests. All original CC0 GLBs and photo calendars have been downloaded and SHA-256 pinned. Temporary write-enabled vendor workflows were removed. Run focused tests and confirm Pages after merge.
-
----
-
+**Safeguards:** 618 catalog entries (610 pre-v101), 41 rooms, saved draft v1 and old IDs, sourced material protections, Snap OFF and Allow Overlap ON, desk support and decals as before. Test `scripts/test-builder-mood-v101.mjs` and `scripts/smoke-builder-mood-v101.mjs` plus v100/v99/v98/v97/v1 focused tests. All original CC0 GLBs and photo calendars have been downloaded and SHA-256 pinned. Temporary write-enabled vendor workflows were removed. Release PR #103 merged at `199639f8d01ff7914e8ef9c6f8be211deb542c41` and **GitHub Pages deployment #43105649289 succeeded**. Focused v101 source/12-object Chromium/save tests passed in run #43106683034; independent v100, v98, v97, material, v1 and atmosphere tests succeeded. CI optimization PR #104 removed redundant extra browser replays from the v101 workflow without disabling the independent regression workflows. Published Builder: https://maloysius-wq.github.io/the-attendant-pinewood-mall/builder/ .
 
 ---
 
 ## Builder lighting + grime visibility + click-off deselection (2026-11-11)
 
-This is an isolated fix that **does not depend on the not-yet-downloaded calendars/plants v101 asset bundle**.
+The following release history describes the **earlier standalone fix**, which shipped before the subsequently completed v101 calendar/plant bundle above.
 
 - The old wall-paper/poster/notice/cobweb and v100 peeling paper decals were created with `MeshBasicMaterial`, ignoring any scene light. Now paper uses **`MeshStandardMaterial`**, roughness 1, metalness 0, black zero-intensity emissive, preserving the real pinned source image and alpha, so they stop glowing inside the abandoned dark mall.
 - The 36 pinned `ambientCG` CC0 dirt/glass/water/fingerprint decals remained nearly invisible at 100% because their authored alpha was low. A new in-memory `CanvasTexture` recalibrates **only nonzero alpha and photo-derived pigment** of the exact original pinned CC0 PNGs. No source PNG changes and no invented photo patches; saved opacity sliders still control strength between .08 and 1. Material is dark (not emitted light).

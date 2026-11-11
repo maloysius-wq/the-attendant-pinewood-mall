@@ -4,14 +4,14 @@
 
 Previously bright poster/notice surfaces now use fully scene-lit, non-emissive paper materials in dark rooms. Original ambientCG grime/photo masks are boosted in-memory and darkened, so the existing saved opacity slider visibly changes the dirt strength. Clicking empty Builder space deselects the current prop and detaches its gizmo without breaking switching to another item.
 
-Four new photo-based 1997 wall calendars (two larger commercial and two personal sizes) can be hung/rotated/scaled using the existing transparent wall-stamp system. Three sourced CC0 PBR desk-plant 3D models plus a browning, retextured variation of one of them are added. The source GLB geometry and embedded photo maps remain untouched. **Calendars are period-correct composites based on independently released PD/CC0 photographs of real calendar objects, not independently sourced 3D calendar models.** See `LICENSES.md` and the v101 manifest for full provenance. Builder library count is 618. No existing catalog IDs or saved world layouts are changed.
+Four new photo-based 1997 wall calendars (two larger commercial and two personal sizes) can be hung/rotated/scaled using the existing transparent wall-stamp system. Three sourced CC0 PBR desk-plant 3D models plus a browning, retextured variation of one of them are added. The source GLB geometry and embedded photo maps remain untouched. **Calendars are period-correct composites based on independently released PD/CC0 photographs of real calendar objects, not independently sourced 3D calendar models.** See `LICENSES.md` and the v101 manifest for full provenance. Builder library count is **618**. PR #103 merged and Pages deployed, with focused v101 source, 12-asset Chromium and save/reload tests green. PR #104 de-duplicated heavyweight CI checks while retaining independent v100/material/v87 suites. No existing catalog IDs or saved world layouts are changed.
 
 
 ---
 
 ## Builder lighting + grime visibility + click-off deselection (2026-11-11)
 
-This is an isolated fix that **does not depend on the not-yet-downloaded calendars/plants v101 asset bundle**.
+This fix shipped separately before the completed v101 calendars/plants asset update described above.
 
 - The old wall-paper/poster/notice/cobweb and v100 peeling paper decals were created with `MeshBasicMaterial`, ignoring any scene light. Now paper uses **`MeshStandardMaterial`**, roughness 1, metalness 0, black zero-intensity emissive, preserving the real pinned source image and alpha, so they stop glowing inside the abandoned dark mall.
 - The 36 pinned `ambientCG` CC0 dirt/glass/water/fingerprint decals remained nearly invisible at 100% because their authored alpha was low. A new in-memory `CanvasTexture` recalibrates **only nonzero alpha and photo-derived pigment** of the exact original pinned CC0 PNGs. No source PNG changes and no invented photo patches; saved opacity sliders still control strength between .08 and 1. Material is dark (not emitted light).
