@@ -27,4 +27,8 @@ jobs:
           git diff --cached --stat
           test -f assets/vendor/builder/mood-v101/manifest-v101.json
           git commit -m "Vendor real CC0 desk plant geometry and historical photo-calendar wall decor"
+          # A previously queued download may finish out of order. Keep all later
+          # source and test commits instead of force-pushing an old checkout.
+          git fetch origin feat/builder-v101-mood-calendar-plants-selection
+          git rebase origin/feat/builder-v101-mood-calendar-plants-selection
           git push origin HEAD:feat/builder-v101-mood-calendar-plants-selection
