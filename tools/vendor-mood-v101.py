@@ -97,7 +97,7 @@ def monthgrid(d,year,month,rect,ink,heading=True):
  weekdays='S M T W T F S'.split()
  cw=w/7
  for i,n in enumerate(weekdays):d.text((int(x+i*cw+cw*.25),y+4),n,font=font(max(12,int(cw*.27)),True),fill=ink)
- for row,week in enumerate(calendar.monthcalendar(year,month)):
+ for row,week in enumerate(calendar.Calendar(firstweekday=6).monthdayscalendar(year,month)):
   for i,n in enumerate(week):
    if n:d.text((int(x+i*cw+cw*.24),int(y+(row+1)*h/7+4)),str(n),
      font=font(max(11,int(cw*.26))),fill=ink)
