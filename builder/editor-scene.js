@@ -373,11 +373,15 @@ export async function createBuilderScene({scene,camera,domElement,onSelect=()=>{
    await onPlace(id,position,rotation);
    return;
   }
-  const hits=raycaster.intersectObjects([...objects.values()],true);
+  // Clicking a transform handle is not empty space, so retain selection.
+  if(transform.axis)return;
+  const hits=raycaster.intersectObjects([...objects.values()].filter(o=>o.visible),true);
   for(const h of hits){
    const o=findObject(h.object);
    if(o){e.stopImmediatePropagation();select(o.userData.editorId);return;}
   }
+  // Click outside all selectable props: clear transform handles + inspector.
+  if(selected)select(null);
  }
  function pointerMove(e){if(!placing)return;setPointer(e);currentPlacement();}
  function refreshPlacement(){
@@ -460,7 +464,11 @@ export async function createBuilderScene({scene,camera,domElement,onSelect=()=>{
       sourceMetalness:source.metalness??null,
       sourceRoughness:source.roughness??null,
       furnitureMaxRepeats:m.geometry?.userData?.builderPatternRepeatsV92??null,
-      mapPath:source.map?.image?.currentSrc||source.map?.image?.src||null
+      mapPath:source.map?.image?.currentSrc||source.map?.image?.src||
+       source.map?.userData?.originalSourceUrl||null,
+      materialType:source.type,
+      lightResponse:source.userData?.builderMaterialLightingV101||null,
+      enhancedGrimeCC0:!!source.map?.userData?.enhancedCC0V101
      });
     }
    });
