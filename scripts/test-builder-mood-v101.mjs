@@ -53,7 +53,7 @@ test('withered physical leaves inherit authentic source texture instead of gener
  const g=new THREE.Group();
  const foliage=new THREE.Mesh(new THREE.BoxGeometry(.2,.7,.2),new THREE.MeshStandardMaterial({
   name:'Leaves',color:0xffffff,roughness:.3,map:new THREE.Texture()}));
- foliage.position.y=.5;g.add(foliage);
+ foliage.position.y=.5;foliage.name='potted_plant_04_leaves';g.add(foliage);
  const pot=new THREE.Mesh(new THREE.BoxGeometry(.3,.15,.3),new THREE.MeshStandardMaterial({name:'Pot',color:0xffffff}));
  pot.position.y=.02;g.add(pot);
  const originalMap=foliage.material.map;
