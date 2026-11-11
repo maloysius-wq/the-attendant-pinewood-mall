@@ -96,6 +96,16 @@ finish. See `builder/material-scale-v92.mjs`,
 `scripts/test-builder-material-v92.mjs`, the focused v91/v92 Builder
 material CI workflow, and its desktop regression.
 
+## 1990s wall dressing, ceiling webs and contractor loading props (v98)
+
+The Builder now offers 55 additional **real local assets** in three searchable categories: **Contractor Vestibule & Loading** (19 model props); **Wall Notices & Advertising** (28 original, printed graphics); and **Cobwebs & Ceiling Dust** (8 translucent ceiling/wall spider webs). The supplied wooden pallets, broken pallets, construction barriers, traffic cones, pipe bundles, barrels and cinder blocks are truly Quaternius CC0 glTF models, converted into self-contained GLBs. A vintage-style compact forklift, hand pallet jack, folding ladder, toolboxes/chest, cable reel, trolley, work lamp, broom and spare conduit are standalone original locally authored GLBs. All 28 wall papers, framed bulletin boards, simple whiteboards, four paper calendars, and six nonbrand Pinewood adverts were drawn for the Builder, along with eight faint cobweb graphics. No online assets are requested at runtime.
+
+Select a notice, poster, whiteboard, bulletin board or web in the catalog and aim at a matching **wall or ceiling underside**. The existing surface stamp picker attaches it to the real architectural surface (not arbitrary sky), with slight geometry offset to prevent flickering; scroll the preview to rotate, click to place. Room ceilings must be visible to receive cobwebs. All notices and webs can be moved, resized, rotated, duplicated, saved, undone, exported and individually blended with the **Decal opacity** inspector slider. If you select physical contractor items, the original snap/overlap preferences and existing transform gizmos still apply. Old drafts and game assets are unchanged.
+
+**Vestibule dressing suggestion:** use two printed notices and a corkboard next to the staff door, a service work-order whiteboard, one pallet and a hand pallet jack set aside rather than across the entrance, toolbox and cable reel near the tools area, plus low-opacity web strands high in unused ceiling corners. Position the compact forklift in the adjacent loading/service bay rather than blocking the contractor’s passage.
+
+Sources and art provenance: `assets/vendor/builder/vestibule-v98/manifest-v98.json`; original generation script `tools/vendor-vestibule-v98.py`; CC0 source reference `https://quaternius.com/faq.html`. All per-file hashes are pinned. Focused source and desktop CI `pinewood-builder-vestibule-v98.yml`.
+
 ## Placeable surface grime, scuffs and leaks (v97)
 
 The **Surface Decals & Grime** prop category contains **36** different locally pinned, semi-transparent dust, dirt, coffee/drink/rust stains, shoe scuffs, scratches, wall water leaks, smears and old adhesive marks. These are individually placed transparent overlays, not room-wide finish replacements. Their original source imagery is from seven legally verified **ambientCG CC0** 1K materials, with SHA-256 hashes and download provenance in `assets/vendor/builder/decals-v97/manifest-v97.json`. The 640px transparent RGBA derivative decals are local to the repository, with softly feathered edges to avoid ugly flat boxes. Their browser runtime does not fetch from a CDN or outside service.
