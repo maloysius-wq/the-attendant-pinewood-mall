@@ -75,7 +75,7 @@ export function createDecalFactoryV97(){
    ...(isGrimeDecalV101(item)?{color:0xffffff}:{color:0xffffff,metalness:0,roughness:1,emissive:0x000000,emissiveIntensity:0})
   });
   material.userData.builderMaterialLightingV101=isGrimeDecalV101(item)?'darken-only-photo':'fully-lit-paper';
-  material.userData={builderSurfaceDecalV97:true,originalOpacity:item.opacity};
+  material.userData={...material.userData,builderSurfaceDecalV97:true,originalOpacity:item.opacity};
   const mesh=new THREE.Mesh(geometry,material);
   mesh.name='Surface decal '+item.label;
   mesh.userData.builderSurfaceDecalV97=true;
