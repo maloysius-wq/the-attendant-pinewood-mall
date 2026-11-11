@@ -82,7 +82,7 @@ export async function createBuilderScene({scene,camera,domElement,onSelect=()=>{
   const sourceId=id==='kenney-furniture-kit-computerscreen'?'retro-crt-pc-1990s':id;
   const item=EDITOR_CATALOG_BY_ID.get(sourceId);if(!item)throw Error('Unknown local asset '+id);
   if(isDecalV97(item))return decalFactory.make(item);
-  if(!/^assets\/vendor\/(?:runtime|builder\/models)\//.test(item.path)||!/\.glb$/i.test(item.path))throw Error('Nonlocal asset forbidden');
+  if(!/^assets\/vendor\/(?:runtime|builder\/models|builder\/vestibule-v98\/models)\//.test(item.path)||!/\.glb$/i.test(item.path))throw Error('Nonlocal asset forbidden');
   if(!cached.has(id))cached.set(id,loader.loadAsync(new URL('../'+item.path,import.meta.url).href));
   const gltf=await cached.get(id),o=gltf.scene.clone(true);
   // Target only the source CRT screen. All instances, including pre-existing
@@ -92,7 +92,7 @@ export async function createBuilderScene({scene,camera,domElement,onSelect=()=>{
   // standalone keyboards/mice. Do not conflate them with the image-mapped
   // keyboard and mouse already included in the licensed 1990s CRT GLB.
   if(isSourcePeripheralV93(sourceId))isolateSourcePeripheralV93(o,sourceId);
-  if(item.materialStyle!=='image-mapped')await materialEnhancer.enhance(o,item.label||id);
+  if(item.materialStyle!=='image-mapped'&&!item.skipMaterialEnhancement)await materialEnhancer.enhance(o,item.label||id);
   const b=new THREE.Box3().setFromObject(o),s=b.getSize(new THREE.Vector3());
   if(!Number.isFinite(s.x+s.y+s.z)||s.y<.001)throw Error('Model has no physical dimensions: '+id);
   const cap=Math.max(.2,1.32*item.radius);
@@ -288,13 +288,14 @@ export async function createBuilderScene({scene,camera,domElement,onSelect=()=>{
    // Decal placements must hit an actual architectural floor or wall.
    // Unlike physical props they deliberately intersect their supporting
    // surface by a tiny offset, and never create a collision volume.
-   const targets=decal.surface==='wall'?walls:floors;
+   const targets=decal.surface==='wall'?walls:
+    decal.surface==='ceiling'?building.ceilings.children:floors;
    const hits=raycaster.intersectObjects(targets.filter(x=>x.visible),true);
    const nMatrix=new THREE.Matrix3(),n=new THREE.Vector3();
    const candidate=hits.find(hit=>{
     if(!hit.face)return false;
     n.copy(hit.face.normal).applyNormalMatrix(nMatrix.getNormalMatrix(hit.object.matrixWorld)).normalize();
-    return decal.surface==='floor'?n.y>.70:Math.abs(n.y)<.50;
+    return decal.surface==='floor'?n.y>.70:decal.surface==='ceiling'?n.y<-.70:Math.abs(n.y)<.50;
    });
    if(!candidate){
     ghost.visible=false;
@@ -305,7 +306,7 @@ export async function createBuilderScene({scene,camera,domElement,onSelect=()=>{
    if(n.dot(raycaster.ray.direction)>0)n.negate();
    ghost.visible=true;
    ghost.position.copy(candidate.point).addScaledVector(n,.018);
-   if(decal.surface==='wall')ghost.quaternion.copy(wallDecalQuaternionV97(n,pendingPreviewYaw));
+   if(decal.surface==='wall'||decal.surface==='ceiling')ghost.quaternion.copy(wallDecalQuaternionV97(n,pendingPreviewYaw));
    else ghost.rotation.set(0,pendingPreviewYaw,0);
    ghost.updateMatrixWorld(true);
    setGhostAppearance(true);
