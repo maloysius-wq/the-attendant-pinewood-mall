@@ -64,7 +64,7 @@ try{
    assert.equal(materials[0].textured,true);
    assert.match(materials[0].mapPath,/\/assets\/vendor\/builder\/vestibule-v98\/images\//);
   }else{
-   assert.ok(materials.some(m=>m.material),assetId+' retains original model material');
+   assert.ok(materials.some(m=>/^[0-9a-f]{6}$/i.test(m.sourceColor||'')),assetId+' retains readable source colors even when the authored glTF material has no name');
    if(/pallet-jack|compact-forklift|toolchest/.test(assetId))
     assert.ok(materials.every(m=>!m.role),'original period-correct palette was not auto-retextured');
   }
@@ -84,7 +84,7 @@ try{
  await page.reload({waitUntil:'domcontentloaded'});
  await page.waitForFunction(()=>window.__PINEWOOD_BUILDER__?.ready||
   window.__PINEWOOD_BUILDER__?.getState().errors.length>0,null,{timeout:155000});
- assert.equal((await state()).draft.added.length,props.length,'all 19th-century-appropriate decor saved to IndexedDB');
+ assert.equal((await state()).draft.added.length,props.length,'all period-appropriate decor saved to IndexedDB');
  assert.equal((await state()).draft.added.find(x=>x.id==='ci-wall-web')?.opacity,.42);
  const reloaded=await page.evaluate(()=>window.__PINEWOOD_BUILDER__.inspectObjectMaterials('ci-ceiling-web'));
  assert.ok(reloaded?.[0]?.textured,'ceiling cobweb source image survives reload');
