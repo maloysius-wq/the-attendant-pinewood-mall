@@ -14,8 +14,13 @@ export function ageRealPlantV101(THREE,root,id){
   const b=new THREE.Box3().setFromObject(mesh);
   const name=(mesh.name+' '+(Array.isArray(mesh.material)?mesh.material.map(m=>m.name).join(' '):mesh.material?.name||'')).toLowerCase();
   const isPot=/pot|terra|ceramic|soil|dirt/.test(name);
-  const high= b.max.y>=total.min.y+h*.68;
-  if(isPot||(!high&&meshParts.length>1))continue;
+  const high=b.max.y>=total.min.y+h*.58;
+  // Poly Haven's original Haworthia parts all inherit pot-prefixed mesh
+  // names, including the leaves. Spatial height outranks the name so we
+  // never skip genuine foliage just because the source model is "potted".
+  // Preserve true low pot/soil-only meshes and their existing source maps.
+  if(!high)continue;
+  if(isPot&&b.max.y<total.min.y+h*.77)continue;
   const tint=(mat)=>{
    const m=mat.clone();
    // Brown/muted olive chlorosis, but all original source photographs and
