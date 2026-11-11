@@ -382,3 +382,27 @@ The 36 published **floor/wall transparent PNG overlays** under `assets/vendor/bu
 Source author: **Quaternius**, CC0 1.0 public domain. The independently archived Quaternius Zombie Apocalypse Kit (March 2024) glTF files used for nine real 3D assets (original pallet, broken pallet, orange traffic cones, plastic and metal work barriers, spare pipe bundle, loose cinder block and steel barrel) came from https://github.com/agentkaerf/FreeModels/tree/main/Zombie%20Apocalypse%20Kit%20-%20March%202024/Environment/glTF . Original Quaternius CC0 policy: https://quaternius.com/faq.html . Each original glTF download path/hash/byte count and converted locally pinned self-contained .glb SHA-256/bytes appear in `assets/vendor/builder/vestibule-v98/manifest-v98.json`.
 
 Ten additional contractor assets, including the period-proportioned compact forklift and manual pallet jack, were **originally authored specifically for The Attendant Pinewood Builder** using primitive-based solid 3D geometry (trimesh) and require no third-party model license. Twenty-eight retro wall notices, whiteboards, bulletin boards, calendars and fictitious Pinewood advertisements plus eight translucent corner/ceiling cobweb graphics were also **originally designed and rendered** for the Builder. No third-party graphic artwork, external textures, or external browser runtime requests were used. All local models and graphics were created and hash-pinned by the development-only script `tools/vendor-vestibule-v98.py`, with source and output IDs, SHA-256, category, dimensions and license in the manifest. These decorations are independent of the 36 ambientCG CC0 grime decals already licensed in v97.
+
+## Builder v99: source-backed replacements for ten contractor GLBs (2026-11-11)
+
+All ten v98 generated contractor 3D models have been replaced, retaining their catalog IDs and file paths, with independently published CC0 1.0 source models. All 19 physical contractor models are now third-party sourced. The 36 originally designed wall/cobweb graphics and 36 separately licensed grime overlays remain unchanged.
+
+**Six original Innerscene Free Parts Library GLBs** (source author: Innerscene):
+- https://www.innerscene.com/tools/library/3d-parts/electric-counterbalance-forklift-7acc0547
+- https://www.innerscene.com/tools/library/3d-parts/manual-pallet-jack-5ff28a4a
+- https://www.innerscene.com/tools/library/3d-parts/step-fold-step-ladder-acbe7baf
+- https://www.innerscene.com/tools/library/3d-parts/rolling-tool-chest-c23c4e4c
+- https://www.innerscene.com/tools/library/3d-parts/cord-reel-utility-organizer-258e2bfe
+- https://www.innerscene.com/tools/library/3d-parts/work-stand-portable-work-light-1befa4ba
+
+**Four Poly Haven CC0 glTF sources** converted to GLB without building new mesh geometry:
+- Metal Toolbox, Mateusz Sadek: https://polyhaven.com/a/metal_toolbox
+- Industrial Storage Cart, Jule Bielitz: https://polyhaven.com/a/industrial_storage_cart
+- Plastic Broom, L: https://polyhaven.com/a/plastic_broom
+- Modular Electric Cables, Kuutti Siitonen: https://polyhaven.com/a/modular_electric_cables
+
+The electrical conduit entry selects the original long, medium and short straight cable meshes from the Poly Haven modular kit, without creating new mesh shapes. The actual portable work light is a floor stand, not a full-height tripod; the storage cart has a lower cabinet. The new catalog labels reflect these source models. Innerscene identifies its own original models and CC0 licensing but does not document whether they were modeled by a human or with AI; Poly Haven explicitly describes human creation.
+
+**License:** CC0 1.0, https://creativecommons.org/publicdomain/zero/1.0/ . All exact source download URLs, per-source-file checksums and final self-contained GLB SHA-256 checksums, original authors, image/material count and source publisher are pinned in assets/vendor/builder/vestibule-v98/manifest-v98.json.
+
+The ten model files are local, with source geometry/materials preserved. The original IDs, Builder save schema, 41 rooms, default Snap OFF / Allow overlap ON, original Quaternius models, wall/ceiling graphics, playable campaign and cinematic remain unchanged. No remote browser asset requests. The prior v98 original-geometry entries described in the historical licensing section are superseded.
