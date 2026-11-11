@@ -1,0 +1,32 @@
+name: Pinewood v99 one-time verified CC0 model vendoring
+on:
+  push:
+    branches: [feat/builder-v99-third-party-props]
+    paths: ['.github/workflows/pinewood-builder-v99-vendor.yml']
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  vendor:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 22
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install GLTF packaging CLI (converts source model packaging, does not generate meshes)
+        run: npm install --no-save @gltf-transform/cli@4.2.1
+      - name: Download and pin 10 complete CC0 source models
+        run: node tools/vendor-builder-v99.mjs
+      - name: Store source files and hashes only on the isolated feature branch
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add assets/vendor/builder/vestibule-v98/manifest-v98.json assets/vendor/builder/vestibule-v98/models/
+          git diff --cached --stat
+          test "$(git diff --cached --name-only | wc -l)" -eq 11
+          git commit -m "Vendor ten genuine third-party CC0 contractor GLBs with pinned source hashes"
+          git push origin HEAD:feat/builder-v99-third-party-props
