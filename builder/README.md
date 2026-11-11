@@ -1,5 +1,12 @@
 # Pinewood World Builder
 
+
+## Scuffed office boards and peeling paper (v100)
+
+Eight additional locally sourced and textured catalog entries: two source-authentic CC0 3D props under **Abandoned Office Boards** (a used wheeled meeting whiteboard and a pinned cork board) plus six individually placeable wall decals under **Peeling Posters & Paper**. Both models preserve their original embedded PBR materials and are tinted/roughened only in standalone Builder for a lightly aged appearance. All six poster images derive from a *real independently released CC0 torn-poster artwork* by GGBotNet, with faded/alpha-torn edge treatments and a slight raised corner/edge to give realistic 3D separation at the wall. These are processed photographic/illustration textures, **not six separately sourced 3D models**. See `LICENSES.md` and `assets/vendor/builder/wall-decay-v100/manifest-v100.json` for full provenance and file checksums.
+
+The Builder now lists **610** items. Existing wall finishes, saves, decals, actor/cinematic/game assets and default grid/overlap choices are unchanged. Desktop test: `scripts/test-builder-wall-decay-v100.mjs`, `scripts/smoke-builder-wall-decay-v100.mjs`.
+
 Standalone desktop editor: **`/builder/`** (a separate page from the playable game).
 
 The editor loads the same canonical 41-room, three-level Pinewood Mall shell and all 60 existing v69 furniture pieces. A dry ornamental fountain replaces only the old sculpture in this editor preview. The architectural basin, walls, stairs, shafts and chapter evidence remain protected. The Builder also mounts the **same fully licensed cinematic parking-lot set** (sedan, lamp fixtures, cracked sidewalk, boarded facade, rain and eight aged planters) as a connected exterior staging area; original cinematic set pieces remain protected while new objects can be placed around them.
