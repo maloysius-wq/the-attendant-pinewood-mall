@@ -16,6 +16,7 @@ import {registerDecalCatalogV97,isDecalV97} from './decals-v97.js';
 import {registerVestibuleCatalogV98} from './vestibule-catalog-v98.mjs';
 import {registerWallDecayV100} from './wall-decay-v100.mjs';
 import {registerMoodV101} from './mood-catalog-v101.mjs';
+import {createOrderedDraftSaves} from './ordered-draft-saves-v102.mjs';
 
 const $=id=>document.getElementById(id);
 const status={ready:false,errors:[],selected:null,roomCount:MALL.rooms.length,
@@ -23,7 +24,7 @@ const status={ready:false,errors:[],selected:null,roomCount:MALL.rooms.length,
  draft:createEmptyDraft(),navigation:{mode:'orbit',floor:'G',unlockAll:true},workLights:false,
  placementOptions:{gridSize:0,allowClipping:true},finishMeshes:{floor:0,wall:0,ceiling:0}};
 let scene,camera,renderer,orbit,editor,navigation,workLighting,exterior,roomFinishes,
- frames=0,undoStack=[],redoStack=[],idCounter=0,savePending;
+ frames=0,undoStack=[],redoStack=[],idCounter=0;
 let blockedWarning=null;
 const clone=v=>JSON.parse(JSON.stringify(v)),round=v=>Math.round(v*1000)/1000;
 const legacy=new Map([...FURNISHINGS_V69.fixtures,...EDITOR_EXTRA_FIXTURES_V1].map(f=>[f.id,f]));
@@ -65,7 +66,7 @@ async function loadVendorCatalog(){
  if(!decayResp.ok)throw Error('Pinned sourced whiteboards and peeling posters are unavailable');
  registerWallDecayV100(await decayResp.json(),catalog,EDITOR_CATALOG_BY_ID);
  const moodResp=await fetch(new URL('../assets/vendor/builder/mood-v101/manifest-v101.json',import.meta.url));
- if(!moodResp.ok)throw Error('The pinned 1996 calendar and realistic plant library is unavailable');
+ if(!moodResp.ok)throw Error('The pinned 1997 calendar and realistic plant library is unavailable');
  registerMoodV101(await moodResp.json(),catalog,EDITOR_CATALOG_BY_ID);
  status.catalogCount=catalog.length;
 }
@@ -265,20 +266,26 @@ async function dbAction(mode,cb){
  try{
   return await new Promise((resolve,reject)=>{
    const tx=db.transaction('drafts',mode),store=tx.objectStore('drafts');
-   const request=cb(store);
-   request.onsuccess=()=>resolve(request.result);
-   request.onerror=()=>reject(request.error);
-   tx.onerror=()=>reject(tx.error);
+   let request;
+   // A request can succeed before the transaction commits. Only signal
+   // persistence after its oncomplete event, not request.onsuccess.
+   tx.oncomplete=()=>resolve(request?.result);
+   tx.onerror=()=>reject(tx.error||request?.error||Error('Draft transaction failed'));
+   tx.onabort=()=>reject(tx.error||Error('Draft transaction aborted'));
+   try{request=cb(store)}catch(err){tx.abort();reject(err)}
   });
  }finally{db.close()}
 }
+const orderedDraftWrites=createOrderedDraftSaves(snapshot=>
+ dbAction('readwrite',store=>store.put(snapshot,'pinewood-v69')));
 async function saveDraft(){
+ // Snapshot immediately, before awaiting prior writes. IndexedDB writes are
+ // serialized so a slow old edit can never land after a newer one.
+ const snapshot=clone(status.draft);
  try{
-  if(savePending)await savePending;
-  savePending=dbAction('readwrite',store=>store.put(clone(status.draft),'pinewood-v69'));
-  await savePending;
-  indicate('Saved locally · '+new Date().toLocaleTimeString());
- }catch(err){report(err)}finally{savePending=null}
+  const {latest}=await orderedDraftWrites.enqueue(snapshot);
+  if(latest)indicate('Saved locally · '+new Date().toLocaleTimeString());
+ }catch(err){report(err)}
 }
 async function loadDraft(){
  const data=await dbAction('readonly',store=>store.get('pinewood-v69'));

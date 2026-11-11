@@ -202,7 +202,7 @@ Material assets are hashed and source-pinned in `assets/vendor/builder/materials
 | Operate doors | Select door/Open–Close tool; E near a doorway in Explore |
 | Turn off builder-only unlocked access | Unlock all toggle (does not alter story locks) |
 
-The editor saves automatically to **IndexedDB in this browser** after each edit. It also has manual Save, Export World Layout (JSON), Import JSON and Reset local draft. Use Export to create a portable, reviewable layout. Import validates the model allowlist and serialized transforms; invalid or remote-asset references are rejected.
+The editor saves automatically to **IndexedDB in this browser** after each edit. Autosaves are queued in edit order and marked saved only after their IndexedDB transactions finish, so rapid adjustments do not leave a newer draft overwritten by an older write. It also has manual Save, Export World Layout (JSON), Import JSON and Reset local draft. Use Export to create a portable, reviewable layout. Import validates the model allowlist and serialized transforms; invalid or remote-asset references are rejected.
 
 ## 482 new CC0 models
 
