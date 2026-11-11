@@ -32,4 +32,12 @@ jobs:
               print('POLY',slug,'keys',list(d),flush=True)
               print('POLY_GLTF',slug,json.dumps(d.get('gltf',d.get('glTF',{})),ensure_ascii=False)[:3500],flush=True)
             except Exception as e:print('POLY_FAIL',slug,repr(e),flush=True)
+          url='https://dl.polyhaven.org/file/ph-assets/Models/gltf/1k/modular_electric_cables/modular_electric_cables_1k.gltf'
+          try:
+            with urllib.request.urlopen(urllib.request.Request(url,headers={'User-Agent':'PinewoodMallAssetResearch/1.0'}),timeout=50) as res: text=res.read().decode()
+            model=json.loads(text)
+            print('CONDUIT_GLTF',len(text),'nodes',len(model.get('nodes',[])),'meshes',len(model.get('meshes',[])),flush=True)
+            print('CONDUIT_NODE_NAMES',repr([n.get('name') for n in model.get('nodes',[])][:110]),flush=True)
+            print('CONDUIT_MESH_NAMES',repr([n.get('name') for n in model.get('meshes',[])][:100]),flush=True)
+          except Exception as e:print('CONDUIT_FAIL',repr(e),flush=True)
           PY
