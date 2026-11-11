@@ -41,13 +41,13 @@ try{
  await page.evaluate(()=>window.__PINEWOOD_BUILDER__.select('ci-lightfix-0'));
  assert.equal((await state()).selected,'ci-lightfix-0');
  // Use same real canvas DOM pointer event handler as a user blank click.
- await page.evaluate(()=>{
-  const canvas=document.querySelector('#viewport canvas');
-  const bounds=canvas.getBoundingClientRect();
-  const options={bubbles:true,button:0,clientX:bounds.left+9,clientY:bounds.top+9};
-  canvas.dispatchEvent(new PointerEvent('pointermove',options));
-  canvas.dispatchEvent(new PointerEvent('pointerdown',options));
- });
+ const canvas=page.locator('#viewport canvas');
+ const bounds=await canvas.boundingBox();
+ assert.ok(bounds,'Builder must render a real desktop canvas');
+ // Use an actual Playwright-driven pointer, not synthetic PointerEvent:
+ // TransformControls.setPointerCapture requires an active pointer ID.
+ await page.mouse.move(bounds.x+9,bounds.y+9);
+ await page.mouse.click(bounds.x+9,bounds.y+9);
  assert.equal((await state()).selected,null,'empty click deselects');
  await page.evaluate(()=>window.__PINEWOOD_BUILDER__.select('ci-lightfix-1'));
  assert.equal((await state()).selected,'ci-lightfix-1','another item selects');
