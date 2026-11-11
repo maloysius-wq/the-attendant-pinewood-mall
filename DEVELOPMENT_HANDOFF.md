@@ -1,5 +1,15 @@
 # Development Handoff: The Attendant: Pinewood Mall
 
+## Builder v102: ordered, transaction-confirmed draft autosaves (2026-11-11)
+
+**Shipped and published:** PR [#106](https://github.com/maloysius-wq/the-attendant-pinewood-mall/pull/106) squash-merged on `main` as `e41e12635131b1aaf1a7350126c2e7df19ef5f8a`. The focused [standalone Builder v1 desktop workflow #43109333506](https://github.com/maloysius-wq/the-attendant-pinewood-mall/actions/runs/43109333506) **succeeded**, including new ordered-save Node tests and actual desktop Chromium editing/persistence. Builder v97 grime, material, ceiling/wall finish, collision warnings and shelf/bench focused checks succeeded. [Pages deployment #43109951000](https://github.com/maloysius-wq/the-attendant-pinewood-mall/actions/runs/43109951000) **succeeded**. Other independent Builder regressions were in progress at publication; check their terminal result before claiming the full suite green.
+
+**Reliability change:** The old `savePending` implementation could allow simultaneous queued callers to launch overlapping IndexedDB writes, and its `dbAction` resolved on individual request success *before* the storage transaction committed. `builder/ordered-draft-saves-v102.mjs` now serializes immutable snapshot writes in request order, recovers from a failed write without blocking the next one, and marks the UI `Saved locally` only for the newest completed revision. `dbAction` now resolves on transaction `oncomplete`, rejecting transaction failure/abort. `scripts/test-builder-ordered-draft-saves-v102.mjs` tests rapid bursts, newest-revision status and rejection recovery; existing v1 desktop smoke validates real IndexedDB reload/export/import. The Builder loading text no longer incorrectly claims 60 furnishings; the missing calendar source error correctly references 1997.
+
+**Guardrails unchanged:** 618-entry licensed catalog, original binary hashes and local asset requirements, 41-room canonical mall, old draft format `version:1`, existing database key `pinewood-v69`, default Snap OFF/Allow Overlap ON, room finishes, all cinematic and campaign code and story. No new runtime external requests. All changes limited to the Builder, its CI and documentation. Continue with Builder hardening or owner-directed visual changes; do not promote the unfinished opening cinematic to production without approval.
+
+---
+
 ## Builder v101: lighting-aware posters, visible dirt, wall calendars, real PBR desk plants and deselection (2026-11-11)
 
 Owner requests: stop all poster graphics glowing in the unlit mall; fix nearly invisible ambientCG surface grime despite full opacity; add several wall-hung calendars (large commercial and smaller personal); add properly sourced real desk plants with a neglected/dying option; allow clicking off an object to clear selection, while clicking another selects it.
