@@ -1,0 +1,37 @@
+# Builder v99 candidate sourcing: externally published contractor 3D models
+
+Status: **RESEARCH ONLY**. No model files have been downloaded, inspected in a 3D editor, added to the repository, or substituted in the Builder as part of this research. These are **external third-party model listings**, not newly authored Pinewood models. Licensing stated here is based on the publishers' model pages; recheck rights and verify the complete asset package and file hashes before integration.
+
+**Owner requirement:** replace the ten custom Python/Trimesh-created 3D models in Builder v98 with actual preexisting, licensed third-party 3D models; preserve the old saved catalog IDs and current 41-room shell, surfaces, user placements, defaults, collisions and campaign. **Never silently create a replacement procedural model.**
+
+| Existing Builder ID | Externally published asset and source page | Listed license | Match / integration notes |
+| --- | --- | --- | --- |
+| `vestibule-compact-forklift` | [Electric counterbalance forklift](https://www.innerscene.com/tools/library/3d-parts/electric-counterbalance-forklift-7acc0547) (Innerscene, 690 KB GLB) | CC0 1.0, listed as Innerscene original | 1.2 x 3.4 x 2.3 m, industrial equipment geometry; inspect whether style and visible parts are suitable for 1990s |
+| `vestibule-manual-pallet-jack` | [Manual pallet jack](https://www.innerscene.com/tools/library/3d-parts/manual-pallet-jack-5ff28a4a) (Innerscene, 96 KB GLB) | CC0 1.0, listed as Innerscene original | Manual jack with fork rollers, pump and handle; examine source materials |
+| `vestibule-service-stepladder` | [Step Fold - Step Ladder](https://www.innerscene.com/tools/library/3d-parts/step-fold-step-ladder-acbe7baf) (Innerscene, 200 KB GLB) | CC0 1.0, listed as Innerscene original | Aluminum A-frame with three steps, PBR texture, about 5k tris; approximately 0.98 m tall |
+| `vestibule-rolling-tool-chest` | [Rolling tool chest](https://www.innerscene.com/tools/library/3d-parts/rolling-tool-chest-c23c4e4c) (Innerscene, 401 KB GLB) | CC0 1.0, listed as Innerscene original | Wheeled, about 0.98 m tall; preferable to chest without casters |
+| `vestibule-metal-toolbox` | [Metal Toolbox](https://polyhaven.com/a/metal_toolbox) by Mateusz Sadek (Poly Haven) | CC0 1.0, human-authored per Poly Haven | Worn olive metal portable toolbox, 14k tris; 1990s-appropriate |
+| `vestibule-electrical-cable-reel` | [Cord Reel - Utility Organizer](https://www.innerscene.com/tools/library/3d-parts/cord-reel-utility-organizer-258e2bfe) (Innerscene, 613 KB GLB) | CC0 1.0, listed as Innerscene original | Stand-mounted cable reel, handle and crank; small: around 0.32 m tall |
+| `vestibule-utility-push-cart` | [Industrial Storage Cart](https://polyhaven.com/a/industrial_storage_cart) by Jule Bielitz (Poly Haven) | CC0 1.0, human-authored per Poly Haven | Rusted green wheeled industrial cart; two visible trays **plus enclosed base cabinet**, not an exact open two-shelf utility cart. 19k tris |
+| `vestibule-tripod-work-light` | [Work Stand - Portable Work Light](https://www.innerscene.com/tools/library/3d-parts/work-stand-portable-work-light-1befa4ba) (Innerscene, 174 KB GLB) | CC0 1.0, listed as Innerscene original | Hand-portable floodlight on folding base, **not a full-height tripod**. Keep unpowered in the Builder. Alternate: [Work Lamp](https://grab3d.com/models/tools/work-lamp/) is a full-height tripod but has a visibly modern LED head, so needs period review |
+| `vestibule-maintenance-broom` | [Plastic Broom](https://polyhaven.com/a/plastic_broom) by L (Poly Haven) | CC0 1.0, human-authored per Poly Haven | Worn plastic push broom with full bristle geometry; approximately 1.2 m tall |
+| `vestibule-spare-conduit` | [Modular Electric Cables](https://polyhaven.com/a/modular_electric_cables) by Kuutti Siitonen (Poly Haven) | CC0 1.0, human-authored per Poly Haven | **PARTIAL match**: 49-part modular conduit/cable/wall fitting kit. Need isolate original straight conduit pieces and arrange as spare lengths without creating replacement meshes. No ready-made floor pile verified yet. Do not describe it as a finished stand-alone replacement |
+
+## Other vetted comparison candidates
+
+- [Forklift Truck](https://sketchfab.com/3d-models/forklift-truck-1567f5f71c1a40eebe487b1b8f570250) by kray3d (2020): maker-posted Blender model, 6.2k triangles, **CC BY**, attribution required. An option if the Innerscene forklift looks too generic. Page bears a NoAI training restriction badge: do not use this model as AI training material.
+- [Metal Tool Chest](https://polyhaven.com/a/metal_tool_chest) by John Hutcheson and Yann Kervran: more worn/red, rigged lid/drawers; CC0, but verify wheels before using as a *rolling* chest.
+- [Tool Cart](https://polyhaven.com/a/tool_cart) by Savva Zakharov: green worn steel cart with top tray, lower shelf, drawers and casters; CC0. Alternative to Industrial Storage Cart if the cabinet bottom feels too bulky.
+- [Industrial work lamp with tripod](https://grab3d.com/models/tools/work-lamp/): CC0, but model advertises a modern LED unit; do not make a time-period mismatch.
+- [Free CC0 Industrial 3D Models](https://3dmodelscc0.itch.io/free-cc0-industrial-3d-models): third-party industrial bundle explicitly lists pallet truck, platform trolley, cable drum, and two work lights, but packaged as a 64 MB RAR with unconfirmed individual model size and delivery; use only after asset-file verification.
+
+## Integrity and runtime checks before substitution
+
+1. Download each original package through its stated publisher source and confirm it actually contains the model and textures; calculate and pin SHA-256, bytes, author, publisher URL, exact CC0/CC-BY evidence, provenance and attribution if applicable.
+2. Compare screenshots/geometry at Builder scale, verify units/up axis, GLB mesh anatomy, normals, presence of materials, visible weathering and 1990s appropriateness. Distinguish visual confirmation from page metadata. Innerscene pages label models as their own originals but **do not establish human-authored modeling process**; Poly Haven explicitly claims its own models are human-made.
+3. Import into isolated preview files and retain the **exact ten existing `vestibule-*` catalog IDs**. Never silently replace the 9 sourced Quaternius GLBs, 36 original wall/ceiling graphics or 36 licensed grime decals.
+4. Preserve every old saved draft and existing placement; preserve source embedded maps and avoid procedural re-creation. Verify bounding box, surface support, scale and placement transforms, rotation, selection, duplication, import/export, undo/redo and source model bytes.
+5. Ensure all runtime assets are self-hosted and hash-pinned, with no external asset HTTP requests. Keep the campaign, cinematic, shell, decals, physical collision logic, snap OFF and overlap ON defaults unchanged.
+6. Run focused source/license/geometry audits and desktop browser regression before updating release docs or claiming any replacements live.
+
+**Research-only confidence:** ten externally published candidates have been identified; **eight are close-to-exact**, two have material mismatch to resolve (full-height work-light tripod and loose conduit pile), and the utility cart has a bottom cabinet not present in the old two-shelf design. These pages are credible candidate sources, **not proof that their bytes have been vendored or integrated**.
