@@ -232,6 +232,7 @@ function populateCatalog(){
      if(!editor.placing)return; // superseded by another selection
      $('placement-tip').textContent=isDecalV97(item)?
       'PLACE '+item.label.toUpperCase()+' · Aim at a '+item.surface+' · Wheel rotate · Click to stick decal · Esc to cancel':
+      item.mountSurface==='wall'?'PLACE '+item.label.toUpperCase()+' · Aim at a wall · Wheel spins it against wall · Click to hang · Esc to cancel':
       'PLACE '+item.label.toUpperCase()+' · Move mouse to position · Wheel rotate · Shift+wheel distance · Click to place · Esc to cancel'+(item.materialStyle==='color-only'?' · Builder adds textures to compatible material groups':'');
     }catch(e){report(e)}
    });parent.append(b);
