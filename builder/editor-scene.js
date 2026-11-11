@@ -9,6 +9,7 @@ import {createBuilderMaterialEnhancerV91} from './prop-materials-v91.js';
 import {isSourcePeripheralV93,isolateSourcePeripheralV93} from './source-peripherals-v93.mjs';
 import {makeCrtPoweredOffV96} from './crt-powered-off-v96.js';
 import {createDecalFactoryV97,isDecalV97,wallDecalQuaternionV97} from './decals-v97.js';
+import {weatherSourceBoardV100} from './peeling-poster-v100.mjs';
 
 const vector=v=>({x:v.x,y:v.y,z:v.z});
 const pose=o=>({position:vector(o.position),rotation:vector(o.rotation),scale:o.scale.x});
@@ -93,6 +94,7 @@ export async function createBuilderScene({scene,camera,domElement,onSelect=()=>{
   // keyboard and mouse already included in the licensed 1990s CRT GLB.
   if(isSourcePeripheralV93(sourceId))isolateSourcePeripheralV93(o,sourceId);
   if(item.materialStyle!=='image-mapped'&&!item.skipMaterialEnhancement)await materialEnhancer.enhance(o,item.label||id);
+  weatherSourceBoardV100(o,sourceId);
   const b=new THREE.Box3().setFromObject(o),s=b.getSize(new THREE.Vector3());
   if(!Number.isFinite(s.x+s.y+s.z)||s.y<.001)throw Error('Model has no physical dimensions: '+id);
   const cap=Math.max(.2,1.32*item.radius);
