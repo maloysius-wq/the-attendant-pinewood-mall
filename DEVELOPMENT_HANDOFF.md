@@ -1,5 +1,14 @@
 # Development Handoff: The Attendant: Pinewood Mall
 
+
+## Builder v99: replace all ten generated contractor models with real third-party source models (2026-11-11)
+
+**Owner request:** Replace every Python/Trimesh-generated 3D contractor prop from v98 with genuinely found downloadable third-party models; never generate more mesh stand-ins. Six CC0 Innerscene models were downloaded as exact original GLBs, and four authored Poly Haven CC0 glTF packages, with real 1K texture maps and source buffer files, were downloaded and repackaged as standalone GLBs. The Poly Haven modular electrical kit supplies its own three straight cable meshes for the loose conduit item. No original 3D mesh was procedurally recreated. Source authors, direct URLs, every source hash, final GLB SHA-256, model anatomy, bytes and license are pinned in assets/vendor/builder/vestibule-v98/manifest-v98.json and LICENSES.md. All ten existing IDs and paths preserved. 19/19 contractor GLBs now sourced. Source material colors and eight original texture-bearing models preserved. The new work light is portable rather than a tall tripod. Innerscene's own modeling method (human vs AI) is unverified, despite its original CC0 designation.
+
+**Safeguards:** 602-entry catalog, Quaternius originals, all 36 wall/ceiling graphics, all 36 grime decals, 41-room shell, saved schema 1, Snap OFF / Allow overlap ON, game runtime and cinematic unchanged. One-time vendoring script tools/vendor-builder-v99.mjs. Temporary privileged workflows must be removed before merge. CI must verify source provenance, actual GLB loading, 602 catalog entries, old IDs and save/reload, no external requests, plus Pages.
+
+---
+
 ## Builder v98 post-merge CI reliability follow-up (2026-11-11)
 
 Builder v98 (PR #93) is on main at `97920279d949f7ace3c25fc1127159139133c152`; its focused Builder v98, v97, v96, v95, v93, v87, v90, and v1 PR checks passed, and Pages deployment `43049201291` succeeded. The unrelated, main-push **Store visual regression** `43049203314` failed **before** running screenshots or story/audio checks because `npx playwright install --with-deps chromium` tried to download optional Ubuntu fonts during a GitHub-hosted package mirror DNS outage. There was no evidenced game regression in that failed run.

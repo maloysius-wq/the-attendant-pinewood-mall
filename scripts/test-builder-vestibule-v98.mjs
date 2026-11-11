@@ -16,13 +16,16 @@ test('19 actual local GLB models and 36 transparent ceiling/web/poster textures 
  const {models,decals}=validateVestibuleManifestV98(manifest);
  assert.equal(models.length,19);
  assert.equal(decals.length,36);
- assert.equal(models.filter(m=>m.license==='CC0-1.0').length,9);
- assert.equal(models.filter(m=>m.license==='Original-Pinewood').length,10);
+ assert.equal(models.filter(m=>m.license==='CC0-1.0').length,19);
+ assert.equal(models.filter(m=>m.license==='Original-Pinewood').length,0,'all original primitive-made contractor GLBs replaced');
  assert.equal(decals.filter(d=>d.category==='Wall Notices & Advertising').length,28);
  assert.equal(decals.filter(d=>d.category==='Cobwebs & Ceiling Dust').length,8);
  assert.equal(decals.filter(d=>d.surface==='ceiling').length,5);
  assert.ok(models.some(m=>/forklift/.test(m.id)));
  assert.ok(models.some(m=>/manual-pallet-jack/.test(m.id)));
+ assert.equal(models.filter(m=>m.sourceProvider==='Innerscene').length,6);
+ assert.equal(models.filter(m=>m.sourceProvider==='Poly Haven').length,4);
+ assert.ok(models.filter(m=>m.sourceProvider).every(m=>m.sourceFiles?.length>0&&m.skipMaterialEnhancement===true),'ten new external source files are pinned and source materials preserved');
  assert.ok(models.some(m=>/wood-pallet/.test(m.id)));
  assert.ok(decals.some(d=>/calendar/.test(d.id)));
  assert.ok(decals.some(d=>/whiteboard/.test(d.id)));
@@ -59,6 +62,9 @@ test('invalid external links, licenses, alpha, and paths rejected before appeari
   m=>{m.models[0].path='https://example.com/pallet.glb'},
   m=>{m.models[0].license='unknown'},
   m=>{m.models[9].originalAuthor='Outside source'},
+  m=>{m.models[9].sourceProvider='Unknown vendor'},
+  m=>{m.models[9].sourceFiles[0].sha256='0'.repeat(64)},
+  m=>{m.models[9].skipMaterialEnhancement=false},
   m=>{m.decals[0].surface='roof-not-a-real-surface'},
   m=>{m.decals[0].path='https://example.com/poster.png'},
   m=>{m.decals[29].sha256='oops'}

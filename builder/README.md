@@ -96,6 +96,11 @@ finish. See `builder/material-scale-v92.mjs`,
 `scripts/test-builder-material-v92.mjs`, the focused v91/v92 Builder
 material CI workflow, and its desktop regression.
 
+
+## Source-authentic contractor props (v99)
+
+All ten v98 Python-generated contractor meshes have been replaced with independently published CC0 3D models from Innerscene (six original GLBs) and Poly Haven (four authored glTF model kits repackaged into GLBs). The catalog's 602 entries and original ten contractor catalog IDs remain unchanged, so existing saved placement layouts still work without migration. Each actual source model retains its original colors or embedded textures. The light is a compact portable floor work stand, not a tall tripod; the cart includes a lower cabinet; the conduit uses three preexisting straight cable sections from a source model kit. See the license file and pinned model manifest for authorship/source SHA-256 details.
+
 ## 1990s wall dressing, ceiling webs and contractor loading props (v98)
 
 The Builder now offers 55 additional **real local assets** in three searchable categories: **Contractor Vestibule & Loading** (19 model props); **Wall Notices & Advertising** (28 original, printed graphics); and **Cobwebs & Ceiling Dust** (8 translucent ceiling/wall spider webs). The supplied wooden pallets, broken pallets, construction barriers, traffic cones, pipe bundles, barrels and cinder blocks are truly Quaternius CC0 glTF models, converted into self-contained GLBs. A vintage-style compact forklift, hand pallet jack, folding ladder, toolboxes/chest, cable reel, trolley, work lamp, broom and spare conduit are standalone original locally authored GLBs. All 28 wall papers, framed bulletin boards, simple whiteboards, four paper calendars, and six nonbrand Pinewood adverts were drawn for the Builder, along with eight faint cobweb graphics. No online assets are requested at runtime.
