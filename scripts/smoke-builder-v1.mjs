@@ -35,12 +35,12 @@ try{
   if(m.materialStyle)acc[m.materialStyle]=(acc[m.materialStyle]||0)+1;
   return acc;
  },{}));
- assert.equal(textureKinds['image-mapped'],208,'172 image-bearing models plus 36 verified RGBA grime decals');
- assert.equal(textureKinds['color-only'],339,'source models with flat colors are identified');
+ assert.equal(textureKinds['image-mapped'],253,'source image maps + 36 grime + 36 wall/cobweb images + 9 Quaternius models');
+ assert.equal(textureKinds['color-only'],349,'original pinned source palette models plus 10 original contractor GLBs');
  await page.locator('#catalog-material').selectOption('image-mapped');
- assert.equal(await page.locator('.catalog-item').count(),208,'image-map filter includes 36 new surface decals');
+ assert.equal(await page.locator('.catalog-item').count(),253,'image-map filter includes wall and ceiling decor');
  await page.locator('#catalog-material').selectOption('color-only');
- assert.equal(await page.locator('.catalog-item').count(),338,'solid-color filter excludes retired LCD but retains other source colors');
+ assert.equal(await page.locator('.catalog-item').count(),348,'solid-color filter excludes retired LCD and includes original contractor models');
  await page.locator('#catalog-material').selectOption('');
  assert.ok((await page.locator('.catalog-item').count())>=510,'clearing material filter restores the full catalog');
  assert.equal((await page.evaluate(()=>window.__PINEWOOD_BUILDER__.getCatalog())).some(x=>/christmas|holiday|garland|snowman/i.test(x.label)),true);
