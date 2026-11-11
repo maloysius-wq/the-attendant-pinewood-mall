@@ -15,7 +15,7 @@ try{
   window.__PINEWOOD_BUILDER__?.getState().errors.length>0,null,{timeout:155000});
  const api=()=>page.evaluate(()=>window.__PINEWOOD_BUILDER__.getState());
  const initial=await api();assert.equal(initial.ready,true,JSON.stringify(initial.errors));
- assert.equal(initial.catalogCount,610);
+ assert.equal(initial.catalogCount,618);
  assert.deepEqual(initial.placementOptions,{gridSize:0,allowClipping:true});
  const catalog=await page.evaluate(()=>window.__PINEWOOD_BUILDER__.getCatalog());
  assert.equal(catalog.find(x=>x.id==='v100-aged-cork-bulletin-board')?.mountSurface,'wall','corkboard mounts on genuine architectural walls');
@@ -25,7 +25,7 @@ try{
   assert.equal(await page.locator('.catalog-item').count(),count);
  }
  await page.locator('#catalog-category').selectOption('');
- assert.equal(await page.locator('.catalog-item').count(),609);
+ assert.equal(await page.locator('.catalog-item').count(),617);
  const targets=[
   ['v100-vintage-office-whiteboard','v100-whiteboard-demo',{x:520,y:0,z:520},'board'],
   ['v100-aged-cork-bulletin-board','v100-bulletin-demo',{x:523,y:0,z:520},'board'],

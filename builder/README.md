@@ -1,5 +1,14 @@
 # Pinewood World Builder
 
+## Atmospheric wall/calendar and realistic desk-plant update (v101)
+
+Previously bright poster/notice surfaces now use fully scene-lit, non-emissive paper materials in dark rooms. Original ambientCG grime/photo masks are boosted in-memory and darkened, so the existing saved opacity slider visibly changes the dirt strength. Clicking empty Builder space deselects the current prop and detaches its gizmo without breaking switching to another item.
+
+Four new photo-based 1997 wall calendars (two larger commercial and two personal sizes) can be hung/rotated/scaled using the existing transparent wall-stamp system. Three sourced CC0 PBR desk-plant 3D models plus a browning, retextured variation of one of them are added. The source GLB geometry and embedded photo maps remain untouched. **Calendars are period-correct composites based on independently released PD/CC0 photographs of real calendar objects, not independently sourced 3D calendar models.** See `LICENSES.md` and the v101 manifest for full provenance. Builder library count is 618. No existing catalog IDs or saved world layouts are changed.
+
+
+---
+
 ## Builder lighting + grime visibility + click-off deselection (2026-11-11)
 
 This is an isolated fix that **does not depend on the not-yet-downloaded calendars/plants v101 asset bundle**.
@@ -9,7 +18,7 @@ This is an isolated fix that **does not depend on the not-yet-downloaded calenda
 - `builder/editor-scene.js` left-clicking the empty world now calls the existing `select(null)` to clear selected object and 3D handles; clicking an actual different object still selects it, and a transform handle is exempt.
 - These are **Builder-only**, with all 610 existing catalog entries and 41-room architecture, user save/import schema and source/license manifests untouched. No cinema/game/story modification, no new network dependencies.
 
-Dedicated desktop smoke `scripts/smoke-builder-paper-grime-deselect-v101.mjs` tests all three kinds of paper, two grime samples, and empty-click selection followed by JSON/IndexedDB persistence. Focused workflow: `.github/workflows/pinewood-builder-atmosphere-fix-v101.yml`. A separate source-authentic calendar/plant development branch remains incomplete until third-party binaries can be downloaded/pinned and does not belong on main yet.
+Dedicated desktop smoke `scripts/smoke-builder-paper-grime-deselect-v101.mjs` tests all three kinds of paper, two grime samples, and empty-click selection followed by JSON/IndexedDB persistence. Focused workflow: `.github/workflows/pinewood-builder-atmosphere-fix-v101.yml`. The following v101 asset update subsequently downloaded/pinned all source binaries and is tracked in the newer section above.
 
 
 ## Scuffed office boards and peeling paper (v100)
