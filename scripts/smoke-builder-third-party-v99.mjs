@@ -14,7 +14,7 @@ try{
    window.__PINEWOOD_BUILDER__?.getState().errors.length>0,null,{timeout:155000});
  const state=()=>page.evaluate(()=>window.__PINEWOOD_BUILDER__.getState());
  const initial=await state();assert.equal(initial.ready,true,JSON.stringify(initial.errors));
- assert.equal(initial.catalogCount,602);
+ assert.equal(initial.catalogCount,610);
  assert.deepEqual(initial.placementOptions,{gridSize:0,allowClipping:true});
  const catalog=await page.evaluate(()=>window.__PINEWOOD_BUILDER__.getCatalog());
  const third=catalog.filter(x=>x.sourceProvider);
