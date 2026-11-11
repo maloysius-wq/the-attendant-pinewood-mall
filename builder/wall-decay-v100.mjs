@@ -36,6 +36,7 @@ export function validateWallDecayV100(manifest){
    m.path!==ROOT+'models/'+m.id.slice(5)+'.glb'||m.materialStyle!=='image-mapped'||
    m.license!=='CC0-1.0'||m.originalAuthor!=='Grab3D'||
    m.originalSource!=='https://grab3d.com/models/furniture/'+slug+'/'||
+   (slug==='cork-board'?m.mountSurface!=='wall':m.mountSurface!==undefined)||
    m.downloadUrl!=='https://grab3d.com/dl/'+slug+'/'+slug+'.glb'||
    m.sourceSHA256!==m.sha256||m.sourceBytes!==m.bytes||
    m.skipMaterialEnhancement!==true||!goodHash(m.sha256)||!goodSize(m.bytes)||
