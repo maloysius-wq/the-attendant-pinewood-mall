@@ -174,7 +174,11 @@ for i,p in enumerate(posters):
   'license':license,'sourceDerivation':('Distinct locally bundled original Pinewood advert/notice artwork' if local else 'Independent original Wikimedia Commons public-domain/CC0 artwork')+' with Pinewood typography and aged peeling silhouette',
   'sha256':sha256(pb).hexdigest(),'bytes':len(pb)})
  print('VERIFIED_DISTINCT_POSTER',i+1,slug,license,source['sha256'],title,flush=True)
-manifest['sources']=[x for x in manifest['sources'] if not x['id'].startswith('openclipart-')]+sources
+# Replace, never append, the ten poster-source entries. Queued Actions
+# runners may rerun this archival job on the same PR; the manifest must remain
+# strictly idempotent, with exactly seven dirt references plus ten art sources.
+archiveSources=[x for x in manifest['sources'] if x['id'].startswith(('ambientcg-','legacy-v97-'))]
+manifest['sources']=archiveSources+sources
 manifest['notes']='Ten verified different original artwork images, independently downloaded from Wikimedia Commons under PD/CC0 when reachable; otherwise explicitly credited, distinct original-Pinewood v98 notices/advertisements. All ten distinct source pixel signatures are checked and recorded. Three CC0 ambientCG ground scans, four rebalanced CC0 scuff photos and two genuine Poly Haven PBR trash models. No shared image placeholders.'
 mf.write_text(json.dumps(manifest,indent=2)+'\n')
 print('VERIFIED_POSTER_SOURCES',len(sources),len({x['pixelSignature'] for x in sources}),
