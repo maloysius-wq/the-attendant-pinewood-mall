@@ -62,14 +62,46 @@ try{
   assert.equal(parts[0].opacity,.9);
  }
  assert.equal(await page.locator('#decal-opacity-field').isVisible(),true);
+ const beforePreviewJSON=await page.evaluate(()=>window.__PINEWOOD_BUILDER__.exportJSON());
+ // An input event must update the actual Three.js material immediately,
+ // without creating a draft mutation, IndexedDB write or history action.
  await page.evaluate(()=>{
   const slider=document.getElementById('decal-opacity');
-  slider.value='.42';slider.dispatchEvent(new Event('change',{bubbles:true}));
+  slider.value='.24';slider.dispatchEvent(new Event('input',{bubbles:true}));
+ });
+ let preview=await page.evaluate(()=>window.__PINEWOOD_BUILDER__.inspectObjectMaterials('ci-wall-decals'));
+ assert.ok(Math.abs(preview[0].opacity-.24)<.001,'live grime strength responds before release');
+ assert.equal(await page.locator('#decal-opacity-value').textContent(),'24% preview');
+ assert.equal(await page.evaluate(()=>window.__PINEWOOD_BUILDER__.exportJSON()),beforePreviewJSON,
+  'preview must never change the v1 draft or saved JSON');
+ // Moving to another decal cancels the old preview, preventing a
+ // temporary appearance from leaking into subsequent edits.
+ await page.evaluate(()=>window.__PINEWOOD_BUILDER__.select('ci-floor-decals'));
+ preview=await page.evaluate(()=>window.__PINEWOOD_BUILDER__.inspectObjectMaterials('ci-wall-decals'));
+ assert.ok(Math.abs(preview[0].opacity-.9)<.001,'selection change restores previous opacity');
+ assert.equal(await page.locator('#decal-opacity-value').textContent(),'90%');
+ await page.evaluate(()=>window.__PINEWOOD_BUILDER__.select('ci-wall-decals'));
+ await page.evaluate(()=>{
+  const slider=document.getElementById('decal-opacity');
+  slider.value='.42';
+  slider.dispatchEvent(new Event('input',{bubbles:true}));
+  slider.dispatchEvent(new Event('change',{bubbles:true}));
  });
  await page.waitForFunction(()=>window.__PINEWOOD_BUILDER__.getState().draft.added
   .find(a=>a.id==='ci-wall-decals')?.opacity===.42,{timeout:10000});
  let wall=await page.evaluate(()=>window.__PINEWOOD_BUILDER__.inspectObjectMaterials('ci-wall-decals'));
  assert.ok(Math.abs(wall[0].opacity-.42)<.001,'opacity applied to existing decal material');
+ assert.equal(await page.locator('#decal-opacity-value').textContent(),'42%');
+ await page.evaluate(()=>window.__PINEWOOD_BUILDER__.undo());
+ assert.equal((await state()).draft.added.find(x=>x.id===wallId).opacity,undefined,
+  'one undo restores the prior opacity, not one entry per preview tick');
+ assert.equal(await page.locator('#decal-opacity').inputValue(),'0.9',
+  'undo refreshes inspector to actual stored strength');
+ wall=await page.evaluate(()=>window.__PINEWOOD_BUILDER__.inspectObjectMaterials('ci-wall-decals'));
+ assert.ok(Math.abs(wall[0].opacity-.9)<.001);
+ await page.evaluate(()=>window.__PINEWOOD_BUILDER__.redo());
+ assert.equal((await state()).draft.added.find(x=>x.id===wallId).opacity,.42);
+ assert.equal(await page.locator('#decal-opacity').inputValue(),'0.42');
  const exported=await page.evaluate(()=>window.__PINEWOOD_BUILDER__.exportJSON());
  await page.reload({waitUntil:'domcontentloaded'});
  await page.waitForFunction(()=>window.__PINEWOOD_BUILDER__?.ready||
