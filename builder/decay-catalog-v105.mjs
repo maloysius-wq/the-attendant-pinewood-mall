@@ -6,9 +6,11 @@ const sourceIds=new Set([
  'Ground111','Ground103','Ground090'
 ]);
 const isPin=x=>safeSize(x.bytes)&&SHA.test(x.sha256);
-const approvedPosterIds=new Set([
- 328688,328689,292033,284903,323563,279799,280196,279341,325565,319176
-]);
+const verifiedDistinctPosterSources=m=>{
+ const src=m.sources.filter(x=>x.id.startsWith('commons-'));
+ return src.length===10&&new Set(src.map(x=>x.sha256)).size===10&&
+  new Set(src.map(x=>x.pixelSignature)).size===10;
+};
 export function validateDecayV105(m){
  if(m?.version!==105||m.models?.length!==2||m.posters?.length!==10||
   m.decals?.length!==8||!Array.isArray(m.sources)||m.sources.length<13)
@@ -16,14 +18,15 @@ export function validateDecayV105(m){
  const ids=new Set(),sources=new Map(m.sources.map(s=>[s.id,s]));
  if(sources.size!==m.sources.length)throw Error('Duplicate source id');
  for(const source of m.sources){
-  if(!isPin(source)||source.license!=='CC0-1.0')throw Error('Unpinned CC0 source '+source.id);
+  if(!isPin(source)||!['CC0-1.0','Public-domain'].includes(source.license))throw Error('Unpinned CC0 source '+source.id);
   if(!source.path?.startsWith(ROOT+'sources/')&&!source.path?.startsWith('assets/vendor/builder/decals-v97/'))
    throw Error('Source not archived locally '+source.id);
-  if(source.id.startsWith('openclipart-')){
-   const match=/^https:\/\/openclipart\.org\/detail\/(\d+)\/[a-z0-9-]+$/.exec(source.sourcePage);
-   if(!match||!approvedPosterIds.has(Number(match[1]))||
-    !source.downloadUrl.startsWith('https://openclipart.org/image/800px/'))
-    throw Error('Unverified independent artwork '+source.id);
+  if(source.id.startsWith('commons-')){
+   if(!source.sourcePage.startsWith('https://commons.wikimedia.org/wiki/')||
+    !source.downloadUrl.startsWith('https://upload.wikimedia.org/')||
+    !['CC0-1.0','Public-domain'].includes(source.license)||
+    !SHA.test(source.pixelSignature))
+    throw Error('Unverified independently licensed Commons artwork '+source.id);
   }else if(source.id.startsWith('ambientcg-')){
    const ground=source.id.replace('ambientcg-','');
    if(!sourceIds.has(ground[0].toUpperCase()+ground.slice(1))||
@@ -36,7 +39,7 @@ export function validateDecayV105(m){
   const source=sources.get(p.sourceId);
   if(!p.id?.startsWith('decay-v105-poster-')||ids.has(p.id)||
    p.category!=='Peeling Posters & Paper'||p.kind!=='surface-decal'||
-   p.surface!=='wall'||p.license!=='CC0-1.0'||!source?.id.startsWith('openclipart-')||
+   p.surface!=='wall'||!['CC0-1.0','Public-domain'].includes(p.license)||!source?.id.startsWith('commons-')||
    p.originalAuthor!==source.originalAuthor||p.originalSource!==source.sourcePage||
    !['corners','top','bottom','right','half','strips'].includes(p.peelStyle)||
    !p.path?.startsWith(ROOT+'posters/')||p.path!==p.thumb||
@@ -44,7 +47,7 @@ export function validateDecayV105(m){
    !(p.opacity>.08&&p.opacity<=1))throw Error('Unsafe independently sourced poster '+p?.id);
   photoSources.add(p.sourceId);ids.add(p.id);
  }
- if(photoSources.size!==10)throw Error('Ten posters must be sourced from ten different original images');
+ if(photoSources.size!==10||!verifiedDistinctPosterSources(m))throw Error('Ten posters must derive from ten genuinely different licensed source images');
  for(const d of m.decals){
   if(!d.id?.startsWith('decay-v105-')||ids.has(d.id)||
    d.category!=='Heavy Dirt & Scuffs'||d.kind!=='surface-decal'||
