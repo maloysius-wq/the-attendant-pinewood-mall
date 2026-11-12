@@ -52,6 +52,9 @@ export function validateDraft(draft,catalog){
   if(has(override,'rotation')&&!vector(override.rotation))errors.push('Invalid baseline rotation '+id);
   if(has(override,'scale')&&!scale(override.scale))errors.push('Invalid baseline scale '+id);
  }
+ if(draft.mallWallFinish!==undefined&&
+   (typeof draft.mallWallFinish!=='string'||!ROOM_FINISH_IDS_V87.wall.has(draft.mallWallFinish)))
+   errors.push('Invalid common-area wall finish');
  if(draft.surfaces!==undefined){
   if(!draft.surfaces||typeof draft.surfaces!=='object'||Array.isArray(draft.surfaces))
    errors.push('Room finishes must be a map');
@@ -112,6 +115,13 @@ export function reduceDraft(draft,action){
    }
    if(Object.keys(selected).length)next.surfaces[roomId]=selected;
    else delete next.surfaces[roomId];
+   break;
+  }
+  case 'mall-walls': {
+   if(typeof action.finishId!=='string'||!ROOM_FINISH_IDS_V87.wall.has(action.finishId))
+    throw Error('Unsupported shared mall wall finish');
+   if(action.finishId==='original')delete next.mallWallFinish;
+   else next.mallWallFinish=action.finishId;
    break;
   }
   case 'finish': {
