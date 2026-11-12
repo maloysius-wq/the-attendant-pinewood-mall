@@ -163,7 +163,7 @@ for i,(slug,label,surface,groundId,oldFile,w,h) in enumerate(GRIME):
   sourceDerivation='Higher-contrast CC0 scanned albedo and original morphology, stronger opaque irregular feathered silhouette',
   path=str(target),thumb=str(target),width=w,height=h,opacity=.99,**info))
  print('HEAVY_DECAL',slug,info['bytes'],flush=True)
-manifest=dict(version=105,models:=[ ],posters=posters,decals=decals,sources=sources,
+manifest=dict(version=105,models=[],posters=posters,decals=decals,sources=sources,
  notes='Each of 10 posters uses a genuinely different sourced CC0 Openclipart artwork. Three newly sourced ambientCG ground scans and existing verified CC0 scuffs create 8 prominently visible dirt decals. Real source meshes added separately. All media pinned and locally hosted.')
 (ROOT/'manifest-v105.json').write_text(json.dumps(manifest,indent=2)+'\n')
 print('V105_MEDIA_READY',len(posters),len(decals),len(sources),flush=True)
