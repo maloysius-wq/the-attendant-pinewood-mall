@@ -117,7 +117,7 @@
       "originalAuthor": "Claudio Elias",
       "originalSource": "https://commons.wikimedia.org/wiki/File:WallCalendar.jpg",
       "sourceId": "public-domain-wall-calendar",
-      "derivation": "Public-domain/CC0 original calendar photograph as material substrate; accurate 1997 printed month grid and period-styled frame newly composited. Not an external 3D calendar model.",
+      "derivation": "New independent 1997 grid on clean paper-tone palette sampled from PD source photo; no original photo pixels or pre-existing dated calendar text retained.",
       "path": "assets/vendor/builder/mood-v101/calendars/facilities-year-planner.png",
       "thumb": "assets/vendor/builder/mood-v101/calendars/facilities-year-planner.png",
       "width": 1.62,
@@ -125,8 +125,8 @@
       "opacity": 0.93,
       "calendarStyle": "commercial",
       "year": 1997,
-      "bytes": 771792,
-      "sha256": "bc5604157211ffc7c1618de2556828d37b0f721b97dfcf739e9faff99c91d5ca"
+      "bytes": 287535,
+      "sha256": "03688965b07edf2a2e4759f2775783a14ed8d7e6e3d1e394af6c7176e9f318d6"
     },
     {
       "id": "mood-v101-calendar-service-shift-calendar",
@@ -226,5 +226,5 @@
       "sha256": "9ac3cb4a27f5e8ec76377dcaa6abef6a70672eabcbbcc76b15d170936afb7525"
     }
   ],
-  "notes": "All plant GLBs are exact unmodified CC0 source files, one withering material variant reuses original geometry. Calendar assets are authored 2D wall calendar designs composited from PD/CC0 photographs, with accurate year 1997 typography. No claim to externally modeled 3D calendar geometry."
+  "notes": "All plant GLBs are exact unmodified CC0 source files, one withering material variant reuses original geometry. Calendar assets are authored 2D wall calendar designs composited from PD/CC0 photographs, with accurate year 1997 typography. No claim to externally modeled 3D calendar geometry. The facilities annual planner was reauthored with no embedded pre-1997 photographed date layer (v105)."
 }
