@@ -1,5 +1,6 @@
 import * as THREE from '../vendor/three/build/three.module.js';
 import {MALL} from '../mall/masterplan-v66.mjs';
+import {COMMON_MALL_ROOM_IDS} from '../mall/editor-schema-v1.mjs';
 import {ROOM_FINISHES_V87} from './room-finishes-options-v87.mjs';
 import {planRoomWallFacesV90} from './room-wall-layout-v90.mjs';
 import {roomFinishRepeatsV92} from './material-scale-v92.mjs';
@@ -20,7 +21,6 @@ export function createRoomFinishesV87(building){
  const originalRoomWalls=new THREE.Group();
  originalRoomWalls.name='Builder-only original interior shell wall coverings';
  building.group.add(originalRoomWalls);
- const COMMON_MALL_ROOM_IDS=new Set(['central_gallery','west_gallery','east_gallery','boarded_lobby']);
  const shellExteriorIds=new Set(building.shells.flatMap(shell=>
   shell.walls.filter(w=>w.role==='exterior').map(w=>w.id)));
  const isExteriorFace=p=>shellExteriorIds.has(p.source)||p.source.startsWith('cinematic_front_');
@@ -130,9 +130,10 @@ export function createRoomFinishesV87(building){
   // the room's indoor wall covering, not an exposed weathered exterior shell.
   for(const room of MALL.rooms){
    const surfaces=surfaceMap[room.id]||{};
-   const explicit=surfaces.wall;
    const common=COMMON_MALL_ROOM_IDS.has(room.id)?mallWallFinish:'original';
-   const wallId=explicit&&explicit!=='original'?explicit:common;
+   // A room's explicit "original" takes priority over a shared gallery paint.
+   // Only a missing room wall property inherits the gallery choice.
+   const wallId=Object.prototype.hasOwnProperty.call(surfaces,'wall')?surfaces.wall:common;
    if(wallId!=='original'){
     batch.push({part:'wall',room,id:wallId,texture:await textureFor('wall',wallId)});
    }else{

@@ -6,6 +6,14 @@ import {ROOM_FINISH_IDS_V87} from '../builder/room-finishes-options-v87.mjs';
 const LEGACY=new Set([...FURNISHINGS_V69.fixtures.map(f=>f.id),...EDITOR_EXTRA_FIXTURES_V1.map(f=>f.id),'atrium_dry_fountain']);
 const ID=/^[a-zA-Z0-9][a-zA-Z0-9_-]{0,79}$/;
 const ROOM_IDS=new Set(MALL.rooms.map(r=>r.id));
+// An absent wall override inherits the shared gallery finish; explicit
+// "original" restores the room's canonical wall even if the gallery is painted.
+export const COMMON_MALL_ROOM_IDS=new Set(['central_gallery','west_gallery','east_gallery','boarded_lobby']);
+const editableFinish=(roomId,part,id)=>
+ (part==='wall'&&id==='inherit'&&COMMON_MALL_ROOM_IDS.has(roomId))||
+ !!ROOM_FINISH_IDS_V87[part]?.has(id);
+const preserveOriginal=(roomId,part,id)=>
+ part==='wall'&&id==='original'&&COMMON_MALL_ROOM_IDS.has(roomId);
 const vector=v=>v&&typeof v==='object'&&!Array.isArray(v)&&
  ['x','y','z'].every(k=>typeof v[k]==='number'&&Number.isFinite(v[k])&&Math.abs(v[k])<=1000);
 const scale=v=>typeof v==='number'&&Number.isFinite(v)&&v>=.05&&v<=20;
@@ -106,12 +114,14 @@ export function reduceDraft(draft,action){
   case 'finishes': {
    const {roomId,finishes}=action;
    if(!ROOM_IDS.has(roomId)||!finishes||typeof finishes!=='object')throw Error('Invalid room finishes');
-   if(Object.keys(finishes).some(part=>!ROOM_FINISH_IDS_V87[part]?.has(finishes[part])))
+   if(Object.keys(finishes).some(part=>!editableFinish(roomId,part,finishes[part])))
     throw Error('Unsupported room finish');
    if(!next.surfaces)next.surfaces={};
    const selected={...next.surfaces[roomId]};
    for(const [part,finishId] of Object.entries(finishes)){
-    if(finishId==='original')delete selected[part];else selected[part]=finishId;
+    if(finishId==='inherit'||(finishId==='original'&&!preserveOriginal(roomId,part,finishId)))
+     delete selected[part];
+    else selected[part]=finishId;
    }
    if(Object.keys(selected).length)next.surfaces[roomId]=selected;
    else delete next.surfaces[roomId];
@@ -126,10 +136,10 @@ export function reduceDraft(draft,action){
   }
   case 'finish': {
    const {roomId,part,finishId}=action;
-   if(!ROOM_IDS.has(roomId)||!ROOM_FINISH_IDS_V87[part]?.has(finishId))
+   if(!ROOM_IDS.has(roomId)||!editableFinish(roomId,part,finishId))
     throw Error('Unsupported room finish');
    if(!next.surfaces)next.surfaces={}; // backwards compatible with v1 exports
-   if(finishId==='original'){
+   if(finishId==='inherit'||(finishId==='original'&&!preserveOriginal(roomId,part,finishId))){
     if(next.surfaces[roomId]){
      delete next.surfaces[roomId][part];
      if(!Object.keys(next.surfaces[roomId]).length)delete next.surfaces[roomId];
