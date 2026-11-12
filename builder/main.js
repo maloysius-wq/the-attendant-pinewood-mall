@@ -8,6 +8,7 @@ import {createEmptyDraft,validateDraft,reduceDraft,importDraft,exportDraft} from
 import {createBuilderScene} from './editor-scene.js';
 import {createEditorNavigation} from './editor-navigation.js';
 import {createWorkLighting} from './work-lighting.js';
+import {createAreaSignsV104} from './area-signs-v104.js';
 import {mountCinematicParkingLot} from './exterior-scene.js';
 import {createRoomFinishesV87} from './room-finishes-v87.js';
 import {ROOM_FINISHES_V87} from './room-finishes-options-v87.mjs';
@@ -23,7 +24,7 @@ const status={ready:false,errors:[],selected:null,roomCount:MALL.rooms.length,
  fixtureCount:FURNISHINGS_V69.fixtures.length,catalogCount:EDITOR_CATALOG_V1.length,
  draft:createEmptyDraft(),navigation:{mode:'orbit',floor:'G',unlockAll:true},workLights:false,
  placementOptions:{gridSize:0,allowClipping:true},finishMeshes:{floor:0,wall:0,ceiling:0}};
-let scene,camera,renderer,orbit,editor,navigation,workLighting,exterior,roomFinishes,
+let scene,camera,renderer,orbit,editor,navigation,workLighting,areaSigns,exterior,roomFinishes,
  frames=0,undoStack=[],redoStack=[],idCounter=0;
 let blockedWarning=null;
 const clone=v=>JSON.parse(JSON.stringify(v)),round=v=>Math.round(v*1000)/1000;
@@ -96,6 +97,8 @@ const API={
   atriumSkylightPresent:!!editor.building.roofs.getObjectByName('atrium-skylight',true)
  }):null,
  getLightingState:()=>workLighting?.getState(),
+ getAreaSignState:()=>areaSigns?.getState()||null,
+ setAreaSigns:enabled=>setAreaSigns(enabled),
  getExteriorState:()=>exterior?.state,
  getPlacementState:()=>({placing:editor?.placing||false,
   loading:editor?.placementPending||false,...(editor?.placementValidity||{}),
@@ -441,6 +444,12 @@ function syncFinishInputs(){
  }
  $('finish-apply').disabled=!id;
 }
+function setAreaSigns(enabled){
+ if(!areaSigns)return null;
+ const state=areaSigns.setVisible(enabled);
+ $('area-signs').checked=state.visible;
+ return state;
+}
 function setWorkLights(enabled){
  if(!workLighting)return null;
  const state=workLighting.setEnabled(enabled);
@@ -495,6 +504,7 @@ function wireUI(){
  });
  $('roof').addEventListener('change',e=>editor.building.setRoofVisible(e.target.checked));
  $('work-lights').addEventListener('change',e=>setWorkLights(e.target.checked));
+ $('area-signs').addEventListener('change',e=>setAreaSigns(e.target.checked));
  $('snap-grid').addEventListener('change',e=>setPlacementOptions({
   gridSize:e.target.checked?Number($('grid-size').value):0,
   overlap:$('allow-clipping').checked
@@ -610,6 +620,7 @@ async function begin(){
    onTransform:(id,p)=>changeTransform(p).catch(report),
    onPlace:(catalogId,position,rotation)=>place(catalogId,position,undefined,rotation).catch(report)
   });
+  areaSigns=createAreaSignsV104({building:editor.building});
   roomFinishes=createRoomFinishesV87(editor.building);
   exterior=await mountCinematicParkingLot({scene,building:editor.building});
   roomFinishes.setCinematicFrontWall(exterior.frontWall);
@@ -653,7 +664,7 @@ async function begin(){
    renderer.render(scene,camera);requestAnimationFrame(frame)}
   requestAnimationFrame(frame);
   window.addEventListener('resize',resize);
-  window.addEventListener('pagehide',()=>{navigation.dispose();roomFinishes.dispose();editor.dispose();exterior.dispose();workLighting.dispose();orbit.dispose();renderer.dispose()},{once:true});
+  window.addEventListener('pagehide',()=>{navigation.dispose();roomFinishes.dispose();areaSigns.dispose();editor.dispose();exterior.dispose();workLighting.dispose();orbit.dispose();renderer.dispose()},{once:true});
  }catch(err){
   report(err);$('load-error').textContent=String(err?.stack||err).slice(0,1500);
   $('loading').querySelector('strong').textContent='Builder cannot load';
