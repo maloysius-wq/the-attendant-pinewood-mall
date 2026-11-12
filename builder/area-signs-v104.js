@@ -27,7 +27,7 @@ function canvasSign(p){
  ctx.font='600 26px Arial, sans-serif';
  ctx.fillText('PINEWOOD MALL   /   '+p.level+'   /   '+p.kind.toUpperCase(),57,55);
  ctx.textAlign='center';ctx.fillStyle=ink;
- const words=p.label.split(/\\s+/);
+ const words=p.label.split(/\s+/);
  let fontSize=90,lines=[];
  const wrap=()=>{
   ctx.font='bold '+fontSize+'px Arial, sans-serif';
