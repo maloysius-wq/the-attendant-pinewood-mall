@@ -74,7 +74,7 @@ for(const spec of specs){
   bytes:b.length,sha256:sha(b),
   conversion:'gltf-transform copy (original CC0 meshes, UVs and images)'
  });
- console.log('V105_REAL_TRASH',spec.slug,b.length,anatomy,flush=true);
+ console.log('V105_REAL_TRASH',spec.slug,b.length,anatomy);
 }
 await fs.writeFile(manifestPath,JSON.stringify(manifest,null,2)+'\n');
 console.log('V105_MODELS_DONE',manifest.models.length,manifest.posters.length,manifest.decals.length);
