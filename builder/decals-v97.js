@@ -90,8 +90,9 @@ export function createDecalFactoryV97(){
  function opacity(root,value){
   root.traverse(o=>{
    if(!o.isMesh||!o.userData.builderSurfaceDecalV97)return;
+   // Transparent blending is already enabled. Opacity is a material
+   // uniform, so slider input must not invalidate/recompile its shader.
    o.material.opacity=value;
-   o.material.needsUpdate=true;
   });
  }
  function dispose(){
