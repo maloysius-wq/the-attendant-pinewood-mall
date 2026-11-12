@@ -1,3 +1,15 @@
+## Contractor Service Vestibule: authored patina and unreliable lamp (v107)
+
+The standalone Builder now loads **26 deliberately positioned environmental decals in the actual contractor service vestibule** (12 floor, 8 wall, 6 ceiling) using the already vetted, locally hosted ambientCG stains and original Pinewood cobweb images. The deposits are not random: tracked soil and boot scuffs near the exterior door, subtle floor dirt where people turn into the corridor, longer equipment drag marks along the right-hand work zone, baseboard buildup and cart scrapes on real wall faces, and cobwebs in upper corners away from traffic and the ceiling lamp. They are anchored against the exact architecture, including the unusually thick cinematic front wall, so they do not accidentally hide behind a material overlay or cover doorway openings. Ceiling webs hide when **Roof / ceilings** is unchecked.
+
+The **Vestibule patina** toolbar toggle hides or shows this authored atmospheric baseline. These meshes are visual-only, not colliders or selectable layout props; individual movable decals remain available in the existing asset catalog. They do **not** change or populate your existing v1 draft, autosave, export/import, or playable game. If you want to decorate the space differently, turn off the fixed atmosphere and place your own decals normally.
+
+The existing overhead vestibule lamp (at world x=12, y=2.9, z=-30) now suffers irregular, widely spaced electrical faults: an approximately one-second dim or two separated brief off/on events. The real point-light intensity and visible light-bulb color change together; no duplicate light is created. The **Lamp flicker** toggle allows disabling it. Its default is **off** when the operating system requests reduced motion, and on otherwise. **Work lights** can mask how dark the room gets; switch them off to inspect the intended atmosphere. This remains Builder-only, not the playable campaign or cinematic.
+
+Regression: `node --test scripts/test-builder-vestibule-v107.mjs` and `scripts/smoke-builder-vestibule-v107.mjs`, run by `.github/workflows/pinewood-builder-vestibule-v107.yml`. The desktop smoke captures an actual rendered vestibule screenshot and checks doorway/finish geometry, room light toggles, reduced motion, roof cutaway, retained source catalog and unchanged draft serialization. No additional downloaded assets, external runtime fetches, gameplay integration or schema changes.
+
+---
+
 # Pinewood World Builder
 
 ## Gallery wall inheritance and genuine room overrides (v106)
