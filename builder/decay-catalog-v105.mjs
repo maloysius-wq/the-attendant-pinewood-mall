@@ -23,7 +23,7 @@ export function validateDecayV105(m){
    throw Error('Source not archived locally '+source.id);
   if(source.id.startsWith('commons-')){
    if(!source.sourcePage.startsWith('https://commons.wikimedia.org/wiki/')||
-    !source.downloadUrl.startsWith('https://upload.wikimedia.org/')||
+    !/^https:\/\/(?:upload|thumb)\.wikimedia\.org\/wikipedia\/commons\//.test(source.downloadUrl)||
     !['CC0-1.0','Public-domain'].includes(source.license)||
     !SHA.test(source.pixelSignature))
     throw Error('Unverified independently licensed Commons artwork '+source.id);
