@@ -10,6 +10,7 @@ import {createEditorNavigation} from './editor-navigation.js';
 import {createWorkLighting} from './work-lighting.js';
 import {createVestibulePatinaV107} from './vestibule-patina-v107.js';
 import {createVestibuleFixtureLightV107} from './vestibule-light-v107.js';
+import {mountVestibuleCeilingFixtureV108} from './vestibule-fixture-v108.js';
 import {createAreaSignsV104} from './area-signs-v104.js';
 import {mountCinematicParkingLot} from './exterior-scene.js';
 import {createRoomFinishesV87} from './room-finishes-v87.js';
@@ -693,7 +694,11 @@ async function begin(){
    onTransform:(id,p)=>changeTransform(p).catch(report),
    onPlace:(catalogId,position,rotation)=>place(catalogId,position,undefined,rotation).catch(report)
   });
+  // Build the sourced ceiling housing before attaching the canonical point
+  // light. The original floating sphere is then hidden only in this Builder.
+  const physicalVestibuleFixture=await mountVestibuleCeilingFixtureV108(editor.building);
   vestibuleFixture=createVestibuleFixtureLightV107(editor.building,{
+   fixture:physicalVestibuleFixture,
    enabled:!window.matchMedia('(prefers-reduced-motion: reduce)').matches
   });
   areaSigns=createAreaSignsV104({building:editor.building});
