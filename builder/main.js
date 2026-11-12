@@ -270,7 +270,8 @@ async function saveDraft(){
  try{
   const {latest}=await orderedDraftWrites.enqueue(snapshot);
   if(latest)indicate('Saved locally · '+new Date().toLocaleTimeString());
- }catch(err){report(err)}
+  return true;
+ }catch(err){report(err);return false;}
 }
 async function loadDraft(){
  const data=await dbAction('readonly',store=>store.get('pinewood-v69'));
@@ -505,11 +506,20 @@ function wireUI(){
  $('undo').addEventListener('click',()=>undo().catch(report));
  $('redo').addEventListener('click',()=>redo().catch(report));
  $('save-draft').addEventListener('click',()=>saveDraft());
+ $('preview-cinematic').addEventListener('click',async()=>{
+  // Explicit preview only. Save latest edits before leaving this browser;
+  // the cinematic/game reads the same-origin v1 IndexedDB snapshot privately.
+  const button=$('preview-cinematic');button.disabled=true;
+  try{
+   if(!await saveDraft())return;
+   location.assign(new URL('../?builderPreview=1',import.meta.url).href);
+  }finally{button.disabled=false}
+ });
  $('export-draft').addEventListener('click',()=>{
   const blob=new Blob([API.exportJSON()],{type:'application/json'});
   const url=URL.createObjectURL(blob),a=document.createElement('a');
   a.href=url;a.download='pinewood-world-layout-v1.json';a.click();
-  setTimeout(()=>URL.revokeObjectURL(url),3000);indicate('World layout exported');
+  setTimeout(()=>URL.revokeObjectURL(url),3000);indicate('World layout exported for review/publication');
  });
  $('import-file').addEventListener('change',async e=>{
   const f=e.target.files?.[0];if(!f)return;
