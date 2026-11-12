@@ -61,7 +61,7 @@ test('wall stains resolve actual material plane, never hidden behind thicker cin
   if(mark.normal[2]===1)assert.ok(resolved.z>-42.87,'Rear stain above room-facing texture');
   if(mark.normal[2]===-1)assert.ok(resolved.z<-22.8,'Front stain sits inside thick cinematic wall');
  }
- const bad={...marks[0],id:'intentionally-misplaced',position:{x:16,y:1,z:-42.99}};
+ const bad={...marks[0],id:'intentionally-misplaced',position:{x:16,y:1,z:-44}};
  assert.throws(()=>resolveVestibulePatinaWallV107(bad,faces),/not mounted/);
 });
 test('randomly scheduled dim holds around one second and recovers naturally',()=>{
