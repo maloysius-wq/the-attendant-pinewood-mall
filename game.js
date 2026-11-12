@@ -1,4 +1,4 @@
-import {renderPinewoodV69} from './mall/render-shell-v69.js';
+import {renderAuthoredPinewoodV111,applyAuthoredCollidersV111} from './mall/authored-scene-v111.js';
 import {buildGameplayLayoutV70,eyeHeightOnMezzStairV70} from './mall/gameplay-layout-v70.mjs';
 import {VISUAL_VIEWPOINTS_V70} from './mall/visual-anchors-v70.mjs';
 import {CCTV_FEEDS_V70} from './mall/story-placement-v70.mjs';
@@ -307,7 +307,21 @@ try{
     const v70=await import(v70PatchUrl);
     unifiedSource=v70.applyUnifiedMallV70(audioDirectionV27Source);
   }finally{URL.revokeObjectURL(v70PatchUrl);}
-  window.__PINEWOOD_V70_BRIDGE__={renderPinewoodV69,buildGameplayLayoutV70,eyeHeightOnMezzStairV70,relocateStoryV70,descendToExitV70,VISUAL_VIEWPOINTS_V70,CCTV_FEEDS_V70};
+  // V111 is the renderer both the film and the game use. Its selected
+  // publication or explicit same-browser Builder preview persists across
+  // chapters without touching chapter events or the immutable game bundle.
+  window.__PINEWOOD_V70_BRIDGE__={
+   renderPinewoodV69:async args=>{
+    const building=await renderAuthoredPinewoodV111(args);
+    window.__PINEWOOD_V70_BRIDGE__.activeAuthored=building.authored;
+    return building;
+   },
+   buildGameplayLayoutV70:args=>applyAuthoredCollidersV111(
+    buildGameplayLayoutV70(args),window.__PINEWOOD_V70_BRIDGE__.activeAuthored
+   ),
+   eyeHeightOnMezzStairV70,relocateStoryV70,descendToExitV70,
+   VISUAL_VIEWPOINTS_V70,CCTV_FEEDS_V70
+  };
   const source=unifiedSource+'\n//# sourceURL=pinewood-runtime.js\n';
   const moduleUrl=URL.createObjectURL(new Blob([source],{type:'text/javascript'}));
   try{await import(moduleUrl);}finally{URL.revokeObjectURL(moduleUrl);}
