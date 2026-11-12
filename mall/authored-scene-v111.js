@@ -8,6 +8,7 @@
 import * as THREE from '../vendor/three/build/three.module.js';
 import {renderPinewoodV69} from './render-shell-v69.js';
 import {FURNISHINGS_V69} from './furnishing-plan-v69.mjs';
+import {MALL} from './masterplan-v66.mjs';
 import {EDITOR_EXTRA_FIXTURES_V1} from './editor-baseline-v1.mjs';
 import {EDITOR_CATALOG_BY_ID} from './editor-catalog-v1.mjs';
 import {loadSceneCatalogV111} from '../builder/scene-catalog-v111.js';
@@ -41,6 +42,7 @@ export async function attachAuthoredSceneV111(building,{draft,source='published'
  const created=new THREE.Group();created.name='V111 published / private preview Builder placements';
  building.group.add(created);
  const baseline=new Map(),basePoses=new Map(),authored=new Map();
+ let sculpture=null,oldSculptureVisible=false;
  let roomFinishes=null,patina=null,light=null,last=0,raf=0,disposed=false;
  try{
   for(const f of originals){
@@ -50,8 +52,8 @@ export async function attachAuthoredSceneV111(building,{draft,source='published'
   }
   // The Builder has one fitted source-pinned dry fountain. It hides ONLY
   // the old centre art, never the canonical basin, drain or floor opening.
-  const sculpture=building.group.getObjectByName('cc0_dry_fountain_art',true);
-  const oldSculptureVisible=sculpture?.visible;
+  sculpture=building.group.getObjectByName('cc0_dry_fountain_art',true);
+  oldSculptureVisible=sculpture?.visible;
   if(sculpture)sculpture.visible=false;
   const fountain=await templates.template('silted-octagonal-atrium-fountain');
   fountain.name='builder_atrium_dry_fountain';
@@ -115,7 +117,8 @@ export async function attachAuthoredSceneV111(building,{draft,source='published'
     const b=new THREE.Box3().setFromObject(object);
     // Actual measured physical model extents, not a decorative proxy.
     if(b.isEmpty()||b.max.y-b.min.y<.15||b.max.x-b.min.x<.12||b.max.z-b.min.z<.12)continue;
-    const ground=level==='B1'?-4.5:level==='M1'?5.4:0;
+    const ground=MALL.levels.find(p=>p.id===level)?.y;
+    if(!Number.isFinite(ground))throw Error('Invalid authored mall collision floor '+level);
     if(b.max.y<ground+.12||b.min.y>ground+1.5)continue;
     boxes.push({id:'authored_'+id,kind:'authored-furnishing',
      minX:b.min.x,maxX:b.max.x,minZ:b.min.z,maxZ:b.max.z,
@@ -141,13 +144,15 @@ export async function attachAuthoredSceneV111(building,{draft,source='published'
     applyPose(object,basePoses.get(id));object.visible=true;
    }
    if(sculpture)sculpture.visible=oldSculptureVisible;
+   materialEnhancer.dispose();
   };
-  return {source,draft,root:created,objects:authored,getState:state,
+  return {source,draft,root:created,objects:authored,baseline,getState:state,
    collidersForLevel,update,dispose};
  }catch(e){
   if(raf)cancelAnimationFrame(raf);
   light?.dispose();patina?.dispose();roomFinishes?.dispose();
-  created.removeFromParent();decalFactory.dispose();
+  created.removeFromParent();decalFactory.dispose();materialEnhancer.dispose();
+  if(sculpture)sculpture.visible=oldSculptureVisible;
   for(const [id,object] of baseline){
    if(id==='atrium_dry_fountain')continue;
    applyPose(object,basePoses.get(id));object.visible=true;
@@ -183,6 +188,19 @@ export async function renderAuthoredPinewoodV111({scene,chapter=1,frontWallReady
  */
 export function applyAuthoredCollidersV111(layout,authored){
  if(!layout||!authored)return layout;
+ // Removed/repositioned/scaled canonical fixtures must not leave their old
+ // phantom colliders behind. Keep story walls, shafts and gate colliders intact.
+ const hidden=new Set(authored.draft.deleted||[]);
+ layout.colliders=layout.colliders.filter(c=>c.kind!=='furnishing'||!hidden.has(c.id));
+ for(const c of layout.colliders){
+  if(c.kind!=='furnishing'||!authored.draft.overrides[c.id])continue;
+  const object=authored.baseline.get(c.id);
+  if(!object||!object.visible)continue;
+  const bounds=new THREE.Box3().setFromObject(object);
+  if(bounds.isEmpty())continue;
+  Object.assign(c,{minX:bounds.min.x,maxX:bounds.max.x,
+   minZ:bounds.min.z,maxZ:bounds.max.z});
+ }
  const next=authored.collidersForLevel(layout.level);
  const reserved=[
   {x:12,z:-26,level:'G'}, {x:23,z:-110,level:'B1'},
