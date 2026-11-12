@@ -15,7 +15,7 @@ try{
    window.__PINEWOOD_BUILDER__?.getState().errors.length>0,null,{timeout:160000});
  const state=()=>page.evaluate(()=>window.__PINEWOOD_BUILDER__.getState());
  assert.equal((await state()).ready,true,JSON.stringify((await state()).errors));
- assert.equal((await state()).catalogCount,618);
+ assert.equal((await state()).catalogCount,638);
  assert.deepEqual((await state()).placementOptions,{gridSize:0,allowClipping:true});
  const catalog=await page.evaluate(()=>window.__PINEWOOD_BUILDER__.getCatalog());
  assert.equal(catalog.filter(x=>x.category==='Realistic Desk Plants').length,4);
