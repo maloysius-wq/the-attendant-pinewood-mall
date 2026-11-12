@@ -15,21 +15,21 @@ try{
   window.__PINEWOOD_BUILDER__?.getState().errors.length>0,null,{timeout:155000});
  const api=()=>page.evaluate(()=>window.__PINEWOOD_BUILDER__.getState());
  const initial=await api();assert.equal(initial.ready,true,JSON.stringify(initial.errors));
- assert.equal(initial.catalogCount,618);
+ assert.equal(initial.catalogCount,638);
  assert.deepEqual(initial.placementOptions,{gridSize:0,allowClipping:true});
  const catalog=await page.evaluate(()=>window.__PINEWOOD_BUILDER__.getCatalog());
  assert.equal(catalog.find(x=>x.id==='v100-aged-cork-bulletin-board')?.mountSurface,'wall','corkboard mounts on genuine architectural walls');
- for(const [category,count] of [['Abandoned Office Boards',2],['Peeling Posters & Paper',6]]){
+ for(const [category,count] of [['Abandoned Office Boards',1],['Bulletin Boards & Noticeboards',1],['Peeling Posters & Paper',16]]){
   assert.equal(catalog.filter(c=>c.category===category).length,count,category);
   await page.locator('#catalog-category').selectOption(category);
   assert.equal(await page.locator('.catalog-item').count(),count);
  }
  await page.locator('#catalog-category').selectOption('');
- assert.equal(await page.locator('.catalog-item').count(),617);
+ assert.equal(await page.locator('.catalog-item').count(),637);
  const targets=[
   ['v100-vintage-office-whiteboard','v100-whiteboard-demo',{x:520,y:0,z:520},'board'],
   ['v100-aged-cork-bulletin-board','v100-bulletin-demo',{x:523,y:0,z:520},'board'],
-  ...catalog.filter(c=>c.category==='Peeling Posters & Paper').map((c,i)=>[
+  ...catalog.filter(c=>c.id.startsWith('v100-poster-')).map((c,i)=>[
    c.id,'v100-poster-'+i,{x:530+i*2,y:1.8,z:520},'poster'])
  ];
  for(const [source,id,position,kind] of targets){
