@@ -556,7 +556,7 @@ function wireUI(){
  $('reset-draft').addEventListener('click',()=>{
   if(window.confirm('Discard all locally saved Pinewood Builder changes?'))clearDraft().catch(report);
  });
- $('roof').addEventListener('change',e=>editor.building.setRoofVisible(e.target.checked));
+ $('roof').addEventListener('change',e=>{editor.building.setRoofVisible(e.target.checked);vestibulePatina?.setCeilingVisible(e.target.checked);});
  $('work-lights').addEventListener('change',e=>setWorkLights(e.target.checked));
  $('vestibule-patina').addEventListener('change',e=>setVestibulePatina(e.target.checked));
  $('vestibule-flicker').addEventListener('change',e=>setVestibuleFlicker(e.target.checked));
