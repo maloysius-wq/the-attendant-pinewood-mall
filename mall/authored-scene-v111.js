@@ -191,7 +191,11 @@ export function applyAuthoredCollidersV111(layout,authored){
  // Removed/repositioned/scaled canonical fixtures must not leave their old
  // phantom colliders behind. Keep story walls, shafts and gate colliders intact.
  const hidden=new Set(authored.draft.deleted||[]);
- layout.colliders=layout.colliders.filter(c=>c.kind!=='furnishing'||!hidden.has(c.id));
+ // Mutate the SAME array: canonical canStand()/blocked() close over it.
+ for(let i=layout.colliders.length-1;i>=0;i--){
+  const c=layout.colliders[i];
+  if(c.kind==='furnishing'&&hidden.has(c.id))layout.colliders.splice(i,1);
+ }
  for(const c of layout.colliders){
   if(c.kind!=='furnishing'||!authored.draft.overrides[c.id])continue;
   const object=authored.baseline.get(c.id);
