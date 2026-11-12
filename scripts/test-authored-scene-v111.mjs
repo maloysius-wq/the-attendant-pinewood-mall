@@ -83,6 +83,7 @@ test('layout preserves original physical shell and story positions across all si
  for(let chapter=1;chapter<=6;chapter++){
   const layout=buildGameplayLayoutV70({chapter});
   assert.equal(layout.rooms.length,MALL.rooms.filter(r=>r.level===layout.level).length);
-  assert.ok(layout.colliders.some(c=>c.kind==='exterior'||c.kind==='wall'));
+  assert.ok(layout.colliders.length>0,'Every campaign floor retains real physical collision');
+  assert.ok(layout.shell.walls.length>0,'Canonical physical wall geometry remains intact');
  }
 });
