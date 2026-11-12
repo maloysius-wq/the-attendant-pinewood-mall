@@ -7,6 +7,12 @@ from PIL import Image,ImageDraw,ImageEnhance,ImageFilter,ImageFont
 from hashlib import sha256
 import json,math,random,zipfile
 ROOT=Path('assets/vendor/builder/decay-v105')
+# The publisher served one identical placeholder for all ten historical URLs.
+# This original one-time script must never overwrite the repaired archive.
+# Deliberately fail before any media writes, even if an old queued vendoring
+# workflow executes after the corrected source archive has been published.
+if (ROOT/'manifest-v105.json').exists():
+ raise SystemExit('Refusing to overwrite existing licensed poster archive with unverified legacy Openclipart redirects')
 for sub in ['sources','posters','decals','models']:(ROOT/sub).mkdir(parents=True,exist_ok=True)
 UA={'User-Agent':'Mozilla/5.0 (Pinewood CC0-source-archival; maintained creator credits)'}
 def download(url,limit=16000000):
