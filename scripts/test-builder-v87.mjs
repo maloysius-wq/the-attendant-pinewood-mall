@@ -78,7 +78,7 @@ test('old LCD is not a new placement choice, but remains a valid saved ID and al
  const old=original.models.find(x=>x.id==='kenney-furniture-kit-computerscreen');
  assert.ok(old,'old LCD source path retained for previously saved user layouts');
  const runtime=fs.readFileSync('builder/main.js','utf8');
- const renderer=fs.readFileSync('builder/editor-scene.js','utf8');
+ const renderer=fs.readFileSync('builder/scene-templates-v111.js','utf8');
  assert.match(runtime,/if\(item\.id==='kenney-furniture-kit-computerscreen'\)continue/);
  assert.match(renderer,/id==='kenney-furniture-kit-computerscreen'\?'retro-crt-pc-1990s':id/);
 });

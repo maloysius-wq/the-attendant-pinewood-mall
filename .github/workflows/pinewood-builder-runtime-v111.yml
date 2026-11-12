@@ -1,0 +1,65 @@
+name: Pinewood v111 Builder to cinematic and playable scene bridge
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'assets/world/published-layout-v111.json'
+      - 'mall/scene-layout-v111.mjs'
+      - 'mall/authored-scene-v111.js'
+      - 'mall/authored-colliders-v111.mjs'
+      - 'mall/story-runtime-v70.js'
+      - 'builder/scene-catalog-v111.js'
+      - 'builder/scene-templates-v111.js'
+      - 'builder/editor-scene.js'
+      - 'builder/main.js'
+      - 'builder/index.html'
+      - 'opening/intro-v65.js'
+      - 'game.js'
+      - 'scripts/test-authored-scene-v111.mjs'
+      - 'scripts/smoke-authored-film-game-v111.mjs'
+      - '.github/workflows/pinewood-builder-runtime-v111.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  authored-scene-roundtrip:
+    if: github.repository == 'maloysius-wq/the-attendant-pinewood-mall'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 24
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify exact scene bridge modules compile and remain local
+        run: |
+          node --check mall/authored-colliders-v111.mjs
+          node --check mall/authored-scene-v111.js
+          node --check mall/scene-layout-v111.mjs
+          node --check builder/scene-templates-v111.js
+          node --check builder/scene-catalog-v111.js
+          node --check opening/intro-v65.js
+          node --check game.js
+          node --check builder/main.js
+          node --check builder/editor-scene.js
+          node --test scripts/test-authored-scene-v111.mjs scripts/test-builder-schema-v1.mjs
+          node --test scripts/test-gameplay-layout-v70.mjs scripts/test-story-runtime-v70.mjs
+          node --test scripts/audit-builder-assets-v1.mjs scripts/audit-local-assets-v15.mjs
+      - name: Install desktop-only Chromium
+        run: |
+          npm install --no-save playwright@1.55.0
+          npx playwright install chromium
+      - name: Serve repository-pinned mall models, textures and scripts
+        run: |
+          python3 -m http.server 4173 --bind 127.0.0.1 >/tmp/pinewood-v111-http.log 2>&1 &
+          for i in {1..35}; do curl -fsS http://127.0.0.1:4173/builder/ >/dev/null && exit 0; sleep 1; done
+          exit 1
+      - name: Desktop test same-browser Builder save -> cinematic -> gameplay
+        run: node scripts/smoke-authored-film-game-v111.mjs
+      - name: Preserve real authored vestibule cinematic frame
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pinewood-v111-builder-cinematic-authored
+          path: artifacts/v111-authored-vestibule.png
+          if-no-files-found: ignore

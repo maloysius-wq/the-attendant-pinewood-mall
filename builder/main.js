@@ -3,7 +3,8 @@ import {OrbitControls} from '../vendor/three/examples/jsm/controls/OrbitControls
 import {MALL} from '../mall/masterplan-v66.mjs';
 import {FURNISHINGS_V69} from '../mall/furnishing-plan-v69.mjs';
 import {EDITOR_EXTRA_FIXTURES_V1} from '../mall/editor-baseline-v1.mjs';
-import {EDITOR_CATALOG_V1,EDITOR_CATALOG_BY_ID,registerVendorCatalog} from '../mall/editor-catalog-v1.mjs';
+import {EDITOR_CATALOG_V1,EDITOR_CATALOG_BY_ID} from '../mall/editor-catalog-v1.mjs';
+import {SCENE_CATALOG_V111,loadSceneCatalogV111} from './scene-catalog-v111.js';
 import {createEmptyDraft,validateDraft,reduceDraft,importDraft,exportDraft,COMMON_MALL_ROOM_IDS} from '../mall/editor-schema-v1.mjs';
 import {createBuilderScene} from './editor-scene.js';
 import {createEditorNavigation} from './editor-navigation.js';
@@ -16,11 +17,11 @@ import {mountCinematicParkingLot} from './exterior-scene.js';
 import {createRoomFinishesV87} from './room-finishes-v87.js';
 import {ROOM_FINISHES_V87} from './room-finishes-options-v87.mjs';
 import {blockedOperationV95,blockedMessageV95} from './blocked-feedback-v95.mjs';
-import {registerDecalCatalogV97,isDecalV97} from './decals-v97.js';
-import {registerVestibuleCatalogV98} from './vestibule-catalog-v98.mjs';
-import {registerWallDecayV100} from './wall-decay-v100.mjs';
-import {registerMoodV101} from './mood-catalog-v101.mjs';
-import {registerDecayV105} from './decay-catalog-v105.mjs';
+import {isDecalV97} from './decals-v97.js';
+
+
+
+
 import {createOrderedDraftSaves} from './ordered-draft-saves-v102.mjs';
 
 const $=id=>document.getElementById(id);
@@ -37,49 +38,9 @@ let blockedWarning=null;
 let appliedFinishSignature=null;
 const clone=v=>JSON.parse(JSON.stringify(v)),round=v=>Math.round(v*1000)/1000;
 const legacy=new Map([...FURNISHINGS_V69.fixtures,...EDITOR_EXTRA_FIXTURES_V1].map(f=>[f.id,f]));
-const catalog=[...EDITOR_CATALOG_V1];
+const catalog=SCENE_CATALOG_V111;
 async function loadVendorCatalog(){
- const [response,styleResponse,eraResponse]=await Promise.all([
-  fetch(new URL('../assets/vendor/builder/catalog-v1.json',import.meta.url)),
-  fetch(new URL('../assets/vendor/builder/material-index-v1.json',import.meta.url)),
-  fetch(new URL('../assets/vendor/builder/era-catalog-v87.json',import.meta.url))
- ]);
- if(!response.ok)throw Error('Pinned CC0 asset library unavailable: HTTP '+response.status);
- if(!styleResponse.ok)throw Error('Pinned CC0 material index unavailable: HTTP '+styleResponse.status);
- if(!eraResponse.ok)throw Error('Pinned period-correct CRT/debris library unavailable: HTTP '+eraResponse.status);
- const manifest=await response.json(),styleIndex=await styleResponse.json();
- if(manifest.version!==1||!Array.isArray(manifest.models)||manifest.models.length<100)throw Error('Incomplete local CC0 library');
- if(styleIndex.version!==1||styleIndex.totalModels!==manifest.models.length||!Array.isArray(styleIndex.imageBearingIds))throw Error('Outdated CC0 material classification');
- if(styleIndex.existingTotalModels!==catalog.length||!Array.isArray(styleIndex.existingImageBearingIds))throw Error('Outdated original-fixture classification');
- const existingImages=new Set(styleIndex.existingImageBearingIds),existingIds=new Set(catalog.map(m=>m.id));
- if(existingImages.size!==styleIndex.existingImageBearingIds.length||[...existingImages].some(id=>!existingIds.has(id)))throw Error('Invalid original-fixture classification');
- for(let i=0;i<catalog.length;i++){
-  catalog[i]={...catalog[i],materialStyle:existingImages.has(catalog[i].id)?'image-mapped':'color-only'};
- }
- const images=new Set(styleIndex.imageBearingIds),validIds=new Set(manifest.models.map(m=>m.id));
- if(images.size!==styleIndex.imageBearingIds.length||[...images].some(id=>!validIds.has(id)))throw Error('Invalid CC0 material classification');
- catalog.push(...registerVendorCatalog(manifest.models.map(m=>({
-  ...m,materialStyle:images.has(m.id)?'image-mapped':'color-only'
- }))));
- const era=await eraResponse.json();
- if(era.version!==87||!Array.isArray(era.models)||era.models.length!==8)
-  throw Error('Outdated period-correct source model catalog');
- catalog.push(...registerVendorCatalog(era.models));
- const decalsResp=await fetch(new URL('../assets/vendor/builder/decals-v97/manifest-v97.json',import.meta.url));
- if(!decalsResp.ok)throw Error('The pinned CC0 surface decal catalog is unavailable');
- registerDecalCatalogV97(await decalsResp.json(),catalog,EDITOR_CATALOG_BY_ID);
- const vestibuleResp=await fetch(new URL('../assets/vendor/builder/vestibule-v98/manifest-v98.json',import.meta.url));
- if(!vestibuleResp.ok)throw Error('Pinned local contractor, wall signage and cobweb library is unavailable');
- registerVestibuleCatalogV98(await vestibuleResp.json(),catalog,EDITOR_CATALOG_BY_ID);
- const decayResp=await fetch(new URL('../assets/vendor/builder/wall-decay-v100/manifest-v100.json',import.meta.url));
- if(!decayResp.ok)throw Error('Pinned sourced whiteboards and peeling posters are unavailable');
- registerWallDecayV100(await decayResp.json(),catalog,EDITOR_CATALOG_BY_ID);
- const moodResp=await fetch(new URL('../assets/vendor/builder/mood-v101/manifest-v101.json',import.meta.url));
- if(!moodResp.ok)throw Error('The pinned 1997 calendar and realistic plant library is unavailable');
- registerMoodV101(await moodResp.json(),catalog,EDITOR_CATALOG_BY_ID);
- const gritResponse=await fetch(new URL('../assets/vendor/builder/decay-v105/manifest-v105.json',import.meta.url));
- if(!gritResponse.ok)throw Error('Pinned heavy CC0 dirt, trash and advert media unavailable');
- registerDecayV105(await gritResponse.json(),catalog,EDITOR_CATALOG_BY_ID);
+ await loadSceneCatalogV111();
  status.catalogCount=catalog.length;
 }
 
@@ -309,7 +270,8 @@ async function saveDraft(){
  try{
   const {latest}=await orderedDraftWrites.enqueue(snapshot);
   if(latest)indicate('Saved locally · '+new Date().toLocaleTimeString());
- }catch(err){report(err)}
+  return true;
+ }catch(err){report(err);return false;}
 }
 async function loadDraft(){
  const data=await dbAction('readonly',store=>store.get('pinewood-v69'));
@@ -544,11 +506,20 @@ function wireUI(){
  $('undo').addEventListener('click',()=>undo().catch(report));
  $('redo').addEventListener('click',()=>redo().catch(report));
  $('save-draft').addEventListener('click',()=>saveDraft());
+ $('preview-cinematic').addEventListener('click',async()=>{
+  // Explicit preview only. Save latest edits before leaving this browser;
+  // the cinematic/game reads the same-origin v1 IndexedDB snapshot privately.
+  const button=$('preview-cinematic');button.disabled=true;
+  try{
+   if(!await saveDraft())return;
+   location.assign(new URL('../?builderPreview=1',import.meta.url).href);
+  }finally{button.disabled=false}
+ });
  $('export-draft').addEventListener('click',()=>{
   const blob=new Blob([API.exportJSON()],{type:'application/json'});
   const url=URL.createObjectURL(blob),a=document.createElement('a');
   a.href=url;a.download='pinewood-world-layout-v1.json';a.click();
-  setTimeout(()=>URL.revokeObjectURL(url),3000);indicate('World layout exported');
+  setTimeout(()=>URL.revokeObjectURL(url),3000);indicate('World layout exported for review/publication');
  });
  $('import-file').addEventListener('change',async e=>{
   const f=e.target.files?.[0];if(!f)return;
