@@ -64,7 +64,7 @@
    <div class="section-label">Position / metres</div><div class="xyz"><label>X <input id="pos-x" type="number" step="0.05"></label><label>Y <input id="pos-y" type="number" step="0.05"></label><label>Z <input id="pos-z" type="number" step="0.05"></label></div>
    <div class="section-label">Rotation / degrees</div><div class="xyz"><label>Pitch <input id="rot-x" type="number" step="5"></label><label>Yaw <input id="rot-y" type="number" step="5"></label><label>Roll <input id="rot-z" type="number" step="5"></label></div>
    <div class="section-label">Size</div><label class="wide-label">Scale <input id="object-scale" type="number" min=".05" max="20" step=".05"></label>
-   <label id="decal-opacity-field" class="wide-label" hidden>Decal opacity <input id="decal-opacity" aria-label="Selected decal opacity" type="range" min=".08" max="1" step=".02" value=".9"></label>
+   <label id="decal-opacity-field" class="wide-label" hidden><span class="decal-opacity-caption">Decal opacity <output id="decal-opacity-value" for="decal-opacity">90%</output></span><input id="decal-opacity" aria-label="Selected decal opacity" type="range" min=".08" max="1" step=".02" value=".9"><small class="decal-opacity-help">Preview while dragging. Release to save; Undo restores the previous strength.</small></label>
    <div class="selection-actions"><button id="duplicate">Duplicate</button><button id="delete-selected" class="danger">Remove</button></div>
   </div>
   <section id="room-finishes" class="room-finishes">
