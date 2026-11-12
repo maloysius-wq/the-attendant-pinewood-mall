@@ -40,7 +40,7 @@ export function ageRealPlantV101(THREE,root,id){
 
 /** The calendar source photograph is genuine PD/CC0, while the paper mount is
  * only an ordinary subdivided surface decal. Corners curl gently off the wall.
- * Dates were deliberately verified as year 1996 in the vendor script.
+ * Dates were deliberately verified as year 1997 in the vendor script.
  */
 export function makeCalendarPaperV101(THREE,item){
  const g=new THREE.PlaneGeometry(item.width,item.height,16,20);
