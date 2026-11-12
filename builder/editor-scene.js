@@ -51,7 +51,7 @@ export async function createBuilderScene({scene,camera,domElement,onSelect=()=>{
  transform.setMode('translate');
  let selected=null,ghost=null,placing=null,depth=9,blocked=false,orbitBeforePlacement=null,placementGeneration=0;
  let snapSize=0,allowClipping=true,ghostValid=true,ghostReason='';
- let previewPending=false,pendingPreviewYaw=0;
+ let previewPending=false,pendingPreviewYaw=0,opacityPreview=null;
  // Serialize selected-object wheel edits so rapid wheel events cannot overwrite
  // each other while a layout change and IndexedDB autosave are still running.
  let wheelTransforms=Promise.resolve();
@@ -73,9 +73,37 @@ export async function createBuilderScene({scene,camera,domElement,onSelect=()=>{
   while(p){if(p.userData.editorId&&objects.get(p.userData.editorId)===p)return p;p=p.parent}
   return null;
  };
+ // A slider drag must not mutate the saved draft or leave a visual change on
+ // a different selected decal. Restore its exact committed material value
+ // whenever selection changes or a draft is applied.
+ function clearOpacityPreview(){
+  if(!opacityPreview)return;
+  const {id,original}=opacityPreview;
+  opacityPreview=null;
+  const object=objects.get(id);
+  if(object)decalFactory.opacity(object,original);
+ }
+ function previewDecalOpacity(id,value){
+  if(id!==selected||!Number.isFinite(value)||value<.08||value>1)return false;
+  const object=objects.get(id);
+  if(!object?.userData.builderSurfaceDecalV97||!object.visible)return false;
+  if(opacityPreview?.id!==id)clearOpacityPreview();
+  if(!opacityPreview){
+   let original=null;
+   object.traverse(mesh=>{
+    if(original!==null||!mesh.isMesh||!mesh.userData.builderSurfaceDecalV97)return;
+    original=mesh.material?.opacity;
+   });
+   if(!Number.isFinite(original))return false;
+   opacityPreview={id,original};
+  }
+  decalFactory.opacity(object,value);
+  return true;
+ }
  function select(id){
-  if(id===null){selected=null;transform.detach();onSelect(null);return true;}
+  if(id===null){clearOpacityPreview();selected=null;transform.detach();onSelect(null);return true;}
   if(!objects.has(id)||objects.get(id).visible===false)return false;
+  if(id!==selected)clearOpacityPreview();
   selected=id;transform.attach(objects.get(id));onSelect(id,pose(objects.get(id)));return true;
  }
  async function template(id){
@@ -126,6 +154,7 @@ export async function createBuilderScene({scene,camera,domElement,onSelect=()=>{
  objects.set('atrium_dry_fountain',fountain);
  originals.set('atrium_dry_fountain',pose(fountain));
  async function applyDraft(draft){
+  clearOpacityPreview();
   for(const [id,defaultPose] of originals){
    const o=objects.get(id);
    applyPose(o,defaultPose);
@@ -436,6 +465,7 @@ export async function createBuilderScene({scene,camera,domElement,onSelect=()=>{
  domElement.addEventListener('wheel',onWheel,{passive:false,capture:true});
  return {
   building,objects,select,applyDraft,beginPlacement,stopPlacement,setTransformMode,refreshPlacement,
+  previewDecalOpacity,
   get placing(){return !!placing},
   get placementPending(){return previewPending},
   getMaterialStats:()=>materialEnhancer.getStats(),
@@ -509,7 +539,7 @@ export async function createBuilderScene({scene,camera,domElement,onSelect=()=>{
    domElement.removeEventListener('pointerdown',pointerDown);
    domElement.removeEventListener('pointermove',pointerMove);
    domElement.removeEventListener('wheel',onWheel,true);
-   stopPlacement();transform.detach();scene.remove(transform.getHelper());transform.dispose();
+   clearOpacityPreview();stopPlacement();transform.detach();scene.remove(transform.getHelper());transform.dispose();
    scene.remove(grid);grid.geometry.dispose();grid.material.dispose();
    decalFactory.dispose();disposeBoardGrimeV100();materialEnhancer.dispose();building.dispose();
   }
