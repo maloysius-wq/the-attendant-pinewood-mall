@@ -6,6 +6,7 @@ on:
       - 'assets/world/published-layout-v111.json'
       - 'mall/scene-layout-v111.mjs'
       - 'mall/authored-scene-v111.js'
+      - 'mall/authored-colliders-v111.mjs'
       - 'mall/story-runtime-v70.js'
       - 'builder/scene-catalog-v111.js'
       - 'builder/scene-templates-v111.js'
@@ -30,10 +31,9 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - name: Install Node-only Three.js module resolver for loader import smoke
-        run: npm install --no-save three@0.180.0
       - name: Verify exact scene bridge modules compile and remain local
         run: |
+          node --check mall/authored-colliders-v111.mjs
           node --check mall/authored-scene-v111.js
           node --check mall/scene-layout-v111.mjs
           node --check builder/scene-templates-v111.js
