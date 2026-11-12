@@ -9,7 +9,7 @@ import {planRoomWallFacesV90} from '../builder/room-wall-layout-v90.mjs';
 import {VESTIBULE_PATINA_PLAN_V107,VESTIBULE_PATINA_EXPECTED_V107,
  validateVestibulePatinaPlanV107} from '../builder/vestibule-patina-plan-v107.mjs';
 import {resolveVestibulePatinaWallV107} from '../builder/vestibule-patina-v107.js';
-import {createVestibuleLightSequencerV107,createVestibuleFixtureLightV107}
+import {VESTIBULE_BRIGHTNESS_V110,createVestibuleLightSequencerV107,createVestibuleFixtureLightV107}
  from '../builder/vestibule-light-v107.js';
 
 const room=MALL.rooms.find(r=>r.id==='service_vestibule'),shell=constructPhysicalShell({level:'G',chapter:1});
@@ -113,6 +113,8 @@ test('real ceiling model controls original pointlight, hides floating orb and re
  const group=new THREE.Group();
  const light=new THREE.PointLight(0xd5e7d9,10,14,2);
  light.position.set(12,2.9,-30);group.add(light);
+ const unaffected=new THREE.PointLight(0xffddaa,25,29,2);
+ unaffected.position.set(0,7.6,-46);group.add(unaffected);
  const bulb=new THREE.Mesh(new THREE.SphereGeometry(.12,8,6),
   new THREE.MeshBasicMaterial({color:0xd5e7d9}));
  bulb.position.copy(light.position);group.add(bulb);
@@ -126,7 +128,12 @@ test('real ceiling model controls original pointlight, hides floating orb and re
  const adapter=createVestibuleFixtureLightV107({group},{random:()=>.99,fixture});
  assert.equal(light.position.y,3.08);
  assert.equal(bulb.visible,false,'Floating original bulb is hidden');
- assert.equal(adapter.getState().lightIntensity,17);
+ assert.equal(VESTIBULE_BRIGHTNESS_V110,.5);
+ assert.equal(adapter.getState().brightnessScale,.5);
+ assert.equal(adapter.getState().onIntensity,8.5,'Ceiling lamp must be half its previous 17 intensity');
+ assert.equal(adapter.getState().lightIntensity,8.5);
+ assert.equal(lens,.5,'Visible fluorescent glass must dim with the lamp');
+ assert.equal(unaffected.intensity,25,'Other mall light sources stay untouched');
  adapter.update(3.49);
  assert.equal(adapter.getState().phase,'off');
  assert.equal(adapter.getState().lightIntensity,0,'Fully off must really be dark');
@@ -134,11 +141,12 @@ test('real ceiling model controls original pointlight, hides floating orb and re
  adapter.update(.46);
  assert.ok(adapter.getState().lightIntensity>0);
  adapter.setEnabled(false);
- assert.equal(light.intensity,17,'Opting out restores steady light');
- assert.equal(lens,1);
+ assert.equal(light.intensity,8.5,'Opting out retains half-brightness steady light');
+ assert.equal(lens,.5,'Disabling flicker does not restore full-brightness glow');
  adapter.dispose();
  assert.equal(disposed,true);
  assert.equal(light.intensity,10,'Restore original game rig intensity');
  assert.equal(light.position.y,2.9,'Restore original pointlight position');
+ assert.equal(unaffected.intensity,25,'Other room lighting must not change');
  assert.equal(bulb.visible,true,'Restore original lamp sphere');
 });

@@ -4,6 +4,9 @@
  */
 import {VESTIBULE_LIGHT_POINT_V107} from './vestibule-patina-plan-v107.mjs';
 
+// Room-local Builder lamp strength. Original v108 was 10 * 1.7 = 17.
+// Halve BOTH the light cast and the actual panel glow for a foreboding entry.
+export const VESTIBULE_BRIGHTNESS_V110=.5;
 const near=(a,b)=>Math.abs(a-b)<.025;
 const boundedRandom=random=>{
  const n=Number(random());
@@ -87,18 +90,19 @@ export function createVestibuleFixtureLightV107(building,{
  // canonical bulb is hidden only in the Builder and restored on teardown.
  originalBulb.visible=false;
  light.position.set(fixture.emitter.x,fixture.emitter.y,fixture.emitter.z);
- const litIntensity=originalIntensity*1.7;
+ const litIntensity=originalIntensity*1.7*VESTIBULE_BRIGHTNESS_V110;
  const sequencer=createVestibuleLightSequencerV107({random});
  let active=!!enabled;
  function apply(level){
   light.intensity=litIntensity*level;  // Exact 0 means fully electrically OFF.
-  fixture.setLevel(level);           // The source model's REAL emissive lens.
+  fixture.setLevel(level*VESTIBULE_BRIGHTNESS_V110); // Dim actual source lens too.
  }
  function update(dt){if(active)apply(sequencer.update(dt).level);return getState();}
  function getState(){
   const state=sequencer.getState(),model=fixture.getState();
   return {enabled:active,lightIntensity:light.intensity,
    baseIntensity:originalIntensity,onIntensity:litIntensity,
+   brightnessScale:VESTIBULE_BRIGHTNESS_V110,
    position:{x:light.position.x,y:light.position.y,z:light.position.z},
    originalBulbHidden:!originalBulb.visible,
    fixture:model,...state};
