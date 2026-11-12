@@ -16,7 +16,7 @@
   <button id="resize-object" title="Scale selected object (3)">Scale</button>
   <span class="divider"></span>
   <button id="undo" title="Undo (Ctrl+Z)">↶ Undo</button><button id="redo" title="Redo (Ctrl+Y)">↷ Redo</button>
-  <button id="save-draft">Save</button><button id="export-draft" class="primary">Export World Layout</button>
+  <button id="save-draft">Save</button><button id="preview-cinematic" class="primary" title="Save your layout, then open the original opening cinematic and game using these private Builder edits. Only this browser sees the preview.">Preview in Cinematic / Game</button><button id="export-draft">Export for Publishing</button>
   <label class="file-button" for="import-file">Import JSON<input id="import-file" type="file" accept="application/json,.json" hidden></label>
  </div>
 </header>
@@ -93,7 +93,7 @@
    <div class="section-label">YOUR BUILD</div>
    <p class="muted" id="draft-stats">No custom placements yet.</p>
    <button id="reset-draft" class="secondary">Reset local draft</button>
-   <p class="safety">Walls, floors, shafts, stairs and mandatory story objects stay protected. Changes live only in this browser until you export your layout and approve its incorporation into the game.</p>
+   <p class="safety">Walls, floors, shafts, stairs and mandatory story objects stay protected. Your edits remain private to this browser. Preview them in the opening cinematic and game using the button above. Export the JSON to review and publish a layout for every player; cinematic scripted doors and story beats stay protected.</p>
    <p class="safety"><a href="../" target="_blank" rel="noopener">Return to the playable game</a></p>
   </div>
  </aside>
