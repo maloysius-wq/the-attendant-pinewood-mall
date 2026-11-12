@@ -64,6 +64,30 @@ test('common gallery finish persists, resets, reverts, and rejects invalid sourc
  d=reduceDraft(d,{type:'mall-walls',finishId:'original'});
  assert.equal(Object.hasOwn(d,'mallWallFinish'),false);
 });
+test('individual gallery Original walls override a shared finish while Inherit follows it',()=>{
+ let d=reduceDraft(createEmptyDraft(),{type:'mall-walls',finishId:'worn-plaster'});
+ d=reduceDraft(d,{type:'finishes',roomId:'west_gallery',finishes:{wall:'original',floor:'dirty-carpet'}});
+ assert.equal(d.surfaces.west_gallery.wall,'original','explicit indoor original must persist');
+ assert.equal(d.surfaces.west_gallery.floor,'dirty-carpet');
+ assert.deepEqual(validateDraft(d,[]),[]);
+ assert.deepEqual(importDraft(exportDraft(d),[]),d);
+ d=reduceDraft(d,{type:'mall-walls',finishId:'painted-wall'});
+ assert.equal(d.surfaces.west_gallery.wall,'original','gallery change must not remove room override');
+ d=reduceDraft(d,{type:'finishes',roomId:'west_gallery',finishes:{wall:'inherit'}});
+ assert.equal(d.surfaces.west_gallery.wall,undefined,'inherit must not be serialized as a material');
+ assert.equal(d.surfaces.west_gallery.floor,'dirty-carpet','other surfaces must survive');
+ d=reduceDraft(d,{type:'finish',roomId:'central_gallery',part:'wall',finishId:'original'});
+ assert.equal(d.surfaces.central_gallery.wall,'original','single-finish action also preserves override');
+ d=reduceDraft(d,{type:'finish',roomId:'central_gallery',part:'wall',finishId:'inherit'});
+ assert.equal(d.surfaces.central_gallery,undefined);
+ assert.throws(()=>reduceDraft(d,{type:'finishes',roomId:'security',finishes:{wall:'inherit'}}),
+  /Unsupported room finish/,'inherit is only valid for canonical shared spaces');
+ assert.throws(()=>reduceDraft(d,{type:'finish',roomId:'security',part:'wall',finishId:'inherit'}),
+  /Unsupported room finish/);
+ assert.ok(validateDraft({...d,surfaces:{west_gallery:{wall:'inherit'}}},[]).length,
+  'UI-only inherit must never be accepted from imported JSON');
+});
+
 test('bulletin board is discoverable and existing original GLB remains unmodified',()=>{
  const manifest=JSON.parse(fs.readFileSync('assets/vendor/builder/wall-decay-v100/manifest-v100.json'));
  const board=manifest.models.find(x=>x.id==='v100-aged-cork-bulletin-board');
