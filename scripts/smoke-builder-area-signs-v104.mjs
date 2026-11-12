@@ -19,7 +19,7 @@ try{
  const initial=await page.evaluate(()=>window.__PINEWOOD_BUILDER__.getState());
  assert.equal(initial.ready,true,JSON.stringify(initial.errors));
  assert.equal(initial.roomCount,41);
- assert.equal(initial.catalogCount,618);
+ assert.equal(initial.catalogCount,638);
  const signs=await api();
  assert.equal(signs.sceneAttached,true,'signs actually attach to loaded three-level 3D building');
  assert.equal(signs.count,41,'one sign group per canonical area');
