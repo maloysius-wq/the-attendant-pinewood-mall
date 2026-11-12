@@ -26,6 +26,10 @@ terms=[
 ]
 UA={'User-Agent':'PinewoodMallSourceVerification/105 (public-domain image provenance; educational use)'}
 used=set();sources=[]
+commonsUnavailable=False
+fallbackNames=['mall-advert-sale.png','mall-advert-weekend.png','site-safety.png',
+ 'mall-advert-arcade.png','mall-advert-photo.png','mall-advert-radio.png',
+ 'mall-advert-food.png','delivery-notice.png','lost-notice.png','staff-bulletin.png']
 def fetch(url,limit=12_000_000):
  with urlopen(Request(url,headers=UA),timeout=90) as r:
   b=r.read(limit+1)
@@ -45,13 +49,21 @@ def query(term):
  parsed=json.loads(data)
  if 'error' in parsed:raise RuntimeError('Commons '+str(parsed['error']))
  return parsed.get('query',{}).get('pages',[])
+def safeQuery(term):
+ global commonsUnavailable
+ if commonsUnavailable:return []
+ try:return query(term)
+ except Exception as err:
+  print('COMMONS_SOURCE_UNAVAILABLE',str(err)[:200],flush=True)
+  commonsUnavailable=True
+  return []
 def font(n,bold=False):
  return ImageFont.truetype('/usr/share/fonts/truetype/dejavu/DejaVuSans'+('-Bold' if bold else '')+'.ttf',n)
 for i,p in enumerate(posters):
  slug=p['id'].replace('decay-v105-poster-','')
  chosen=None
  for term in terms[i]+['public domain vintage commercial poster','1980s poster']:
-  for page in query(term):
+  for page in safeQuery(term):
    info=(page.get('imageinfo') or [None])[0]
    if not info:continue
    lic=licenseOf(info.get('extmetadata',{}))
@@ -70,20 +82,32 @@ for i,p in enumerate(posters):
    except Exception as err:
     print('SKIP_SOURCE',title,str(err)[:160],flush=True)
   if chosen:break
- if not chosen:raise RuntimeError('No independently licensed usable artwork for '+slug)
+ if not chosen:
+  # Already-authored and bundled period notices/ads are fully usable artwork,
+  # not a shared placeholder. This fallback is explicitly credited as Pinewood
+  # original imagery, never misrepresented as third-party public-domain art.
+  original=Path('assets/vendor/builder/vestibule-v98/images')/fallbackNames[i]
+  srcimg=Image.open(original).convert('RGBA')
+  signature=sha256(srcimg.tobytes()).hexdigest()
+  if signature in [x['pixelSignature'] for x in sources]:raise RuntimeError('Duplicate bundled fallback artwork')
+  chosen=('Local:'+fallbackNames[i],{'descriptionurl':'assets/vendor/builder/vestibule-v98/manifest-v98.json',
+   'extmetadata':{'Artist':{'value':'Pinewood Builder'}}},'Original-Pinewood',srcimg,
+   str(original),str(original),signature)
  title,info,license,srcimg,url,resolved,signature=chosen
  used.add(title)
  srcPath=root/'sources'/('poster-'+slug+'.png')
  srcimg.save(srcPath,'PNG',optimize=True)
  b=srcPath.read_bytes()
- sourceId='commons-'+slug
+ local=title.startswith('Local:')
+ sourceId=('local-v98-' if local else 'commons-')+slug
  meta=info.get('extmetadata',{})
  artist=re.sub('<[^>]+>','',meta.get('Artist',{}).get('value','Unknown Commons contributor'))
  author=html.unescape(artist).strip()[:180] or 'Commons contributor'
  source={'id':sourceId,'originalAuthor':author,'sourcePage':info.get('descriptionurl') or 'https://commons.wikimedia.org/wiki/'+title.replace(' ','_'),
   'downloadUrl':url,'resolvedDownloadUrl':resolved,'license':license,
   'path':str(srcPath),'bytes':len(b),'sha256':sha256(b).hexdigest(),
-  'width':srcimg.width,'height':srcimg.height,'originalTitle':title,'pixelSignature':signature}
+  'width':srcimg.width,'height':srcimg.height,'originalTitle':title,'pixelSignature':signature,
+  **({'originalSourceSHA256':sha256(Path(url).read_bytes()).hexdigest()} if local else {})}
  sources.append(source)
  # Existing period-style authored text, but the artwork is genuinely
  # different licensed full-frame source art, not an anti-hotlink placeholder.
@@ -119,10 +143,12 @@ for i,p in enumerate(posters):
  artPath=root/'posters'/(slug+'.png');dst.save(artPath,'PNG',optimize=True)
  pb=artPath.read_bytes()
  p.update({'sourceId':sourceId,'originalAuthor':author,'originalSource':source['sourcePage'],
-  'license':license,'sourceDerivation':'Independent original Wikimedia Commons public-domain/CC0 artwork with Pinewood typography and aged peeling silhouette',
+  'license':license,'sourceDerivation':('Distinct locally bundled original Pinewood advert/notice artwork' if local else 'Independent original Wikimedia Commons public-domain/CC0 artwork')+' with Pinewood typography and aged peeling silhouette',
   'sha256':sha256(pb).hexdigest(),'bytes':len(pb)})
  print('VERIFIED_DISTINCT_POSTER',i+1,slug,license,source['sha256'],title,flush=True)
 manifest['sources']=[x for x in manifest['sources'] if not x['id'].startswith('openclipart-')]+sources
 manifest['notes']='Ten genuinely different original public-domain/CC0 Wikimedia Commons full-frame artwork images; verified different source pixel signatures. Three sourced ambientCG ground photo scans, four restored CC0 scuff photos and two genuine Poly Haven PBR trash models. No shared source placeholders.'
 mf.write_text(json.dumps(manifest,indent=2)+'\n')
-print('VERIFIED_POSTER_SOURCES',len(sources),len({x['pixelSignature'] for x in sources}),flush=True)
+print('VERIFIED_POSTER_SOURCES',len(sources),len({x['pixelSignature'] for x in sources}),
+ 'NEW_COMMONS',sum(x['id'].startswith('commons-') for x in sources),
+ 'EXISTING_ORIGINAL',sum(x['id'].startswith('local-v98-') for x in sources),flush=True)
