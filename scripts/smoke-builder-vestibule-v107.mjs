@@ -42,11 +42,13 @@ try{
  const light=()=>page.evaluate(()=>window.__PINEWOOD_BUILDER__.getVestibuleLightState());
  let fixture=await light();
  assert.ok(fixture.enabled&&fixture.baseIntensity===10,'Existing lamp should animate');
- assert.equal(fixture.onIntensity,17,'Real lamp is brighter in the Builder for visible contrast');
+ assert.equal(fixture.onIntensity,8.5,'Contractor vestibule lamp is half the prior 17 strength');
+ assert.equal(fixture.brightnessScale,.5,'Only vestibule fixture brightness is reduced');
+ assert.equal(fixture.lightIntensity,8.5,'Steady light output is precisely halved');
  assert.equal(fixture.originalBulbHidden,true,'Old midair sphere must be invisible');
  assert.equal(fixture.fixture.mounted,true);
  assert.equal(fixture.fixture.underCeilingGroup,true,'Housing belongs to actual ceiling layer');
- assert.equal(fixture.fixture.lensLevel,1);
+ assert.equal(fixture.fixture.lensLevel,.5,'Actual emissive fluorescent panel is half-bright');
  assert.ok(fixture.fixture.lensCount>=1,'Source GLB lens material has a real emissive surface');
  assert.ok(fixture.fixture.size.x>1.7&&fixture.fixture.size.x<2.5);
  assert.ok(fixture.fixture.size.z>1.7&&fixture.fixture.size.z<2.5);
@@ -59,8 +61,8 @@ try{
   'Light illumination originates inside the mounted fluorescent panel');
  await page.evaluate(()=>document.getElementById('vestibule-flicker').click());
  fixture=await light();
- assert.equal(fixture.enabled,false);assert.equal(fixture.lightIntensity,17);
- assert.equal(fixture.fixture.lensLevel,1);
+ assert.equal(fixture.enabled,false);assert.equal(fixture.lightIntensity,8.5);
+ assert.equal(fixture.fixture.lensLevel,.5);
  await page.evaluate(()=>document.getElementById('vestibule-flicker').click());
  assert.equal((await light()).enabled,true);
  await page.evaluate(()=>window.__PINEWOOD_BUILDER__.applyRoomFinishes('service_vestibule',{wall:'painted-wall'}));
@@ -78,7 +80,8 @@ try{
  await page.reload({waitUntil:'domcontentloaded'});await ready();
  assert.equal((await light()).enabled,false);
  assert.equal((await patio()).count,26);
- assert.equal((await light()).lightIntensity,17);
+ assert.equal((await light()).lightIntensity,8.5);
+ assert.equal((await light()).fixture.lensLevel,.5);
  assert.deepEqual(external,[],'Must load only repository-local media');
  assert.deepEqual(errors,[],'No uncaught Builder errors');
  console.log('PINEWOOD_V107_VESTIBULE_PATINA_REAL_3D_DESKTOP_PASS',JSON.stringify({
