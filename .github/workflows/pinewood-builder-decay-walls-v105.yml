@@ -17,6 +17,7 @@ on:
       - 'assets/vendor/builder/wall-decay-v100/manifest-v100.json'
       - 'builder/wall-decay-v100.mjs'
       - 'scripts/test-builder-decay-walls-v105.mjs'
+      - 'scripts/test-v105-visible-photos.py'
       - 'scripts/smoke-builder-decay-walls-v105.mjs'
       - '.github/workflows/pinewood-builder-decay-walls-v105.yml'
   workflow_dispatch:
@@ -36,6 +37,10 @@ jobs:
         run: |
           node --test scripts/test-builder-decay-walls-v105.mjs scripts/test-builder-room-walls-v90.mjs scripts/test-builder-schema-v1.mjs
           node --test scripts/audit-builder-assets-v1.mjs
+      - name: Check that newly authored dirt is substantially visible, with ten genuinely different artworks
+        run: |
+          python3 -m pip install --break-system-packages pillow==11.3.0
+          python3 scripts/test-v105-visible-photos.py
       - name: Install desktop-only Chromium
         run: |
           npm install --no-save playwright@1.55.0
