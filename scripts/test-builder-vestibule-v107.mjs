@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
+import {createHash} from 'node:crypto';
 import * as THREE from '../vendor/three/build/three.module.js';
 import {MALL} from '../mall/masterplan-v66.mjs';
 import {constructPhysicalShell} from '../mall/physical-shell-v67.mjs';
@@ -72,6 +73,8 @@ test('fixture model is the existing licensed source GLB, with actual fluorescent
  assert.match(entry.sourcePage,/liminal-spaces-kit-ceiling-fluorescent/);
  const buf=readFileSync(new URL('../'+entry.path,import.meta.url));
  assert.equal(buf.toString('ascii',0,4),'glTF');
+ assert.equal(createHash('sha256').update(buf).digest('hex'),entry.sha256,
+  'Fixture GLB bytes must match original pinned CC0 catalog source');
  const doc=JSON.parse(buf.subarray(20,20+buf.readUInt32LE(12)).toString('utf8'));
  assert.ok(doc.meshes.length>=4,'Actual ceiling frame, housing and lens geometry');
  assert.ok(doc.materials.some(m=>m.name==='light'&&m.emissiveFactor?.some(v=>v>.1)),
