@@ -1,0 +1,43 @@
+name: TEMP vendor vetted CC0 decay source media v105
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'tools/vendor-decay-v105.py'
+      - 'tools/vendor-trash-v105.mjs'
+      - 'tools/rebuild-facilities-planner-v105.py'
+      - '.github/workflows/temp-vendor-decay-v105.yml'
+permissions:
+  contents: write
+jobs:
+  vendor-same-repo-only:
+    if: github.repository == 'maloysius-wq/the-attendant-pinewood-mall' && github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-24.04
+    timeout-minutes: 24
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref }}
+          persist-credentials: true
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install offline-material processing dependencies
+        run: |
+          python3 -m pip install --break-system-packages pillow==11.3.0
+          npm install --no-save @gltf-transform/cli@4.2.1
+      - name: Rebuild existing 1997 Facilities Planner with no embedded 2007
+        run: python3 tools/rebuild-facilities-planner-v105.py
+      - name: Vendor ten independent original CC0 poster artworks and prominent grime scans
+        run: python3 tools/vendor-decay-v105.py
+      - name: Archive two genuine textured CC0 trash models from the source publisher
+        run: node tools/vendor-trash-v105.mjs
+      - name: Keep exact sourced image/3D binaries on this same-organization PR branch
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add assets/vendor/builder/decay-v105/ assets/vendor/builder/mood-v101/
+          git diff --cached --stat
+          git diff --cached --quiet && exit 1
+          git -c commit.gpgsign=false commit -m "Vendor 20 distinct CC0 decay assets and fix 1997 planner source"
+          git push origin "HEAD:${{ github.head_ref }}"
