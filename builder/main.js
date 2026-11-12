@@ -737,7 +737,7 @@ async function begin(){
   $('loading').classList.add('hidden');
   indicate('Ready · local draft loaded');
   let lastTime=performance.now();
-  function frame(t){const dt=Math.min(.05,(t-lastTime)/1000);lastTime=t;frames++;
+  function frame(t){const dt=Math.max(0,Math.min(.05,(t-lastTime)/1000));lastTime=t;frames++;
    vestibuleFixture.update(dt);
    navigation.update(dt);
    if(navigation.getState().mode==='orbit')orbit.update();
