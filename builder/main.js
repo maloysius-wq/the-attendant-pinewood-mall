@@ -17,6 +17,7 @@ import {registerDecalCatalogV97,isDecalV97} from './decals-v97.js';
 import {registerVestibuleCatalogV98} from './vestibule-catalog-v98.mjs';
 import {registerWallDecayV100} from './wall-decay-v100.mjs';
 import {registerMoodV101} from './mood-catalog-v101.mjs';
+import {registerDecayV105} from './decay-catalog-v105.mjs';
 import {createOrderedDraftSaves} from './ordered-draft-saves-v102.mjs';
 
 const $=id=>document.getElementById(id);
@@ -69,6 +70,9 @@ async function loadVendorCatalog(){
  const moodResp=await fetch(new URL('../assets/vendor/builder/mood-v101/manifest-v101.json',import.meta.url));
  if(!moodResp.ok)throw Error('The pinned 1997 calendar and realistic plant library is unavailable');
  registerMoodV101(await moodResp.json(),catalog,EDITOR_CATALOG_BY_ID);
+ const gritResponse=await fetch(new URL('../assets/vendor/builder/decay-v105/manifest-v105.json',import.meta.url));
+ if(!gritResponse.ok)throw Error('Pinned heavy CC0 dirt, trash and advert media unavailable');
+ registerDecayV105(await gritResponse.json(),catalog,EDITOR_CATALOG_BY_ID);
  status.catalogCount=catalog.length;
 }
 
