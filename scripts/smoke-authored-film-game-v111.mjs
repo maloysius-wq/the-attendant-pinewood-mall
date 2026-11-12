@@ -44,6 +44,11 @@ try{
  assert.equal(authored.saved.mallWallFinish,'painted-wall');
  assert.equal(await page.locator('#preview-cinematic').count(),1,
   'Dedicated private cinematic preview control is available');
+ // The REAL toolbar button must persist the draft before navigating to the
+ // game. Never rely on a hand-crafted query string alone for smoke coverage.
+ await page.evaluate(()=>document.getElementById('preview-cinematic').click());
+ await page.waitForURL('**/?builderPreview=1',{timeout:180000});
+ assert.equal(new URL(page.url()).searchParams.get('builderPreview'),'1');
 
  // Same-domain page navigation preserves the EXACT original IndexedDB v1
  // record. The preview flag is explicit and never affects general visitors.
