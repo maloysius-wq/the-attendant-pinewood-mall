@@ -89,8 +89,23 @@ try{
  await page.evaluate(json=>window.__PINEWOOD_BUILDER__.importJSON(json),after);
  assert.equal((await api()).draft.added.length,placed.length);
  await page.evaluate(()=>window.__PINEWOOD_BUILDER__.clearDraft());
+ // Capture an actual neglected shop walk, not an empty scene after clearing
+ // objects. This is an automated desktop visual review, not WASD gameplay.
+ const sceneSamples=[
+  ['decay-v105-trashbag','visual-trash',{x:-21,y:0,z:-82}],
+  ['decay-v105-tracked-soil','visual-ground-dirt',{x:-19,y:.018,z:-82}],
+  ['decay-v105-dark-shoe-scuffs','visual-deep-scuffs',{x:-17.2,y:.018,z:-82}],
+  ['decay-v105-poster-arcade-night','visual-arcade',{x:-22,y:1.8,z:-84}]
+ ];
+ for(const [catalogId,id,position] of sceneSamples){
+  assert.equal(await page.evaluate(([catalogId,id,position])=>
+   window.__PINEWOOD_BUILDER__.place(catalogId,position,id),[catalogId,id,position]),id);
+ }
+ await page.evaluate(()=>window.__PINEWOOD_BUILDER__.select(null));
+ await page.evaluate(()=>window.__PINEWOOD_BUILDER__.jumpRoom('west_gallery'));
  mkdirSync('artifacts',{recursive:true});
  await page.screenshot({path:'artifacts/pinewood-v105-editor.png'});
+ await page.evaluate(()=>window.__PINEWOOD_BUILDER__.clearDraft());
  assert.deepEqual(external,[],'no external third-party runtime assets');
  assert.deepEqual(errors,[],'no uncaught WebGL/Builder errors');
  console.log('PINEWOOD_V105_REAL_WORLD_DECAY_WALLS_DESKTOP_PASS',JSON.stringify({
