@@ -29,7 +29,17 @@ used=set();sources=[]
 commonsUnavailable=False
 fallbackNames=['mall-advert-sale.png','mall-advert-weekend.png','site-safety.png',
  'mall-advert-arcade.png','mall-advert-photo.png','mall-advert-radio.png',
- 'mall-advert-food.png','delivery-notice.png','lost-notice.png','staff-bulletin.png']
+ 'mall-advert-food.png','mall-advert-weekend.png','mall-advert-photo.png','mall-advert-food.png']
+# Editorially vetted to fit a neglected mall in 1997. Never use unrelated
+# Landsat, 1800s trade cards, or a lost-and-found notice as a travel advert.
+PREFERRED={
+ 'storefront-sale':'File:Kodak Centennial Summer of Entertainment ad, 1980-05-11.jpg',
+ 'corporate-safety':'File:"Follow Safety Rules" - NARA - 514271.jpg',
+ 'arcade-night':'File:Sega - Gremlin - Frogger - December 1st 1981 Play Meter advert.jpg',
+ 'video-rental':'File:Friday the 13th (1979 Variety advertisement).jpg',
+ 'travel-club':'File:See America LCCN98518589.jpg'
+}
+PREFER_LOCAL={'mall-stage','coffee-lounge'}
 def fetch(url,limit=12_000_000):
  with urlopen(Request(url,headers=UA),timeout=90) as r:
   b=r.read(limit+1)
@@ -49,6 +59,14 @@ def query(term):
  parsed=json.loads(data)
  if 'error' in parsed:raise RuntimeError('Commons '+str(parsed['error']))
  return parsed.get('query',{}).get('pages',[])
+def queryExact(name):
+ q=urlencode({'action':'query','titles':name,'prop':'imageinfo',
+  'iiprop':'url|extmetadata|mime|dimensions','iiurlwidth':1100,
+  'iiextmetadatafilter':'LicenseShortName|Artist|Credit','format':'json','formatversion':2})
+ data,_=fetch('https://commons.wikimedia.org/w/api.php?'+q,6_000_000)
+ parsed=json.loads(data)
+ if 'error' in parsed:raise RuntimeError('Commons '+str(parsed['error']))
+ return parsed.get('query',{}).get('pages',[])
 def safeQuery(term):
  global commonsUnavailable
  if commonsUnavailable:return []
@@ -62,8 +80,13 @@ def font(n,bold=False):
 for i,p in enumerate(posters):
  slug=p['id'].replace('decay-v105-poster-','')
  chosen=None
- for term in terms[i]+['public domain vintage commercial poster','1980s poster']:
-  for page in safeQuery(term):
+ # Use known relevant primary artwork first, then safe search. An editor-
+ # chosen accurate 1980s flyer is better than the first loosely related scan.
+ attempts=([('exact',PREFERRED[slug])] if slug in PREFERRED else [])+[
+  ('search',term) for term in terms[i]+['public domain vintage commercial poster','1980s poster']
+ ] if slug not in PREFER_LOCAL else []
+ for searchKind,term in attempts:
+  for page in (queryExact(term) if searchKind=='exact' else safeQuery(term)):
    info=(page.get('imageinfo') or [None])[0]
    if not info:continue
    lic=licenseOf(info.get('extmetadata',{}))
