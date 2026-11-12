@@ -88,7 +88,8 @@ try{
   slider.dispatchEvent(new Event('change',{bubbles:true}));
  });
  await page.waitForFunction(()=>window.__PINEWOOD_BUILDER__.getState().draft.added
-  .find(a=>a.id==='ci-wall-decals')?.opacity===.42,{timeout:10000});
+  .find(a=>a.id==='ci-wall-decals')?.opacity===.42&&
+  document.getElementById('decal-opacity-value').textContent==='42%',{timeout:10000});
  let wall=await page.evaluate(()=>window.__PINEWOOD_BUILDER__.inspectObjectMaterials('ci-wall-decals'));
  assert.ok(Math.abs(wall[0].opacity-.42)<.001,'opacity applied to existing decal material');
  assert.equal(await page.locator('#decal-opacity-value').textContent(),'42%');
