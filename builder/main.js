@@ -114,6 +114,8 @@ const API={
  getRoomFinishCounts:()=>roomFinishes?.getCounts(),
  getRoomWallPlan:id=>roomFinishes?.getWallPlans(id)||[],
  getRoomFinishes:()=>clone(status.draft.surfaces||{}),
+ getMallWallFinish:()=>status.draft.mallWallFinish||'original',
+ applyMallWallFinish:finishId=>commit({type:'mall-walls',finishId}),
  applyRoomFinishes:(roomId,finishes)=>commit({type:'finishes',roomId,finishes}),
  jumpParkingLot:()=>jumpParkingLot(),
  setWorkLights:enabled=>setWorkLights(enabled),
@@ -300,7 +302,7 @@ async function loadDraft(){
 }
 async function applyRenderedDraft(draft){
  await editor.applyDraft(draft);
- if(roomFinishes)status.finishMeshes=await roomFinishes.apply(draft.surfaces||{});
+ if(roomFinishes)status.finishMeshes=await roomFinishes.apply(draft.surfaces||{},draft.mallWallFinish||'original');
  if(navigation)navigation.resetDoorOverrides(draft.doors);
  syncFinishInputs();
 }
@@ -443,6 +445,16 @@ function syncFinishInputs(){
   updateFinishSwatch(part);
  }
  $('finish-apply').disabled=!id;
+ $('mall-wall-finish').value=status.draft.mallWallFinish||'original';
+ updateMallWallSwatch();
+}
+function updateMallWallSwatch(){
+ const choice=ROOM_FINISHES_V87.wall.find(o=>o.id===$('mall-wall-finish').value);
+ const swatch=$('mall-wall-preview');
+ swatch.style.backgroundImage=choice?.path?
+  'url("'+new URL('../'+choice.path,import.meta.url).href+'")':'none';
+ swatch.dataset.textured=String(!!choice?.path);
+ swatch.textContent=choice?.path?'':'Original';
 }
 function setAreaSigns(enabled){
  if(!areaSigns)return null;
@@ -529,6 +541,18 @@ function wireUI(){
    $('finish-'+part).append(option);
   }
  }
+ for(const item of ROOM_FINISHES_V87.wall){
+  const opt=document.createElement('option');
+  opt.value=item.id;opt.textContent=item.label;
+  $('mall-wall-finish').append(opt);
+ }
+ $('mall-wall-finish').addEventListener('change',updateMallWallSwatch);
+ $('mall-wall-apply').addEventListener('click',async()=>{
+  try{
+   await commit({type:'mall-walls',finishId:$('mall-wall-finish').value});
+   indicate('Applied gallery-wide interior wall finish');
+  }catch(err){report(err)}
+ });
  $('finish-room').addEventListener('change',syncFinishInputs);
  for(const part of ['wall','floor','ceiling'])$('finish-'+part).addEventListener('change',()=>updateFinishSwatch(part));
  $('finish-apply').addEventListener('click',async()=>{
