@@ -14,7 +14,9 @@ test('eight imported planters form four mirrored pairs around the public lobby',
 });
 test('opening shares the licensed mall and physical contractor entrance before and after the threshold',()=>{
  const s=read('opening/intro-v65.js');
- assert.match(s,/renderPinewoodV69\(\{scene:this\.interiorScene,chapter:1\}\)/);
+ assert.match(s,/renderAuthoredPinewoodV111\(\{/,'opening uses shared authored physical mall layer');
+ assert.match(s,/scene:this\.interiorScene,chapter:1/,'the actual chapter-one interior remains the scene being mounted');
+ assert.match(read('mall/authored-scene-v111.js'),/renderPinewoodV69\(\{scene,chapter\}\)/,'shared authored layer is built on canonical licensed mall');
  assert.match(s,/this\.interiorReady/);
  assert.match(s,/this\.stage\.scene\.add\(canonical\)/,'mount real mall in one continuous scene');
  assert.match(s,/this\.renderer\.render\(this\.stage\.scene,this\.camera\)/,'render same physical world across the threshold');
