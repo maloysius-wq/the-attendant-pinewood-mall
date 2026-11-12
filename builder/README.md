@@ -1,5 +1,15 @@
 # Pinewood World Builder
 
+## Canonical in-world area signs restored (v104)
+
+The Builder now shows **41 physically lit, double-sided in-world room and area nameplates** drawn from the actual mall masterplan. Original stores (Cassette Castle, Sunburst Arcade, Video Planet, Fallow's, Old Food Court) are labeled over their real storefront entrances; office, staff, underground plant, mezzanine and corridor locations use the existing canonical names. Storefront labels are positioned against the verified doorway geometry, while continuous corridors and stair landings receive centered orientation markers. Signs use local, code-native period-inspired canvas graphics with **no emissive glow and no network-loaded fonts or imagery**.
+
+**Area signs** is a new checkbox in the viewport's upper controls. It starts **ON** so unfamiliar areas are identifiable. Uncheck it to hide all 41 when dressing a scene, then re-enable to navigate. These are **Builder-only development guides**, deliberately not colliders, selected props or entries in the JSON/IndexedDB world layout, and do not change the playable six-chapter game. The source-verified 618-item catalog and 41 physical rooms remain intact.
+
+PR [#108](https://github.com/maloysius-wq/the-attendant-pinewood-mall/pull/108), focus [desktop CI #43238272830](https://github.com/maloysius-wq/the-attendant-pinewood-mall/actions/runs/43238272830) and [GitHub Pages #43238747971](https://github.com/maloysius-wq/the-attendant-pinewood-mall/actions/runs/43238747971) all succeeded. Test coverage checks 41 actual scene groups, 82 textured faces, no glow, exact masterplan labels, real portal placement and no saved-layout changes after using the toggle.
+
+---
+
 ## Live surface-decal tuning (v103)
 
 After placing or selecting a grime stamp, stain, poster, wall calendar or other surface decal, drag **Decal opacity** in the Inspector to see its strength **immediately** in the scene. The displayed percentage says **preview** while adjusting. Release/finish the slider change to commit exactly one undoable local-layout edit; **Undo / Redo** now updates both the displayed material and the Inspector slider. Selecting a different object before committing restores the original look. The preview itself never changes your saved v1 draft, source CC0 texture, catalog entries, or IndexedDB data.
