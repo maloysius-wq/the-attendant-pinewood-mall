@@ -1,0 +1,31 @@
+name: TEMP replace invalid poster source placeholders v105
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'tools/repair-poster-sources-v105.py'
+      - '.github/workflows/temp-repair-posters-v105.yml'
+permissions:
+  contents: write
+jobs:
+  archive-ten-originals:
+    if: github.repository == 'maloysius-wq/the-attendant-pinewood-mall' && github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-24.04
+    timeout-minutes: 18
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref }}
+          persist-credentials: true
+      - name: Install real image processing
+        run: python3 -m pip install --break-system-packages pillow==11.3.0
+      - name: Replace invalid identical original artwork sources with ten truly independent PD or CC0 source images
+        run: python3 tools/repair-poster-sources-v105.py
+      - name: Save source photographs, derived posters and exact provenance
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add assets/vendor/builder/decay-v105/sources/ assets/vendor/builder/decay-v105/posters/ assets/vendor/builder/decay-v105/manifest-v105.json
+          git diff --cached --quiet && exit 1
+          git -c commit.gpgsign=false commit -m "Replace ten invalid poster placeholders with ten verified Wikimedia PD originals"
+          git push origin "HEAD:${{ github.head_ref }}"
