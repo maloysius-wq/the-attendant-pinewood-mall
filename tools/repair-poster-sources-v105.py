@@ -147,7 +147,7 @@ for i,p in enumerate(posters):
   'sha256':sha256(pb).hexdigest(),'bytes':len(pb)})
  print('VERIFIED_DISTINCT_POSTER',i+1,slug,license,source['sha256'],title,flush=True)
 manifest['sources']=[x for x in manifest['sources'] if not x['id'].startswith('openclipart-')]+sources
-manifest['notes']='Ten genuinely different original public-domain/CC0 Wikimedia Commons full-frame artwork images; verified different source pixel signatures. Three sourced ambientCG ground photo scans, four restored CC0 scuff photos and two genuine Poly Haven PBR trash models. No shared source placeholders.'
+manifest['notes']='Ten verified different original artwork images, independently downloaded from Wikimedia Commons under PD/CC0 when reachable; otherwise explicitly credited, distinct original-Pinewood v98 notices/advertisements. All ten distinct source pixel signatures are checked and recorded. Three CC0 ambientCG ground scans, four rebalanced CC0 scuff photos and two genuine Poly Haven PBR trash models. No shared image placeholders.'
 mf.write_text(json.dumps(manifest,indent=2)+'\n')
 print('VERIFIED_POSTER_SOURCES',len(sources),len({x['pixelSignature'] for x in sources}),
  'NEW_COMMONS',sum(x['id'].startswith('commons-') for x in sources),
