@@ -27,6 +27,10 @@ export async function createVestibulePatinaV107({building,wallFaces}){
  const factory=createDecalFactoryV97();
  const root=new THREE.Group();root.name='Builder-only authored contractor vestibule patina v107';
  building.group.add(root);
+ const layers=Object.fromEntries(['floor','wall','ceiling'].map(type=>{
+  const group=new THREE.Group();group.name='Vestibule '+type+' accumulation';root.add(group);
+  return [type,group];
+ }));
  const objects=[];
  try{
   for(const mark of VESTIBULE_PATINA_PLAN_V107){
@@ -46,22 +50,23 @@ export async function createVestibulePatinaV107({building,wallFaces}){
     why:mark.why,review:mark.review};
    // Decorative marks are never selection targets, colliders or draft edits.
    obj.traverse(child=>{if(child.isMesh)child.raycast=()=>{};});
-   root.add(obj);objects.push({id:mark.id,asset:mark.asset,surface:mark.surface,
+   layers[mark.surface].add(obj);objects.push({id:mark.id,asset:mark.asset,surface:mark.surface,
     position:positioned,scale:mark.scale,opacity:mark.opacity,why:mark.why,review:mark.review});
   }
  }catch(err){
   root.removeFromParent();factory.dispose();throw err;
  }
- function getState(){return {enabled:root.visible,count:objects.length,
+ function getState(){return {enabled:root.visible,ceilingVisible:layers.ceiling.visible,count:objects.length,
   floor:objects.filter(p=>p.surface==='floor').length,
   wall:objects.filter(p=>p.surface==='wall').length,
   ceiling:objects.filter(p=>p.surface==='ceiling').length,
   items:objects.map(p=>({...p,position:{...p.position}}))};}
  function setEnabled(value){root.visible=!!value;return getState();}
+ function setCeilingVisible(value){layers.ceiling.visible=!!value;return getState();}
  function dispose(){
   root.removeFromParent();
   root.traverse(o=>{if(o.isMesh){o.geometry.dispose();o.material.dispose();}});
   factory.dispose();
  }
- return {root,getState,setEnabled,dispose};
+ return {root,getState,setEnabled,setCeilingVisible,dispose};
 }
