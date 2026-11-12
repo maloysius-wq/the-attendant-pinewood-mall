@@ -16,6 +16,7 @@ try{
   window.__PINEWOOD_BUILDER__?.getState().errors.length>0,null,{timeout:165000});
  await ready();
  const api=()=>page.evaluate(()=>window.__PINEWOOD_BUILDER__.getState());
+ console.log('V105_DESKTOP_STAGE','world-ready',new Date().toISOString());
  const state=await api();assert.equal(state.ready,true,JSON.stringify(state.errors));
  assert.equal(state.catalogCount,638);
  assert.equal(state.roomCount,41);
@@ -35,10 +36,12 @@ try{
   'Original room finish must install an indoor wall coating over shared outside-shell walls');
  const vestibule=await page.evaluate(()=>window.__PINEWOOD_BUILDER__.getRoomWallPlan('service_vestibule'));
  assert.ok(vestibule.some(x=>x.source.startsWith('cinematic_front_')));
+ console.log('V105_DESKTOP_STAGE','original-envelope-and-catalog-verified',new Date().toISOString());
  await page.evaluate(()=>window.__PINEWOOD_BUILDER__.applyRoomFinishes('service_vestibule',{wall:'painted-wall'}));
  await page.evaluate(()=>window.__PINEWOOD_BUILDER__.applyRoomFinishes('service_vestibule',{wall:'original'}));
  assert.equal((await api()).draft.surfaces.service_vestibule?.wall,undefined);
  assert.ok((await page.evaluate(()=>window.__PINEWOOD_BUILDER__.getRoomFinishCounts())).originalInteriorShell>0);
+ console.log('V105_DESKTOP_STAGE','room-original-restored',new Date().toISOString());
  await page.locator('#mall-wall-finish').selectOption('worn-plaster');
  await page.locator('#mall-wall-apply').click();
  await page.waitForFunction(()=>window.__PINEWOOD_BUILDER__.getMallWallFinish()==='worn-plaster');
@@ -54,6 +57,7 @@ try{
  assert.equal((await api()).draft.surfaces.west_gallery.wall,'painted-wall');
  // Actual original 3D GLB, high-opacity floor stain, lit poster and corkboard
  // must all load locally, render and survive v1 exported layout.
+ console.log('V105_DESKTOP_STAGE','shared-gallery-undo-redo-verified',new Date().toISOString());
  const placed=[
   ['decay-v105-trashbag','real-trashbag',{x:550,y:0,z:550}],
   ['decay-v105-plastic-bottle-gallon','real-bottle',{x:552,y:0,z:550}],
@@ -78,11 +82,13 @@ try{
    assert.ok(materials[0].opacity>=.99,'heavy grime is visibly opaque at default');
   }
  }
+ console.log('V105_DESKTOP_STAGE','all-seven-mapped-models-rendered',new Date().toISOString());
  const before=await page.evaluate(()=>window.__PINEWOOD_BUILDER__.exportJSON());
  await page.reload({waitUntil:'domcontentloaded'});await ready();
  assert.equal((await api()).draft.mallWallFinish,'worn-plaster');
  assert.equal((await api()).draft.added.length,placed.length);
  assert.ok((await page.evaluate(()=>window.__PINEWOOD_BUILDER__.getRoomFinishCounts())).originalInteriorShell>0);
+ console.log('V105_DESKTOP_STAGE','reload-draft-persisted',new Date().toISOString());
  const after=await page.evaluate(()=>window.__PINEWOOD_BUILDER__.exportJSON());
  assert.equal(after,before,'exact draft persists including common-area and new props');
  await page.evaluate(()=>window.__PINEWOOD_BUILDER__.clearDraft());
@@ -91,6 +97,7 @@ try{
  await page.evaluate(()=>window.__PINEWOOD_BUILDER__.clearDraft());
  // Capture an actual neglected shop walk, not an empty scene after clearing
  // objects. This is an automated desktop visual review, not WASD gameplay.
+ console.log('V105_DESKTOP_STAGE','import-and-clear-passed',new Date().toISOString());
  const sceneSamples=[
   ['decay-v105-trashbag','visual-trash',{x:-21,y:0,z:-82}],
   ['decay-v105-tracked-soil','visual-ground-dirt',{x:-19,y:.018,z:-82}],
@@ -104,6 +111,7 @@ try{
  await page.evaluate(()=>window.__PINEWOOD_BUILDER__.select(null));
  await page.evaluate(()=>window.__PINEWOOD_BUILDER__.jumpRoom('west_gallery'));
  mkdirSync('artifacts',{recursive:true});
+ console.log('V105_DESKTOP_STAGE','dark-world-screenshot-ready',new Date().toISOString());
  await page.screenshot({path:'artifacts/pinewood-v105-editor.png'});
  await page.evaluate(()=>window.__PINEWOOD_BUILDER__.clearDraft());
  assert.deepEqual(external,[],'no external third-party runtime assets');
