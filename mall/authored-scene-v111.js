@@ -103,7 +103,12 @@ export async function attachAuthoredSceneV111(building,{draft,source='published'
   if(automaticLighting&&typeof requestAnimationFrame==='function')
    raf=requestAnimationFrame(tick);
   const state=()=>({
-   source,added:authored.size,overrides:Object.keys(draft.overrides).length,
+   source,added:authored.size,
+   placements:[...authored].map(([id,{object,item}])=>({
+    id,catalogId:item.id,position:{...pose(object).position},
+    rotation:{...pose(object).rotation},scale:object.scale.x
+   })),
+   overrides:Object.keys(draft.overrides).length,
    hiddenBaseline:draft.deleted.length,roomFinishCount:Object.keys(draft.surfaces||{}).length,
    sharedWallFinish:draft.mallWallFinish||'original',
    fixedPatina:patina.getState().count,fixture:light.getState().fixture.asset,
