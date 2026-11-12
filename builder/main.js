@@ -4,7 +4,7 @@ import {MALL} from '../mall/masterplan-v66.mjs';
 import {FURNISHINGS_V69} from '../mall/furnishing-plan-v69.mjs';
 import {EDITOR_EXTRA_FIXTURES_V1} from '../mall/editor-baseline-v1.mjs';
 import {EDITOR_CATALOG_V1,EDITOR_CATALOG_BY_ID,registerVendorCatalog} from '../mall/editor-catalog-v1.mjs';
-import {createEmptyDraft,validateDraft,reduceDraft,importDraft,exportDraft} from '../mall/editor-schema-v1.mjs';
+import {createEmptyDraft,validateDraft,reduceDraft,importDraft,exportDraft,COMMON_MALL_ROOM_IDS} from '../mall/editor-schema-v1.mjs';
 import {createBuilderScene} from './editor-scene.js';
 import {createEditorNavigation} from './editor-navigation.js';
 import {createWorkLighting} from './work-lighting.js';
@@ -442,19 +442,27 @@ function setPlacementOptions(options={}){
 function updateFinishSwatch(part){
  const select=$('finish-'+part),swatch=$('finish-preview-'+part);
  if(!swatch)return;
- const finish=ROOM_FINISHES_V87[part].find(o=>o.id===select.value);
+ const inherited=part==='wall'&&select.value==='inherit';
+ const finishId=inherited?(status.draft.mallWallFinish||'original'):select.value;
+ const finish=ROOM_FINISHES_V87[part].find(o=>o.id===finishId);
  swatch.style.backgroundImage=finish?.path?
   'url("'+new URL('../'+finish.path,import.meta.url).href+'")':'none';
  swatch.dataset.textured=String(!!finish?.path);
- swatch.textContent=finish?.path?'':'Original';
- swatch.setAttribute('aria-label',(finish?.label||'Original')+' '+part+' texture preview');
+ swatch.textContent=finish?.path?'':inherited?'Shared: Original':'Original';
+ swatch.setAttribute('aria-label',inherited?
+  'Shared mall walls ('+(finish?.label||'Original')+') texture preview':
+  (finish?.label||'Original')+' '+part+' texture preview');
 }
 function syncFinishInputs(){
  if(!roomFinishes||!$('finish-room'))return;
  const id=$('finish-room').value,selection=status.draft.surfaces?.[id]||{};
+ const common=COMMON_MALL_ROOM_IDS.has(id);
+ const inherit=$('finish-wall').querySelector('option[value="inherit"]');
+ inherit.hidden=!common;inherit.disabled=!common;
  for(const part of ['wall','floor','ceiling']){
   const select=$('finish-'+part);
-  select.value=selection[part]||'original';
+  select.value=part==='wall'&&common&&!Object.prototype.hasOwnProperty.call(selection,'wall')?
+   'inherit':selection[part]||'original';
   select.disabled=!id||(part==='ceiling'&&!roomFinishes.counts(id)?.ceiling);
   updateFinishSwatch(part);
  }
@@ -555,6 +563,11 @@ function wireUI(){
    $('finish-'+part).append(option);
   }
  }
+ // Inherit is a UI choice only. The v1 JSON stores no wall property
+ // for a gallery room using the shared material.
+ const inheritOption=document.createElement('option');
+ inheritOption.value='inherit';inheritOption.textContent='Use shared mall walls (inherit)';
+ $('finish-wall').prepend(inheritOption);
  for(const item of ROOM_FINISHES_V87.wall){
   const opt=document.createElement('option');
   opt.value=item.id;opt.textContent=item.label;
