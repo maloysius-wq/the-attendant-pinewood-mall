@@ -32,7 +32,7 @@ export function validateWallDecayV100(manifest){
  const ids=new Set(),sourceKinds=new Set();
  for(const m of manifest.models){
   const slug=MODEL_SOURCES[m.id];
-  if(!slug||ids.has(m.id)||m.category!=='Abandoned Office Boards'||m.kind!=='model'||
+  if(!slug||ids.has(m.id)||m.category!==(slug==='cork-board'?'Bulletin Boards & Noticeboards':'Abandoned Office Boards')||m.kind!=='model'||
    m.path!==ROOT+'models/'+m.id.slice(5)+'.glb'||m.materialStyle!=='image-mapped'||
    m.license!=='CC0-1.0'||m.originalAuthor!=='Grab3D'||
    m.originalSource!=='https://grab3d.com/models/furniture/'+slug+'/'||

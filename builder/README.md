@@ -1,5 +1,23 @@
 # Pinewood World Builder
 
+## Interior wall restoration and stronger neglected-mall dressing (v105)
+
+**Original walls now stay interior.** A room whose bounding wall is also the weathered outside shell no longer exposes the exterior facade texture when you reset its wall finish to **Original walls**. The Builder reconstructs that room-facing surface with the same original interior partition diffuse map and color tint used by the canonical mall; exterior weathering is untouched. This includes the cinematic entrance wall and actual door header, never boarding over the doorway.
+
+**Common-area walls:** The Inspector's **Mall common-area walls** section controls interior gallery and public shopping-wall finishes independently of the individual store rooms. Select a shared shopping-gallery finish and click **Apply to mall common areas**. Specifically selected room wall finishes take precedence. This control saves as an optional `mallWallFinish` property in the same v1 layout JSON (without changing the existing schema version), and works with Undo/Redo, local IndexedDB reload and JSON export/import. Choosing **Original walls** for a room always restores its interior partition look, not the outside facing.
+
+**Find the bulletin board:** In the prop catalog, select **Bulletin Boards & Noticeboards** or search **BULLETIN BOARD**. The source-backed Grab3D cork board with pins and curling sheets is wall-mounted and has a larger default size. The independently sourced PBR GLB and original hash are preserved.
+
+**Visible neglect:** The new **Heavy Dirt & Scuffs** catalog category provides eight more substantial photograph-derived CC0 floor rubble, tracked soil, dusty grit, shoe dragging and wall-scrape stamps (including conspicuous defaults); **Scattered Trash & Debris** provides two genuine CC0 Poly Haven PBR litter GLBs, rather than hand-generated replacements. Their original source binaries are vendored and recorded in `assets/vendor/builder/decay-v105/manifest-v105.json`. The previous 36 subtle grime stamps remain available without changed IDs or source assets.
+
+**Poster variety:** The **Peeling Posters & Paper** category gains ten aged/curled wall posters displaying **ten genuinely different source illustrations** and distinct retail/corporate/community headings, on top of the earlier six legacy variants. The source archive checks each image's actual pixel hash to prevent image-download redirects from silently returning one repeated picture. Each poster's license, author and source page or explicitly reused original Pinewood advert are recorded separately in the new source manifest. All paper is lit by scene lights, not self-illuminated.
+
+**Facilities 1997 annual planner:** The large wall planner has been rebuilt on a clean period-appropriate paper surface. The photograph that previously had a conflicting older printed year is not present beneath the new 1997 dates. The original source photograph remains attributed in the source archive as the paper-color reference, with the new 1997-only output checksum pinned.
+
+**Boundaries:** The new objects and all these finishes live only in the standalone Builder until an exported layout is expressly approved for incorporation into the playable game. Existing room and object IDs, saved draft v1, default Snap OFF / Allow Overlap ON, all 41 architectural rooms, outdoor facade, six-chapter story and cinematic remain untouched.
+
+---
+
 ## Canonical in-world area signs restored (v104)
 
 The Builder now shows **41 physically lit, double-sided in-world room and area nameplates** drawn from the actual mall masterplan. Original stores (Cassette Castle, Sunburst Arcade, Video Planet, Fallow's, Old Food Court) are labeled over their real storefront entrances; office, staff, underground plant, mezzanine and corridor locations use the existing canonical names. Storefront labels are positioned against the verified doorway geometry, while continuous corridors and stair landings receive centered orientation markers. Signs use local, code-native period-inspired canvas graphics with **no emissive glow and no network-loaded fonts or imagery**.

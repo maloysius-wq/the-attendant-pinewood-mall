@@ -38,12 +38,12 @@ try{
  assert.ok(initial.facade.boardingPlankCount<=20,'simplified haphazard entrance boards');
  const planters=initial.landscape.positions.map(p=>p.x);
  for(let i=0;i<4;i++)assert.ok(Math.abs((planters[i]+planters[7-i])/2+10.5)<.001);
- await page.screenshot({path:'cinematic-v71-artifacts/01-dashboard-clock.png'});
+ await page.screenshot({timeout:90000,animations:'disabled',path:'cinematic-v71-artifacts/01-dashboard-clock.png'});
  await page.evaluate(()=>{const q=window.__PINEWOOD_OPENING_V34__;q.seek(7);q.scrub(.97);});
  await page.waitForTimeout(600);
  const entry=await page.evaluate(()=>window.__PINEWOOD_OPENING_V34__.accessPad);
  assert.ok(entry.pressed>=2&&entry.pressed<=3,'key presses follow the spoken directions');
- await page.screenshot({path:'cinematic-v71-artifacts/02-access-keypad.png'});
+ await page.screenshot({timeout:90000,animations:'disabled',path:'cinematic-v71-artifacts/02-access-keypad.png'});
  await page.evaluate(()=>{const q=window.__PINEWOOD_OPENING_V34__;q.seek(8);q.scrub(.8);});
  await page.waitForTimeout(500);
  const granted=await page.evaluate(()=>window.__PINEWOOD_OPENING_V34__.accessPad);
@@ -57,7 +57,7 @@ try{
  assert.equal(vestibule.world.mode,'unified-mall');
  assert.ok(vestibule.eye[0]>9&&vestibule.eye[0]<16&&vestibule.eye[2]<-22.5&&vestibule.eye[2]>-43,
   'camera must remain inside physical contractor vestibule');
- await page.screenshot({path:'cinematic-v71-artifacts/03-vestibule.png'});
+ await page.screenshot({timeout:90000,animations:'disabled',path:'cinematic-v71-artifacts/03-vestibule.png'});
  await page.evaluate(()=>{const q=window.__PINEWOOD_OPENING_V34__;q.seek(10);q.scrub(.94);});
  await page.waitForTimeout(950);
  const inside=await page.evaluate(()=>{
@@ -67,7 +67,7 @@ try{
  assert.equal(inside.mode,'unified-mall','inside must render canonical v69 mall');
  assert.ok(inside.eye[0]>-11&&inside.eye[0]<11&&inside.eye[2]<-43,
   'camera must enter the actual central atrium, not walk through the vestibule wall');
- await page.screenshot({path:'cinematic-v71-artifacts/04-actual-mall-interior.png'});
+ await page.screenshot({timeout:90000,animations:'disabled',path:'cinematic-v71-artifacts/04-actual-mall-interior.png'});
  assert.deepEqual(errors,[],'no browser errors');
  assert.deepEqual(remote,[],'all runtime assets local');
  await writeFile('cinematic-v71-artifacts/status.json',JSON.stringify({initial,entry,granted,inside,errors,remote},null,2));

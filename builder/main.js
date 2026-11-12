@@ -17,6 +17,7 @@ import {registerDecalCatalogV97,isDecalV97} from './decals-v97.js';
 import {registerVestibuleCatalogV98} from './vestibule-catalog-v98.mjs';
 import {registerWallDecayV100} from './wall-decay-v100.mjs';
 import {registerMoodV101} from './mood-catalog-v101.mjs';
+import {registerDecayV105} from './decay-catalog-v105.mjs';
 import {createOrderedDraftSaves} from './ordered-draft-saves-v102.mjs';
 
 const $=id=>document.getElementById(id);
@@ -27,6 +28,10 @@ const status={ready:false,errors:[],selected:null,roomCount:MALL.rooms.length,
 let scene,camera,renderer,orbit,editor,navigation,workLighting,areaSigns,exterior,roomFinishes,
  frames=0,undoStack=[],redoStack=[],idCounter=0;
 let blockedWarning=null;
+// Room surface meshes are independent of prop/door edits. Rebuilding every
+// wall panel on each placed object causes excessive Three.js allocations and
+// headless WebGL stalls. Only rebuild when the actual finish state changes.
+let appliedFinishSignature=null;
 const clone=v=>JSON.parse(JSON.stringify(v)),round=v=>Math.round(v*1000)/1000;
 const legacy=new Map([...FURNISHINGS_V69.fixtures,...EDITOR_EXTRA_FIXTURES_V1].map(f=>[f.id,f]));
 const catalog=[...EDITOR_CATALOG_V1];
@@ -69,6 +74,9 @@ async function loadVendorCatalog(){
  const moodResp=await fetch(new URL('../assets/vendor/builder/mood-v101/manifest-v101.json',import.meta.url));
  if(!moodResp.ok)throw Error('The pinned 1997 calendar and realistic plant library is unavailable');
  registerMoodV101(await moodResp.json(),catalog,EDITOR_CATALOG_BY_ID);
+ const gritResponse=await fetch(new URL('../assets/vendor/builder/decay-v105/manifest-v105.json',import.meta.url));
+ if(!gritResponse.ok)throw Error('Pinned heavy CC0 dirt, trash and advert media unavailable');
+ registerDecayV105(await gritResponse.json(),catalog,EDITOR_CATALOG_BY_ID);
  status.catalogCount=catalog.length;
 }
 
@@ -114,6 +122,8 @@ const API={
  getRoomFinishCounts:()=>roomFinishes?.getCounts(),
  getRoomWallPlan:id=>roomFinishes?.getWallPlans(id)||[],
  getRoomFinishes:()=>clone(status.draft.surfaces||{}),
+ getMallWallFinish:()=>status.draft.mallWallFinish||'original',
+ applyMallWallFinish:finishId=>commit({type:'mall-walls',finishId}),
  applyRoomFinishes:(roomId,finishes)=>commit({type:'finishes',roomId,finishes}),
  jumpParkingLot:()=>jumpParkingLot(),
  setWorkLights:enabled=>setWorkLights(enabled),
@@ -300,7 +310,13 @@ async function loadDraft(){
 }
 async function applyRenderedDraft(draft){
  await editor.applyDraft(draft);
- if(roomFinishes)status.finishMeshes=await roomFinishes.apply(draft.surfaces||{});
+ if(roomFinishes){
+  const signature=JSON.stringify([draft.surfaces||{},draft.mallWallFinish||'original']);
+  if(signature!==appliedFinishSignature){
+   status.finishMeshes=await roomFinishes.apply(draft.surfaces||{},draft.mallWallFinish||'original');
+   appliedFinishSignature=signature;
+  }
+ }
  if(navigation)navigation.resetDoorOverrides(draft.doors);
  syncFinishInputs();
 }
@@ -443,6 +459,16 @@ function syncFinishInputs(){
   updateFinishSwatch(part);
  }
  $('finish-apply').disabled=!id;
+ $('mall-wall-finish').value=status.draft.mallWallFinish||'original';
+ updateMallWallSwatch();
+}
+function updateMallWallSwatch(){
+ const choice=ROOM_FINISHES_V87.wall.find(o=>o.id===$('mall-wall-finish').value);
+ const swatch=$('mall-wall-preview');
+ swatch.style.backgroundImage=choice?.path?
+  'url("'+new URL('../'+choice.path,import.meta.url).href+'")':'none';
+ swatch.dataset.textured=String(!!choice?.path);
+ swatch.textContent=choice?.path?'':'Original';
 }
 function setAreaSigns(enabled){
  if(!areaSigns)return null;
@@ -529,6 +555,18 @@ function wireUI(){
    $('finish-'+part).append(option);
   }
  }
+ for(const item of ROOM_FINISHES_V87.wall){
+  const opt=document.createElement('option');
+  opt.value=item.id;opt.textContent=item.label;
+  $('mall-wall-finish').append(opt);
+ }
+ $('mall-wall-finish').addEventListener('change',updateMallWallSwatch);
+ $('mall-wall-apply').addEventListener('click',async()=>{
+  try{
+   await commit({type:'mall-walls',finishId:$('mall-wall-finish').value});
+   indicate('Applied gallery-wide interior wall finish');
+  }catch(err){report(err)}
+ });
  $('finish-room').addEventListener('change',syncFinishInputs);
  for(const part of ['wall','floor','ceiling'])$('finish-'+part).addEventListener('change',()=>updateFinishSwatch(part));
  $('finish-apply').addEventListener('click',async()=>{

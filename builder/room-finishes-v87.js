@@ -14,6 +14,22 @@ export function createRoomFinishesV87(building){
  const levelShells=new Map(building.shells.map(shell=>[shell.level,shell]));
  const roomById=new Map(MALL.rooms.map(r=>[r.id,r]));
  const finishes={floor:new THREE.Group(),wall:new THREE.Group(),ceiling:new THREE.Group()};
+ // The structural exterior mesh is intentionally shared. Its interior-facing
+ // paint is NOT the same thing as its weathered outside facade. Keep these
+ // original room-side coatings distinct from explicit authoring overrides.
+ const originalRoomWalls=new THREE.Group();
+ originalRoomWalls.name='Builder-only original interior shell wall coverings';
+ building.group.add(originalRoomWalls);
+ const COMMON_MALL_ROOM_IDS=new Set(['central_gallery','west_gallery','east_gallery','boarded_lobby']);
+ const shellExteriorIds=new Set(building.shells.flatMap(shell=>
+  shell.walls.filter(w=>w.role==='exterior').map(w=>w.id)));
+ const isExteriorFace=p=>shellExteriorIds.has(p.source)||p.source.startsWith('cinematic_front_');
+ // The actual render-shell-v67.js interior partition uses the bundled
+ // concrete_wall_001 diffuse map tinted 0xa49b89. "Original" on an exterior
+ // envelope must reproduce that SAME indoor partition finish, not substitute
+ // the outdoor 0x666f6e facade color or a different guessed plaster texture.
+ const interiorDefaultId=()=> 'concrete';
+ const interiorWallTint=room=>room.level==='G'&&room.x1>=47?0x657a7e:0xa49b89;
  for(const [name,g] of Object.entries(finishes)){
   g.name='Builder-only '+name+' room finishes';
   (name==='ceiling'?building.ceilings:building.group).add(g);
@@ -60,6 +76,7 @@ export function createRoomFinishesV87(building){
   // Overlays must never become placement colliders or selection handles.
   mesh.raycast=()=>{};
   group.add(mesh);
+  return mesh;
  }
  const overlap=(a,b,c,d)=>[Math.max(a,c),Math.min(b,d)];
  function renderFloor(room,id,texture){
@@ -72,13 +89,14 @@ export function createRoomFinishesV87(building){
    paint(layer,'floor',room,id,texture,w,d,(x1+x2)/2,p.y+.018,(z1+z2)/2,0,-Math.PI/2);
   }
  }
- function renderWalls(room,id,texture){
+ function renderWalls(room,id,texture,{originalExteriorOnly=false}={}){
   // The front-facing cinematic facade replaces the hidden shell wall.
-  // The shared planner also clips wall finish to each room's actual ceiling
-  // and resolves overlaps between differently sized adjacent partitions.
+  // Never repaint the physical outside with an internal room finish.
   for(const p of wallPlan(room.id)){
-   paint(finishes.wall,'wall',room,id,texture,p.width,p.height,
-    p.x,p.y,p.z,p.rotationY);
+   if(originalExteriorOnly&&!isExteriorFace(p))continue;
+   const mesh=paint(originalExteriorOnly?originalRoomWalls:finishes.wall,
+    'wall',room,id,texture,p.width,p.height,p.x,p.y,p.z,p.rotationY);
+   if(originalExteriorOnly)mesh.material.color.setHex(interiorWallTint(room));
   }
  }
  function renderCeiling(room,id,texture){
@@ -100,22 +118,37 @@ export function createRoomFinishesV87(building){
    ceiling:shell.ceilings.filter(p=>p.room===room.id).length};
  }
  function clear(){
-  for(const g of Object.values(finishes)){
+  for(const g of [...Object.values(finishes),originalRoomWalls]){
    for(const mesh of [...g.children]){mesh.removeFromParent();mesh.geometry.dispose();mesh.material.dispose();}
   }
  }
- async function apply(surfaceMap={}){
-  const batch=[];
-  for(const [roomId,surfaces] of Object.entries(surfaceMap)){
-   const room=roomById.get(roomId);
-   if(!room)throw Error('Unknown room surface target '+roomId);
-   for(const part of ['wall','floor','ceiling']){
-    const id=surfaces?.[part];
-    if(!id||id==='original')continue;
-    batch.push({part,room,id,texture:await textureFor(part,id)});
+ async function apply(surfaceMap={},mallWallFinish='original'){
+  if(mallWallFinish!=='original'&&!ROOM_FINISHES_V87.wall.some(f=>f.id===mallWallFinish))
+   throw Error('Invalid common mall wall finish '+mallWallFinish);
+  const batch=[],originalShell=[];
+  // Resolve all 41 room-facing surfaces independently, so 'Original' means
+  // the room's indoor wall covering, not an exposed weathered exterior shell.
+  for(const room of MALL.rooms){
+   const surfaces=surfaceMap[room.id]||{};
+   const explicit=surfaces.wall;
+   const common=COMMON_MALL_ROOM_IDS.has(room.id)?mallWallFinish:'original';
+   const wallId=explicit&&explicit!=='original'?explicit:common;
+   if(wallId!=='original'){
+    batch.push({part:'wall',room,id:wallId,texture:await textureFor('wall',wallId)});
+   }else{
+    const id=interiorDefaultId(room);
+    originalShell.push({room,id,texture:await textureFor('wall',id)});
+   }
+   for(const part of ['floor','ceiling']){
+    const id=surfaces[part];
+    if(id&&id!=='original')batch.push({part,room,id,texture:await textureFor(part,id)});
    }
   }
+  // Explicit room walls trump the common-mall finish; 'Original' does not
+  // erase other sides of a shared wall or write through to outdoors.
   clear();
+  for(const {room,id,texture} of originalShell)
+   renderWalls(room,id,texture,{originalExteriorOnly:true});
   for(const {part,room,id,texture} of batch){
    if(part==='floor')renderFloor(room,id,texture);
    else if(part==='wall')renderWalls(room,id,texture);
@@ -126,7 +159,7 @@ export function createRoomFinishesV87(building){
  }
  function dispose(){
   clear();
-  for(const g of Object.values(finishes))g.removeFromParent();
+  for(const g of [...Object.values(finishes),originalRoomWalls])g.removeFromParent();
   for(const promise of textureCache.values())promise.then(t=>t.dispose()).catch(()=>{});
   textureCache.clear();
  }
@@ -135,5 +168,6 @@ export function createRoomFinishesV87(building){
   getWallPlans:wallPlan,
   getCounts:()=>({
   floor:finishes.floor.children.length,wall:finishes.wall.children.length,
+  originalInteriorShell:originalRoomWalls.children.length,
   ceiling:finishes.ceiling.children.length}),dispose};
 }

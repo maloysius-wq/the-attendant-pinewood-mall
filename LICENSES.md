@@ -442,3 +442,24 @@ New standalone catalog categories: **Abandoned Office Boards** (2 models) and **
 **Selection:** Clicking genuinely empty canvas space with a selected object now detaches the transform gizmo and clears the inspector; clicking another prop selects it. Transform gizmo interactions, material editing, placement and camera movement are not intercepted.
 
 Scope is **Builder-only**. No plot/game/cinematic asset changes, no banned furniture, all 41 rooms, Snap OFF / Allow Overlap ON, previous decal models, source vendor pins, v1 save imports and all existing ID mappings retained. Target catalog after asset vendoring: **618 entries** (610 before, +4 plants including withering variation, +4 calendars). Never claim live until the source binaries land, targeted tests pass, and GitHub Pages deployment succeeds.
+
+## Builder v105: heavy CC0 decay, physical litter, independent poster artwork, and corrected planner
+
+**No new external dependencies at runtime.** The Builder locally hosts every source photograph and converted GLB in `assets/vendor/builder/decay-v105/`, with exact SHA-256 and original/derived file sizes in `manifest-v105.json`. These additions are Builder authoring props, not automatically added to the playable chapters.
+
+**Two independently sourced CC0 PBR 3D trash models, preserving source geometry/UVs/maps:**
+
+- [Poly Haven Trashbag](https://polyhaven.com/a/trashbag), creator Benny Weimer, CC0 1.0. Original 1K glTF components and publisher MD5 source checks are recorded in `manifest-v105.json`; packed into `models/trashbag.glb` without creating replacement 3D meshes.
+- [Poly Haven Plastic Bottle Gallon](https://polyhaven.com/a/plastic_bottle_gallon), creator Rahul Chaudhary, CC0 1.0. Original PBR mesh and images are packed into `models/plastic_bottle_gallon.glb`; the exact component URLs, publisher MD5 values, local component SHA-256s and GLB SHA-256 are pinned.
+
+**Heavy photographic dirt/grime sources:**
+
+- [ambientCG Ground111](https://ambientcg.com/view?id=Ground111), [Ground103](https://ambientcg.com/view?id=Ground103), and [Ground090](https://ambientcg.com/view?id=Ground090), CC0 1.0. New exact source-photograph albedo scans were extracted from each official 1K archive. Dark irregular-alpha overlays, cropped/scaled from the source pixels, become prominent floor grit/rubble/dust. The ZIP SHA-256 and extracted source image SHA-256 are recorded.
+- Four more forceful shoe/furniture scuffs and wall dirt patterns are derived from the already archived ambientCG CC0 photographs in `assets/vendor/builder/decals-v97/`. Their original source images and unchanged v97 files retain their original pins; only the new v105 processed PNGs carry strengthened contrast/opacity and appropriately feathered edges.
+
+**Ten different peeling posters, not ten crops of one image:** `manifest-v105.json` records the individually vetted source name, original license, author, description page or local original source path, full original source pixel signature, source SHA-256 and final source-backed aged/peeling PNG checksum. New external public-domain/CC0 artwork is used only where the original source can actually be downloaded and its right-to-use terms inspected; if the public source API is unavailable, distinct **original-Pinewood** advertising/notices previously published locally in `vestibule-v98/images/` are an explicitly attributed fallback. The ten original image pixel signatures and hashes **must all differ**; equal redirect placeholders are rejected. The poster image and their labels are original-artwork-based composites, not independent 3D poster models.
+
+**1997 facilities annual planner:** The earlier commercial wall-card blended the Claudio Elias public-domain photo of a calendar as a texture substrate. That photograph contained a different printed year, visible beneath the 1997 overlay. The corrected version creates fresh paper fibers from a neutral color sampled from the PD photograph and constructs **1997-only grid/text**. It incorporates no actual source photo pixels, so old printed dates cannot show through. The derived planner image SHA-256 and bytes have been repinned in `mood-v101/manifest-v101.json`. Other period-correct calendars and source rights are unchanged.
+
+**Bulletin board discoverability:** The existing genuine Grab3D CC0 cork board (`wall-decay-v100/models/aged-cork-bulletin-board.glb`) is still the **exact original independently downloaded GLB** with unchanged source SHA-256. Its category is now **Bulletin Boards & Noticeboards**, and its catalog label begins **BULLETIN BOARD**, with a more useful displayed scale and its existing wall-mount handling. It has not been replaced by a fabricated mesh.
+

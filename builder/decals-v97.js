@@ -46,8 +46,10 @@ export function registerDecalCatalogV97(manifest,catalog,index){
 
 export function createDecalFactoryV97(){
  const loader=new THREE.TextureLoader(),cache=new Map();
+ const isHeavyDirt=item=>item?.category==='Heavy Dirt & Scuffs'&&
+  item?.path?.startsWith('assets/vendor/builder/decay-v105/decals/');
  async function make(item){
-  if(!isDecalV97(item)||!/^assets\/vendor\/builder\/(?:decals-v97\/|vestibule-v98\/images\/|wall-decay-v100\/posters\/|mood-v101\/calendars\/)[a-z0-9-]+\.png$/.test(item.path))
+  if(!isDecalV97(item)||!/^assets\/vendor\/builder\/(?:decals-v97\/|vestibule-v98\/images\/|wall-decay-v100\/posters\/|mood-v101\/calendars\/|decay-v105\/(?:decals|posters)\/)[a-z0-9-]+\.png$/.test(item.path))
    throw Error('Unsafe local decal source');
   if(!cache.has(item.id))cache.set(item.id,loader.loadAsync(
    new URL('../'+item.path,import.meta.url).href).then(t=>{
@@ -67,14 +69,15 @@ export function createDecalFactoryV97(){
   // Posters/notices obey real light. Grime is deliberately dark ink (not
   // emitted light) laid over the room finish, so it remains discernible in
   // the shadowed contractor vestibule at the user's chosen opacity.
-  const material=new (isGrimeDecalV101(item)?THREE.MeshBasicMaterial:THREE.MeshStandardMaterial)({
+  const isDarkDirt=isGrimeDecalV101(item)||isHeavyDirt(item);
+  const material=new (isDarkDirt?THREE.MeshBasicMaterial:THREE.MeshStandardMaterial)({
    name:'GrimeDecal_'+item.id,map:tex,
    transparent:true,opacity:item.opacity,depthWrite:false,depthTest:true,
    polygonOffset:true,polygonOffsetFactor:-2,polygonOffsetUnits:-2,
    side:THREE.DoubleSide,toneMapped:true,
-   ...(isGrimeDecalV101(item)?{color:0xffffff}:{color:0xffffff,metalness:0,roughness:1,emissive:0x000000,emissiveIntensity:0})
+   ...(isDarkDirt?{color:0xffffff}:{color:0xffffff,metalness:0,roughness:1,emissive:0x000000,emissiveIntensity:0})
   });
-  material.userData.builderMaterialLightingV101=isGrimeDecalV101(item)?'darken-only-photo':'fully-lit-paper';
+  material.userData.builderMaterialLightingV101=isDarkDirt?'darken-only-photo':'fully-lit-paper';
   material.userData={...material.userData,builderSurfaceDecalV97:true,originalOpacity:item.opacity};
   const mesh=new THREE.Mesh(geometry,material);
   mesh.name='Surface decal '+item.label;

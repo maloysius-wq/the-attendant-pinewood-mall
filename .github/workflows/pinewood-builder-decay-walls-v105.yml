@@ -1,0 +1,61 @@
+name: Pinewood Builder v105 real decay and interior/common wall regression
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'builder/decay-catalog-v105.mjs'
+      - 'builder/decals-v97.js'
+      - 'builder/editor-scene.js'
+      - 'builder/room-finishes-v87.js'
+      - 'builder/main.js'
+      - 'builder/index.html'
+      - 'builder/room-wall-layout-v90.mjs'
+      - 'mall/editor-schema-v1.mjs'
+      - 'assets/vendor/builder/decay-v105/**'
+      - 'assets/vendor/builder/mood-v101/calendars/facilities-year-planner.png'
+      - 'assets/vendor/builder/mood-v101/manifest-v101.json'
+      - 'assets/vendor/builder/wall-decay-v100/manifest-v100.json'
+      - 'builder/wall-decay-v100.mjs'
+      - 'scripts/test-builder-decay-walls-v105.mjs'
+      - 'scripts/test-v105-visible-photos.py'
+      - 'scripts/smoke-builder-decay-walls-v105.mjs'
+      - '.github/workflows/pinewood-builder-decay-walls-v105.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  visual-decay-and-wall-surfaces:
+    if: github.repository == 'maloysius-wq/the-attendant-pinewood-mall'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 18
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Check exactly pinned assets, old source models, original room geometry and v1 schemas
+        run: |
+          node --test scripts/test-builder-decay-walls-v105.mjs scripts/test-builder-room-walls-v90.mjs scripts/test-builder-schema-v1.mjs
+          node --test scripts/audit-builder-assets-v1.mjs
+      - name: Check that newly authored dirt is substantially visible, with ten genuinely different artworks
+        run: |
+          python3 -m pip install --break-system-packages pillow==11.3.0
+          python3 scripts/test-v105-visible-photos.py
+      - name: Install desktop-only Chromium
+        run: |
+          npm install --no-save playwright@1.55.0
+          npx playwright install chromium
+      - name: Serve all original vendor media from repository
+        run: |
+          python3 -m http.server 4173 --bind 127.0.0.1 >/tmp/pinewood-v105-http.log 2>&1 &
+          for i in {1..30}; do curl -fsS http://127.0.0.1:4173/builder/ >/dev/null && exit 0; sleep 1; done
+          exit 1
+      - name: Verify dark material, clean room original walls, gallery finish and 7 actual sourced 3D assets
+        run: node scripts/smoke-builder-decay-walls-v105.mjs
+      - name: Keep deterministic desktop authoring screenshot
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pinewood-builder-v105-desktop
+          path: artifacts/pinewood-v105-editor.png
+          if-no-files-found: ignore
