@@ -7,7 +7,7 @@ const sourceIds=new Set([
 ]);
 const isPin=x=>safeSize(x.bytes)&&SHA.test(x.sha256);
 const verifiedDistinctPosterSources=m=>{
- const src=m.sources.filter(x=>x.id.startsWith('commons-'));
+ const src=m.sources.filter(x=>x.id.startsWith('commons-')||x.id.startsWith('local-v98-'));
  return src.length===10&&new Set(src.map(x=>x.sha256)).size===10&&
   new Set(src.map(x=>x.pixelSignature)).size===10;
 };
@@ -18,7 +18,7 @@ export function validateDecayV105(m){
  const ids=new Set(),sources=new Map(m.sources.map(s=>[s.id,s]));
  if(sources.size!==m.sources.length)throw Error('Duplicate source id');
  for(const source of m.sources){
-  if(!isPin(source)||!['CC0-1.0','Public-domain'].includes(source.license))throw Error('Unpinned CC0 source '+source.id);
+  if(!isPin(source)||!['CC0-1.0','Public-domain','Original-Pinewood'].includes(source.license))throw Error('Unpinned CC0 source '+source.id);
   if(!source.path?.startsWith(ROOT+'sources/')&&!source.path?.startsWith('assets/vendor/builder/decals-v97/'))
    throw Error('Source not archived locally '+source.id);
   if(source.id.startsWith('commons-')){
@@ -27,6 +27,12 @@ export function validateDecayV105(m){
     !['CC0-1.0','Public-domain'].includes(source.license)||
     !SHA.test(source.pixelSignature))
     throw Error('Unverified independently licensed Commons artwork '+source.id);
+  }else if(source.id.startsWith('local-v98-')){
+   if(source.license!=='Original-Pinewood'||
+    source.sourcePage!=='assets/vendor/builder/vestibule-v98/manifest-v98.json'||
+    !source.downloadUrl?.startsWith('assets/vendor/builder/vestibule-v98/images/')||
+    !SHA.test(source.originalSourceSHA256)||!SHA.test(source.pixelSignature))
+    throw Error('Unverified original Pinewood poster artwork '+source.id);
   }else if(source.id.startsWith('ambientcg-')){
    const ground=source.id.replace('ambientcg-','');
    if(!sourceIds.has(ground[0].toUpperCase()+ground.slice(1))||
@@ -39,7 +45,8 @@ export function validateDecayV105(m){
   const source=sources.get(p.sourceId);
   if(!p.id?.startsWith('decay-v105-poster-')||ids.has(p.id)||
    p.category!=='Peeling Posters & Paper'||p.kind!=='surface-decal'||
-   p.surface!=='wall'||!['CC0-1.0','Public-domain'].includes(p.license)||!source?.id.startsWith('commons-')||
+   p.surface!=='wall'||!['CC0-1.0','Public-domain','Original-Pinewood'].includes(p.license)||
+   !(source?.id.startsWith('commons-')||source?.id.startsWith('local-v98-'))||p.license!==source.license||
    p.originalAuthor!==source.originalAuthor||p.originalSource!==source.sourcePage||
    !['corners','top','bottom','right','half','strips'].includes(p.peelStyle)||
    !p.path?.startsWith(ROOT+'posters/')||p.path!==p.thumb||
