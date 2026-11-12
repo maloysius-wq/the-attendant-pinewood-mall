@@ -457,11 +457,13 @@ function syncFinishInputs(){
  if(!roomFinishes||!$('finish-room'))return;
  const id=$('finish-room').value,selection=status.draft.surfaces?.[id]||{};
  const common=COMMON_MALL_ROOM_IDS.has(id);
+ // Initial draft render runs before wireUI creates the dropdown options.
+ // The later wireUI sync will select Inherit for un-overridden galleries.
  const inherit=$('finish-wall').querySelector('option[value="inherit"]');
- inherit.hidden=!common;inherit.disabled=!common;
+ if(inherit){inherit.hidden=!common;inherit.disabled=!common;}
  for(const part of ['wall','floor','ceiling']){
   const select=$('finish-'+part);
-  select.value=part==='wall'&&common&&!Object.prototype.hasOwnProperty.call(selection,'wall')?
+  select.value=part==='wall'&&common&&inherit&&!Object.prototype.hasOwnProperty.call(selection,'wall')?
    'inherit':selection[part]||'original';
   select.disabled=!id||(part==='ceiling'&&!roomFinishes.counts(id)?.ceiling);
   updateFinishSwatch(part);
