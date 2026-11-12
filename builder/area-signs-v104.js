@@ -96,12 +96,18 @@ export function createAreaSignsV104({building}){
  }
  building.group.add(root);
  let visible=true;
- const getState=()=>({
-  visible,count:placements.length,faceCount:placements.length*2,
-  nonEmissive:materials.every(m=>!m.emissive||m.emissive.getHex()===0),
-  labels:placements.map(p=>p.label),
-  placements:placements.map(p=>({...p,position:{...p.position}}))
- });
+ const getState=()=>{
+  const faces=[];
+  root.traverse(node=>{if(node.isMesh&&node.name.startsWith('area_sign_face_'))faces.push(node)});
+  return {
+   visible:root.visible,count:root.children.length,faceCount:faces.length,
+   texturedFaces:faces.filter(face=>!!face.material.map).length,
+   sceneAttached:root.parent===building.group,
+   nonEmissive:materials.every(m=>!m.emissive||m.emissive.getHex()===0),
+   labels:placements.map(p=>p.label),
+   placements:placements.map(p=>({...p,position:{...p.position}}))
+  };
+ };
  return{
   getState,
   setVisible(value){visible=!!value;root.visible=visible;return getState()},
