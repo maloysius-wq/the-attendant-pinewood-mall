@@ -1,4 +1,5 @@
-import {renderAuthoredPinewoodV111,applyAuthoredCollidersV111} from './mall/authored-scene-v111.js';
+import {renderAuthoredPinewoodV111} from './mall/authored-scene-v111.js';
+import {applyAuthoredCollidersV111} from './mall/authored-colliders-v111.mjs';
 import {buildGameplayLayoutV70,eyeHeightOnMezzStairV70} from './mall/gameplay-layout-v70.mjs';
 import {VISUAL_VIEWPOINTS_V70} from './mall/visual-anchors-v70.mjs';
 import {CCTV_FEEDS_V70} from './mall/story-placement-v70.mjs';
