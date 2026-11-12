@@ -177,7 +177,11 @@ function writeInspector(id,p){
  $('transform-fields').hidden=!id;
  $('decal-opacity-field').hidden=!isDecalV97(item);
  if(!id||!p){refreshOutliner();return}
- if(isDecalV97(item))$('decal-opacity').value=String(placed?.opacity??item.opacity);
+ if(isDecalV97(item)){
+  const value=placed?.opacity??item.opacity;
+  $('decal-opacity').value=String(value);
+  $('decal-opacity-value').textContent=Math.round(value*100)+'%';
+ }
  $('placement-tip').textContent='Selected '+labels(id)+' · Wheel rotates 15° · Shift+wheel zooms camera · Drag handles for precise placement';
  for(const k of ['x','y','z']){
   $('pos-'+k).value=round(p.position[k]);
@@ -340,17 +344,23 @@ async function removeSelected(){
  const id=status.selected;await commit({type:'delete',id});editor.select(null);
  return true;
 }
+function syncSelectedInspector(){
+ const id=editor.selected;
+ writeInspector(id,id?editor.poseOf(id):null);
+}
 async function undo(){
  if(!undoStack.length)return false;
  clearCollisionWarning();
  redoStack.push(clone(status.draft));status.draft=undoStack.pop();
- await applyRenderedDraft(status.draft);reflect();await saveDraft();return true;
+ await applyRenderedDraft(status.draft);
+ syncSelectedInspector();reflect();await saveDraft();return true;
 }
 async function redo(){
  if(!redoStack.length)return false;
  clearCollisionWarning();
  undoStack.push(clone(status.draft));status.draft=redoStack.pop();
- await applyRenderedDraft(status.draft);reflect();await saveDraft();return true;
+ await applyRenderedDraft(status.draft);
+ syncSelectedInspector();reflect();await saveDraft();return true;
 }
 async function importJSON(json){
  const draft=importDraft(json,catalog);
@@ -441,6 +451,15 @@ function setWorkLights(enabled){
 function wireUI(){
  for(const id of ['pos-x','pos-y','pos-z','rot-x','rot-y','rot-z','object-scale','decal-opacity'])
   $(id).addEventListener('change',updateFromInputs);
+ // Dragging is temporary visual feedback, not a draft action. The range's
+ // change event commits one undoable edit when the adjustment is finished.
+ $('decal-opacity').addEventListener('input',()=>{
+  const placed=status.draft.added.find(x=>x.id===status.selected);
+  if(!isDecalV97(EDITOR_CATALOG_BY_ID.get(placed?.catalogId)))return;
+  const value=Number($('decal-opacity').value);
+  if(editor.previewDecalOpacity(status.selected,value))
+   $('decal-opacity-value').textContent=Math.round(value*100)+'% preview';
+ });
  const modes=[['translate','translate'],['rotate','rotate'],['resize-object','scale']];
  for(const [button,mode] of modes)$(button).addEventListener('click',()=>{
   editor.setTransformMode(mode);
