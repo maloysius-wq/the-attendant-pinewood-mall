@@ -28,6 +28,10 @@ const status={ready:false,errors:[],selected:null,roomCount:MALL.rooms.length,
 let scene,camera,renderer,orbit,editor,navigation,workLighting,areaSigns,exterior,roomFinishes,
  frames=0,undoStack=[],redoStack=[],idCounter=0;
 let blockedWarning=null;
+// Room surface meshes are independent of prop/door edits. Rebuilding every
+// wall panel on each placed object causes excessive Three.js allocations and
+// headless WebGL stalls. Only rebuild when the actual finish state changes.
+let appliedFinishSignature=null;
 const clone=v=>JSON.parse(JSON.stringify(v)),round=v=>Math.round(v*1000)/1000;
 const legacy=new Map([...FURNISHINGS_V69.fixtures,...EDITOR_EXTRA_FIXTURES_V1].map(f=>[f.id,f]));
 const catalog=[...EDITOR_CATALOG_V1];
@@ -306,7 +310,13 @@ async function loadDraft(){
 }
 async function applyRenderedDraft(draft){
  await editor.applyDraft(draft);
- if(roomFinishes)status.finishMeshes=await roomFinishes.apply(draft.surfaces||{},draft.mallWallFinish||'original');
+ if(roomFinishes){
+  const signature=JSON.stringify([draft.surfaces||{},draft.mallWallFinish||'original']);
+  if(signature!==appliedFinishSignature){
+   status.finishMeshes=await roomFinishes.apply(draft.surfaces||{},draft.mallWallFinish||'original');
+   appliedFinishSignature=signature;
+  }
+ }
  if(navigation)navigation.resetDoorOverrides(draft.doors);
  syncFinishInputs();
 }
