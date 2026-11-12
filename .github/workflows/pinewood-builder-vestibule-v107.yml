@@ -1,4 +1,4 @@
-name: Pinewood Builder v107 authored vestibule patina and realistic fixture failure
+name: Pinewood Builder v108 physical fluorescent ceiling and rapid ballast failures
 on:
   pull_request:
     branches: [main]
@@ -6,11 +6,13 @@ on:
       - 'builder/vestibule-patina-plan-v107.mjs'
       - 'builder/vestibule-patina-v107.js'
       - 'builder/vestibule-light-v107.js'
+      - 'builder/vestibule-fixture-v108.js'
       - 'builder/decals-v97.js'
       - 'builder/room-wall-layout-v90.mjs'
       - 'builder/main.js'
       - 'builder/index.html'
       - 'scripts/test-builder-vestibule-v107.mjs'
+      - 'scripts/inspect-builder-vestibule-fixture-v108.mjs'
       - 'scripts/smoke-builder-vestibule-v107.mjs'
       - '.github/workflows/pinewood-builder-vestibule-v107.yml'
   workflow_dispatch:
@@ -31,6 +33,8 @@ jobs:
           node --test scripts/test-builder-vestibule-v107.mjs scripts/test-builder-work-lights-v1.mjs
           node --test scripts/test-builder-vestibule-v98.mjs scripts/test-builder-decay-walls-v105.mjs
           node --test scripts/audit-builder-assets-v1.mjs scripts/audit-local-assets-v15.mjs
+      - name: Inspect already-pinned true fixture housing and emissive lens topology
+        run: node scripts/inspect-builder-vestibule-fixture-v108.mjs
       - name: Install desktop-only Chromium
         run: |
           npm install --no-save playwright@1.55.0
@@ -46,6 +50,6 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: pinewood-v107-real-vestibule
+          name: pinewood-v108-real-vestibule
           path: artifacts/vestibule-patina-v107-desktop.png
           if-no-files-found: ignore

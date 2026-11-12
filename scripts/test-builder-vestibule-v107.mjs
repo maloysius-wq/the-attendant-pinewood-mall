@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
+import {createHash} from 'node:crypto';
 import * as THREE from '../vendor/three/build/three.module.js';
 import {MALL} from '../mall/masterplan-v66.mjs';
 import {constructPhysicalShell} from '../mall/physical-shell-v67.mjs';
@@ -64,47 +65,80 @@ test('wall stains resolve actual material plane, never hidden behind thicker cin
  const bad={...marks[0],id:'intentionally-misplaced',position:{x:16,y:1,z:-44}};
  assert.throws(()=>resolveVestibulePatinaWallV107(bad,faces),/not mounted/);
 });
-test('randomly scheduled dim holds around one second and recovers naturally',()=>{
+test('fixture model is the existing licensed source GLB, with actual fluorescent glass and frame',()=>{
+ const vendor=JSON.parse(readFileSync(new URL('../assets/vendor/builder/catalog-v1.json',import.meta.url)));
+ const id='three-d-liminal-spaces-kit-liminal-spaces-kit-ceiling-fluorescent-0299417a';
+ const entry=vendor.models.find(x=>x.id===id);
+ assert.ok(entry&&entry.license==='CC0-1.0'&&entry.bytes===80760);
+ assert.match(entry.sourcePage,/liminal-spaces-kit-ceiling-fluorescent/);
+ const buf=readFileSync(new URL('../'+entry.path,import.meta.url));
+ assert.equal(buf.toString('ascii',0,4),'glTF');
+ assert.equal(createHash('sha256').update(buf).digest('hex'),entry.sha256,
+  'Fixture GLB bytes must match original pinned CC0 catalog source');
+ const doc=JSON.parse(buf.subarray(20,20+buf.readUInt32LE(12)).toString('utf8'));
+ assert.ok(doc.meshes.length>=4,'Actual ceiling frame, housing and lens geometry');
+ assert.ok(doc.materials.some(m=>m.name==='light'&&m.emissiveFactor?.some(v=>v>.1)),
+  'Source light housing includes real emissive fluorescent geometry');
+ assert.ok(doc.images.length>=2,'Real fixture housing uses bundled source textures');
+});
+test('failed ballast flutters several times in a fraction of a second, frequently',()=>{
  const seq=createVestibuleLightSequencerV107({random:()=>0});
  assert.equal(seq.getState().phase,'steady');
- assert.equal(seq.update(8.99).level,1);
- const dim=seq.update(.02);
- assert.equal(dim.phase,'dim');assert.equal(dim.level,.22);assert.equal(dim.events,1);
- assert.equal(seq.update(.70).phase,'dim');
- const restored=seq.update(.2);
- assert.equal(restored.phase,'steady');assert.equal(restored.level,1);
- assert.ok(restored.remaining>=8&&restored.remaining<=28);
-});
-test('random flicker is rare, spaced and visibly off/on rather than rapid strobing',()=>{
- const seq=createVestibuleLightSequencerV107({random:()=>.99});
- assert.equal(seq.update(26.83).phase,'off');
- assert.ok(seq.getState().level<.05);
- assert.equal(seq.update(.19).phase,'on');
+ assert.equal(seq.update(1.14).level,1);
+ const pulse=seq.update(.02);
+ assert.equal(pulse.phase,'flicker');assert.ok(pulse.level<.10);
+ assert.equal(seq.update(.05).phase,'rebound');
+ assert.equal(seq.update(.06).phase,'flicker');
+ assert.equal(seq.update(.05).phase,'rebound');
+ assert.equal(seq.update(.06).phase,'steady');
  assert.equal(seq.getState().level,1);
- assert.equal(seq.update(.46).phase,'off');
- assert.equal(seq.update(.20).phase,'recovery');
- const restored=seq.update(.6);
- assert.equal(restored.phase,'steady');assert.equal(restored.level,1);
- assert.equal(restored.events,1);assert.equal(restored.lastEvent,'flicker');
+ // A rapidly misbehaving bulb should suffer multiple episodes in 10 seconds.
+ for(let t=0;t<10;t+=.05)seq.update(.05);
+ assert.ok(seq.getState().events>=7,'Too infrequent compared with old 9-27-second delays');
 });
-test('live fixture adapter dims existing real light and glass bulb, cleanly restores both',()=>{
+test('occasional full-blackout bursts turn the light literally OFF and sputter back on',()=>{
+ const seq=createVestibuleLightSequencerV107({random:()=>.99});
+ assert.equal(seq.update(3.49).phase,'off');
+ assert.equal(seq.getState().level,0,'A true blackout must emit zero light');
+ assert.equal(seq.update(.46).phase,'rebound');
+ assert.ok(seq.getState().level>0);
+ assert.equal(seq.update(.16).phase,'off');
+ assert.equal(seq.getState().level,0);
+ assert.equal(seq.update(.165).phase,'recovery');
+ assert.equal(seq.update(.25).phase,'steady');
+ assert.equal(seq.getState().level,1);
+ assert.equal(seq.getState().lastEvent,'blackout');
+});
+test('real ceiling model controls original pointlight, hides floating orb and restores authored rig',()=>{
  const group=new THREE.Group();
  const light=new THREE.PointLight(0xd5e7d9,10,14,2);
  light.position.set(12,2.9,-30);group.add(light);
  const bulb=new THREE.Mesh(new THREE.SphereGeometry(.12,8,6),
   new THREE.MeshBasicMaterial({color:0xd5e7d9}));
  bulb.position.copy(light.position);group.add(bulb);
- const original=bulb.material.color.getHex();
- const adapter=createVestibuleFixtureLightV107({group},{random:()=>0});
- adapter.update(9.03);
- assert.equal(adapter.getState().phase,'dim');
- assert.ok(light.intensity<4,'The actual room light, not a duplicate prop, dims');
- assert.ok(bulb.material.color.getHex()!==original,'The visible lamp also dims');
- const draftUnrelated=adapter.setEnabled(false);
- assert.equal(draftUnrelated.enabled,false);
- assert.equal(light.intensity,10);
- assert.equal(bulb.material.color.getHex(),original);
- adapter.setEnabled(true);adapter.update(9.03);
- adapter.dispose();assert.equal(light.intensity,10);
- assert.equal(bulb.material.color.getHex(),original);
+ let lens=1,disposed=false;
+ const fixture={
+  emitter:{x:12,y:3.08,z:-30},
+  setLevel(v){lens=v;},
+  getState(){return {mounted:true,asset:'pinned-real-fluorescent',lensCount:1,lensLevel:lens};},
+  dispose(){disposed=true;}
+ };
+ const adapter=createVestibuleFixtureLightV107({group},{random:()=>.99,fixture});
+ assert.equal(light.position.y,3.08);
+ assert.equal(bulb.visible,false,'Floating original bulb is hidden');
+ assert.equal(adapter.getState().lightIntensity,17);
+ adapter.update(3.49);
+ assert.equal(adapter.getState().phase,'off');
+ assert.equal(adapter.getState().lightIntensity,0,'Fully off must really be dark');
+ assert.equal(lens,0,'The source mesh emission goes dark with the pointlight');
+ adapter.update(.46);
+ assert.ok(adapter.getState().lightIntensity>0);
+ adapter.setEnabled(false);
+ assert.equal(light.intensity,17,'Opting out restores steady light');
+ assert.equal(lens,1);
+ adapter.dispose();
+ assert.equal(disposed,true);
+ assert.equal(light.intensity,10,'Restore original game rig intensity');
+ assert.equal(light.position.y,2.9,'Restore original pointlight position');
+ assert.equal(bulb.visible,true,'Restore original lamp sphere');
 });
