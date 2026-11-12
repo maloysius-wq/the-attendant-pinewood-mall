@@ -11,6 +11,7 @@ import {makeCrtPoweredOffV96} from './crt-powered-off-v96.js';
 import {createDecalFactoryV97,isDecalV97,wallDecalQuaternionV97} from './decals-v97.js';
 import {weatherSourceBoardV100,attachBoardGrimeV100,disposeBoardGrimeV100} from './peeling-poster-v100.mjs';
 import {ageRealPlantV101} from './mood-materials-v101.mjs';
+import {fetchLocalGlbV109} from './local-model-fetch-v109.mjs';
 
 const vector=v=>({x:v.x,y:v.y,z:v.z});
 const pose=o=>({position:vector(o.position),rotation:vector(o.rotation),scale:o.scale.x});
@@ -46,6 +47,22 @@ export async function createBuilderScene({scene,camera,domElement,onSelect=()=>{
   if(o.isMesh&&o.userData.architecturalCollider&&o.userData.boundary?.role!=='railing')walls.push(o);
  });
  const loader=new GLTFLoader(),cached=new Map();
+ async function loadPinnedModel(item){
+  // Share one load for both normal/browning Haworthia, while leaving each
+  // instance's model clone/material treatment independent. Failed requests
+  // must be EVICTED so a later authoring action can retry the same source.
+  const path=item.path;
+  if(!cached.has(path)){
+   const uri=new URL('../'+path,import.meta.url);
+   const pending=fetchLocalGlbV109(uri.href,{
+    expectedBytes:item.bytes,
+    onRetry:({reason,attempt})=>console.warn('PINEWOOD_PINNED_GLB_RETRY',path,reason,attempt)
+   }).then(buffer=>loader.parseAsync(buffer,new URL('.',uri).href));
+   cached.set(path,pending);
+   pending.catch(()=>{if(cached.get(path)===pending)cached.delete(path)});
+  }
+  return cached.get(path);
+ }
  const transform=new TransformControls(camera,domElement);
  scene.add(transform.getHelper());
  transform.setMode('translate');
@@ -113,8 +130,7 @@ export async function createBuilderScene({scene,camera,domElement,onSelect=()=>{
   const item=EDITOR_CATALOG_BY_ID.get(sourceId);if(!item)throw Error('Unknown local asset '+id);
   if(isDecalV97(item))return decalFactory.make(item);
   if(!/^assets\/vendor\/(?:runtime|builder\/models|builder\/vestibule-v98\/models|builder\/wall-decay-v100\/models|builder\/mood-v101\/models|builder\/decay-v105\/models)\//.test(item.path)||!/\.glb$/i.test(item.path))throw Error('Nonlocal asset forbidden');
-  if(!cached.has(id))cached.set(id,loader.loadAsync(new URL('../'+item.path,import.meta.url).href));
-  const gltf=await cached.get(id),o=gltf.scene.clone(true);
+  const gltf=await loadPinnedModel(item),o=gltf.scene.clone(true);
   // Target only the source CRT screen. All instances, including pre-existing
   // saved placements and the retired LCD's CRT alias, use this same template.
   makeCrtPoweredOffV96(o,sourceId);
