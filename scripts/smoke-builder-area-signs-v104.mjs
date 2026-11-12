@@ -34,9 +34,20 @@ try{
   assert.ok(signs.labels.includes(label),'missing readable zone '+label);
  }
  const initialJSON=await page.evaluate(()=>window.__PINEWOOD_BUILDER__.exportJSON());
- await page.locator('#area-signs').uncheck();
+ // In headless software WebGL the 3D canvas can retain pointer capture
+ // during Playwright's stability polling (same as v87 collision-option CI).
+ // Dispatch the native checkbox change and verify BOTH the DOM and 3D state.
+ await page.evaluate(()=>{
+  const input=document.getElementById('area-signs');
+  input.checked=false;input.dispatchEvent(new Event('change',{bubbles:true}));
+ });
+ assert.equal(await page.locator('#area-signs').isChecked(),false);
  assert.equal((await api()).visible,false,'hide only developer signage');
- await page.locator('#area-signs').check();
+ await page.evaluate(()=>{
+  const input=document.getElementById('area-signs');
+  input.checked=true;input.dispatchEvent(new Event('change',{bubbles:true}));
+ });
+ assert.equal(await page.locator('#area-signs').isChecked(),true);
  assert.equal((await api()).visible,true,'show restored room signage');
  const finalJSON=await page.evaluate(()=>window.__PINEWOOD_BUILDER__.exportJSON());
  assert.equal(finalJSON,initialJSON,'toggle must not modify editable v1 layout');
