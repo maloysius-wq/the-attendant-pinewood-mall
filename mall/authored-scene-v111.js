@@ -50,6 +50,12 @@ export async function attachAuthoredSceneV111(building,{draft,source='published'
    if(!object)throw Error('Authored scene baseline model not found: '+f.id);
    baseline.set(f.id,object);basePoses.set(f.id,pose(object));
   }
+  // Keep original licensed fixtures visually identical to the Builder.
+  // Its v91 physical-material enhancement runs on ALL baseline objects,
+  // not just newly dragged catalog props.
+  await Promise.all([...baseline].map(([id,object])=>
+   materialEnhancer.enhance(object,id)
+  ));
   // The Builder has one fitted source-pinned dry fountain. It hides ONLY
   // the old centre art, never the canonical basin, drain or floor opening.
   sculpture=building.group.getObjectByName('cc0_dry_fountain_art',true);
