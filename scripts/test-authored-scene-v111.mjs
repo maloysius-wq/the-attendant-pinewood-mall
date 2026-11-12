@@ -5,7 +5,7 @@ import {createEmptyDraft} from '../mall/editor-schema-v1.mjs';
 import {selectSceneLayoutV111,loadActiveSceneLayoutV111,validateSceneLayoutV111}
  from '../mall/scene-layout-v111.mjs';
 import {buildGameplayLayoutV70} from '../mall/gameplay-layout-v70.mjs';
-import {applyAuthoredCollidersV111} from '../mall/authored-scene-v111.js';
+import {applyAuthoredCollidersV111} from '../mall/authored-colliders-v111.mjs';
 import {MALL} from '../mall/masterplan-v66.mjs';
 
 const catalog=[{id:'test-pinned-model',kind:'model'}];
