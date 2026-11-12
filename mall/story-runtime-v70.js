@@ -1,6 +1,6 @@
 import {storyTargetV70} from './story-placement-v70.mjs';
 import {buildGameplayLayoutV70} from './gameplay-layout-v70.mjs';
-import {applyAuthoredCollidersV111} from './authored-scene-v111.js';
+import {applyAuthoredCollidersV111} from './authored-colliders-v111.mjs';
 
 const STATE_KEYS=['','ch2V21','ch3V22','ch4V23','ch5V24','ch6V25'];
 const SPECIAL={
