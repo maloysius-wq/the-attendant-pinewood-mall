@@ -1,5 +1,13 @@
 # Pinewood World Builder
 
+## Live surface-decal tuning (v103)
+
+After placing or selecting a grime stamp, stain, poster, wall calendar or other surface decal, drag **Decal opacity** in the Inspector to see its strength **immediately** in the scene. The displayed percentage says **preview** while adjusting. Release/finish the slider change to commit exactly one undoable local-layout edit; **Undo / Redo** now updates both the displayed material and the Inspector slider. Selecting a different object before committing restores the original look. The preview itself never changes your saved v1 draft, source CC0 texture, catalog entries, or IndexedDB data.
+
+Opacity only changes the existing transparent material uniform without rebuilding shaders per slider tick, so visual adjustments remain responsive. For dark-room judgment, turn **Work lights** off; you can temporarily switch them on while decorating. v103 stays entirely in the standalone Builder; the approved layout is still **not** automatically sent to the playable campaign. PR #107; focused desktop v97 opacity/persistence regression passed and Pages deployed.
+
+---
+
 ## Atmospheric wall/calendar and realistic desk-plant update (v101)
 
 Previously bright poster/notice surfaces now use fully scene-lit, non-emissive paper materials in dark rooms. Original ambientCG grime/photo masks are boosted in-memory and darkened, so the existing saved opacity slider visibly changes the dirt strength. Clicking empty Builder space deselects the current prop and detaches its gizmo without breaking switching to another item.
