@@ -1,5 +1,13 @@
 # Pinewood World Builder
 
+## Gallery wall inheritance and genuine room overrides (v106)
+
+In **Room surface finishes**, public shopping galleries now distinguish three intentional wall choices: **Use shared mall walls (inherit)** follows the Mall common-area walls selection; **Original walls** keeps that one room's canonical indoor finish even when the gallery is repainted; and a named texture overrides only that room. Click **Apply room finishes** to commit the selected choice. Returning to **Use shared mall walls** removes the per-room wall override so future changes to the shared gallery finish affect it again.
+
+Older v1 world layouts continue working. For one of the four canonical common rooms, a saved explicit `wall: "original"` is now honored rather than ignored; an inherited room simply has no `wall` property. The UI-only `inherit` sentinel is never written to or accepted from imported JSON. The editor's original indoor wall planes, exterior facade, undo/redo, autosave and export/import remain protected. No playable game or opening-cinematic integration.
+
+---
+
 ## Interior wall restoration and stronger neglected-mall dressing (v105)
 
 **Original walls now stay interior.** A room whose bounding wall is also the weathered outside shell no longer exposes the exterior facade texture when you reset its wall finish to **Original walls**. The Builder reconstructs that room-facing surface with the same original interior partition diffuse map and color tint used by the canonical mall; exterior weathering is untouched. This includes the cinematic entrance wall and actual door header, never boarding over the doorway.
