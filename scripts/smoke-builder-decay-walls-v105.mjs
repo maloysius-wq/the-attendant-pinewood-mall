@@ -55,6 +55,26 @@ try{
  assert.equal((await api()).draft.mallWallFinish,'worn-plaster');
  await page.evaluate(()=>window.__PINEWOOD_BUILDER__.redo());
  assert.equal((await api()).draft.surfaces.west_gallery.wall,'painted-wall');
+ // Galleries now have three states: shared, their own texture and canonical
+ // Original. Previously Original was silently discarded under shared paint.
+ await page.locator('#finish-room').selectOption('west_gallery');
+ await page.locator('#finish-wall').selectOption('original');
+ await page.locator('#finish-apply').click();
+ await page.waitForFunction(()=>window.__PINEWOOD_BUILDER__.getRoomFinishes().west_gallery?.wall==='original');
+ const originalGallery=await page.evaluate(()=>window.__PINEWOOD_BUILDER__.getRoomFinishCounts());
+ assert.ok(originalGallery.wall<globalCounts.wall,
+  'Original walls must remove west gallery shared finish planes');
+ await page.evaluate(()=>window.__PINEWOOD_BUILDER__.undo());
+ assert.equal((await api()).draft.surfaces.west_gallery.wall,'painted-wall');
+ await page.evaluate(()=>window.__PINEWOOD_BUILDER__.redo());
+ assert.equal((await api()).draft.surfaces.west_gallery.wall,'original');
+ await page.locator('#finish-wall').selectOption('inherit');
+ await page.locator('#finish-apply').click();
+ await page.waitForFunction(()=>window.__PINEWOOD_BUILDER__.getRoomFinishes().west_gallery?.wall===undefined);
+ assert.equal((await api()).draft.mallWallFinish,'worn-plaster');
+ const inheritedGallery=await page.evaluate(()=>window.__PINEWOOD_BUILDER__.getRoomFinishCounts());
+ assert.equal(inheritedGallery.wall,globalCounts.wall,'Inherit must restore gallery-wide texture');
+ assert.equal(await page.locator('#finish-wall').inputValue(),'inherit');
  // Actual original 3D GLB, high-opacity floor stain, lit poster and corkboard
  // must all load locally, render and survive v1 exported layout.
  console.log('V105_DESKTOP_STAGE','shared-gallery-undo-redo-verified',new Date().toISOString());
