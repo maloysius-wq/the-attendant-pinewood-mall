@@ -24,8 +24,12 @@ export function createRoomFinishesV87(building){
  const shellExteriorIds=new Set(building.shells.flatMap(shell=>
   shell.walls.filter(w=>w.role==='exterior').map(w=>w.id)));
  const isExteriorFace=p=>shellExteriorIds.has(p.source)||p.source.startsWith('cinematic_front_');
- const interiorDefaultId=room=>room.level==='B1'?'concrete':
-  room.level==='M1'?'worn-plaster':room.kind==='staff'?'painted-wall':'worn-plaster';
+ // The actual render-shell-v67.js interior partition uses the bundled
+ // concrete_wall_001 diffuse map tinted 0xa49b89. "Original" on an exterior
+ // envelope must reproduce that SAME indoor partition finish, not substitute
+ // the outdoor 0x666f6e facade color or a different guessed plaster texture.
+ const interiorDefaultId=()=> 'concrete';
+ const interiorWallTint=room=>room.level==='G'&&room.x1>=47?0x657a7e:0xa49b89;
  for(const [name,g] of Object.entries(finishes)){
   g.name='Builder-only '+name+' room finishes';
   (name==='ceiling'?building.ceilings:building.group).add(g);
@@ -72,6 +76,7 @@ export function createRoomFinishesV87(building){
   // Overlays must never become placement colliders or selection handles.
   mesh.raycast=()=>{};
   group.add(mesh);
+  return mesh;
  }
  const overlap=(a,b,c,d)=>[Math.max(a,c),Math.min(b,d)];
  function renderFloor(room,id,texture){
@@ -89,8 +94,9 @@ export function createRoomFinishesV87(building){
   // Never repaint the physical outside with an internal room finish.
   for(const p of wallPlan(room.id)){
    if(originalExteriorOnly&&!isExteriorFace(p))continue;
-   paint(originalExteriorOnly?originalRoomWalls:finishes.wall,
+   const mesh=paint(originalExteriorOnly?originalRoomWalls:finishes.wall,
     'wall',room,id,texture,p.width,p.height,p.x,p.y,p.z,p.rotationY);
+   if(originalExteriorOnly)mesh.material.color.setHex(interiorWallTint(room));
   }
  }
  function renderCeiling(room,id,texture){
