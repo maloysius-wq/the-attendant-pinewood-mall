@@ -8,6 +8,8 @@ import {createEmptyDraft,validateDraft,reduceDraft,importDraft,exportDraft,COMMO
 import {createBuilderScene} from './editor-scene.js';
 import {createEditorNavigation} from './editor-navigation.js';
 import {createWorkLighting} from './work-lighting.js';
+import {createVestibulePatinaV107} from './vestibule-patina-v107.js';
+import {createVestibuleFixtureLightV107} from './vestibule-light-v107.js';
 import {createAreaSignsV104} from './area-signs-v104.js';
 import {mountCinematicParkingLot} from './exterior-scene.js';
 import {createRoomFinishesV87} from './room-finishes-v87.js';
@@ -25,7 +27,7 @@ const status={ready:false,errors:[],selected:null,roomCount:MALL.rooms.length,
  fixtureCount:FURNISHINGS_V69.fixtures.length,catalogCount:EDITOR_CATALOG_V1.length,
  draft:createEmptyDraft(),navigation:{mode:'orbit',floor:'G',unlockAll:true},workLights:false,
  placementOptions:{gridSize:0,allowClipping:true},finishMeshes:{floor:0,wall:0,ceiling:0}};
-let scene,camera,renderer,orbit,editor,navigation,workLighting,areaSigns,exterior,roomFinishes,
+let scene,camera,renderer,orbit,editor,navigation,workLighting,areaSigns,exterior,roomFinishes,vestibulePatina,vestibuleFixture,
  frames=0,undoStack=[],redoStack=[],idCounter=0;
 let blockedWarning=null;
 // Room surface meshes are independent of prop/door edits. Rebuilding every
@@ -105,6 +107,10 @@ const API={
   atriumSkylightPresent:!!editor.building.roofs.getObjectByName('atrium-skylight',true)
  }):null,
  getLightingState:()=>workLighting?.getState(),
+ getVestibulePatinaState:()=>vestibulePatina?.getState()??null,
+ getVestibuleLightState:()=>vestibuleFixture?.getState()??null,
+ setVestibulePatina:enabled=>setVestibulePatina(enabled),
+ setVestibuleFlicker:enabled=>setVestibuleFlicker(enabled),
  getAreaSignState:()=>areaSigns?.getState()||null,
  setAreaSigns:enabled=>setAreaSigns(enabled),
  getExteriorState:()=>exterior?.state,
@@ -486,6 +492,18 @@ function setAreaSigns(enabled){
  $('area-signs').checked=state.visible;
  return state;
 }
+function setVestibulePatina(enabled){
+ if(!vestibulePatina)return null;
+ const state=vestibulePatina.setEnabled(enabled);
+ $('vestibule-patina').checked=state.enabled;
+ return state;
+}
+function setVestibuleFlicker(enabled){
+ if(!vestibuleFixture)return null;
+ const state=vestibuleFixture.setEnabled(enabled);
+ $('vestibule-flicker').checked=state.enabled;
+ return state;
+}
 function setWorkLights(enabled){
  if(!workLighting)return null;
  const state=workLighting.setEnabled(enabled);
@@ -538,8 +556,10 @@ function wireUI(){
  $('reset-draft').addEventListener('click',()=>{
   if(window.confirm('Discard all locally saved Pinewood Builder changes?'))clearDraft().catch(report);
  });
- $('roof').addEventListener('change',e=>editor.building.setRoofVisible(e.target.checked));
+ $('roof').addEventListener('change',e=>{editor.building.setRoofVisible(e.target.checked);vestibulePatina?.setCeilingVisible(e.target.checked);});
  $('work-lights').addEventListener('change',e=>setWorkLights(e.target.checked));
+ $('vestibule-patina').addEventListener('change',e=>setVestibulePatina(e.target.checked));
+ $('vestibule-flicker').addEventListener('change',e=>setVestibuleFlicker(e.target.checked));
  $('area-signs').addEventListener('change',e=>setAreaSigns(e.target.checked));
  $('snap-grid').addEventListener('change',e=>setPlacementOptions({
   gridSize:e.target.checked?Number($('grid-size').value):0,
@@ -673,10 +693,18 @@ async function begin(){
    onTransform:(id,p)=>changeTransform(p).catch(report),
    onPlace:(catalogId,position,rotation)=>place(catalogId,position,undefined,rotation).catch(report)
   });
+  vestibuleFixture=createVestibuleFixtureLightV107(editor.building,{
+   enabled:!window.matchMedia('(prefers-reduced-motion: reduce)').matches
+  });
   areaSigns=createAreaSignsV104({building:editor.building});
   roomFinishes=createRoomFinishesV87(editor.building);
   exterior=await mountCinematicParkingLot({scene,building:editor.building});
   roomFinishes.setCinematicFrontWall(exterior.frontWall);
+  vestibulePatina=await createVestibulePatinaV107({
+   building:editor.building,wallFaces:roomFinishes.getWallPlans('service_vestibule')
+  });
+  $('vestibule-patina').checked=true;
+  $('vestibule-flicker').checked=vestibuleFixture.getState().enabled;
   editor.addPlacementSurfaces(exterior.placementSurfaces);
   $('loading').querySelector('progress').value=58;
   navigation=createEditorNavigation({camera,orbit,domElement:renderer.domElement,scene,shells:editor.building.shells,
@@ -709,7 +737,8 @@ async function begin(){
   $('loading').classList.add('hidden');
   indicate('Ready · local draft loaded');
   let lastTime=performance.now();
-  function frame(t){const dt=Math.min(.05,(t-lastTime)/1000);lastTime=t;frames++;
+  function frame(t){const dt=Math.max(0,Math.min(.05,(t-lastTime)/1000));lastTime=t;frames++;
+   vestibuleFixture.update(dt);
    navigation.update(dt);
    if(navigation.getState().mode==='orbit')orbit.update();
    else editor.refreshPlacement();
@@ -717,7 +746,7 @@ async function begin(){
    renderer.render(scene,camera);requestAnimationFrame(frame)}
   requestAnimationFrame(frame);
   window.addEventListener('resize',resize);
-  window.addEventListener('pagehide',()=>{navigation.dispose();roomFinishes.dispose();areaSigns.dispose();editor.dispose();exterior.dispose();workLighting.dispose();orbit.dispose();renderer.dispose()},{once:true});
+  window.addEventListener('pagehide',()=>{navigation.dispose();vestibulePatina.dispose();vestibuleFixture.dispose();roomFinishes.dispose();areaSigns.dispose();editor.dispose();exterior.dispose();workLighting.dispose();orbit.dispose();renderer.dispose()},{once:true});
  }catch(err){
   report(err);$('load-error').textContent=String(err?.stack||err).slice(0,1500);
   $('loading').querySelector('strong').textContent='Builder cannot load';

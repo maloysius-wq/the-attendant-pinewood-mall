@@ -1,0 +1,51 @@
+name: Pinewood Builder v107 authored vestibule patina and realistic fixture failure
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'builder/vestibule-patina-plan-v107.mjs'
+      - 'builder/vestibule-patina-v107.js'
+      - 'builder/vestibule-light-v107.js'
+      - 'builder/decals-v97.js'
+      - 'builder/room-wall-layout-v90.mjs'
+      - 'builder/main.js'
+      - 'builder/index.html'
+      - 'scripts/test-builder-vestibule-v107.mjs'
+      - 'scripts/smoke-builder-vestibule-v107.mjs'
+      - '.github/workflows/pinewood-builder-vestibule-v107.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  real-vestibule-decay-and-lamp:
+    if: github.repository == 'maloysius-wq/the-attendant-pinewood-mall'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 18
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Check actual geometry and licensed, authored placement strategy plus lamp state-machine
+        run: |
+          node --test scripts/test-builder-vestibule-v107.mjs scripts/test-builder-work-lights-v1.mjs
+          node --test scripts/test-builder-vestibule-v98.mjs scripts/test-builder-decay-walls-v105.mjs
+          node --test scripts/audit-builder-assets-v1.mjs scripts/audit-local-assets-v15.mjs
+      - name: Install desktop-only Chromium
+        run: |
+          npm install --no-save playwright@1.55.0
+          npx playwright install chromium
+      - name: Serve pinned local Builder media
+        run: |
+          python3 -m http.server 4173 --bind 127.0.0.1 >/tmp/pinewood-v107-http.log 2>&1 &
+          for i in {1..30}; do curl -fsS http://127.0.0.1:4173/builder/ >/dev/null && exit 0; sleep 1; done
+          exit 1
+      - name: Verify actual desktop WebGL patina, fixture optics, cutaway and draft isolation
+        run: node scripts/smoke-builder-vestibule-v107.mjs
+      - name: Preserve real desktop vestibule image
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pinewood-v107-real-vestibule
+          path: artifacts/vestibule-patina-v107-desktop.png
+          if-no-files-found: ignore
