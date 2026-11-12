@@ -1,3 +1,11 @@
+## Builder v111: cinematic + playable 3D world integration
+
+Your authored environment is no longer restricted to this tool. The **Preview in Cinematic / Game** button saves your existing browser-local draft and opens the game's original opening sequence with the explicit `?builderPreview=1` flag. From the title screen, select **New Game**; the original camera and keypad sequence will now reveal your 3D furniture, decal, floor/wall/ceiling finishes, source-pinned 26 contractor patina marks, and v110 half-strength fast-flickering fluorescent fixture. The playable six-chapter mall uses the same authored physical environment and collision-aware placed solids. Scripted doors, story interactables, camera and audio remain independently controlled by the cinematic/game.
+
+The **public** default does not automatically access anyone's browser draft. Select **Export for Publishing** and review/provide the `pinewood-world-layout-v1.json` JSON for a Git-reviewed promotion into `assets/world/published-layout-v111.json`. Until that promotion, the published default contains the valid empty v1 layout, while private same-browser preview shows real unfinished edits without exposing them. See [Builder Scene Publication v111](../docs/BUILDER_SCENE_PUBLICATION_V111.md) for the full authoring, review and rollback workflow. No new runtime asset URLs, schema migration or new indexedDB keys.
+
+---
+
 ## Contractor vestibule mood lighting: half-strength (v110)
 
 The **existing** source-pinned fluorescent ceiling fixture in the Contractor Service Vestibule now casts **50% of its previous Builder light strength**: the v108 point-light intensity is reduced from **17 to 8.5**, and the actual source model's emissive glass panel is reduced to **50% brightness**. The bright-to-dim contrast remains readable, but the steady state is more subdued and ominous at the entrance. Fast 1.15–3.5-second irregular flickers, partial brownouts and occasional total blackouts are unchanged. Switching off **Fast lamp flicker**, or using the default reduced-motion accessibility mode, yields the **new half-bright steady state**, never the former full-strength setting.
