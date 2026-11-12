@@ -72,3 +72,8 @@ h2{font:normal 23px Georgia,serif;line-height:1.25;margin:10px 0}.muted{color:va
 .collision-warning strong{display:block;color:#ffc28f;font-size:13px;letter-spacing:.02em}
 .collision-warning span{display:block;font-size:12px;margin-top:2px}
 .collision-warning small{display:block;font-size:11px;color:#e4bdab;margin-top:6px;line-height:1.45}
+
+/* On-surface decals update visually during slider movement; commit on change. */
+.decal-opacity-caption{display:flex;align-items:center;justify-content:space-between;gap:6px}
+#decal-opacity-value{font-variant-numeric:tabular-nums;color:var(--amber);font-size:11px}
+.decal-opacity-help{display:block;margin-top:4px;color:var(--muted);font-size:10px;line-height:1.4}
