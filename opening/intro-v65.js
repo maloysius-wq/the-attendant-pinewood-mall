@@ -2,7 +2,8 @@ import * as THREE from '../vendor/three/build/three.module.js';
 import {makeOpeningScene} from './scene.js?v=83-door5-keypad85';
 import {installAbandonedFacadeV65} from './facade-v65.js?v=65';
 import {enlargeImportedLandscapeV64} from './landscape-scale-v64.js?v=64';
-import {renderPinewoodV69} from '../mall/render-shell-v69.js';
+import {renderAuthoredPinewoodV111} from '../mall/authored-scene-v111.js';
+import {getCinematicFrontWallV90} from '../builder/room-wall-layout-v90.mjs';
 import {installDashboardClockV71} from './dashboard-clock-v71.js?v=83-clockvent';
 import {KeypadReachHandV72} from './keypad-reach-v72.js?v=81-fist85';
 import {HumanCameraRig} from './camera-v65.js?v=83-door5-approach85';
@@ -95,7 +96,12 @@ class Intro{
    this.interiorScene=new THREE.Scene();
    this.interiorScene.background=new THREE.Color(0x0b1418);
    this.interiorScene.fog=new THREE.FogExp2(0x151e20,.012);
-   this.interiorReady=renderPinewoodV69({scene:this.interiorScene,chapter:1});
+   this.interiorReady=renderAuthoredPinewoodV111({
+    scene:this.interiorScene,chapter:1,automaticLighting:false,
+    // The same measured thick five-piece entrance facade that the Builder
+    // uses for wall finishes and 26 mounted grime/web accents.
+    frontWallReady:this.stage.assetReady.then(()=>getCinematicFrontWallV90(this.stage))
+   });
    this.camera=new THREE.PerspectiveCamera(66,1,.08,230);
    this.stage.scene.add(this.camera);
    // The car and the handheld are rendered with separate depth buffers.
@@ -326,6 +332,9 @@ class Intro{
     }
    }else this.elapsed+=delta;
    this.renderCaption();
+   // The authored fixture animates on the actual cinematic frame clock, so
+   // Pause freezes electrical flickers with the camera/audio timeline.
+   this.interiorBuilding?.authored?.update(delta);
    // The camera, rain and phone all use the media-following shot timeline.
    const pose=this.eyeRig.sample(this.line.id,this.elapsed,this.wait,delta,{reducedMotion:this.reduced});
    this.lastCameraPose=pose;
