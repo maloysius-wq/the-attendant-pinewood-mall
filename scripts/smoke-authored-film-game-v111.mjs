@@ -88,6 +88,11 @@ try{
  assert.equal((await page.evaluate(()=>window.__PINEWOOD_OPENING_V34__.cinematicWorld)).mode,
   'unified-mall','Cinematic walks inside physical, authored mall');
  await page.screenshot({path:artifact,animations:'disabled',timeout:90000});
+ // This is a preview-only opening: close its real WebGL stage before
+ // running a separate game renderer. Same browser/context preserves IDB.
+ await page.evaluate(()=>window.__PINEWOOD_OPENING_V34__.skip());
+ await page.goto(origin+'/?builderPreview=1&openingDisabled=1',{
+  waitUntil:'domcontentloaded'});
 
  // The actual game bridge must install the shared render function and apply
  // the same visual and collision layout. We call its existing public bridge
