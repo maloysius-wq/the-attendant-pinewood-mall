@@ -1,3 +1,11 @@
+## Contractor vestibule mood lighting: half-strength (v110)
+
+The **existing** source-pinned fluorescent ceiling fixture in the Contractor Service Vestibule now casts **50% of its previous Builder light strength**: the v108 point-light intensity is reduced from **17 to 8.5**, and the actual source model's emissive glass panel is reduced to **50% brightness**. The bright-to-dim contrast remains readable, but the steady state is more subdued and ominous at the entrance. Fast 1.15–3.5-second irregular flickers, partial brownouts and occasional total blackouts are unchanged. Switching off **Fast lamp flicker**, or using the default reduced-motion accessibility mode, yields the **new half-bright steady state**, never the former full-strength setting.
+
+This is local to the existing Builder contractor vestibule light. The broader mall's hemisphere/directional/environment illumination and neighboring fixtures are intentionally untouched, so **visible screen pixel brightness is not guaranteed to halve**. For the intended gloom, turn **Work lights OFF**. No saved-layout changes, source asset updates, draft migrations, new prop instances, alterations to the gameplay lighting rig or cinematic, or edits to the 26 placed grime/web marks. Focused unit and desktop WebGL regression checks cover both lighting intensity and source lens glow, toggle, blackout and save isolation.
+
+---
+
 ## Actual ceiling-mounted fluorescent and faster failing ballast (v108)
 
 The contractor vestibule now uses an **existing source-pinned CC0 fluorescent-ceiling 3D model** from the bundled Backrooms and Liminal Spaces Kit (`assets/vendor/builder/models/liminal-spaces-kit/three-d-liminal-spaces-kit-liminal-spaces-kit-ceiling-fluorescent-0299417a.glb`). The model contains a full ceiling-tile-sized housing, metallic fluorescent frame, painted/plastered surfaces, source textures and a real emissive lens, rather than an improvised glowing sphere. It is mounted against the actual underside of `service_vestibule`'s ceiling at x=12, z=-30, with the luminous side facing down. The original rendered orb is hidden only in the Builder, and the **original point light is moved into the physical source lens**, so its illumination actually originates from the fixture. The housing disappears with **Roof / ceilings** and is non-selectable; it is never saved as a user prop.
