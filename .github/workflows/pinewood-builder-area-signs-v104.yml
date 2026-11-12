@@ -1,0 +1,49 @@
+name: Pinewood Builder canonical area signage v104
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'builder/area-sign-layout-v104.mjs'
+      - 'builder/area-signs-v104.js'
+      - 'builder/main.js'
+      - 'builder/index.html'
+      - 'mall/masterplan-v66.mjs'
+      - 'mall/physical-shell-v67.mjs'
+      - 'scripts/test-builder-area-signs-v104.mjs'
+      - 'scripts/smoke-builder-area-signs-v104.mjs'
+      - '.github/workflows/pinewood-builder-area-signs-v104.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  area-signs:
+    if: github.repository == 'maloysius-wq/the-attendant-pinewood-mall'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 14
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Validate all canonical area sign placements, storefront portals and local assets
+        run: |
+          node --test scripts/test-builder-area-signs-v104.mjs
+          node --test scripts/audit-builder-assets-v1.mjs
+      - name: Install desktop Chromium
+        run: |
+          npm install --no-save playwright@1.55.0
+          npx playwright install chromium
+      - name: Serve bundled Pinewood Mall Builder
+        run: |
+          python3 -m http.server 4173 --bind 127.0.0.1 >/tmp/pinewood-v104-http.log 2>&1 &
+          for i in {1..30}; do curl -fsS http://127.0.0.1:4173/builder/ >/dev/null && exit 0; sleep 1; done
+          exit 1
+      - name: Confirm actual local 3D signs and no layout mutations
+        run: node scripts/smoke-builder-area-signs-v104.mjs
+      - name: Retain deterministic desktop signage review
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pinewood-area-signs-v104-desktop
+          path: artifacts/pinewood-area-signs-v104.png
+          if-no-files-found: ignore
