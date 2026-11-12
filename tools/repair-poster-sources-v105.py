@@ -67,6 +67,11 @@ def queryExact(name):
  parsed=json.loads(data)
  if 'error' in parsed:raise RuntimeError('Commons '+str(parsed['error']))
  return parsed.get('query',{}).get('pages',[])
+def safeExact(name):
+ try:return queryExact(name)
+ except Exception as err:
+  print('PREFERRED_ARTWORK_UNAVAILABLE',name,str(err)[:150],flush=True)
+  return []
 def safeQuery(term):
  global commonsUnavailable
  if commonsUnavailable:return []
@@ -86,7 +91,7 @@ for i,p in enumerate(posters):
   ('search',term) for term in terms[i]+['public domain vintage commercial poster','1980s poster']
  ] if slug not in PREFER_LOCAL else []
  for searchKind,term in attempts:
-  for page in (queryExact(term) if searchKind=='exact' else safeQuery(term)):
+  for page in (safeExact(term) if searchKind=='exact' else safeQuery(term)):
    info=(page.get('imageinfo') or [None])[0]
    if not info:continue
    lic=licenseOf(info.get('extmetadata',{}))
