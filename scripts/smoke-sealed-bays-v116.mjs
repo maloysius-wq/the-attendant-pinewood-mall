@@ -21,6 +21,11 @@ try{
  assert.deepEqual(s.errors,[]);
  assert.equal(s.storefrontCount,7);
  assert.equal(s.closedBayCount,13);
+ assert.equal(s.surveyLightOn,true,'review-only survey light initially on');
+ await page.evaluate(()=>document.getElementById('survey-light').click());
+ assert.equal((await page.evaluate(()=>window.__PINEWOOD_MALL_CONSTRUCTION_V67__.getState())).surveyLightOn,false);
+ await page.evaluate(()=>document.getElementById('survey-light').click());
+ assert.equal((await page.evaluate(()=>window.__PINEWOOD_MALL_CONSTRUCTION_V67__.getState())).surveyLightOn,true);
  assert.ok(s.closedBayNames.includes('Needle & Thread'));
  assert.ok(s.closedBayNames.includes('East Wing Bulk Storage'));
  for(const shot of ['closedNorth','closedAnnex','closedSouth','west','aerial']){
