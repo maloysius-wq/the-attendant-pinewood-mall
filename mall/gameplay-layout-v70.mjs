@@ -45,7 +45,7 @@ export function buildGameplayLayoutV70({chapter,level}={}){
   }
  }
  for(const w of [...shell.walls,...shell.gates,...shell.railings])
-  if(w.role!=='lintel')addWallCollision(colliders,w); // Overhead masonry is not a walk-level obstacle.
+  if(!['lintel','storefront-spandrel'].includes(w.role))addWallCollision(colliders,w); // Overhead solids are not walk-level obstacles.
  // Floor openings are real holes in the v67 mesh; never let the legacy
  // 2D walk grid place a suspended player over an elevator or stair void.
  const openings=activeLevel==='G'?
