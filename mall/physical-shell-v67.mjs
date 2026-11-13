@@ -120,6 +120,25 @@ function roomWalls(level,portals){
  }
  return result;
 }
+// Genuine overhead infill belongs to the physical shell. The two-dimensional
+// route grid must ignore these overhead-only solids, but the Three.js renderer
+// and room-finish planner must see them as real wall faces.
+// The exact V113 service fire-door has its own source-matched 2.294m header,
+// so never duplicate that specialized installed GLB infrastructure.
+function portalLintels(level,portals){
+ const y=levelData(level).y;
+ return portals.filter(p=>
+  p.type==='doorway'&&p.id!=='service_vestibule__central_gallery'&&
+  !(CIRCULATION.has(p.from)&&CIRCULATION.has(p.to))
+ ).flatMap(p=>{
+  const maxHeight=Math.max(roomHeight(room(p.from)),roomHeight(room(p.to)));
+  const remaining=maxHeight-p.height;
+  if(remaining<=.02)return [];
+  return [wall('portal_lintel_'+p.id,p.axis,p.at,p.start,p.end,
+   y+p.height,remaining,level==='B1'?'concrete':'concrete','lintel')];
+ });
+}
+
 function exterior(level){
  const f=MALL.footprints;const ret=[];
  const add=(id,axis,at,start,end,openings,height=12.8)=>{
@@ -188,7 +207,24 @@ function floorPlates(level){
  * Preserve lift and stair openings so no false solid slab crosses a shaft.
  */
 function ceilingPlates(level){
- if(level!=='G')return [];
+ if(level==='B1'||level==='M1'){
+  // Both previously exposed bare upper slabs. Fit real room undersides,
+  // without capping the freight shaft, fire stairs, mezzanine overlook or
+  // laying two coincident panels across intentionally overlapping corridors.
+  const skipped=level==='B1'?new Set(['freight_b1','b1_stair']):
+   new Set(['m1_stair','mezz_hall']);
+  const covered=[],result=[];
+  for(const r of MALL.rooms.filter(r=>r.level===level&&!skipped.has(r.id))){
+   const bounds=rect(r.x1,r.x2,r.z1,r.z2);
+   const y=levelData(level).y+(level==='B1'?3.35:2.9);
+   for(const [i,p] of pieces(bounds,covered).entries())
+    result.push({...p,id:r.id+'_ceiling_'+i,room:r.id,
+     y,thickness:.18,material:'plaster-ceiling'});
+   covered.push(bounds);
+  }
+  return result;
+ }
+
  const holes=[
   rect(18.5,22.5,-115.8,-110.5), // freight lift
   rect(30.5,33.5,-115.5,-108),   // basement fire stair
@@ -205,7 +241,7 @@ function ceilingPlates(level){
 }
 
 function roofPlates(level){
- if(level!=='G')return level==='M1'?MALL.rooms.filter(r=>r.level==='M1'&&r.kind!=='stairs'&&r.kind!=='admin').map(r=>({...rect(r.x1,r.x2,r.z1,r.z2),type:'mezz-office-roof',y:8.6,material:'concrete'})):[];
+ if(level!=='G')return []; // Upper offices now have physical underside ceilings.
  const skylight=rect(-8,8,-106,-45);
  return [
  ...pieces(MALL.footprints.original,[skylight]).map(b=>({...b,type:'original-atrium-roof',y:12.8,material:'concrete'})),
@@ -259,7 +295,7 @@ export function constructPhysicalShell({level='G',chapter=1}={}){
   roofs:roofPlates(level),stairs:MALL.links.filter(l=>l.type==='stairs'&&[room(l.from).level,room(l.to).level].includes(level)).map(makeStairs),
   verticals:verticalTransitions(level),fixtures:fixtures(level),texturePaths:{...TEXTURES}};
  shell.portals.forEach(p=>{if(p.minChapter>chapter)p.locked=true});
- shell.walls=[...exterior(level),...roomWalls(level,planar)];
+ shell.walls=[...exterior(level),...roomWalls(level,planar),...portalLintels(level,planar)];
  shell.gates=insertGates(shell);
  return shell;
 }
@@ -281,7 +317,7 @@ function crossLine(w,a,b){
 }
 export function isSegmentBlocked(shell,from,to){
  if(!shell||!from||!to)throw new TypeError('shell and endpoints are required');
- return [...shell.walls,...shell.gates,...shell.railings].some(w=>crossLine(w,from,to));
+ return [...shell.walls,...shell.gates,...shell.railings].some(w=>w.role!=='lintel'&&crossLine(w,from,to));
 }
 export function validatePhysicalShell(shell){
  const errors=[];
