@@ -62,12 +62,19 @@ try{
  await page.waitForTimeout(950);
  const inside=await page.evaluate(()=>{
   const q=window.__PINEWOOD_OPENING_V34__;
-  return {...q.cinematicWorld,eye:q.cameraPosition};
+  return {...q.cinematicWorld,eye:q.cameraPosition,forward:q.cameraDirection,
+   fireDoor:q.vestibuleInnerDoorV112};
  });
  assert.equal(inside.mode,'unified-mall','inside must render canonical v69 mall');
- assert.ok(inside.eye[0]>-11&&inside.eye[0]<11&&inside.eye[2]<-43,
-  'camera must enter the actual central atrium, not walk through the vestibule wall');
- await page.screenshot({timeout:90000,animations:'disabled',path:'cinematic-v71-artifacts/04-actual-mall-interior.png'});
+ assert.ok(Math.abs(inside.eye[0]-12.5)<.005&&Math.abs(inside.eye[1]-1.7)<.005&&
+  Math.abs(inside.eye[2]+32.75)<.005,
+  'last cinematic shot must be the exact middle of the vestibule');
+ assert.ok(Math.abs(inside.forward[0])<.005&&Math.abs(inside.forward[1])<.005&&
+  Math.abs(inside.forward[2]+1)<.005,
+  'player faces straight toward the closed fire door at chapter handoff');
+ assert.equal(inside.fireDoor?.closed,true,'real hinged inner fire door stays shut until gameplay');
+ assert.equal(inside.fireDoor?.portal?.z,-43,'door uses actual measured atrium passage');
+ await page.screenshot({timeout:90000,animations:'disabled',path:'cinematic-v71-artifacts/04-closed-inner-fire-door-handoff.png'});
  assert.deepEqual(errors,[],'no browser errors');
  assert.deepEqual(remote,[],'all runtime assets local');
  await writeFile('cinematic-v71-artifacts/status.json',JSON.stringify({initial,entry,granted,inside,errors,remote},null,2));
