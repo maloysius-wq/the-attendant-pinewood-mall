@@ -8,6 +8,7 @@ on:
       - 'mall/gameplay-layout-v70.mjs'
       - 'mall/architecture-audit-v114.mjs'
       - 'scripts/test-architecture-v114.mjs'
+      - 'scripts/smoke-physical-shell-v67.mjs'
       - 'docs/INTERIOR_ARCHITECTURE_V114.md'
       - '.github/workflows/architecture-v114.yml'
   workflow_dispatch:
