@@ -53,6 +53,7 @@ physically bound every new interior.
 - The seven original V115 retail shops still keep open doorways.
 - The Builder's canonical 41 room wall paint intentionally does not paint
   non-story closed shutter faces or change private saved draft records.
+- A camera-mounted, toggleable **construction-review-only survey lamp** reveals shut storefront detailing in inspection screenshots. This is not shipped to the cinematic, Builder or game lights.
 - Actual desktop Chromium/WebGL render captures and floorplan source
   overlays audit north shops, Annex frontages, west supply and all 13 bays.
 - The new floorplan includes a dedicated sealed-area overlay and separate
