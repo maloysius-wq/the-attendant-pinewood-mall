@@ -42,7 +42,7 @@ test('game adds a real impassable door and explicit E interaction; no autoplay g
  assert.match(door,/if\(game\.levelIndex===0\)door\.close\(\)/,'restarting Chapter 1 closes the inner door');
  assert.match(door,/e\.code!=='KeyE'/);
  assert.match(door,/blocker\.disabled=true/);
- assert.match(model,/let fraction=0,target=0/);
+ assert.match(model,/let fraction=0,target=0/);\n assert.match(model,/GLTFLoader/,'real local GLB model, not procedural door slab');\n assert.match(model,/sourceDoorMeshes:leafMeshes\\.length/);\n assert.match(model,/sourceFrameMeshes:frameMeshes\\.length/);\n assert.match(model,/existingVestibuleWall\\(building,portal\\)/,'use measured neighboring wall material');\n assert.match(model,/new THREE\\.BoxGeometry\\(portal\\.width,headerHeight,segment\\.thickness\\)/,\n  'physical overhead partition must fill entire shell gap');
  assert.match(model,/pivot\.rotation\.y=Math\.PI\*\.53\*eased/);
  const bridge=read('patches/unified-mall-v70.js.txt');
  assert.match(bridge,/this\.controls\.yaw\.rotation\.y=idx===0\?0:-Math\.PI\/2/,
