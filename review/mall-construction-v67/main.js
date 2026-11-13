@@ -7,13 +7,14 @@ const cover=document.getElementById('loading');
 const chapterSelect=document.getElementById('chapter');
 const viewSelect=document.getElementById('view-select');
 const roofToggle=document.getElementById('roof');
+const surveyToggle=document.getElementById('survey-light');
 const state={
  ready:false,errors:[],firstFrameFullyLoaded:false,
  texturesLoaded:0,modelsLoaded:0,walls:0,floor:'G',
  chapter:1,eastExitLocked:true,shot:'service',ceilingMeshes:0,ceilingRooms:[],
  storefrontCount:0,storefrontNames:[],storefrontEntries:[],
  closedBayCount:0,closedBayNames:[],
- ceilingFinishes:[],allCeilingsTextured:false
+ ceilingFinishes:[],allCeilingsTextured:false,surveyLightOn:true
 };
 const shots={
  service:{floor:'G',eye:[12,1.72,-27],target:[11,1.8,-49],label:'GROUND · CONTRACTOR SERVICE ENTRY',title:'Contractor Service Vestibule',
@@ -47,7 +48,7 @@ const shots={
  aerial:{floor:'G',eye:[130,103,102],target:[17,0,-72],label:'ALL LEVELS · CUTAWAY',title:'Joined Mall Structure',
   note:'The public mall, basement service level, and administrative mezzanine occupy one consistent world.'}
 };
-let scene,camera,renderer,orbit,built;
+let scene,camera,renderer,orbit,built,surveyLight;
 const publicApi={
  ready:false,
  getState:()=>JSON.parse(JSON.stringify(state)),
@@ -97,6 +98,11 @@ async function begin(){
   scene=new THREE.Scene();scene.background=new THREE.Color(0x0c181a);
   scene.fog=new THREE.FogExp2(0x0e1718,.005);
   camera=new THREE.PerspectiveCamera(69,1,.06,650);
+  // Survey instrumentation exists ONLY on this review page, never Builder,
+  // cinematic, authored scene, or playable game lighting rigs.
+  surveyLight=new THREE.PointLight(0xe5e8d6,95,35,2);
+  camera.add(surveyLight);
+  scene.add(camera);
   renderer=new THREE.WebGLRenderer({antialias:true,alpha:false,powerPreference:'high-performance'});
   renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,1.4));
   renderer.outputColorSpace=THREE.SRGBColorSpace;
@@ -155,6 +161,11 @@ for(const b of document.querySelectorAll('[data-shot]'))b.addEventListener('clic
 viewSelect.addEventListener('change',e=>setShot(e.target.value));
 chapterSelect.addEventListener('change',e=>setChapter(e.target.value));
 roofToggle.addEventListener('change',()=>{built?.setRoofVisible(roofToggle.checked&&state.shot!=='aerial');renderOnDemand()});
+surveyToggle.addEventListener('change',()=>{
+  state.surveyLightOn=surveyToggle.checked;
+  if(surveyLight)surveyLight.intensity=state.surveyLightOn?95:0;
+  renderOnDemand();
+});
 window.addEventListener('resize',()=>{resize();renderOnDemand()});
 window.addEventListener('pagehide',()=>{built?.dispose();orbit?.dispose();renderer?.dispose();});
 begin();
