@@ -285,7 +285,7 @@ class Intro{
    ref.play().catch(()=>{if(this.audio===ref)this.audioFailed=true;});
   }
   this.root.dataset.shot=this.line.shot;
-  $('pwm-location').textContent=this.index>=9?'INTERIOR / PUBLIC CONCOURSE':this.index>=6?'EAST SERVICE ENTRANCE':'PINEWOOD MALL / AFTER HOURS';
+  $('pwm-location').textContent=this.index>=9?'CONTRACTOR SERVICE VESTIBULE':this.index>=6?'EAST SERVICE ENTRANCE':'PINEWOOD MALL / AFTER HOURS';
   this.handheld?.update(this.line.id,0,this.voiceSeconds,{reducedMotion:this.reduced});
   this.renderCaption();
  }
@@ -459,6 +459,8 @@ window.__PINEWOOD_OPENING_V34__={
  get total(){return active?.lines?.length||0;},
  get audioStatus(){return {available:!!active?.audio,paused:active?.audio?.paused??true,muted:active?.audio?.muted??false,time:active?.audio?.currentTime??0,ambient:active?.ambience?.status||null};},
  get cameraPosition(){return active?.camera?.position.toArray()||null;},
+ get cameraDirection(){return active?.camera?.getWorldDirection(new THREE.Vector3()).toArray()||null;},
+ get vestibuleInnerDoorV112(){return active?.interiorBuilding?.vestibuleDoorV112?.state||null;},
  get eyeMotion(){const p=active?.lastCameraPose;return p?{cue:p.cue,phase:p.phase,gaze:p.gazeTarget,walking:p.isWalking,rain:p.rain,doorOpen:p.doorOpen}:null;},
  get environmentV37(){return active?.stage?.v37||null;},
  get carDoorState(){return active?.stage?.sedanDoor?.status||null;},

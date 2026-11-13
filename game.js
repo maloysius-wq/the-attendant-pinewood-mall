@@ -4,6 +4,7 @@ import {buildGameplayLayoutV70,eyeHeightOnMezzStairV70} from './mall/gameplay-la
 import {VISUAL_VIEWPOINTS_V70} from './mall/visual-anchors-v70.mjs';
 import {CCTV_FEEDS_V70} from './mall/story-placement-v70.mjs';
 import {relocateStoryV70,descendToExitV70} from './mall/story-runtime-v70.js';
+import {installVestibuleDoorGameplayV112} from './mall/vestibule-door-gameplay-v112.js';
 // Deployment loader for The Attendant: Pinewood Mall.
 // Runtime bundle stays immutable; authored room and world-prop overrides live in /patches.
 const PARTS=[
@@ -320,7 +321,24 @@ try{
    buildGameplayLayoutV70:args=>applyAuthoredCollidersV111(
     buildGameplayLayoutV70(args),window.__PINEWOOD_V70_BRIDGE__.activeAuthored
    ),
-   eyeHeightOnMezzStairV70,relocateStoryV70,descendToExitV70,
+   eyeHeightOnMezzStairV70,
+   relocateStoryV70:args=>{
+    const result=relocateStoryV70(args);
+    installVestibuleDoorGameplayV112(args.game);
+    // Read-only, opt-in automated desktop handoff probe. Not a game API.
+    if(new URLSearchParams(location.search).has('vestibuleQA')){
+     const game=args.game;
+     window.__PINEWOOD_V112_QA__={getState:()=>{
+      const p=game.controls?.yaw?.position;
+      return {chapter:game.levelIndex+1,x:p?.x,y:p?.y,z:p?.z,
+       yaw:game.controls?.yaw?.rotation?.y,pitch:game.controls?.pitch?.rotation?.x??0,
+       door:game.mallV70?.vestibuleDoorV112?.state,
+       blocker:game.world?.colliders?.find(c=>c.id==='vestibule-inner-fire-door-v112')||null};
+     }};
+    }
+    return result;
+   },
+   descendToExitV70,
    VISUAL_VIEWPOINTS_V70,CCTV_FEEDS_V70
   };
   const source=unifiedSource+'\n//# sourceURL=pinewood-runtime.js\n';

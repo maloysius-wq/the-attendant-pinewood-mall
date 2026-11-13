@@ -19,6 +19,7 @@ import {createDecalFactoryV97,isDecalV97} from '../builder/decals-v97.js';
 import {createRoomFinishesV87} from '../builder/room-finishes-v87.js';
 import {createVestibulePatinaV107} from '../builder/vestibule-patina-v107.js';
 import {mountVestibuleCeilingFixtureV108} from '../builder/vestibule-fixture-v108.js';
+import {mountVestibuleInnerDoorV112} from './vestibule-inner-door-v112.js';
 import {createVestibuleFixtureLightV107} from '../builder/vestibule-light-v107.js';
 
 const pose=o=>({position:{x:o.position.x,y:o.position.y,z:o.position.z},
@@ -43,7 +44,7 @@ export async function attachAuthoredSceneV111(building,{draft,source='published'
  building.group.add(created);
  const baseline=new Map(),basePoses=new Map(),authored=new Map();
  let sculpture=null,oldSculptureVisible=false;
- let roomFinishes=null,patina=null,light=null,last=0,raf=0,disposed=false;
+ let roomFinishes=null,patina=null,light=null,vestibuleDoor=null,last=0,raf=0,disposed=false;
  try{
   for(const f of originals){
    const object=building.group.getObjectByName(baselineID(f),true);
@@ -91,6 +92,10 @@ export async function attachAuthoredSceneV111(building,{draft,source='published'
   patina=await createVestibulePatinaV107({
    building,wallFaces:roomFinishes.getWallPlans('service_vestibule')
   });
+  // This fixed physical fire door is canonical mall infrastructure, never a
+  // mutable Builder draft or a cinematic-only piece of set dressing.
+  vestibuleDoor=mountVestibuleInnerDoorV112(building);
+  building.vestibuleDoorV112=vestibuleDoor;
   const fixture=await mountVestibuleCeilingFixtureV108(building);
   light=createVestibuleFixtureLightV107(building,{
    fixture,random,
@@ -98,7 +103,8 @@ export async function attachAuthoredSceneV111(building,{draft,source='published'
     window.matchMedia?.('(prefers-reduced-motion: reduce)').matches)
   });
   function update(dt){
-   if(!disposed)light.update(Math.max(0,Math.min(.05,Number(dt)||0)));
+   if(!disposed){const step=Math.max(0,Math.min(.05,Number(dt)||0));
+    light.update(step);vestibuleDoor?.update(step);}
   }
   function tick(now){
    if(disposed)return;
@@ -147,7 +153,7 @@ export async function attachAuthoredSceneV111(building,{draft,source='published'
   const dispose=()=>{
    if(disposed)return;disposed=true;
    if(raf)cancelAnimationFrame(raf);
-   light?.dispose();patina?.dispose();roomFinishes?.dispose();
+   light?.dispose();vestibuleDoor?.dispose();patina?.dispose();roomFinishes?.dispose();
    created.removeFromParent();
    // Pinned GLB model geometries can be shared between instances; the
    // upstream v69 scene owns the loaded source resources on final teardown.
@@ -168,7 +174,7 @@ export async function attachAuthoredSceneV111(building,{draft,source='published'
    collidersForLevel,update,dispose};
  }catch(e){
   if(raf)cancelAnimationFrame(raf);
-  light?.dispose();patina?.dispose();roomFinishes?.dispose();
+  light?.dispose();vestibuleDoor?.dispose();patina?.dispose();roomFinishes?.dispose();
   created.removeFromParent();decalFactory.dispose();materialEnhancer.dispose();
   if(sculpture)sculpture.visible=oldSculptureVisible;
   for(const [id,object] of baseline){

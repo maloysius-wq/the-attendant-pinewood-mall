@@ -1,9 +1,10 @@
 import {MALL} from './masterplan-v66.mjs';
 import {constructPhysicalShell} from './physical-shell-v67.mjs';
 import {FURNISHINGS_V69} from './furnishing-plan-v69.mjs';
+import {VESTIBULE_HANDOFF_V112} from './vestibule-handoff-v112.mjs';
 
 const CHAPTERS=Object.freeze([
- {level:'G',room:'service_vestibule',x:12,z:-26,from:null},
+ {level:'G',room:'service_vestibule',x:VESTIBULE_HANDOFF_V112.x,z:VESTIBULE_HANDOFF_V112.z,from:null},
  {level:'B1',room:'freight_b1',x:23,z:-110,from:'freight_lobby__freight_b1'},
  {level:'G',room:'security',x:35,z:-110,from:'b1_stair__security'},
  {level:'G',room:'annex_threshold',x:52,z:-99,from:'security__annex_threshold'},
