@@ -78,8 +78,18 @@ try{
  // localhost-only QA anchor, then send REAL E key events to the game.
  const qa=(x,z)=>page.evaluate(({x,z})=>window.__PINEWOOD_V112_QA__.setPositionForTest(x,z),{x,z});
  const state=()=>page.evaluate(()=>window.__PINEWOOD_V112_QA__.getState());
+ const debug=()=>page.evaluate(()=>({
+  qa:window.__PINEWOOD_V112_QA__?.getState?.(),
+  screens:[...document.querySelectorAll('.screen.show')].map(e=>e.id),
+  pointerLocked:!!document.pointerLockElement,
+  modalOpen:document.body.classList.contains('modal-open'),
+  hint:document.getElementById('pinewood-inner-door-hint-v112')?.textContent
+ }));
  const wait=(predicate,description)=>page.waitForFunction(predicate,null,{timeout:60000,polling:200})
-  .catch(e=>{throw Error(description+': '+e.message);});
+  .catch(async e=>{
+   console.log('V113_WAIT_FAILED_DIAGNOSTIC '+JSON.stringify(await debug().catch(err=>({error:String(err)}))));
+   throw Error(description+': '+e.message);
+  });
  await qa(10,-40.8); // real approach from vestibule, outside leaf sweep
  await page.keyboard.press('KeyE');
  await wait(()=>window.__PINEWOOD_V112_QA__?.getState().door?.openFraction>.97&&
@@ -87,8 +97,10 @@ try{
   'E must swing the licensed source door open and unblock the full opening');
  const frontOpen=await state();
  assert.ok(frontOpen.door.angle>1.2&&frontOpen.door.targetOpen);
- await page.screenshot({path:'artifacts/v113-real-door-open.png',timeout:90000,animations:'disabled'});
+ // Keep the 3D screenshot AFTER all E interaction checks: older
+ // Chromium/SwiftShader builds may release pointer lock during capture.
  await page.keyboard.press('KeyE');
+ console.log('V113_AFTER_SECOND_E '+JSON.stringify(await debug()));
  await wait(()=>window.__PINEWOOD_V112_QA__?.getState().door?.closed&&
   !window.__PINEWOOD_V112_QA__?.getState().blocker?.disabled,
   'second E must animate door closed and restore collision');
@@ -112,6 +124,12 @@ try{
   'close from the concourse must re-block traversal');
  const backClosed=await state();
  assert.equal(backClosed.door.targetOpen,false);
+ // One final E gives us an OPEN source-asset screenshot without interfering
+ // with the previous input/collision assertions.
+ await page.keyboard.press('KeyE');
+ await wait(()=>window.__PINEWOOD_V112_QA__?.getState().door?.openFraction>.97,
+  'final E reopening for screenshot');
+ await page.screenshot({path:'artifacts/v113-real-door-open.png',timeout:90000,animations:'disabled'});
 
  assert.deepEqual(remote,[],'no third-party runtime network requests');
  assert.deepEqual(errors,[],'no uncaught game errors');
