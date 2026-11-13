@@ -86,7 +86,8 @@ export async function installSedanV75({car,stage,status,loader}){
   status:{side:'FL_Door',angle:closedAngle,openFraction:0},
   update(cue,phase,elapsedSeconds=0,waitSeconds=0){
    // Door starts opening at .06; it remains fully open for the physical exit,
-   // and the real mesh closes five seconds after the matching opening sound.
+   // and the real mesh begins closing six seconds after the opening sound,
+    // completing its physical swing over the following 650 milliseconds.
    const startClose=waitSeconds*CAR_DOOR_OPEN_PHASE+CAR_DOOR_CLOSE_DELAY_SECONDS;
    const fraction=cue==='owner'
     ?smooth((phase-CAR_DOOR_OPEN_PHASE)/.14)*(1-smooth((elapsedSeconds-startClose)/.65))
