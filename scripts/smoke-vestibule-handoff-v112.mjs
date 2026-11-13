@@ -38,8 +38,20 @@ try{
  assert.equal(start.blocker?.physicalBlock,true);
  // Enter the REAL playable chapter before capturing the scene, otherwise
  // the chapter-start modal covers the closed fire door in the screenshot.
- await page.locator('#chapterStartBtn').click();
- await page.waitForFunction(()=>!document.querySelector('.screen.show'),null,{timeout:10000});
+ // Call the REAL chapter-start button handler without synthetic mouse motion:
+ // WebGL+pointer-lock can fire a stray unlock while Playwright moves to click
+ // the modal and falsely pause the already-running chapter in headless Chrome.
+ await page.evaluate(()=>{
+  const button=document.getElementById('chapterStartBtn');
+  if(!button?.onclick)throw Error('Real Begin Shift handler unavailable');
+  button.click();
+ });
+ const modalState=await page.evaluate(()=>({
+  screens:[...document.querySelectorAll('.screen.show')].map(e=>e.id),
+  pointerLocked:!!document.pointerLockElement,modalOpen:document.body.classList.contains('modal-open')
+ }));
+ console.log('V112_AFTER_BEGIN_SHIFT '+JSON.stringify(modalState));
+ await page.waitForFunction(()=>!document.querySelector('.screen.show'),null,{timeout:20000,polling:250});
  const inPlay=await page.evaluate(()=>window.__PINEWOOD_V112_QA__.getState());
  assert.deepEqual([inPlay.x,inPlay.y,inPlay.z],[end.x,end.y,end.z],
   'Begin Shift cannot teleport the player away from the terminal film frame');
