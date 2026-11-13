@@ -64,7 +64,7 @@ try{
  // The pinned GLB is genuinely separate from its wall/frame. Its leaf
  // covers exactly the exterior-sized opening; the physical wall infill
  // covers the entire remainder to the 3.55 m vestibule wall top.
- assert.match(start.door.asset,/doorway-door-fad0eb36\\.glb$/);
+ assert.match(start.door.asset,/doorway-door-fad0eb36\.glb$/);
  assert.equal(start.door.sourceDoorMeshes,3,'source-painted door, inset and metal handle are separate meshes');
  const leaf=start.door.closedDoorBounds,header=start.door.headerBounds;
  assert.ok(Math.abs(leaf.size.x-1.78)<.025&&Math.abs(leaf.size.y-2.27)<.025,
