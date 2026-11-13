@@ -94,7 +94,7 @@ export async function attachAuthoredSceneV111(building,{draft,source='published'
   });
   // This fixed physical fire door is canonical mall infrastructure, never a
   // mutable Builder draft or a cinematic-only piece of set dressing.
-  vestibuleDoor=mountVestibuleInnerDoorV112(building);
+  vestibuleDoor=await mountVestibuleInnerDoorV112(building);
   building.vestibuleDoorV112=vestibuleDoor;
   const fixture=await mountVestibuleCeilingFixtureV108(building);
   light=createVestibuleFixtureLightV107(building,{
