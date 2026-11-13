@@ -17,9 +17,10 @@ test('production New Game starts the approved local cinematic, not a review-only
  assert.match(script,/const button=\$\('newBtn'\)/);
  assert.match(script,/if\(!skipped\)window\.__PINEWOOD_INTRO_COMPLETED_FOR_GAME__=true/);
 });
-test('end of cinematic enters the actual contractor vestibule just behind the exterior door',()=>{
+test('end of cinematic and Chapter 1 share the exact middle of the service vestibule',()=>{
  const entry=chapterRouteV70(1).spawn;
  assert.equal(entry.room,'service_vestibule');
- assert.equal(entry.x,12);
- assert.ok(entry.z<-22.5&&entry.z>=-27,'player should resume close to the x=12 service entrance');
+ assert.equal(entry.x,12.5);
+ assert.equal(entry.z,-32.75);
+ assert.equal(entry.y,1.7);
 });
