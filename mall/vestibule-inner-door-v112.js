@@ -63,7 +63,7 @@ export async function mountVestibuleInnerDoorV112(building){
  const source=(await new GLTFLoader().loadAsync(
   new URL('../'+VESTIBULE_DOOR_ASSET_V113,import.meta.url).href)).scene;
  const meshes=[];source.traverse(o=>{if(o.isMesh)meshes.push(o);});
- const leafMeshes=meshes.filter(o=>o.name==='door');
+ const leafMeshes=meshes.filter(o=>/^door(?:_\\d+)?$/.test(o.name));
  const frameMeshes=meshes.filter(o=>o.name==='doorway-door_1'||o.name==='doorway-door_5');
  if(leafMeshes.length!==3||frameMeshes.length!==2)
   throw Error('Pinned CC0 door node names changed; cannot safely rig hinge from a guessed model');
