@@ -1,0 +1,60 @@
+name: Pinewood v112 closed vestibule door and exact cinematic to Chapter 1 handoff
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'mall/vestibule-handoff-v112.mjs'
+      - 'mall/vestibule-inner-door-v112.js'
+      - 'mall/vestibule-door-gameplay-v112.js'
+      - 'mall/gameplay-layout-v70.mjs'
+      - 'mall/authored-scene-v111.js'
+      - 'builder/editor-scene.js'
+      - 'opening/camera-v65.js'
+      - 'opening/intro-v65.js'
+      - 'patches/unified-mall-v70.js.txt'
+      - 'game.js'
+      - 'scripts/*vestibule-handoff-v112.mjs'
+      - '.github/workflows/vestibule-handoff-v112.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  real-desktop-continuity:
+    if: github.repository == 'maloysius-wq/the-attendant-pinewood-mall'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 24
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify scripts and shared physical door
+        run: |
+          node --check mall/vestibule-handoff-v112.mjs
+          node --check mall/vestibule-inner-door-v112.js
+          node --check mall/vestibule-door-gameplay-v112.js
+          node --check opening/camera-v65.js
+          node --check opening/intro-v65.js
+          node --check mall/authored-scene-v111.js
+          node --check game.js
+          node --check patches/unified-mall-v70.js.txt
+          node --test scripts/test-vestibule-handoff-v112.mjs scripts/test-opening-handoff-v70.mjs scripts/test-gameplay-layout-v70.mjs
+          node scripts/audit-local-assets-v15.mjs
+      - name: Install desktop-only Chromium
+        run: |
+          npm install --no-save playwright@1.55.0
+          npx playwright install chromium
+      - name: Serve approved local mall source and assets
+        run: |
+          python3 -m http.server 4173 --bind 127.0.0.1 >/tmp/pinewood-v112-http.log 2>&1 &
+          for i in {1..35}; do curl -fsS http://127.0.0.1:4173/ >/dev/null && exit 0; sleep 1; done
+          exit 1
+      - name: Real Chapter 1 player pose and closed door in desktop Chromium
+        run: node scripts/smoke-vestibule-handoff-v112.mjs
+      - name: Save real mid-vestibule gameplay screenshot
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pinewood-v112-game-chapter1-closed-fire-door
+          path: artifacts/v112-chapter-one-vestibule.png
+          if-no-files-found: ignore
