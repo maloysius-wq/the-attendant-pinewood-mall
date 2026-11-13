@@ -7,6 +7,14 @@ routes and V111 published/private Builder composition remain canonical.
 This first structural phase addresses *actual* source geometry, not decorative
 filler. The cinematic and the live game still use the identical shared world.
 
+## Interactive plan inspection
+
+The new read-only `review/mall-architecture-v114/` page renders exact room
+rectangles, walk-through portal lines, color-coded unallocated floor, original
+outer footprints and per-room furnishing counts for G/B1/M1. It reads
+`MALL` and the geometry audit, without touching the user's browser Builder.
+GitHub Actions captures three complete review PNGs with zero remote assets.
+
 ## Confirmed architectural defects and exact corrections
 
 1. **Partial-height door holes were full-height voids.** The door-plan describes
