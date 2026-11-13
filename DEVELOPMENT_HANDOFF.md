@@ -1,5 +1,29 @@
 # Development Handoff: The Attendant: Pinewood Mall
 
+
+## SHIPPED: V113 real licensed inner vestibule door, matching exterior proportions, full-height infill and reversible E (2026-11-13)
+
+**Merged:** [PR #117](https://github.com/maloysius-wq/the-attendant-pinewood-mall/pull/117) squash-merged into `main` at `cde6240fae955ffd2c282f8e3c06be4271cba516` from final validated feature head `2bb1253f35a06455ba2aebef8e466b525153ea0a`. **Reconfirm most recent Pages deployment succeeds on this documentation head before calling it publicly live**. Keep the earlier V112 handoff anchor and yaw fix.
+
+**Real licensed asset:** Replaced the wholly procedural V112 inner fire-door leaf with actual previously vendored CC0 `assets/vendor/builder/models/liminal-spaces-kit/three-d-liminal-spaces-kit-liminal-spaces-kit-doorway-door-fad0eb36.glb`, already pinned SHA256 `ddc71cf75dd1b4b93f008e55b993b878a52b28ed551ed559c550cbf7f0a28a09`. The source has three independent `door` meshes (painted surface, wood inset, real metal handle) plus fixed wood frame/metal hinge; wallpaper backing is excluded so the real wall material is not obscured. `mountVestibuleInnerDoorV112` in the existing named module is now **async** (await it in `mall/authored-scene-v111.js` and `builder/editor-scene.js`). One canonical licensed model renders in Builder, film and playable mall. No new downloadable assets or third-party runtime endpoints.
+
+**Measured architectural fit:** The installed original GLB leaf is scaled to match the exterior service door `opening/scene.js` dimensions exactly: **1.78 m wide, 2.27 m tall, base y 0.006** inside the existing **1.80 m** service vestibule → central gallery portal at x10,z-43. Source frame/hinge remain stationary. The outer door's aperture top is **2.294 m**. The measured vestibule interior wall top is **3.55 m** and partition thickness **0.24 m**. A fixed, solid infill mesh (1.8 m × 1.256 m × 0.24 m) fills the entire overhead gap from 2.294 to 3.55 using the adjacent actual wall mesh material, including the appropriate authored wall finish. Real desktop WebGL confirmed source mesh, frame and header bounds to floating-point tolerance.
+
+**E interaction:** `mall/vestibule-door-gameplay-v112.js` now toggles with real keyboard E from **either** the vestibule or mall side: first E opens on the original physical hinged axis, next E closes smoothly; close restores the collider and navigation cache, open releases only after the leaf is >92% clear. Pressing E while actually occupying the threshold refuses closure; if one walks into the threshold during closing, the door reverses. The hint changes between Open/Close and signals when a player must move clear. Restarting Chapter 1 calls `reset()` to close instantly. At initial film end/Chapter 1 start the door remains fully closed; position (12.5,1.7,-32.75) and yaw/pitch (0,0) identical to V112. Preserves original exterior keypad door and camera/audio timing. The opt-in QA setPositionForTest is only exposed for localhost CI, never public Pages.
+
+**Seven final-head relevant checks SUCCESS** all on `2bb1253f35a06455ba2aebef8e466b525153ea0a`:
+- [v113/v112 real desktop interactive door #43477049736](https://github.com/maloysius-wq/the-attendant-pinewood-mall/actions/runs/43477049736): 17/17 source tests, local asset audit PASS, exact Chapter 1 pose, original GLB and real fill bounds, real E open/close from both sides, physics collider release/reset, threshold anti-trap, screenshots, **no uncaught errors or off-origin requests**. The earlier interim v113 runs failed first on bad selector/regex and then on premature screenshot disrupting pointer lock; final run fixed both. Do not consider historic red runs unresolved.
+- [v111 shared Builder → movie → game #43477049321](https://github.com/maloysius-wq/the-attendant-pinewood-mall/actions/runs/43477049321).
+- [v71 genuine cinematic-to-mall continuity #43477049301](https://github.com/maloysius-wq/the-attendant-pinewood-mall/actions/runs/43477049301).
+- [standalone Builder persistent saves #43477049489](https://github.com/maloysius-wq/the-attendant-pinewood-mall/actions/runs/43477049489).
+- [unified desktop gameplay migration #43477049437](https://github.com/maloysius-wq/the-attendant-pinewood-mall/actions/runs/43477049437).
+- [runtime audit #43477049472](https://github.com/maloysius-wq/the-attendant-pinewood-mall/actions/runs/43477049472).
+- [all-room wall finish audit #43477049582](https://github.com/maloysius-wq/the-attendant-pinewood-mall/actions/runs/43477049582).
+
+**Persistent safeguards:** 41-room architectural source, 638-model catalog, Builder `pinewood-builder-v1` IndexedDB private draft and intentionally empty public v1 layout, source-licensed local assets, six chapters, no mobile tests and no manual WASD. The door is fixed infrastructure and cannot be moved/saved as a Builder prop. For future changes, do not substitute a procedural slab or re-open the header gap. The genuinely user-authored private Builder placements still require user-approved `Export for Publishing` JSON before publicly publishing those furnishings; that unrelated next step does not block this deployed door release.
+
+---
+
 ## V113: sourced vestibule door, solid overhead wall and reversible E (2026-11-13)
 
 **Merged:** [PR #117](https://github.com/maloysius-wq/the-attendant-pinewood-mall/pull/117) squash-merged on `main` as **`cde6240fae955ffd2c282f8e3c06be4271cba516`**, with four scoped final-head tests **SUCCESS** at branch SHA `2bb1253f35a06455ba2aebef8e466b525153ea0a`. **Confirm latest GitHub Pages deployment after this documentation commit before saying the public URL serves V113.**
