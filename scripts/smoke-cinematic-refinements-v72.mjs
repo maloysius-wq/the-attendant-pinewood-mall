@@ -155,7 +155,8 @@ try{
  await page.waitForTimeout(850);
  const interior=await get();
  assert.equal(interior.world?.mode,'unified-mall');
- assert.ok(interior.eye[2]<-43,'real mall route remains traversable');
+ assert.ok(Math.abs(interior.eye[0]-12.5)<.02&&Math.abs(interior.eye[2]+32.75)<.02,
+  'cinematic stops halfway down the vestibule rather than passing the closed mall door');
  assert.deepEqual(errors,[]);assert.deepEqual(remote,[]);
  await writeFile('cinematic-v72-artifacts/status.json',JSON.stringify({initial,clockMoment,entry,granted,threshold,interior,drawComparison,errors,remote},null,2));
  console.log('CINEMATIC_V72_DESKTOP_PASS '+JSON.stringify({clock:initial.clock,keypad:entry.keypad,world:interior.world,errors,remote}));
