@@ -31,10 +31,15 @@ try{
   assert.ok(initial.modelsLoaded>=6,'CC0 ground-floor fixtures must preload');
   assert.ok(initial.walls>=80,'actual ground floor walls rendered');
   assert.equal(initial.floor,'G');
-  const expectedCeilings=MALL.rooms.filter(room=>room.level==='G'&&room.id!=='central_gallery')
-   .map(room=>room.id).sort();
+  // V114 adds authentic restricted-level ceilings. The construction preview
+  // mounts every level's ceiling objects in one shared roof-cutaway group.
+  const expectedCeilings=MALL.rooms.filter(room=>
+   (room.level==='G'&&room.id!=='central_gallery')||
+   (room.level==='B1'&&!['freight_b1','b1_stair'].includes(room.id))||
+   (room.level==='M1'&&!['m1_stair','mezz_hall'].includes(room.id))
+  ).map(room=>room.id).sort();
   assert.deepEqual(initial.ceilingRooms,expectedCeilings,
-   'every enclosed ground-floor room must have an actual rendered ceiling mesh');
+   'all enclosed G, B1 and M1 rooms must have actual rendered ceilings');
   assert.ok(initial.ceilingMeshes>=expectedCeilings.length,
    'stair and elevator cutouts must retain multiple actual ceiling slab pieces');
   const cameras=[
