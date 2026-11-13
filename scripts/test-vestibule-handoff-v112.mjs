@@ -45,5 +45,6 @@ test('game adds a real impassable door and explicit E interaction; no autoplay g
  assert.match(model,/let fraction=0,target=0/);
  assert.match(model,/pivot\.rotation\.y=Math\.PI\*\.53\*eased/);
  const bridge=read('patches/unified-mall-v70.js.txt');
- assert.match(bridge,/if\(idx===0\)\{this\.controls\.yaw\.rotation\.y=0/);
+ assert.match(bridge,/this\.controls\.yaw\.rotation\.y=idx===0\?0:-Math\.PI\/2/,
+  'the whole original -90° view reset is replaced for Chapter 1, not followed by a legacy override');
 });
