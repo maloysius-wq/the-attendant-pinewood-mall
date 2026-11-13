@@ -9,11 +9,14 @@ export function installVestibuleDoorGameplayV112(game){
  if(!game?.world?.colliders||game.mallLayoutV70?.level!=='G')return null;
  const door=game.mallV70?.vestibuleDoorV112;
  if(!door)throw Error('Shared vestibule inner fire door was not mounted in game');
+ // A replay or restart of Chapter 1 must not inherit a door opened in a
+ // previous attempt while the cached physical mall renderer is reused.
+ if(game.levelIndex===0)door.close();
  const portal=vestibuleInnerPortalV112();
  const blocker={id:'vestibule-inner-fire-door-v112',kind:'scripted-fire-door',
   minX:portal.start+.01,maxX:portal.end-.01,
   minZ:portal.z-.115,maxZ:portal.z+.115,
-  navBlock:true,physicalBlock:true,disabled:door.state.opened,owner:null};
+  navBlock:true,physicalBlock:true,disabled:door.state.openFraction>.92,owner:null};
  game.world.colliders.push(blocker);
  game.world.navCache.clear();
  const hint=document.createElement('div');
@@ -35,15 +38,16 @@ export function installVestibuleDoorGameplayV112(game){
  const key=e=>{
   if(disposed||e.repeat||e.code!=='KeyE'||!nearby())return;
   e.preventDefault();e.stopImmediatePropagation();
-  if(door.open()){
-   blocker.disabled=true;
-   game.world.navCache.clear();
-   hint.style.display='none';
-  }
+  if(door.open())hint.style.display='none';
  };
  document.addEventListener('keydown',key,true);
  const tick=()=>{
   if(disposed)return;
+  // Only release navigation after the physical leaf actually swings clear.
+  // An immediate unblock allows a sprinting player to phase through steel.
+  if(!blocker.disabled&&door.state.openFraction>.92){
+   blocker.disabled=true;game.world.navCache.clear();
+  }
   hint.style.display=nearby()?'block':'none';
   raf=requestAnimationFrame(tick);
  };
