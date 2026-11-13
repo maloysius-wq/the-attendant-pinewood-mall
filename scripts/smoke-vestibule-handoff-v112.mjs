@@ -61,9 +61,59 @@ try{
  const untouched=await page.evaluate(()=>window.__PINEWOOD_V112_QA__.getState());
  assert.equal(untouched.door?.closed,true,'E must not open the distant mall door from the vestibule center');
  assert.equal(untouched.blocker?.disabled,false,'distant interaction must leave door physically closed');
+ // The pinned GLB is genuinely separate from its wall/frame. Its leaf
+ // covers exactly the exterior-sized opening; the physical wall infill
+ // covers the entire remainder to the 3.55 m vestibule wall top.
+ assert.match(start.door.asset,/doorway-door-fad0eb36\\.glb$/);
+ assert.equal(start.door.sourceDoorMeshes,3,'source-painted door, inset and metal handle are separate meshes');
+ const leaf=start.door.closedDoorBounds,header=start.door.headerBounds;
+ assert.ok(Math.abs(leaf.size.x-1.78)<.025&&Math.abs(leaf.size.y-2.27)<.025,
+  'REAL source asset must cover same door leaf dimensions as exterior');
+ assert.ok(Math.abs(header.size.x-1.8)<.001);
+ assert.ok(Math.abs(header.min.y-2.294)<.003,'solid lintel must start at exterior aperture top');
+ assert.ok(Math.abs(header.max.y-3.55)<.003,'solid header must meet the actual interior wall top');
  await page.screenshot({path:'artifacts/v112-chapter-one-vestibule.png',
   timeout:90000,animations:'disabled'});
+ // No interactive WASD session: position the actual runtime player with a
+ // localhost-only QA anchor, then send REAL E key events to the game.
+ const qa=(x,z)=>page.evaluate(({x,z})=>window.__PINEWOOD_V112_QA__.setPositionForTest(x,z),{x,z});
+ const state=()=>page.evaluate(()=>window.__PINEWOOD_V112_QA__.getState());
+ const wait=(predicate,description)=>page.waitForFunction(predicate,null,{timeout:60000,polling:200})
+  .catch(e=>{throw Error(description+': '+e.message);});
+ await qa(10,-40.8); // real approach from vestibule, outside leaf sweep
+ await page.keyboard.press('KeyE');
+ await wait(()=>window.__PINEWOOD_V112_QA__?.getState().door?.openFraction>.97&&
+  window.__PINEWOOD_V112_QA__?.getState().blocker?.disabled,
+  'E must swing the licensed source door open and unblock the full opening');
+ const frontOpen=await state();
+ assert.ok(frontOpen.door.angle>1.2&&frontOpen.door.targetOpen);
+ await page.screenshot({path:'artifacts/v113-real-door-open.png',timeout:90000,animations:'disabled'});
+ await page.keyboard.press('KeyE');
+ await wait(()=>window.__PINEWOOD_V112_QA__?.getState().door?.closed&&
+  !window.__PINEWOOD_V112_QA__?.getState().blocker?.disabled,
+  'second E must animate door closed and restore collision');
+ const frontClosed=await state();
+ assert.equal(frontClosed.door.targetOpen,false);
+ await qa(10,-45.1); // test from the mall-facing side as well
+ await page.keyboard.press('KeyE');
+ await wait(()=>window.__PINEWOOD_V112_QA__?.getState().door?.openFraction>.97&&
+  window.__PINEWOOD_V112_QA__?.getState().blocker?.disabled,
+  'E must also open from the opposite side');
+ await qa(10,-43); // stand within the actual doorway
+ await page.keyboard.press('KeyE'); // cannot slam through the player
+ await page.waitForTimeout(150);
+ const protectedPlayer=await state();
+ assert.equal(protectedPlayer.door.targetOpen,true,'E cannot close onto an occupied doorway');
+ assert.equal(protectedPlayer.blocker.disabled,true,'player cannot be trapped in restored collision');
+ await qa(10,-45.1);
+ await page.keyboard.press('KeyE');
+ await wait(()=>window.__PINEWOOD_V112_QA__?.getState().door?.closed&&
+  !window.__PINEWOOD_V112_QA__?.getState().blocker?.disabled,
+  'close from the concourse must re-block traversal');
+ const backClosed=await state();
+ assert.equal(backClosed.door.targetOpen,false);
+
  assert.deepEqual(remote,[],'no third-party runtime network requests');
  assert.deepEqual(errors,[],'no uncaught game errors');
- console.log('PINEWOOD_V112_CHAPTER_START_PASS '+JSON.stringify({start,inPlay,errors,remote}));
+ console.log('PINEWOOD_V113_REAL_DOOR_E_TOGGLE_PASS '+JSON.stringify({start,inPlay,frontOpen,frontClosed,protectedPlayer,backClosed,errors,remote}));
 }finally{await browser.close();}
