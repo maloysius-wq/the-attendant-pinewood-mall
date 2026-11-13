@@ -325,6 +325,17 @@ try{
    relocateStoryV70:args=>{
     const result=relocateStoryV70(args);
     installVestibuleDoorGameplayV112(args.game);
+    // Read-only, opt-in automated desktop handoff probe. Not a game API.
+    if(new URLSearchParams(location.search).has('vestibuleQA')){
+     const game=args.game;
+     window.__PINEWOOD_V112_QA__={getState:()=>{
+      const p=game.controls?.yaw?.position;
+      return {chapter:game.levelIndex+1,x:p?.x,y:p?.y,z:p?.z,
+       yaw:game.controls?.yaw?.rotation?.y,pitch:game.controls?.pitch?.rotation?.x??0,
+       door:game.mallV70?.vestibuleDoorV112?.state,
+       blocker:game.world?.colliders?.find(c=>c.id==='vestibule-inner-fire-door-v112')||null};
+     }};
+    }
     return result;
    },
    descendToExitV70,
