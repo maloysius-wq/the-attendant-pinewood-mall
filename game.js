@@ -328,7 +328,17 @@ try{
     // Read-only, opt-in automated desktop handoff probe. Not a game API.
     if(new URLSearchParams(location.search).has('vestibuleQA')){
      const game=args.game;
-     window.__PINEWOOD_V112_QA__={getState:()=>{
+     window.__PINEWOOD_V112_QA__={
+      // Interactive source-door regression uses deterministic placement ONLY
+      // in local desktop CI. Public Pages exposes the original read-only QA.
+      ...(location.hostname==='127.0.0.1'||location.hostname==='localhost'?{
+       setPositionForTest(x,z){
+        if(![x,z].every(Number.isFinite)||Math.abs(x)>100||Math.abs(z)>150)
+         throw Error('Invalid local-only door QA position');
+        game.controls.yaw.position.x=x;game.controls.yaw.position.z=z;
+       }
+      }:{}),
+      getState:()=>{
       const p=game.controls?.yaw?.position;
       return {chapter:game.levelIndex+1,x:p?.x,y:p?.y,z:p?.z,
        yaw:game.controls?.yaw?.rotation?.y,pitch:game.controls?.pitch?.rotation?.x??0,

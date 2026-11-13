@@ -34,17 +34,27 @@ test('inner fire door is located within actual 1.8 m measured service-to-atrium 
  assert.match(movie,/get vestibuleInnerDoorV112\(\)/);
 });
 
-test('game adds a real impassable door and explicit E interaction; no autoplay gate',()=>{
- const game=read('game.js'),door=read('mall/vestibule-door-gameplay-v112.js'),
+test('source-pinned physical door fills wall header and E opens/closes without trapping player',()=>{
+ const game=read('game.js'),controller=read('mall/vestibule-door-gameplay-v112.js'),
   model=read('mall/vestibule-inner-door-v112.js');
- assert.match(game,/installVestibuleDoorGameplayV112\(args\.game\)/);
- assert.match(door,/physicalBlock:true,disabled:door\.state\.openFraction>\.92/);
- assert.match(door,/if\(game\.levelIndex===0\)door\.close\(\)/,'restarting Chapter 1 closes the inner door');
- assert.match(door,/e\.code!=='KeyE'/);
- assert.match(door,/blocker\.disabled=true/);
- assert.match(model,/let fraction=0,target=0/);
- assert.match(model,/pivot\.rotation\.y=Math\.PI\*\.53\*eased/);
+ assert.ok(game.includes('installVestibuleDoorGameplayV112(args.game)'));
+ assert.ok(controller.includes('physicalBlock:true,disabled:door.state.openFraction>.92'));
+ assert.ok(controller.includes('if(game.levelIndex===0)door.reset()'),
+  'a Chapter 1 restart must force the door shut');
+ assert.ok(controller.includes("e.code!=='KeyE'"));
+ assert.ok(controller.includes('door.toggle()'),'E must toggle opened and closed');
+ assert.ok(controller.includes('occupied()'),'closing cannot trap the player');
+ assert.ok(controller.includes('blocker.disabled=!shouldBlock'),
+  'both opening and closing must update the real navigation collider');
+ assert.ok(model.includes('GLTFLoader'),'door leaf must be a real original licensed GLB');
+ assert.ok(model.includes('sourceDoorMeshes:leafMeshes.length'));
+ assert.ok(model.includes('sourceFrameMeshes:frameMeshes.length'));
+ assert.ok(model.includes('existingVestibuleWall(building,portal)'));
+ assert.ok(model.includes('new THREE.BoxGeometry(portal.width,headerHeight,segment.thickness)'));
+ assert.ok(model.includes('pivot.rotation.y=Math.PI*.53*eased'));
+ assert.ok(model.includes('toggle()'));
+ assert.ok(model.includes('reset()'));
  const bridge=read('patches/unified-mall-v70.js.txt');
- assert.match(bridge,/this\.controls\.yaw\.rotation\.y=idx===0\?0:-Math\.PI\/2/,
-  'the whole original -90° view reset is replaced for Chapter 1, not followed by a legacy override');
+ assert.ok(bridge.includes('this.controls.yaw.rotation.y=idx===0?0:-Math.PI/2'),
+  'first Chapter 1 playable camera heading must remain identical to the film');
 });

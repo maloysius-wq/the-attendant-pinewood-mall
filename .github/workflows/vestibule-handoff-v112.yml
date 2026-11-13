@@ -14,6 +14,7 @@ on:
       - 'patches/unified-mall-v70.js.txt'
       - 'game.js'
       - 'scripts/*vestibule-handoff-v112.mjs'
+      - 'scripts/inspect-vestibule-door-asset-v113.mjs'
       - '.github/workflows/vestibule-handoff-v112.yml'
   workflow_dispatch:
 permissions:
@@ -30,6 +31,7 @@ jobs:
           node-version: '22'
       - name: Verify scripts and shared physical door
         run: |
+          node scripts/inspect-vestibule-door-asset-v113.mjs
           node --check mall/vestibule-handoff-v112.mjs
           node --check mall/vestibule-inner-door-v112.js
           node --check mall/vestibule-door-gameplay-v112.js

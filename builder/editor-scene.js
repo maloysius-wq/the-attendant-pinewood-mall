@@ -24,7 +24,7 @@ const applyPose=(obj,p)=>{
 export async function createBuilderScene({scene,camera,domElement,onSelect=()=>{},onTransform=()=>{},onPlace=()=>{},canEdit=()=>true,orbit=null}){
  const building=await renderPinewoodV69({scene,chapter:6});
  // The same closed, non-editable real interior door seen in cinema and game.
- const innerDoor=mountVestibuleInnerDoorV112(building);
+ const innerDoor=await mountVestibuleInnerDoorV112(building);
  const materialEnhancer=createBuilderMaterialEnhancerV91();
  const decalFactory=createDecalFactoryV97();
  building.setChapter(6);building.setRoofVisible(true);
