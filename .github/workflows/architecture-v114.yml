@@ -9,6 +9,8 @@ on:
       - 'mall/architecture-audit-v114.mjs'
       - 'scripts/test-architecture-v114.mjs'
       - 'scripts/smoke-physical-shell-v67.mjs'
+      - 'scripts/smoke-mall-architecture-v114.mjs'
+      - 'review/mall-architecture-v114/**'
       - 'docs/INTERIOR_ARCHITECTURE_V114.md'
       - '.github/workflows/architecture-v114.yml'
   workflow_dispatch:
@@ -44,10 +46,14 @@ jobs:
           exit 1
       - name: Inspect real B1, retail, administration and exits in desktop WebGL
         run: node scripts/smoke-physical-shell-v67.mjs
+      - name: Inspect source-measured top-down floor plans in real Chromium
+        run: node scripts/smoke-mall-architecture-v114.mjs
       - name: Preserve visual evidence from the 3D renderer
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: v114-interior-geometry-desktop
-          path: mall-v67-artifacts/
+          path: |
+            mall-v67-artifacts/
+            artifacts/v114-architecture/
           retention-days: 14
