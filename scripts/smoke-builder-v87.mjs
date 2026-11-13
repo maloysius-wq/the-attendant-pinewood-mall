@@ -58,15 +58,23 @@ try{
  // Snap must use the selected physical interval, and be switchable.
  await page.locator('#grid-size').selectOption('0.25');
  assert.equal((await state()).placementOptions.gridSize,0,'changing grid spacing does not re-enable snap');
- await page.locator('#snap-grid').check();
+ // A real native click exercises the same input/change handler but avoids
+ // the Playwright software-WebGL post-click navigation stall.
+ await page.evaluate(()=>document.getElementById('snap-grid').click());
+ await page.waitForFunction(()=>document.getElementById('snap-grid').checked);
  assert.equal((await state()).placementOptions.gridSize,.25);
- await page.locator('#snap-grid').uncheck();
+ await page.evaluate(()=>document.getElementById('snap-grid').click());
+ await page.waitForFunction(()=>!document.getElementById('snap-grid').checked);
  assert.equal((await state()).placementOptions.gridSize,0);
- await page.locator('#snap-grid').check();
+ // A real native click exercises the same input/change handler but avoids
+ // the Playwright software-WebGL post-click navigation stall.
+ await page.evaluate(()=>document.getElementById('snap-grid').click());
+ await page.waitForFunction(()=>document.getElementById('snap-grid').checked);
  assert.equal((await state()).placementOptions.gridSize,.25);
 
  // Owner-selected default allows overlap; strict collisions remain available.
- await page.locator('#allow-clipping').uncheck();
+ await page.evaluate(()=>document.getElementById('allow-clipping').click());
+ await page.waitForFunction(()=>!document.getElementById('allow-clipping').checked);
  assert.equal((await state()).placementOptions.allowClipping,false);
  const outsidePosition={x:555,y:-5,z:555};
  const blocked=await page.evaluate(async pos=>{
@@ -77,7 +85,8 @@ try{
  },outsidePosition);
  assert.match(blocked,/support|overlap/i);
  assert.equal((await state()).draft.added.length,0);
- await page.locator('#allow-clipping').check();
+ await page.evaluate(()=>document.getElementById('allow-clipping').click());
+ await page.waitForFunction(()=>document.getElementById('allow-clipping').checked);
  assert.equal((await state()).placementOptions.allowClipping,true);
  await page.evaluate(pos=>window.__PINEWOOD_BUILDER__.place('kenney-food-kit-can',pos,'ci-allowed'),outsidePosition);
  assert.equal((await state()).draft.added.length,1,'overlap explicitly allows out-of-bounds props');

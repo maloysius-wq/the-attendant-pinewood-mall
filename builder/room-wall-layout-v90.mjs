@@ -61,6 +61,7 @@ export function planRoomWallFacesV90(room,shell,frontWall=null){
  ];
  const replaced=room.level==='G'&&frontWall;
  const walls=shell.walls.filter(w=>w.role!=='railing'&&w.role!=='gate'&&
+  !w.role.startsWith('storefront-')&& // Never paint over real glass or retail signage.
   !(replaced&&w.role==='exterior'&&w.axis==='z'&&near(w.at,frontWall.at)));
  if(replaced)walls.push(...frontWall.segments);
  const planned=[];

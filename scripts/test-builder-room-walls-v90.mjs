@@ -96,7 +96,11 @@ test('every original mall room is audited for interior wall finishes across all 
   const slabs=shell.ceilings.filter(c=>c.room===room.id);
   const maxY=slabs.length?Math.min(...slabs.map(c=>c.y-c.thickness/2)):
    room.level==='B1'?shell.y+3.45:room.level==='M1'?shell.y+3:Infinity;
+  // Licensed / source-measured retail storefront assemblies are deliberately
+  // non-paintable. Painting over their glass, fascia or structural trim would
+  // destroy the actual view into stores. All *ordinary* room walls stay editable.
   const physical=[...shell.walls.filter(w=>w.role!=='gate'&&w.role!=='railing'&&
+   !w.role.startsWith('storefront-')&&
    !(room.level==='G'&&w.role==='exterior'&&w.axis==='z'&&Math.abs(w.at-front.at)<.07)),
    ...(room.level==='G'?front.segments:[])];
   for(const side of sides)for(const w of physical){
