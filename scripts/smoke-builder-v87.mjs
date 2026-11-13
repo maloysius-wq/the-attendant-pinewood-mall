@@ -58,11 +58,18 @@ try{
  // Snap must use the selected physical interval, and be switchable.
  await page.locator('#grid-size').selectOption('0.25');
  assert.equal((await state()).placementOptions.gridSize,0,'changing grid spacing does not re-enable snap');
- await page.locator('#snap-grid').check();
+ // A real native click exercises the same input/change handler but avoids
+ // the Playwright software-WebGL post-click navigation stall.
+ await page.evaluate(()=>document.getElementById('snap-grid').click());
+ await page.waitForFunction(()=>document.getElementById('snap-grid').checked);
  assert.equal((await state()).placementOptions.gridSize,.25);
- await page.locator('#snap-grid').uncheck();
+ await page.evaluate(()=>document.getElementById('snap-grid').click());
+ await page.waitForFunction(()=>!document.getElementById('snap-grid').checked);
  assert.equal((await state()).placementOptions.gridSize,0);
- await page.locator('#snap-grid').check();
+ // A real native click exercises the same input/change handler but avoids
+ // the Playwright software-WebGL post-click navigation stall.
+ await page.evaluate(()=>document.getElementById('snap-grid').click());
+ await page.waitForFunction(()=>document.getElementById('snap-grid').checked);
  assert.equal((await state()).placementOptions.gridSize,.25);
 
  // Owner-selected default allows overlap; strict collisions remain available.
