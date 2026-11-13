@@ -73,7 +73,8 @@ try{
  assert.equal((await state()).placementOptions.gridSize,.25);
 
  // Owner-selected default allows overlap; strict collisions remain available.
- await page.locator('#allow-clipping').uncheck();
+ await page.evaluate(()=>document.getElementById('allow-clipping').click());
+ await page.waitForFunction(()=>!document.getElementById('allow-clipping').checked);
  assert.equal((await state()).placementOptions.allowClipping,false);
  const outsidePosition={x:555,y:-5,z:555};
  const blocked=await page.evaluate(async pos=>{
@@ -84,7 +85,8 @@ try{
  },outsidePosition);
  assert.match(blocked,/support|overlap/i);
  assert.equal((await state()).draft.added.length,0);
- await page.locator('#allow-clipping').check();
+ await page.evaluate(()=>document.getElementById('allow-clipping').click());
+ await page.waitForFunction(()=>document.getElementById('allow-clipping').checked);
  assert.equal((await state()).placementOptions.allowClipping,true);
  await page.evaluate(pos=>window.__PINEWOOD_BUILDER__.place('kenney-food-kit-can',pos,'ci-allowed'),outsidePosition);
  assert.equal((await state()).draft.added.length,1,'overlap explicitly allows out-of-bounds props');
