@@ -25,6 +25,7 @@ try{
   return s?.chapter===1&&Math.abs(s.x-12.5)<.01&&Math.abs(s.z+32.75)<.01;
  },null,{timeout:250000});
  const start=await page.evaluate(()=>window.__PINEWOOD_V112_QA__.getState());
+ console.log('V112_GAME_POSE_DIAGNOSTIC '+JSON.stringify(start));
  assert.deepEqual([start.x,start.y,start.z],[end.x,end.y,end.z],
   'actual gameplay camera position must equal terminal cinematic eye exactly');
  assert.ok(Math.abs(start.yaw-end.yaw)<.0001,
