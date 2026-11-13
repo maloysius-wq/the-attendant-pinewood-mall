@@ -1,0 +1,59 @@
+name: Pinewood v114 interior architecture and physical continuity
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'mall/masterplan-v66.mjs'
+      - 'mall/physical-shell-v67.mjs'
+      - 'mall/gameplay-layout-v70.mjs'
+      - 'mall/architecture-audit-v114.mjs'
+      - 'scripts/test-architecture-v114.mjs'
+      - 'scripts/smoke-physical-shell-v67.mjs'
+      - 'scripts/smoke-mall-architecture-v114.mjs'
+      - 'review/mall-architecture-v114/**'
+      - 'docs/INTERIOR_ARCHITECTURE_V114.md'
+      - '.github/workflows/architecture-v114.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  architecture:
+    if: github.repository == 'maloysius-wq/the-attendant-pinewood-mall'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 24
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Source and gameplay regression contracts
+        run: |
+          node --check mall/masterplan-v66.mjs
+          node --check mall/physical-shell-v67.mjs
+          node --check mall/gameplay-layout-v70.mjs
+          node --check mall/architecture-audit-v114.mjs
+          node --check scripts/test-architecture-v114.mjs
+          node --test scripts/test-architecture-v114.mjs scripts/test-physical-shell-v67.mjs scripts/test-mall-masterplan-v66.mjs scripts/test-gameplay-layout-v70.mjs scripts/test-vestibule-handoff-v112.mjs
+          node scripts/audit-local-assets-v15.mjs
+      - name: Install desktop-only browser
+        run: |
+          npm install --no-save playwright@1.55.0
+          npx playwright install chromium
+      - name: Serve the source-pinned full 3D world
+        run: |
+          python3 -m http.server 4173 --bind 127.0.0.1 >/tmp/pinewood-v114-http.log 2>&1 &
+          for i in {1..30}; do curl -fsS http://127.0.0.1:4173/review/mall-construction-v67/ >/dev/null && exit 0; sleep 1; done
+          exit 1
+      - name: Inspect real B1, retail, administration and exits in desktop WebGL
+        run: node scripts/smoke-physical-shell-v67.mjs
+      - name: Inspect source-measured top-down floor plans in real Chromium
+        run: node scripts/smoke-mall-architecture-v114.mjs
+      - name: Preserve visual evidence from the 3D renderer
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: v114-interior-geometry-desktop
+          path: |
+            mall-v67-artifacts/
+            artifacts/v114-architecture/
+          retention-days: 14

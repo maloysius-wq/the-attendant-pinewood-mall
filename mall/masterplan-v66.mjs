@@ -520,7 +520,7 @@ export const MALL={
       "id": "eli_chase",
       "label": "Sealed Eli Utility Chase",
       "level": "M1",
-      "x1": 54,
+      "x1": 56,
       "x2": 68,
       "z1": -116,
       "z2": -102,

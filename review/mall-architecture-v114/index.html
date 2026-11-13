@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pinewood Mall | Interior Architecture Audit V114</title>
+<style>
+:root{color-scheme:dark;font:15px/1.45 system-ui,Segoe UI,sans-serif;background:#101819;color:#edf2ee}
+*{box-sizing:border-box}body{margin:0;padding:24px;min-height:100vh}header{max-width:1400px;margin:auto}
+h1{font:700 clamp(23px,3vw,34px)/1.2 Georgia,serif;margin:0 0 7px}
+p{color:#a9b7b2;margin:6px 0 16px}main{max-width:1400px;margin:auto;display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:18px}
+#toolbar{display:flex;gap:8px;flex-wrap:wrap;margin:16px 0}
+button{background:#203132;color:#e9eee9;border:1px solid #5c706c;border-radius:6px;padding:9px 13px;cursor:pointer;font-weight:600}
+button[aria-pressed="true"]{background:#e2b478;color:#192020;border-color:#e2b478}
+#drawing{border:1px solid #3d5250;background:#142023;border-radius:12px;min-height:520px;overflow:hidden;position:relative}
+#drawing svg{display:block;width:100%;height:auto;min-height:460px}
+#drawing g[tabindex]{cursor:pointer;outline:none}
+#drawing g[tabindex]:focus rect,#drawing g[tabindex]:hover rect{stroke:#fff2bc;stroke-width:.48}
+#drawing .selected rect{stroke:#f4d58e;stroke-width:.65}
+aside{border:1px solid #3d5250;background:#1b292b;border-radius:12px;padding:20px}
+h2{font:700 20px Georgia,serif;margin:0 0 12px}dl{display:grid;grid-template-columns:1fr auto;gap:8px;margin:10px 0 22px}
+dt{color:#a6b7b3}dd{margin:0;font-weight:700;font-variant-numeric:tabular-nums}
+#room-note{border-top:1px solid #3d5250;padding-top:16px;color:#c5d4ce}
+.legend{display:flex;flex-wrap:wrap;gap:12px;font-size:12px;margin:11px 0;color:#bccbc5}
+.legend span{display:inline-flex;align-items:center;gap:6px}.swatch{width:13px;height:13px;border:1px solid #71807a;display:inline-block;border-radius:2px}
+small{color:#9faeaa}footer{max-width:1400px;margin:12px auto;color:#8fa29c}
+@media(max-width:860px){main{grid-template-columns:1fr}aside{order:-1}#drawing{min-height:280px}body{padding:13px}}
+</style>
+</head>
+<body>
+<header>
+<h1>Pinewood Mall · Architecture V114</h1>
+<p>Exact source-defined room boundaries, doors, physical shell and unallocated floor. Select a level or click a room for diagnostics. This is a read-only review, not a replacement for the Builder.</p>
+<nav id="toolbar" aria-label="Floor selection">
+<button data-level="G" aria-pressed="true">G · Retail</button>
+<button data-level="B1" aria-pressed="false">B1 · Mechanical</button>
+<button data-level="M1" aria-pressed="false">M1 · Administration</button>
+</nav>
+<div class="legend" aria-label="Map legend">
+<span><i class="swatch" style="background:#746b55"></i>Public</span>
+<span><i class="swatch" style="background:#607f85"></i>Retail</span>
+<span><i class="swatch" style="background:#527165"></i>Staff</span>
+<span><i class="swatch" style="background:#69657b"></i>Mechanical</span>
+<span><i class="swatch" style="background:#886f52"></i>Administrative</span>
+<span><i class="swatch" style="background:#aa573b"></i>Unallocated</span>
+<span><i class="swatch" style="background:#f6d68f"></i>Passage</span>
+</div>
+</header>
+<main>
+<section id="drawing" aria-label="Architectural plan"></section>
+<aside>
+<h2 id="floor-title">Ground · Retail</h2>
+<dl id="metrics"></dl>
+<h2 id="room-name">Select a room</h2>
+<div id="room-note">Room properties appear here.</div>
+</aside>
+</main>
+<footer><small>Reading the 41-room V66 source and measured V114 union-of-rectangles audit. Unallocated area is not necessarily missing floor. Existing routes, story evidence and private Builder drafts remain untouched.</small></footer>
+<script type="module" src="./viewer.js"></script>
+</body>
+</html>
