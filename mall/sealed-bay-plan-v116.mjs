@@ -40,8 +40,10 @@ const specs=[
  {id:'annex_bulk_store',label:'East Wing Bulk Storage',kind:'service',x1:65,x2:85,z1:-115,z2:-108}
 ];
 export const SEALED_BAYS_V116=Object.freeze(specs.map(s=>Object.freeze({
- ...s,level:'G',ceilingY:s.kind==='service'?3.35:3.48,
- height:s.kind==='service'?3.32:3.45,
+ ...s,level:'G',ceilingY:3.48,
+ // Adjacent 1992 service/retail bays share one continuous 3.45m partition;
+ // mixed-height full walls would duplicate faces at every boundary.
+ height:3.45,
  front:s.front?Object.freeze({...s.front}):null
 })));
 
