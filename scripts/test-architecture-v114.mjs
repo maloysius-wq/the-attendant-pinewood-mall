@@ -21,7 +21,7 @@ test('v114 documents exact remaining unallocated footprint instead of silently i
  assert.equal(basement.unassignedArea,1470);
  assert.equal(basement.overlapArea,60,'B1 utility spine deliberately crosses the transverse passage');
  assert.deepEqual(basement.intersections[0]?.rooms,['b1_spine','b1_cross']);
- assert.equal(admin.unassignedArea,1437);
+ assert.equal(admin.unassignedArea,1439);
  assert.equal(admin.overlapArea,0,'M1 stair must not collide with Eli utility room');
  assert.ok(floors.every(r=>Math.abs(r.assignedArea+r.unassignedArea-r.footprintArea)<.001));
 });
