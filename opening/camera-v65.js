@@ -149,7 +149,7 @@ export class HumanCameraRig{
   }
   // Freeze the handoff pose at the end of the final voiced cue. The
   // gameplay camera must not inherit smoothed drift from the movie.
-  if(id==='direction'&&phase>=.78){this.eye.copy(E.handoff);this.focus.copy(vec(G.forward));}
+  if(id==='direction'&&phase>=.78){this.eye.copy(vec(E.handoff));this.focus.copy(vec(G.forward));}
   this.initialized=true;
   const horizontal=Math.hypot(this.eye.x-this.prevEye.x,this.eye.z-this.prevEye.z);
   const locomotion=WALK_CUES.has(id)&&horizontal>.0003;
