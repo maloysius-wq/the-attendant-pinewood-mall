@@ -36,9 +36,22 @@ try{
  assert.equal(start.door?.portal?.id,'service_vestibule__central_gallery');
  assert.equal(start.blocker?.disabled,false,'closed fire door must block physical traversal');
  assert.equal(start.blocker?.physicalBlock,true);
+ // Enter the REAL playable chapter before capturing the scene, otherwise
+ // the chapter-start modal covers the closed fire door in the screenshot.
+ await page.locator('#chapterStartBtn').click();
+ await page.waitForFunction(()=>!document.querySelector('.screen.show'),null,{timeout:10000});
+ const inPlay=await page.evaluate(()=>window.__PINEWOOD_V112_QA__.getState());
+ assert.deepEqual([inPlay.x,inPlay.y,inPlay.z],[end.x,end.y,end.z],
+  'Begin Shift cannot teleport the player away from the terminal film frame');
+ assert.ok(Math.abs(inPlay.yaw-end.yaw)<.0001&&Math.abs(inPlay.pitch-end.pitch)<.0001,
+  'mouse-lock transition cannot rotate the Chapter 1 camera from the film heading');
+ await page.keyboard.press('KeyE');
+ const untouched=await page.evaluate(()=>window.__PINEWOOD_V112_QA__.getState());
+ assert.equal(untouched.door?.closed,true,'E must not open the distant mall door from the vestibule center');
+ assert.equal(untouched.blocker?.disabled,false,'distant interaction must leave door physically closed');
  await page.screenshot({path:'artifacts/v112-chapter-one-vestibule.png',
   timeout:90000,animations:'disabled'});
  assert.deepEqual(remote,[],'no third-party runtime network requests');
  assert.deepEqual(errors,[],'no uncaught game errors');
- console.log('PINEWOOD_V112_CHAPTER_START_PASS '+JSON.stringify({start,errors,remote}));
+ console.log('PINEWOOD_V112_CHAPTER_START_PASS '+JSON.stringify({start,inPlay,errors,remote}));
 }finally{await browser.close();}
