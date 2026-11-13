@@ -35,7 +35,7 @@ filler. The cinematic and the live game still use the identical shared world.
 |---|---:|---:|---:|---:|
 | Ground (G) | 12,183 | 9,385.5 | 2,797.5 | 0 |
 | Basement (B1) | 4,128 | 2,658 | 1,470 | 60 (intentional corridor crossing) |
-| Administrative (M1) | 3,298 | 1,861 | 1,437 | 0 (fixed from 26) |
+| Administrative (M1) | 3,298 | 1,861 | 1,439 | 0 (fixed from 26) |
 
 Values are derived from the union of exact axis-aligned rooms inside each
 footprint via `auditArchitecturalCoverageV114`; the audit retains source
