@@ -12,6 +12,7 @@ const state={
  texturesLoaded:0,modelsLoaded:0,walls:0,floor:'G',
  chapter:1,eastExitLocked:true,shot:'service',ceilingMeshes:0,ceilingRooms:[],
  storefrontCount:0,storefrontNames:[],storefrontEntries:[],
+ closedBayCount:0,closedBayNames:[],
  ceilingFinishes:[],allCeilingsTextured:false
 };
 const shots={
@@ -106,6 +107,8 @@ async function begin(){
   clock.value=94;
   state.texturesLoaded=built.texturesLoaded;
   state.modelsLoaded=built.modelsLoaded;
+  state.closedBayCount=built.closedBaysV116.length;
+  state.closedBayNames=built.closedBaysV116.map(b=>b.name);
   state.storefrontCount=built.storefrontsV115.length;
   state.storefrontNames=built.storefrontsV115.map(f=>f.sign);
   state.storefrontEntries=built.storefrontsV115.map(f=>({room:f.id,entryWidth:f.entryWidth,windowSpan:f.windowSpan}));
@@ -125,7 +128,7 @@ async function begin(){
   document.getElementById('build-status').textContent=
    '3 joined floors · '+state.walls+' structural partitions · '+state.texturesLoaded+
    ' preloaded material maps · '+state.modelsLoaded+' placed CC0 fixtures · '+
-   state.storefrontCount+' glazed shopfronts. No remote 3D assets.';
+   state.storefrontCount+' glazed shopfronts · '+state.closedBayCount+' enclosed support bays. No remote 3D assets.';
   setChapter(state.chapter);
   setShot(state.shot);
   renderer.render(scene,camera);
