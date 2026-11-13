@@ -6,6 +6,23 @@ import {auditArchitecturalCoverageV114} from '../../mall/architecture-audit-v114
 const NS='http://www.w3.org/2000/svg';
 const colors={public:'#746b55',retail:'#607f85',staff:'#527165',plant:'#69657b',
  stairs:'#736e67',admin:'#886f52',sealed:'#71546c',control:'#725d7d',egress:'#82665c'};
+const shortNames={
+ central_gallery:'Atrium',west_gallery:'West Walk',east_gallery:'East Walk',
+ west_anchor:"Fallow's",cassette_castle:'Cassette Castle',
+ sunburst_arcade:'Sunburst Arcade',east_original_anchor:'East Department',
+ video_planet:'Video Planet',food_court:'Food Court',service_vestibule:'Contractor Entry',
+ boarded_lobby:'Main Entrance',north_service:'North Service',freight_lobby:'Freight Lobby',
+ annex_threshold:'East Connector',receiving_r12:'Receiving R-12',
+ east_wing_spine:'East Staff Hall',training_t04:'Training T-04',
+ break_room:'Break Room',staff_lockers:'Staff Lockers',annex_anchor:'East Anchor',
+ east_exit_vestibule:'Employee Exit',freight_b1:'Freight B1',b1_spine:'Utility Spine',
+ b1_cross:'Cross Corridor',relay_d:'Relay D',relay_e:'Relay E',
+ feeder_room:'Feeder',sump_pit:'Sump Room',flooded_walk:'Flooded Walk',
+ gavin_niche:'Gavin Workpoint',b1_stair:'Fire Stair',m1_stair:'Admin Stair',
+ mezz_hall:'Admin Hall',payroll_office:'Payroll',roster_records:'Personnel',
+ kessler_office:'Kessler',contractor_ledger:'Contractor Records',
+ eli_chase:'Eli Chase',pa_control:'PA Control',pcas_control:'PCAS'
+};
 const reports=new Map(auditArchitecturalCoverageV114().map(r=>[r.level,r]));
 const byId=new Map(MALL.rooms.map(r=>[r.id,r]));
 const $=id=>document.getElementById(id);
@@ -52,12 +69,16 @@ function render(nextLevel){
   const g=node('g',{'data-room':r.id,tabindex:'0',role:'button','aria-label':r.label},svg);
   node('rect',{...boxProps(r),fill:colors[r.kind]||'#777',stroke:'#a7b6af',
    'stroke-width':'.16','fill-opacity':'.83'},g);
-  if(r.x2-r.x1>7&&r.z2-r.z1>4){
+  // Abbreviated map labels are intentionally distinct from the complete
+  // accessible and sidebar titles. Never draw text outside the source room.
+  const short=shortNames[r.id]||r.label;
+  const textSize=Math.min(1.7,(r.x2-r.x1-1.2)/(Math.max(1,short.length)*.64));
+  if(textSize>=.9&&r.z2-r.z1>4.2){
    const t=node('text',{x:(r.x1+r.x2)/2,y:(r.z1+r.z2)/2,'text-anchor':'middle',
-    'dominant-baseline':'middle','font-size':Math.min(1.9,(r.x2-r.x1)/9),
+    'dominant-baseline':'middle','font-size':textSize.toFixed(3),
     'font-family':'system-ui, sans-serif','font-weight':'600',fill:'#f4f5eb',
     'pointer-events':'none'},g);
-   t.textContent=r.label.length>21?r.label.slice(0,19)+'…':r.label;
+   t.textContent=short;
   }
   g.addEventListener('click',()=>selectRoom(r.id));
   g.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();selectRoom(r.id);}});
