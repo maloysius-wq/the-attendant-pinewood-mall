@@ -2,6 +2,7 @@ import * as THREE from '../vendor/three/build/three.module.js';
 
 import {TransformControls} from '../vendor/three/examples/jsm/controls/TransformControls.js';
 import {renderPinewoodV69} from '../mall/render-shell-v69.js';
+import {mountVestibuleInnerDoorV112} from '../mall/vestibule-inner-door-v112.js';
 import {FURNISHINGS_V69} from '../mall/furnishing-plan-v69.mjs';
 import {EDITOR_EXTRA_FIXTURES_V1} from '../mall/editor-baseline-v1.mjs';
 import {EDITOR_CATALOG_BY_ID} from '../mall/editor-catalog-v1.mjs';
@@ -22,6 +23,8 @@ const applyPose=(obj,p)=>{
 };
 export async function createBuilderScene({scene,camera,domElement,onSelect=()=>{},onTransform=()=>{},onPlace=()=>{},canEdit=()=>true,orbit=null}){
  const building=await renderPinewoodV69({scene,chapter:6});
+ // The same closed, non-editable real interior door seen in cinema and game.
+ const innerDoor=mountVestibuleInnerDoorV112(building);
  const materialEnhancer=createBuilderMaterialEnhancerV91();
  const decalFactory=createDecalFactoryV97();
  building.setChapter(6);building.setRoofVisible(true);
@@ -507,7 +510,7 @@ export async function createBuilderScene({scene,camera,domElement,onSelect=()=>{
    domElement.removeEventListener('wheel',onWheel,true);
    clearOpacityPreview();stopPlacement();transform.detach();scene.remove(transform.getHelper());transform.dispose();
    scene.remove(grid);grid.geometry.dispose();grid.material.dispose();
-   decalFactory.dispose();disposeBoardGrimeV100();materialEnhancer.dispose();building.dispose();
+   decalFactory.dispose();disposeBoardGrimeV100();materialEnhancer.dispose();innerDoor.dispose();building.dispose();
   }
  };
 }
