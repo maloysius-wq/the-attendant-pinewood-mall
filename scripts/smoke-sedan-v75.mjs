@@ -77,14 +77,24 @@ try {
  await page.waitForTimeout(650);
  const outside=await read();
  assert.ok(outside.camera[0]<-11.15,'player exits through driver door to outside');
- assert.ok(Math.abs(outside.door?.angle||0)<.05,'door closes five seconds after opening');
+ // The owner cue now waits six seconds from the opening sound before the
+ // source-mesh door begins its 650 ms closing swing. At phase .42 the door
+ // is still completing that swing; an old five-second assertion was stale.
+ assert.ok(outside.door?.openFraction>0&&outside.door.openFraction<.2,
+  'the original driver door is closing smoothly after its six-second delay');
  await page.screenshot({path:'sedan-v75-artifacts/04-exiting-car.png'});
+ await page.evaluate(()=>{const q=window.__PINEWOOD_OPENING_V34__;q.seek(5);q.scrub(.49)});
+ await page.waitForTimeout(650);
+ const closedAfterDelay=await read();
+ assert.ok(Math.abs(closedAfterDelay.door?.angle||0)<.05,
+  'the original driver door fully closes after the six-second delay and physical swing');
+ await page.screenshot({path:'sedan-v75-artifacts/045-door-closed.png'});
  await page.evaluate(()=>{const q=window.__PINEWOOD_OPENING_V34__;q.seek(6);q.scrub(.6)});
  await page.waitForTimeout(650);
  const departure=await read();
  assert.ok(Math.abs(departure.door?.angle||0)<.05,'driver closes the real car door before walking away');
  assert.deepEqual(errors,[]);assert.deepEqual(external,[]);
- const result={initial,clockMoment,crossing,opening,outside,departure,errors,external};
+ const result={initial,clockMoment,crossing,opening,outside,closedAfterDelay,departure,errors,external};
  await writeFile('sedan-v75-artifacts/report.json',JSON.stringify(result,null,2));
  console.log('SEDAN_V75_DESKTOP_PASS '+JSON.stringify({
   source:initial.vehicle.cockpit.source,meshes:initial.vehicle.cockpit.meshes,
