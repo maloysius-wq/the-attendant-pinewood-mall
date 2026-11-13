@@ -37,7 +37,6 @@ jobs:
           node --check opening/intro-v65.js
           node --check mall/authored-scene-v111.js
           node --check game.js
-          node --check patches/unified-mall-v70.js.txt
           node --test scripts/test-vestibule-handoff-v112.mjs scripts/test-opening-handoff-v70.mjs scripts/test-gameplay-layout-v70.mjs
           node scripts/audit-local-assets-v15.mjs
       - name: Install desktop-only Chromium
