@@ -39,7 +39,10 @@ export function auditArchitecturalCoverageV114(plan=MALL){
    footprintArea:round(footprintArea),assignedArea:round(assignedArea),
    unassignedArea:round(unassignedArea),unassignedPercent:round(100*unassignedArea/footprintArea),
    overlapArea:round(overlapArea),intersections,
-   largestUnassignedTiles:unassignedTiles.sort((a,b)=>b.area-a.area).slice(0,12),
+   // Exact cell geometry for the optional architectural inspector; this is
+   // diagnostics only and does not mutate the floor or override Builder work.
+   unassignedTiles,
+   largestUnassignedTiles:[...unassignedTiles].sort((a,b)=>b.area-a.area).slice(0,12),
    sumRoomArea:round(rooms.reduce((s,r)=>s+area(r),0))});
  }
  return reports;
