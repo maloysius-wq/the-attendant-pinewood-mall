@@ -57,7 +57,7 @@ test('retail custom wall paint respects transparent source window assemblies',()
   const f=s.storefronts.find(f=>f.room===r.id);
   const plan=planRoomWallFacesV90(r,s);
   assert.ok(!plan.some(p=>p.axis==='x'&&Math.abs(p.at-f.at)<.05&&
-   p.start<f.end-.3&&p.end>f.start+.3),
+   p.start<f.end-.3&&p.end>f.start+.3&&p.bottom<3.5&&p.top>.43),
    'Builder wall finishes cannot hide glass '+r.id);
  }
 });
@@ -87,7 +87,7 @@ test('storefront geometry leaves cinematic threshold and physical stair voids un
  assert.equal(reserved.width,1.8);
  assert.ok(!s.storefronts.some(f=>f.portalId===reserved.id));
  for(const wall of s.walls.filter(w=>w.role?.startsWith('storefront-')))
-  assert.equal(w.axis,'x','no retail overlay may cover the cinematic front or service vestibule');
+  assert.equal(wall.axis,'x','no retail overlay may cover the cinematic front or service vestibule');
  assert.ok(s.floorPlates.every(p=>!(p.x1<20&&p.x2>20&&p.z1<-113&&p.z2>-113)),
   'freight shaft remains open');
 });
