@@ -1,4 +1,5 @@
 import {MALL} from './masterplan-v66.mjs';
+import {planStorefrontsV115,storefrontPhysicalWallsV115,validateStorefrontsV115} from './storefront-plan-v115.mjs';
 
 const EPS=1e-6;
 const TEXTURES=Object.freeze({
@@ -97,10 +98,13 @@ function roomHeight(r){
  if(r.kind==='retail')return 5.4;
  return 3.55;
 }
-function roomWalls(level,portals){
+function roomWalls(level,portals,storefronts=[]){
  const result=[],used=new Set();
  for(const r of MALL.rooms.filter(r=>r.level===level&&!CIRCULATION.has(r.id))){
   for(const side of roomSides(r)){
+   // A 1979/1992 storefront is a physical glazed building envelope, not a
+   // blank masonry wall concealing a translucent decorative overlay.
+   if(storefronts.some(f=>f.room===r.id&&side.axis==='x'&&near(side.at,f.at)&&near(side.start,f.start)&&near(side.end,f.end)))continue;
    const footprints=level==='G'?[MALL.footprints.original,MALL.footprints.annex]:[MALL.footprints[level]];
    // Shared outer shell has one authoritative surface; no hidden second
    // room wall may accidentally block its actual service or exit aperture.
@@ -289,13 +293,15 @@ export function constructPhysicalShell({level='G',chapter=1}={}){
  if(!Number.isInteger(chapter)||chapter<1||chapter>6)throw new Error('Invalid Pinewood chapter '+chapter);
  const planar=MALL.links.filter(l=>l.type==='passage'&&room(l.from).level===level)
   .map(l=>openingFor(l,room(l.from),room(l.to))).filter(Boolean);
+ const storefronts=level==='G'?planStorefrontsV115(planar):[];
  const shell={version:67,level,chapter,y:levelData(level).y,footprints:MALL.footprints,
+  storefronts,
   floorPlates:floorPlates(level),ceilings:ceilingPlates(level),walls:[],portals:planar,doors:exposedDoors(level,chapter),
   railings:level==='M1'?[{id:'atrium_overlook_guard',axis:'z',at:-94,start:-11,end:29,bottom:5.4,top:6.65,thickness:.12,material:'steel',role:'railing'}]:[],
   roofs:roofPlates(level),stairs:MALL.links.filter(l=>l.type==='stairs'&&[room(l.from).level,room(l.to).level].includes(level)).map(makeStairs),
   verticals:verticalTransitions(level),fixtures:fixtures(level),texturePaths:{...TEXTURES}};
  shell.portals.forEach(p=>{if(p.minChapter>chapter)p.locked=true});
- shell.walls=[...exterior(level),...roomWalls(level,planar),...portalLintels(level,planar)];
+ shell.walls=[...exterior(level),...roomWalls(level,planar,storefronts),...portalLintels(level,planar),...storefrontPhysicalWallsV115(storefronts)];
  shell.gates=insertGates(shell);
  return shell;
 }
@@ -317,10 +323,10 @@ function crossLine(w,a,b){
 }
 export function isSegmentBlocked(shell,from,to){
  if(!shell||!from||!to)throw new TypeError('shell and endpoints are required');
- return [...shell.walls,...shell.gates,...shell.railings].some(w=>w.role!=='lintel'&&crossLine(w,from,to));
+ return [...shell.walls,...shell.gates,...shell.railings].some(w=>w.role!=='lintel'&&w.role!=='storefront-spandrel'&&crossLine(w,from,to));
 }
 export function validatePhysicalShell(shell){
- const errors=[];
+ const errors=shell.level==='G'?validateStorefrontsV115(shell.storefronts,shell.portals):[];
  if(shell.version!==67||!levelData(shell.level))errors.push('unknown physical shell version/level');
  for(const w of [...shell.walls,...shell.gates,...shell.railings]){
   if(!(w.start<w.end&&w.top>w.bottom&&Number.isFinite(w.at)))errors.push('invalid wall '+w.id);
