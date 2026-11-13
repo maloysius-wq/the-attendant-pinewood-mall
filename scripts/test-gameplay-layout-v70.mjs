@@ -88,9 +88,9 @@ test('actual floor cutouts cannot be walked over as if they are solid tiles',()=
  assert.equal(mezz.canStand(51,-103),true,'upper stair landing is safe');
 });
 
-test('first-person arrival is within sight of the actual contractor door',()=>{
+test('Chapter 1 begins at the midpoint of the contractor vestibule',()=>{
  const start=chapterRouteV70(1).spawn;
- assert.deepEqual([start.x,start.z],[12,-26]);
+ assert.deepEqual([start.x,start.z],[12.5,-32.75]);
  assert.equal(buildGameplayLayoutV70({chapter:1}).canStand(start.x,start.z),true);
 });
 
