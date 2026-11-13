@@ -1,0 +1,58 @@
+name: Pinewood V116 real closed mall tenants and service architecture
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'mall/sealed-bay-plan-v116.mjs'
+      - 'mall/render-sealed-bays-v116.js'
+      - 'mall/physical-shell-v67.mjs'
+      - 'mall/render-shell-v67.js'
+      - 'mall/gameplay-layout-v70.mjs'
+      - 'builder/room-wall-layout-v90.mjs'
+      - 'scripts/test-builder-room-walls-v90.mjs'
+      - 'review/mall-architecture-v114/**'
+      - 'review/mall-construction-v67/**'
+      - 'scripts/test-sealed-bays-v116.mjs'
+      - 'scripts/smoke-sealed-bays-v116.mjs'
+      - '.github/workflows/sealed-bays-v116.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  validate-real-enclosures:
+    if: github.repository == 'maloysius-wq/the-attendant-pinewood-mall'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 24
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify all 41 original rooms, physical retail and Chapter 1 to 6 paths
+        run: |
+          node --check mall/sealed-bay-plan-v116.mjs
+          node --check mall/render-sealed-bays-v116.js
+          node --check mall/physical-shell-v67.mjs
+          node --check mall/render-shell-v67.js
+          node --check review/mall-construction-v67/main.js
+          node --check review/mall-architecture-v114/viewer.js
+          node --test scripts/test-sealed-bays-v116.mjs scripts/test-storefronts-v115.mjs scripts/test-architecture-v114.mjs scripts/test-physical-shell-v67.mjs scripts/test-gameplay-layout-v70.mjs scripts/test-builder-room-walls-v90.mjs scripts/test-vestibule-handoff-v112.mjs
+          node scripts/audit-local-assets-v15.mjs
+      - name: Install deterministic desktop WebGL
+        run: |
+          npm install --no-save playwright@1.55.0
+          npx playwright install chromium
+      - name: Serve repository-local source and CC0 GLBs
+        run: |
+          python3 -m http.server 4173 --bind 127.0.0.1 >/tmp/pinewood-v116-http.log 2>&1 &
+          for i in {1..30}; do curl -fsS http://127.0.0.1:4173/review/mall-construction-v67/ >/dev/null && exit 0; sleep 1; done
+          exit 1
+      - name: Capture genuine closed secondary tenant storefronts and masterplan
+        run: node scripts/smoke-sealed-bays-v116.mjs
+      - name: Save source-based architectural photo evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: v116-closed-bays-and-plan
+          path: artifacts/v116-enclosures/
+          retention-days: 14
