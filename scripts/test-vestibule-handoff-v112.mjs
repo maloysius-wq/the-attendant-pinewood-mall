@@ -38,7 +38,8 @@ test('game adds a real impassable door and explicit E interaction; no autoplay g
  const game=read('game.js'),door=read('mall/vestibule-door-gameplay-v112.js'),
   model=read('mall/vestibule-inner-door-v112.js');
  assert.match(game,/installVestibuleDoorGameplayV112\(args\.game\)/);
- assert.match(door,/physicalBlock:true,disabled:door\.state\.opened/);
+ assert.match(door,/physicalBlock:true,disabled:door\.state\.openFraction>\.92/);
+ assert.match(door,/if\(game\.levelIndex===0\)door\.close\(\)/,'restarting Chapter 1 closes the inner door');
  assert.match(door,/e\.code!=='KeyE'/);
  assert.match(door,/blocker\.disabled=true/);
  assert.match(model,/let fraction=0,target=0/);
