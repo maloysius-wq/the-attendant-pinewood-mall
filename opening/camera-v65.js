@@ -5,6 +5,7 @@
  */
 import * as THREE from '../vendor/three/build/three.module.js';
 import {CAR_DOOR_OPEN_PHASE} from './cinematic-sfx-cues-v82.mjs?v=83-door5';
+import {VESTIBULE_HANDOFF_V112} from '../mall/vestibule-handoff-v112.mjs';
 const vec=a=>new THREE.Vector3(...a);
 const lerp=(a,b,t)=>a.clone().lerp(b,t);
 const clamp=(v,a,b)=>Math.min(b,Math.max(a,v));
@@ -16,14 +17,15 @@ const E={
  driver:[-10.33,1.22,17.42],dashLean:[-10.33,1.18,17.37],
  doorLean:[-10.88,1.26,17.19],doorOutside:[-11.82,1.72,17.05],
  parking:[-9.0,1.73,13.0],pavement:[0,1.73,.0],underCanopy:[8.05,1.73,-13.0],
- access:[13.25,1.63,-20.73],threshold:[12.07,1.71,-23.4],concourse:[9.0,1.72,-26.3]
+ access:[13.25,1.63,-20.73],threshold:[12.07,1.71,-23.4],
+ handoff:[VESTIBULE_HANDOFF_V112.x,VESTIBULE_HANDOFF_V112.y,VESTIBULE_HANDOFF_V112.z]
 };
 const G={
  ahead:[2,2.9,-22],softAhead:[1.2,2.7,-22],softSign:[.5,3.4,-22],
  sign:[-10.5,13.13,-22],dash:[-9.9,.94,13.30],clockDash:[-9.96,.98,16.88],
  mirror:[-12,2.06,16.1],door:[-14,1.62,17.18],mall:[12,2,-22],
  posters:[-17,3.0,-22],entrance:[12,1.5,-22],keypad:[13.65,1.37,-21.72],
- inside:[10,2.4,-48],directory:[0,2.5,-56],
+ inside:[10,2.4,-48],forward:[VESTIBULE_HANDOFF_V112.x,VESTIBULE_HANDOFF_V112.y,VESTIBULE_HANDOFF_V112.z-18],directory:[0,2.5,-56],
  storefront:[-13,3.1,-59],hall:[0,2.4,-71]
 };
 // Normalized cue times: f=0..1, eye=[x,y,z], gaze=[x,y,z], mode "walk" or "hold".
@@ -95,26 +97,24 @@ const cues={
   f(.24,[12.0,1.72,-21.05],G.inside,'walk'),
   f(.34,[12.0,1.71,-22.15],G.inside,'walk'),
   f(.54,[12.0,1.71,-24.4],G.inside,'walk'),
-  f(.78,[12.0,1.72,-26.6],G.inside,'walk'),
-  f(1,[12.0,1.72,-29.0],G.inside,'walk')
+  f(.78,[12.0,1.72,-26.6],G.forward,'walk'),
+  f(1,[12.25,1.72,-28.4],G.forward,'walk')
  ],
  promise:[
-  f(0,[12.0,1.72,-29.0],G.inside),
-  f(.15,[12.0,1.72,-30.3],G.inside,'walk'),
-  f(.40,[12.0,1.72,-33.0],G.inside,'walk'),
-  f(.70,[11.4,1.73,-36.0],G.inside,'walk'),
-  f(1,[10.3,1.73,-40.0],G.inside,'walk')
+  f(0,[12.25,1.72,-28.4],G.forward),
+  f(.22,[12.30,1.72,-29.1],G.forward,'walk'),
+  f(.64,[12.38,1.72,-30.1],G.forward,'walk'),
+  f(1,[12.45,1.72,-30.85],G.forward,'walk')
  ],
  direction:[
-  // The canonical service vestibule runs x=9..16 down to z=-43. Only its
-  // x≈10 portal joins the atrium; the old preview route clipped its west wall.
-  f(0,[10.3,1.73,-40.0],G.inside),
-  f(.20,[10.3,1.73,-41.0],G.inside,'walk'),
-  f(.34,[10.1,1.73,-44.0],G.directory,'walk'),
-  f(.48,[9.4,1.73,-47.0],G.hall,'walk'),
-  f(.62,[8.0,1.73,-50.0],G.hall,'walk'),
-  f(.78,[7.0,1.73,-54.0],G.hall,'walk'),
-  f(1,[5.8,1.73,-58.0],G.hall,'walk')
+  // The film stops halfway down the physical 20.5 m service vestibule,
+  // looking forward at its CLOSED interior fire door. It never crosses
+  // the x≈10, z=-43 portal into the atrium.
+  f(0,[12.45,1.72,-30.85],G.forward),
+  f(.30,[12.48,1.71,-31.65],G.forward,'walk'),
+  f(.55,E.handoff,G.forward,'walk'),
+  f(.78,E.handoff,G.forward),
+  f(1,E.handoff,G.forward)
  ]
 };
 const WALK_CUES=new Set(['owner','entrance','lights','inside','promise','direction']);
@@ -147,13 +147,16 @@ export class HumanCameraRig{
    this.eye.lerp(desiredEye,1-Math.exp(-dt*5.0));
    this.focus.lerp(desiredFocus,1-Math.exp(-dt*4.5));
   }
+  // Freeze the handoff pose at the end of the final voiced cue. The
+  // gameplay camera must not inherit smoothed drift from the movie.
+  if(id==='direction'&&phase>=.78){this.eye.copy(E.handoff);this.focus.copy(vec(G.forward));}
   this.initialized=true;
   const horizontal=Math.hypot(this.eye.x-this.prevEye.x,this.eye.z-this.prevEye.z);
   const locomotion=WALK_CUES.has(id)&&horizontal>.0003;
   this.distance+=locomotion?Math.min(horizontal,.055):0;
   this.prevEye.copy(this.eye);this.lastCue=id;this.lastElapsed=elapsed;
   const at=this.eye.clone(),look=this.focus.clone();
-  if(!reducedMotion&&!paused){
+  if(!reducedMotion&&!paused&&!(id==='direction'&&phase>=.78)){
    // Driven by actual walked distance. No perpetual idle vertical bob.
    if(locomotion){
     const step=this.distance*10.4;
