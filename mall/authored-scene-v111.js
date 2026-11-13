@@ -174,7 +174,7 @@ export async function attachAuthoredSceneV111(building,{draft,source='published'
    collidersForLevel,update,dispose};
  }catch(e){
   if(raf)cancelAnimationFrame(raf);
-  light?.dispose();patina?.dispose();roomFinishes?.dispose();
+  light?.dispose();vestibuleDoor?.dispose();patina?.dispose();roomFinishes?.dispose();
   created.removeFromParent();decalFactory.dispose();materialEnhancer.dispose();
   if(sculpture)sculpture.visible=oldSculptureVisible;
   for(const [id,object] of baseline){
