@@ -46,6 +46,13 @@ export function buildGameplayLayoutV70({chapter,level}={}){
  }
  for(const w of [...shell.walls,...shell.gates,...shell.railings])
   if(!['lintel','storefront-spandrel','closed-bay-header','checkpoint-header'].includes(w.role))addWallCollision(colliders,w); // Overhead solids are not walk-level obstacles.
+ // Atrium and gallery support piers are TRUE waist-height collision. Capital
+ // overhangs are high overhead, so only the source plinth occupies the walk.
+ for(const post of shell.galleryColumns||[]){
+  const r=post.collisionRadius;
+  colliders.push({minX:post.x-r,maxX:post.x+r,
+   minZ:post.z-r,maxZ:post.z+r,kind:'structural-column',id:post.id});
+ }
  // Floor openings are real holes in the v67 mesh; never let the legacy
  // 2D walk grid place a suspended player over an elevator or stair void.
  const openings=activeLevel==='G'?

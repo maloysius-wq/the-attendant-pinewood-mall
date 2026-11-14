@@ -14,6 +14,7 @@ const state={
  chapter:1,eastExitLocked:true,shot:'service',ceilingMeshes:0,ceilingRooms:[],
  storefrontCount:0,storefrontNames:[],storefrontEntries:[],
  closedBayCount:0,closedBayNames:[],checkpointV117:null,
+ galleryColumnsV118:[],galleryColumnCount:0,
  ceilingFinishes:[],allCeilingsTextured:false,surveyLightOn:true
 };
 const shots={
@@ -32,6 +33,15 @@ const shots={
   note:'The once-prominent public doors are shuttered and fully blocked. The contractor must use the authorized service access.'},
  atrium:{floor:'G',eye:[0,1.78,-52],target:[0,1.5,-71],label:'GROUND · CENTRAL ATRIUM',title:'Pinewood’s Dry Fountain',
   note:'A single-story public gallery with a double-height glazed atrium. The abandoned fountain anchors orientation and later reveals.'},
+ westGallery:{floor:'G',eye:[-20,1.75,-49],target:[-20,1.9,-104],
+  label:'GROUND · WEST 1979 RETAIL GALLERY',title:'West Shopping Walk Columns',
+  note:'Original-period structural piers frame the 1979 retail modules and connect to the existing soffit, with an unobstructed central walking line.'},
+ eastGallery:{floor:'G',eye:[20,1.75,-49],target:[20,1.9,-102],
+  label:'GROUND · EAST 1979 RETAIL GALLERY',title:'East Shopping Walk Columns',
+  note:'Matching supported gallery columns leave the existing Video Planet, department store and food-court entrances completely open.'},
+ atriumColumns:{floor:'G',eye:[0,1.75,-49],target:[0,4.5,-89],
+  label:'GROUND · ORIGINAL HIGH ATRIUM',title:'Structural Fountain Colonnade',
+  note:'Ten paired posts rise to the genuine solid roof outside the skylight; the central fountain and two LS evidence locations remain clear.'},
  west:{floor:'G',eye:[-19,1.74,-83],target:[-37,1.8,-82],label:'GROUND · WEST RETAIL',title:'Cassette Castle',
   note:'The original record shop retains its recognizable footprint and evidence, without banned substitute shelving.'},
  closedNorth:{floor:'G',eye:[-22,1.75,-51],target:[-22,2.8,-43],label:'GROUND · NORTH FORMER RETAIL',title:'Needle & Thread · Shuttered',
@@ -145,6 +155,8 @@ async function begin(){
   state.closedBayCount=built.closedBaysV116.length;
   state.closedBayNames=built.closedBaysV116.map(b=>b.name);
   state.checkpointV117={...built.checkpointV117};
+  state.galleryColumnsV118=[...built.galleryColumnsV118];
+  state.galleryColumnCount=state.galleryColumnsV118.length;
   state.storefrontCount=built.storefrontsV115.length;
   state.storefrontNames=built.storefrontsV115.map(f=>f.sign);
   state.storefrontEntries=built.storefrontsV115.map(f=>({room:f.id,entryWidth:f.entryWidth,windowSpan:f.windowSpan}));
@@ -168,7 +180,8 @@ async function begin(){
    '3 joined floors · '+state.walls+' structural partitions · '+state.texturesLoaded+
    ' preloaded material maps · '+state.modelsLoaded+' placed CC0 fixtures · '+
    state.storefrontCount+' glazed shopfronts · '+state.closedBayCount+' enclosed support bays · '+
-   state.checkpointV117.cells+' closed service-checkpoint cells. No remote 3D assets.';
+   state.checkpointV117.cells+' closed service-checkpoint cells · '+
+   state.galleryColumnCount+' original structural gallery piers. No remote 3D assets.';
   setChapter(state.chapter);
   setShot(state.shot);
   renderer.render(scene,camera);

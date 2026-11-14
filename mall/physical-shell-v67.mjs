@@ -2,6 +2,7 @@ import {MALL} from './masterplan-v66.mjs';
 import {planStorefrontsV115,storefrontPhysicalWallsV115,validateStorefrontsV115} from './storefront-plan-v115.mjs';
 import {SEALED_BAYS_V116,sealedBayWallsV116,validateSealedBaysV116} from './sealed-bay-plan-v116.mjs';
 import {CHECKPOINT_V117,checkpointWallsV117,checkpointCeilingsV117,validateCheckpointV117} from './vestibule-checkpoint-v117.mjs';
+import {GALLERY_COLUMNS_V118,validateGalleryColumnsV118} from './gallery-columns-v118.mjs';
 
 const EPS=1e-6;
 const TEXTURES=Object.freeze({
@@ -300,6 +301,7 @@ export function constructPhysicalShell({level='G',chapter=1}={}){
  const storefronts=level==='G'?planStorefrontsV115(planar):[];
  const shell={version:67,level,chapter,y:levelData(level).y,footprints:MALL.footprints,
   storefronts,closedBays:level==='G'?SEALED_BAYS_V116:[],checkpoint:level==='G'?CHECKPOINT_V117:null,
+  galleryColumns:level==='G'?GALLERY_COLUMNS_V118:[],
   floorPlates:floorPlates(level),ceilings:[...ceilingPlates(level),...(level==='G'?checkpointCeilingsV117():[])],walls:[],portals:planar,doors:exposedDoors(level,chapter),
   railings:level==='M1'?[{id:'atrium_overlook_guard',axis:'z',at:-94,start:-11,end:29,bottom:5.4,top:6.65,thickness:.12,material:'steel',role:'railing'}]:[],
   roofs:roofPlates(level),stairs:MALL.links.filter(l=>l.type==='stairs'&&[room(l.from).level,room(l.to).level].includes(level)).map(makeStairs),
@@ -327,13 +329,22 @@ function crossLine(w,a,b){
  const at=a.x+t*(b.x-a.x);
  return at>w.start+EPS&&at<w.end-EPS;
 }
+function distanceToSegment2D(point,a,b){
+ const vx=b.x-a.x,vz=b.z-a.z,m=vx*vx+vz*vz;
+ const t=m>EPS?Math.max(0,Math.min(1,((point.x-a.x)*vx+(point.z-a.z)*vz)/m)):0;
+ return Math.hypot(point.x-(a.x+t*vx),point.z-(a.z+t*vz));
+}
 export function isSegmentBlocked(shell,from,to){
  if(!shell||!from||!to)throw new TypeError('shell and endpoints are required');
- return [...shell.walls,...shell.gates,...shell.railings].some(w=>!['lintel','storefront-spandrel','closed-bay-header','checkpoint-header'].includes(w.role)&&crossLine(w,from,to));
+ return [...shell.walls,...shell.gates,...shell.railings].some(w=>!['lintel','storefront-spandrel','closed-bay-header','checkpoint-header'].includes(w.role)&&crossLine(w,from,to))||
+  (shell.galleryColumns||[]).some(c=>distanceToSegment2D(c,from,to)<c.collisionRadius);
 }
 export function validatePhysicalShell(shell){
  const errors=shell.level==='G'?[...validateStorefrontsV115(shell.storefronts,shell.portals),...validateSealedBaysV116(shell.closedBays)]:[];
- if(shell.level==='G')errors.push(...validateCheckpointV117(shell.checkpoint));
+ if(shell.level==='G'){
+  errors.push(...validateCheckpointV117(shell.checkpoint));
+  errors.push(...validateGalleryColumnsV118(shell.galleryColumns,shell.portals));
+ }
  if(shell.version!==67||!levelData(shell.level))errors.push('unknown physical shell version/level');
  for(const w of [...shell.walls,...shell.gates,...shell.railings]){
   if(!(w.start<w.end&&w.top>w.bottom&&Number.isFinite(w.at)))errors.push('invalid wall '+w.id);
