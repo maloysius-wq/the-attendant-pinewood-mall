@@ -4,6 +4,7 @@ import {constructPhysicalShell,validatePhysicalShell} from './physical-shell-v67
 import {renderStorefrontsV115} from './render-storefronts-v115.js';
 import {renderSealedBaysV116} from './render-sealed-bays-v116.js';
 import {renderVestibuleCheckpointV117} from './render-vestibule-checkpoint-v117.js';
+import {renderGalleryColumnsV118} from './render-gallery-columns-v118.js';
 
 function mappedBox(w,h,d,tileMetres=3){
  const g=new THREE.BoxGeometry(w,h,d),uv=g.getAttribute('uv');
@@ -215,6 +216,7 @@ export async function renderConstructionScene({scene,chapter=1}={}){
  const storefrontVisuals=renderStorefrontsV115(geometryGroups.G,shells.find(s=>s.level==='G').storefronts);
  const closedBayVisuals=renderSealedBaysV116(geometryGroups.G,shells.find(s=>s.level==='G').closedBays);
  const checkpointVisuals=renderVestibuleCheckpointV117(geometryGroups.G,shells.find(s=>s.level==='G').checkpoint);
+ const galleryColumnsVisuals=renderGalleryColumnsV118(geometryGroups.G,shells.find(s=>s.level==='G').galleryColumns,mats);
  addFountainArchitecture(geometryGroups.G,mats);
  const measured=fixtureList.map(f=>placeModel(geometryGroups[roomLevel(f.room)],loaded,f));
  installLights(group);
@@ -224,6 +226,7 @@ export async function renderConstructionScene({scene,chapter=1}={}){
   texturesLoaded:Object.keys(t).length,modelsLoaded:measured.length,modelManifest:measured,
   storefrontsV115:storefrontVisuals.manifest,closedBaysV116:closedBayVisuals.manifest,
   checkpointV117:{cells:checkpointVisuals.cells,clearWidth:checkpointVisuals.clearWidth,window:checkpointVisuals.window},
+  galleryColumnsV118:galleryColumnsVisuals.manifest,
   geometryErrors:[],firstFrameFullyLoaded:true,
   setChapter(next){
    for(const g of gates.children)g.visible=next<g.userData.minChapter;

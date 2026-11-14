@@ -1,0 +1,58 @@
+name: Pinewood V118 original mall gallery colonnades
+on:
+  pull_request:
+    branches:
+      - main
+      - feature/vestibule-checkpoint-v117
+    paths:
+      - 'mall/gallery-columns-v118.mjs'
+      - 'mall/render-gallery-columns-v118.js'
+      - 'mall/physical-shell-v67.mjs'
+      - 'mall/render-shell-v67.js'
+      - 'mall/gameplay-layout-v70.mjs'
+      - 'review/mall-construction-v67/**'
+      - 'scripts/test-gallery-columns-v118.mjs'
+      - 'scripts/smoke-gallery-columns-v118.mjs'
+      - '.github/workflows/gallery-colonnades-v118.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  original-structure:
+    if: github.repository == 'maloysius-wq/the-attendant-pinewood-mall'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 24
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Validate measured galleries, old source, six chapters and original doors
+        run: |
+          node --check mall/gallery-columns-v118.mjs
+          node --check mall/render-gallery-columns-v118.js
+          node --check mall/physical-shell-v67.mjs
+          node --check mall/render-shell-v67.js
+          node --check mall/gameplay-layout-v70.mjs
+          node --check review/mall-construction-v67/main.js
+          node --check scripts/smoke-gallery-columns-v118.mjs
+          node --test scripts/test-gallery-columns-v118.mjs scripts/test-vestibule-checkpoint-v117.mjs scripts/test-vestibule-handoff-v112.mjs scripts/test-sealed-bays-v116.mjs scripts/test-storefronts-v115.mjs scripts/test-physical-shell-v67.mjs scripts/test-gameplay-layout-v70.mjs scripts/test-builder-room-walls-v90.mjs
+          node scripts/audit-local-assets-v15.mjs
+      - name: Install deterministic original desktop WebGL
+        run: |
+          npm install --no-save playwright@1.55.0
+          npx playwright install chromium
+      - name: Serve repository-local original source
+        run: |
+          python3 -m http.server 4173 --bind 127.0.0.1 >/tmp/pinewood-v118-http.log 2>&1 &
+          for i in {1..35}; do curl -fsS http://127.0.0.1:4173/review/mall-construction-v67/ >/dev/null && exit 0; sleep 1; done
+          exit 1
+      - name: Capture real structural original mall, both galleries and dry atrium
+        run: node scripts/smoke-gallery-columns-v118.mjs
+      - name: Preserve real architectural screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: v118-original-gallery-structural-review
+          path: artifacts/v118-gallery-columns/
+          retention-days: 14
