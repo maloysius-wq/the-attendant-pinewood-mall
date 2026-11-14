@@ -1,0 +1,56 @@
+name: Pinewood V117 after-hours service checkpoint geometry
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'mall/vestibule-checkpoint-v117.mjs'
+      - 'mall/render-vestibule-checkpoint-v117.js'
+      - 'mall/physical-shell-v67.mjs'
+      - 'mall/render-shell-v67.js'
+      - 'mall/gameplay-layout-v70.mjs'
+      - 'review/mall-construction-v67/**'
+      - 'scripts/test-vestibule-checkpoint-v117.mjs'
+      - 'scripts/smoke-vestibule-checkpoint-v117.mjs'
+      - '.github/workflows/vestibule-checkpoint-v117.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  source-and-desktop:
+    if: github.repository == 'maloysius-wq/the-attendant-pinewood-mall'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 24
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Audit original mall routes and physically bounded checkpoint
+        run: |
+          node --check mall/vestibule-checkpoint-v117.mjs
+          node --check mall/render-vestibule-checkpoint-v117.js
+          node --check mall/physical-shell-v67.mjs
+          node --check mall/render-shell-v67.js
+          node --check mall/gameplay-layout-v70.mjs
+          node --check review/mall-construction-v67/main.js
+          node --check scripts/smoke-vestibule-checkpoint-v117.mjs
+          node --test scripts/test-vestibule-checkpoint-v117.mjs scripts/test-vestibule-handoff-v112.mjs scripts/test-physical-shell-v67.mjs scripts/test-gameplay-layout-v70.mjs scripts/test-builder-room-walls-v90.mjs scripts/test-sealed-bays-v116.mjs scripts/test-storefronts-v115.mjs
+          node scripts/audit-local-assets-v15.mjs
+      - name: Install real desktop WebGL Chromium
+        run: |
+          npm install --no-save playwright@1.55.0
+          npx playwright install chromium
+      - name: Serve the repository-local mall
+        run: |
+          python3 -m http.server 4173 --bind 127.0.0.1 >/tmp/pinewood-v117-http.log 2>&1 &
+          for i in {1..35}; do curl -fsS http://127.0.0.1:4173/review/mall-construction-v67/ >/dev/null && exit 0; sleep 1; done
+          exit 1
+      - name: Capture fixed service and safety route views in WebGL
+        run: node scripts/smoke-vestibule-checkpoint-v117.mjs
+      - name: Preserve original 3D screenshots for review
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: v117-original-3d-checkpoint
+          path: artifacts/v117-checkpoint/
+          retention-days: 14
