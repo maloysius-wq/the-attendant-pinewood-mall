@@ -266,6 +266,8 @@ function fixtures(level){
   fixture('cassette_register','assets/vendor/runtime/6aeac44b7c9c0f17/cash-register.glb','cassette_castle',-38,-80,.3),
   fixture('arcade_one','assets/vendor/runtime/5b4443e3640efa71/arcade-machine.glb','sunburst_arcade',-38,-97,1.85),
   fixture('arcade_two','assets/vendor/runtime/5b4443e3640efa71/arcade-machine.glb','sunburst_arcade',-42,-101,1.85),
+  fixture('checkpoint_counter_desk','assets/vendor/runtime/47206cda3d12810c/desk.glb','service_vestibule',14.86,-30.85,.62),
+  fixture('checkpoint_office_chair','assets/vendor/runtime/47ff560e83dfc315/Chair.glb','service_vestibule',15.20,-32.85,.75),
   fixture('security_desk','assets/vendor/runtime/47206cda3d12810c/desk.glb','security',37,-109,.76),
   fixture('breakroom_table','assets/vendor/runtime/a69293dc3a9140d3/table.glb','break_room',74,-93,.75)
  ];
