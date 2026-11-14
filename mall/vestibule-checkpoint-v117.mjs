@@ -30,18 +30,6 @@ function wall(id,axis,at,start,end,bottom,top,role,thickness=.20){
  return {id:'v117_'+id,axis,at,start,end,bottom,top,role,thickness,
   material:role==='checkpoint-glass'?'glass':'concrete'};
 }
-function segment(a,b,blocks){
- let p=[a,b];
- for(const [lo,hi] of blocks){
-  const next=[];
-  for(const [x,y]of [p]){
-   if(x<lo-EPS)next.push([x,Math.min(y,lo)]);
-   if(y>hi+EPS)next.push([Math.max(x,hi),y]);
-  }
-  p=next;
- }
- return p.filter(([x,y])=>y-x>.02);
-}
 /** Walls are *inside* the existing 7 x 20.5m room, sharing the source side
  * walls at x=9 and x=16 rather than placing another coincident mesh over them.
  * The long central approach is 2.6m clear and widens before the real fire door.
@@ -81,7 +69,8 @@ export function checkpointCeilingsV117(plan=CHECKPOINT_V117){
 export function validateCheckpointV117(plan=CHECKPOINT_V117,mall=MALL){
  const errors=[];
  const room=mall.rooms.find(r=>r.id===plan.room);
- if(!room||room.x1!==9||room.x2!==16||room.z1!==-43||room.z2!==-22.5)
+ if(!room)return ['missing original service_vestibule source geometry'];
+ if(room.x1!==9||room.x2!==16||room.z1!==-43||room.z2!==-22.5)
   errors.push('original service vestibule changed; remeasure v117');
  if(plan.cells.length!==2)errors.push('two closed source-adjacent service cells required');
  const [west,east]=plan.cells;
