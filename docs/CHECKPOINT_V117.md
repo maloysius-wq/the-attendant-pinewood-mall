@@ -32,7 +32,7 @@ The new solid side partitions terminate in the actual original room edges. **Do 
 - `review/mall-construction-v67/`: deterministic fixed inspection cameras for service office, corridor and inner-door turn
 - `scripts/test-vestibule-checkpoint-v117.mjs`, `scripts/smoke-vestibule-checkpoint-v117.mjs`: real desktop source + browser tests, screenshots, and no off-origin requests.
 
-This is the **first contractor-vestibule architectural slice**, not a complete shop dressing pass or finished mall. The new cells have coherent bounds but their furniture, wall-mounted instruments, aging and equipment still require pinned/licensed sourced models and a future focused reviewed implementation. No arbitrary duplicate window mesh is placed in front of a full-height opaque original wall.
+This is the **first contractor-vestibule architectural slice**, not a complete shop dressing pass or finished mall. The east check-in has the already-pinned, repository-local original CC0 desk and chair models, scaled and positioned inside its actual physical enclosure (not newly generated substitutes). Further wiring, wall-mounted instruments, naturally aged fixtures and equipment must be handled in a later focused pass with the same source-licensing and visual-review discipline. No arbitrary duplicate window mesh is placed in front of a full-height opaque original wall.
 
 The original 41 story rooms, nine evidence anchors, six chapters, authored portals, local 638-model catalog, unmodified Builder v1 IndexedDB data/owner-only preview, intentionally unpublished private layout, source assets, gameplay saves, exterior keypad and cinematic timing must remain unchanged.
 
