@@ -13,12 +13,21 @@ const state={
  texturesLoaded:0,modelsLoaded:0,walls:0,floor:'G',
  chapter:1,eastExitLocked:true,shot:'service',ceilingMeshes:0,ceilingRooms:[],
  storefrontCount:0,storefrontNames:[],storefrontEntries:[],
- closedBayCount:0,closedBayNames:[],
+ closedBayCount:0,closedBayNames:[],checkpointV117:null,
  ceilingFinishes:[],allCeilingsTextured:false,surveyLightOn:true
 };
 const shots={
  service:{floor:'G',eye:[12,1.72,-27],target:[11,1.8,-49],label:'GROUND · CONTRACTOR SERVICE ENTRY',title:'Contractor Service Vestibule',
   note:'The opening cinematic leads to this exact side door, with an unobstructed pedestrian route into the mall.'},
+ checkin:{floor:'G',eye:[12.4,1.76,-35.2],target:[13.65,1.83,-31.0],
+  label:'GROUND · AFTER-HOURS CHECK-IN',title:'Closed Security Check-In',
+  note:'The former oversized vestibule now contains an enclosed observation office with a physical, collision-blocking glass pane and a central contractor route.'},
+ officeInterior:{floor:'G',eye:[14.8,1.65,-35.8],target:[14.8,1.25,-30.0],
+  label:'GROUND · CLOSED OFFICE INTERIOR (SURVEY ONLY)',title:'Inside the Sealed Check-In Office',
+  note:'Survey camera only: the player cannot enter this closed cell. Original licensed desk and chair are installed inside the physically sealed room.'},
+ serviceTurn:{floor:'G',eye:[10.65,1.70,-39.4],target:[10,1.78,-43.4],
+  label:'GROUND · HINGED-DOOR APPROACH',title:'Turn toward the Mall',
+  note:'The narrow contractor entry widens before the original real hinged inner door. The cinematic eye and scripted door remain in their original locations.'},
  boarded:{floor:'G',eye:[-10.5,1.75,-41],target:[-10.5,2.3,-22.5],label:'GROUND · MAIN ENTRANCE',title:'Boarded Public Entry',
   note:'The once-prominent public doors are shuttered and fully blocked. The contractor must use the authorized service access.'},
  atrium:{floor:'G',eye:[0,1.78,-52],target:[0,1.5,-71],label:'GROUND · CENTRAL ATRIUM',title:'Pinewood’s Dry Fountain',
@@ -48,10 +57,14 @@ const shots={
  aerial:{floor:'G',eye:[130,103,102],target:[17,0,-72],label:'ALL LEVELS · CUTAWAY',title:'Joined Mall Structure',
   note:'The public mall, basement service level, and administrative mezzanine occupy one consistent world.'}
 };
-let scene,camera,renderer,orbit,built,surveyLight;
+let scene,camera,renderer,orbit,built,surveyLight,aerialAmbient;
 const publicApi={
  ready:false,
- getState:()=>JSON.parse(JSON.stringify(state)),
+ getState:()=>JSON.parse(JSON.stringify({...state,
+  cameraPosition:camera?.position.toArray()||null,
+  cameraForward:camera?.getWorldDirection(new THREE.Vector3()).toArray()||null,
+  cameraTarget:shots[state.shot].target
+ })),
  goto:setShot,
  setChapter
 };
@@ -68,12 +81,21 @@ function syncReadout(){
 function setShot(name){
  if(!shots[name])throw Error('Unknown inspection camera: '+name);
  state.shot=name;state.floor=shots[name].floor;syncReadout();
+ // A distant cutaway cannot be judged through full-range scene fog and the
+ // camera-mounted near-field lamp. This survey-only overhead fill is never
+ // installed in the Builder, opening film or playable game.
+ if(scene?.fog)scene.fog.density=name==='aerial'?.0011:.005;
+ if(aerialAmbient)aerialAmbient.intensity=name==='aerial'?1.3:0;
  if(!camera)return;
  const s=shots[name];camera.position.set(...s.eye);
  const target=new THREE.Vector3(...s.target);
  camera.lookAt(target);
  if(orbit){
-  orbit.target.copy(target);orbit.enabled=name==='aerial';orbit.update();
+  orbit.target.copy(target);orbit.enabled=name==='aerial';
+  // OrbitControls.update() clamps every camera to minDistance=18, even when
+  // controls are disabled. Fixed vestibule/office cameras are intentionally
+  // 3–6m from their target; never run orbit distance-clamping on those shots.
+  if(orbit.enabled)orbit.update();
  }
  if(built)built.setRoofVisible(roofToggle.checked&&name!=='aerial');
  renderer?.render(scene,camera);
@@ -96,6 +118,7 @@ async function begin(){
  try{
   const clock=document.querySelector('#loading progress');
   scene=new THREE.Scene();scene.background=new THREE.Color(0x0c181a);
+  aerialAmbient=new THREE.AmbientLight(0xdce3dc,0);scene.add(aerialAmbient);
   scene.fog=new THREE.FogExp2(0x0e1718,.005);
   camera=new THREE.PerspectiveCamera(69,1,.06,650);
   // Survey instrumentation exists ONLY on this review page, never Builder,
@@ -103,7 +126,7 @@ async function begin(){
   surveyLight=new THREE.PointLight(0xe5e8d6,95,35,2);
   camera.add(surveyLight);
   scene.add(camera);
-  renderer=new THREE.WebGLRenderer({antialias:true,alpha:false,powerPreference:'high-performance'});
+  renderer=new THREE.WebGLRenderer({antialias:true,alpha:false,powerPreference:'high-performance',preserveDrawingBuffer:true});
   renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,1.4));
   renderer.outputColorSpace=THREE.SRGBColorSpace;
   renderer.toneMapping=THREE.ACESFilmicToneMapping;
@@ -121,12 +144,16 @@ async function begin(){
   state.modelsLoaded=built.modelsLoaded;
   state.closedBayCount=built.closedBaysV116.length;
   state.closedBayNames=built.closedBaysV116.map(b=>b.name);
+  state.checkpointV117={...built.checkpointV117};
   state.storefrontCount=built.storefrontsV115.length;
   state.storefrontNames=built.storefrontsV115.map(f=>f.sign);
   state.storefrontEntries=built.storefrontsV115.map(f=>({room:f.id,entryWidth:f.entryWidth,windowSpan:f.windowSpan}));
   state.walls=built.shells.reduce((n,s)=>n+s.walls.length,0);
   state.ceilingMeshes=built.ceilings.children.length;
-  state.ceilingRooms=[...new Set(built.ceilings.children.map(mesh=>mesh.userData.roomCeiling))].sort();
+  // Keep the legacy 41-room ceiling audit scoped to canonical room names;
+  // V117 adds two subordinate drop ceilings but does not create story rooms.
+  state.ceilingRooms=[...new Set(built.ceilings.children.map(mesh=>mesh.userData.roomCeiling)
+   .filter(name=>!String(name).startsWith('v117_')))].sort();
   state.ceilingFinishes=[...new Set(built.ceilings.children.map(mesh=>({
    id:mesh.userData.ceilingFinish,
    texture:mesh.material.map?.image?.src?.split('/').pop()||null
@@ -140,7 +167,8 @@ async function begin(){
   document.getElementById('build-status').textContent=
    '3 joined floors · '+state.walls+' structural partitions · '+state.texturesLoaded+
    ' preloaded material maps · '+state.modelsLoaded+' placed CC0 fixtures · '+
-   state.storefrontCount+' glazed shopfronts · '+state.closedBayCount+' enclosed support bays. No remote 3D assets.';
+   state.storefrontCount+' glazed shopfronts · '+state.closedBayCount+' enclosed support bays · '+
+   state.checkpointV117.cells+' closed service-checkpoint cells. No remote 3D assets.';
   setChapter(state.chapter);
   setShot(state.shot);
   renderer.render(scene,camera);

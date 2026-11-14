@@ -42,7 +42,7 @@ a{color:#b7d9d2;text-underline-offset:3px}.linkbox{margin-top:auto;border-top:1p
 <body>
 <main>
 <section class="workspace" aria-label="Built mall inspection">
-<header class="head"><div><div class="brand">THE ATTENDANT / PINEWOOD MALL</div><h1>Building the abandoned mall</h1><div class="kicker">Physical construction study · Revision 67</div></div><div class="flag">REVIEW ONLY · NOT GAMEPLAY</div></header>
+<header class="head"><div><div class="brand">THE ATTENDANT / PINEWOOD MALL</div><h1>Building the abandoned mall</h1><div class="kicker">Physical construction study · Revision 117</div></div><div class="flag">REVIEW ONLY · NOT GAMEPLAY</div></header>
 <div id="world"><div class="vignette"></div>
 <div id="loading" role="status" aria-live="polite"><div><div class="brand">PREPARING PINEWOOD</div><strong>Opening the building...</strong><span>Loading the entire structure, licensed materials, and imported fixtures before the first frame.</span><progress max="100" value="14" aria-label="Construction loading"></progress></div></div>
 <div class="readout"><small id="view-floor">GROUND · SERVICE ENTRY</small><h2 id="view-title">Contractor Service Vestibule</h2><p id="view-note">The existing cinematic leads through this door. All walls, rooms, and corridors now share the same world coordinates.</p></div>
@@ -53,6 +53,9 @@ a{color:#b7d9d2;text-underline-offset:3px}.linkbox{margin-top:auto;border-top:1p
 <section><span class="sectiontitle">01 / Inspection camera</span>
 <select id="view-select" class="selector" aria-label="Choose fixed inspection viewpoint">
 <option value="service">Contractor service entry</option>
+<option value="checkin">V117 closed check-in office / real glass</option>
+<option value="officeInterior">V117 inspect locked office interior (survey only)</option>
+<option value="serviceTurn">V117 approach toward the inner fire door</option>
 <option value="boarded">Boarded main entrance</option>
 <option value="atrium">Central atrium / dry fountain</option>
 <option value="west">Cassette Castle storefront</option>
@@ -70,6 +73,7 @@ a{color:#b7d9d2;text-underline-offset:3px}.linkbox{margin-top:auto;border-top:1p
 </select>
 <div class="quick" style="margin-top:9px">
 <button type="button" data-shot="service" aria-pressed="true">Service Entry</button>
+<button type="button" data-shot="checkin" aria-pressed="false">Check-In Office</button>
 <button type="button" data-shot="atrium" aria-pressed="false">Atrium</button>
 <button type="button" data-shot="east" aria-pressed="false">East Wing</button>
 <button type="button" data-shot="below" aria-pressed="false">Basement</button>

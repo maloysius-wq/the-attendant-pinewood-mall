@@ -12,7 +12,9 @@ const browser=await chromium.launch({headless:true,args:[
 ]});
 try{
  const page=await browser.newPage({viewport:{width:1440,height:900},deviceScaleFactor:1});
- const errors=[],remote=[];
+ const errors=[],remote=[],consoleErrors=[],failedRequests=[];
+ page.on('console',msg=>{if(msg.type()==='error')consoleErrors.push(msg.text())});
+ page.on('requestfailed',r=>failedRequests.push({url:r.url(),reason:r.failure()?.errorText}));
  page.on('pageerror',e=>errors.push(e.message));
  page.on('request',r=>{
   if(/^https?:/.test(r.url())&&!r.url().startsWith(origin))remote.push(r.url());
@@ -20,10 +22,29 @@ try{
  await page.goto(origin+'/?openingDisabled=1&vestibuleQA=1',{waitUntil:'domcontentloaded'});
  await page.waitForFunction(()=>!!window.__PINEWOOD_V70_BRIDGE__,null,{timeout:230000});
  await page.locator('#newBtn').click();
- await page.waitForFunction(()=>{
-  const s=window.__PINEWOOD_V112_QA__?.getState?.();
-  return s?.chapter===1&&Math.abs(s.x-12.5)<.01&&Math.abs(s.z+32.75)<.01;
- },null,{timeout:250000});
+ try{
+  await page.waitForFunction(()=>{
+   const s=window.__PINEWOOD_V112_QA__?.getState?.();
+   return s?.chapter===1&&Math.abs(s.x-12.5)<.01&&Math.abs(s.z+32.75)<.01;
+  },null,{timeout:160000});
+ }catch(error){
+  const snapshot=await page.evaluate(()=>({
+   ready:!!window.__PINEWOOD_V70_BRIDGE__,
+   authoredActive:!!window.__PINEWOOD_V70_BRIDGE__?.activeAuthored,
+   gameplay:window.__PINEWOOD_V112_QA__?.getState?.()??null,
+   overlays:[...document.querySelectorAll('.screen')].filter(e=>e.classList.contains('show'))
+    .map(e=>({id:e.id,text:e.innerText.slice(0,450)})),
+   status:[...document.querySelectorAll('#loadText,#loadFill,#newBtn,#chapterStartBtn')]
+    .map(e=>({id:e.id,text:e.textContent?.slice(0,300),width:e.style.width,disabled:e.disabled,hidden:e.hidden})),
+   visibleBody:document.body.innerText.slice(0,900)
+  })).catch(e=>({diagnosticError:String(e)}));
+  console.log('V117_CHAPTER_ONE_BOOT_FAILED '+JSON.stringify({
+   snapshot,errors,consoleErrors,failedRequests,remote,originalError:String(error)
+  }));
+  await page.screenshot({path:'artifacts/v117-game-start-failure.png',
+   timeout:20000,animations:'disabled'}).catch(()=>{});
+  throw error;
+ }
  const start=await page.evaluate(()=>window.__PINEWOOD_V112_QA__.getState());
  console.log('V112_GAME_POSE_DIAGNOSTIC '+JSON.stringify(start));
  assert.deepEqual([start.x,start.y,start.z],[end.x,end.y,end.z],
