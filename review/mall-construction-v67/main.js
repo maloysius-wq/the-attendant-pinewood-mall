@@ -7,12 +7,14 @@ const cover=document.getElementById('loading');
 const chapterSelect=document.getElementById('chapter');
 const viewSelect=document.getElementById('view-select');
 const roofToggle=document.getElementById('roof');
+const surveyToggle=document.getElementById('survey-light');
 const state={
  ready:false,errors:[],firstFrameFullyLoaded:false,
  texturesLoaded:0,modelsLoaded:0,walls:0,floor:'G',
  chapter:1,eastExitLocked:true,shot:'service',ceilingMeshes:0,ceilingRooms:[],
  storefrontCount:0,storefrontNames:[],storefrontEntries:[],
- ceilingFinishes:[],allCeilingsTextured:false
+ closedBayCount:0,closedBayNames:[],
+ ceilingFinishes:[],allCeilingsTextured:false,surveyLightOn:true
 };
 const shots={
  service:{floor:'G',eye:[12,1.72,-27],target:[11,1.8,-49],label:'GROUND · CONTRACTOR SERVICE ENTRY',title:'Contractor Service Vestibule',
@@ -23,6 +25,12 @@ const shots={
   note:'A single-story public gallery with a double-height glazed atrium. The abandoned fountain anchors orientation and later reveals.'},
  west:{floor:'G',eye:[-19,1.74,-83],target:[-37,1.8,-82],label:'GROUND · WEST RETAIL',title:'Cassette Castle',
   note:'The original record shop retains its recognizable footprint and evidence, without banned substitute shelving.'},
+ closedNorth:{floor:'G',eye:[-22,1.75,-51],target:[-22,2.8,-43],label:'GROUND · NORTH FORMER RETAIL',title:'Needle & Thread · Shuttered',
+  note:'A bounded original-era closed tenant suite beside the boarded main lobby. The steel shutter is physically sealed.'},
+ closedAnnex:{floor:'G',eye:[61,1.75,-69],target:[55.8,2.2,-69],label:'GROUND · ANNEX SERVICE FRONTAGE',title:'East Wing Former Tenants',
+  note:'Previously featureless Annex west wall now has actual service-bounded tenant fronts and period shutters.'},
+ closedSouth:{floor:'G',eye:[-22,1.75,-104],target:[-23,2.5,-111],label:'GROUND · WEST SERVICE',title:'Old Janitorial Stores',
+  note:'The staff supply room is separated from the public gallery by a closed roll-down shutter.'},
  east:{floor:'G',eye:[60,1.75,-54],target:[60,1.75,-97],label:'GROUND · EAST ANNEX',title:'The Later East Wing',
   note:'The East Wing is a period-specific addition to the original mall, with its own employee circulation and sealed thresholds.'},
  security:{floor:'G',eye:[34,1.73,-104],target:[36.5,1.7,-110],label:'GROUND · SECURITY DESK',title:'Security and CCTV',
@@ -40,7 +48,7 @@ const shots={
  aerial:{floor:'G',eye:[130,103,102],target:[17,0,-72],label:'ALL LEVELS · CUTAWAY',title:'Joined Mall Structure',
   note:'The public mall, basement service level, and administrative mezzanine occupy one consistent world.'}
 };
-let scene,camera,renderer,orbit,built;
+let scene,camera,renderer,orbit,built,surveyLight;
 const publicApi={
  ready:false,
  getState:()=>JSON.parse(JSON.stringify(state)),
@@ -90,6 +98,11 @@ async function begin(){
   scene=new THREE.Scene();scene.background=new THREE.Color(0x0c181a);
   scene.fog=new THREE.FogExp2(0x0e1718,.005);
   camera=new THREE.PerspectiveCamera(69,1,.06,650);
+  // Survey instrumentation exists ONLY on this review page, never Builder,
+  // cinematic, authored scene, or playable game lighting rigs.
+  surveyLight=new THREE.PointLight(0xe5e8d6,95,35,2);
+  camera.add(surveyLight);
+  scene.add(camera);
   renderer=new THREE.WebGLRenderer({antialias:true,alpha:false,powerPreference:'high-performance'});
   renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,1.4));
   renderer.outputColorSpace=THREE.SRGBColorSpace;
@@ -106,6 +119,8 @@ async function begin(){
   clock.value=94;
   state.texturesLoaded=built.texturesLoaded;
   state.modelsLoaded=built.modelsLoaded;
+  state.closedBayCount=built.closedBaysV116.length;
+  state.closedBayNames=built.closedBaysV116.map(b=>b.name);
   state.storefrontCount=built.storefrontsV115.length;
   state.storefrontNames=built.storefrontsV115.map(f=>f.sign);
   state.storefrontEntries=built.storefrontsV115.map(f=>({room:f.id,entryWidth:f.entryWidth,windowSpan:f.windowSpan}));
@@ -125,7 +140,7 @@ async function begin(){
   document.getElementById('build-status').textContent=
    '3 joined floors · '+state.walls+' structural partitions · '+state.texturesLoaded+
    ' preloaded material maps · '+state.modelsLoaded+' placed CC0 fixtures · '+
-   state.storefrontCount+' glazed shopfronts. No remote 3D assets.';
+   state.storefrontCount+' glazed shopfronts · '+state.closedBayCount+' enclosed support bays. No remote 3D assets.';
   setChapter(state.chapter);
   setShot(state.shot);
   renderer.render(scene,camera);
@@ -146,6 +161,11 @@ for(const b of document.querySelectorAll('[data-shot]'))b.addEventListener('clic
 viewSelect.addEventListener('change',e=>setShot(e.target.value));
 chapterSelect.addEventListener('change',e=>setChapter(e.target.value));
 roofToggle.addEventListener('change',()=>{built?.setRoofVisible(roofToggle.checked&&state.shot!=='aerial');renderOnDemand()});
+surveyToggle.addEventListener('change',()=>{
+  state.surveyLightOn=surveyToggle.checked;
+  if(surveyLight)surveyLight.intensity=state.surveyLightOn?95:0;
+  renderOnDemand();
+});
 window.addEventListener('resize',()=>{resize();renderOnDemand()});
 window.addEventListener('pagehide',()=>{built?.dispose();orbit?.dispose();renderer?.dispose();});
 begin();

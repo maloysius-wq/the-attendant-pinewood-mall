@@ -2,6 +2,7 @@ import * as THREE from '../vendor/three/build/three.module.js';
 import {GLTFLoader} from '../vendor/three/examples/jsm/loaders/GLTFLoader.js';
 import {constructPhysicalShell,validatePhysicalShell} from './physical-shell-v67.mjs';
 import {renderStorefrontsV115} from './render-storefronts-v115.js';
+import {renderSealedBaysV116} from './render-sealed-bays-v116.js';
 
 function mappedBox(w,h,d,tileMetres=3){
  const g=new THREE.BoxGeometry(w,h,d),uv=g.getAttribute('uv');
@@ -28,7 +29,10 @@ function wallMesh(group,w,mats){
  const h=w.top-w.bottom,len=w.end-w.start;
  const x=w.axis==='x'?w.at:(w.start+w.end)/2,z=w.axis==='z'?w.at:(w.start+w.end)/2;
  const sx=w.axis==='x'?w.thickness:len,sz=w.axis==='z'?w.thickness:len;
- const m=w.role==='storefront-glass'?mats.shopGlass:
+ const m=w.role==='closed-bay-shutter'?mats.shutter:
+    w.role==='closed-bay-header'?mats.shutterHeader:
+    w.role==='closed-bay-partition'?mats.closedMasonry:
+    w.role==='storefront-glass'?mats.shopGlass:
     w.role==='storefront-kick'?mats.shopKick:
     w.role==='storefront-pier'||w.role==='storefront-spandrel'?mats.shopMasonry:
     w.role==='gate'?mats.gate:w.role==='exterior'?mats.outer:w.role==='railing'?mats.rail:
@@ -139,6 +143,9 @@ function makeMaterials(t){
   stair:material(0x878b86,t.tile,t.tileRough),
   fountain:material(0x8e8574,t.terrazzo,t.terrazzoRough),
   glass:material(0x1b4342,null,null,{transparent:true,opacity:.3,metalness:.1,roughness:.12}),
+  shutter:material(0x414744,null,null,{metalness:.55,roughness:.77}),
+  shutterHeader:material(0x242b2c,null,null,{metalness:.32,roughness:.88}),
+  closedMasonry:material(0x77776d,t.concrete,t.concreteRough),
   shopGlass:material(0x879c97,null,null,{transparent:true,opacity:.31,roughness:.27,metalness:.16}),
   shopKick:material(0x585d57,null,null,{roughness:.68,metalness:.23}),
   shopMasonry:material(0x827d6f,t.concrete,t.concreteRough),
@@ -201,6 +208,7 @@ export async function renderConstructionScene({scene,chapter=1}={}){
   }
  }
  const storefrontVisuals=renderStorefrontsV115(geometryGroups.G,shells.find(s=>s.level==='G').storefronts);
+ const closedBayVisuals=renderSealedBaysV116(geometryGroups.G,shells.find(s=>s.level==='G').closedBays);
  addFountainArchitecture(geometryGroups.G,mats);
  const measured=fixtureList.map(f=>placeModel(geometryGroups[roomLevel(f.room)],loaded,f));
  installLights(group);
@@ -208,7 +216,7 @@ export async function renderConstructionScene({scene,chapter=1}={}){
  return {
   group,roofs,ceilings,gates,geometryGroups,shells,
   texturesLoaded:Object.keys(t).length,modelsLoaded:measured.length,modelManifest:measured,
-  storefrontsV115:storefrontVisuals.manifest,
+  storefrontsV115:storefrontVisuals.manifest,closedBaysV116:closedBayVisuals.manifest,
   geometryErrors:[],firstFrameFullyLoaded:true,
   setChapter(next){
    for(const g of gates.children)g.visible=next<g.userData.minChapter;
@@ -216,7 +224,7 @@ export async function renderConstructionScene({scene,chapter=1}={}){
   setRoofVisible(value){roofs.visible=!!value;ceilings.visible=!!value},
   dispose(){
    scene.remove(group);
-   storefrontVisuals.dispose();
+   storefrontVisuals.dispose();closedBayVisuals.dispose();
    group.traverse(o=>{if(o.geometry)o.geometry.dispose()});
    for(const texture of Object.values(t))texture.dispose();
    for(const material of Object.values(mats))material.dispose();

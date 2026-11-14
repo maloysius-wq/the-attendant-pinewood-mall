@@ -2,6 +2,7 @@ import {MALL} from '../../mall/masterplan-v66.mjs';
 import {FURNISHINGS_V69} from '../../mall/furnishing-plan-v69.mjs';
 import {constructPhysicalShell} from '../../mall/physical-shell-v67.mjs';
 import {auditArchitecturalCoverageV114} from '../../mall/architecture-audit-v114.mjs';
+import {SEALED_BAYS_V116,auditSealedBayCoverageV116} from '../../mall/sealed-bay-plan-v116.mjs';
 
 const NS='http://www.w3.org/2000/svg';
 const colors={public:'#746b55',retail:'#607f85',staff:'#527165',plant:'#69657b',
@@ -65,6 +66,21 @@ function render(nextLevel){
  for(const f of footprints)node('rect',{...boxProps(f),fill:'#1e3131',stroke:'#8c9f94','stroke-width':'.4'},svg);
  for(const p of report.unassignedTiles)
   node('rect',{...boxProps(p),fill:'#aa573b','fill-opacity':'.62',stroke:'none'},svg);
+ if(level==='G')for(const bay of SEALED_BAYS_V116){
+  const g=node('g',{'data-sealed':bay.id,tabindex:'0',role:'button','aria-label':'Closed: '+bay.label},svg);
+  node('rect',{...boxProps(bay),fill:bay.kind==='retail'?'#644f47':'#414e47',stroke:'#c08f69',
+   'stroke-width':'.18','stroke-dasharray':'.9 .4','fill-opacity':'.88'},g);
+  const short=bay.front?.sign||bay.label;
+  const fs=Math.min(1.25,(bay.x2-bay.x1-1)/Math.max(1,short.length*.62));
+  if(fs>.65){const t=node('text',{x:(bay.x1+bay.x2)/2,y:(bay.z1+bay.z2)/2,
+   'text-anchor':'middle','dominant-baseline':'middle','font-size':fs.toFixed(2),
+   fill:'#f6e6cc','pointer-events':'none'},g);t.textContent=short;}
+  const details=()=>{selected=null;$('room-name').textContent=bay.label+' · Sealed';
+   $('room-note').textContent=bay.kind+' · '+((bay.x2-bay.x1)*(bay.z2-bay.z1))+' m². Permanently closed, not a playable narrative room. '+
+    (bay.front?'Shutter faces '+bay.front.adjacent+'.':'Building support/overflow space.');};
+  g.addEventListener('click',details);
+  g.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();details();}});
+ }
  for(const r of MALL.rooms.filter(r=>r.level===level)){
   const g=node('g',{'data-room':r.id,tabindex:'0',role:'button','aria-label':r.label},svg);
   node('rect',{...boxProps(r),fill:colors[r.kind]||'#777',stroke:'#a7b6af',
@@ -103,6 +119,11 @@ function render(nextLevel){
   ['Unallocated',report.unassignedArea.toLocaleString()+' m²'],
   ['Unallocated share',report.unassignedPercent.toFixed(1)+'%'],
   ['Overlapping floor',report.overlapArea.toLocaleString()+' m²'],
+  ...(level==='G'?[
+   ['Closed bays',SEALED_BAYS_V116.length],
+   ['Newly enclosed',auditSealedBayCoverageV116().sealedSquareMetres.toLocaleString()+' m²'],
+   ['Still unallocated',auditSealedBayCoverageV116().unassignedRemainderSquareMetres.toLocaleString()+' m²']
+  ]:[]),
   ['Door headers',shell.walls.filter(w=>w.role==='lintel').length]
  ]){
   const dt=document.createElement('dt'),dd=document.createElement('dd');
@@ -119,6 +140,7 @@ window.__PINEWOOD_ARCHITECTURE_V114__={
  ready:true,
  getState:()=>({level,selected,rooms:reports.get(level).roomCount,
   unassignedArea:reports.get(level).unassignedArea,
+  sealedBays:level==='G'?SEALED_BAYS_V116.length:0,
   headerCount:constructPhysicalShell({level,chapter:6}).walls.filter(w=>w.role==='lintel').length}),
  selectFloor:render,
  selectRoom
