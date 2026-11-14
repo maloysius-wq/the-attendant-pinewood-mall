@@ -19,9 +19,12 @@ const state={
 const shots={
  service:{floor:'G',eye:[12,1.72,-27],target:[11,1.8,-49],label:'GROUND · CONTRACTOR SERVICE ENTRY',title:'Contractor Service Vestibule',
   note:'The opening cinematic leads to this exact side door, with an unobstructed pedestrian route into the mall.'},
- checkin:{floor:'G',eye:[12.0,1.76,-27.6],target:[13.78,1.85,-31.4],
+ checkin:{floor:'G',eye:[12.4,1.76,-35.2],target:[13.65,1.83,-31.0],
   label:'GROUND · AFTER-HOURS CHECK-IN',title:'Closed Security Check-In',
   note:'The former oversized vestibule now contains an enclosed observation office with a physical, collision-blocking glass pane and a central contractor route.'},
+ officeInterior:{floor:'G',eye:[14.8,1.65,-35.8],target:[14.8,1.25,-30.0],
+  label:'GROUND · CLOSED OFFICE INTERIOR (SURVEY ONLY)',title:'Inside the Sealed Check-In Office',
+  note:'Survey camera only: the player cannot enter this closed cell. Original licensed desk and chair are installed inside the physically sealed room.'},
  serviceTurn:{floor:'G',eye:[10.65,1.70,-39.4],target:[10,1.78,-43.4],
   label:'GROUND · HINGED-DOOR APPROACH',title:'Turn toward the Mall',
   note:'The narrow contractor entry widens before the original real hinged inner door. The cinematic eye and scripted door remain in their original locations.'},
@@ -57,7 +60,11 @@ const shots={
 let scene,camera,renderer,orbit,built,surveyLight,aerialAmbient;
 const publicApi={
  ready:false,
- getState:()=>JSON.parse(JSON.stringify(state)),
+ getState:()=>JSON.parse(JSON.stringify({...state,
+  cameraPosition:camera?.position.toArray()||null,
+  cameraForward:camera?.getWorldDirection(new THREE.Vector3()).toArray()||null,
+  cameraTarget:shots[state.shot].target
+ })),
  goto:setShot,
  setChapter
 };
@@ -115,7 +122,7 @@ async function begin(){
   surveyLight=new THREE.PointLight(0xe5e8d6,95,35,2);
   camera.add(surveyLight);
   scene.add(camera);
-  renderer=new THREE.WebGLRenderer({antialias:true,alpha:false,powerPreference:'high-performance'});
+  renderer=new THREE.WebGLRenderer({antialias:true,alpha:false,powerPreference:'high-performance',preserveDrawingBuffer:true});
   renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,1.4));
   renderer.outputColorSpace=THREE.SRGBColorSpace;
   renderer.toneMapping=THREE.ACESFilmicToneMapping;
