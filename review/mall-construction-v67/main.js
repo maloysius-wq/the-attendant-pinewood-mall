@@ -91,7 +91,11 @@ function setShot(name){
  const target=new THREE.Vector3(...s.target);
  camera.lookAt(target);
  if(orbit){
-  orbit.target.copy(target);orbit.enabled=name==='aerial';orbit.update();
+  orbit.target.copy(target);orbit.enabled=name==='aerial';
+  // OrbitControls.update() clamps every camera to minDistance=18, even when
+  // controls are disabled. Fixed vestibule/office cameras are intentionally
+  // 3–6m from their target; never run orbit distance-clamping on those shots.
+  if(orbit.enabled)orbit.update();
  }
  if(built)built.setRoofVisible(roofToggle.checked&&name!=='aerial');
  renderer?.render(scene,camera);
