@@ -19,10 +19,10 @@ const state={
 const shots={
  service:{floor:'G',eye:[12,1.72,-27],target:[11,1.8,-49],label:'GROUND · CONTRACTOR SERVICE ENTRY',title:'Contractor Service Vestibule',
   note:'The opening cinematic leads to this exact side door, with an unobstructed pedestrian route into the mall.'},
- checkin:{floor:'G',eye:[12.2,1.70,-31.2],target:[13.65,1.78,-31.2],
+ checkin:{floor:'G',eye:[12.0,1.76,-27.6],target:[13.78,1.85,-31.4],
   label:'GROUND · AFTER-HOURS CHECK-IN',title:'Closed Security Check-In',
   note:'The former oversized vestibule now contains an enclosed observation office with a physical, collision-blocking glass pane and a central contractor route.'},
- serviceTurn:{floor:'G',eye:[12,1.70,-38],target:[10,1.78,-42.9],
+ serviceTurn:{floor:'G',eye:[10.65,1.70,-39.4],target:[10,1.78,-43.4],
   label:'GROUND · HINGED-DOOR APPROACH',title:'Turn toward the Mall',
   note:'The narrow contractor entry widens before the original real hinged inner door. The cinematic eye and scripted door remain in their original locations.'},
  boarded:{floor:'G',eye:[-10.5,1.75,-41],target:[-10.5,2.3,-22.5],label:'GROUND · MAIN ENTRANCE',title:'Boarded Public Entry',
