@@ -31,6 +31,14 @@ test('source-attached physical observation window has real frame opening and sol
  const g=constructPhysicalShell({level:'G',chapter:1});
  assert.deepEqual(validatePhysicalShell(g),[]);
  assert.equal(g.checkpoint.room,'service_vestibule');
+ const office=g.checkpoint.cells.find(s=>s.id==='east_checkin');
+ for(const id of ['checkpoint_counter_desk','checkpoint_office_chair']){
+  const fixture=g.fixtures.find(x=>x.id===id);
+  assert.ok(fixture,'missing original locally pinned checkpoint furnishing '+id);
+  assert.ok(fixture.x>office.x1&&fixture.x<office.x2&&
+   fixture.z>office.z1&&fixture.z<office.z2,'source model outside closed office');
+  assert.match(fixture.model,/^assets\/vendor\/runtime\/[a-f0-9]{16}\/.+\.glb$/);
+ }
  const walls=g.walls.filter(w=>w.id.startsWith('v117_'));
  assert.equal(walls.length,10,'two side rooms plus four distinct parts of the observation opening');
  assert.equal(walls.filter(w=>w.role==='checkpoint-glass').length,1);
