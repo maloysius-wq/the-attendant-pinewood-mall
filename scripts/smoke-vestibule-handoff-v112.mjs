@@ -85,15 +85,34 @@ try{
   modalOpen:document.body.classList.contains('modal-open'),
   hint:document.getElementById('pinewood-inner-door-hint-v112')?.textContent
  }));
- const wait=(predicate,description)=>page.waitForFunction(predicate,null,{timeout:60000,polling:200})
-  .catch(async e=>{
-   console.log('V113_WAIT_FAILED_DIAGNOSTIC '+JSON.stringify(await debug().catch(err=>({error:String(err)}))));
-   throw Error(description+': '+e.message);
-  });
+ // Poll the actual gameplay state from Node rather than relying on
+ // Playwright's in-page waitForFunction scheduler. Full SwiftShader mall
+ // rendering can starve that scheduler even after the E key has already
+ // opened the source door and disabled its real collision blocker.
+ const wait=async(predicate,description)=>{
+  const deadline=Date.now()+90000;
+  let stable=0;
+  let lastError=null;
+  while(Date.now()<deadline){
+   try{
+    const snapshot=await state();
+    if(predicate(snapshot)){
+     if(++stable>=2)return snapshot;
+    }else stable=0;
+   }catch(e){lastError=String(e);stable=0;}
+   await page.waitForTimeout(300);
+  }
+  const diagnostic=await debug().catch(e=>({error:String(e)}));
+  console.log('V113_WAIT_FAILED_DIAGNOSTIC '+JSON.stringify({diagnostic,lastError}));
+  // A fresh sample is authoritative even when software rendering delayed
+  // the polling loop to the deadline. Never pass merely on a visual hint.
+  const finalState=diagnostic.qa;
+  if(finalState&&predicate(finalState))return finalState;
+  throw Error(description+': gameplay state did not reach the required condition');
+ };
  await qa(10,-40.8); // real approach from vestibule, outside leaf sweep
  await page.keyboard.press('KeyE');
- await wait(()=>window.__PINEWOOD_V112_QA__?.getState().door?.openFraction>.97&&
-  window.__PINEWOOD_V112_QA__?.getState().blocker?.disabled,
+ await wait(s=>s.door?.openFraction>.97&&s.blocker?.disabled,
   'E must swing the licensed source door open and unblock the full opening');
  const frontOpen=await state();
  assert.ok(frontOpen.door.angle>1.2&&frontOpen.door.targetOpen);
@@ -101,15 +120,13 @@ try{
  // Chromium/SwiftShader builds may release pointer lock during capture.
  await page.keyboard.press('KeyE');
  console.log('V113_AFTER_SECOND_E '+JSON.stringify(await debug()));
- await wait(()=>window.__PINEWOOD_V112_QA__?.getState().door?.closed&&
-  !window.__PINEWOOD_V112_QA__?.getState().blocker?.disabled,
+ await wait(s=>s.door?.closed&&!s.blocker?.disabled,
   'second E must animate door closed and restore collision');
  const frontClosed=await state();
  assert.equal(frontClosed.door.targetOpen,false);
  await qa(10,-45.1); // test from the mall-facing side as well
  await page.keyboard.press('KeyE');
- await wait(()=>window.__PINEWOOD_V112_QA__?.getState().door?.openFraction>.97&&
-  window.__PINEWOOD_V112_QA__?.getState().blocker?.disabled,
+ await wait(s=>s.door?.openFraction>.97&&s.blocker?.disabled,
   'E must also open from the opposite side');
  await qa(10,-43); // stand within the actual doorway
  await page.keyboard.press('KeyE'); // cannot slam through the player
@@ -119,15 +136,14 @@ try{
  assert.equal(protectedPlayer.blocker.disabled,true,'player cannot be trapped in restored collision');
  await qa(10,-45.1);
  await page.keyboard.press('KeyE');
- await wait(()=>window.__PINEWOOD_V112_QA__?.getState().door?.closed&&
-  !window.__PINEWOOD_V112_QA__?.getState().blocker?.disabled,
+ await wait(s=>s.door?.closed&&!s.blocker?.disabled,
   'close from the concourse must re-block traversal');
  const backClosed=await state();
  assert.equal(backClosed.door.targetOpen,false);
  // One final E gives us an OPEN source-asset screenshot without interfering
  // with the previous input/collision assertions.
  await page.keyboard.press('KeyE');
- await wait(()=>window.__PINEWOOD_V112_QA__?.getState().door?.openFraction>.97,
+ await wait(s=>s.door?.openFraction>.97,
   'final E reopening for screenshot');
  await page.screenshot({path:'artifacts/v113-real-door-open.png',timeout:90000,animations:'disabled'});
 
