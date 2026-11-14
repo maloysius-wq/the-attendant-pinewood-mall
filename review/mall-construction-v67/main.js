@@ -133,7 +133,10 @@ async function begin(){
   state.storefrontEntries=built.storefrontsV115.map(f=>({room:f.id,entryWidth:f.entryWidth,windowSpan:f.windowSpan}));
   state.walls=built.shells.reduce((n,s)=>n+s.walls.length,0);
   state.ceilingMeshes=built.ceilings.children.length;
-  state.ceilingRooms=[...new Set(built.ceilings.children.map(mesh=>mesh.userData.roomCeiling))].sort();
+  // Keep the legacy 41-room ceiling audit scoped to canonical room names;
+  // V117 adds two subordinate drop ceilings but does not create story rooms.
+  state.ceilingRooms=[...new Set(built.ceilings.children.map(mesh=>mesh.userData.roomCeiling)
+   .filter(name=>!String(name).startsWith('v117_')))].sort();
   state.ceilingFinishes=[...new Set(built.ceilings.children.map(mesh=>({
    id:mesh.userData.ceilingFinish,
    texture:mesh.material.map?.image?.src?.split('/').pop()||null
