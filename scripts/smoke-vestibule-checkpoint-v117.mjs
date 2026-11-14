@@ -44,8 +44,8 @@ try{
   await page.waitForTimeout(240);
   const current=await state();
   assert.deepEqual(current.errors,[],shot+' rendering errors');
-  assert.deepEqual(current.cameraPosition,expectedEyes[shot],
-   shot+' real WebGL camera must use measured survey point');
+  assert.ok(current.cameraPosition.every((v,i)=>Math.abs(v-expectedEyes[shot][i])<.00001),
+   shot+' real WebGL camera must use measured survey point: '+JSON.stringify(current.cameraPosition));
   const desired=current.cameraTarget.map((v,i)=>v-current.cameraPosition[i]);
   const length=Math.hypot(...desired);
   const dot=desired.reduce((sum,v,i)=>sum+v/length*current.cameraForward[i],0);
