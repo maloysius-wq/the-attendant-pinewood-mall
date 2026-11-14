@@ -13,12 +13,18 @@ const state={
  texturesLoaded:0,modelsLoaded:0,walls:0,floor:'G',
  chapter:1,eastExitLocked:true,shot:'service',ceilingMeshes:0,ceilingRooms:[],
  storefrontCount:0,storefrontNames:[],storefrontEntries:[],
- closedBayCount:0,closedBayNames:[],
+ closedBayCount:0,closedBayNames:[],checkpointV117:null,
  ceilingFinishes:[],allCeilingsTextured:false,surveyLightOn:true
 };
 const shots={
  service:{floor:'G',eye:[12,1.72,-27],target:[11,1.8,-49],label:'GROUND · CONTRACTOR SERVICE ENTRY',title:'Contractor Service Vestibule',
   note:'The opening cinematic leads to this exact side door, with an unobstructed pedestrian route into the mall.'},
+ checkin:{floor:'G',eye:[12.2,1.70,-31.2],target:[13.65,1.78,-31.2],
+  label:'GROUND · AFTER-HOURS CHECK-IN',title:'Closed Security Check-In',
+  note:'The former oversized vestibule now contains an enclosed observation office with a physical, collision-blocking glass pane and a central contractor route.'},
+ serviceTurn:{floor:'G',eye:[12,1.70,-38],target:[10,1.78,-42.9],
+  label:'GROUND · HINGED-DOOR APPROACH',title:'Turn toward the Mall',
+  note:'The narrow contractor entry widens before the original real hinged inner door. The cinematic eye and scripted door remain in their original locations.'},
  boarded:{floor:'G',eye:[-10.5,1.75,-41],target:[-10.5,2.3,-22.5],label:'GROUND · MAIN ENTRANCE',title:'Boarded Public Entry',
   note:'The once-prominent public doors are shuttered and fully blocked. The contractor must use the authorized service access.'},
  atrium:{floor:'G',eye:[0,1.78,-52],target:[0,1.5,-71],label:'GROUND · CENTRAL ATRIUM',title:'Pinewood’s Dry Fountain',
@@ -121,6 +127,7 @@ async function begin(){
   state.modelsLoaded=built.modelsLoaded;
   state.closedBayCount=built.closedBaysV116.length;
   state.closedBayNames=built.closedBaysV116.map(b=>b.name);
+  state.checkpointV117={...built.checkpointV117};
   state.storefrontCount=built.storefrontsV115.length;
   state.storefrontNames=built.storefrontsV115.map(f=>f.sign);
   state.storefrontEntries=built.storefrontsV115.map(f=>({room:f.id,entryWidth:f.entryWidth,windowSpan:f.windowSpan}));
@@ -140,7 +147,8 @@ async function begin(){
   document.getElementById('build-status').textContent=
    '3 joined floors · '+state.walls+' structural partitions · '+state.texturesLoaded+
    ' preloaded material maps · '+state.modelsLoaded+' placed CC0 fixtures · '+
-   state.storefrontCount+' glazed shopfronts · '+state.closedBayCount+' enclosed support bays. No remote 3D assets.';
+   state.storefrontCount+' glazed shopfronts · '+state.closedBayCount+' enclosed support bays · '+
+   state.checkpointV117.cells+' closed service-checkpoint cells. No remote 3D assets.';
   setChapter(state.chapter);
   setShot(state.shot);
   renderer.render(scene,camera);
