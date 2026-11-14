@@ -20,7 +20,7 @@ test('two real closed service cells replace dead vestibule width, not the chapte
  const v=CHECKPOINT_V117;
  assert.equal(v.room,'service_vestibule');
  assert.equal(v.cells.length,2);
- assert.equal(v.approach.east-v.approach.west,2.6);
+ assert.ok(near(v.approach.east-v.approach.west,2.6));
  assert.deepEqual([VESTIBULE_HANDOFF_V112.x,VESTIBULE_HANDOFF_V112.z],[12.5,-32.75]);
  assert.equal(v.cells[0].x1,9);assert.equal(v.cells[1].x2,16);
  assert.ok(v.approach.startZ>-43+5,'widened turn must remain before fire door');
