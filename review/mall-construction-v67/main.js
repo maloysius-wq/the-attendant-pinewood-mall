@@ -54,7 +54,7 @@ const shots={
  aerial:{floor:'G',eye:[130,103,102],target:[17,0,-72],label:'ALL LEVELS · CUTAWAY',title:'Joined Mall Structure',
   note:'The public mall, basement service level, and administrative mezzanine occupy one consistent world.'}
 };
-let scene,camera,renderer,orbit,built,surveyLight;
+let scene,camera,renderer,orbit,built,surveyLight,aerialAmbient;
 const publicApi={
  ready:false,
  getState:()=>JSON.parse(JSON.stringify(state)),
@@ -74,6 +74,11 @@ function syncReadout(){
 function setShot(name){
  if(!shots[name])throw Error('Unknown inspection camera: '+name);
  state.shot=name;state.floor=shots[name].floor;syncReadout();
+ // A distant cutaway cannot be judged through full-range scene fog and the
+ // camera-mounted near-field lamp. This survey-only overhead fill is never
+ // installed in the Builder, opening film or playable game.
+ if(scene?.fog)scene.fog.density=name==='aerial'?.0011:.005;
+ if(aerialAmbient)aerialAmbient.intensity=name==='aerial'?1.3:0;
  if(!camera)return;
  const s=shots[name];camera.position.set(...s.eye);
  const target=new THREE.Vector3(...s.target);
@@ -102,6 +107,7 @@ async function begin(){
  try{
   const clock=document.querySelector('#loading progress');
   scene=new THREE.Scene();scene.background=new THREE.Color(0x0c181a);
+  aerialAmbient=new THREE.AmbientLight(0xdce3dc,0);scene.add(aerialAmbient);
   scene.fog=new THREE.FogExp2(0x0e1718,.005);
   camera=new THREE.PerspectiveCamera(69,1,.06,650);
   // Survey instrumentation exists ONLY on this review page, never Builder,
