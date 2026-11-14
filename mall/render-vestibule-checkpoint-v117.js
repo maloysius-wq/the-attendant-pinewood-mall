@@ -46,7 +46,7 @@ export function renderVestibuleCheckpointV117(ground,plan=CHECKPOINT_V117){
  const skirting=new THREE.MeshStandardMaterial({color:0x484e4a,roughness:.88,metalness:.21});
  const materials=[steel,skirting],textures=[];
  const {window:w,approach}=plan;
- const zMid=(w.start+w.end)/2,length=w.end-w.start,faceX=w.at-.119;
+ const zMid=(w.start+w.end)/2,length=w.end-w.start,faceX=w.at-.068;
  // West side of actual observation glazing faces the narrow contractor route.
  box(group,'v117_window_sill',faceX,w.bottom-.025,zMid,.10,.095,length+.14,steel);
  box(group,'v117_window_head',faceX,w.top+.025,zMid,.10,.095,length+.14,steel);
