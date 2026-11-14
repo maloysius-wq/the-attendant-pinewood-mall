@@ -34,10 +34,22 @@ try{
  assert.deepEqual(start.checkpointV117.window,
   {axis:'x',at:13.65,start:-33.25,end:-29,bottom:1.03,top:2.36});
  assert.equal(start.surveyLightOn,true);
- for(const shot of ['service','checkin','serviceTurn','aerial']){
+ const expectedEyes={
+  service:[12,1.72,-27],checkin:[12.4,1.76,-35.2],
+  officeInterior:[14.8,1.65,-35.8],serviceTurn:[10.65,1.70,-39.4],
+  aerial:[130,103,102]
+ };
+ for(const shot of ['service','checkin','officeInterior','serviceTurn','aerial']){
   await page.evaluate(name=>window.__PINEWOOD_MALL_CONSTRUCTION_V67__.goto(name),shot);
   await page.waitForTimeout(240);
-  assert.deepEqual((await state()).errors,[],shot+' rendering errors');
+  const current=await state();
+  assert.deepEqual(current.errors,[],shot+' rendering errors');
+  assert.deepEqual(current.cameraPosition,expectedEyes[shot],
+   shot+' real WebGL camera must use measured survey point');
+  const desired=current.cameraTarget.map((v,i)=>v-current.cameraPosition[i]);
+  const length=Math.hypot(...desired);
+  const dot=desired.reduce((sum,v,i)=>sum+v/length*current.cameraForward[i],0);
+  assert.ok(dot>.995,shot+' camera points at the declared architectural target');
   await page.screenshot({
    path:'artifacts/v117-checkpoint/'+shot+'.png',fullPage:true,
    timeout:90000,animations:'disabled'
