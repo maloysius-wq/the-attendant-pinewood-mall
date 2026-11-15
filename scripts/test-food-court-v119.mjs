@@ -25,6 +25,24 @@ test('real 17m food court has three source-fixed concessions, a separate dining 
   Array.from({length:9},(_,i)=>'LS-'+String(i+1).padStart(2,'0')));
 });
 
+test('original food-court has one genuine tile floor slab, with no overlapping fake finish',()=>{
+ const shell=constructPhysicalShell({level:'G',chapter:1});
+ const tile=shell.floorPlates.filter(p=>p.id==='v119_food_court_tile');
+ assert.equal(tile.length,1,'one authored food-court floor piece replaces the original terrazzo');
+ assert.deepEqual(tile.map(p=>[p.x1,p.x2,p.z1,p.z2,p.y,p.material]),
+  [[29,46,-97,-80,0,'tile']]);
+ const overlap=(a,b)=>
+  Math.max(0,Math.min(a.x2,b.x2)-Math.max(a.x1,b.x1))*
+  Math.max(0,Math.min(a.z2,b.z2)-Math.max(a.z1,b.z1));
+ for(const r of shell.floorPlates.filter(p=>p.id!==tile[0].id))
+  assert.ok(overlap(r,tile[0])<.00001,'food tile must not overlap an older floor slab '+r.id);
+ const area=p=>(p.x2-p.x1)*(p.z2-p.z1);
+ const total=shell.floorPlates.reduce((n,p)=>n+area(p),0);
+ const areaOriginal=94*96,areaAnnex=39*81,holes=4*5.3+3*7.5;
+ assert.ok(near(total,areaOriginal+areaAnnex-holes),
+  'genuine floor coverage changed; check walkable elevator/stair holes');
+});
+
 test('all three concession shutters have real collision-active masonry, steel and support-return walls',()=>{
  const shell=constructPhysicalShell({level:'G',chapter:1});
  const w=shell.walls.filter(w=>w.id.startsWith('v119_'));
