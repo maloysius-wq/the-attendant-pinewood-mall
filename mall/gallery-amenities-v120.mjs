@@ -30,8 +30,8 @@ export const GALLERY_AMENITIES_V120=Object.freeze({
   bench('east_shop_recess','east_gallery',15.8,-87,-Math.PI/2)
  ]),
  directories:Object.freeze([
-  directory('main_entrance_directory',0,-52,'south'),
-  directory('north_retail_directory',0,-101,'north')
+  directory('main_entrance_directory',-3,-52,'south'),
+  directory('north_retail_directory',3,-101,'north')
  ]),
  wayfinding:Object.freeze([
   Object.freeze({id:'west_retail_direction',columnId:'v118_west_inner_03',
