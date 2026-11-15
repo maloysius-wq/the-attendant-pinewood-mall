@@ -52,7 +52,7 @@ try{
  }
  assert.equal(initial.anchorRetailV121.some(f=>f.source==='podium'),false,
   'preview proved podium width >7m and it must be excluded from normal shop furnishing');
- for(const name of ['fallows','eastAnchor','westGallery','eastGallery','aerial']){
+ for(const name of ['fallows','eastAnchor','fallowPlan','eastAnchorPlan','westGallery','eastGallery','aerial']){
   await page.evaluate(n=>window.__PINEWOOD_MALL_CONSTRUCTION_V67__.goto(n),name);
   await page.waitForTimeout(210);
   const state=await get();
