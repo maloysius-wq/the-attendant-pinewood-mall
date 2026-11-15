@@ -209,8 +209,18 @@ function floorPlates(level){
   // opening with the original locally pinned tile slab.
   const food=rect(FOOD_COURT_V119.originalRoom.x1,FOOD_COURT_V119.originalRoom.x2,
    FOOD_COURT_V119.originalRoom.z1,FOOD_COURT_V119.originalRoom.z2);
-  return [...pieces(MALL.footprints.original,[holeLift,holeStair,food]).map((b,i)=>({...b,id:'original_'+i,y,material:'terrazzo'})),
+  // The two original 1979 department stores were carpeted retail anchors,
+  // not open public terrazzo promenades. Replace only those exact original
+  // G-level rectangles in the existing floor tessellation at the SAME y=0.
+  // There can never be two coplanar carpet/terrazzo slabs or fantasy floors.
+  const west=MALL.rooms.find(r=>r.id==='west_anchor');
+  const east=MALL.rooms.find(r=>r.id==='east_original_anchor');
+  const westAnchor=rect(west.x1,west.x2,west.z1,west.z2);
+  const eastAnchor=rect(east.x1,east.x2,east.z1,east.z2);
+  return [...pieces(MALL.footprints.original,[holeLift,holeStair,food,westAnchor,eastAnchor]).map((b,i)=>({...b,id:'original_'+i,y,material:'terrazzo'})),
    {...food,id:'v119_food_court_tile',y,material:'tile'},
+   {...westAnchor,id:'v121_fallows_original_carpet',y,material:'carpet'},
+   {...eastAnchor,id:'v121_east_original_anchor_carpet',y,material:'carpet'},
    {...MALL.footprints.annex,id:'annex',y,material:'carpet'}];
  }
  if(level==='B1')return [{...MALL.footprints.B1,id:'basement',y,material:'tile'}];
