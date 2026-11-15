@@ -2,6 +2,7 @@ import {chromium} from 'playwright';
 import assert from 'node:assert/strict';
 import {mkdir,writeFile} from 'node:fs/promises';
 import {FURNISHINGS_V69} from '../mall/furnishing-plan-v69.mjs';
+import {constructPhysicalShell} from '../mall/physical-shell-v67.mjs';
 
 const artifactDir='mall-v69-artifacts';
 await mkdir(artifactDir,{recursive:true});
@@ -58,7 +59,9 @@ try{
   }
   assert.ok(initial.uniqueModels>=14,'distinct imported assets are actually loaded');
   assert.ok(initial.walls>=140,'original physical architectural shell preserved');
-  assert.equal(initial.texturesLoaded,8,'all original licensed architectural texture maps');
+  assert.equal(initial.texturesLoaded,
+   Object.keys(constructPhysicalShell({level:'G',chapter:1}).texturePaths).length,
+   'all currently source-pinned original licensed architectural texture maps');
   assert.equal(initial.signText,'PINEWOOD MALL','approved frontage remains');
   assert.equal(initial.entryBoarded,true,'boarded main entrance remains');
   assert.equal(initial.serviceOpen,true,'contractor door remains');
