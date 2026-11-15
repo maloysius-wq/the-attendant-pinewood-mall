@@ -283,39 +283,6 @@ export const FURNISHINGS_V69=Object.freeze({
       "role": "seat"
     },
     {
-      "id": "food_vendor_slice_counter",
-      "room": "food_court",
-      "model": "assets/vendor/runtime/ae14ac85cb3b895b/KSI_counter.glb",
-      "x": 42.2,
-      "z": -83.45,
-      "targetHeight": 0.9,
-      "radius": 1.35,
-      "role": "counter",
-      "yaw": 1.5707963267948966
-    },
-    {
-      "id": "food_vendor_coffee_counter",
-      "room": "food_court",
-      "model": "assets/vendor/runtime/ae14ac85cb3b895b/KSI_counter.glb",
-      "x": 42.2,
-      "z": -88.55,
-      "targetHeight": 0.9,
-      "radius": 1.35,
-      "role": "counter",
-      "yaw": 1.5707963267948966
-    },
-    {
-      "id": "food_vendor_grill_counter",
-      "room": "food_court",
-      "model": "assets/vendor/runtime/ae14ac85cb3b895b/KSI_counter.glb",
-      "x": 42.2,
-      "z": -93.6,
-      "targetHeight": 0.9,
-      "radius": 1.35,
-      "role": "counter",
-      "yaw": 1.5707963267948966
-    },
-    {
       "id": "food_pizza_box",
       "room": "food_court",
       "model": "assets/vendor/runtime/6a62ba711ba90736/pizza-box.glb",

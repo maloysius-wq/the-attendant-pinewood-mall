@@ -39,7 +39,8 @@ export function renderFoodCourtV119(ground,plan=FOOD_COURT_V119){
  const faded=new THREE.MeshStandardMaterial({color:0xa49d84,roughness:.94});
  const fixtureGlass=new THREE.MeshStandardMaterial({color:0xb4b5a3,roughness:.35,
   emissive:0x564a34,emissiveIntensity:.45});
- owned.push(steel,edge,faded,fixtureGlass);
+ const counterStone=new THREE.MeshStandardMaterial({color:0x9e9582,roughness:.87});
+ owned.push(steel,edge,faded,fixtureGlass,counterStone);
  const x=plan.vendorFrontX,manifest=[];
  for(const b of plan.booths){
   const length=b.end-b.start,mid=(b.start+b.end)/2,prefix='v119_'+b.id;
@@ -60,6 +61,15 @@ export function renderFoodCourtV119(ground,plan=FOOD_COURT_V119){
   sign.name=prefix+'_concession_brand';
   sign.rotation.y=-Math.PI/2;sign.position.set(x-.204,4.12,mid);
   group.add(sign);
+  // The counter is a walk-blocking physical building element registered
+  // in the canonical shell. These finishes attach to its actual coordinates.
+  const counterLength=b.end-b.start-.84;
+  box(group,prefix+'_fixed_counter_worktop',b.counter.x,.97,b.counter.z,
+   1.05,.12,counterLength+.11,counterStone);
+  box(group,prefix+'_counter_edge',b.counter.x-.485,.90,b.counter.z,
+   .045,.082,counterLength+.11,edge);
+  for(let i=0;i<3;i++)box(group,prefix+'_counter_face_trim_'+i,
+   b.counter.x-.442,.15+i*.27,b.counter.z,.05,.024,counterLength-.12,steel);
   // House a spent/muted fluorescent tube under each closed kiosk overhang.
   box(group,prefix+'_fluorescent_housing',x-.35,3.49,mid,.42,.13,1.84,edge);
   box(group,prefix+'_fluorescent_diffuser',x-.35,3.385,mid,.32,.056,1.73,fixtureGlass);
@@ -67,7 +77,7 @@ export function renderFoodCourtV119(ground,plan=FOOD_COURT_V119){
   const lamp=new THREE.PointLight(0xf0dbb3,2.7,7.2,2);
   lamp.position.set(x-.63,3.3,mid);
   lamp.name=prefix+'_failing_fixture';group.add(lamp);
-  manifest.push({id:b.id,name:b.name,x,z:mid,frontLength:length,shutterClosed:true,
+  manifest.push({id:b.id,name:b.name,x,z:mid,frontLength:length,shutterClosed:true,builtInCounter:true,
    fasciaHeight:4.12,counter:b.counter});
  }
  return {group,manifest,dispose(){

@@ -32,7 +32,8 @@ function wallMesh(group,w,mats){
  const h=w.top-w.bottom,len=w.end-w.start;
  const x=w.axis==='x'?w.at:(w.start+w.end)/2,z=w.axis==='z'?w.at:(w.start+w.end)/2;
  const sx=w.axis==='x'?w.thickness:len,sz=w.axis==='z'?w.thickness:len;
- const m=w.role==='food-court-shutter'?mats.shutter:
+ const m=w.role==='food-court-counter'?mats.shopKick:
+    w.role==='food-court-shutter'?mats.shutter:
     w.role==='food-court-kick'?mats.shopKick:
     w.role==='food-court-pier'||w.role==='food-court-header'||w.role==='food-court-return'?mats.shopMasonry:
     w.role==='checkpoint-glass'?mats.checkpointGlass:

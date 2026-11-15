@@ -52,7 +52,10 @@ export function foodCourtWallsV119(plan=FOOD_COURT_V119){
   walls.push(
    addWall(id+'_kick','x',x,booth.start,booth.end,0,1.05,'food-court-kick'),
    addWall(id+'_roller','x',x,booth.start,booth.end,1.05,3.22,'food-court-shutter',.095),
-   addWall(id+'_header','x',x,booth.start,booth.end,3.22,h,'food-court-header')
+   addWall(id+'_header','x',x,booth.start,booth.end,3.22,h,'food-court-header'),
+   // Real 1997 counterwork; source measured, 0.94m tall and .86m deep.
+   // The old small white KSI prop was rejected after actual WebGL review.
+   addWall(id+'_counter','x',booth.counter.x,booth.start+.42,booth.end-.42,0,.94,'food-court-counter',.86)
   );
  }
  // Exact gaps between concession shutters are genuine structural piers.
@@ -90,7 +93,7 @@ export function validateFoodCourtV119(plan=FOOD_COURT_V119,mall=MALL,portals=[])
   if(!(b.start<b.end&&b.start>room.z1+.8&&b.end<room.z2-.8&&b.end-b.start>3.9))
    errors.push('vendor bay outside original rear wall '+b.id);
   if(!(b.counter.x<plan.vendorFrontX-1.1&&b.counter.x>40&&b.counter.z>b.start+1&&b.counter.z<b.end-1))
-   errors.push('original licensed counter obstructs its own closed steel shutter '+b.id);
+   errors.push('fixed built-in concession counter obstructs its own closed steel shutter '+b.id);
   if(i&&!(b.end<plan.booths[i-1].start-.25))
    errors.push('food vendor piers overlap '+b.id);
  }
@@ -113,8 +116,15 @@ export function validateFoodCourtV119(plan=FOOD_COURT_V119,mall=MALL,portals=[])
     Math.abs(point.z+88.5)>.01)errors.push('center approach is not physically usable');
  }
  const w=foodCourtWallsV119(plan);
- if(w.length!==17)errors.push('vendor strip missing actual steel shutters or partition solids');
+ if(w.length!==20)errors.push('vendor strip missing actual steel shutters or partition solids');
  for(const e of w)if(!(e.start<e.end&&e.top>e.bottom&&e.bottom>=0&&e.top<=plan.height))
   errors.push('invalid measured serving wall '+e.id);
+ for(const b of plan.booths){
+  const counter=w.find(x=>x.id==='v119_stall_'+b.id+'_counter');
+  if(!counter||counter.role!=='food-court-counter'||!close(counter.at,b.counter.x)||
+   counter.thickness<.8||counter.top<.9||
+   !close(counter.start,b.start+.42)||!close(counter.end,b.end-.42))
+   errors.push('missing real service counter frontage '+b.id);
+ }
  return errors;
 }
