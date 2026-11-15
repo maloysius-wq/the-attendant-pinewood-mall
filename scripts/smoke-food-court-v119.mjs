@@ -28,7 +28,9 @@ try{
  assert.deepEqual(initial.errors,[]);
  assert.equal(initial.firstFrameFullyLoaded,true);
  assert.deepEqual(initial.room,{id:'food_court',x1:29,x2:46,z1:-97,z2:-80});
- assert.equal(initial.furniture.length,12,'4 original tables + 6 seats + 2 table props');
+ assert.equal(initial.furniture.length,17,'4 tables + 8 chairs + 3 actual GLB counters + 2 original supported props');
+ assert.equal(initial.vendors.length,3,'three closed solid vendor bays rendered in actual shared mall');
+ assert.ok(initial.vendors.every(b=>b.shutterClosed&&b.frontLength>4),'all three booths require real closed rolling shutters');
  assert.ok(initial.furniture.every(f=>f.measuredHeight>0&&f.width>0&&f.depth>0));
  for(const shot of ['entrance','seating','rear','plan']){
   await page.evaluate(s=>window.__PINEWOOD_FOOD_COURT_V119__.goto(s),shot);
@@ -41,7 +43,7 @@ try{
  assert.deepEqual(failed,[],'all pinned assets load');
  await writeFile(dir+'/actual-furniture.json',JSON.stringify(initial,null,2));
  console.log('V119_BASELINE_FURNISHED_PASS '+JSON.stringify({
-  furniture:initial.furniture.length,modelsLoaded:initial.modelsLoaded,
+  furniture:initial.furniture.length,stalls:initial.vendors.map(x=>x.id),modelsLoaded:initial.modelsLoaded,
   entries:initial.furniture.map(f=>({id:f.id,x:f.centerX,z:f.centerZ,w:f.width,d:f.depth})),
   errors,external,failed
  }));
