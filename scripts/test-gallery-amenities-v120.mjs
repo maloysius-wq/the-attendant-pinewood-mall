@@ -83,6 +83,10 @@ test('real gameplay AABBs block source bench feet and directory plinths, not the
   'dry fountain orientation approach blocked by lounge seating');
  assert.ok(shortestRouteV70(nav,{x:0,z:-52},{x:0,z:-57}).length>0,
   'directory blocks path north of main doorway');
+ assert.ok(shortestRouteV70(nav,{x:0,z:-52},{x:0,z:-108}).length>40,
+  'original atrium center walkway must remain continuous past fountain and north directory');
+ assert.ok(nav.canStand(0,-52)&&nav.canStand(0,-101),
+  'the public mall center line must never be occupied by a directory');
 });
 
 test('all six chapter routes, original cinema-to-door, and actual LS evidence positions remain playable',()=>{
