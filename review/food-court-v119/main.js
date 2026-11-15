@@ -17,7 +17,7 @@ const shots={
 };
 let scene,camera,renderer,building,shot='entrance',light;
 const state={ready:false,errors:[],room:{},furniture:[],shot,modelsLoaded:0,uniqueModels:0,
- remoteRequests:[],firstFrameFullyLoaded:false,sourceDoor:true};
+ remoteRequests:[],firstFrameFullyLoaded:false,sourceDoor:true,vendors:[]};
 const api={
  getState:()=>JSON.parse(JSON.stringify(state)),
  goto(name){if(!shots[name])throw Error('Unknown food court camera '+name);select(name);},
@@ -43,6 +43,11 @@ function resize(){
 async function begin(){
  try{
   scene=new THREE.Scene();scene.background=new THREE.Color(0x101a1d);
+  // Survey-only diffuse fill reveals room contents in top-down inspection.
+  // The playable mall retains its existing 1997 lighting unchanged.
+  scene.add(new THREE.HemisphereLight(0xfff0da,0x525856,1.25));
+  const surveySun=new THREE.DirectionalLight(0xffe6be,.72);
+  surveySun.position.set(25,35,18);scene.add(surveySun);
   scene.fog=new THREE.FogExp2(0x111b1b,.004);
   camera=new THREE.PerspectiveCamera(72,1,.06,570);
   light=new THREE.PointLight(0xf4e3ca,100,32,2);camera.add(light);
@@ -63,6 +68,8 @@ async function begin(){
   const expected=FURNISHINGS_V69.fixtures.filter(f=>f.room==='food_court');
   if(state.furniture.length!==expected.length)
    throw Error('Furnished V69 food-court count mismatch '+state.furniture.length+' / '+expected.length);
+  state.vendors=[...(building.foodCourtV119||[])];
+  if(state.vendors.length!==3)throw Error('Three physical V119 concession bays must exist in real shell');
   state.modelsLoaded=building.modelsLoaded;
   state.uniqueModels=building.uniqueModels;
   state.firstFrameFullyLoaded=!!building.firstFrameFullyLoaded;
