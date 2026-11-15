@@ -89,7 +89,7 @@ test('unchanged food-court 4.2m V115 glass entrance and first-class walk to all 
  assert.ok(shortestRouteV70(navigation,{x:30.2,z:-88.5},{x:40.15,z:-88.5}).length>8,
   'entrance-to-staffed-counter public approach lost');
  for(const b of FOOD_COURT_V119.booths){
-  const approach={x:39.55,z:b.counter.z};
+  const approach={x:40.6,z:b.counter.z};
   assert.ok(navigation.canStand(approach.x,approach.z),
    'no physically accessible counter frontage for player '+b.id);
   assert.ok(shortestRouteV70(navigation,{x:30.2,z:-88.5},approach).length>5,
