@@ -2,6 +2,7 @@
 import {chromium} from 'playwright';
 import {mkdir,writeFile} from 'node:fs/promises';
 import assert from 'node:assert/strict';
+import {BENCH_ASSET_V120} from '../mall/gallery-amenities-v120.mjs';
 
 const origin='http://127.0.0.1:4173',dir='artifacts/v120-original-mall-amenities';
 await mkdir(dir,{recursive:true});
@@ -49,7 +50,7 @@ try{
    'real asset looks like a single chair rather than a usable public mall bench: '+bench.id);
   assert.ok(bench.width>=.15&&bench.depth>=.15,
    'bench has impossible footprint: '+bench.id);
-  assert.match(bench.model,/^assets\/vendor\/builder\/models\/furniture-kit\/kenney-furniture-kit-bench\.glb$/);
+  assert.equal(bench.model,BENCH_ASSET_V120.path,'actual rendered model must match the independently pinned original CC0 source');
  }
  for(const d of initial.galleryAmenitiesV120.directories)
   assert.ok(d.physicalDirectory&&d.height===2.25&&d.collisionRadius>=.8);
