@@ -23,8 +23,8 @@ const fixture=(id,room,source,x,z,yaw,collisionRadius)=>{
  * registers and cabinets and arrange aisle-connected display families.
  */
 export const ORIGINAL_ANCHOR_FIXTURES_V121=Object.freeze([
- fixture('fallow_wall_bay_n','west_anchor','wall_bay',-45.1,-57.5,Math.PI/2,.86),
- fixture('fallow_wall_bay_s','west_anchor','wall_bay',-45.1,-62.8,Math.PI/2,.86),
+ fixture('fallow_wall_bay_n','west_anchor','wall_bay',-44.9,-57.5,Math.PI/2,.86),
+ fixture('fallow_wall_bay_s','west_anchor','wall_bay',-44.9,-62.8,Math.PI/2,.86),
  fixture('fallow_display_n','west_anchor','table_large',-38.4,-54.2,0,1.15),
  fixture('fallow_display_s','west_anchor','table_large',-38.4,-66.8,0,1.15),
  fixture('fallow_haberdashery_spinner','west_anchor','spinner',-34.5,-50.6,0,.70),
@@ -33,7 +33,7 @@ export const ORIGINAL_ANCHOR_FIXTURES_V121=Object.freeze([
  fixture('east_anchor_wall_s','east_original_anchor','wall_bay',44.9,-55,Math.PI/2,.86),
  fixture('east_anchor_display_n','east_original_anchor','table_medium',35.8,-46,0,1.10),
  fixture('east_anchor_display_s','east_original_anchor','table_medium',35.8,-58.3,0,1.10),
- fixture('east_anchor_spinner','east_original_anchor','spinner',40,-52.6,0,.70),
+ fixture('east_anchor_spinner','east_original_anchor','spinner',41.8,-54.5,0,.70),
  fixture('east_anchor_rail','east_original_anchor','waterfall',39.2,-45.1,0,.84)
 ]);
 
