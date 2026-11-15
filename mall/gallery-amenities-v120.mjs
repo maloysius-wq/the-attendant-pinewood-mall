@@ -76,7 +76,7 @@ export function validateGalleryAmenitiesV120(plan=GALLERY_AMENITIES_V120,{portal
   if(a.room==='central_gallery'){
    if(dist(a,{x:0,z:-71})<=5.1+r+1.1)
     issues.push('amenity crowds the original 5.1m dry fountain '+a.id);
-   for(const site of CENTRAL_STORY_SITES
+   for(const site of CENTRAL_STORY_SITES)
     if(dist(a,site)<=r+2.15)issues.push('amenity blocks original evidence '+a.id+'/'+site.id);
   }else{
    const spine=a.room==='west_gallery'?-20:20;
