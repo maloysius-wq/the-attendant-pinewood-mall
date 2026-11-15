@@ -52,8 +52,10 @@ try{
    'bench has impossible footprint: '+bench.id);
   assert.equal(bench.model,BENCH_ASSET_V120.path,'actual rendered model must match the independently pinned original CC0 source');
  }
- for(const d of initial.galleryAmenitiesV120.directories)
+ for(const d of initial.galleryAmenitiesV120.directories){
   assert.ok(d.physicalDirectory&&d.height===2.25&&d.collisionRadius>=.8);
+  assert.equal(d.printedFaces,2,'actual freestanding north/south directory must display framed maps on BOTH sides: '+d.id);
+ }
  const views=['atriumLounge','directorySouth','directoryNorth','westLounge','eastLounge','westGallery','eastGallery','aerial'];
  for(const shot of views){
   await page.evaluate(s=>window.__PINEWOOD_MALL_CONSTRUCTION_V67__.goto(s),shot);
