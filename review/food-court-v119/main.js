@@ -17,7 +17,7 @@ const shots={
 };
 let scene,camera,renderer,building,shot='entrance',light;
 const state={ready:false,errors:[],room:{},furniture:[],shot,modelsLoaded:0,uniqueModels:0,
- remoteRequests:[],firstFrameFullyLoaded:false,sourceDoor:true,vendors:[]};
+ remoteRequests:[],firstFrameFullyLoaded:false,sourceDoor:true,vendors:[],upperHiddenForSurvey:false};
 const api={
  getState:()=>JSON.parse(JSON.stringify(state)),
  goto(name){if(!shots[name])throw Error('Unknown food court camera '+name);select(name);},
@@ -30,7 +30,16 @@ function select(name){
  if(camera){
   camera.position.set(...s.eye);camera.lookAt(new THREE.Vector3(...s.target));
  }
- if(building)building.setRoofVisible(false);
+ if(building){
+  building.setRoofVisible(false);
+  // Ground food court genuinely lies under an original y=5.4m mezzanine.
+  // Hide upper geometry ONLY for this fixed survey top-down cutaway.
+  if(building.geometryGroups?.M1)building.geometryGroups.M1.visible=name!=='plan';
+  const mezzanineRooms=new Set(MALL.rooms.filter(r=>r.level==='M1').map(r=>r.id));
+  for(const object of building.furnishingGroup?.children||[])
+   if(mezzanineRooms.has(object.userData?.roomId))object.visible=name!=='plan';
+ }
+ state.upperHiddenForSurvey=name==='plan';
  document.getElementById('title').textContent=s.title;
  document.getElementById('description').textContent=s.text;
  document.querySelectorAll('[data-shot]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.shot===name)));

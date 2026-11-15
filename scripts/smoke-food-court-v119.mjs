@@ -28,14 +28,18 @@ try{
  assert.deepEqual(initial.errors,[]);
  assert.equal(initial.firstFrameFullyLoaded,true);
  assert.deepEqual(initial.room,{id:'food_court',x1:29,x2:46,z1:-97,z2:-80});
- assert.equal(initial.furniture.length,17,'4 tables + 8 chairs + 3 actual GLB counters + 2 original supported props');
+ assert.equal(initial.furniture.length,14,'4 licensed tables, 8 seats and 2 original supported props; three counters are fixed building geometry');
  assert.equal(initial.vendors.length,3,'three closed solid vendor bays rendered in actual shared mall');
- assert.ok(initial.vendors.every(b=>b.shutterClosed&&b.frontLength>4),'all three booths require real closed rolling shutters');
+ assert.ok(initial.vendors.every(b=>b.shutterClosed&&b.builtInCounter&&b.frontLength>4),
+  'all three booths need closed steel shutters and structural built-in counters');
  assert.ok(initial.furniture.every(f=>f.measuredHeight>0&&f.width>0&&f.depth>0));
  for(const shot of ['entrance','seating','rear','plan']){
   await page.evaluate(s=>window.__PINEWOOD_FOOD_COURT_V119__.goto(s),shot);
   await page.waitForTimeout(350);
-  assert.equal((await state()).shot,shot);
+  const current=await state();
+  assert.equal(current.shot,shot);
+  assert.equal(current.upperHiddenForSurvey,shot==='plan',
+   'hide the original M1 mezzanine in survey-only overhead shot, never normal gameplay');
   await page.screenshot({path:dir+'/'+shot+'.png',fullPage:true,animations:'disabled'});
  }
  assert.deepEqual(errors,[]);

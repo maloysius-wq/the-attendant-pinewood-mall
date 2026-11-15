@@ -46,17 +46,18 @@ test('original food-court has one genuine tile floor slab, with no overlapping f
 test('all three concession shutters have real collision-active masonry, steel and support-return walls',()=>{
  const shell=constructPhysicalShell({level:'G',chapter:1});
  const w=shell.walls.filter(w=>w.id.startsWith('v119_'));
- assert.equal(w.length,17,'three serving bays, two dividing returns and original room edge closures');
+ assert.equal(w.length,20,'three real service counters and the original shutter/return shell');
  assert.deepEqual(w,foodCourtWallsV119());
  assert.equal(w.filter(x=>x.role==='food-court-shutter').length,3);
  assert.equal(w.filter(x=>x.role==='food-court-kick').length,3);
  assert.equal(w.filter(x=>x.role==='food-court-header').length,3);
+ assert.equal(w.filter(x=>x.role==='food-court-counter').length,3);
  assert.equal(w.filter(x=>x.role==='food-court-return').length,4);
  for(const b of FOOD_COURT_V119.booths){
   const z=(b.start+b.end)/2;
   assert.equal(isSegmentBlocked(shell,{x:41.7,z},{x:44.25,z}),true,
    'shuttered counter must be solid and genuinely block unauthorized backend '+b.id);
-  const rail=w.filter(x=>x.id.includes('_'+b.id+'_')).sort((a,b)=>a.bottom-b.bottom);
+  const rail=w.filter(x=>x.id.includes('_'+b.id+'_')&&x.role!=='food-court-counter').sort((a,b)=>a.bottom-b.bottom);
   assert.equal(rail.length,3,'one continuous closed shutter surface, not an opaque fake wall');
   assert.deepEqual(rail.map(x=>[x.bottom,x.top]),[[0,1.05],[1.05,3.22],[3.22,5.3]]);
  }
@@ -64,12 +65,13 @@ test('all three concession shutters have real collision-active masonry, steel an
 
 test('actual existing licensed V69 tables, chairs and props are intentionally reflowed, not deleted',()=>{
  const f=food();
- assert.equal(f.length,17);
+ assert.equal(f.length,14);
  assert.deepEqual(validateFurnishingPlan(FURNISHINGS_V69),[]);
  const tables=f.filter(x=>x.role==='table');
  const seats=f.filter(x=>x.role==='seat');
- const booths=f.filter(x=>x.role==='counter');
- assert.equal(tables.length,4);assert.equal(seats.length,8);assert.equal(booths.length,3);
+ const shell=constructPhysicalShell({level:'G',chapter:1});
+ assert.equal(tables.length,4);assert.equal(seats.length,8);
+ assert.equal(f.filter(x=>x.role==='counter').length,0,'no miniature wedge GLBs used for fixed food counterwork');
  for(const table of FOOD_COURT_V119.dining){
   const f=food().find(x=>x.id===table.table);
   assert.ok(near(f.x,table.x)&&near(f.z,table.z),
@@ -77,13 +79,14 @@ test('actual existing licensed V69 tables, chairs and props are intentionally re
   for(const chairId of table.chairs)assert.ok(seats.some(x=>x.id===chairId));
  }
  for(const b of FOOD_COURT_V119.booths){
-  const fixture=booths.find(f=>f.id==='food_vendor_'+b.id+'_counter');
-  assert.ok(fixture,'missing physically installed CC0 concession counter '+b.id);
-  assert.ok(near(fixture.x,b.counter.x)&&near(fixture.z,b.counter.z));
-  assert.match(fixture.model,/^assets\/vendor\/runtime\/[a-f0-9]{16}\/KSI_counter\.glb$/);
-  assert.ok(fixture.radius>=1.25&&fixture.targetHeight>=.85);
-  assert.ok(fixture.x+fixture.radius<FOOD_COURT_V119.vendorFrontX,
-   'source counter footprint would pass through the actual roll-down shutter');
+  const physical=shell.walls.find(w=>w.id==='v119_stall_'+b.id+'_counter');
+  assert.ok(physical,'missing physically joined service counter '+b.id);
+  assert.ok(near(physical.at,b.counter.x)&&physical.role==='food-court-counter');
+  assert.ok(physical.top>=.9&&physical.thickness>=.8);
+  assert.ok(physical.at+physical.thickness/2<FOOD_COURT_V119.vendorFrontX,
+   'real counter joins physical shut kiosk without crossing its shutter');
+  assert.ok(isSegmentBlocked(shell,{x:40.8,z:b.counter.z},{x:42.6,z:b.counter.z}),
+   'counter is a real walk collider, not a cosmetic slab');
  }
  for(const support of ['food_pizza_box','food_cup']){
   const item=f.find(x=>x.id===support);
