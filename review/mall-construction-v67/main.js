@@ -52,10 +52,16 @@ const shots={
   note:'Actual scaled CC0 bench outside east x20 circulation, supported by the original 1979 structural piers.'},
  fallows:{floor:'G',eye:[-32.1,1.73,-60.5],target:[-42.0,1.2,-60.5],
   label:'GROUND · FALLOW\'S 1979 ORIGINAL ANCHOR',title:"Fallow's Real Store Fittings",
-  note:'Original physical legacy register and department-store cabinet with six source-auditioned genuine CC0 rail, display, spinner and apparel fixtures. A 4.2m shop entry remains open.'},
+  note:'Original cash counter and department-store cabinet with seventeen genuine source-auditioned CC0 shelf, display and apparel fixtures. A 4.2m shop entry remains open.'},
  eastAnchor:{floor:'G',eye:[32.5,1.73,-52.0],target:[42.2,1.2,-52.0],
   label:'GROUND · ORIGINAL EAST ANCHOR STORE',title:'East Original Department Store Fittings',
   note:'Actual source-pinned 1979 shelving and merchandise stands join the two original V69 racks without closing the real glazed public doorway.'},
+ fallowPlan:{floor:'G',eye:[-33,10.5,-49],target:[-38,0,-61],
+  label:'1979 FALLOW\'S · SOURCE-ROOF REMOVED (SURVEY ONLY)',title:"Fallow's Original Floor Plan",
+  note:'Survey-only cutaway: the real carpet and all 17 imported shop display objects without the overhead roof; no game camera, chapter or mall data was changed.'},
+ eastAnchorPlan:{floor:'G',eye:[32,9.6,-44],target:[38,0,-52],
+  label:'1979 ORIGINAL EAST ANCHOR · SOURCE-ROOF REMOVED (SURVEY ONLY)',title:'Original East Anchor Floor Plan',
+  note:'Survey-only cutaway of exact 17 × 18 metre original department store and all 13 actual licensed fixtures, not conceptual arrangement.'},
  westGallery:{floor:'G',eye:[-20,1.75,-49],target:[-20,1.9,-104],
   label:'GROUND · WEST 1979 RETAIL GALLERY',title:'West Shopping Walk Columns',
   note:'Original-period structural piers frame the 1979 retail modules and connect to the existing soffit, with an unobstructed central walking line.'},
@@ -130,7 +136,7 @@ function setShot(name){
   // 3–6m from their target; never run orbit distance-clamping on those shots.
   if(orbit.enabled)orbit.update();
  }
- if(built)built.setRoofVisible(roofToggle.checked&&name!=='aerial');
+ if(built)built.setRoofVisible(roofToggle.checked&&!['aerial','fallowPlan','eastAnchorPlan'].includes(name));
  renderer?.render(scene,camera);
 }
 function setChapter(value){
@@ -237,7 +243,7 @@ async function begin(){
 for(const b of document.querySelectorAll('[data-shot]'))b.addEventListener('click',()=>setShot(b.dataset.shot));
 viewSelect.addEventListener('change',e=>setShot(e.target.value));
 chapterSelect.addEventListener('change',e=>setChapter(e.target.value));
-roofToggle.addEventListener('change',()=>{built?.setRoofVisible(roofToggle.checked&&state.shot!=='aerial');renderOnDemand()});
+roofToggle.addEventListener('change',()=>{built?.setRoofVisible(roofToggle.checked&&!['aerial','fallowPlan','eastAnchorPlan'].includes(state.shot));renderOnDemand()});
 surveyToggle.addEventListener('change',()=>{
   state.surveyLightOn=surveyToggle.checked;
   if(surveyLight)surveyLight.intensity=state.surveyLightOn?95:0;
