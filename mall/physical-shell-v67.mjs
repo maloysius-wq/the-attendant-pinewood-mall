@@ -4,6 +4,7 @@ import {SEALED_BAYS_V116,sealedBayWallsV116,validateSealedBaysV116} from './seal
 import {CHECKPOINT_V117,checkpointWallsV117,checkpointCeilingsV117,validateCheckpointV117} from './vestibule-checkpoint-v117.mjs';
 import {GALLERY_COLUMNS_V118,validateGalleryColumnsV118} from './gallery-columns-v118.mjs';
 import {FOOD_COURT_V119,foodCourtWallsV119,validateFoodCourtV119} from './food-court-plan-v119.mjs';
+import {GALLERY_AMENITIES_V120,validateGalleryAmenitiesV120} from './gallery-amenities-v120.mjs';
 
 const EPS=1e-6;
 const TEXTURES=Object.freeze({
@@ -311,6 +312,7 @@ export function constructPhysicalShell({level='G',chapter=1}={}){
   storefronts,closedBays:level==='G'?SEALED_BAYS_V116:[],checkpoint:level==='G'?CHECKPOINT_V117:null,
   galleryColumns:level==='G'?GALLERY_COLUMNS_V118:[],
   foodCourt:level==='G'?FOOD_COURT_V119:null,
+  galleryAmenities:level==='G'?GALLERY_AMENITIES_V120:null,
   floorPlates:floorPlates(level),ceilings:[...ceilingPlates(level),...(level==='G'?checkpointCeilingsV117():[])],walls:[],portals:planar,doors:exposedDoors(level,chapter),
   railings:level==='M1'?[{id:'atrium_overlook_guard',axis:'z',at:-94,start:-11,end:29,bottom:5.4,top:6.65,thickness:.12,material:'steel',role:'railing'}]:[],
   roofs:roofPlates(level),stairs:MALL.links.filter(l=>l.type==='stairs'&&[room(l.from).level,room(l.to).level].includes(level)).map(makeStairs),
@@ -347,7 +349,9 @@ function distanceToSegment2D(point,a,b){
 export function isSegmentBlocked(shell,from,to){
  if(!shell||!from||!to)throw new TypeError('shell and endpoints are required');
  return [...shell.walls,...shell.gates,...shell.railings].some(w=>!['lintel','storefront-spandrel','closed-bay-header','checkpoint-header','food-court-header'].includes(w.role)&&crossLine(w,from,to))||
-  (shell.galleryColumns||[]).some(c=>distanceToSegment2D(c,from,to)<c.collisionRadius);
+  (shell.galleryColumns||[]).some(c=>distanceToSegment2D(c,from,to)<c.collisionRadius)||
+  [...(shell.galleryAmenities?.benches||[]),...(shell.galleryAmenities?.directories||[])]
+    .some(a=>distanceToSegment2D(a,from,to)<a.collisionRadius);
 }
 export function validatePhysicalShell(shell){
  const errors=shell.level==='G'?[...validateStorefrontsV115(shell.storefronts,shell.portals),...validateSealedBaysV116(shell.closedBays)]:[];
@@ -355,6 +359,8 @@ export function validatePhysicalShell(shell){
   errors.push(...validateCheckpointV117(shell.checkpoint));
   errors.push(...validateGalleryColumnsV118(shell.galleryColumns,shell.portals));
   errors.push(...validateFoodCourtV119(shell.foodCourt,MALL,shell.portals));
+  errors.push(...validateGalleryAmenitiesV120(shell.galleryAmenities,
+   {portals:shell.portals,galleryColumns:shell.galleryColumns}));
  }
  if(shell.version!==67||!levelData(shell.level))errors.push('unknown physical shell version/level');
  for(const w of [...shell.walls,...shell.gates,...shell.railings]){
