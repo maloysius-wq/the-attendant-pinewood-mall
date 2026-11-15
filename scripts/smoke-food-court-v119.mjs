@@ -12,7 +12,7 @@ try{
  const page=await browser.newPage({viewport:{width:1440,height:900},deviceScaleFactor:1});
  const errors=[],external=[],failed=[];
  page.on('pageerror',e=>errors.push(e.message));
- page.on('request',r=>{if(!r.url().startsWith(origin))external.push(r.url())});
+ page.on('request',r=>{if(!r.url().startsWith(origin)&&!r.url().startsWith('blob:'+origin+'/'))external.push(r.url())});
  page.on('requestfailed',r=>failed.push(r.url()+' '+r.failure()?.errorText));
  await page.goto(origin+'/review/food-court-v119/',{waitUntil:'domcontentloaded'});
  try{
