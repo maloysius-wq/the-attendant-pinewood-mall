@@ -1,0 +1,55 @@
+name: Pinewood V120 original galleries, real CC0 public amenities
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'mall/gallery-amenities-v120.mjs'
+      - 'mall/render-gallery-amenities-v120.js'
+      - 'mall/physical-shell-v67.mjs'
+      - 'mall/render-shell-v67.js'
+      - 'mall/gameplay-layout-v70.mjs'
+      - 'review/mall-construction-v67/**'
+      - 'scripts/test-gallery-amenities-v120.mjs'
+      - 'scripts/smoke-gallery-amenities-v120.mjs'
+      - '.github/workflows/gallery-amenities-v120.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  original-cc0-public-amenities:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify original CC0 model, physical benches, nine LS evidence and six intact chapters
+        run: |
+          node --check mall/gallery-amenities-v120.mjs
+          node --check mall/render-gallery-amenities-v120.js
+          node --check mall/physical-shell-v67.mjs
+          node --check mall/gameplay-layout-v70.mjs
+          node --check mall/render-shell-v67.js
+          node --check review/mall-construction-v67/main.js
+          node --check scripts/smoke-gallery-amenities-v120.mjs
+          node --test scripts/test-gallery-amenities-v120.mjs scripts/test-gallery-columns-v118.mjs scripts/test-food-court-v119.mjs scripts/test-furnishing-v69.mjs scripts/test-storefronts-v115.mjs scripts/test-sealed-bays-v116.mjs scripts/test-vestibule-checkpoint-v117.mjs
+          node scripts/audit-local-assets-v15.mjs
+      - name: Install deterministic real Chromium 3D
+        run: |
+          npm install --no-save playwright@1.55.0
+          npx playwright install chromium
+      - name: Host exact original locally pinned mall assets
+        run: |
+          python3 -m http.server 4173 --bind 127.0.0.1 >/tmp/pinewood-v120-http.log 2>&1 &
+          for i in {1..35}; do curl -fsS http://127.0.0.1:4173/review/mall-construction-v67/ >/dev/null && exit 0; sleep 1; done
+          exit 1
+      - name: Capture actual 1979 lounge benches and printed 1989 directories
+        run: node scripts/smoke-gallery-amenities-v120.mjs
+      - name: Archive eight real architectural screenshots and source model dimensions
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: v120-real-cc0-gallery-amenities
+          path: artifacts/v120-original-mall-amenities/
+          retention-days: 14
