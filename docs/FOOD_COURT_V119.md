@@ -12,6 +12,7 @@ The canonical `food_court` occupies **x29–46, z−97 to −80** (17 × 17 metr
 | --- | --- | --- |
 | Existing 4.2m mall entry | Original V115 x29, centered z−88.5 | Absolutely unchanged. It remains open in Chapter 1 |
 | Central public promenade | z≈−88.5, x29…40.15 | Protected as a navigable route, never a decorated fake doorway |
+| Food-court floor finish | One replacement slab x29…46, z−97…−80, y=0 | Exact **289m² real tile floor** substituted for the same area of original terrazzo, never a coplanar extra layer; staircase/elevator floor holes unchanged |
 | Dining row A | Tables x33.25 / 37.75, z−83.8 | Two original licensed CC0 round GLBs, four chairs, original pizza box and cup rehomed on original supports |
 | Dining row B | Tables x33.25 / 37.75, z−93.2 | Two original round GLBs and four chairs, preserving existing six IDs and adding two correctly pinned same-model seats |
 | Closed pizza concession | z−85.70…−81.20, shutter at x43.65 | Physically sealed shutter, low kick, real tall header, original pinned KSI counter at (42.2,−83.45) |
@@ -20,7 +21,7 @@ The canonical `food_court` occupies **x29–46, z−97 to −80** (17 × 17 metr
 | Back-of-house service | x43.65…46 | Actual bounded kiosk return partitions connect the original room wall; no free path behind closed shutter |
 | Signage and shut-down lighting | Fixed kiosk fascia y≈4.12 and old fixtures y≈3.4 | Source-aligned attachments to real structural walls, faded signs and weak fluorescent housings; never user-editable props |
 
-The shutter is divided into **floor kick 0…1.05m**, **closed rolling panel 1.05…3.22m** and **actual upper infill to the 5.3m original shop ceiling**. Piersonly masonry and returns close the gaps and sides. The source GLB counter in front is an authentic service fixture, **not** a geometry placeholder. Its role/radius is added to the same V69 furnishing collision as all preexisting tables.
+The shutter is divided into **floor kick 0…1.05m**, **closed rolling panel 1.05…3.22m** and **actual upper infill to the 5.3m original shop ceiling**. Structural masonry piers and return walls close the gaps and sides. The source GLB counter in front is an authentic service fixture, **not** a geometry placeholder. Its role/radius is added to the same V69 furnishing collision as all preexisting tables.
 
 There are **17 original-source V69 fixture entries in the redesigned food court**: 4 licensed tables, 8 real chairs, 3 CC0 vendor counters and 2 small supported props. Original IDs are preserved; added chair/counter IDs are non-narrative. The 638-model validated Builder catalog remains untouched; all three vendor counters reuse the existing local `KSI_counter.glb`, so there is no new third-party model endpoint or license risk.
 
