@@ -201,7 +201,14 @@ function floorPlates(level){
  const y=levelData(level).y;
  if(level==='G'){
   const holeLift=rect(18.5,22.5,-115.8,-110.5),holeStair=rect(30.5,33.5,-115.5,-108);
-  return [...pieces(MALL.footprints.original,[holeLift,holeStair]).map((b,i)=>({...b,id:'original_'+i,y,material:'terrazzo'})),
+  // V119 is a genuine original-floor MATERIAL CHANGE, not a second tiled
+  // sheet on top of the public terrazzo. Subtract the measured food-court
+  // footprint from the original slab, then replace that exact same y=0
+  // opening with the original locally pinned tile slab.
+  const food=rect(FOOD_COURT_V119.originalRoom.x1,FOOD_COURT_V119.originalRoom.x2,
+   FOOD_COURT_V119.originalRoom.z1,FOOD_COURT_V119.originalRoom.z2);
+  return [...pieces(MALL.footprints.original,[holeLift,holeStair,food]).map((b,i)=>({...b,id:'original_'+i,y,material:'terrazzo'})),
+   {...food,id:'v119_food_court_tile',y,material:'tile'},
    {...MALL.footprints.annex,id:'annex',y,material:'carpet'}];
  }
  if(level==='B1')return [{...MALL.footprints.B1,id:'basement',y,material:'tile'}];
