@@ -13,7 +13,7 @@ test('both original large anchor stores gain 30 true visually auditioned and sou
  assert.deepEqual(validateAnchorLayoutV121(shell.anchorRetail,{portals:shell.portals}),[]);
  assert.deepEqual(validatePhysicalShell(shell),[]);
  assert.equal(shell.anchorRetail.length,30);
- assert.equal(new Set(shell.anchorRetail.map(f=>f.id)).size,12);
+ assert.equal(new Set(shell.anchorRetail.map(f=>f.id)).size,30);
  assert.equal(shell.anchorRetail.filter(f=>f.room==='west_anchor').length,17);
  assert.equal(shell.anchorRetail.filter(f=>f.room==='east_original_anchor').length,13);
  assert.ok(!shell.anchorRetail.some(f=>f.source==='podium'),
