@@ -28,13 +28,31 @@ export const ORIGINAL_ANCHOR_FIXTURES_V121=Object.freeze([
  fixture('fallow_display_n','west_anchor','table_large',-38.4,-54.2,0,1.15),
  fixture('fallow_display_s','west_anchor','table_large',-38.4,-66.8,0,1.15),
  fixture('fallow_haberdashery_spinner','west_anchor','spinner',-34.5,-50.6,0,.70),
- fixture('fallow_clothing_rail','west_anchor','waterfall',-34.5,-70.2,0,.84),
+ fixture('fallow_clothing_rail','west_anchor','waterfall',-32,-68.9,0,.84),
+ fixture('fallow_north_shelf_1','west_anchor','wall_bay',-41,-49.4,Math.PI,0.86),
+ fixture('fallow_north_shelf_2','west_anchor','wall_bay',-36.7,-49.4,Math.PI,0.86),
+ fixture('fallow_south_shelf_1','west_anchor','wall_bay',-41,-71.6,0,0.86),
+ fixture('fallow_south_shelf_2','west_anchor','wall_bay',-37,-71.6,0,0.86),
+ fixture('fallow_south_shelf_3','west_anchor','wall_bay',-33,-71.6,0,0.86),
+ fixture('fallow_west_shelf_n','west_anchor','wall_bay',-44.9,-52,Math.PI/2,0.86),
+ fixture('fallow_display_island_n','west_anchor','table_large',-35.5,-54.2,0,1.15),
+ fixture('fallow_display_island_s','west_anchor','table_large',-35.5,-66.8,0,1.15),
+ fixture('fallow_spinner_mid_n','west_anchor','spinner',-34.5,-57,0,0.7),
+ fixture('fallow_spinner_mid_s','west_anchor','spinner',-34.5,-64,0,0.7),
+ fixture('fallow_waterfall_n','west_anchor','waterfall',-32,-57.1,0,0.84),
  fixture('east_anchor_wall_n','east_original_anchor','wall_bay',44.9,-51.1,-Math.PI/2,.86),
  fixture('east_anchor_wall_s','east_original_anchor','wall_bay',44.9,-55,-Math.PI/2,.86),
  fixture('east_anchor_display_n','east_original_anchor','table_medium',35.8,-46,0,1.10),
  fixture('east_anchor_display_s','east_original_anchor','table_medium',35.8,-58.3,0,1.10),
  fixture('east_anchor_spinner','east_original_anchor','spinner',41.8,-54.5,0,.70),
- fixture('east_anchor_rail','east_original_anchor','waterfall',39.2,-45.1,0,.84)
+ fixture('east_anchor_rail','east_original_anchor','waterfall',39.2,-45.1,0,.84),
+ fixture('east_north_shelf_1','east_original_anchor','wall_bay',33,-44.3,Math.PI,0.86),
+ fixture('east_north_shelf_2','east_original_anchor','wall_bay',43.9,-44.3,Math.PI,0.86),
+ fixture('east_south_shelf_1','east_original_anchor','wall_bay',31.5,-59.8,0,0.86),
+ fixture('east_south_shelf_2','east_original_anchor','wall_bay',39.5,-59.8,0,0.86),
+ fixture('east_spinner_gallery_n','east_original_anchor','spinner',34,-48.7,0,0.7),
+ fixture('east_spinner_gallery_s','east_original_anchor','spinner',34,-55.5,0,0.7),
+ fixture('east_waterfall_s','east_original_anchor','waterfall',32,-57,0,0.84)
 ]);
 
 const rooms=new Map(MALL.rooms.map(r=>[r.id,r]));
@@ -47,7 +65,7 @@ const distToSegment=(p,a,b)=>{
 };
 export function validateAnchorLayoutV121(fixtures=ORIGINAL_ANCHOR_FIXTURES_V121,{portals=[]}={}){
  const defects=[...validateAnchorSourceV121()],ids=new Set();
- if(fixtures.length!==12)defects.push('expected 12 deliberately placed real department-store source GLBs');
+ if(fixtures.length!==30)defects.push('expected 30 deliberately placed real department-store source GLBs');
  for(const f of fixtures){
   if(ids.has(f.id))defects.push('duplicate original retail fixture '+f.id);
   ids.add(f.id);

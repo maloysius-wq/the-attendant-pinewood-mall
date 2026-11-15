@@ -34,10 +34,10 @@ try{
  assert.ok(initial.ready,'source mall shell could not render '+initial.errors.join('; '));
  assert.deepEqual(initial.errors,[]);
  assert.equal(initial.firstFrameFullyLoaded,true);
- assert.equal(initial.anchorRetailCountV121,12);
- assert.equal(initial.anchorRetailV121.length,12);
- assert.equal(initial.anchorRetailV121.filter(x=>x.room==='west_anchor').length,6);
- assert.equal(initial.anchorRetailV121.filter(x=>x.room==='east_original_anchor').length,6);
+ assert.equal(initial.anchorRetailCountV121,30);
+ assert.equal(initial.anchorRetailV121.length,30);
+ assert.equal(initial.anchorRetailV121.filter(x=>x.room==='west_anchor').length,17);
+ assert.equal(initial.anchorRetailV121.filter(x=>x.room==='east_original_anchor').length,13);
  assert.equal(initial.galleryColumnCount,28);
  assert.equal(initial.benchCountV120,6);
  assert.equal(initial.directoryCountV120,2);
