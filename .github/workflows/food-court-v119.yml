@@ -31,7 +31,13 @@ jobs:
           node --check scripts/smoke-food-court-v119.mjs
           node --check mall/furnishing-plan-v69.mjs
           node --check mall/render-furnishing-v69.js
-          node --test scripts/test-furnishing-v69.mjs scripts/test-physical-shell-v67.mjs scripts/test-vestibule-checkpoint-v117.mjs scripts/test-gallery-columns-v118.mjs
+          node --check mall/food-court-plan-v119.mjs
+          node --check mall/render-food-court-v119.js
+          node --check mall/physical-shell-v67.mjs
+          node --check mall/render-shell-v67.js
+          node --check mall/gameplay-layout-v70.mjs
+          node --check scripts/test-food-court-v119.mjs
+          node --test scripts/test-food-court-v119.mjs scripts/test-furnishing-v69.mjs scripts/test-physical-shell-v67.mjs scripts/test-vestibule-checkpoint-v117.mjs scripts/test-gallery-columns-v118.mjs
           node scripts/audit-local-assets-v15.mjs
       - name: Install real desktop browser
         run: |
