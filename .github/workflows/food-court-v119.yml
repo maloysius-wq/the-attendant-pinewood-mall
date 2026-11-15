@@ -1,0 +1,53 @@
+name: Pinewood V119 genuine furnished food-court review
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'review/food-court-v119/**'
+      - 'mall/food-court-plan-v119.mjs'
+      - 'mall/render-food-court-v119.js'
+      - 'mall/furnishing-plan-v69.mjs'
+      - 'mall/render-shell-v67.js'
+      - 'mall/render-shell-v69.js'
+      - 'mall/gameplay-layout-v70.mjs'
+      - 'scripts/smoke-food-court-v119.mjs'
+      - 'scripts/test-food-court-v119.mjs'
+      - '.github/workflows/food-court-v119.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  genuine-food-court:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify original room source, 41 chapters/doors, safe layout
+        run: |
+          node --check review/food-court-v119/main.js
+          node --check scripts/smoke-food-court-v119.mjs
+          node --check mall/furnishing-plan-v69.mjs
+          node --check mall/render-furnishing-v69.js
+          node --test scripts/test-furnishing-v69.mjs scripts/test-physical-shell-v67.mjs scripts/test-vestibule-checkpoint-v117.mjs scripts/test-gallery-columns-v118.mjs
+          node scripts/audit-local-assets-v15.mjs
+      - name: Install real desktop browser
+        run: |
+          npm install --no-save playwright@1.55.0
+          npx playwright install chromium
+      - name: Host exact repository files and CC0 assets
+        run: |
+          python3 -m http.server 4173 --bind 127.0.0.1 >/tmp/pinewood-v119-http.log 2>&1 &
+          for i in {1..35}; do curl -fsS http://127.0.0.1:4173/review/food-court-v119/ >/dev/null && exit 0; sleep 1; done
+          exit 1
+      - name: Capture genuine V69 furnishings, dimensions, and food court sightlines
+        run: node scripts/smoke-food-court-v119.mjs
+      - name: Archive actual WebGL images and GLB bounds
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: v119-actual-food-court-glb-review
+          path: artifacts/v119-baseline-food/
+          retention-days: 14
