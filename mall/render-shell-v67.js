@@ -5,6 +5,7 @@ import {renderStorefrontsV115} from './render-storefronts-v115.js';
 import {renderSealedBaysV116} from './render-sealed-bays-v116.js';
 import {renderVestibuleCheckpointV117} from './render-vestibule-checkpoint-v117.js';
 import {renderGalleryColumnsV118} from './render-gallery-columns-v118.js';
+import {renderFoodCourtV119} from './render-food-court-v119.js';
 
 function mappedBox(w,h,d,tileMetres=3){
  const g=new THREE.BoxGeometry(w,h,d),uv=g.getAttribute('uv');
@@ -31,7 +32,10 @@ function wallMesh(group,w,mats){
  const h=w.top-w.bottom,len=w.end-w.start;
  const x=w.axis==='x'?w.at:(w.start+w.end)/2,z=w.axis==='z'?w.at:(w.start+w.end)/2;
  const sx=w.axis==='x'?w.thickness:len,sz=w.axis==='z'?w.thickness:len;
- const m=w.role==='checkpoint-glass'?mats.checkpointGlass:
+ const m=w.role==='food-court-shutter'?mats.shutter:
+    w.role==='food-court-kick'?mats.shopKick:
+    w.role==='food-court-pier'||w.role==='food-court-header'||w.role==='food-court-return'?mats.shopMasonry:
+    w.role==='checkpoint-glass'?mats.checkpointGlass:
     w.role==='checkpoint-partition'||w.role==='checkpoint-header'?mats.checkpointMasonry:
     w.role==='closed-bay-shutter'?mats.shutter:
     w.role==='closed-bay-header'?mats.shutterHeader:
@@ -217,6 +221,7 @@ export async function renderConstructionScene({scene,chapter=1}={}){
  const closedBayVisuals=renderSealedBaysV116(geometryGroups.G,shells.find(s=>s.level==='G').closedBays);
  const checkpointVisuals=renderVestibuleCheckpointV117(geometryGroups.G,shells.find(s=>s.level==='G').checkpoint);
  const galleryColumnsVisuals=renderGalleryColumnsV118(geometryGroups.G,shells.find(s=>s.level==='G').galleryColumns,mats);
+ const foodCourtVisuals=renderFoodCourtV119(geometryGroups.G,shells.find(s=>s.level==='G').foodCourt);
  addFountainArchitecture(geometryGroups.G,mats);
  const measured=fixtureList.map(f=>placeModel(geometryGroups[roomLevel(f.room)],loaded,f));
  installLights(group);
@@ -227,6 +232,7 @@ export async function renderConstructionScene({scene,chapter=1}={}){
   storefrontsV115:storefrontVisuals.manifest,closedBaysV116:closedBayVisuals.manifest,
   checkpointV117:{cells:checkpointVisuals.cells,clearWidth:checkpointVisuals.clearWidth,window:checkpointVisuals.window},
   galleryColumnsV118:galleryColumnsVisuals.manifest,
+  foodCourtV119:foodCourtVisuals.manifest,
   geometryErrors:[],firstFrameFullyLoaded:true,
   setChapter(next){
    for(const g of gates.children)g.visible=next<g.userData.minChapter;
@@ -234,7 +240,7 @@ export async function renderConstructionScene({scene,chapter=1}={}){
   setRoofVisible(value){roofs.visible=!!value;ceilings.visible=!!value},
   dispose(){
    scene.remove(group);
-   storefrontVisuals.dispose();closedBayVisuals.dispose();checkpointVisuals.dispose();
+   storefrontVisuals.dispose();closedBayVisuals.dispose();checkpointVisuals.dispose();foodCourtVisuals.dispose();
    group.traverse(o=>{if(o.geometry)o.geometry.dispose()});
    for(const texture of Object.values(t))texture.dispose();
    for(const material of Object.values(mats))material.dispose();
