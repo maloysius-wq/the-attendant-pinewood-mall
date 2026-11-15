@@ -63,6 +63,14 @@ export function buildGameplayLayoutV70({chapter,level}={}){
    minZ:amenity.z-r,maxZ:amenity.z+r,
    kind:'public-mall-amenity',id:amenity.id});
  }
+ // Exact CC0 retail-fitting footprints share this authoritative walkable
+ // floor and physical shell with all six story routes. These grounded
+ // shop fittings are NOT owner Builder draft assets.
+ for(const f of shell.anchorRetail||[]){
+  const r=f.collisionRadius;
+  colliders.push({minX:f.x-r,maxX:f.x+r,minZ:f.z-r,maxZ:f.z+r,
+   kind:'original-retail-fixture',id:f.id});
+ }
  // Floor openings are real holes in the v67 mesh; never let the legacy
  // 2D walk grid place a suspended player over an elevator or stair void.
  const openings=activeLevel==='G'?

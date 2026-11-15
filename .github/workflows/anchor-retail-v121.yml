@@ -1,0 +1,68 @@
+name: Pinewood V121 two original department store real GLB previews
+on:
+  pull_request:
+    branches:
+      - main
+      - feature/gallery-amenities-v120
+    paths:
+      - 'mall/anchor-retail-source-v121.mjs'
+      - 'mall/anchor-layout-v121.mjs'
+      - 'mall/render-anchor-retail-v121.js'
+      - 'mall/physical-shell-v67.mjs'
+      - 'mall/gameplay-layout-v70.mjs'
+      - 'mall/render-shell-v67.js'
+      - 'review/mall-construction-v67/**'
+      - 'review/retail-assets-v121/**'
+      - 'scripts/test-anchor-retail-v121.mjs'
+      - 'scripts/test-anchor-layout-v121.mjs'
+      - 'scripts/smoke-anchor-layout-v121.mjs'
+      - 'scripts/smoke-anchor-retail-v121.mjs'
+      - '.github/workflows/anchor-retail-v121.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  licensed-source-previews:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Check actual original two-room geometry and SHA256 CC0 source files
+        run: |
+          node --check mall/anchor-retail-source-v121.mjs
+          node --check mall/anchor-layout-v121.mjs
+          node --check mall/render-anchor-retail-v121.js
+          node --check mall/physical-shell-v67.mjs
+          node --check mall/render-shell-v67.js
+          node --check mall/gameplay-layout-v70.mjs
+          node --check review/mall-construction-v67/main.js
+          node --check scripts/test-anchor-layout-v121.mjs
+          node --check scripts/smoke-anchor-layout-v121.mjs
+          node --check review/retail-assets-v121/main.js
+          node --check scripts/smoke-anchor-retail-v121.mjs
+          node --test scripts/test-anchor-retail-v121.mjs scripts/test-anchor-layout-v121.mjs scripts/test-furnishing-v69.mjs scripts/test-gallery-amenities-v120.mjs scripts/test-physical-shell-v67.mjs scripts/test-storefronts-v115.mjs scripts/test-food-court-v119.mjs
+      - name: Install real desktop Chromium
+        run: |
+          npm install --no-save playwright@1.55.0
+          npx playwright install chromium
+      - name: Serve exactly pinned repository files
+        run: |
+          python3 -m http.server 4173 --bind 127.0.0.1 >/tmp/pinewood-v121-http.log 2>&1 &
+          for i in {1..35}; do curl -fsS http://127.0.0.1:4173/review/retail-assets-v121/ >/dev/null && exit 0; sleep 1; done
+          exit 1
+      - name: Capture genuine licensed GLB auditions and measured source geometry
+        run: |
+          node scripts/smoke-anchor-retail-v121.mjs
+          node scripts/smoke-anchor-layout-v121.mjs
+      - name: Preserve seven source-authentic 3D screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: v121-original-department-store-source-auditions
+          path: |
+            artifacts/v121-original-tenant-assets/
+            artifacts/v121-actual-original-store-rooms/
+          retention-days: 14
