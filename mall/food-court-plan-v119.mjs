@@ -66,6 +66,10 @@ export function foodCourtWallsV119(plan=FOOD_COURT_V119){
  // room walls through short side partitions, never duplicate the room wall.
  for(const [id,z] of [['north',plan.booths[0].end],['south',plan.booths.at(-1).start]])
   walls.push(addWall('end_'+id,'z',z,x,46,0,h,'food-court-return'));
+ walls.push(
+  addWall('north_edge_pier','x',x,plan.booths[0].end,plan.originalRoom.z2,0,h,'food-court-pier'),
+  addWall('south_edge_pier','x',x,plan.originalRoom.z1,plan.booths.at(-1).start,0,h,'food-court-pier')
+ );
  return walls;
 }
 
@@ -109,7 +113,7 @@ export function validateFoodCourtV119(plan=FOOD_COURT_V119,mall=MALL,portals=[])
     Math.abs(point.z+88.5)>.01)errors.push('center approach is not physically usable');
  }
  const w=foodCourtWallsV119(plan);
- if(w.length!==16)errors.push('vendor strip missing actual steel shutters or partition solids');
+ if(w.length!==17)errors.push('vendor strip missing actual steel shutters or partition solids');
  for(const e of w)if(!(e.start<e.end&&e.top>e.bottom&&e.bottom>=0&&e.top<=plan.height))
   errors.push('invalid measured serving wall '+e.id);
  return errors;
