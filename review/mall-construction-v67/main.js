@@ -15,6 +15,7 @@ const state={
  storefrontCount:0,storefrontNames:[],storefrontEntries:[],
  closedBayCount:0,closedBayNames:[],checkpointV117:null,
  galleryColumnsV118:[],galleryColumnCount:0,
+ galleryAmenitiesV120:null,benchCountV120:0,directoryCountV120:0,wayfindingCountV120:0,
  ceilingFinishes:[],allCeilingsTextured:false,surveyLightOn:true
 };
 const shots={
@@ -33,6 +34,21 @@ const shots={
   note:'The once-prominent public doors are shuttered and fully blocked. The contractor must use the authorized service access.'},
  atrium:{floor:'G',eye:[0,1.78,-52],target:[0,1.5,-71],label:'GROUND · CENTRAL ATRIUM',title:'Pinewood’s Dry Fountain',
   note:'A single-story public gallery with a double-height glazed atrium. The abandoned fountain anchors orientation and later reveals.'},
+ atriumLounge:{floor:'G',eye:[0,1.76,-52],target:[0,1.6,-62],
+  label:'GROUND · ORIGINAL ATRIUM LOUNGE',title:'Actual 1979 Mall Benches',
+  note:'Four verified source-licensed CC0 Kenney benches sit at deliberate fountain approaches, all original evidence and circulation remain open.'},
+ directorySouth:{floor:'G',eye:[0.7,1.72,-47.5],target:[-3,1.43,-52],
+  label:'GROUND · 1989 MAIN DIRECTORY',title:'Grounded Old Mall Directory',
+  note:'A printed original-era wayfinding map in a real fixed, collidable unit; not a floating sign or user-authored Builder placement.'},
+ directoryNorth:{floor:'G',eye:[6.8,1.72,-96.5],target:[3,1.33,-101],
+  label:'GROUND · NORTHERN TENANT DIRECTORY',title:'Second Grounded Directory',
+  note:'Original-sized fixed mall wayfinding at the north side of the fountain, with clear chapter routes.'},
+ westLounge:{floor:'G',eye:[-20,1.7,-81],target:[-15.8,1.0,-87],
+  label:'GROUND · WEST SHOPPING REST POINT',title:'Real Bench at West Shopping Walk',
+  note:'Actual scaled CC0 bench, not a generated cube, kept out of the west x−20 through route and real 4.2-metre shop entries.'},
+ eastLounge:{floor:'G',eye:[20,1.7,-81],target:[15.8,1.0,-87],
+  label:'GROUND · EAST SHOPPING REST POINT',title:'Real Bench at East Shopping Walk',
+  note:'Actual scaled CC0 bench outside east x20 circulation, supported by the original 1979 structural piers.'},
  westGallery:{floor:'G',eye:[-20,1.75,-49],target:[-20,1.9,-104],
   label:'GROUND · WEST 1979 RETAIL GALLERY',title:'West Shopping Walk Columns',
   note:'Original-period structural piers frame the 1979 retail modules and connect to the existing soffit, with an unobstructed central walking line.'},
@@ -157,6 +173,14 @@ async function begin(){
   state.checkpointV117={...built.checkpointV117};
   state.galleryColumnsV118=[...built.galleryColumnsV118];
   state.galleryColumnCount=state.galleryColumnsV118.length;
+  state.galleryAmenitiesV120={
+   benches:[...built.galleryAmenitiesV120.benches],
+   directories:[...built.galleryAmenitiesV120.directories],
+   wayfinding:[...built.galleryAmenitiesV120.wayfinding]
+  };
+  state.benchCountV120=state.galleryAmenitiesV120.benches.length;
+  state.directoryCountV120=state.galleryAmenitiesV120.directories.length;
+  state.wayfindingCountV120=state.galleryAmenitiesV120.wayfinding.length;
   state.storefrontCount=built.storefrontsV115.length;
   state.storefrontNames=built.storefrontsV115.map(f=>f.sign);
   state.storefrontEntries=built.storefrontsV115.map(f=>({room:f.id,entryWidth:f.entryWidth,windowSpan:f.windowSpan}));
@@ -181,7 +205,9 @@ async function begin(){
    ' preloaded material maps · '+state.modelsLoaded+' placed CC0 fixtures · '+
    state.storefrontCount+' glazed shopfronts · '+state.closedBayCount+' enclosed support bays · '+
    state.checkpointV117.cells+' closed service-checkpoint cells · '+
-   state.galleryColumnCount+' original structural gallery piers. No remote 3D assets.';
+   state.galleryColumnCount+' original structural gallery piers · '+
+   state.benchCountV120+' genuine CC0 benches · '+state.directoryCountV120+
+   ' original ground directories. No remote 3D assets.';
   setChapter(state.chapter);
   setShot(state.shot);
   renderer.render(scene,camera);

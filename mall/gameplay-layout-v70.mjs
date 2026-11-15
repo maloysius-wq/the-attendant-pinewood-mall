@@ -53,6 +53,16 @@ export function buildGameplayLayoutV70({chapter,level}={}){
   colliders.push({minX:post.x-r,maxX:post.x+r,
    minZ:post.z-r,maxZ:post.z+r,kind:'structural-column',id:post.id});
  }
+ // Permanent public benches and real two-faced directory kiosks share the
+ // physical source with Builder/opening/film. Conservative base colliders
+ // occupy the true floor, not the overhead attached column wayfinding.
+ for(const amenity of [...(shell.galleryAmenities?.benches||[]),
+  ...(shell.galleryAmenities?.directories||[])]){
+  const r=amenity.collisionRadius;
+  colliders.push({minX:amenity.x-r,maxX:amenity.x+r,
+   minZ:amenity.z-r,maxZ:amenity.z+r,
+   kind:'public-mall-amenity',id:amenity.id});
+ }
  // Floor openings are real holes in the v67 mesh; never let the legacy
  // 2D walk grid place a suspended player over an elevator or stair void.
  const openings=activeLevel==='G'?
