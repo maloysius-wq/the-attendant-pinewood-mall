@@ -3,6 +3,7 @@ import {planStorefrontsV115,storefrontPhysicalWallsV115,validateStorefrontsV115}
 import {SEALED_BAYS_V116,sealedBayWallsV116,validateSealedBaysV116} from './sealed-bay-plan-v116.mjs';
 import {CHECKPOINT_V117,checkpointWallsV117,checkpointCeilingsV117,validateCheckpointV117} from './vestibule-checkpoint-v117.mjs';
 import {GALLERY_COLUMNS_V118,validateGalleryColumnsV118} from './gallery-columns-v118.mjs';
+import {FOOD_COURT_V119,foodCourtWallsV119,validateFoodCourtV119} from './food-court-plan-v119.mjs';
 
 const EPS=1e-6;
 const TEXTURES=Object.freeze({
@@ -200,7 +201,14 @@ function floorPlates(level){
  const y=levelData(level).y;
  if(level==='G'){
   const holeLift=rect(18.5,22.5,-115.8,-110.5),holeStair=rect(30.5,33.5,-115.5,-108);
-  return [...pieces(MALL.footprints.original,[holeLift,holeStair]).map((b,i)=>({...b,id:'original_'+i,y,material:'terrazzo'})),
+  // V119 is a genuine original-floor MATERIAL CHANGE, not a second tiled
+  // sheet on top of the public terrazzo. Subtract the measured food-court
+  // footprint from the original slab, then replace that exact same y=0
+  // opening with the original locally pinned tile slab.
+  const food=rect(FOOD_COURT_V119.originalRoom.x1,FOOD_COURT_V119.originalRoom.x2,
+   FOOD_COURT_V119.originalRoom.z1,FOOD_COURT_V119.originalRoom.z2);
+  return [...pieces(MALL.footprints.original,[holeLift,holeStair,food]).map((b,i)=>({...b,id:'original_'+i,y,material:'terrazzo'})),
+   {...food,id:'v119_food_court_tile',y,material:'tile'},
    {...MALL.footprints.annex,id:'annex',y,material:'carpet'}];
  }
  if(level==='B1')return [{...MALL.footprints.B1,id:'basement',y,material:'tile'}];
@@ -302,6 +310,7 @@ export function constructPhysicalShell({level='G',chapter=1}={}){
  const shell={version:67,level,chapter,y:levelData(level).y,footprints:MALL.footprints,
   storefronts,closedBays:level==='G'?SEALED_BAYS_V116:[],checkpoint:level==='G'?CHECKPOINT_V117:null,
   galleryColumns:level==='G'?GALLERY_COLUMNS_V118:[],
+  foodCourt:level==='G'?FOOD_COURT_V119:null,
   floorPlates:floorPlates(level),ceilings:[...ceilingPlates(level),...(level==='G'?checkpointCeilingsV117():[])],walls:[],portals:planar,doors:exposedDoors(level,chapter),
   railings:level==='M1'?[{id:'atrium_overlook_guard',axis:'z',at:-94,start:-11,end:29,bottom:5.4,top:6.65,thickness:.12,material:'steel',role:'railing'}]:[],
   roofs:roofPlates(level),stairs:MALL.links.filter(l=>l.type==='stairs'&&[room(l.from).level,room(l.to).level].includes(level)).map(makeStairs),
@@ -309,7 +318,8 @@ export function constructPhysicalShell({level='G',chapter=1}={}){
  shell.portals.forEach(p=>{if(p.minChapter>chapter)p.locked=true});
  const baseWalls=[...exterior(level),...roomWalls(level,planar,storefronts),...portalLintels(level,planar),...storefrontPhysicalWallsV115(storefronts)];
  shell.walls=[...baseWalls,...(level==='G'?sealedBayWallsV116(shell.closedBays,baseWalls):[]),
-  ...(level==='G'?checkpointWallsV117():[])];
+  ...(level==='G'?checkpointWallsV117():[]),
+  ...(level==='G'?foodCourtWallsV119():[])];
  shell.gates=insertGates(shell);
  return shell;
 }
@@ -336,7 +346,7 @@ function distanceToSegment2D(point,a,b){
 }
 export function isSegmentBlocked(shell,from,to){
  if(!shell||!from||!to)throw new TypeError('shell and endpoints are required');
- return [...shell.walls,...shell.gates,...shell.railings].some(w=>!['lintel','storefront-spandrel','closed-bay-header','checkpoint-header'].includes(w.role)&&crossLine(w,from,to))||
+ return [...shell.walls,...shell.gates,...shell.railings].some(w=>!['lintel','storefront-spandrel','closed-bay-header','checkpoint-header','food-court-header'].includes(w.role)&&crossLine(w,from,to))||
   (shell.galleryColumns||[]).some(c=>distanceToSegment2D(c,from,to)<c.collisionRadius);
 }
 export function validatePhysicalShell(shell){
@@ -344,6 +354,7 @@ export function validatePhysicalShell(shell){
  if(shell.level==='G'){
   errors.push(...validateCheckpointV117(shell.checkpoint));
   errors.push(...validateGalleryColumnsV118(shell.galleryColumns,shell.portals));
+  errors.push(...validateFoodCourtV119(shell.foodCourt,MALL,shell.portals));
  }
  if(shell.version!==67||!levelData(shell.level))errors.push('unknown physical shell version/level');
  for(const w of [...shell.walls,...shell.gates,...shell.railings]){

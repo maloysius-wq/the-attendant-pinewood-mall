@@ -1,6 +1,8 @@
 import {chromium} from 'playwright';
 import assert from 'node:assert/strict';
 import {mkdir,writeFile} from 'node:fs/promises';
+import {FURNISHINGS_V69} from '../mall/furnishing-plan-v69.mjs';
+import {constructPhysicalShell} from '../mall/physical-shell-v67.mjs';
 
 const artifactDir='mall-v69-artifacts';
 await mkdir(artifactDir,{recursive:true});
@@ -30,9 +32,11 @@ try{
   const initial=await state();
   assert.deepEqual(initial.errors,[],device+' loaded without runtime errors');
   assert.equal(initial.firstFrameFullyLoaded,true,'all 3D assets render before removing the loading screen');
-  assert.equal(initial.furnishingsLoaded,60,'exactly sixty licensed fitted model fixtures');
+  assert.equal(initial.furnishingsLoaded,FURNISHINGS_V69.fixtures.length,
+   'every source-pinned room fitting must reach the real scene, including all V119 food-court counters');
   assert.ok(initial.modelsLoaded>=66,'legacy models plus all new CC0 fixtures');
-  assert.equal(initial.furnitureManifest.length,60,'all imported GLBs are physically measured after fitting');
+  assert.equal(initial.furnitureManifest.length,FURNISHINGS_V69.fixtures.length,
+   'all imported source GLBs must be physically measured after fitting');
   for(const model of initial.furnitureManifest){
    assert.ok(model.measuredHeight>=model.requestedHeight*.82,
     model.id+' shrank to '+model.measuredHeight.toFixed(2)+'m instead of '+model.requestedHeight+'m');
@@ -55,7 +59,9 @@ try{
   }
   assert.ok(initial.uniqueModels>=14,'distinct imported assets are actually loaded');
   assert.ok(initial.walls>=140,'original physical architectural shell preserved');
-  assert.equal(initial.texturesLoaded,8,'all original licensed architectural texture maps');
+  assert.equal(initial.texturesLoaded,
+   Object.keys(constructPhysicalShell({level:'G',chapter:1}).texturePaths).length,
+   'all currently source-pinned original licensed architectural texture maps');
   assert.equal(initial.signText,'PINEWOOD MALL','approved frontage remains');
   assert.equal(initial.entryBoarded,true,'boarded main entrance remains');
   assert.equal(initial.serviceOpen,true,'contractor door remains');
