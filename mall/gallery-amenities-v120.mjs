@@ -44,6 +44,12 @@ export const GALLERY_AMENITIES_V120=Object.freeze({
 });
 
 const EPS=1e-5,roomById=new Map(MALL.rooms.map(r=>[r.id,r]));
+// Coordinates are the original V69 furnished-room story anchors, with the
+// canonical MALL evidence IDs checked below. MALL.evidence alone has no x/z.
+const CENTRAL_STORY_SITES=Object.freeze([
+ Object.freeze({id:'LS-01',x:7,z:-66}),
+ Object.freeze({id:'LS-02',x:7,z:-94})
+]);
 const dist=(a,b)=>Math.hypot(a.x-b.x,a.z-b.z);
 const segmentDistance=(p,a,b)=>{
  const dx=b.x-a.x,dz=b.z-a.z,den=dx*dx+dz*dz;
@@ -52,6 +58,11 @@ const segmentDistance=(p,a,b)=>{
 };
 export function validateGalleryAmenitiesV120(plan=GALLERY_AMENITIES_V120,{portals=[],galleryColumns=GALLERY_COLUMNS_V118}={}){
  const issues=[],physical=[...plan.benches,...plan.directories],ids=new Set();
+ for(const site of CENTRAL_STORY_SITES){
+  const canonical=MALL.evidence.find(e=>e.id===site.id);
+  if(!canonical||canonical.room!=='central_gallery')
+   issues.push('V69 narrative evidence no longer belongs to the source atrium '+site.id);
+ }
  if(plan.benches.length!==6||plan.directories.length!==2||plan.wayfinding.length!==2)
   issues.push('V120 public amenities missing measured 6 benches, 2 directories, 2 column signs');
  for(const a of physical){
@@ -65,7 +76,7 @@ export function validateGalleryAmenitiesV120(plan=GALLERY_AMENITIES_V120,{portal
   if(a.room==='central_gallery'){
    if(dist(a,{x:0,z:-71})<=5.1+r+1.1)
     issues.push('amenity crowds the original 5.1m dry fountain '+a.id);
-   for(const site of MALL.evidence.filter(e=>e.room==='central_gallery'))
+   for(const site of CENTRAL_STORY_SITES
     if(dist(a,site)<=r+2.15)issues.push('amenity blocks original evidence '+a.id+'/'+site.id);
   }else{
    const spine=a.room==='west_gallery'?-20:20;
