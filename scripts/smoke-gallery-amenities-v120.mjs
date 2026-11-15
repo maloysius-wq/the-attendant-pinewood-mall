@@ -45,6 +45,8 @@ try{
  for(const bench of initial.galleryAmenitiesV120.benches){
   assert.ok(bench.height>=.76&&bench.height<=.96,
    'real CC0 bench has wrong physical stature: '+JSON.stringify(bench));
+  assert.ok(Math.max(bench.width,bench.depth)>=1.25,
+   'real asset looks like a single chair rather than a usable public mall bench: '+bench.id);
   assert.ok(bench.width>=.15&&bench.depth>=.15,
    'bench has impossible footprint: '+bench.id);
   assert.match(bench.model,/^assets\/vendor\/builder\/models\/furniture-kit\/kenney-furniture-kit-bench\.glb$/);

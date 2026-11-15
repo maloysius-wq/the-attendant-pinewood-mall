@@ -7,9 +7,9 @@ import {MALL} from './masterplan-v66.mjs';
 import {GALLERY_COLUMNS_V118} from './gallery-columns-v118.mjs';
 
 export const BENCH_ASSET_V120=Object.freeze({
- path:'assets/vendor/builder/models/furniture-kit/kenney-furniture-kit-bench.glb',
- catalogId:'kenney-furniture-kit-bench',license:'CC0-1.0',
- sha256:'ba05a6d23a5a5a44da016757632070e47ff7587ce10e2f6d6d52328b4cf5489b'
+ path:'assets/vendor/builder/models/graveyard-kit/kenney-graveyard-kit-bench.glb',
+ catalogId:'kenney-graveyard-kit-bench',license:'CC0-1.0',
+ sha256:'3bcc3bf463e9e09038688ba8f1ffd44ffa095920255a2e1cbc655edbaaab97b9'
 });
 const bench=(id,room,x,z,yaw)=>Object.freeze({
  id,room,x,z,yaw,baseY:0,model:BENCH_ASSET_V120.path,
