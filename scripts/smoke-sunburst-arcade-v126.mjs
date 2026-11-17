@@ -94,7 +94,7 @@ try{
  console.log('PINEWOOD_V126_REAL_SUNBURST_WEBGL_PASS '+JSON.stringify({
   sourcedMachines:state.sunburstFixtureCountV126,uniqueModels:kinds.size,
   mountedLamps:state.sunburstLampCountV126,
-  1997Prints:state.sunburstPosterCountV126,shots:shots.length+2,
+  periodPrints:state.sunburstPosterCountV126,shots:shots.length+2,
   errors,consoleErrors,remote,failed
  }));
 }finally{await browser.close()}
