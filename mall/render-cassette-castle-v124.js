@@ -16,7 +16,10 @@ const covers=[
  ['NEON QUIET','#452b3d','#f5b8b5','AFTER DARK'],
  ['LAST TRAIN HOME','#493c33','#e6c491','VOL. III'],
  ['THE BLUE HOUR','#243a50','#c9d3d9','SIDE A / SIDE B'],
- ['MAGNETIC SUMMER','#574b32','#e7a988','1979–1997']
+ ['MAGNETIC SUMMER','#574b32','#e7a988','1979–1997'],
+ ['MOTOR CITY ECHO','#344754','#b5c4a9','1996 DEMOS'],
+ ['PAPER STARS','#4c394a','#d7c5ae','THE LAST SIDE'],
+ ['COASTLINE STATIC','#433b29','#e0bd91','TAPE 07']
 ];
 function originalSleeveTexture(design,assets){
  const [title,bg,ink,subtitle]=design;
@@ -122,7 +125,7 @@ function populateSpinner(f,assets){
  }
  assets.root.add(g);return 4;
 }
-function fitRealLicensedFixture(gltf,f,parent){
+function fitRealLicensedFixture(gltf,f,parent,assets){
  const model=gltf.scene.clone(true);
  model.rotation.y=f.yaw;model.updateMatrixWorld(true);
  let bounds=new THREE.Box3().setFromObject(model),size=bounds.getSize(new THREE.Vector3());
@@ -138,7 +141,23 @@ function fitRealLicensedFixture(gltf,f,parent){
  if(Math.abs(bounds.min.y)>.01)throw Error('V124 original fixture is not grounded '+f.id);
  model.name='v124_original_verified_CC0_shop_fixture_'+f.id;
  model.userData.licensedMusicRetailV124={sha256:f.sha256,source:f.source,license:f.license};
- model.traverse(o=>{if(o.isMesh){o.castShadow=false;o.receiveShadow=true}});
+ // The source GLB geometry and attribution stay unchanged, but nearly
+ // white shelving is visually incompatible with a neglected 1997 shop:
+ // physically age only cloned material instances, never mutate vendor GLBs.
+ model.traverse(o=>{
+  if(!o.isMesh)return;
+  o.castShadow=false;o.receiveShadow=true;
+  if(f.kind==='wall_bay'){
+   const sourceMats=Array.isArray(o.material)?o.material:[o.material];
+   const weathered=sourceMats.map(src=>{
+    const m=src.clone();assets.materials.push(m);
+    if(m.color)m.color.multiply(new THREE.Color(0x77786d));
+    if(typeof m.roughness==='number')m.roughness=Math.max(.87,m.roughness);
+    return m;
+   });
+   o.material=Array.isArray(o.material)?weathered:weathered[0];
+  }
+ });
  parent.add(model);
  return {id:f.id,kind:f.kind,section:f.section,room:f.room,source:f.source,
   sha256:f.sha256,license:f.license,x:f.x,z:f.z,
@@ -207,6 +226,56 @@ function installAttachedIdentity(sign,assets){
   printedX:print.position.x,y:sign.y,z:sign.z,width:sign.width};
 }
 
+/** Eight real wall-attached original-era posters, not floating billboards.
+ * Every fictional group / title is created for Pinewood; no copyrighted
+ * band logo, performance photograph or borrowed album sleeve is used.
+ */
+function installOriginalMusicPosters(assets){
+ const posters=[
+  ['north_helios','north',-43.0,-73.15,'HELIOS DRIVE','LIVE 1996','#374750','#d8c29d'],
+  ['north_glass','north',-37.5,-73.15,'GLASS ENGINE','CASSETTE TOUR','#4d3c42','#e4bd9c'],
+  ['north_night','north',-31.8,-73.15,'NIGHT BUS','NEW SINGLES','#384433','#c8d7ac'],
+  ['south_signal','south',-43.1,-89.85,'SIGNAL','IMPORT TAPES','#323f53','#c1c8d7'],
+  ['south_static','south',-38.4,-89.85,'RIVER STATIC','SIDE B','#4d4036','#d8c5a9'],
+  ['south_paper','south',-32.0,-89.85,'PAPER STARS','FINAL PRESS','#503d50','#d1a8b8'],
+  ['west_north','west',-45.84,-76.5,'LOCAL LIVE','MIXTAPES','#405147','#d3c7a9'],
+  ['west_south','west',-45.84,-88.1,'DEEP CUTS','SALE / 99¢','#584632','#d4baa0']
+ ];
+ const manifests=[];
+ for(const [id,wall,x,z,title,subtitle,bg,ink] of posters){
+  const canvas=document.createElement('canvas');canvas.width=640;canvas.height=768;
+  const c=canvas.getContext('2d');if(!c)throw Error('Original vintage poster texture unavailable');
+  c.fillStyle=bg;c.fillRect(0,0,640,768);
+  c.fillStyle=ink;c.globalAlpha=.20;
+  c.fillRect(47,60,545,475);
+  for(let i=0;i<13;i++){
+   c.strokeStyle=ink;c.lineWidth=i%3+1;c.globalAlpha=.18+i*.02;
+   c.beginPath();c.arc(320,270,34+i*23,0,Math.PI*2);c.stroke();
+  }
+  c.globalAlpha=1;c.textAlign='center';c.fillStyle=ink;
+  c.font='bold 59px Georgia,serif';c.fillText(title,320,633,590);
+  c.font='bold 33px Arial,sans-serif';c.fillText(subtitle,320,703,585);
+  for(let i=0;i<68;i++){
+   const xx=13+(i*89)%610,yy=7+(i*113)%737;
+   c.fillStyle=i%4===0?'#eee4c326':'#16140b31';
+   c.fillRect(xx,yy,2+i%6,1+i%3);
+  }
+  const texture=new THREE.CanvasTexture(canvas);texture.colorSpace=THREE.SRGBColorSpace;
+  texture.anisotropy=4;assets.textures.push(texture);
+  const poster=new THREE.Group();poster.name='v124_genuinely_wall_fixed_music_poster_'+id;
+  poster.position.set(wall==='west'?x:x,3.58,wall==='west'?z:z);
+  poster.rotation.y=wall==='north'?Math.PI:wall==='west'?Math.PI/2:0;
+  addBox(poster,'poster_original_masonry_backing',0,0,0,1.22,1.49,.024,assets.wood);
+  const print=new THREE.Mesh(new THREE.PlaneGeometry(1.18,1.45),
+   material(assets,{map:texture,side:THREE.FrontSide,roughness:.95}));
+  print.position.set(0,0,.014);print.name='fictional_original_period_print';poster.add(print);
+  assets.root.add(poster);
+  manifests.push({id,wall,x,z,y:3.58,width:1.22,height:1.49,
+   originalArtwork:true,masonryAttached:true});
+ }
+ return manifests;
+}
+
 export async function renderCassetteCastleV124(
  ground,ceilings,plan={fixtures:CASSETTE_FIXTURES_V124,lights:CASSETTE_LIGHTS_V124,sign:CASSETTE_SIGN_V124}
 ){
@@ -230,7 +299,7 @@ export async function renderCassetteCastleV124(
   .map(color=>material(assets,{color,roughness:.86,metalness:.03}));
  assets.caseLabelMaterial=[0xb9a78b,0xd1cbad,0x837e67,0xbaa098]
   .map(color=>material(assets,{color,roughness:1}));
- const fixtures=plan.fixtures.map(f=>fitRealLicensedFixture(models.get(f.source),f,assets.root));
+ const fixtures=plan.fixtures.map(f=>fitRealLicensedFixture(models.get(f.source),f,assets.root,assets));
  let wallCases=0,tableCases=0,vinylSleeves=0,spinnerCases=0,tableSupports=[];
  for(const f of plan.fixtures){
   if(f.kind==='wall_bay')wallCases+=populateCassetteWall(f,assets);
@@ -242,11 +311,12 @@ export async function renderCassetteCastleV124(
  const fluorescents=plan.lights.map(f=>installRealFluorescent(
   models.get(f.model),f,ceilings,assets));
  const interiorSign=installAttachedIdentity(plan.sign,assets);
+ const posters=installOriginalMusicPosters(assets);
  // No partial GLB first frame: both original fixture / ceiling groups mount
  // after all source model loading and every physical bound check succeeds.
  ground.add(assets.root);ground.add(assets.ceilingRoot);
  return {root:assets.root,ceilingRoot:assets.ceilingRoot,
-  manifest:{fixtures,fluorescents,interiorSign,
+  manifest:{fixtures,fluorescents,interiorSign,posters,
    authoredPeriodStock:{wallCassetteCases:wallCases,tableCassetteCases:tableCases,
     spinnerCards:spinnerCases,vinylSleeves,tableSupports,
     totalCassetteCases:wallCases+tableCases+spinnerCases}},
