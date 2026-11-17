@@ -16,6 +16,10 @@ The intended original arcade has five linked north-wall cabinets, a source claw,
 
 Every cabinet retains the actual license/source geometry and source mesh. Printed cabinet-attached original fictional identities include **STELLAR RUSH, CINDER DRIVE, MIDNIGHT ORBIT, COASTLINE 97, BYTE DUEL,** and **SHADOW CIRCUIT**. Five original fictional paper posters mount directly on masonry, as does the internal `SUNBURST ARCADE / TOKENS · GAMES · PRIZES` shop mark. These are original authored fictional 1997 game titles, not replicated artwork from any copyrighted commercial arcade game. Four genuine SHA-pinned CC0 real 1979 fluorescent GLB ceiling fixtures mount to the actual **5.21m underside**; two are dead and two run weakly, without floating light bulbs.
 
+## First real desktop screenshot review and correction
+
+The first actual 12-shot 1440×900 Chromium release gate **passed** source integrity and real GLB measurements, but independent visual inspection caught a genuine art-direction problem: the six north-bank coin-op models faced the bare north masonry instead of customers, so their cabinet marquees read backward from the aisle. Corrective V126 work rotates those authentic source meshes and their mounted original fictional title cards toward the arcade, orients the entrance and center machines toward customers, moves the roof-off north-bank camera out of the machines' geometry and updates the review header to V126. This is a **mandatory second exact-final-head desktop capture**. Do not call the release complete merely because the earlier source tests were green.
+
 ## Desktop release validation, original-source preservation
 
 `.github/workflows/sunburst-arcade-v126.yml` checks exact source SHA, GLB node dimensions, floor replacement, four V69 + two V67 machine positions, original story evidence, six chapters, V115 glazed entry, dynamic V126 original physics, all existing source architecture, and the local-runtime-asset audit. The actual `mall/render-shell-v67.js` is used for Builder, film, playable game, and real WebGL review.
