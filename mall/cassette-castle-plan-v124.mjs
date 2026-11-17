@@ -23,13 +23,17 @@ const fixture=(id,kind,x,z,yaw,collisionRadius,section)=>{
  */
 export const CASSETTE_FIXTURES_V124=Object.freeze([
  fixture('imports_north','wall_bay',-34.4,-74.25,Math.PI,.86,'IMPORTS'),
+ fixture('classics_north','wall_bay',-40.4,-74.25,Math.PI,.86,'CLASSICS'),
  fixture('old_rock_west','wall_bay',-44.90,-75.2,Math.PI/2,.86,'ROCK'),
  fixture('rare_tapes_west','wall_bay',-44.90,-79.3,Math.PI/2,.86,'RARE TAPES'),
+ fixture('clearance_west','wall_bay',-44.90,-88.6,Math.PI/2,.86,'CLEARANCE'),
  fixture('country_south','wall_bay',-40.3,-88.7,0,.86,'COUNTRY'),
  fixture('jazz_south','wall_bay',-36.5,-88.7,0,.86,'JAZZ'),
  fixture('now_playing_table','table_medium',-38,-75.2,0,1.10,'NEW ARRIVALS'),
  fixture('singles_table','table_medium',-33.5,-77.8,0,1.10,'SINGLES'),
- fixture('headphone_spinner','spinner',-33.4,-84.65,0,.70,'HEADPHONES')
+ fixture('archive_table','table_medium',-40,-82.8,0,1.10,'BACK CATALOG'),
+ fixture('headphone_spinner','spinner',-33.4,-84.65,0,.70,'HEADPHONES'),
+ fixture('mixtape_spinner','spinner',-40.8,-85.3,0,.70,'MIX TAPES')
 ]);
 const lamp=(id,x,z,power)=>Object.freeze({id,room:'cassette_castle',x,z,power,
  model:ANCHOR_FLUORESCENT_ASSET_V122.path,
@@ -60,7 +64,7 @@ export function validateCassetteCastleV124(plan={
   errors.push('Canonical 17 × 17m music shop was changed');
  if(MALL.rooms.length!==41||MALL.evidence.length!==9)errors.push('Original story topology/evidence changed');
  const {fixtures=[],lights=[],sign}=plan||{};
- if(fixtures.length!==8||lights.length!==4||!sign)errors.push('Lost period fixtures or identity');
+ if(fixtures.length!==12||lights.length!==4||!sign)errors.push('Lost period fixtures or identity');
  const legacy=FURNISHINGS_V69.fixtures.filter(f=>f.room==='cassette_castle');
  if(legacy.length!==6)errors.push('Cassette Castle original six V69 pieces changed');
  const from={x:-29,z:-81.5},to={x:-42,z:-77.4};
