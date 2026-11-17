@@ -4,9 +4,17 @@ on:
     branches: [main]
     paths:
       - 'mall/anchor-stock-sources-v123.mjs'
+      - 'mall/anchor-stock-layout-v123.mjs'
+      - 'mall/render-anchor-stock-v123.js'
+      - 'mall/physical-shell-v67.mjs'
+      - 'mall/gameplay-layout-v70.mjs'
+      - 'mall/render-shell-v67.js'
+      - 'review/mall-construction-v67/**'
       - 'review/retail-assets-v123/**'
       - 'scripts/smoke-anchor-stock-v123.mjs'
       - 'scripts/test-anchor-stock-sources-v123.mjs'
+      - 'scripts/test-anchor-stock-layout-v123.mjs'
+      - 'scripts/smoke-anchor-stock-layout-v123.mjs'
       - '.github/workflows/anchor-stock-v123.yml'
   workflow_dispatch:
 permissions:
@@ -24,8 +32,16 @@ jobs:
         run: |
           node --check mall/anchor-stock-sources-v123.mjs
           node --check review/retail-assets-v123/main.js
+          node --check mall/anchor-stock-layout-v123.mjs
+          node --check mall/render-anchor-stock-v123.js
+          node --check mall/physical-shell-v67.mjs
+          node --check mall/gameplay-layout-v70.mjs
+          node --check mall/render-shell-v67.js
+          node --check review/mall-construction-v67/main.js
+          node --check scripts/test-anchor-stock-layout-v123.mjs
+          node --check scripts/smoke-anchor-stock-layout-v123.mjs
           node --check scripts/smoke-anchor-stock-v123.mjs
-          node --test scripts/test-anchor-stock-sources-v123.mjs scripts/test-anchor-layout-v121.mjs
+          node --test scripts/test-anchor-stock-sources-v123.mjs scripts/test-anchor-stock-layout-v123.mjs scripts/test-anchor-layout-v121.mjs scripts/test-anchor-retail-v121.mjs scripts/test-anchor-identity-v122.mjs scripts/test-physical-shell-v67.mjs scripts/test-storefronts-v115.mjs scripts/test-vestibule-handoff-v112.mjs
       - name: Install actual desktop Chromium
         run: |
           npm install --no-save playwright@1.55.0
@@ -37,10 +53,14 @@ jobs:
           exit 1
       - name: Capture and measure actual eight CC0 stock models in full desktop WebGL
         run: node scripts/smoke-anchor-stock-v123.mjs
+      - name: Verify thirteen licensed original goods inside real 41-room source mall
+        run: node scripts/smoke-anchor-stock-layout-v123.mjs
       - name: Preserve source mesh/bounds inspection photographs
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: v123-original-cc0-stock-source-study
-          path: artifacts/v123-real-stock-auditions/
+          path: |
+            artifacts/v123-real-stock-auditions/
+            artifacts/v123-real-original-tenant-stock/
           retention-days: 14
