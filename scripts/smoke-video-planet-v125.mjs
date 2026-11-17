@@ -32,14 +32,14 @@ try{
  let s=await get();
  assert.equal(s.ready,true,s.errors.join(' | '));
  assert.deepEqual(s.errors,[]);assert.equal(s.firstFrameFullyLoaded,true);
- assert.equal(s.videoFixtureCountV125,11);
+ assert.equal(s.videoFixtureCountV125,16);
  assert.equal(s.videoCeilingCountV125,4);
- assert.equal(s.videoVhsCountV125,104);
+ assert.equal(s.videoVhsCountV125,320);
  assert.equal(s.videoPosterCountV125,6);
- assert.equal(s.videoPlanetV125.stock.wallCases,96);
+ assert.equal(s.videoPlanetV125.stock.wallCases,312);
  assert.equal(s.videoPlanetV125.stock.tableCases,8);
  assert.equal(s.videoPlanetV125.stock.spinnerCards,8);
- assert.equal(s.videoPlanetV125.stock.allOriginalCards,112);
+ assert.equal(s.videoPlanetV125.stock.allOriginalCards,328);
  assert.equal(s.videoPlanetV125.identity.wallX,46);
  assert.equal(s.videoPlanetV125.fluorescents.filter(l=>l.power>0).length,2);
  assert.equal(s.videoPlanetV125.fluorescents.filter(l=>l.power===0).length,2);
