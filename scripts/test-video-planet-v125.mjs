@@ -24,7 +24,7 @@ test('V125 retains exact 17x19m original Video Planet, glass entry, Luis LS-03 a
  const facade=shell.storefronts.find(f=>f.room==='video_planet');
  assert.ok(facade,'real Video Planet exterior glass is missing');
  assert.ok(Math.abs(facade.entryWidth-4.2)<.01);
- assert.equal(shell.videoPlanet.fixtures.length,11);
+ assert.equal(shell.videoPlanet.fixtures.length,16);
  assert.equal(shell.videoPlanet.lights.length,4);
  assert.equal(shell.videoPlanet.posters.length,6);
  assert.deepEqual(validateVideoPlanetV125(shell.videoPlanet,
@@ -38,7 +38,7 @@ test('V125 retains exact 17x19m original Video Planet, glass entry, Luis LS-03 a
 test('All V125 CC0 source GLB bytes match original vendor catalog and independent prior source audition',()=>{
  assert.equal(catalog.models.length,482);
  const candidates=new Map(ORIGINAL_RETAIL_CANDIDATES_V121.map(x=>[x.shortName,x]));
- assert.equal(VIDEO_PLANET_FIXTURES_V125.filter(f=>f.kind==='wall_bay').length,8);
+ assert.equal(VIDEO_PLANET_FIXTURES_V125.filter(f=>f.kind==='wall_bay').length,13);
  assert.equal(VIDEO_PLANET_FIXTURES_V125.filter(f=>f.kind==='spinner').length,2);
  assert.equal(VIDEO_PLANET_FIXTURES_V125.filter(f=>f.kind==='table_medium').length,1);
  for(const f of VIDEO_PLANET_FIXTURES_V125){
@@ -58,7 +58,7 @@ test('All V125 CC0 source GLB bytes match original vendor catalog and independen
 });
 test('V125 rental cases are human-sized, source-supported and do not seal route to LS-03',()=>{
  const layout=buildGameplayLayoutV70({chapter:1});
- assert.equal(layout.colliders.filter(c=>c.kind==='licensed-video-rental-fixture').length,11);
+ assert.equal(layout.colliders.filter(c=>c.kind==='licensed-video-rental-fixture').length,16);
  for(const f of VIDEO_PLANET_FIXTURES_V125){
   assert.ok(!layout.canStand(f.x,f.z),'walk-through rental fixture '+f.id);
   assert.ok(isSegmentBlocked(layout.shell,{x:f.x-2,z:f.z},{x:f.x+2,z:f.z}),f.id);
