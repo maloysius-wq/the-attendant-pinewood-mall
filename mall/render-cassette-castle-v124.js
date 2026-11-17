@@ -55,7 +55,7 @@ function populateCassetteWall(f,assets){
  const caseColors=assets.caseMaterials,edge=assets.edgeMaterial;
  const labels=assets.caseLabelMaterial;
  for(let row=0;row<2;row++){
-  const y=row?.1.43:.81;
+  const y=row ? 1.43 : .81;
   addBox(g,'attached_original_cassette_display_tray',0,y-.049,.13,.995,.022,.225,assets.wood);
   addBox(g,'real_source_rail_front_retainer',0,y-.026,.244,.995,.035,.028,assets.brass);
   for(let col=0;col<7;col++){
