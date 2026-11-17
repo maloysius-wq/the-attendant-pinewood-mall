@@ -45,11 +45,21 @@ function labelTexture(assets,label,{heading='',background='#303a49',ink='#e5d5bd
  }
  ctx.globalAlpha=1;ctx.fillStyle=ink;ctx.textAlign='center';
  ctx.font='bold '+Math.floor(width*.11)+'px Georgia,serif';
- const lines=label.split(' '),mid=Math.ceil(lines.length/2);
- ctx.fillText(lines.slice(0,mid).join(' '),width/2,height*.67,width*.88);
- ctx.fillText(lines.slice(mid).join(' '),width/2,height*.75,width*.88);
- ctx.font='bold '+Math.floor(width*.051)+'px Arial,sans-serif';
- ctx.fillText(heading,width/2,height*.85,width*.88);
+ if(width/height>1.5){
+  // A long retail fascia requires ONE horizontal title. The former portrait
+  // formatter placed a 225px-tall typeface on two 29px-spaced baselines:
+  // real desktop screenshots caught overlapping words on the identity sign.
+  ctx.font='bold '+Math.floor(Math.min(height*.44,width*.1))+'px Georgia,serif';
+  ctx.fillText(label,width/2,height*.53,width*.9);
+  ctx.font='bold '+Math.floor(Math.min(height*.15,width*.027))+'px Arial,sans-serif';
+  ctx.fillText(heading,width/2,height*.82,width*.9);
+ }else{
+  const lines=label.split(' '),mid=Math.ceil(lines.length/2);
+  ctx.fillText(lines.slice(0,mid).join(' '),width/2,height*.65,width*.88);
+  ctx.fillText(lines.slice(mid).join(' '),width/2,height*.76,width*.88);
+  ctx.font='bold '+Math.floor(width*.051)+'px Arial,sans-serif';
+  ctx.fillText(heading,width/2,height*.87,width*.88);
+ }
  ctx.fillStyle='#f5e8c4';ctx.fillRect(18,height*.93,width-36,5);
  const tex=new THREE.CanvasTexture(c);tex.colorSpace=THREE.SRGBColorSpace;
  tex.anisotropy=4;assets.textures.push(tex);return tex;
@@ -77,8 +87,10 @@ function stockWallRack(f,assets){
  const g=new THREE.Group();g.name='v125_real_source_shelf_supported_VHS_'+f.id;
  g.position.set(f.x,0,f.z);g.rotation.y=f.yaw;
  let count=0;
- for(let row=0;row<2;row++){
-  const foot=row?1.43:.80;
+ // Restock four full supported rack levels rather than the two sparse
+ // strips revealed by the original 1440x900 in-world inspection.
+ for(let row=0;row<4;row++){
+  const foot=[.26,.76,1.26,1.76][row];
   // A narrow original display lip, not a stand-in for the real CC0 shelf GLB.
   box(g,'attached_VHS_support_lip',0,foot-.026,.13,1.04,.026,.24,assets.wood);
   box(g,'real_rental_shelf_front_stop',0,foot-.006,.252,1.04,.034,.024,assets.brass);
