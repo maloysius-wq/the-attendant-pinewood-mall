@@ -1,0 +1,57 @@
+name: Pinewood V125 genuine 1997 Video Planet rental store
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'mall/video-planet-plan-v125.mjs'
+      - 'mall/render-video-planet-v125.js'
+      - 'mall/physical-shell-v67.mjs'
+      - 'mall/gameplay-layout-v70.mjs'
+      - 'mall/render-shell-v67.js'
+      - 'review/mall-construction-v67/**'
+      - 'scripts/test-video-planet-v125.mjs'
+      - 'scripts/smoke-video-planet-v125.mjs'
+      - '.github/workflows/video-planet-v125.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  original-1997-video-rental-store:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 29
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Validate licensed CC0 source, all six routes and unchanged V113 environment
+        run: |
+          node --check mall/video-planet-plan-v125.mjs
+          node --check mall/render-video-planet-v125.js
+          node --check mall/physical-shell-v67.mjs
+          node --check mall/gameplay-layout-v70.mjs
+          node --check mall/render-shell-v67.js
+          node --check review/mall-construction-v67/main.js
+          node --check scripts/test-video-planet-v125.mjs
+          node --check scripts/smoke-video-planet-v125.mjs
+          node --test scripts/test-video-planet-v125.mjs scripts/test-cassette-castle-v124.mjs scripts/test-anchor-identity-v122.mjs scripts/test-anchor-retail-v121.mjs scripts/test-anchor-stock-layout-v123.mjs scripts/test-physical-shell-v67.mjs scripts/test-vestibule-handoff-v112.mjs scripts/test-storefronts-v115.mjs
+      - name: Verify repository-only runtime asset references
+        run: node scripts/audit-local-assets-v15.mjs
+      - name: Install desktop Chromium with software WebGL
+        run: |
+          npm install --no-save playwright@1.55.0
+          npx playwright install chromium
+      - name: Serve the same complete local source as movie, game and Builder
+        run: |
+          python3 -m http.server 4173 --bind 127.0.0.1 >/tmp/pinewood-v125-source-http.log 2>&1 &
+          for i in {1..40}; do curl -fsS http://127.0.0.1:4173/review/mall-construction-v67/ >/dev/null && exit 0; sleep 1; done
+          exit 1
+      - name: Verify actual imported models, rental labels, checkout and 12 desktop screenshots
+        run: node scripts/smoke-video-planet-v125.mjs
+      - name: Preserve original WebGL rental-store review screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: v125-real-video-planet-original-1997-source
+          path: artifacts/v125-video-planet-real-3d/
+          retention-days: 14

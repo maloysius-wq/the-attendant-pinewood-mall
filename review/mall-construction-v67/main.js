@@ -20,6 +20,7 @@ const state={
  anchorIdentityV122:null,ceilingPanelCountV122:0,departmentSignCountV122:0,
  anchorStockV123:[],stockCountV123:0,supportedStockV123:0,groundStockV123:0,
  cassetteCastleV124:null,cassetteFixtureCountV124:0,cassetteCeilingCountV124:0,cassetteCaseCountV124:0,vinylSleeveCountV124:0,cassettePosterCountV124:0,
+ videoPlanetV125:null,videoFixtureCountV125:0,videoCeilingCountV125:0,videoVhsCountV125:0,videoPosterCountV125:0,
  ceilingFinishes:[],allCeilingsTextured:false,surveyLightOn:true
 };
 const shots={
@@ -85,6 +86,21 @@ const shots={
  cassetteRear:{floor:'G',eye:[-38,1.72,-84.5],target:[-40,1.6,-89],
   label:'GROUND · CASSETTE CASTLE REAR DISPLAYS',title:'Old Cassette and Vinyl Departments',
   note:'Five verified full-size source shelf bays are grouped by believable original shopping departments, with grounded cassette merchandise.'},
+ videoFront:{floor:'G',eye:[20,1.73,-70.5],target:[38,1.7,-70.5],
+   label:'GROUND · VIDEO PLANET GLASS FRONTAGE',title:'Video Planet 1997 Rental Store',
+   note:'Original 4.2m doorway, existing counter, authenticated CC0 perimeter fixtures and rental displays.'},
+ videoInside:{floor:'G',eye:[31.1,1.72,-70.5],target:[42,1.48,-70],
+   label:'GROUND · VIDEO PLANET RENTAL AISLES',title:'Original 1997 VHS Rental Store',
+   note:'Fictional rental tapes on real CC0 fixtures, period prints and uneven roof lighting.'},
+ videoCounter:{floor:'G',eye:[39.5,1.72,-70.5],target:[34.8,1.35,-65],
+   label:'GROUND · VIDEO PLANET CASH DESK',title:'Counter and Luis’s Route Sketch',
+   note:'Original counter, supported demo VHS and LS-03 evidence corridor remain physically accessible.'},
+ videoRear:{floor:'G',eye:[38.8,1.72,-75],target:[42.3,1.5,-78.1],
+   label:'GROUND · VIDEO PLANET RETURNS',title:'Late-Night Rental Returns',
+   note:'Authentic grounded shelf bays, genuine merchandise table, return rack and fictional film promos.'},
+ videoPlan:{floor:'G',eye:[38,11.4,-60],target:[38,0,-71],
+   label:'VIDEO PLANET · ORIGINAL ROOM CUTAWAY',title:'1997 Rental Shop Floor Plan',
+   note:'Roof-free survey verifies the 17×19m tenant, original evidence point and 4.2m glass entrance.'},
  cassettePlan:{floor:'G',eye:[-33,11.2,-72],target:[-38,0,-82],
   label:'CASSETTE CASTLE · SURVEY-ONLY ROOF CUTAWAY',title:'Original Music Store Floor Plan',
   note:'Survey-only roof-free view of canonical 17 × 17m music tenant, source-licensed furniture and real checkout/access paths.'},
@@ -151,7 +167,7 @@ function setShot(name){
   // 3–6m from their target; never run orbit distance-clamping on those shots.
   if(orbit.enabled)orbit.update();
  }
- if(built)built.setRoofVisible(roofToggle.checked&&!['aerial','fallowPlan','eastAnchorPlan','cassettePlan'].includes(name));
+ if(built)built.setRoofVisible(roofToggle.checked&&!['aerial','fallowPlan','eastAnchorPlan','cassettePlan','videoPlan'].includes(name));
  renderer?.render(scene,camera);
 }
 function setChapter(value){
@@ -224,6 +240,11 @@ async function begin(){
   state.cassetteCaseCountV124=state.cassetteCastleV124.authoredPeriodStock.totalCassetteCases;
   state.vinylSleeveCountV124=state.cassetteCastleV124.authoredPeriodStock.vinylSleeves;
   state.cassettePosterCountV124=state.cassetteCastleV124.posters.length;
+  state.videoPlanetV125={...built.videoPlanetV125};
+  state.videoFixtureCountV125=state.videoPlanetV125.fixtures.length;
+  state.videoCeilingCountV125=state.videoPlanetV125.fluorescents.length;
+  state.videoVhsCountV125=state.videoPlanetV125.stock.totalVhsCases;
+  state.videoPosterCountV125=state.videoPlanetV125.posters.length;
   state.storefrontCount=built.storefrontsV115.length;
   state.storefrontNames=built.storefrontsV115.map(f=>f.sign);
   state.storefrontEntries=built.storefrontsV115.map(f=>({room:f.id,entryWidth:f.entryWidth,windowSpan:f.windowSpan}));
@@ -257,6 +278,9 @@ async function begin(){
    state.cassetteCaseCountV124+' original full-scale music cassettes · '+
    state.vinylSleeveCountV124+' original printed vinyl sleeves · '+
    state.cassettePosterCountV124+' original source-mounted shop posters · '+
+   state.videoFixtureCountV125+' genuine CC0 Video Planet rental fixtures · '+
+   state.videoVhsCountV125+' original VHS rental cases · '+
+   state.videoPosterCountV125+' original fictional film posters · '+
    state.benchCountV120+' genuine CC0 benches · '+state.directoryCountV120+
    ' original ground directories. No remote 3D assets.';
   setChapter(state.chapter);
@@ -278,7 +302,7 @@ async function begin(){
 for(const b of document.querySelectorAll('[data-shot]'))b.addEventListener('click',()=>setShot(b.dataset.shot));
 viewSelect.addEventListener('change',e=>setShot(e.target.value));
 chapterSelect.addEventListener('change',e=>setChapter(e.target.value));
-roofToggle.addEventListener('change',()=>{built?.setRoofVisible(roofToggle.checked&&!['aerial','fallowPlan','eastAnchorPlan','cassettePlan'].includes(state.shot));renderOnDemand()});
+roofToggle.addEventListener('change',()=>{built?.setRoofVisible(roofToggle.checked&&!['aerial','fallowPlan','eastAnchorPlan','cassettePlan','videoPlan'].includes(state.shot));renderOnDemand()});
 surveyToggle.addEventListener('change',()=>{
   state.surveyLightOn=surveyToggle.checked;
   if(surveyLight)surveyLight.intensity=state.surveyLightOn?95:0;

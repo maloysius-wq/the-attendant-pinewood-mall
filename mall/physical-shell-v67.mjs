@@ -9,6 +9,7 @@ import {ORIGINAL_ANCHOR_FIXTURES_V121,validateAnchorLayoutV121} from './anchor-l
 import {ANCHOR_LIGHTS_V122,ANCHOR_SIGNS_V122,validateAnchorIdentityV122} from './anchor-identity-plan-v122.mjs';
 import {ORIGINAL_ANCHOR_STOCK_V123,validateAnchorStockLayoutV123} from './anchor-stock-layout-v123.mjs';
 import {CASSETTE_FIXTURES_V124,CASSETTE_LIGHTS_V124,CASSETTE_SIGN_V124,validateCassetteCastleV124} from './cassette-castle-plan-v124.mjs';
+import {VIDEO_PLANET_FIXTURES_V125,VIDEO_PLANET_LIGHTS_V125,VIDEO_PLANET_SIGN_V125,VIDEO_PLANET_POSTERS_V125,validateVideoPlanetV125} from './video-planet-plan-v125.mjs';
 
 const EPS=1e-6;
 const TEXTURES=Object.freeze({
@@ -331,6 +332,7 @@ export function constructPhysicalShell({level='G',chapter=1}={}){
   anchorIdentity:level==='G'?{lights:ANCHOR_LIGHTS_V122,signs:ANCHOR_SIGNS_V122}:null,
   anchorStock:level==='G'?ORIGINAL_ANCHOR_STOCK_V123:[],
   cassetteCastle:level==='G'?{fixtures:CASSETTE_FIXTURES_V124,lights:CASSETTE_LIGHTS_V124,sign:CASSETTE_SIGN_V124}:null,
+   videoPlanet:level==='G'?{fixtures:VIDEO_PLANET_FIXTURES_V125,lights:VIDEO_PLANET_LIGHTS_V125,sign:VIDEO_PLANET_SIGN_V125,posters:VIDEO_PLANET_POSTERS_V125}:null,
   floorPlates:floorPlates(level),ceilings:[...ceilingPlates(level),...(level==='G'?checkpointCeilingsV117():[])],walls:[],portals:planar,doors:exposedDoors(level,chapter),
   railings:level==='M1'?[{id:'atrium_overlook_guard',axis:'z',at:-94,start:-11,end:29,bottom:5.4,top:6.65,thickness:.12,material:'steel',role:'railing'}]:[],
   roofs:roofPlates(level),stairs:MALL.links.filter(l=>l.type==='stairs'&&[room(l.from).level,room(l.to).level].includes(level)).map(makeStairs),
@@ -372,7 +374,8 @@ export function isSegmentBlocked(shell,from,to){
     .some(a=>distanceToSegment2D(a,from,to)<a.collisionRadius)||
   (shell.anchorRetail||[]).some(f=>distanceToSegment2D(f,from,to)<f.collisionRadius)||
   (shell.anchorStock||[]).filter(f=>!f.support).some(f=>distanceToSegment2D(f,from,to)<f.collisionRadius)||
-  (shell.cassetteCastle?.fixtures||[]).some(f=>distanceToSegment2D(f,from,to)<f.collisionRadius);
+  (shell.cassetteCastle?.fixtures||[]).some(f=>distanceToSegment2D(f,from,to)<f.collisionRadius)||
+   (shell.videoPlanet?.fixtures||[]).some(f=>distanceToSegment2D(f,from,to)<f.collisionRadius);
 }
 export function validatePhysicalShell(shell){
  const errors=shell.level==='G'?[...validateStorefrontsV115(shell.storefronts,shell.portals),...validateSealedBaysV116(shell.closedBays)]:[];
@@ -386,6 +389,8 @@ export function validatePhysicalShell(shell){
   errors.push(...validateAnchorIdentityV122(shell.anchorIdentity,{ceilings:shell.ceilings}));
   errors.push(...validateAnchorStockLayoutV123(shell.anchorStock,{portals:shell.portals}));
   errors.push(...validateCassetteCastleV124(shell.cassetteCastle,
+   {portals:shell.portals,ceilings:shell.ceilings}));
+  errors.push(...validateVideoPlanetV125(shell.videoPlanet,
    {portals:shell.portals,ceilings:shell.ceilings}));
  }
  if(shell.version!==67||!levelData(shell.level))errors.push('unknown physical shell version/level');
