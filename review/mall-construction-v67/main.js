@@ -18,6 +18,7 @@ const state={
  galleryAmenitiesV120:null,benchCountV120:0,directoryCountV120:0,wayfindingCountV120:0,
  anchorRetailV121:[],anchorRetailCountV121:0,
  anchorIdentityV122:null,ceilingPanelCountV122:0,departmentSignCountV122:0,
+ anchorStockV123:[],stockCountV123:0,supportedStockV123:0,groundStockV123:0,
  ceilingFinishes:[],allCeilingsTextured:false,surveyLightOn:true
 };
 const shots={
@@ -53,10 +54,10 @@ const shots={
   note:'Actual scaled CC0 bench outside east x20 circulation, supported by the original 1979 structural piers.'},
  fallows:{floor:'G',eye:[-32.1,1.73,-60.5],target:[-42.0,1.2,-60.5],
   label:'GROUND · FALLOW\'S 1979 ORIGINAL ANCHOR',title:"Fallow's Real Store Fittings",
-  note:'Seventeen licensed displays and source-fitted aged carpet, with V122 genuine ceiling fluorescents in mixed failed/working states and original wall enamel signage. The 4.2m entry remains open.'},
+  note:'Seventeen licensed displays, V122 failing ceiling lights, and real V123 folded stock, returns cartons, and supported original table merchandise. The 4.2m entry stays open.'},
  eastAnchor:{floor:'G',eye:[32.5,1.73,-52.0],target:[42.2,1.2,-52.0],
   label:'GROUND · ORIGINAL EAST ANCHOR STORE',title:'East Original Department Store Fittings',
-  note:'Thirteen source-auditioned displays and two original racks beneath V122 real ceiling fluorescents and a wall-mounted department sign. The original glazed entry stays clear.'},
+  note:'Thirteen original displays, aged lighting, and V123 source-auditioned clearance/returns stock fitted around the 4.2m glazed storefront and original checkout aisles.'},
  fallowPlan:{floor:'G',eye:[-33,10.5,-49],target:[-38,0,-61],
   label:'1979 FALLOW\'S · SOURCE-ROOF REMOVED (SURVEY ONLY)',title:"Fallow's Original Floor Plan",
   note:'Survey-only cutaway: the real carpet and all 17 imported shop display objects without the overhead roof; no game camera, chapter or mall data was changed.'},
@@ -200,6 +201,10 @@ async function begin(){
   state.anchorIdentityV122={panels:[...built.anchorIdentityV122.panels],signs:[...built.anchorIdentityV122.signs]};
   state.ceilingPanelCountV122=state.anchorIdentityV122.panels.length;
   state.departmentSignCountV122=state.anchorIdentityV122.signs.length;
+  state.anchorStockV123=[...built.anchorStockV123];
+  state.stockCountV123=state.anchorStockV123.length;
+  state.supportedStockV123=state.anchorStockV123.filter(p=>p.support).length;
+  state.groundStockV123=state.stockCountV123-state.supportedStockV123;
   state.storefrontCount=built.storefrontsV115.length;
   state.storefrontNames=built.storefrontsV115.map(f=>f.sign);
   state.storefrontEntries=built.storefrontsV115.map(f=>({room:f.id,entryWidth:f.entryWidth,windowSpan:f.windowSpan}));
@@ -227,6 +232,7 @@ async function begin(){
    state.galleryColumnCount+' original structural gallery piers · '+
    state.anchorRetailCountV121+' real source-licensed 1979 department-store fittings · '+
    state.ceilingPanelCountV122+' actual pinned ceiling fixtures · '+state.departmentSignCountV122+' wall-fixed internal signs · '+
+   state.stockCountV123+' source-verified original retail stock / returns pieces · '+
    state.benchCountV120+' genuine CC0 benches · '+state.directoryCountV120+
    ' original ground directories. No remote 3D assets.';
   setChapter(state.chapter);
