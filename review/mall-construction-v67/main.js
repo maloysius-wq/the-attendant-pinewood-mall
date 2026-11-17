@@ -17,6 +17,7 @@ const state={
  galleryColumnsV118:[],galleryColumnCount:0,
  galleryAmenitiesV120:null,benchCountV120:0,directoryCountV120:0,wayfindingCountV120:0,
  anchorRetailV121:[],anchorRetailCountV121:0,
+ anchorIdentityV122:null,ceilingPanelCountV122:0,departmentSignCountV122:0,
  ceilingFinishes:[],allCeilingsTextured:false,surveyLightOn:true
 };
 const shots={
@@ -196,6 +197,9 @@ async function begin(){
   state.wayfindingCountV120=state.galleryAmenitiesV120.wayfinding.length;
   state.anchorRetailV121=[...built.anchorRetailV121];
   state.anchorRetailCountV121=state.anchorRetailV121.length;
+  state.anchorIdentityV122={panels:[...built.anchorIdentityV122.panels],signs:[...built.anchorIdentityV122.signs]};
+  state.ceilingPanelCountV122=state.anchorIdentityV122.panels.length;
+  state.departmentSignCountV122=state.anchorIdentityV122.signs.length;
   state.storefrontCount=built.storefrontsV115.length;
   state.storefrontNames=built.storefrontsV115.map(f=>f.sign);
   state.storefrontEntries=built.storefrontsV115.map(f=>({room:f.id,entryWidth:f.entryWidth,windowSpan:f.windowSpan}));
@@ -222,6 +226,7 @@ async function begin(){
    state.checkpointV117.cells+' closed service-checkpoint cells · '+
    state.galleryColumnCount+' original structural gallery piers · '+
    state.anchorRetailCountV121+' real source-licensed 1979 department-store fittings · '+
+   state.ceilingPanelCountV122+' actual pinned ceiling fixtures · '+state.departmentSignCountV122+' wall-fixed internal signs · '+
    state.benchCountV120+' genuine CC0 benches · '+state.directoryCountV120+
    ' original ground directories. No remote 3D assets.';
   setChapter(state.chapter);
