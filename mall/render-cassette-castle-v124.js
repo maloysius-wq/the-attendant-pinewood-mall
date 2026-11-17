@@ -171,12 +171,12 @@ function installRealFluorescent(src,f,ceilings,assets){
    return copy;
   });
   o.material=Array.isArray(o.material)?cloned:cloned[0];
-  if(cloned.some(m=>lenses.includes(m)))lensesObjects.push(o);
+  if(cloned.some(m=>lenses.includes(m)))lensObjects.push(o);
  });
- if(!lenses.length||!lensesObjects.length)
+ if(!lenses.length||!lensObjects.length)
   throw Error('Source CC0 1979 fluorescent has no actual lens '+f.id);
  const lensBox=new THREE.Box3();
- for(const lens of lensesObjects)lensBox.expandByObject(lens);
+ for(const lens of lensObjects)lensBox.expandByObject(lens);
  const emitterY=lensBox.getCenter(new THREE.Vector3()).y-.06;
  if(f.power>0){
   const light=new THREE.PointLight(0xc5d8c8,39*f.power,12,2);
