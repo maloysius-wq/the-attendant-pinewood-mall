@@ -80,6 +80,13 @@ export function buildGameplayLayoutV70({chapter,level}={}){
   colliders.push({minX:f.x-r,maxX:f.x+r,minZ:f.z-r,maxZ:f.z+r,
    kind:'original-retail-stock',id:f.id});
  }
+ // V124 Cassette Castle's eight actual licensed shop fixtures are solid,
+ // including the source tables supporting original music merchandise.
+ for(const f of shell.cassetteCastle?.fixtures||[]){
+  const r=f.collisionRadius;
+  colliders.push({minX:f.x-r,maxX:f.x+r,minZ:f.z-r,maxZ:f.z+r,
+   kind:'licensed-cassette-shop-fixture',id:f.id});
+ }
  // Floor openings are real holes in the v67 mesh; never let the legacy
  // 2D walk grid place a suspended player over an elevator or stair void.
  const openings=activeLevel==='G'?
