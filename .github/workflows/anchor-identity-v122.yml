@@ -1,0 +1,57 @@
+name: Pinewood V122 original 1979 department store ceiling and identity
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'mall/anchor-identity-plan-v122.mjs'
+      - 'mall/render-anchor-identity-v122.js'
+      - 'mall/render-shell-v67.js'
+      - 'mall/physical-shell-v67.mjs'
+      - 'review/mall-construction-v67/**'
+      - 'scripts/test-anchor-identity-v122.mjs'
+      - 'scripts/smoke-anchor-identity-v122.mjs'
+      - '.github/workflows/anchor-identity-v122.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  licensed-ceiling-source-and-real-webgl:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Check the source-locked 1979 ceilings, actual GLB source and all six chapters
+        run: |
+          node --check mall/anchor-identity-plan-v122.mjs
+          node --check mall/render-anchor-identity-v122.js
+          node --check mall/render-shell-v67.js
+          node --check mall/physical-shell-v67.mjs
+          node --check review/mall-construction-v67/main.js
+          node --check scripts/test-anchor-identity-v122.mjs
+          node --check scripts/smoke-anchor-identity-v122.mjs
+          node --test scripts/test-anchor-identity-v122.mjs scripts/test-anchor-layout-v121.mjs scripts/test-anchor-retail-v121.mjs scripts/test-physical-shell-v67.mjs scripts/test-storefronts-v115.mjs scripts/test-vestibule-handoff-v112.mjs scripts/test-gallery-amenities-v120.mjs scripts/test-food-court-v119.mjs
+      - name: Install real Chromium for full original three-floor mall
+        run: |
+          npm install --no-save playwright@1.55.0
+          npx playwright install chromium
+      - name: Serve pinned original assets and physical mall source
+        run: |
+          python3 -m http.server 4173 --bind 127.0.0.1 >/tmp/pinewood-v122-http.log 2>&1 &
+          for i in {1..35}; do curl -fsS http://127.0.0.1:4173/review/mall-construction-v67/ >/dev/null && exit 0; sleep 1; done
+          exit 1
+      - name: Inspect genuine working and failed ceiling fluorescent GLBs in two shops
+        run: node scripts/smoke-anchor-identity-v122.mjs
+      - name: Verify original V121 30-fittings placement in same full WebGL mall
+        run: node scripts/smoke-anchor-layout-v121.mjs
+      - name: Preserve source-grounded live shop lighting and signs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: v122-original-department-identity-webgl
+          path: |
+            artifacts/v122-anchor-original-ceilings/
+            artifacts/v121-actual-original-store-rooms/
+          retention-days: 14
