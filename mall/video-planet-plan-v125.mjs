@@ -29,8 +29,15 @@ export const VIDEO_PLANET_FIXTURES_V125=Object.freeze([
  fixture('horror_east','wall_bay','HORROR',44.8,-69.0,-Math.PI/2,.86),
  fixture('scifi_east','wall_bay','SCI-FI',44.8,-73.3,-Math.PI/2,.86),
  fixture('rewind_west','wall_bay','RETURNED TODAY',30.45,-76.7,Math.PI/2,.86),
- fixture('membership_spinner','spinner','MEMBERSHIP',33.5,-74.0,0,.70),
- fixture('rental_accessories','spinner','REWIND KITS',41,-75.0,0,.70),
+ // Two deliberately bounded customer browsing aisles inside the actual
+ // 323m2 rental floor. Both keep the entry-to-LS-03 and cashier corridors free.
+ fixture('front_comedy','wall_bay','COMEDY',32.2,-67,Math.PI,.86),
+ fixture('evening_drama','wall_bay','DRAMA PICKS',35.7,-68,Math.PI,.86),
+ fixture('late_night_thrillers','wall_bay','LATE NIGHT',41,-66.6,Math.PI,.86),
+ fixture('summer_rentals','wall_bay','WEEKEND',33.5,-74.5,0,.86),
+ fixture('sci_fi_classics','wall_bay','CULT FAVORITES',39.6,-74.5,0,.86),
+ fixture('membership_spinner','spinner','MEMBERSHIP',31.6,-65.2,0,.70),
+ fixture('rental_accessories','spinner','REWIND KITS',42.5,-75.5,0,.70),
  fixture('staff_picks_table','table_medium','STAFF PICKS',36.8,-72.2,0,1.10)
 ]);
 const lamp=(id,x,z,power)=>Object.freeze({
@@ -77,7 +84,7 @@ export function validateVideoPlanetV125(plan={
   old.filter(f=>f.id.startsWith('video_rack_')).length!==3)
   errors.push('Lost original 1997 counter, racks or supported VHS tape');
  const {fixtures=[],lights=[],sign,posters=[]}=plan||{};
- if(fixtures.length!==11||lights.length!==4||posters.length!==6||!sign)
+ if(fixtures.length!==16||lights.length!==4||posters.length!==6||!sign)
   errors.push('Incomplete period rental furnishings / original signage');
  const entrance={x:29,z:-70.5},evidence={x:40,z:-70},
   counter={x:35,z:-65};
