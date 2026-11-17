@@ -8,6 +8,7 @@ import {renderGalleryColumnsV118} from './render-gallery-columns-v118.js';
 import {renderFoodCourtV119} from './render-food-court-v119.js';
 import {renderGalleryAmenitiesV120} from './render-gallery-amenities-v120.js';
 import {renderAnchorRetailV121} from './render-anchor-retail-v121.js';
+import {renderAnchorIdentityV122} from './render-anchor-identity-v122.js';
 
 function mappedBox(w,h,d,tileMetres=3){
  const g=new THREE.BoxGeometry(w,h,d),uv=g.getAttribute('uv');
@@ -227,6 +228,8 @@ export async function renderConstructionScene({scene,chapter=1}={}){
  const foodCourtVisuals=renderFoodCourtV119(geometryGroups.G,shells.find(s=>s.level==='G').foodCourt);
  const publicAmenitiesVisuals=await renderGalleryAmenitiesV120(geometryGroups.G,shells.find(s=>s.level==='G').galleryAmenities);
  const anchorRetailVisuals=await renderAnchorRetailV121(geometryGroups.G,shells.find(s=>s.level==='G').anchorRetail);
+ const anchorIdentityVisuals=await renderAnchorIdentityV122(group,
+  shells.find(s=>s.level==='G').anchorIdentity,shells.find(s=>s.level==='G').ceilings);
  addFountainArchitecture(geometryGroups.G,mats);
  const measured=fixtureList.map(f=>placeModel(geometryGroups[roomLevel(f.room)],loaded,f));
  installLights(group);
@@ -240,14 +243,15 @@ export async function renderConstructionScene({scene,chapter=1}={}){
   foodCourtV119:foodCourtVisuals.manifest,
   galleryAmenitiesV120:publicAmenitiesVisuals.manifest,
   anchorRetailV121:anchorRetailVisuals.manifest,
+  anchorIdentityV122:anchorIdentityVisuals.manifest,
   geometryErrors:[],firstFrameFullyLoaded:true,
   setChapter(next){
    for(const g of gates.children)g.visible=next<g.userData.minChapter;
   },
-  setRoofVisible(value){roofs.visible=!!value;ceilings.visible=!!value},
+  setRoofVisible(value){roofs.visible=!!value;ceilings.visible=!!value;anchorIdentityVisuals.root.visible=!!value},
   dispose(){
    scene.remove(group);
-   storefrontVisuals.dispose();closedBayVisuals.dispose();checkpointVisuals.dispose();foodCourtVisuals.dispose();publicAmenitiesVisuals.dispose();anchorRetailVisuals.dispose();
+   storefrontVisuals.dispose();closedBayVisuals.dispose();checkpointVisuals.dispose();foodCourtVisuals.dispose();publicAmenitiesVisuals.dispose();anchorRetailVisuals.dispose();anchorIdentityVisuals.dispose();
    group.traverse(o=>{if(o.geometry)o.geometry.dispose()});
    for(const texture of Object.values(t))texture.dispose();
    for(const material of Object.values(mats))material.dispose();

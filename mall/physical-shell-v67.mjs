@@ -6,6 +6,7 @@ import {GALLERY_COLUMNS_V118,validateGalleryColumnsV118} from './gallery-columns
 import {FOOD_COURT_V119,foodCourtWallsV119,validateFoodCourtV119} from './food-court-plan-v119.mjs';
 import {GALLERY_AMENITIES_V120,validateGalleryAmenitiesV120} from './gallery-amenities-v120.mjs';
 import {ORIGINAL_ANCHOR_FIXTURES_V121,validateAnchorLayoutV121} from './anchor-layout-v121.mjs';
+import {ANCHOR_LIGHTS_V122,ANCHOR_SIGNS_V122,validateAnchorIdentityV122} from './anchor-identity-plan-v122.mjs';
 
 const EPS=1e-6;
 const TEXTURES=Object.freeze({
@@ -325,6 +326,7 @@ export function constructPhysicalShell({level='G',chapter=1}={}){
   foodCourt:level==='G'?FOOD_COURT_V119:null,
   galleryAmenities:level==='G'?GALLERY_AMENITIES_V120:null,
   anchorRetail:level==='G'?ORIGINAL_ANCHOR_FIXTURES_V121:[],
+  anchorIdentity:level==='G'?{lights:ANCHOR_LIGHTS_V122,signs:ANCHOR_SIGNS_V122}:null,
   floorPlates:floorPlates(level),ceilings:[...ceilingPlates(level),...(level==='G'?checkpointCeilingsV117():[])],walls:[],portals:planar,doors:exposedDoors(level,chapter),
   railings:level==='M1'?[{id:'atrium_overlook_guard',axis:'z',at:-94,start:-11,end:29,bottom:5.4,top:6.65,thickness:.12,material:'steel',role:'railing'}]:[],
   roofs:roofPlates(level),stairs:MALL.links.filter(l=>l.type==='stairs'&&[room(l.from).level,room(l.to).level].includes(level)).map(makeStairs),
@@ -375,6 +377,7 @@ export function validatePhysicalShell(shell){
   errors.push(...validateGalleryAmenitiesV120(shell.galleryAmenities,
    {portals:shell.portals,galleryColumns:shell.galleryColumns}));
   errors.push(...validateAnchorLayoutV121(shell.anchorRetail,{portals:shell.portals}));
+  errors.push(...validateAnchorIdentityV122(shell.anchorIdentity,{ceilings:shell.ceilings}));
  }
  if(shell.version!==67||!levelData(shell.level))errors.push('unknown physical shell version/level');
  for(const w of [...shell.walls,...shell.gates,...shell.railings]){
