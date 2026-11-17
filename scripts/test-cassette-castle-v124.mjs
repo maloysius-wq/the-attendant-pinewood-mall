@@ -21,7 +21,7 @@ test('V124 17x17m original 1979 Cassette Castle and source glass frontage remain
  const front=shell.storefronts.find(f=>f.room==='cassette_castle');
  assert.ok(front);assert.ok(Math.abs(front.entryWidth-4.2)<.01);
  assert.equal(front.at,-29);
- assert.equal(shell.cassetteCastle.fixtures.length,8);
+ assert.equal(shell.cassetteCastle.fixtures.length,12);
  assert.equal(shell.cassetteCastle.lights.length,4);
  assert.deepEqual(validateCassetteCastleV124(shell.cassetteCastle,{portals:shell.portals,ceilings:shell.ceilings}),[]);
  assert.deepEqual(validatePhysicalShell(shell),[]);
@@ -38,9 +38,9 @@ test('Every V124 real licensed object SHA256 byte matches original catalog and w
  const candidates=new Map(ORIGINAL_RETAIL_CANDIDATES_V121.map(a=>[a.shortName,a]));
  assert.deepEqual([...new Set(CASSETTE_FIXTURES_V124.map(f=>f.kind))].sort(),
   ['spinner','table_medium','wall_bay']);
- assert.equal(CASSETTE_FIXTURES_V124.filter(f=>f.kind==='wall_bay').length,5);
- assert.equal(CASSETTE_FIXTURES_V124.filter(f=>f.kind==='table_medium').length,2);
- assert.equal(CASSETTE_FIXTURES_V124.filter(f=>f.kind==='spinner').length,1);
+ assert.equal(CASSETTE_FIXTURES_V124.filter(f=>f.kind==='wall_bay').length,7);
+ assert.equal(CASSETTE_FIXTURES_V124.filter(f=>f.kind==='table_medium').length,3);
+ assert.equal(CASSETTE_FIXTURES_V124.filter(f=>f.kind==='spinner').length,2);
  for(const f of CASSETTE_FIXTURES_V124){
   const c=candidates.get(f.kind),v=licensed.models.find(m=>m.path===f.source);
   assert.ok(c&&v,'original licensed rack absent '+f.id);
@@ -63,8 +63,8 @@ test('Original 1997 store keeps direct entry-to-cashier circulation and all real
  const original=FURNISHINGS_V69.fixtures.filter(f=>f.room==='cassette_castle');
  assert.equal(original.length,6);
  const newColliders=layout.colliders.filter(c=>c.kind==='licensed-cassette-shop-fixture');
- assert.equal(newColliders.length,8);
- assert.equal(new Set(newColliders.map(c=>c.id)).size,8);
+ assert.equal(newColliders.length,12);
+ assert.equal(new Set(newColliders.map(c=>c.id)).size,12);
  for(const f of CASSETTE_FIXTURES_V124){
   assert.ok(!layout.canStand(f.x,f.z),'player passes through genuine CC0 music fixture '+f.id);
   assert.ok(isSegmentBlocked(layout.shell,{x:f.x-2,z:f.z},{x:f.x+2,z:f.z}),
