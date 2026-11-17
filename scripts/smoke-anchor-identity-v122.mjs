@@ -2,6 +2,7 @@
 import {chromium} from 'playwright';
 import {mkdir,writeFile} from 'node:fs/promises';
 import assert from 'node:assert/strict';
+import {MALL} from '../mall/masterplan-v66.mjs';
 
 const origin='http://127.0.0.1:4173',dir='artifacts/v122-anchor-original-ceilings';
 await mkdir(dir,{recursive:true});
@@ -41,7 +42,12 @@ try{
  assert.equal(s.closedBayCount,13);
  assert.equal(s.benchCountV120,6);
  assert.equal(s.directoryCountV120,2);
- assert.equal(s.ceilingRooms.length,41,'V122 cannot replace canonical existing 41 room ceilings');
+ const sourceCeilings=MALL.rooms.filter(r=>
+  (r.level==='G'&&r.id!=='central_gallery')||
+  (r.level==='B1'&&!['freight_b1','b1_stair'].includes(r.id))||
+  (r.level==='M1'&&!['m1_stair','mezz_hall'].includes(r.id))
+ ).map(r=>r.id).sort();
+ assert.deepEqual(s.ceilingRooms,sourceCeilings,'V122 cannot replace canonical room ceilings');
  assert.equal(s.allCeilingsTextured,true);
  const manifest=s.anchorIdentityV122;
  assert.equal(manifest.panels.filter(p=>p.room==='west_anchor').length,9);
