@@ -45,24 +45,24 @@ const fixture=(id,node,title,x,z,yaw=0)=>{
  * and two original physical-shell machines are not moved.
  */
 export const SUNBURST_FIXTURES_V126=Object.freeze([
- fixture('wall_claw','claw_machine','LITTLE COMET',-44.4,-91.62),
- fixture('cab_stellar','arcade_upright_alpha','STELLAR RUSH',-41,-91.65),
- fixture('cab_cinder','arcade_upright_beta','CINDER DRIVE',-38.65,-91.65),
- fixture('cab_midnight','arcade_upright_gamma','MIDNIGHT ORBIT',-36.15,-91.65),
- fixture('cab_tide','arcade_upright_alpha','TIDAL SHOCK',-33.8,-91.65),
- fixture('cab_meteor','arcade_upright_beta','METEOR RALLY',-31.35,-91.65),
+ fixture('wall_claw','claw_machine','LITTLE COMET',-44.4,-91.62,Math.PI),
+ fixture('cab_stellar','arcade_upright_alpha','STELLAR RUSH',-41,-91.65,Math.PI),
+ fixture('cab_cinder','arcade_upright_beta','CINDER DRIVE',-38.65,-91.65,Math.PI),
+ fixture('cab_midnight','arcade_upright_gamma','MIDNIGHT ORBIT',-36.15,-91.65,Math.PI),
+ fixture('cab_tide','arcade_upright_alpha','TIDAL SHOCK',-33.8,-91.65,Math.PI),
+ fixture('cab_meteor','arcade_upright_beta','METEOR RALLY',-31.35,-91.65,Math.PI),
  fixture('pinball_west','pinball','LAST QUARTER',-44.62,-97.1,Math.PI/2),
  fixture('upright_west','arcade_upright_gamma','VOID RUNNER',-44.62,-100,Math.PI/2),
  fixture('cocktail_chess','arcade_cocktail','BYTE DUEL',-40,-94.65),
- fixture('drive_duo','driving_cab','COASTLINE 97',-36,-95.3),
+ fixture('drive_duo','driving_cab','COASTLINE 97',-36,-95.3,Math.PI/2),
  fixture('pinball_east','pinball','GHOST LIGHTS',-33.5,-94.75),
- fixture('coin_machine','token_changer','TOKEN EXCHANGE',-30.75,-93.9),
+ fixture('coin_machine','token_changer','TOKEN EXCHANGE',-30.75,-93.9,-Math.PI/2),
  fixture('dance_stage','dance_stage','STEP CIRCUIT',-36.9,-101.45),
  fixture('skee_ball','skee_ball','GOLDEN ROLL',-39.4,-99.9),
  fixture('ticket_eater','ticket_eater','TICKET REDEMPTION',-30.9,-102.1),
  fixture('prize_wall','prize_wall','PRIZE COUNTER',-44.45,-103,Math.PI/2),
  fixture('back_upright','arcade_upright_beta','SHADOW CIRCUIT',-42.1,-103.2),
- fixture('front_upright','arcade_upright_alpha','COSMIC PILOT',-31.3,-96.5)
+ fixture('front_upright','arcade_upright_alpha','COSMIC PILOT',-31.3,-96.5,-Math.PI/2)
 ]);
 const light=(id,x,z,power)=>Object.freeze({id,room:'sunburst_arcade',
  x,z,power,model:ANCHOR_FLUORESCENT_ASSET_V122.path,
