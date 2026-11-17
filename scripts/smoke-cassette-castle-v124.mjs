@@ -39,22 +39,24 @@ try{
  assert.deepEqual(s.errors,[]);
  assert.equal(s.firstFrameFullyLoaded,true);
  assert.ok(s.allCeilingsTextured);
- assert.equal(s.cassetteFixtureCountV124,8);
+ assert.equal(s.cassetteFixtureCountV124,12);
  assert.equal(s.cassetteCeilingCountV124,4);
- assert.equal(s.cassetteCaseCountV124,88);
- assert.equal(s.vinylSleeveCountV124,6);
- assert.equal(s.cassetteCastleV124.authoredPeriodStock.wallCassetteCases,70);
- assert.equal(s.cassetteCastleV124.authoredPeriodStock.tableCassetteCases,14);
- assert.equal(s.cassetteCastleV124.authoredPeriodStock.spinnerCards,4);
+ assert.equal(s.cassetteCaseCountV124,127);
+ assert.equal(s.vinylSleeveCountV124,9);
+ assert.equal(s.cassetteCastleV124.authoredPeriodStock.wallCassetteCases,98);
+ assert.equal(s.cassetteCastleV124.authoredPeriodStock.tableCassetteCases,21);
+ assert.equal(s.cassetteCastleV124.authoredPeriodStock.spinnerCards,8);
  assert.deepEqual(s.cassetteCastleV124.authoredPeriodStock.tableSupports,
-  ['now_playing_table','singles_table']);
- assert.equal(s.cassetteCastleV124.fixtures.filter(x=>x.kind==='wall_bay').length,5);
- assert.equal(s.cassetteCastleV124.fixtures.filter(x=>x.kind==='table_medium').length,2);
- assert.equal(s.cassetteCastleV124.fixtures.filter(x=>x.kind==='spinner').length,1);
- assert.equal(new Set(s.cassetteCastleV124.fixtures.map(x=>x.id)).size,8);
+  ['now_playing_table','singles_table','archive_table']);
+ assert.equal(s.cassetteCastleV124.fixtures.filter(x=>x.kind==='wall_bay').length,7);
+ assert.equal(s.cassetteCastleV124.fixtures.filter(x=>x.kind==='table_medium').length,3);
+ assert.equal(s.cassetteCastleV124.fixtures.filter(x=>x.kind==='spinner').length,2);
+ assert.equal(new Set(s.cassetteCastleV124.fixtures.map(x=>x.id)).size,12);
  assert.equal(s.cassetteCastleV124.fluorescents.filter(x=>x.power>0).length,2);
  assert.equal(s.cassetteCastleV124.fluorescents.filter(x=>x.power===0).length,2);
  assert.equal(s.cassetteCastleV124.interiorSign.wallX,-46);
+ assert.equal(s.cassetteCastleV124.posters.length,8);
+ assert.ok(s.cassetteCastleV124.posters.every(x=>x.masonryAttached&&x.originalArtwork));
  for(const f of s.cassetteCastleV124.fixtures){
   assert.equal(f.license,'CC0-1.0');
   assert.ok(f.source.startsWith('assets/vendor/builder/models/'));
