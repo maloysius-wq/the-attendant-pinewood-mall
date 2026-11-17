@@ -71,6 +71,15 @@ export function buildGameplayLayoutV70({chapter,level}={}){
   colliders.push({minX:f.x-r,maxX:f.x+r,minZ:f.z-r,maxZ:f.z+r,
    kind:'original-retail-fixture',id:f.id});
  }
+ // V123 original low stock on full-size existing V121 display tables is
+ // already within the parent's solid collider. Only true floor cartons,
+ // clearance bins and folded stock receive ADDITIONAL gameplay blockers.
+ for(const f of shell.anchorStock||[]){
+  if(f.support)continue;
+  const r=f.collisionRadius;
+  colliders.push({minX:f.x-r,maxX:f.x+r,minZ:f.z-r,maxZ:f.z+r,
+   kind:'original-retail-stock',id:f.id});
+ }
  // Floor openings are real holes in the v67 mesh; never let the legacy
  // 2D walk grid place a suspended player over an elevator or stair void.
  const openings=activeLevel==='G'?
