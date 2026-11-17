@@ -93,7 +93,7 @@ const shots={
  arcadeInside:{floor:'G',eye:[-31.5,1.73,-98.5],target:[-40.5,1.25,-95.5],
   label:'GROUND · SUNBURST ARCADE CENTER',title:'Actual 1997 Coin-Op Floor',
   note:'18 measured CC0 source cabinet meshes join original claw, basketball, air hockey and older machine props.'},
- arcadeNorth:{floor:'G',eye:[-35.5,1.73,-95.2],target:[-37.6,1.35,-91.65],
+ arcadeNorth:{floor:'G',eye:[-38.1,1.73,-94.1],target:[-38.0,1.35,-91.65],
   label:'GROUND · SUNBURST NORTHERN MACHINE BANK',title:'Original Upright Cabinet Row',
   note:'Human-scale source machines and fictional Pinewood game marquees beneath genuine partially working fluorescents.'},
  arcadeWest:{floor:'G',eye:[-40,1.73,-98.5],target:[-44.3,1.37,-100.3],
