@@ -19,6 +19,7 @@ const state={
  anchorRetailV121:[],anchorRetailCountV121:0,
  anchorIdentityV122:null,ceilingPanelCountV122:0,departmentSignCountV122:0,
  anchorStockV123:[],stockCountV123:0,supportedStockV123:0,groundStockV123:0,
+ cassetteCastleV124:null,cassetteFixtureCountV124:0,cassetteCeilingCountV124:0,cassetteCaseCountV124:0,vinylSleeveCountV124:0,cassettePosterCountV124:0,
  ceilingFinishes:[],allCeilingsTextured:false,surveyLightOn:true
 };
 const shots={
@@ -74,7 +75,19 @@ const shots={
   label:'GROUND · ORIGINAL HIGH ATRIUM',title:'Structural Fountain Colonnade',
   note:'Ten paired posts rise to the genuine solid roof outside the skylight; the central fountain and two LS evidence locations remain clear.'},
  west:{floor:'G',eye:[-19,1.74,-83],target:[-37,1.8,-82],label:'GROUND · WEST RETAIL',title:'Cassette Castle',
-  note:'The original record shop retains its recognizable footprint and evidence, without banned substitute shelving.'},
+  note:'The 1979 original shop now has real CC0 fixture displays and authentic 1997 taped-music retail identity without blocking its 4.2m glazed entry.'},
+ cassetteInside:{floor:'G',eye:[-31.2,1.72,-81.5],target:[-42,1.3,-80],
+  label:'GROUND · CASSETTE CASTLE SHOP INTERIOR',title:'Real Vintage Music Store',
+  note:'Twelve genuinely CC0 licensed display models, original human-scale cassette and vinyl stock, and a full 1997 print identity mounted on the genuine old masonry.'},
+ cassetteCounter:{floor:'G',eye:[-37,1.7,-80.1],target:[-43,1.35,-77.1],
+  label:'GROUND · CASSETTE CASTLE CHECKOUT',title:'Music Shop Checkout and Tape Displays',
+  note:'Original staffed counter and record browsing racks preserved. Period print and dimmed original source ceiling lights are installed inside the real 1979 boundaries.'},
+ cassetteRear:{floor:'G',eye:[-38,1.72,-84.5],target:[-40,1.6,-89],
+  label:'GROUND · CASSETTE CASTLE REAR DISPLAYS',title:'Old Cassette and Vinyl Departments',
+  note:'Five verified full-size source shelf bays are grouped by believable original shopping departments, with grounded cassette merchandise.'},
+ cassettePlan:{floor:'G',eye:[-33,11.2,-72],target:[-38,0,-82],
+  label:'CASSETTE CASTLE · SURVEY-ONLY ROOF CUTAWAY',title:'Original Music Store Floor Plan',
+  note:'Survey-only roof-free view of canonical 17 × 17m music tenant, source-licensed furniture and real checkout/access paths.'},
  closedNorth:{floor:'G',eye:[-22,1.75,-51],target:[-22,2.8,-43],label:'GROUND · NORTH FORMER RETAIL',title:'Needle & Thread · Shuttered',
   note:'A bounded original-era closed tenant suite beside the boarded main lobby. The steel shutter is physically sealed.'},
  closedAnnex:{floor:'G',eye:[61,1.75,-69],target:[55.8,2.2,-69],label:'GROUND · ANNEX SERVICE FRONTAGE',title:'East Wing Former Tenants',
@@ -138,7 +151,7 @@ function setShot(name){
   // 3–6m from their target; never run orbit distance-clamping on those shots.
   if(orbit.enabled)orbit.update();
  }
- if(built)built.setRoofVisible(roofToggle.checked&&!['aerial','fallowPlan','eastAnchorPlan'].includes(name));
+ if(built)built.setRoofVisible(roofToggle.checked&&!['aerial','fallowPlan','eastAnchorPlan','cassettePlan'].includes(name));
  renderer?.render(scene,camera);
 }
 function setChapter(value){
@@ -205,6 +218,12 @@ async function begin(){
   state.stockCountV123=state.anchorStockV123.length;
   state.supportedStockV123=state.anchorStockV123.filter(p=>p.support).length;
   state.groundStockV123=state.stockCountV123-state.supportedStockV123;
+  state.cassetteCastleV124={...built.cassetteCastleV124};
+  state.cassetteFixtureCountV124=state.cassetteCastleV124.fixtures.length;
+  state.cassetteCeilingCountV124=state.cassetteCastleV124.fluorescents.length;
+  state.cassetteCaseCountV124=state.cassetteCastleV124.authoredPeriodStock.totalCassetteCases;
+  state.vinylSleeveCountV124=state.cassetteCastleV124.authoredPeriodStock.vinylSleeves;
+  state.cassettePosterCountV124=state.cassetteCastleV124.posters.length;
   state.storefrontCount=built.storefrontsV115.length;
   state.storefrontNames=built.storefrontsV115.map(f=>f.sign);
   state.storefrontEntries=built.storefrontsV115.map(f=>({room:f.id,entryWidth:f.entryWidth,windowSpan:f.windowSpan}));
@@ -233,6 +252,11 @@ async function begin(){
    state.anchorRetailCountV121+' real source-licensed 1979 department-store fittings · '+
    state.ceilingPanelCountV122+' actual pinned ceiling fixtures · '+state.departmentSignCountV122+' wall-fixed internal signs · '+
    state.stockCountV123+' source-verified original retail stock / returns pieces · '+
+   state.cassetteFixtureCountV124+' genuine CC0 Cassette Castle fixtures · '+
+   state.cassetteCeilingCountV124+' original 1979 music-shop fluorescent panels · '+
+   state.cassetteCaseCountV124+' original full-scale music cassettes · '+
+   state.vinylSleeveCountV124+' original printed vinyl sleeves · '+
+   state.cassettePosterCountV124+' original source-mounted shop posters · '+
    state.benchCountV120+' genuine CC0 benches · '+state.directoryCountV120+
    ' original ground directories. No remote 3D assets.';
   setChapter(state.chapter);
@@ -254,7 +278,7 @@ async function begin(){
 for(const b of document.querySelectorAll('[data-shot]'))b.addEventListener('click',()=>setShot(b.dataset.shot));
 viewSelect.addEventListener('change',e=>setShot(e.target.value));
 chapterSelect.addEventListener('change',e=>setChapter(e.target.value));
-roofToggle.addEventListener('change',()=>{built?.setRoofVisible(roofToggle.checked&&!['aerial','fallowPlan','eastAnchorPlan'].includes(state.shot));renderOnDemand()});
+roofToggle.addEventListener('change',()=>{built?.setRoofVisible(roofToggle.checked&&!['aerial','fallowPlan','eastAnchorPlan','cassettePlan'].includes(state.shot));renderOnDemand()});
 surveyToggle.addEventListener('change',()=>{
   state.surveyLightOn=surveyToggle.checked;
   if(surveyLight)surveyLight.intensity=state.surveyLightOn?95:0;

@@ -1,0 +1,55 @@
+name: Pinewood V124 authentic 1979 Cassette Castle source-licensed music shop
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'mall/cassette-castle-plan-v124.mjs'
+      - 'mall/render-cassette-castle-v124.js'
+      - 'mall/physical-shell-v67.mjs'
+      - 'mall/gameplay-layout-v70.mjs'
+      - 'mall/render-shell-v67.js'
+      - 'review/mall-construction-v67/**'
+      - 'scripts/test-cassette-castle-v124.mjs'
+      - 'scripts/smoke-cassette-castle-v124.mjs'
+      - '.github/workflows/cassette-castle-v124.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  authentic-original-cassette-store:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 27
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify actual CC0 asset bytes, original chapter paths and source shell
+        run: |
+          node --check mall/cassette-castle-plan-v124.mjs
+          node --check mall/render-cassette-castle-v124.js
+          node --check mall/physical-shell-v67.mjs
+          node --check mall/gameplay-layout-v70.mjs
+          node --check mall/render-shell-v67.js
+          node --check review/mall-construction-v67/main.js
+          node --check scripts/test-cassette-castle-v124.mjs
+          node --check scripts/smoke-cassette-castle-v124.mjs
+          node --test scripts/test-cassette-castle-v124.mjs scripts/test-anchor-retail-v121.mjs scripts/test-anchor-stock-sources-v123.mjs scripts/test-anchor-stock-layout-v123.mjs scripts/test-anchor-identity-v122.mjs scripts/test-anchor-layout-v121.mjs scripts/test-storefronts-v115.mjs scripts/test-physical-shell-v67.mjs scripts/test-vestibule-handoff-v112.mjs
+      - name: Install actual desktop Chromium WebGL
+        run: |
+          npm install --no-save playwright@1.55.0
+          npx playwright install chromium
+      - name: Serve original local game source and original CC0 GLB library
+        run: |
+          python3 -m http.server 4173 --bind 127.0.0.1 >/tmp/pinewood-v124-source-http.log 2>&1 &
+          for i in {1..40}; do curl -fsS http://127.0.0.1:4173/review/mall-construction-v67/ >/dev/null && exit 0; sleep 1; done
+          exit 1
+      - name: Audit real 17x17m Cassette Castle in shared mall WebGL and capture all 12 screenshots
+        run: node scripts/smoke-cassette-castle-v124.mjs
+      - name: Preserve actual source-room photographs for close visual review
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: v124-real-original-cassette-castle-3d
+          path: artifacts/v124-real-cassette-castle/
+          retention-days: 14
