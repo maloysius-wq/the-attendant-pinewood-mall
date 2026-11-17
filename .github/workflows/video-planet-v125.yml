@@ -12,6 +12,10 @@ on:
       - 'scripts/test-video-planet-v125.mjs'
       - 'scripts/smoke-video-planet-v125.mjs'
       - '.github/workflows/video-planet-v125.yml'
+      - 'mall/sunburst-arcade-plan-v126.mjs'
+      - 'mall/render-sunburst-arcade-v126.js'
+      - 'scripts/test-sunburst-arcade-v126.mjs'
+      - 'scripts/smoke-sunburst-arcade-v126.mjs'
   workflow_dispatch:
 permissions:
   contents: read
@@ -26,15 +30,19 @@ jobs:
           node-version: '22'
       - name: Validate licensed CC0 source, all six routes and unchanged V113 environment
         run: |
+          node --check mall/sunburst-arcade-plan-v126.mjs
+          node --check mall/render-sunburst-arcade-v126.js
           node --check mall/video-planet-plan-v125.mjs
           node --check mall/render-video-planet-v125.js
           node --check mall/physical-shell-v67.mjs
           node --check mall/gameplay-layout-v70.mjs
           node --check mall/render-shell-v67.js
           node --check review/mall-construction-v67/main.js
+          node --check scripts/test-sunburst-arcade-v126.mjs
+          node --check scripts/smoke-sunburst-arcade-v126.mjs
           node --check scripts/test-video-planet-v125.mjs
           node --check scripts/smoke-video-planet-v125.mjs
-          node --test scripts/test-video-planet-v125.mjs scripts/test-cassette-castle-v124.mjs scripts/test-anchor-identity-v122.mjs scripts/test-anchor-retail-v121.mjs scripts/test-anchor-stock-layout-v123.mjs scripts/test-physical-shell-v67.mjs scripts/test-vestibule-handoff-v112.mjs scripts/test-storefronts-v115.mjs
+          node --test scripts/test-sunburst-arcade-v126.mjs scripts/test-video-planet-v125.mjs scripts/test-cassette-castle-v124.mjs scripts/test-anchor-identity-v122.mjs scripts/test-anchor-retail-v121.mjs scripts/test-anchor-stock-layout-v123.mjs scripts/test-physical-shell-v67.mjs scripts/test-vestibule-handoff-v112.mjs scripts/test-storefronts-v115.mjs
       - name: Verify repository-only runtime asset references
         run: node scripts/audit-local-assets-v15.mjs
       - name: Install desktop Chromium with software WebGL
@@ -48,6 +56,15 @@ jobs:
           exit 1
       - name: Verify actual imported models, rental labels, checkout and 12 desktop screenshots
         run: node scripts/smoke-video-planet-v125.mjs
+      - name: Verify Sunburst Arcade genuine V30 GLBs and 12 desktop images
+        run: node scripts/smoke-sunburst-arcade-v126.mjs
+      - name: Preserve original Sunburst Arcade desktop images
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: v126-sunburst-arcade-real-3d
+          path: artifacts/v126-sunburst-arcade-real-3d/
+          retention-days: 14
       - name: Preserve original WebGL rental-store review screenshots
         if: always()
         uses: actions/upload-artifact@v4
