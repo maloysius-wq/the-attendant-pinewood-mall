@@ -1,0 +1,46 @@
+name: Pinewood V123 real historic department-stock source audition
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'mall/anchor-stock-sources-v123.mjs'
+      - 'review/retail-assets-v123/**'
+      - 'scripts/smoke-anchor-stock-v123.mjs'
+      - 'scripts/test-anchor-stock-sources-v123.mjs'
+      - '.github/workflows/anchor-stock-v123.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  source-licensed-stock-and-real-glb:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify all eight candidate actual GLB bytes, original permissions and room invariants
+        run: |
+          node --check mall/anchor-stock-sources-v123.mjs
+          node --check review/retail-assets-v123/main.js
+          node --check scripts/smoke-anchor-stock-v123.mjs
+          node --test scripts/test-anchor-stock-sources-v123.mjs scripts/test-anchor-layout-v121.mjs
+      - name: Install actual desktop Chromium
+        run: |
+          npm install --no-save playwright@1.55.0
+          npx playwright install chromium
+      - name: Serve only original source local licensed files
+        run: |
+          python3 -m http.server 4173 --bind 127.0.0.1 >/tmp/pinewood-v123-source-http.log 2>&1 &
+          for i in {1..35}; do curl -fsS http://127.0.0.1:4173/review/retail-assets-v123/ >/dev/null && exit 0; sleep 1; done
+          exit 1
+      - name: Capture and measure actual eight CC0 stock models in full desktop WebGL
+        run: node scripts/smoke-anchor-stock-v123.mjs
+      - name: Preserve source mesh/bounds inspection photographs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: v123-original-cc0-stock-source-study
+          path: artifacts/v123-real-stock-auditions/
+          retention-days: 14
