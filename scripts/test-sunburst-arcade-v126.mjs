@@ -22,7 +22,7 @@ test('V126 keeps original 17×17m Sunburst suite, V115 glass entry, four V69 leg
  for(let n=1;n<=6;n++)assert.equal(chapterRouteV70(n).chapter,n);
  const legacy=FURNISHINGS_V69.fixtures.filter(f=>f.room==='sunburst_arcade');
  assert.deepEqual(legacy.map(f=>f.id).sort(),
-  ['arcade_claw','arcade_air_hockey','arcade_basketball','arcade_stool']);
+  ['arcade_air_hockey','arcade_basketball','arcade_claw','arcade_stool']);
  const shell=constructPhysicalShell({level:'G',chapter:1});
  assert.ok(shell.storefronts.some(s=>s.room==='sunburst_arcade'&&Math.abs(s.entryWidth-4.2)<.01),
   'true original 4.2m glass entry absent');
