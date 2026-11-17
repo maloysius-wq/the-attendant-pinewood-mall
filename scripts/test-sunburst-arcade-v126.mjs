@@ -99,6 +99,23 @@ test('V126 arcade is physically solid, preserving source entrance and a clear in
  assert.ok(portal);assert.ok(portal.width>=4.19);
 });
 
+test('V126 1997 arcade cabinets face customers rather than blank masonry or the shop entrance',()=>{
+ const north=new Set(['wall_claw','cab_stellar','cab_cinder','cab_midnight','cab_tide','cab_meteor']);
+ for(const f of SUNBURST_FIXTURES_V126.filter(f=>north.has(f.id))){
+  assert.equal(f.yaw,Math.PI,'north-bank original CC0 controls face wall '+f.id);
+  assert.ok(f.z>=-92,'north-bank cabinet moved from source wall '+f.id);
+ }
+ assert.equal(north.size,6);
+ const coin=SUNBURST_FIXTURES_V126.find(f=>f.id==='coin_machine');
+ const frontage=SUNBURST_FIXTURES_V126.find(f=>f.id==='front_upright');
+ assert.equal(coin.yaw,-Math.PI/2);
+ assert.equal(frontage.yaw,-Math.PI/2);
+ const driving=SUNBURST_FIXTURES_V126.find(f=>f.id==='drive_duo');
+ assert.equal(driving.yaw,Math.PI/2);
+ const gameplay=buildGameplayLayoutV70({chapter:1});
+ assert.ok(gameplay.canStand(-38.1,-94.1),'1997 north-bank fixed review camera obstructs original game aisle');
+});
+
 test('V126 validation rejects source swaps, unsafe overlaps, doorway blockers and fake artwork',()=>{
  const shell=constructPhysicalShell({level:'G',chapter:1}),plan=shell.sunburstArcade;
  const check=changes=>validateSunburstArcadeV126({...plan,...changes},
