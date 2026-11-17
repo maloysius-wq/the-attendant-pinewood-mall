@@ -36,7 +36,11 @@ function box(root,name,x,y,z,w,h,d,mat){
 }
 function fitOriginalSource(pack,f,assets){
  const original=pack.scene.getObjectByName(f.node);
- if(!original||!original.isMesh)throw Error('V126 authentic GLB mesh missing '+f.node);
+ if(!original||!original.isObject3D)throw Error('V126 authentic GLB node missing '+f.node);
+ // A glTF node can be a named Group containing one or more Mesh children.
+ // Preserve the original real source hierarchy and require actual geometry.
+ let sourceMeshes=0;original.traverse(o=>{if(o.isMesh)sourceMeshes++});
+ if(!sourceMeshes)throw Error('V126 original named arcade node contains no mesh '+f.node);
  const model=original.clone(true);
  // The pack is a showroom: source node translations lay out all 17 models
  // together. Reset only the showroom translation, not the actual mesh shape.
