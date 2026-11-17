@@ -58,9 +58,16 @@ function addVhsCase(g,assets,id,x,y,z,design){
  const [name,genre,bg,ink]=design;
  const plastic=box(g,'original_full_size_VHS_rental_clamshell_'+id,x,y,z,
   VHS_WIDTH,VHS_HEIGHT,VHS_DEPTH,assets.shell);
- const artwork=labelTexture(assets,name,{heading:genre,background:bg,ink});
- const front=new THREE.Mesh(new THREE.PlaneGeometry(VHS_WIDTH-.013,VHS_HEIGHT-.018),
-  makeMaterial(assets,{map:artwork,roughness:.88}));
+ // 104 original cases use 12 unique fictional covers, not 104 duplicate
+ // 512x768 textures. This matters on the older desktop GPUs we support.
+ const key=design.join('|');
+ let cover=assets.coverMaterials.get(key);
+ if(!cover){
+  const artwork=labelTexture(assets,name,{heading:genre,background:bg,ink});
+  cover=makeMaterial(assets,{map:artwork,roughness:.88});
+  assets.coverMaterials.set(key,cover);
+ }
+ const front=new THREE.Mesh(new THREE.PlaneGeometry(VHS_WIDTH-.013,VHS_HEIGHT-.018),cover);
  front.position.set(x,y,z+VHS_DEPTH/2+.001);
  front.name='original_fictional_VHS_cover_'+id;g.add(front);
  plastic.userData.originalRentalV125={metres:[VHS_WIDTH,VHS_HEIGHT,VHS_DEPTH],
@@ -227,7 +234,7 @@ export async function renderVideoPlanetV125(ground,ceilings,plan={
    throw Error('V125 refuses off-origin / unpinned rental source '+path);
   return [path,await loader.loadAsync(new URL('../'+path,import.meta.url).href)];
  })));
- const assets={root:new THREE.Group(),ceilingRoot:new THREE.Group(),textures:[],materials:[]};
+ const assets={root:new THREE.Group(),ceilingRoot:new THREE.Group(),textures:[],materials:[],coverMaterials:new Map()};
  assets.root.name='V125 real source-pinned Video Planet original rental shelves and films';
  assets.ceilingRoot.name='V125 real ceiling-mounted 1979 video rental fluorescent panels';
  assets.wood=makeMaterial(assets,{color:0x51463d,roughness:.92});
