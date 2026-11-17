@@ -21,6 +21,7 @@ const state={
  anchorStockV123:[],stockCountV123:0,supportedStockV123:0,groundStockV123:0,
  cassetteCastleV124:null,cassetteFixtureCountV124:0,cassetteCeilingCountV124:0,cassetteCaseCountV124:0,vinylSleeveCountV124:0,cassettePosterCountV124:0,
  videoPlanetV125:null,videoFixtureCountV125:0,videoCeilingCountV125:0,videoVhsCountV125:0,videoPosterCountV125:0,
+ sunburstArcadeV126:null,sunburstFixtureCountV126:0,sunburstLampCountV126:0,sunburstPosterCountV126:0,
  ceilingFinishes:[],allCeilingsTextured:false,surveyLightOn:true
 };
 const shots={
@@ -86,6 +87,21 @@ const shots={
  cassetteRear:{floor:'G',eye:[-38,1.72,-84.5],target:[-40,1.6,-89],
   label:'GROUND · CASSETTE CASTLE REAR DISPLAYS',title:'Old Cassette and Vinyl Departments',
   note:'Five verified full-size source shelf bays are grouped by believable original shopping departments, with grounded cassette merchandise.'},
+ arcadeFront:{floor:'G',eye:[-20,1.73,-98.5],target:[-38,1.6,-98.5],
+  label:'GROUND · ORIGINAL SUNBURST ARCADE FRONTAGE',title:'Sunburst Arcade 1997',
+  note:'Original full-width 4.2m glass entrance, real 17x17m suite, and preserved vintage cabinet positions.'},
+ arcadeInside:{floor:'G',eye:[-31.5,1.73,-98.5],target:[-40.5,1.25,-95.5],
+  label:'GROUND · SUNBURST ARCADE CENTER',title:'Actual 1997 Coin-Op Floor',
+  note:'18 measured CC0 source cabinet meshes join original claw, basketball, air hockey and older machine props.'},
+ arcadeNorth:{floor:'G',eye:[-38.1,1.73,-94.1],target:[-38.0,1.35,-91.65],
+  label:'GROUND · SUNBURST NORTHERN MACHINE BANK',title:'Original Upright Cabinet Row',
+  note:'Human-scale source machines and fictional Pinewood game marquees beneath genuine partially working fluorescents.'},
+ arcadeWest:{floor:'G',eye:[-40,1.73,-98.5],target:[-44.3,1.37,-100.3],
+  label:'GROUND · SUNBURST WESTERN PINBALL ROW',title:'Coin-Op Machines and Prize Wall',
+  note:'Real source pinball, cabinet and prize racks with old fictional wall advertisements.'},
+ arcadePlan:{floor:'G',eye:[-36,12.3,-89],target:[-38,0,-98.5],
+  label:'SUNBURST · ORIGINAL SUITE CUTAWAY',title:'289m² Arcade Footprint',
+  note:'Survey-only roof-free view verifies genuine source walls, door entry, separate arcade floor carpet and navigable machine rows.'},
  videoFront:{floor:'G',eye:[20,1.73,-70.5],target:[38,1.7,-70.5],
    label:'GROUND · VIDEO PLANET GLASS FRONTAGE',title:'Video Planet 1997 Rental Store',
    note:'Original 4.2m doorway, existing counter, authenticated CC0 perimeter fixtures and rental displays.'},
@@ -167,7 +183,7 @@ function setShot(name){
   // 3–6m from their target; never run orbit distance-clamping on those shots.
   if(orbit.enabled)orbit.update();
  }
- if(built)built.setRoofVisible(roofToggle.checked&&!['aerial','fallowPlan','eastAnchorPlan','cassettePlan','videoPlan'].includes(name));
+ if(built)built.setRoofVisible(roofToggle.checked&&!['aerial','fallowPlan','eastAnchorPlan','cassettePlan','videoPlan','arcadePlan'].includes(name));
  renderer?.render(scene,camera);
 }
 function setChapter(value){
@@ -245,6 +261,10 @@ async function begin(){
   state.videoCeilingCountV125=state.videoPlanetV125.fluorescents.length;
   state.videoVhsCountV125=state.videoPlanetV125.stock.totalVhsCases;
   state.videoPosterCountV125=state.videoPlanetV125.posters.length;
+  state.sunburstArcadeV126={...built.sunburstArcadeV126};
+  state.sunburstFixtureCountV126=state.sunburstArcadeV126.fixtures.length;
+  state.sunburstLampCountV126=state.sunburstArcadeV126.fluorescents.length;
+  state.sunburstPosterCountV126=state.sunburstArcadeV126.posters.length;
   state.storefrontCount=built.storefrontsV115.length;
   state.storefrontNames=built.storefrontsV115.map(f=>f.sign);
   state.storefrontEntries=built.storefrontsV115.map(f=>({room:f.id,entryWidth:f.entryWidth,windowSpan:f.windowSpan}));
@@ -281,6 +301,8 @@ async function begin(){
    state.videoFixtureCountV125+' genuine CC0 Video Planet rental fixtures · '+
    state.videoVhsCountV125+' original VHS rental cases · '+
    state.videoPosterCountV125+' original fictional film posters · '+
+   state.sunburstFixtureCountV126+' real CC0 full-size Sunburst arcade machines · '+
+   state.sunburstLampCountV126+' authentic arcade ceiling fluorescents · '+
    state.benchCountV120+' genuine CC0 benches · '+state.directoryCountV120+
    ' original ground directories. No remote 3D assets.';
   setChapter(state.chapter);
@@ -302,7 +324,7 @@ async function begin(){
 for(const b of document.querySelectorAll('[data-shot]'))b.addEventListener('click',()=>setShot(b.dataset.shot));
 viewSelect.addEventListener('change',e=>setShot(e.target.value));
 chapterSelect.addEventListener('change',e=>setChapter(e.target.value));
-roofToggle.addEventListener('change',()=>{built?.setRoofVisible(roofToggle.checked&&!['aerial','fallowPlan','eastAnchorPlan','cassettePlan','videoPlan'].includes(state.shot));renderOnDemand()});
+roofToggle.addEventListener('change',()=>{built?.setRoofVisible(roofToggle.checked&&!['aerial','fallowPlan','eastAnchorPlan','cassettePlan','videoPlan','arcadePlan'].includes(state.shot));renderOnDemand()});
 surveyToggle.addEventListener('change',()=>{
   state.surveyLightOn=surveyToggle.checked;
   if(surveyLight)surveyLight.intensity=state.surveyLightOn?95:0;

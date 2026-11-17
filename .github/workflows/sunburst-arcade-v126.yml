@@ -1,0 +1,57 @@
+name: Pinewood V126 original Sunburst Arcade 1997 licensed real 3D
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'mall/sunburst-arcade-plan-v126.mjs'
+      - 'mall/render-sunburst-arcade-v126.js'
+      - 'mall/physical-shell-v67.mjs'
+      - 'mall/gameplay-layout-v70.mjs'
+      - 'mall/render-shell-v67.js'
+      - 'review/mall-construction-v67/**'
+      - 'scripts/test-sunburst-arcade-v126.mjs'
+      - 'scripts/smoke-sunburst-arcade-v126.mjs'
+      - '.github/workflows/sunburst-arcade-v126.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  verify-authentic-1997-arcade:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 29
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Validate source, story safeguards, original CC0 mesh bytes and 4.2m portal
+        run: |
+          node --check mall/sunburst-arcade-plan-v126.mjs
+          node --check mall/render-sunburst-arcade-v126.js
+          node --check mall/physical-shell-v67.mjs
+          node --check mall/gameplay-layout-v70.mjs
+          node --check mall/render-shell-v67.js
+          node --check review/mall-construction-v67/main.js
+          node --check scripts/test-sunburst-arcade-v126.mjs
+          node --check scripts/smoke-sunburst-arcade-v126.mjs
+          node --test scripts/test-sunburst-arcade-v126.mjs scripts/test-video-planet-v125.mjs scripts/test-cassette-castle-v124.mjs scripts/test-anchor-identity-v122.mjs scripts/test-anchor-retail-v121.mjs scripts/test-physical-shell-v67.mjs scripts/test-vestibule-handoff-v112.mjs scripts/test-storefronts-v115.mjs
+      - name: Audit strictly repository-local runtime assets
+        run: node scripts/audit-local-assets-v15.mjs
+      - name: Install desktop Chromium and software WebGL
+        run: |
+          npm install --no-save playwright@1.55.0
+          npx playwright install chromium
+      - name: Serve original shared movie / gameplay / Builder scene locally
+        run: |
+          python3 -m http.server 4173 --bind 127.0.0.1 >/tmp/pinewood-v126-http.log 2>&1 &
+          for i in {1..40}; do curl -fsS http://127.0.0.1:4173/review/mall-construction-v67/ >/dev/null && exit 0; sleep 1; done
+          exit 1
+      - name: Inspect 18 actual GLB coin-ops and capture 12 real 1440x900 screenshots
+        run: node scripts/smoke-sunburst-arcade-v126.mjs
+      - name: Keep original source desktop screenshots for visual acceptance
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: v126-sunburst-arcade-original-1997-real-desktop-3d
+          path: artifacts/v126-sunburst-arcade-real-3d/
+          retention-days: 14

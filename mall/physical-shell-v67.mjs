@@ -10,6 +10,7 @@ import {ANCHOR_LIGHTS_V122,ANCHOR_SIGNS_V122,validateAnchorIdentityV122} from '.
 import {ORIGINAL_ANCHOR_STOCK_V123,validateAnchorStockLayoutV123} from './anchor-stock-layout-v123.mjs';
 import {CASSETTE_FIXTURES_V124,CASSETTE_LIGHTS_V124,CASSETTE_SIGN_V124,validateCassetteCastleV124} from './cassette-castle-plan-v124.mjs';
 import {VIDEO_PLANET_FIXTURES_V125,VIDEO_PLANET_LIGHTS_V125,VIDEO_PLANET_SIGN_V125,VIDEO_PLANET_POSTERS_V125,validateVideoPlanetV125} from './video-planet-plan-v125.mjs';
+import {SUNBURST_FIXTURES_V126,SUNBURST_LIGHTS_V126,SUNBURST_SIGN_V126,SUNBURST_POSTERS_V126,validateSunburstArcadeV126} from './sunburst-arcade-plan-v126.mjs';
 
 const EPS=1e-6;
 const TEXTURES=Object.freeze({
@@ -221,10 +222,14 @@ function floorPlates(level){
   const east=MALL.rooms.find(r=>r.id==='east_original_anchor');
   const westAnchor=rect(west.x1,west.x2,west.z1,west.z2);
   const eastAnchor=rect(east.x1,east.x2,east.z1,east.z2);
-  return [...pieces(MALL.footprints.original,[holeLift,holeStair,food,westAnchor,eastAnchor]).map((b,i)=>({...b,id:'original_'+i,y,material:'terrazzo'})),
+  // The original 17x17m 1997 arcade gets a genuine replacement carpet slab.
+  const arcade=MALL.rooms.find(r=>r.id==='sunburst_arcade');
+  const arcadeFloor=rect(arcade.x1,arcade.x2,arcade.z1,arcade.z2);
+  return [...pieces(MALL.footprints.original,[holeLift,holeStair,food,westAnchor,eastAnchor,arcadeFloor]).map((b,i)=>({...b,id:'original_'+i,y,material:'terrazzo'})),
    {...food,id:'v119_food_court_tile',y,material:'tile'},
    {...westAnchor,id:'v121_fallows_original_carpet',y,material:'carpet'},
    {...eastAnchor,id:'v121_east_original_anchor_carpet',y,material:'carpet'},
+   {...arcadeFloor,id:'v126_original_sunburst_arcade_carpet',y,material:'carpet'},
    {...MALL.footprints.annex,id:'annex',y,material:'carpet'}];
  }
  if(level==='B1')return [{...MALL.footprints.B1,id:'basement',y,material:'tile'}];
@@ -333,6 +338,7 @@ export function constructPhysicalShell({level='G',chapter=1}={}){
   anchorStock:level==='G'?ORIGINAL_ANCHOR_STOCK_V123:[],
   cassetteCastle:level==='G'?{fixtures:CASSETTE_FIXTURES_V124,lights:CASSETTE_LIGHTS_V124,sign:CASSETTE_SIGN_V124}:null,
    videoPlanet:level==='G'?{fixtures:VIDEO_PLANET_FIXTURES_V125,lights:VIDEO_PLANET_LIGHTS_V125,sign:VIDEO_PLANET_SIGN_V125,posters:VIDEO_PLANET_POSTERS_V125}:null,
+   sunburstArcade:level==='G'?{fixtures:SUNBURST_FIXTURES_V126,lights:SUNBURST_LIGHTS_V126,sign:SUNBURST_SIGN_V126,posters:SUNBURST_POSTERS_V126}:null,
   floorPlates:floorPlates(level),ceilings:[...ceilingPlates(level),...(level==='G'?checkpointCeilingsV117():[])],walls:[],portals:planar,doors:exposedDoors(level,chapter),
   railings:level==='M1'?[{id:'atrium_overlook_guard',axis:'z',at:-94,start:-11,end:29,bottom:5.4,top:6.65,thickness:.12,material:'steel',role:'railing'}]:[],
   roofs:roofPlates(level),stairs:MALL.links.filter(l=>l.type==='stairs'&&[room(l.from).level,room(l.to).level].includes(level)).map(makeStairs),
@@ -375,7 +381,8 @@ export function isSegmentBlocked(shell,from,to){
   (shell.anchorRetail||[]).some(f=>distanceToSegment2D(f,from,to)<f.collisionRadius)||
   (shell.anchorStock||[]).filter(f=>!f.support).some(f=>distanceToSegment2D(f,from,to)<f.collisionRadius)||
   (shell.cassetteCastle?.fixtures||[]).some(f=>distanceToSegment2D(f,from,to)<f.collisionRadius)||
-   (shell.videoPlanet?.fixtures||[]).some(f=>distanceToSegment2D(f,from,to)<f.collisionRadius);
+   (shell.videoPlanet?.fixtures||[]).some(f=>distanceToSegment2D(f,from,to)<f.collisionRadius)||
+   (shell.sunburstArcade?.fixtures||[]).some(f=>distanceToSegment2D(f,from,to)<f.collisionRadius);
 }
 export function validatePhysicalShell(shell){
  const errors=shell.level==='G'?[...validateStorefrontsV115(shell.storefronts,shell.portals),...validateSealedBaysV116(shell.closedBays)]:[];
@@ -391,6 +398,8 @@ export function validatePhysicalShell(shell){
   errors.push(...validateCassetteCastleV124(shell.cassetteCastle,
    {portals:shell.portals,ceilings:shell.ceilings}));
   errors.push(...validateVideoPlanetV125(shell.videoPlanet,
+   {portals:shell.portals,ceilings:shell.ceilings}));
+  errors.push(...validateSunburstArcadeV126(shell.sunburstArcade,
    {portals:shell.portals,ceilings:shell.ceilings}));
  }
  if(shell.version!==67||!levelData(shell.level))errors.push('unknown physical shell version/level');
