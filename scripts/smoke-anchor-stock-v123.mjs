@@ -41,7 +41,7 @@ try{
  assert.equal(initial.assets.length,8);
  assert.equal(initial.localModels,8);
  
- assert.equal(new Set(initial.assets.map(x=>x.id)).size,6);
+ assert.equal(new Set(initial.assets.map(x=>x.id)).size,8);
  for(const a of initial.assets){
   assert.ok(a.sourceMeshCount>=1,'missing genuine mesh '+a.id);
   assert.ok(Number.isFinite(a.width)&&a.width>.02&&Number.isFinite(a.depth)&&a.depth>.02);
