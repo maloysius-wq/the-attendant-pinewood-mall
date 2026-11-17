@@ -54,7 +54,7 @@ export const SUNBURST_FIXTURES_V126=Object.freeze([
  fixture('pinball_west','pinball','LAST QUARTER',-44.62,-97.1,Math.PI/2),
  fixture('upright_west','arcade_upright_gamma','VOID RUNNER',-44.62,-100,Math.PI/2),
  fixture('cocktail_chess','arcade_cocktail','BYTE DUEL',-40,-94.65),
- fixture('drive_duo','driving_cab','COASTLINE 97',-37.35,-94.65),
+ fixture('drive_duo','driving_cab','COASTLINE 97',-36,-95.3),
  fixture('pinball_east','pinball','GHOST LIGHTS',-33.5,-94.75),
  fixture('coin_machine','token_changer','TOKEN EXCHANGE',-30.75,-93.9),
  fixture('dance_stage','dance_stage','STEP CIRCUIT',-36.9,-101.45),
