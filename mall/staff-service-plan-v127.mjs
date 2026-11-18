@@ -4,7 +4,7 @@ import {MALL} from './masterplan-v66.mjs';
 
 export const STAFF_SERVICE_CELLS_V127=Object.freeze([
  {id:'north_spares',room:'north_service',label:'MAINTENANCE SPARES',kind:'locked',x1:7.5,x2:11,z1:-118,z2:-112},
- {id:'security_tapes',room:'security',label:'CCTV TAPE ARCHIVE',kind:'locked',x1:44,x2:46,z1:-115,z2:-108},
+ {id:'security_tapes',room:'security',label:'CCTV TAPE ARCHIVE',kind:'locked',x1:44,x2:46,z1:-115,z2:-101},
  {id:'training_equipment',room:'training_t04',label:'TRAINING AV EQUIPMENT',kind:'locked',x1:79.5,x2:85,z1:-108,z2:-97},
  {id:'break_kitchen',room:'break_room',label:'STAFF KITCHEN',kind:'open',x1:80.5,x2:85,z1:-97,z2:-87},
  {id:'locker_supply',room:'staff_lockers',label:'UNIFORMS AND SUPPLIES',kind:'locked',x1:82,x2:85,z1:-87,z2:-75}
