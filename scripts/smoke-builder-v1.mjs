@@ -1,5 +1,6 @@
 import {chromium} from 'playwright';
 import assert from 'node:assert/strict';
+import {FURNISHINGS_V69} from '../mall/furnishing-plan-v69.mjs';
 const origin='http://127.0.0.1:4173';
 const browser=await chromium.launch({headless:true,args:[
  '--enable-webgl','--ignore-gpu-blocklist','--use-gl=swiftshader',
@@ -28,7 +29,10 @@ try{
  const initial=await get();
  assert.equal(initial.ready,true,JSON.stringify(initial.errors));
  assert.equal(initial.roomCount,41);
- assert.equal(initial.fixtureCount,60);
+ assert.equal(initial.fixtureCount,FURNISHINGS_V69.fixtures.length,
+  'Builder fixture manifest must match the original authored V69 furniture without missing objects');
+ assert.ok(initial.fixtureCount>=60,
+  'Builder must preserve at least the original source furniture baseline');
  assert.ok(initial.catalogCount>=100,'locally bundled mall asset library is available');
  assert.ok((await page.locator('.catalog-item').count())>=100);
  const textureKinds=await page.evaluate(()=>window.__PINEWOOD_BUILDER__.getCatalog().reduce((acc,m)=>{
