@@ -75,9 +75,26 @@ function evaluateWall(end,{samples=191}={}){
    }
    // Conservative axis-aligned horizontal clearance ONLY for samples
    // where the mesh occupies the wall's Z slab.
-   const zmin=Math.min(...polygon.map(p=>p[1])),zmax=Math.max(...polygon.map(p=>p[1]));
-   if(zmin<=-42.85&&zmax>=-43.15){
-    const minX=Math.min(...polygon.map(p=>p[0]));
+   // Clip the moving mesh polygon to this wall's actual 0.30m Z slab.
+   // Using the full rotated polygon's xmin would be falsely pessimistic:
+   // the outer door tip is far down the hall when opened near 95 degrees.
+   const clipZ=(points,limit,keepAbove)=>{
+    const out=[];
+    for(let j=0;j<points.length;j++){
+     const p=points[j],q=points[(j+1)%points.length];
+     const pin=keepAbove?p[1]>=limit:p[1]<=limit;
+     const qin=keepAbove?q[1]>=limit:q[1]<=limit;
+     if(pin)out.push(p);
+     if(pin!==qin){
+      const t=(limit-p[1])/(q[1]-p[1]);
+      out.push([p[0]+(q[0]-p[0])*t,limit]);
+     }
+    }
+    return out;
+   };
+   const inSlab=clipZ(clipZ(polygon,-43.15,true),-42.85,false);
+   if(inSlab.length){
+    const minX=Math.min(...inSlab.map(p=>p[0]));
     minClear=Math.min(minClear,minX-(end+.025));
    }
   }
