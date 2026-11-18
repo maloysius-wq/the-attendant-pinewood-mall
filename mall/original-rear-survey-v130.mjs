@@ -57,17 +57,21 @@ export function surveyOriginalRearV130(){
  const old=auditOriginalRemainderV128();
  const last=auditOriginalClosuresV129();
  const shell=constructPhysicalShell({level:'G',chapter:6});
+ // Preserve the independently verified PRE-V131 original masonry/ceiling
+ // baseline for future regressions, even after those two gaps are built.
+ const originalWalls=shell.walls.filter(w=>w.role!=='v131-rear-service-partition');
+ const originalCeilings=shell.ceilings.filter(c=>!c.id.startsWith('v131_'));
  const unassigned=old.cells.reduce((a,c)=>a+overlap(c,zone),0);
  const actualFloor=shell.floorPlates.reduce((a,p)=>a+overlap(p,zone),0);
  const shaftCut=overlap(zone,ORIGINAL_NORTH_STAIR_OPENING_V130);
  const otherPockets=unassigned-overlap(zone,ORIGINAL_REAR_POCKET_V128);
  const sides=[
-  boundaryCoverage(shell.walls,'z',zone.z1,zone.x1,zone.x2),
-  boundaryCoverage(shell.walls,'x',zone.x2,zone.z1,zone.z2),
-  boundaryCoverage(shell.walls,'z',zone.z2,zone.x1,zone.x2),
-  boundaryCoverage(shell.walls,'x',zone.x1,zone.z1,zone.z2)
+  boundaryCoverage(originalWalls,'z',zone.z1,zone.x1,zone.x2),
+  boundaryCoverage(originalWalls,'x',zone.x2,zone.z1,zone.z2),
+  boundaryCoverage(originalWalls,'z',zone.z2,zone.x1,zone.x2),
+  boundaryCoverage(originalWalls,'x',zone.x1,zone.z1,zone.z2)
  ];
- const actualCeiling=shell.ceilings.reduce((a,c)=>a+overlap(c,zone),0);
+ const actualCeiling=originalCeilings.reduce((a,c)=>a+overlap(c,zone),0);
  const actualRoof=shell.roofs.reduce((a,r)=>a+overlap(r,zone),0);
  const stair=MALL.links.find(l=>l.type==='stairs'&&
   l.from==='b1_stair'&&l.to==='security');
@@ -76,7 +80,7 @@ export function surveyOriginalRearV130(){
   p.axis===side.axis&&Math.abs(p.at-side.at)<EPS&&
   p.end>side.span[0]+EPS&&p.start<side.span[1]-EPS));
  return Object.freeze({
-  source:'original 1979 physical shell; read-only',
+  source:'original 1979 physical shell; read-only pre-V131 baseline',
   scope:{...zone},grossFootprintSqm:round(rectArea(zone)),
   v128PreClosureResidualSqm:old.area,v129StillUnassignedSqm:last.remaining,
   prelimPocketSqm:round(overlap(zone,ORIGINAL_REAR_POCKET_V128)),
