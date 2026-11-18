@@ -1,0 +1,34 @@
+name: V133 original pinned GLB door swing and front source construction guard
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'scripts/audit-v113-door-sweep-v133.mjs'
+      - 'mall/front-service-closure-v133.mjs'
+      - 'mall/physical-shell-v67.mjs'
+      - 'mall/original-front-seam-survey-v132.mjs'
+      - 'scripts/test-front-service-closure-v133.mjs'
+      - 'scripts/smoke-front-service-v133.mjs'
+      - 'review/mall-construction-v67/**'
+      - '.github/workflows/front-service-v133.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  original-front-hinge-source:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 29
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify real pinned V113 GLB source-door clearance
+        run: |
+          node --check scripts/audit-v113-door-sweep-v133.mjs
+          node scripts/audit-v113-door-sweep-v133.mjs
+      - name: Source regression without author-only Builder changes
+        run: |
+          node --test scripts/test-original-front-seam-v132.mjs scripts/test-vestibule-handoff-v112.mjs scripts/test-vestibule-checkpoint-v117.mjs scripts/test-original-rear-survey-v130.mjs scripts/test-rear-service-closure-v131.mjs scripts/test-physical-shell-v67.mjs scripts/test-gameplay-layout-v70.mjs
+      - name: Inspect all local runtime asset provenance
+        run: node scripts/audit-local-assets-v15.mjs
