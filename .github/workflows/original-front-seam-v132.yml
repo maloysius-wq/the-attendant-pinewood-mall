@@ -1,0 +1,33 @@
+name: Pinewood V132 original contractor entry seam and licensed hinge clearance audit
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'mall/original-front-seam-survey-v132.mjs'
+      - 'mall/vestibule-handoff-v112.mjs'
+      - 'mall/vestibule-checkpoint-v117.mjs'
+      - 'mall/physical-shell-v67.mjs'
+      - 'scripts/test-original-front-seam-v132.mjs'
+      - '.github/workflows/original-front-seam-v132.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  original-front-readonly:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 9
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify surveyed 41sqm original gap and true hinged V113 contractor clearance
+        run: |
+          node --check mall/original-front-seam-survey-v132.mjs
+          node --check scripts/test-original-front-seam-v132.mjs
+          node --test scripts/test-original-front-seam-v132.mjs scripts/test-original-rear-survey-v130.mjs scripts/test-rear-service-closure-v131.mjs scripts/test-residual-firebreak-v129.mjs scripts/test-physical-shell-v67.mjs scripts/test-gameplay-layout-v70.mjs scripts/test-vestibule-checkpoint-v117.mjs
+      - name: Emit exact missing source masonry and doorway separation with no construction
+        run: |
+          node --input-type=module -e "import {surveyOriginalFrontSeamV132} from './mall/original-front-seam-survey-v132.mjs'; console.log(JSON.stringify(surveyOriginalFrontSeamV132(),null,2))"
+      - name: Preserve original locally pinned CC0 assets without remote runtime dependencies
+        run: node scripts/audit-local-assets-v15.mjs
