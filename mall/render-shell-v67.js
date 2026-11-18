@@ -303,6 +303,7 @@ export async function renderConstructionScene({scene,chapter=1}={}){
    firebreakV129:{sign:northFirebreakVisuals.manifest,
     newlyConstructedWalls:shells.find(s=>s.level==='G').walls.filter(w=>w.role==='v129-firebreak-partition').map(w=>({id:w.id,axis:w.axis,at:w.at,start:w.start,end:w.end,top:w.top})),
     ceiling:shells.find(s=>s.level==='G').nwFirebreak.ceiling,
+    upperSpandrel:shells.find(s=>s.level==='G').walls.find(w=>w.role==='v129-firebreak-spandrel'),
     survey:auditOriginalClosuresV129()},
   geometryErrors:[],firstFrameFullyLoaded:true,
   setChapter(next){
