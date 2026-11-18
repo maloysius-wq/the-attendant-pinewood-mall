@@ -2,6 +2,7 @@ import {MALL} from './masterplan-v66.mjs';
 import {planStorefrontsV115,storefrontPhysicalWallsV115,validateStorefrontsV115} from './storefront-plan-v115.mjs';
 import {SEALED_BAYS_V116,sealedBayWallsV116,validateSealedBaysV116} from './sealed-bay-plan-v116.mjs';
 import {STAFF_SERVICE_CELLS_V127,STAFF_SERVICE_FIXTURES_V127,staffServiceWallsV127,validateStaffServiceV127} from './staff-service-plan-v127.mjs';
+import {ANNEX_SPINE_V127B,ANNEX_LAMPS_V127B,ANNEX_CABINETS_V127B,ANNEX_SIGNS_V127B,validateAnnexSpineV127B} from './annex-corridor-plan-v127b.mjs';
 import {CHECKPOINT_V117,checkpointWallsV117,checkpointCeilingsV117,validateCheckpointV117} from './vestibule-checkpoint-v117.mjs';
 import {GALLERY_COLUMNS_V118,validateGalleryColumnsV118} from './gallery-columns-v118.mjs';
 import {FOOD_COURT_V119,foodCourtWallsV119,validateFoodCourtV119} from './food-court-plan-v119.mjs';
@@ -231,7 +232,11 @@ function floorPlates(level){
    {...westAnchor,id:'v121_fallows_original_carpet',y,material:'carpet'},
    {...eastAnchor,id:'v121_east_original_anchor_carpet',y,material:'carpet'},
    {...arcadeFloor,id:'v126_original_sunburst_arcade_carpet',y,material:'carpet'},
-   {...MALL.footprints.annex,id:'annex',y,material:'carpet'}];
+   // V127b: the real 9x71m employee corridor gets a REPLACEMENT tiled slab,
+   // carved out of the single original Annex carpet (never a second overlay).
+   ...pieces(MALL.footprints.annex,[ANNEX_SPINE_V127B.floor])
+    .map((b,i)=>({...b,id:'annex_carpet_remaining_'+i,y,material:'carpet'})),
+   {...ANNEX_SPINE_V127B.floor,id:'v127b_original_annex_staff_tile',y,material:'tile'}];
  }
  if(level==='B1')return [{...MALL.footprints.B1,id:'basement',y,material:'tile'}];
  return MALL.rooms.filter(r=>r.level==='M1').flatMap(r=>
@@ -301,7 +306,8 @@ function fixtures(level){
   fixture('checkpoint_office_chair','assets/vendor/runtime/47ff560e83dfc315/Chair.glb','service_vestibule',15.20,-32.85,.75),
   fixture('security_desk','assets/vendor/runtime/47206cda3d12810c/desk.glb','security',37,-109,.76),
   fixture('breakroom_table','assets/vendor/runtime/a69293dc3a9140d3/table.glb','break_room',74,-93,.75),
-  ...STAFF_SERVICE_FIXTURES_V127.map(f=>({...f,y:0}))
+  ...STAFF_SERVICE_FIXTURES_V127.map(f=>({...f,y:0})),
+  ...ANNEX_CABINETS_V127B.map(f=>({...f,y:0}))
  ];
  if(level==='B1')return [
   fixture('service_floor_panel','assets/vendor/runtime/398aecafb7b7882b/floor.glb','feeder_room',1,-93,.2),
@@ -333,6 +339,7 @@ export function constructPhysicalShell({level='G',chapter=1}={}){
  const shell={version:67,level,chapter,y:levelData(level).y,footprints:MALL.footprints,
   storefronts,closedBays:level==='G'?SEALED_BAYS_V116:[],checkpoint:level==='G'?CHECKPOINT_V117:null,
   staffService:level==='G'?STAFF_SERVICE_CELLS_V127:[],staffFixtures:level==='G'?STAFF_SERVICE_FIXTURES_V127:[],
+  annexCorridor:level==='G'?{plan:ANNEX_SPINE_V127B,lamps:ANNEX_LAMPS_V127B,cabinets:ANNEX_CABINETS_V127B,signs:ANNEX_SIGNS_V127B}:null,
   galleryColumns:level==='G'?GALLERY_COLUMNS_V118:[],
   foodCourt:level==='G'?FOOD_COURT_V119:null,
   galleryAmenities:level==='G'?GALLERY_AMENITIES_V120:null,
@@ -386,13 +393,17 @@ export function isSegmentBlocked(shell,from,to){
   (shell.anchorStock||[]).filter(f=>!f.support).some(f=>distanceToSegment2D(f,from,to)<f.collisionRadius)||
   (shell.cassetteCastle?.fixtures||[]).some(f=>distanceToSegment2D(f,from,to)<f.collisionRadius)||
    (shell.videoPlanet?.fixtures||[]).some(f=>distanceToSegment2D(f,from,to)<f.collisionRadius)||
-   (shell.sunburstArcade?.fixtures||[]).some(f=>distanceToSegment2D(f,from,to)<f.collisionRadius);
+   (shell.sunburstArcade?.fixtures||[]).some(f=>distanceToSegment2D(f,from,to)<f.collisionRadius)||
+   (shell.annexCorridor?.cabinets||[]).some(f=>distanceToSegment2D(f,from,to)<f.collisionRadius);
 }
 export function validatePhysicalShell(shell){
  const errors=shell.level==='G'?[...validateStorefrontsV115(shell.storefronts,shell.portals),...validateSealedBaysV116(shell.closedBays)]:[];
  if(shell.level==='G'){
   errors.push(...validateCheckpointV117(shell.checkpoint));
   errors.push(...validateStaffServiceV127(shell.staffService,shell.staffFixtures));
+  errors.push(...validateAnnexSpineV127B(shell.annexCorridor.plan,{
+   lamps:shell.annexCorridor.lamps,cabinets:shell.annexCorridor.cabinets,
+   signs:shell.annexCorridor.signs,portals:shell.portals,ceilings:shell.ceilings}));
   errors.push(...validateGalleryColumnsV118(shell.galleryColumns,shell.portals));
   errors.push(...validateFoodCourtV119(shell.foodCourt,MALL,shell.portals));
   errors.push(...validateGalleryAmenitiesV120(shell.galleryAmenities,

@@ -1,0 +1,56 @@
+name: Pinewood V127b real 1992 East Annex staff corridor and licensed soffits
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'mall/annex-corridor-plan-v127b.mjs'
+      - 'mall/render-annex-corridor-v127b.js'
+      - 'mall/physical-shell-v67.mjs'
+      - 'mall/render-shell-v67.js'
+      - 'mall/gameplay-layout-v70.mjs'
+      - 'review/mall-construction-v67/**'
+      - 'scripts/test-annex-corridor-v127b.mjs'
+      - 'scripts/smoke-annex-corridor-v127b.mjs'
+      - '.github/workflows/annex-corridor-v127b.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  original-annex-desktop-webgl:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 29
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify original physical floor, real door clearances and licensed models
+        run: |
+          node --check mall/annex-corridor-plan-v127b.mjs
+          node --check mall/render-annex-corridor-v127b.js
+          node --check mall/physical-shell-v67.mjs
+          node --check mall/render-shell-v67.js
+          node --check mall/gameplay-layout-v70.mjs
+          node --check review/mall-construction-v67/main.js
+          node --check scripts/smoke-annex-corridor-v127b.mjs
+          node --test scripts/test-annex-corridor-v127b.mjs scripts/test-staff-service-v127.mjs scripts/test-vestibule-checkpoint-v117.mjs scripts/test-sealed-bays-v116.mjs scripts/test-physical-shell-v67.mjs scripts/test-gameplay-layout-v70.mjs scripts/test-storefronts-v115.mjs scripts/test-vestibule-handoff-v112.mjs
+      - name: Strict repository-only model/texture/runtime source audit
+        run: node scripts/audit-local-assets-v15.mjs
+      - name: Install desktop Chromium with real WebGL
+        run: |
+          npm install --no-save playwright@1.55.0
+          npx playwright install chromium
+      - name: Host original source without external runtime assets
+        run: |
+          python3 -m http.server 4173 --bind 127.0.0.1 >/tmp/pinewood-v127b-http.log 2>&1 &
+          for i in {1..40}; do curl -fsS http://127.0.0.1:4173/review/mall-construction-v67/ >/dev/null && exit 0; sleep 1; done
+          exit 1
+      - name: Capture eight original 1440x900 source WebGL service scenes
+        run: node scripts/smoke-annex-corridor-v127b.mjs
+      - name: Preserve original-source desktop screenshots and GLB measurements
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: v127b-real-1992-annex-source-desktop
+          path: artifacts/v127b-annex-source/
+          retention-days: 14
