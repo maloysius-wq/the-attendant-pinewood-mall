@@ -10,6 +10,8 @@ story room is created.
 
 The 1992 Annex's east anchor reads as **Northstar Home**, a fictional home
 and gifts department abandoned after its final 1997 operating shift.
+A genuine **540 m² carpet-to-resilient-tile slab replacement** is cut from the original Annex floor at y=0, with the already vendored local floor material. There is no overlapping carpet layer, no new footprint or playable space, and the adjoining V127b 639 m² staff tile is untouched.
+
 Twenty-four independently pinned *existing* CC0 GLB fixtures from the
 already audited local V121 retail collection and the pre-vendored Kenney
 KSI counter occupy a legible retail plan: 17 real wall bays and rails,
@@ -70,7 +72,7 @@ original front cladding and detailed occupancy before safe closure.
 The source `scripts/test-annex-anchor-v128.mjs` checks SHA256 bytes
 of every added CC0 GLB, true GLB room bounds, two original portals,
 shop aisle and Chapter 6 egress, evidence and chapter spawns,
-ceiling elevation, no extra carpet slab, and independent original
+ceiling elevation, no coplanar carpet or tile overlay, and independent original
 520 m² accounting.
 
 `scripts/smoke-annex-anchor-v128.mjs` runs the **actual** complete
