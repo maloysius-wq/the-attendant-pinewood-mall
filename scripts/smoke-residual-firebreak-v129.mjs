@@ -33,6 +33,9 @@ try{
  assert.equal(state.firebreakV129.survey.originalOverlap,0);
  assert.equal(state.firebreakV129.survey.originalShaftsAvoided,true);
  assert.equal(state.firebreakV129.newlyConstructedWalls.length,2);
+ assert.equal(state.firebreakV129.upperSpandrel.bottom,3.45);
+ assert.equal(state.firebreakV129.upperSpandrel.top,5.19);
+ assert.equal(state.firebreakV129.upperSpandrel.at,-29);
  assert.deepEqual(state.firebreakV129.newlyConstructedWalls.map(w=>w.at).sort((a,b)=>a-b),[-46,-29]);
  assert.equal(state.firebreakV129.sign.originalArtwork,true);
  assert.equal(state.firebreakV129.sign.actualMasonry,true);
