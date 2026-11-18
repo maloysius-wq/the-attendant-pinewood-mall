@@ -15,6 +15,7 @@ import {VIDEO_PLANET_FIXTURES_V125,VIDEO_PLANET_LIGHTS_V125,VIDEO_PLANET_SIGN_V1
 import {SUNBURST_FIXTURES_V126,SUNBURST_LIGHTS_V126,SUNBURST_SIGN_V126,SUNBURST_POSTERS_V126,validateSunburstArcadeV126} from './sunburst-arcade-plan-v126.mjs';
 import {ANNEX_ANCHOR_ROOM_V128,ANNEX_ANCHOR_FIXTURES_V128,ANNEX_ANCHOR_LIGHTS_V128,ANNEX_ANCHOR_IDENTITY_V128,ANNEX_ANCHOR_POSTERS_V128,validateAnnexAnchorV128} from './annex-anchor-plan-v128.mjs';
 import {NW_FIREBREAK_V129,FIREBREAK_PLATE_V129,FIREBREAK_CEILING_V129,residualFirebreakWallsV129,validateFirebreakV129} from './residual-firebreak-plan-v129.mjs';
+import {REAR_ENVELOPE_V130B,rearSourceWallsV130B,rearSourceCeilingsV130B,validateRearSourceV130B} from './rear-firebreak-plan-v130b.mjs';
 
 const EPS=1e-6;
 const TEXTURES=Object.freeze({
@@ -359,7 +360,8 @@ export function constructPhysicalShell({level='G',chapter=1}={}){
    sunburstArcade:level==='G'?{fixtures:SUNBURST_FIXTURES_V126,lights:SUNBURST_LIGHTS_V126,sign:SUNBURST_SIGN_V126,posters:SUNBURST_POSTERS_V126}:null,
    annexAnchor:level==='G'?{fixtures:ANNEX_ANCHOR_FIXTURES_V128,lights:ANNEX_ANCHOR_LIGHTS_V128,identity:ANNEX_ANCHOR_IDENTITY_V128,posters:ANNEX_ANCHOR_POSTERS_V128}:null,
    nwFirebreak:level==='G'?{enclosure:NW_FIREBREAK_V129,plate:FIREBREAK_PLATE_V129,ceiling:FIREBREAK_CEILING_V129}:null,
-  floorPlates:floorPlates(level),ceilings:[...ceilingPlates(level),...(level==='G'?checkpointCeilingsV117():[]),...(level==='G'?[FIREBREAK_CEILING_V129]:[])],walls:[],portals:planar,doors:exposedDoors(level,chapter),
+    rearFirebreakV130B:level==='G'?REAR_ENVELOPE_V130B:null,
+  floorPlates:floorPlates(level),ceilings:[...ceilingPlates(level),...(level==='G'?checkpointCeilingsV117():[]),...(level==='G'?[FIREBREAK_CEILING_V129,...rearSourceCeilingsV130B()]:[])],walls:[],portals:planar,doors:exposedDoors(level,chapter),
   railings:level==='M1'?[{id:'atrium_overlook_guard',axis:'z',at:-94,start:-11,end:29,bottom:5.4,top:6.65,thickness:.12,material:'steel',role:'railing'}]:[],
   roofs:roofPlates(level),stairs:MALL.links.filter(l=>l.type==='stairs'&&[room(l.from).level,room(l.to).level].includes(level)).map(makeStairs),
   verticals:verticalTransitions(level),fixtures:fixtures(level),texturePaths:{...TEXTURES}};
@@ -373,7 +375,7 @@ export function constructPhysicalShell({level='G',chapter=1}={}){
  // original 85m² Fallow's firebreak. Existing 1979/V116 north/south walls
  // are reused, never duplicated or masked with a review-only fake.
  const v129Walls=level==='G'?residualFirebreakWallsV129(existingWalls):[];
- shell.walls=[...existingWalls,...v129Walls];
+ shell.walls=[...existingWalls,...v129Walls,...(level==='G'?rearSourceWallsV130B():[])];
  shell.gates=insertGates(shell);
  return shell;
 }
@@ -442,6 +444,7 @@ export function validatePhysicalShell(shell){
    walls:shell.walls.filter(w=>w.role.startsWith('v129-firebreak-')),
    existingWalls:shell.walls.filter(w=>!w.role.startsWith('v129-firebreak-')),
    portals:shell.portals}));
+   errors.push(...validateRearSourceV130B(shell));
  }
  if(shell.version!==67||!levelData(shell.level))errors.push('unknown physical shell version/level');
  for(const w of [...shell.walls,...shell.gates,...shell.railings]){
