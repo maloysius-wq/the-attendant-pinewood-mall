@@ -1,0 +1,30 @@
+name: Pinewood V130 measured original rear footprint and fire stair survey
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'mall/original-rear-survey-v130.mjs'
+      - 'mall/residual-footprint-audit-v128.mjs'
+      - 'mall/residual-firebreak-plan-v129.mjs'
+      - 'mall/physical-shell-v67.mjs'
+      - 'scripts/test-original-rear-survey-v130.mjs'
+      - '.github/workflows/original-rear-survey-v130.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  source-rear-survey:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Audit exact 63sqm rear envelope, 61.5sqm original floor and protected north stair
+        run: |
+          node --check mall/original-rear-survey-v130.mjs
+          node --check scripts/test-original-rear-survey-v130.mjs
+          node --test scripts/test-original-rear-survey-v130.mjs scripts/test-residual-firebreak-v129.mjs scripts/test-annex-anchor-v128.mjs scripts/test-gameplay-layout-v70.mjs scripts/test-physical-shell-v67.mjs
+      - name: Verify no external runtime asset references
+        run: node scripts/audit-local-assets-v15.mjs
