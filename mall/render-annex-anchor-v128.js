@@ -32,21 +32,54 @@ function textTexture(assets,title,subtitle,{background='#273e3c',ink='#e0d9bd',w
  tex.colorSpace=THREE.SRGBColorSpace;tex.anisotropy=4;
  assets.textures.push(tex);return tex;
 }
+/** One shared merchandise draw call and one label draw call.
+ * All 176 original authored cartons/cards remain physically positioned
+ * on their own 24 licensed support models, including the correct yaw.
+ * This avoids hundreds of separate WebGL meshes in the opening film/game. */
+function stageStock(assets,kind,f,x,y,z,w,h,d,index=0,yawOffset=0){
+ const a=f.yaw||0,c=Math.cos(a),s=Math.sin(a);
+ assets.stockItems[kind].push({
+  x:f.x+c*x+s*z,y,z:f.z-s*x+c*z,
+  yaw:a+yawOffset,w,h,d,color:assets.goodsColors[index%assets.goodsColors.length]
+ });
+}
+function finishInstancedStock(assets){
+ const kinds=[['boxes',true],['labels',false]];
+ const result=[];
+ for(const [kind,colorized] of kinds){
+  const items=assets.stockItems[kind];
+  if(!items.length)throw Error('V128 missing supported original merchandise '+kind);
+  const geometry=new THREE.BoxGeometry(1,1,1);
+  const material=mat(assets,{color:colorized?0xffffff:0xd4bd96,roughness:.89});
+  const inst=new THREE.InstancedMesh(geometry,material,items.length);
+  inst.name=kind==='boxes'?'v128_instanced_176_real_source_supported_original_goods':
+   'v128_instanced_168_original_retail_price_prints';
+  inst.castShadow=false;inst.receiveShadow=true;
+  const node=new THREE.Object3D();
+  items.forEach((p,i)=>{
+   node.position.set(p.x,p.y,p.z);node.rotation.set(0,p.yaw,0);
+   node.scale.set(p.w,p.h,p.d);node.updateMatrix();
+   inst.setMatrixAt(i,node.matrix);
+   if(colorized)inst.setColorAt(i,new THREE.Color(p.color));
+  });
+  inst.instanceMatrix.needsUpdate=true;
+  if(inst.instanceColor)inst.instanceColor.needsUpdate=true;
+  inst.computeBoundingSphere();
+  assets.root.add(inst);result.push({kind,count:items.length});
+ }
+ return result;
+}
 function originalRackGoods(f,assets){
  const root=new THREE.Group();root.name='v128_original_stock_on_licensed_shelf_'+f.id;
  root.position.set(f.x,0,f.z);root.rotation.y=f.yaw;
- // The licensed source shelf is 2.12m tall. These original branded
- // product cartons rest on its existing lower and upper shelf planes,
- // following the already vetted V124 measured shelf stock geometry.
+ // Two existing source shelf planes at the V124 source-vetted heights.
  for(let level=0;level<2;level++)for(let col=0;col<4;col++){
-  const x=(col-1.5)*.34,y=level?1.52:.90;
-  const tone=assets.goods[(col+level+f.section.length)%assets.goods.length];
-  box(root,'v128_original_1997_boxed_home_merchandise',x,y,.13,.255,.27,.18,tone);
-  box(root,'v128_original_merchandise_label',x,y+.025,.225,.225,.11,.003,assets.label);
+  const x=(col-1.5)*.34,y=level?1.52:.90,index=col+level+f.section.length;
+  stageStock(assets,'boxes',f,x,y,.13,.255,.27,.18,index);
+  stageStock(assets,'labels',f,x,y+.025,.225,.225,.11,.003);
  }
  const label=textTexture(assets,f.section,'NORTHSTAR  ·  1997',
   {background:'#344440',width:800,height:170});
- // A real fascia encloses the upper edge of the full-size sourced bay.
  box(root,'v128_source_attached_section_back',0,2.205,.12,1.40,.22,.08,assets.wood);
  const front=new THREE.Mesh(new THREE.PlaneGeometry(1.34,.19),
   mat(assets,{map:label,side:THREE.DoubleSide,roughness:.9}));
@@ -55,26 +88,21 @@ function originalRackGoods(f,assets){
  assets.root.add(root);return 8;
 }
 function originalTableGoods(f,assets){
- const root=new THREE.Group();root.name='v128_original_packs_on_CC0_table_'+f.id;
- root.position.set(f.x,0,f.z);root.rotation.y=f.yaw;
- // V121 tested original Nesting Table full-size support top at y=0.95m.
+ // The actual licensed V121 nesting table top is measured y=0.95m.
  for(let j=0;j<2;j++)for(let i=0;i<4;i++){
   const x=(i-1.5)*.32,z=(j-.5)*.38;
-  const material=assets.goods[(i+j+f.section.length)%assets.goods.length];
-  box(root,'v128_real_top_supported_fictional_home_goods',x,1.085,z,.235,.26,.21,material);
-  box(root,'v128_box_original_1997_retail_sticker',x,1.10,z+.108,.17,.06,.004,assets.label);
+  stageStock(assets,'boxes',f,x,1.085,z,.235,.26,.21,i+j+f.section.length);
+  stageStock(assets,'labels',f,x,1.10,z+.108,.17,.06,.004);
  }
- assets.root.add(root);return 8;
+ return 8;
 }
 function originalSpinnerCards(f,assets){
- const root=new THREE.Group();root.name='v128_original_cards_on_CC0_spinner_'+f.id;
- root.position.set(f.x,0,f.z);
  for(let i=0;i<4;i++){
-  const a=i*Math.PI/2,card=box(root,'v128_original_giftwrap_accessory_card',
-   Math.sin(a)*.24,1.22,Math.cos(a)*.24,.16,.23,.02,assets.goods[i]);
-  card.rotation.y=a;
+  const a=i*Math.PI/2;
+  stageStock(assets,'boxes',f,Math.sin(a)*.24,1.22,Math.cos(a)*.24,
+   .16,.23,.02,i,a);
  }
- assets.root.add(root);return 4;
+ return 4;
 }
 function fitOriginalLicensedSource(src,f,assets){
  const model=src.scene.clone(true);
@@ -211,13 +239,12 @@ export async function renderAnnexAnchorV128(ground,ceilings,plan={
   if(!path.endsWith('.glb'))throw Error('V128 expected local original CC0 GLB');
   return [path,await loader.loadAsync(new URL('../'+path,import.meta.url).href)];
  })));
- const assets={root:new THREE.Group(),ceilingRoot:new THREE.Group(),textures:[],materials:[]};
+ const assets={root:new THREE.Group(),ceilingRoot:new THREE.Group(),textures:[],materials:[],
+  stockItems:{boxes:[],labels:[]}};
  assets.root.name='V128 original 540sqm Annex Northstar Home genuine CC0 shop';
  assets.ceilingRoot.name='V128 actual attached high Annex retail fluorescent ceiling';
  assets.wood=mat(assets,{color:0x544d40,roughness:.91});
- assets.label=mat(assets,{color:0xd4bd96,roughness:.94});
- assets.goods=[0x807a65,0x607e83,0xa2987e,0x8a7566,0x53695e,0x826a71]
-  .map(color=>mat(assets,{color,roughness:.89}));
+ assets.goodsColors=[0x807a65,0x607e83,0xa2987e,0x8a7566,0x53695e,0x826a71];
  try{
   const fixtures=plan.fixtures.map(f=>fitOriginalLicensedSource(sources.get(f.source),f,assets));
   let supportedStock=0;
@@ -226,6 +253,7 @@ export async function renderAnnexAnchorV128(ground,ceilings,plan={
    else if(f.kind.startsWith('table_'))supportedStock+=originalTableGoods(f,assets);
    else if(f.kind==='spinner')supportedStock+=originalSpinnerCards(f,assets);
   }
+  const stockBatches=finishInstancedStock(assets);
   const lights=plan.lights.map(l=>mountOriginalFluorescent(
    sources.get(l.model),l,ceilings,assets));
   const identity=mountSign(plan.identity,assets);
@@ -234,7 +262,7 @@ export async function renderAnnexAnchorV128(ground,ceilings,plan={
   ground.add(assets.root);ground.add(assets.ceilingRoot);
   return {root:assets.root,ceilingRoot:assets.ceilingRoot,
    manifest:{fixtures,lights,identity,posters,
-    authoredOriginalStock:supportedStock,originalArea:540},
+    authoredOriginalStock:supportedStock,stockBatches,originalArea:540},
    dispose(){
     assets.root.removeFromParent();assets.ceilingRoot.removeFromParent();
     assets.textures.forEach(t=>t.dispose());
