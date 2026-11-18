@@ -1,0 +1,54 @@
+name: Pinewood V129 original northwest source firebreak and 435 sqm remainder
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'mall/residual-firebreak-plan-v129.mjs'
+      - 'mall/render-residual-firebreak-v129.js'
+      - 'mall/physical-shell-v67.mjs'
+      - 'mall/render-shell-v67.js'
+      - 'review/mall-construction-v67/**'
+      - 'scripts/test-residual-firebreak-v129.mjs'
+      - 'scripts/smoke-residual-firebreak-v129.mjs'
+      - '.github/workflows/residual-firebreak-v129.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  original-firebreak-desktop:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 29
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Validate exact 85sqm sourced closure, two walls, 435sqm remainder and six chapters
+        run: |
+          node --check mall/residual-firebreak-plan-v129.mjs
+          node --check mall/render-residual-firebreak-v129.js
+          node --check mall/physical-shell-v67.mjs
+          node --check mall/render-shell-v67.js
+          node --check review/mall-construction-v67/main.js
+          node --check scripts/smoke-residual-firebreak-v129.mjs
+          node --test scripts/test-residual-firebreak-v129.mjs scripts/test-sealed-bays-v116.mjs scripts/test-annex-anchor-v128.mjs scripts/test-physical-shell-v67.mjs scripts/test-gameplay-layout-v70.mjs scripts/test-vestibule-checkpoint-v117.mjs scripts/test-storefronts-v115.mjs
+      - name: Verify original vendor-only no remote runtime dependencies
+        run: node scripts/audit-local-assets-v15.mjs
+      - name: Install desktop-only Chromium original WebGL review
+        run: |
+          npm install --no-save playwright@1.55.0
+          npx playwright install chromium
+      - name: Serve original source-shared mall locally
+        run: |
+          python3 -m http.server 4173 --bind 127.0.0.1 >/tmp/pinewood-v129-http.log 2>&1 &
+          for i in {1..40}; do curl -fsS http://127.0.0.1:4173/review/mall-construction-v67/ >/dev/null && exit 0; sleep 1; done
+          exit 1
+      - name: Capture five genuine 1440x900 original property source views
+        run: node scripts/smoke-residual-firebreak-v129.mjs
+      - name: Retain original desktop source WebGL screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: v129-original-85sqm-firebreak-real-desktop
+          path: artifacts/v129-original-firebreak/
+          retention-days: 14

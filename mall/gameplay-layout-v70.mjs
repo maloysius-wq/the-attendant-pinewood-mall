@@ -45,7 +45,7 @@ export function buildGameplayLayoutV70({chapter,level}={}){
   }
  }
  for(const w of [...shell.walls,...shell.gates,...shell.railings])
-  if(!['lintel','storefront-spandrel','closed-bay-header','checkpoint-header','food-court-header','staff-header'].includes(w.role))addWallCollision(colliders,w); // Overhead solids are not walk-level obstacles.
+  if(!['lintel','storefront-spandrel','closed-bay-header','checkpoint-header','food-court-header','staff-header','v129-firebreak-spandrel'].includes(w.role))addWallCollision(colliders,w); // Overhead solids are not walk-level obstacles.
  // Atrium and gallery support piers are TRUE waist-height collision. Capital
  // overhangs are high overhead, so only the source plinth occupies the walk.
  for(const post of shell.galleryColumns||[]){
