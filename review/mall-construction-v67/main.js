@@ -155,7 +155,7 @@ const shots={
  annexAnchorExit:{floor:'G',eye:[75,1.73,-56.6],target:[75,1.65,-47.5],
   label:'GROUND · NORTHSTAR EXIT APPROACH',title:'Real Chapter 6 Exit Connection',
   note:'Preserved unobstructed 4.2m original north doorway to the employee egress vestibule.'},
- annexAnchorPlan:{floor:'G',eye:[75,31,-61.5],target:[75,0,-61.5],
+ annexAnchorPlan:{floor:'G',eye:[75,23,-61.5],target:[75,0,-61.5],
   label:'GROUND · NORTHSTAR ORIGINAL CUTAWAY',title:'True 540m² Store and Both Doors',
   note:'Source cutaway reveals full-size fixtures, physical route elbow, and unchanged main floor and egress geometry.'},
  annexAnchorNight:{floor:'G',eye:[72,1.72,-60.5],target:[81,1.70,-62.5],
@@ -221,7 +221,7 @@ function setShot(name){
  // camera-mounted near-field lamp. This survey-only overhead fill is never
  // installed in the Builder, opening film or playable game.
  if(scene?.fog)scene.fog.density=['aerial','annexPlan','annexAnchorPlan'].includes(name)?.0011:.005;
- if(aerialAmbient)aerialAmbient.intensity=['aerial','annexPlan','annexAnchorPlan'].includes(name)?1.3:0;
+ if(aerialAmbient)aerialAmbient.intensity=name==='annexAnchorPlan'?2.8:['aerial','annexPlan'].includes(name)?1.3:0;
  if(!camera)return;
  const s=shots[name];camera.position.set(...s.eye);
  const target=new THREE.Vector3(...s.target);
