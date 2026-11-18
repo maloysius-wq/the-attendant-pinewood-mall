@@ -1,0 +1,53 @@
+name: Pinewood V131 real original east-rear source closure and protected fire stair
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'mall/rear-service-closure-v131.mjs'
+      - 'mall/original-rear-survey-v130.mjs'
+      - 'mall/physical-shell-v67.mjs'
+      - 'mall/render-shell-v67.js'
+      - 'review/mall-construction-v67/**'
+      - 'scripts/test-rear-service-closure-v131.mjs'
+      - 'scripts/smoke-rear-service-v131.mjs'
+      - '.github/workflows/original-rear-closure-v131.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  original-rear-source-desktop:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 29
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Source compile and six-chapter physical integrity
+        run: |
+          node --check mall/rear-service-closure-v131.mjs
+          node --check mall/physical-shell-v67.mjs
+          node --check mall/render-shell-v67.js
+          node --check review/mall-construction-v67/main.js
+          node --check scripts/smoke-rear-service-v131.mjs
+          node --test scripts/test-rear-service-closure-v131.mjs scripts/test-original-rear-survey-v130.mjs scripts/test-residual-firebreak-v129.mjs scripts/test-annex-anchor-v128.mjs scripts/test-physical-shell-v67.mjs scripts/test-gameplay-layout-v70.mjs scripts/test-vestibule-checkpoint-v117.mjs scripts/test-storefronts-v115.mjs
+      - name: Local CC0 vendor provenance and network-free runtime
+        run: node scripts/audit-local-assets-v15.mjs
+      - name: Install original desktop-only Chromium WebGL
+        run: |
+          npm install --no-save playwright@1.55.0
+          npx playwright install chromium
+      - name: Serve actual shared original property
+        run: |
+          python3 -m http.server 4173 --bind 127.0.0.1 >/tmp/pinewood-v131-http.log 2>&1 &
+          for i in {1..40}; do curl -fsS http://127.0.0.1:4173/review/mall-construction-v67/ >/dev/null && exit 0; sleep 1; done
+          exit 1
+      - name: Capture six genuine 1440x900 original rear source views
+        run: node scripts/smoke-rear-service-v131.mjs
+      - name: Retain original desktop source screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: v131-real-original-rear-shaft-safe-webgl
+          path: artifacts/v131-original-rear/
+          retention-days: 14
