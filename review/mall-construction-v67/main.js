@@ -25,6 +25,7 @@ const state={
  sunburstArcadeV126:null,sunburstFixtureCountV126:0,sunburstLampCountV126:0,sunburstPosterCountV126:0,
  annexAnchorV128:null,annexAnchorFixtureCountV128:0,annexAnchorLampCountV128:0,annexAnchorStockCountV128:0,
  firebreakV129:null,firebreakClosedAreaV129:0,firebreakRemainingV129:520,
+ rearClosureV130B:null,
  ceilingFinishes:[],allCeilingsTextured:false,surveyLightOn:true
 };
 const shots={
@@ -132,6 +133,15 @@ const shots={
  firebreakPlan:{floor:'G',eye:[-37.5,16,-45.5],target:[-37.5,0,-45.5],
   label:'SURVEY · EXACT NORTHWEST ORIGINAL BUILDING SEAM',title:'85m² Original Service Void Closed',
   note:'Real roof-off geometry shows the 85m² enclosure, its source floor and sole new x=-46 and x=-29 walls. 435m² remains unallocated.'},
+ rearSourceInside:{floor:'G',eye:[37.2,1.73,-117.2],target:[46.5,1.83,-116.0],
+  label:'GROUND · REAL REAR FIRE SERVICE CLOSURE',title:'Original Rear Masonry Returns',
+  note:'Survey camera only inside original inaccessible service seam. Genuine 1979 exterior and Security/freight host walls with two exact new source extensions.'},
+ rearSourcePlan:{floor:'G',eye:[37.2,15.7,-113.7],target:[37.4,0,-117.3],
+  label:'CUTAWAY · ORIGINAL REAR FLOOR AND STAIR OPENING',title:'Real 61.5m² Floor, Open 1.5m² Stair',
+  note:'Roof-off original-source view: exact service wall returns, retained floor and a genuinely uncapped north fire-stair void; no invented room or second floor.'},
+ rearSourceStair:{floor:'G',eye:[32.2,8.6,-112.5],target:[32,0,-115.2],
+  label:'CUTAWAY · B1 TO SECURITY STAIR APERTURE',title:'Protected Original Fire Stair',
+  note:'Survey-only overhead shows the real 3m-wide stair cutout and the adjoining three source-attached 3.36m plaster underside panels.'},
  closedNorth:{floor:'G',eye:[-22,1.75,-51],target:[-22,2.8,-43],label:'GROUND · NORTH FORMER RETAIL',title:'Needle & Thread · Shuttered',
   note:'A bounded original-era closed tenant suite beside the boarded main lobby. The steel shutter is physically sealed.'},
  closedAnnex:{floor:'G',eye:[61,1.75,-69],target:[55.8,2.2,-69],label:'GROUND · ANNEX SERVICE FRONTAGE',title:'East Wing Former Tenants',
@@ -230,8 +240,8 @@ function setShot(name){
  // A distant cutaway cannot be judged through full-range scene fog and the
  // camera-mounted near-field lamp. This survey-only overhead fill is never
  // installed in the Builder, opening film or playable game.
- if(scene?.fog)scene.fog.density=['aerial','annexPlan','annexAnchorPlan','firebreakPlan'].includes(name)?.0011:.005;
- if(aerialAmbient)aerialAmbient.intensity=name==='annexAnchorPlan'?2.8:name==='firebreakPlan'?2.2:['aerial','annexPlan'].includes(name)?1.3:0;
+ if(scene?.fog)scene.fog.density=['aerial','annexPlan','annexAnchorPlan','firebreakPlan','rearSourcePlan','rearSourceStair'].includes(name)?.0011:.005;
+ if(aerialAmbient)aerialAmbient.intensity=name==='annexAnchorPlan'?2.8:name==='firebreakPlan'?2.2:['rearSourcePlan','rearSourceStair'].includes(name)?2.1:['aerial','annexPlan'].includes(name)?1.3:0;
  if(!camera)return;
  const s=shots[name];camera.position.set(...s.eye);
  const target=new THREE.Vector3(...s.target);
@@ -243,7 +253,7 @@ function setShot(name){
   // 3–6m from their target; never run orbit distance-clamping on those shots.
   if(orbit.enabled)orbit.update();
  }
- if(built)built.setRoofVisible(roofToggle.checked&&!['aerial','fallowPlan','eastAnchorPlan','cassettePlan','videoPlan','arcadePlan','annexPlan','annexAnchorPlan','firebreakPlan'].includes(name));
+ if(built)built.setRoofVisible(roofToggle.checked&&!['aerial','fallowPlan','eastAnchorPlan','cassettePlan','videoPlan','arcadePlan','annexPlan','annexAnchorPlan','firebreakPlan','rearSourcePlan','rearSourceStair'].includes(name));
  renderer?.render(scene,camera);
 }
 function setChapter(value){
@@ -335,6 +345,7 @@ async function begin(){
   state.firebreakV129={...built.firebreakV129};
   state.firebreakClosedAreaV129=state.firebreakV129.survey.newlyEnclosed;
   state.firebreakRemainingV129=state.firebreakV129.survey.remaining;
+  state.rearClosureV130B={...built.rearClosureV130B};
   state.storefrontCount=built.storefrontsV115.length;
   state.storefrontNames=built.storefrontsV115.map(f=>f.sign);
   state.storefrontEntries=built.storefrontsV115.map(f=>({room:f.id,entryWidth:f.entryWidth,windowSpan:f.windowSpan}));
@@ -343,7 +354,7 @@ async function begin(){
   // Keep the legacy 41-room ceiling audit scoped to canonical room names;
   // V117 adds two subordinate drop ceilings but does not create story rooms.
   state.ceilingRooms=[...new Set(built.ceilings.children.map(mesh=>mesh.userData.roomCeiling)
-   .filter(name=>!String(name).startsWith('v117_')&&!String(name).startsWith('v129_')))].sort();
+   .filter(name=>!String(name).startsWith('v117_')&&!String(name).startsWith('v129_')&&!String(name).startsWith('v130b_')))].sort();
   state.ceilingFinishes=[...new Set(built.ceilings.children.map(mesh=>({
    id:mesh.userData.ceilingFinish,
    texture:mesh.material.map?.image?.src?.split('/').pop()||null
@@ -363,7 +374,9 @@ async function begin(){
    state.staffFixtureCountV127+' licensed CC0 staff service cabinets · '+
    state.annexCorridorV127B.tiledArea+'m² true Annex service tile · '+
    state.firebreakClosedAreaV129+'m² original north service firebreak enclosed · '+
-   state.firebreakRemainingV129+'m² original-area remainder still unresolved · '+
+   state.firebreakRemainingV129+'m² V129 historical original-area remainder · '+
+   state.rearClosureV130B.actualEnclosedFloorSqm+'m² real rear-service floor enclosed around '+
+   state.rearClosureV130B.actualOpenStairApertureSqm+'m² untouched stairwell · '+
    state.annexCorridorV127B.panels.length+' licensed ceiling fluorescents · '+
    state.annexCorridorV127B.signs.length+' source-mounted staff plates · '+
    state.annexCorridorV127B.cabinets.length+' licensed Annex filing stations · '+
@@ -405,7 +418,7 @@ async function begin(){
 for(const b of document.querySelectorAll('[data-shot]'))b.addEventListener('click',()=>setShot(b.dataset.shot));
 viewSelect.addEventListener('change',e=>setShot(e.target.value));
 chapterSelect.addEventListener('change',e=>setChapter(e.target.value));
-roofToggle.addEventListener('change',()=>{built?.setRoofVisible(roofToggle.checked&&!['aerial','fallowPlan','eastAnchorPlan','cassettePlan','videoPlan','arcadePlan','annexPlan','annexAnchorPlan'].includes(state.shot));renderOnDemand()});
+roofToggle.addEventListener('change',()=>{built?.setRoofVisible(roofToggle.checked&&!['aerial','fallowPlan','eastAnchorPlan','cassettePlan','videoPlan','arcadePlan','annexPlan','annexAnchorPlan','firebreakPlan','rearSourcePlan','rearSourceStair'].includes(state.shot));renderOnDemand()});
 surveyToggle.addEventListener('change',()=>{
   state.surveyLightOn=surveyToggle.checked;
   if(surveyLight)surveyLight.intensity=state.surveyLightOn?95:0;
