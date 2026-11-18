@@ -73,6 +73,8 @@ export async function renderAnnexCirculationV127b(rootParent,{plan,ceilings,wall
  const src=await new GLTFLoader().loadAsync(
   new URL('../'+ANNEX_LAMP_SOURCE_V127B.path,import.meta.url).href);
  const root=new THREE.Group();root.name='V127b actual 1990s East Annex service circulation';
+ const ceilingRoot=new THREE.Group();ceilingRoot.name='V127b actual ceiling bulkheads and real CC0 luminaires';
+ root.add(ceilingRoot);
  const materials=[],textures=[];
  const trim=new THREE.MeshStandardMaterial({color:0x465b58,roughness:.84,metalness:.17});
  const scuff=new THREE.MeshStandardMaterial({color:0x8b9787,roughness:.94});
@@ -98,7 +100,7 @@ export async function renderAnnexCirculationV127b(rootParent,{plan,ceilings,wall
    finishedWalls++;
   }
   for(const b of ANNEX_BULKHEADS_V127B)
-   box(root,'v127b_attached_1990s_bulkhead_'+b.id,b.x,(b.bottom+b.top)/2,b.z,
+   box(ceilingRoot,'v127b_attached_1990s_bulkhead_'+b.id,b.x,(b.bottom+b.top)/2,b.z,
     b.width,b.top-b.bottom,b.depth,bulk);
   const signs=ANNEX_SIGNS_V127B.map(s=>{
    const backing=box(root,'v127b_source_masonry_plate_'+s.id,64.824,s.y,s.z,
@@ -111,9 +113,9 @@ export async function renderAnnexCirculationV127b(rootParent,{plan,ceilings,wall
    print.rotation.y=-Math.PI/2;print.position.set(64.76,s.y,s.z);root.add(print);
    return {id:s.id,room:s.room,z:s.z,wallX:s.wallX,sourceAttached:true};
   });
-  const lights=ANNEX_LIGHTS_V127B.map(f=>panel(root,src,f,ceilings,materials));
+  const lights=ANNEX_LIGHTS_V127B.map(f=>panel(ceilingRoot,src,f,ceilings,materials));
   rootParent.add(root);
-  return {root,manifest:{lights,signs,bulkheads:ANNEX_BULKHEADS_V127B.length,
+  return {root,ceilingRoot,manifest:{lights,signs,bulkheads:ANNEX_BULKHEADS_V127B.length,
    finishedWalls,centralClearWidth:ANNEX_SPINE_V127B.clearCentralX2-ANNEX_SPINE_V127B.clearCentralX1},
    dispose(){
     root.removeFromParent();textures.forEach(t=>t.dispose());
