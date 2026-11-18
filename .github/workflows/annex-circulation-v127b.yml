@@ -1,0 +1,53 @@
+name: Pinewood V127b authentic Annex circulation and desktop source review
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'mall/annex-circulation-plan-v127b.mjs'
+      - 'mall/render-annex-circulation-v127b.js'
+      - 'mall/physical-shell-v67.mjs'
+      - 'mall/render-shell-v67.js'
+      - 'review/mall-construction-v67/**'
+      - 'scripts/test-annex-circulation-v127b.mjs'
+      - 'scripts/smoke-annex-circulation-v127b.mjs'
+      - '.github/workflows/annex-circulation-v127b.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  actual-original-annex-and-desktop-webgl:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 29
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Validate Annex source, chapter paths, ceiling placement and original door
+        run: |
+          node --check mall/annex-circulation-plan-v127b.mjs
+          node --check mall/render-annex-circulation-v127b.js
+          node --check mall/physical-shell-v67.mjs
+          node --check mall/render-shell-v67.js
+          node --check review/mall-construction-v67/main.js
+          node --test scripts/test-annex-circulation-v127b.mjs scripts/test-staff-service-v127.mjs scripts/test-vestibule-checkpoint-v117.mjs scripts/test-sealed-bays-v116.mjs scripts/test-physical-shell-v67.mjs scripts/test-gameplay-layout-v70.mjs scripts/test-story-placement-v70.mjs
+      - name: Verify no external browser runtime assets
+        run: node scripts/audit-local-assets-v15.mjs
+      - name: Install desktop-only software Chromium and Playwright
+        run: |
+          npm install --no-save playwright@1.55.0
+          npx playwright install chromium
+      - name: Serve the actual canonical game/building source
+        run: |
+          python3 -m http.server 4173 --bind 127.0.0.1 >/tmp/pinewood-v127b-http.log 2>&1 &
+          for i in {1..40}; do curl -fsS http://127.0.0.1:4173/review/mall-construction-v67/ >/dev/null && exit 0; sleep 1; done
+          exit 1
+      - name: Capture real 1440x900 desktop original Annex
+        run: node scripts/smoke-annex-circulation-v127b.mjs
+      - name: Preserve genuine review images
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: v127b-original-annex-desktop-scenes
+          path: artifacts/v127b-annex/
+          retention-days: 14
