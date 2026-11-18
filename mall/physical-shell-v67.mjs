@@ -390,6 +390,9 @@ export function isSegmentBlocked(shell,from,to){
   [...(shell.galleryAmenities?.benches||[]),...(shell.galleryAmenities?.directories||[])]
     .some(a=>distanceToSegment2D(a,from,to)<a.collisionRadius)||
   (shell.anchorRetail||[]).some(f=>distanceToSegment2D(f,from,to)<f.collisionRadius)||
+  // V127 cabinets occupy real floor; the source segment query must agree
+  // with the gameplay AABB colliders, including the open staff kitchen.
+  (shell.staffFixtures||[]).some(f=>distanceToSegment2D(f,from,to)<f.collisionRadius)||
   (shell.anchorStock||[]).filter(f=>!f.support).some(f=>distanceToSegment2D(f,from,to)<f.collisionRadius)||
   (shell.cassetteCastle?.fixtures||[]).some(f=>distanceToSegment2D(f,from,to)<f.collisionRadius)||
    (shell.videoPlanet?.fixtures||[]).some(f=>distanceToSegment2D(f,from,to)<f.collisionRadius)||

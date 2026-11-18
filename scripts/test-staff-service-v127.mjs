@@ -84,3 +84,22 @@ test('every added prop is a real pre-vendored CC0 file, no private Builder publi
  assert.deepEqual(MALL.evidence.map(e=>e.id),
   Array.from({length:9},(_,i)=>'LS-'+String(i+1).padStart(2,'0')));
 });
+
+
+test('physical segment queries collide with the same actual V127 cabinets as playable movement',()=>{
+ const shell=constructPhysicalShell({level:'G',chapter:4});
+ const playable=buildGameplayLayoutV70({chapter:4});
+ // Both endpoints are INSIDE an already-open physical service cell; no
+ // room wall or shutter may conceal a missing cabinet collision.
+ for(const [a,b,fx] of [
+  [{x:82.1,z:-93.5},{x:84,z:-93.5},'v127_break_kitchen_cabinet'],
+  [{x:44.4,z:-111.7},{x:45.7,z:-111.7},'v127_security_tape_cabinet']
+ ]){
+  assert.ok(shell.staffFixtures.some(f=>f.id===fx));
+  assert.equal(playable.canStand(shell.staffFixtures.find(f=>f.id===fx).x,
+   shell.staffFixtures.find(f=>f.id===fx).z),false,'playable cabinet '+fx);
+  assert.equal(isSegmentBlocked(shell,a,b),true,'missing real cabinet on source walk '+fx);
+ }
+ assert.equal(isSegmentBlocked(shell,{x:79,z:-92},{x:82,z:-92}),false,
+  'still preserve open staff kitchen portal');
+});
