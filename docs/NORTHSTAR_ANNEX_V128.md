@@ -20,7 +20,7 @@ and one original solid cashier. Model positions, measured scale and full
 footprints share genuine gameplay colliders; additional original
 merchandise is not represented as a procedural substitute for furniture.
 
-**176 small original authored home-merchandise pieces** fill the genuine
+**176 small original authored home-merchandise pieces**, batched with 168 original price labels into just **two instanced WebGL draws** to preserve desktop software-renderer and gameplay throughput, fill the genuine
 source shelf/table/spinner supports as period fictional boxed goods and
 clearance accessories, using actual support heights. Uniquely drawn,
 weathered 1997 shelf category plates, five original fictional
