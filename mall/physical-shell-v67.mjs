@@ -1,6 +1,7 @@
 import {MALL} from './masterplan-v66.mjs';
 import {planStorefrontsV115,storefrontPhysicalWallsV115,validateStorefrontsV115} from './storefront-plan-v115.mjs';
 import {SEALED_BAYS_V116,sealedBayWallsV116,validateSealedBaysV116} from './sealed-bay-plan-v116.mjs';
+import {STAFF_SERVICE_CELLS_V127,STAFF_SERVICE_FIXTURES_V127,staffServiceWallsV127,validateStaffServiceV127} from './staff-service-plan-v127.mjs';
 import {CHECKPOINT_V117,checkpointWallsV117,checkpointCeilingsV117,validateCheckpointV117} from './vestibule-checkpoint-v117.mjs';
 import {GALLERY_COLUMNS_V118,validateGalleryColumnsV118} from './gallery-columns-v118.mjs';
 import {FOOD_COURT_V119,foodCourtWallsV119,validateFoodCourtV119} from './food-court-plan-v119.mjs';
@@ -299,7 +300,8 @@ function fixtures(level){
   fixture('checkpoint_counter_desk','assets/vendor/runtime/47206cda3d12810c/desk.glb','service_vestibule',14.86,-30.85,.62),
   fixture('checkpoint_office_chair','assets/vendor/runtime/47ff560e83dfc315/Chair.glb','service_vestibule',15.20,-32.85,.75),
   fixture('security_desk','assets/vendor/runtime/47206cda3d12810c/desk.glb','security',37,-109,.76),
-  fixture('breakroom_table','assets/vendor/runtime/a69293dc3a9140d3/table.glb','break_room',74,-93,.75)
+  fixture('breakroom_table','assets/vendor/runtime/a69293dc3a9140d3/table.glb','break_room',74,-93,.75),
+  ...STAFF_SERVICE_FIXTURES_V127.map(f=>({...f,y:0}))
  ];
  if(level==='B1')return [
   fixture('service_floor_panel','assets/vendor/runtime/398aecafb7b7882b/floor.glb','feeder_room',1,-93,.2),
@@ -330,6 +332,7 @@ export function constructPhysicalShell({level='G',chapter=1}={}){
  const storefronts=level==='G'?planStorefrontsV115(planar):[];
  const shell={version:67,level,chapter,y:levelData(level).y,footprints:MALL.footprints,
   storefronts,closedBays:level==='G'?SEALED_BAYS_V116:[],checkpoint:level==='G'?CHECKPOINT_V117:null,
+  staffService:level==='G'?STAFF_SERVICE_CELLS_V127:[],staffFixtures:level==='G'?STAFF_SERVICE_FIXTURES_V127:[],
   galleryColumns:level==='G'?GALLERY_COLUMNS_V118:[],
   foodCourt:level==='G'?FOOD_COURT_V119:null,
   galleryAmenities:level==='G'?GALLERY_AMENITIES_V120:null,
@@ -347,6 +350,7 @@ export function constructPhysicalShell({level='G',chapter=1}={}){
  const baseWalls=[...exterior(level),...roomWalls(level,planar,storefronts),...portalLintels(level,planar),...storefrontPhysicalWallsV115(storefronts)];
  shell.walls=[...baseWalls,...(level==='G'?sealedBayWallsV116(shell.closedBays,baseWalls):[]),
   ...(level==='G'?checkpointWallsV117():[]),
+  ...(level==='G'?staffServiceWallsV127():[]),
   ...(level==='G'?foodCourtWallsV119():[])];
  shell.gates=insertGates(shell);
  return shell;
@@ -374,7 +378,7 @@ function distanceToSegment2D(point,a,b){
 }
 export function isSegmentBlocked(shell,from,to){
  if(!shell||!from||!to)throw new TypeError('shell and endpoints are required');
- return [...shell.walls,...shell.gates,...shell.railings].some(w=>!['lintel','storefront-spandrel','closed-bay-header','checkpoint-header','food-court-header'].includes(w.role)&&crossLine(w,from,to))||
+ return [...shell.walls,...shell.gates,...shell.railings].some(w=>!['lintel','storefront-spandrel','closed-bay-header','checkpoint-header','food-court-header','staff-header'].includes(w.role)&&crossLine(w,from,to))||
   (shell.galleryColumns||[]).some(c=>distanceToSegment2D(c,from,to)<c.collisionRadius)||
   [...(shell.galleryAmenities?.benches||[]),...(shell.galleryAmenities?.directories||[])]
     .some(a=>distanceToSegment2D(a,from,to)<a.collisionRadius)||
@@ -388,6 +392,7 @@ export function validatePhysicalShell(shell){
  const errors=shell.level==='G'?[...validateStorefrontsV115(shell.storefronts,shell.portals),...validateSealedBaysV116(shell.closedBays)]:[];
  if(shell.level==='G'){
   errors.push(...validateCheckpointV117(shell.checkpoint));
+  errors.push(...validateStaffServiceV127(shell.staffService,shell.staffFixtures));
   errors.push(...validateGalleryColumnsV118(shell.galleryColumns,shell.portals));
   errors.push(...validateFoodCourtV119(shell.foodCourt,MALL,shell.portals));
   errors.push(...validateGalleryAmenitiesV120(shell.galleryAmenities,
