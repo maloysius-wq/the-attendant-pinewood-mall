@@ -58,7 +58,7 @@ test('real shaft-cut original ceiling totals 61.5m²; 1.5m² stair stays uncappe
  assert.deepEqual(cap.map(x=>x.id).sort(),REAR_SERVICE_CEILINGS_V131.map(x=>x.id).sort());
  assert.equal(cap.reduce((sum,c)=>sum+(c.x2-c.x1)*(c.z2-c.z1),0),61.5);
  for(const c of cap){
-  assert.equal(c.y-c.thickness/2,3.36);
+  assert.ok(Math.abs(c.y-c.thickness/2-3.36)<eps,'original 3.36m underside with float tolerance');
   assert.equal(overlap(c,REAR_NORTH_STAIR_OPENING_V131),0);
  }
  const ownFloor=shell.floorPlates.reduce((sum,f)=>sum+overlap(f,REAR_SERVICE_ENVELOPE_V131),0);
