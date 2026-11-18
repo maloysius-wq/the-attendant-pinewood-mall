@@ -19,6 +19,7 @@ import {auditOriginalClosuresV129} from './residual-firebreak-plan-v129.mjs';
 import {auditRearServiceClosureV131} from './rear-service-closure-v131.mjs';
 import {FRONT_ORIGINAL_CLOSURE_V133} from './front-service-closure-v133.mjs';
 import {WEST_REAR_SERVICE_V135} from './west-rear-service-closure-v135.mjs';
+import {auditOriginalPerimeterV136} from './original-perimeter-envelope-v136.mjs';
 import {renderStaffServiceV127} from './render-staff-service-v127.js';
 import {renderAnnexCorridorV127B} from './render-annex-corridor-v127b.js';
 
@@ -308,6 +309,7 @@ export async function renderConstructionScene({scene,chapter=1}={}){
     ceiling:shells.find(s=>s.level==='G').nwFirebreak.ceiling,
     upperSpandrel:shells.find(s=>s.level==='G').walls.find(w=>w.role==='v129-firebreak-spandrel'),
     survey:auditOriginalClosuresV129()},
+   perimeterV136:{...auditOriginalPerimeterV136(shells.find(s=>s.level==='G'))},
    westRearV135:{closedSqm:WEST_REAR_SERVICE_V135.area,unresolvedAfter:286,
     walls:shells.find(s=>s.level==='G').walls.filter(w=>w.role==='v135-west-rear-partition'),
     ceiling:shells.find(s=>s.level==='G').ceilings.find(c=>c.id==='v135_original_rear_west_plaster')},

@@ -28,6 +28,7 @@ const state={
  rearServiceV131:null,rearSourceFloorV131:0,rearRemainderV131:435,
   originalFrontV133:null,frontRemainingV133:372,
   westRearV135:null,westRearRemainingV135:331,
+  perimeterV136:null,
  ceilingFinishes:[],allCeilingsTextured:false,surveyLightOn:true
 };
 const shots={
@@ -165,6 +166,12 @@ const shots={
   westRearSouth:{floor:'G',eye:[-14.2,1.72,-110.1],target:[-14,2,-111.2],
    label:'GROUND · ORIGINAL WEST GALLERY SERVICE BOUNDARY',title:'Actual 6m Closed West Rear Service Wall',
    note:'Real concrete source partition closes previously absent original west-gallery rear face; no fictitious entry or reopened janitorial bay.'},
+  perimeterWestRear:{floor:'G',eye:[-43.8,1.72,-115.8],target:[-46,2,-118],
+   label:'GROUND · TRUE 1979 ORIGINAL WEST PERIMETER RETURN',title:'Real Northwest Rear Masonry Return',
+   note:'The old weather exterior and original V116 receiving wall now join via the sole authentic 0.5m source concrete return, without a false tenant or floor.'},
+  perimeterEastAnnex:{floor:'G',eye:[48.7,1.75,-100.7],target:[47,2,-101],
+   label:'GROUND · ORIGINAL EAST-ANNEX CONNECTION',title:'Historic Annex Connector Relief Intact',
+   note:'This original 20cm east original/Annex connector clearance remains open on purpose: never fill the original passage with a fake wall.'},
   closedNorth:{floor:'G',eye:[-22,1.75,-51],target:[-22,2.8,-43],label:'GROUND · NORTH FORMER RETAIL',title:'Needle & Thread · Shuttered',
   note:'A bounded original-era closed tenant suite beside the boarded main lobby. The steel shutter is physically sealed.'},
  closedAnnex:{floor:'G',eye:[61,1.75,-69],target:[55.8,2.2,-69],label:'GROUND · ANNEX SERVICE FRONTAGE',title:'East Wing Former Tenants',
@@ -375,6 +382,7 @@ async function begin(){
   state.frontRemainingV133=state.originalFrontV133.unresolvedAfter;
   state.westRearV135={...built.westRearV135};
   state.westRearRemainingV135=state.westRearV135.unresolvedAfter;
+  state.perimeterV136={...built.perimeterV136};
   state.storefrontCount=built.storefrontsV115.length;
   state.storefrontNames=built.storefrontsV115.map(f=>f.sign);
   state.storefrontEntries=built.storefrontsV115.map(f=>({room:f.id,entryWidth:f.entryWidth,windowSpan:f.windowSpan}));
@@ -408,7 +416,8 @@ async function begin(){
    state.originalFrontV133.enclosure.originalArea+'m² original front service physically sealed · '+
    state.frontRemainingV133+'m² post-V133 original historical remainder · '+
    state.westRearV135.closedSqm+'m² west rear service physically enclosed · '+
-   state.westRearRemainingV135+'m² inaccessible original facade setback left · '+
+   state.westRearRemainingV135+'m² original 1979/Annex inaccessible facade setback mapped · '+
+   state.perimeterV136.unforeseenMissingMasonry.length+' unresolved original perimeter source walls · '+
    state.annexCorridorV127B.panels.length+' licensed ceiling fluorescents · '+
    state.annexCorridorV127B.signs.length+' source-mounted staff plates · '+
    state.annexCorridorV127B.cabinets.length+' licensed Annex filing stations · '+
