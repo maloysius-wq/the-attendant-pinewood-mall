@@ -40,14 +40,17 @@ export function surveyOriginalWestRearV134(){
  const old=auditOriginalRemainderV128();
  const rear=auditRearServiceClosureV131();
  const shell=constructPhysicalShell({level:'G',chapter:6});
+ // Keep original V134 PRE-build source survey reproducible after V135.
+ const sourceWalls=shell.walls.filter(w=>w.role!=='v135-west-rear-partition');
+ const sourceCeilings=shell.ceilings.filter(c=>!c.id.startsWith('v135_'));
  const sourceFaces=[
-  boundary(shell.walls,'x',rect.x1,rect.z1,rect.z2),
-  boundary(shell.walls,'x',rect.x2,rect.z1,rect.z2),
-  boundary(shell.walls,'z',rect.z1,rect.x1,rect.x2),
-  boundary(shell.walls,'z',rect.z2,rect.x1,rect.x2)
+  boundary(sourceWalls,'x',rect.x1,rect.z1,rect.z2),
+  boundary(sourceWalls,'x',rect.x2,rect.z1,rect.z2),
+  boundary(sourceWalls,'z',rect.z1,rect.x1,rect.x2),
+  boundary(sourceWalls,'z',rect.z2,rect.x1,rect.x2)
  ];
  const floor=shell.floorPlates.reduce((a,p)=>a+overlap(p,rect),0);
- const ceiling=shell.ceilings.reduce((a,p)=>a+overlap(p,rect),0);
+ const ceiling=sourceCeilings.reduce((a,p)=>a+overlap(p,rect),0);
  const roof=shell.roofs.reduce((a,p)=>a+overlap(p,rect),0);
  const unassigned=old.cells.reduce((a,p)=>a+overlap(p,rect),0);
  const portalConflicts=shell.portals.filter(p=>p.type==='doorway'&&sourceFaces.some(f=>
