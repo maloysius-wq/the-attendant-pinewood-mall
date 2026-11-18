@@ -103,10 +103,12 @@ function buildStairs(group,s,mats){
  }
  return g;
 }
-function placeModel(group,loaded,f){
+function placeModel(group,loaded,f,ownedMaterials=[]){
  const source=loaded.get(f.model);
  if(!source)throw Error('CC0 model was not preloaded: '+f.model);
- const model=source.scene.clone(true),b=new THREE.Box3().setFromObject(model),size=b.getSize(new THREE.Vector3());
+ const model=source.scene.clone(true);
+ if(Number.isFinite(f.yaw))model.rotation.y=f.yaw;
+ const b=new THREE.Box3().setFromObject(model),size=b.getSize(new THREE.Vector3());
  const largest=Math.max(size.x,size.y,size.z);
  if(!Number.isFinite(largest)||largest<.001)throw Error('Model has invalid dimensions: '+f.model);
  const maxWidth=f.id==='dry_fountain_art'?4.2:f.id.startsWith('arcade')?1.5:2.4;
@@ -119,7 +121,23 @@ function placeModel(group,loaded,f){
  const scaled=new THREE.Box3().setFromObject(model),middle=scaled.getCenter(new THREE.Vector3());
  model.position.set(f.x-middle.x,f.y-scaled.min.y,f.z-middle.z);
  model.name='cc0_'+f.id;model.userData.cc0ProvenancePath=f.model;
- model.traverse(o=>{if(o.isMesh){o.castShadow=false;o.receiveShadow=true;}});
+ model.traverse(o=>{
+  if(!o.isMesh)return;
+  o.castShadow=false;o.receiveShadow=true;
+  if(f.id.startsWith('v127b_')){
+   // Aged painted-metal source cupboard finish, retaining original GLB
+   // structure and textures; clone materials so no other CC0 prop changes.
+   const initial=Array.isArray(o.material)?o.material:[o.material];
+   const local=initial.map(m=>{
+    const copy=m.clone();ownedMaterials.push(copy);
+    if(copy.color)copy.color.multiplyScalar(.48);
+    if('roughness' in copy)copy.roughness=.94;
+    if('metalness' in copy)copy.metalness=Math.min(copy.metalness||0,.18);
+    return copy;
+   });
+   o.material=Array.isArray(o.material)?local:local[0];
+  }
+ });
  group.add(model);
  return {id:f.id,model:f.model,scale:s,measuredHeight:size.y*s,groundY:f.y};
 }
@@ -135,8 +153,9 @@ function installLights(group){
  warm(12,2.9,-30,0xd5e7d9,10,14);
  warm(-28,3.4,-80,0xc89a72,10,19);
  warm(32,3.1,-105,0xd9d3b5,13,20);
- warm(61,3.0,-55,0xa9c8ca,22,31);
- warm(61,3.0,-92,0xcabf9b,16,25);
+ // V127b retired the two unsourced, floating Annex orb stand-ins.
+ // The source-fitted 2m CC0 ceiling fluorescents now provide real corridor
+ // luminance, and no disconnected spheres remain in the staff passage.
  warm(-12,-1.1,-95,0x7dada8,24,33);
  warm(7,7.8,-98,0xd3caab,12,25);
  warm(74,7.9,-102,0xd6ccb6,14,24);
@@ -251,7 +270,8 @@ export async function renderConstructionScene({scene,chapter=1}={}){
  const sunburstArcadeVisuals=await renderSunburstArcadeV126(geometryGroups.G,
   shells.find(s=>s.level==='G').ceilings,shells.find(s=>s.level==='G').sunburstArcade);
  addFountainArchitecture(geometryGroups.G,mats);
- const measured=fixtureList.map(f=>placeModel(geometryGroups[roomLevel(f.room)],loaded,f));
+ const ownedAnnexMaterials=[];
+ const measured=fixtureList.map(f=>placeModel(geometryGroups[roomLevel(f.room)],loaded,f,ownedAnnexMaterials));
  installLights(group);
  scene.add(group);
  return {
@@ -283,6 +303,7 @@ export async function renderConstructionScene({scene,chapter=1}={}){
    group.traverse(o=>{if(o.geometry)o.geometry.dispose()});
    for(const texture of Object.values(t))texture.dispose();
    for(const material of Object.values(mats))material.dispose();
+   for(const material of ownedAnnexMaterials)material.dispose();
   }
  };
 }
