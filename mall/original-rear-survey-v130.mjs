@@ -57,17 +57,21 @@ export function surveyOriginalRearV130(){
  const old=auditOriginalRemainderV128();
  const last=auditOriginalClosuresV129();
  const shell=constructPhysicalShell({level:'G',chapter:6});
+ // Keep V130's original BEFORE-construction survey reproducible after
+ // V130b installs its two actual source wall returns and 61.5m2 soffit.
+ const originalWalls=shell.walls.filter(w=>w.role!=='v130b-original-rear-return');
+ const originalCeilings=shell.ceilings.filter(c=>!c.id.startsWith('v130b_'));
  const unassigned=old.cells.reduce((a,c)=>a+overlap(c,zone),0);
  const actualFloor=shell.floorPlates.reduce((a,p)=>a+overlap(p,zone),0);
  const shaftCut=overlap(zone,ORIGINAL_NORTH_STAIR_OPENING_V130);
  const otherPockets=unassigned-overlap(zone,ORIGINAL_REAR_POCKET_V128);
  const sides=[
-  boundaryCoverage(shell.walls,'z',zone.z1,zone.x1,zone.x2),
-  boundaryCoverage(shell.walls,'x',zone.x2,zone.z1,zone.z2),
-  boundaryCoverage(shell.walls,'z',zone.z2,zone.x1,zone.x2),
-  boundaryCoverage(shell.walls,'x',zone.x1,zone.z1,zone.z2)
+  boundaryCoverage(originalWalls,'z',zone.z1,zone.x1,zone.x2),
+  boundaryCoverage(originalWalls,'x',zone.x2,zone.z1,zone.z2),
+  boundaryCoverage(originalWalls,'z',zone.z2,zone.x1,zone.x2),
+  boundaryCoverage(originalWalls,'x',zone.x1,zone.z1,zone.z2)
  ];
- const actualCeiling=shell.ceilings.reduce((a,c)=>a+overlap(c,zone),0);
+ const actualCeiling=originalCeilings.reduce((a,c)=>a+overlap(c,zone),0);
  const actualRoof=shell.roofs.reduce((a,r)=>a+overlap(r,zone),0);
  const stair=MALL.links.find(l=>l.type==='stairs'&&
   l.from==='b1_stair'&&l.to==='security');
