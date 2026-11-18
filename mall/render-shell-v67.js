@@ -18,6 +18,7 @@ import {renderFirebreakPlateV129} from './render-residual-firebreak-v129.js';
 import {auditOriginalClosuresV129} from './residual-firebreak-plan-v129.mjs';
 import {auditRearServiceClosureV131} from './rear-service-closure-v131.mjs';
 import {FRONT_ORIGINAL_CLOSURE_V133} from './front-service-closure-v133.mjs';
+import {WEST_REAR_SERVICE_V135} from './west-rear-service-closure-v135.mjs';
 import {renderStaffServiceV127} from './render-staff-service-v127.js';
 import {renderAnnexCorridorV127B} from './render-annex-corridor-v127b.js';
 
@@ -307,6 +308,9 @@ export async function renderConstructionScene({scene,chapter=1}={}){
     ceiling:shells.find(s=>s.level==='G').nwFirebreak.ceiling,
     upperSpandrel:shells.find(s=>s.level==='G').walls.find(w=>w.role==='v129-firebreak-spandrel'),
     survey:auditOriginalClosuresV129()},
+   westRearV135:{closedSqm:WEST_REAR_SERVICE_V135.area,unresolvedAfter:286,
+    walls:shells.find(s=>s.level==='G').walls.filter(w=>w.role==='v135-west-rear-partition'),
+    ceiling:shells.find(s=>s.level==='G').ceilings.find(c=>c.id==='v135_original_rear_west_plaster')},
    originalFrontV133:{enclosure:FRONT_ORIGINAL_CLOSURE_V133,
     walls:shells.find(s=>s.level==='G').walls.filter(w=>w.role==='v133-front-service-partition'),
     ceiling:shells.find(s=>s.level==='G').ceilings.find(c=>c.id==='v133_front_service_plaster'),
