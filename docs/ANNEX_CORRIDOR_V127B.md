@@ -26,8 +26,14 @@ source, with **no copied standalone preview or published owner Builder data**.
   hang over open doorways or become player colliders.
 - Fit **three already locally licensed and pinned closed-door CC0 filing
   cupboards** to the existing east-side staff wall BETWEEN door apertures.
-  These are actual 3D models and occupy the same physical gameplay
-  collision footprint in all six chapters.
+  Their real source doors are rotated to face the corridor, backed against
+  actual masonry, and their cloned source materials are subdued to an aged
+  1997 institutional finish (without modifying the pinned GLB or other
+  source props). These are actual 3D models and occupy the same physical
+  gameplay collision footprint in all six chapters.
+- Remove both old free-floating Annex point-light spheres at z=-55 and z=-92.
+  They are replaced by genuinely source-mounted licensed fluorescents, not
+  allowed to linger as improbable separate bulbs in the staff hallway.
 
 ## Deliberate safeguards
 
