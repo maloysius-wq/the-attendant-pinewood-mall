@@ -21,6 +21,19 @@ try{
  // The full WebGL scene can keep pointer capture during Playwright's
  // post-click stability polling. Exercise toolbar DOM handlers directly;
  // the dedicated v87 smoke covers real mouse wheel and preview behavior.
+ // Query the actual visible DOM viewport synchronously. Playwright's
+ // locator.boundingBox() waits for renderer/layout stability and can time out
+ // under SwiftShader even while the 3D canvas is visibly present. Keep all
+ // real mouse movement, wheel, click, editing and persistence assertions.
+ const actualCanvasBox=()=>page.evaluate(()=>{
+  const el=document.querySelector('#world canvas');
+  if(!el)throw Error('real editor WebGL canvas not present');
+  const r=el.getBoundingClientRect();
+  if(r.width<300||r.height<300||r.right<=0||r.bottom<=0||
+   r.left>=innerWidth||r.top>=innerHeight)
+   throw Error('real editor WebGL canvas not visible at usable desktop size');
+  return {x:r.x,y:r.y,width:r.width,height:r.height};
+ });
  const clickToolbar=id=>page.evaluate(id=>document.getElementById(id).click(),id);
  const checkToolbar=(id,checked)=>page.evaluate(([id,checked])=>{
   const element=document.getElementById(id);element.checked=checked;
@@ -83,7 +96,7 @@ try{
  assert.ok((await get()).navigation.position.z>0,'jump arrives at the outdoor parking area');
  const parkProp=await page.evaluate(()=>window.__PINEWOOD_BUILDER__.getCatalog().find(x=>x.id==='silted-octagonal-atrium-fountain'));
  await page.locator('.catalog-item').filter({hasText:parkProp.label}).first().click();
- const parkCanvas=await page.locator('#world canvas').boundingBox();
+ const parkCanvas=await actualCanvasBox();
  await page.mouse.move(parkCanvas.x+parkCanvas.width/2,parkCanvas.y+parkCanvas.height/2);
  await page.mouse.click(parkCanvas.x+parkCanvas.width/2,parkCanvas.y+parkCanvas.height/2);
  await page.waitForFunction(()=>window.__PINEWOOD_BUILDER__.getState().draft.added.length===1);
@@ -143,8 +156,7 @@ try{
  await page.evaluate(()=>window.__PINEWOOD_BUILDER__.clearDraft());
  const target=await page.evaluate(()=>window.__PINEWOOD_BUILDER__.getCatalog().find(x=>x.id==='silted-octagonal-atrium-fountain'));
  assert.ok(target,'existing local model available for placement-wheel test');
- const canvas=page.locator('#world canvas');
- const canvasBox=await canvas.boundingBox();
+ const canvasBox=await actualCanvasBox();
  assert.ok(canvasBox,'editor viewport is visible');
  const targetX=canvasBox.x+canvasBox.width*.5,targetY=canvasBox.y+canvasBox.height*.58;
  async function previewAndPlace(wheelY,{shiftDistance=false}={}){
