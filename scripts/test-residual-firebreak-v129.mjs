@@ -50,15 +50,25 @@ test('source enclosure is two real new faces using existing 1979/V116 north and 
   const g=constructPhysicalShell({level:'G',chapter});
   assert.deepEqual(validatePhysicalShell(g),[]);
   const newWalls=g.walls.filter(w=>w.role==='v129-firebreak-partition');
+  const overhead=g.walls.filter(w=>w.role==='v129-firebreak-spandrel');
+  assert.equal(overhead.length,1,'real gallery face must rise to true 5.19m source soffit');
+  assert.equal(overhead[0].bottom,3.45);
+  assert.equal(overhead[0].top,5.19);
+  assert.equal(overhead[0].at,-29);
+  assert.equal(overhead[0].start,-48);
+  assert.equal(overhead[0].end,-43);
+  const galleryRoof=g.ceilings.find(c=>c.room==='west_gallery');
+  assert.ok(galleryRoof&&same(overhead[0].top,galleryRoof.y-galleryRoof.thickness/2),
+   'overhead masonry must physically meet real public gallery soffit');
   assert.equal(newWalls.length,2);
   assert.deepEqual(newWalls.map(w=>w.at).sort((a,b)=>a-b),[-46,-29]);
   assert.ok(newWalls.every(w=>same(w.start,-48)&&same(w.end,-43)&&
    same(w.bottom,0)&&same(w.top,3.45)&&same(w.thickness,.25)));
-  for(const w of newWalls)for(const o of g.walls.filter(x=>x!==w))
+  for(const w of [...newWalls,...overhead])for(const o of g.walls.filter(x=>x!==w))
    assert.equal(nearVolume(w,o),false,'doubled 1979 wall '+w.id+' / '+o.id);
-  const existing=g.walls.filter(w=>w.role!=='v129-firebreak-partition');
+  const existing=g.walls.filter(w=>!w.role.startsWith('v129-firebreak-'));
   assert.deepEqual(validateFirebreakV129({
-   ...g.nwFirebreak,walls:newWalls,existingWalls:existing,portals:g.portals
+   ...g.nwFirebreak,walls:[...newWalls,...overhead],existingWalls:existing,portals:g.portals
   }),[]);
   assert.ok(g.walls.some(w=>w.axis==='z'&&same(w.at,-48)&&
    w.start<=-46&&w.end>=-29&&w.top>=5.4),
@@ -67,6 +77,7 @@ test('source enclosure is two real new faces using existing 1979/V116 north and 
    w.start<=-46&&w.end>=-29&&w.top>=3.45),
    'original 1997 closed northern reserve wall must be reused');
   assert.equal(isSegmentBlocked(g,{x:-28,z:-45.5},{x:-37.5,z:-45.5}),true);
+  assert.ok(!g.walls.some(w=>w.id==='v129_fallows_north_gallery_abovewall_infill'&&w.top!==5.19));
   assert.equal(isSegmentBlocked(g,{x:-45,z:-45.5},{x:-47,z:-45.5}),true);
   assert.equal(isSegmentBlocked(g,{x:-27,z:-48.5},{x:-27,z:-44.5}),false,
    'the exterior of the sealed void must keep original gallery circulation');
