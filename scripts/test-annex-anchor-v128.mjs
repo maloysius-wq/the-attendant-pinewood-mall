@@ -90,8 +90,15 @@ test('source-mounted 7.61m ceiling GLB fixtures and one real original Annex carp
  });
  assert.equal(panels.length,8);
  const floor=shell.floorPlates.filter(f=>f.x1<=65&&f.x2>=85&&f.z1<=-75&&f.z2>=-48);
- assert.equal(floor.length,1,'original Annex carpet must cover true 540sqm retail');
- assert.equal(floor[0].material,'carpet');
+ assert.equal(floor.length,1,'true 540sqm Northstar source slab required');
+ assert.equal(floor[0].material,'tile');
+ assert.equal(floor[0].id,'v128_northstar_original_retail_tile');
+ assert.equal(floor[0].y,0);
+ for(const other of shell.floorPlates.filter(f=>f!==floor[0])){
+  const x=Math.max(0,Math.min(other.x2,floor[0].x2)-Math.max(other.x1,floor[0].x1));
+  const z=Math.max(0,Math.min(other.z2,floor[0].z2)-Math.max(other.z1,floor[0].z1));
+  assert.equal(x*z,0,'no hidden carpet slab below real retail tile '+other.id);
+ }
  assert.ok(ANNEX_ANCHOR_LIGHTS_V128.some(l=>l.power===0));
  assert.ok(ANNEX_ANCHOR_LIGHTS_V128.some(l=>l.power>.6));
 });
