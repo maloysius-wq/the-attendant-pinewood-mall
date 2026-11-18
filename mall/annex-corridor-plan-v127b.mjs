@@ -37,7 +37,7 @@ export const ANNEX_LAMPS_V127B=Object.freeze([
 // against existing eastern masonry BETWEEN the actual staff door openings.
 const cabinet=(id,z)=>Object.freeze({
  id,room:'east_wing_spine',model:ANNEX_CABINET_SOURCE_V127B.path,
- x:63.72,z,targetHeight:2.1,collisionRadius:.72,role:'fixed-staff-filing'
+ x:64.12,z,yaw:-Math.PI/2,targetHeight:2.1,collisionRadius:.72,role:'fixed-staff-filing'
 });
 export const ANNEX_CABINETS_V127B=Object.freeze([
  cabinet('v127b_training_return_files',-96.8),
