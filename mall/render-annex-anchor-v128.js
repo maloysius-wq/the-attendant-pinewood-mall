@@ -155,7 +155,7 @@ function mountOriginalFluorescent(src,f,ceilings,assets){
  litMeshes.forEach(mesh=>lensBounds.expandByObject(mesh));
  const emitterY=lensBounds.getCenter(new THREE.Vector3()).y-.06;
  if(f.power>=.25){
-  const light=new THREE.PointLight(0xcddbc8,74*f.power,18,2);
+  const light=new THREE.PointLight(0xcddbc8,195*f.power,22,2);
   light.position.set(f.x,emitterY,f.z);
   light.name='v128_emission_from_source_CC0_lens_'+f.id;
   assets.ceilingRoot.add(light);
