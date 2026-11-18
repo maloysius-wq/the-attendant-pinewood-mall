@@ -28,8 +28,31 @@ jobs:
           node --check scripts/audit-v113-door-sweep-v133.mjs
           node scripts/audit-v113-door-sweep-v133.mjs
           node --test scripts/test-front-service-closure-v133.mjs
+          node --check mall/front-service-closure-v133.mjs
+          node --check mall/physical-shell-v67.mjs
+          node --check mall/render-shell-v67.js
+          node --check review/mall-construction-v67/main.js
+          node --check scripts/smoke-front-service-v133.mjs
       - name: Source regression without author-only Builder changes
         run: |
           node --test scripts/test-original-front-seam-v132.mjs scripts/test-vestibule-handoff-v112.mjs scripts/test-vestibule-checkpoint-v117.mjs scripts/test-original-rear-survey-v130.mjs scripts/test-rear-service-closure-v131.mjs scripts/test-physical-shell-v67.mjs scripts/test-gameplay-layout-v70.mjs
       - name: Inspect all local runtime asset provenance
         run: node scripts/audit-local-assets-v15.mjs
+      - name: Install original desktop Chromium
+        run: |
+          npm install --no-save playwright@1.55.0
+          npx playwright install chromium
+      - name: Serve canonical original building and approved construction review
+        run: |
+          python3 -m http.server 4173 --bind 127.0.0.1 >/tmp/pinewood-v133-http.log 2>&1 &
+          for i in {1..40}; do curl -fsS http://127.0.0.1:4173/review/mall-construction-v67/ >/dev/null && exit 0; sleep 1; done
+          exit 1
+      - name: Capture actual six 1440x900 original shared-source front/hinged-view pixels
+        run: node scripts/smoke-front-service-v133.mjs
+      - name: Upload original front-source desktop WebGL evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: v133-real-original-front-webgl
+          path: artifacts/v133-front-original/
+          retention-days: 14
