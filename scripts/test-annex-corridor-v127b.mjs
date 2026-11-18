@@ -41,8 +41,13 @@ test('carpet was actually carved away and a single same-height real tile plate r
  assert.ok(g.floorPlates.filter(b=>b.id!=='v127b_original_annex_staff_tile')
   .every(b=>overlap(b,p)===0),'no hidden original carpet under new tile');
  const f=MALL.footprints.annex;
+ const northstar=g.floorPlates.find(b=>b.id==='v128_northstar_original_retail_tile');
+ assert.ok(northstar&&northstar.material==='tile'&&area(northstar)===540,
+  'V128 real original retail tile must be installed next to service passage');
+ assert.equal(overlap(p,northstar),0,'two original tiled floors cannot overlap');
  assert.equal(g.floorPlates.filter(b=>b.id.startsWith('annex_carpet_remaining_')||
-   b.id==='v127b_original_annex_staff_tile').reduce((n,b)=>n+area(b),0),area(f),
+   b.id==='v127b_original_annex_staff_tile'||
+   b.id==='v128_northstar_original_retail_tile').reduce((n,b)=>n+area(b),0),area(f),
   'full source Annex floor remains covered with no gap or double slab');
 });
 

@@ -13,6 +13,7 @@ import {ORIGINAL_ANCHOR_STOCK_V123,validateAnchorStockLayoutV123} from './anchor
 import {CASSETTE_FIXTURES_V124,CASSETTE_LIGHTS_V124,CASSETTE_SIGN_V124,validateCassetteCastleV124} from './cassette-castle-plan-v124.mjs';
 import {VIDEO_PLANET_FIXTURES_V125,VIDEO_PLANET_LIGHTS_V125,VIDEO_PLANET_SIGN_V125,VIDEO_PLANET_POSTERS_V125,validateVideoPlanetV125} from './video-planet-plan-v125.mjs';
 import {SUNBURST_FIXTURES_V126,SUNBURST_LIGHTS_V126,SUNBURST_SIGN_V126,SUNBURST_POSTERS_V126,validateSunburstArcadeV126} from './sunburst-arcade-plan-v126.mjs';
+import {ANNEX_ANCHOR_ROOM_V128,ANNEX_ANCHOR_FIXTURES_V128,ANNEX_ANCHOR_LIGHTS_V128,ANNEX_ANCHOR_IDENTITY_V128,ANNEX_ANCHOR_POSTERS_V128,validateAnnexAnchorV128} from './annex-anchor-plan-v128.mjs';
 
 const EPS=1e-6;
 const TEXTURES=Object.freeze({
@@ -234,9 +235,15 @@ function floorPlates(level){
    {...arcadeFloor,id:'v126_original_sunburst_arcade_carpet',y,material:'carpet'},
    // V127b: the real 9x71m employee corridor gets a REPLACEMENT tiled slab,
    // carved out of the single original Annex carpet (never a second overlay).
-   ...pieces(MALL.footprints.annex,[ANNEX_SPINE_V127B.floor])
+   // Replace Northstar retail carpet with a single true 1992 tile floor at y=0.
+   ...pieces(MALL.footprints.annex,[ANNEX_SPINE_V127B.floor,
+    rect(ANNEX_ANCHOR_ROOM_V128.x1,ANNEX_ANCHOR_ROOM_V128.x2,
+     ANNEX_ANCHOR_ROOM_V128.z1,ANNEX_ANCHOR_ROOM_V128.z2)])
     .map((b,i)=>({...b,id:'annex_carpet_remaining_'+i,y,material:'carpet'})),
-   {...ANNEX_SPINE_V127B.floor,id:'v127b_original_annex_staff_tile',y,material:'tile'}];
+   {...ANNEX_SPINE_V127B.floor,id:'v127b_original_annex_staff_tile',y,material:'tile'},
+   {...rect(ANNEX_ANCHOR_ROOM_V128.x1,ANNEX_ANCHOR_ROOM_V128.x2,
+    ANNEX_ANCHOR_ROOM_V128.z1,ANNEX_ANCHOR_ROOM_V128.z2),
+    id:'v128_northstar_original_retail_tile',y,material:'tile'}];
  }
  if(level==='B1')return [{...MALL.footprints.B1,id:'basement',y,material:'tile'}];
  return MALL.rooms.filter(r=>r.level==='M1').flatMap(r=>
@@ -349,6 +356,7 @@ export function constructPhysicalShell({level='G',chapter=1}={}){
   cassetteCastle:level==='G'?{fixtures:CASSETTE_FIXTURES_V124,lights:CASSETTE_LIGHTS_V124,sign:CASSETTE_SIGN_V124}:null,
    videoPlanet:level==='G'?{fixtures:VIDEO_PLANET_FIXTURES_V125,lights:VIDEO_PLANET_LIGHTS_V125,sign:VIDEO_PLANET_SIGN_V125,posters:VIDEO_PLANET_POSTERS_V125}:null,
    sunburstArcade:level==='G'?{fixtures:SUNBURST_FIXTURES_V126,lights:SUNBURST_LIGHTS_V126,sign:SUNBURST_SIGN_V126,posters:SUNBURST_POSTERS_V126}:null,
+   annexAnchor:level==='G'?{fixtures:ANNEX_ANCHOR_FIXTURES_V128,lights:ANNEX_ANCHOR_LIGHTS_V128,identity:ANNEX_ANCHOR_IDENTITY_V128,posters:ANNEX_ANCHOR_POSTERS_V128}:null,
   floorPlates:floorPlates(level),ceilings:[...ceilingPlates(level),...(level==='G'?checkpointCeilingsV117():[])],walls:[],portals:planar,doors:exposedDoors(level,chapter),
   railings:level==='M1'?[{id:'atrium_overlook_guard',axis:'z',at:-94,start:-11,end:29,bottom:5.4,top:6.65,thickness:.12,material:'steel',role:'railing'}]:[],
   roofs:roofPlates(level),stairs:MALL.links.filter(l=>l.type==='stairs'&&[room(l.from).level,room(l.to).level].includes(level)).map(makeStairs),
@@ -397,6 +405,7 @@ export function isSegmentBlocked(shell,from,to){
   (shell.cassetteCastle?.fixtures||[]).some(f=>distanceToSegment2D(f,from,to)<f.collisionRadius)||
    (shell.videoPlanet?.fixtures||[]).some(f=>distanceToSegment2D(f,from,to)<f.collisionRadius)||
    (shell.sunburstArcade?.fixtures||[]).some(f=>distanceToSegment2D(f,from,to)<f.collisionRadius)||
+   (shell.annexAnchor?.fixtures||[]).some(f=>distanceToSegment2D(f,from,to)<f.collisionRadius)||
    (shell.annexCorridor?.cabinets||[]).some(f=>distanceToSegment2D(f,from,to)<f.collisionRadius);
 }
 export function validatePhysicalShell(shell){
@@ -419,6 +428,8 @@ export function validatePhysicalShell(shell){
   errors.push(...validateVideoPlanetV125(shell.videoPlanet,
    {portals:shell.portals,ceilings:shell.ceilings}));
   errors.push(...validateSunburstArcadeV126(shell.sunburstArcade,
+   {portals:shell.portals,ceilings:shell.ceilings}));
+  errors.push(...validateAnnexAnchorV128(shell.annexAnchor,
    {portals:shell.portals,ceilings:shell.ceilings}));
  }
  if(shell.version!==67||!levelData(shell.level))errors.push('unknown physical shell version/level');

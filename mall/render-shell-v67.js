@@ -13,6 +13,7 @@ import {renderAnchorStockV123} from './render-anchor-stock-v123.js';
 import {renderCassetteCastleV124} from './render-cassette-castle-v124.js';
 import {renderVideoPlanetV125} from './render-video-planet-v125.js';
 import {renderSunburstArcadeV126} from './render-sunburst-arcade-v126.js';
+import {renderAnnexAnchorV128} from './render-annex-anchor-v128.js';
 import {renderStaffServiceV127} from './render-staff-service-v127.js';
 import {renderAnnexCorridorV127B} from './render-annex-corridor-v127b.js';
 
@@ -269,6 +270,8 @@ export async function renderConstructionScene({scene,chapter=1}={}){
   shells.find(s=>s.level==='G').ceilings,shells.find(s=>s.level==='G').videoPlanet);
  const sunburstArcadeVisuals=await renderSunburstArcadeV126(geometryGroups.G,
   shells.find(s=>s.level==='G').ceilings,shells.find(s=>s.level==='G').sunburstArcade);
+ const annexAnchorVisuals=await renderAnnexAnchorV128(geometryGroups.G,
+  shells.find(s=>s.level==='G').ceilings,shells.find(s=>s.level==='G').annexAnchor);
  addFountainArchitecture(geometryGroups.G,mats);
  const ownedAnnexMaterials=[];
  const measured=fixtureList.map(f=>placeModel(geometryGroups[roomLevel(f.room)],loaded,f,ownedAnnexMaterials));
@@ -292,14 +295,15 @@ export async function renderConstructionScene({scene,chapter=1}={}){
   cassetteCastleV124:cassetteCastleVisuals.manifest,
    videoPlanetV125:videoPlanetVisuals.manifest,
    sunburstArcadeV126:sunburstArcadeVisuals.manifest,
+   annexAnchorV128:annexAnchorVisuals.manifest,
   geometryErrors:[],firstFrameFullyLoaded:true,
   setChapter(next){
    for(const g of gates.children)g.visible=next<g.userData.minChapter;
   },
-  setRoofVisible(value){roofs.visible=!!value;ceilings.visible=!!value;annexCorridorVisuals.ceilingRoot.visible=!!value;anchorIdentityVisuals.root.visible=!!value;cassetteCastleVisuals.ceilingRoot.visible=!!value;videoPlanetVisuals.ceilingRoot.visible=!!value;sunburstArcadeVisuals.ceilingRoot.visible=!!value},
+  setRoofVisible(value){roofs.visible=!!value;ceilings.visible=!!value;annexCorridorVisuals.ceilingRoot.visible=!!value;anchorIdentityVisuals.root.visible=!!value;cassetteCastleVisuals.ceilingRoot.visible=!!value;videoPlanetVisuals.ceilingRoot.visible=!!value;sunburstArcadeVisuals.ceilingRoot.visible=!!value;annexAnchorVisuals.ceilingRoot.visible=!!value},
   dispose(){
    scene.remove(group);
-   storefrontVisuals.dispose();closedBayVisuals.dispose();checkpointVisuals.dispose();staffServiceVisuals.dispose();annexCorridorVisuals.dispose();foodCourtVisuals.dispose();publicAmenitiesVisuals.dispose();anchorRetailVisuals.dispose();anchorIdentityVisuals.dispose();anchorStockVisuals.dispose();cassetteCastleVisuals.dispose();videoPlanetVisuals.dispose();sunburstArcadeVisuals.dispose();
+   storefrontVisuals.dispose();closedBayVisuals.dispose();checkpointVisuals.dispose();staffServiceVisuals.dispose();annexCorridorVisuals.dispose();foodCourtVisuals.dispose();publicAmenitiesVisuals.dispose();anchorRetailVisuals.dispose();anchorIdentityVisuals.dispose();anchorStockVisuals.dispose();cassetteCastleVisuals.dispose();videoPlanetVisuals.dispose();sunburstArcadeVisuals.dispose();annexAnchorVisuals.dispose();
    group.traverse(o=>{if(o.geometry)o.geometry.dispose()});
    for(const texture of Object.values(t))texture.dispose();
    for(const material of Object.values(mats))material.dispose();

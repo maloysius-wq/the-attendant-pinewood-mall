@@ -23,6 +23,7 @@ const state={
  cassetteCastleV124:null,cassetteFixtureCountV124:0,cassetteCeilingCountV124:0,cassetteCaseCountV124:0,vinylSleeveCountV124:0,cassettePosterCountV124:0,
  videoPlanetV125:null,videoFixtureCountV125:0,videoCeilingCountV125:0,videoVhsCountV125:0,videoPosterCountV125:0,
  sunburstArcadeV126:null,sunburstFixtureCountV126:0,sunburstLampCountV126:0,sunburstPosterCountV126:0,
+ annexAnchorV128:null,annexAnchorFixtureCountV128:0,annexAnchorLampCountV128:0,annexAnchorStockCountV128:0,
  ceilingFinishes:[],allCeilingsTextured:false,surveyLightOn:true
 };
 const shots={
@@ -142,6 +143,24 @@ const shots={
  lockerService:{floor:'G',eye:[78.5,1.72,-81],target:[82.2,1.7,-81],
   label:'GROUND · LOCKER ROOM SUPPORT',title:'Original Uniforms and Supply Bay',
   note:'A sealed uniform stock enclosure behind the live lockers, outside the LS-06 mixtape and canonical story interactions.'},
+ annexAnchorFront:{floor:'G',eye:[60.7,1.73,-61.5],target:[72.5,1.64,-61.5],
+  label:'GROUND · NORTHSTAR HOME ENTRY',title:'True 4.2m West Door',
+  note:'The actual staff-corridor aperture connects to the 540m² Northstar shop and preserves the chapter route.'},
+ annexAnchorInside:{floor:'G',eye:[68.2,1.72,-61.5],target:[82.5,1.65,-63.5],
+  label:'GROUND · NORTHSTAR HOME 1997',title:'Actual Licensed Housewares Shop',
+  note:'Real full-scale GLB retail fittings, original boxed home stock, original wall prints and gameplay collision.'},
+ annexAnchorGoods:{floor:'G',eye:[73.9,1.72,-70.8],target:[80.5,1.25,-69.0],
+  label:'GROUND · NORTHSTAR ORIGINAL GOODS',title:'1997 Home and Gifts',
+  note:'Hand-authored original cartons supported by previously source-auditioned physical shelves and display tables.'},
+ annexAnchorExit:{floor:'G',eye:[75,1.73,-56.6],target:[75,1.65,-47.5],
+  label:'GROUND · NORTHSTAR EXIT APPROACH',title:'Real Chapter 6 Exit Connection',
+  note:'Preserved unobstructed 4.2m original north doorway to the employee egress vestibule.'},
+ annexAnchorPlan:{floor:'G',eye:[75,23,-61.5],target:[75,0,-61.5],
+  label:'GROUND · NORTHSTAR ORIGINAL CUTAWAY',title:'True 540m² Store and Both Doors',
+  note:'Source cutaway reveals full-size fixtures, physical route elbow, and unchanged main floor and egress geometry.'},
+ annexAnchorNight:{floor:'G',eye:[72,1.72,-60.5],target:[81,1.70,-62.5],
+  label:'GROUND · NORTHSTAR AFTER HOURS',title:'Genuine Failed and Working Ceiling Panels',
+  note:'Original 7.61m high source-attached licensed CC0 fluorescents without survey-only illumination.'},
  annexSouth:{floor:'G',eye:[60.5,1.72,-99],target:[60.5,1.72,-84],
   label:'GROUND · 1992 EMPLOYEE SERVICE ROUTE',title:'Real 639 m² Original Staff Corridor',
   note:'Original 9 m by 71 m service hallway now has source-replaced tiled floor, real mounted CC0 ceiling lamps and service doors kept open.'},
@@ -201,8 +220,8 @@ function setShot(name){
  // A distant cutaway cannot be judged through full-range scene fog and the
  // camera-mounted near-field lamp. This survey-only overhead fill is never
  // installed in the Builder, opening film or playable game.
- if(scene?.fog)scene.fog.density=['aerial','annexPlan'].includes(name)?.0011:.005;
- if(aerialAmbient)aerialAmbient.intensity=['aerial','annexPlan'].includes(name)?1.3:0;
+ if(scene?.fog)scene.fog.density=['aerial','annexPlan','annexAnchorPlan'].includes(name)?.0011:.005;
+ if(aerialAmbient)aerialAmbient.intensity=name==='annexAnchorPlan'?2.8:['aerial','annexPlan'].includes(name)?1.3:0;
  if(!camera)return;
  const s=shots[name];camera.position.set(...s.eye);
  const target=new THREE.Vector3(...s.target);
@@ -214,7 +233,7 @@ function setShot(name){
   // 3–6m from their target; never run orbit distance-clamping on those shots.
   if(orbit.enabled)orbit.update();
  }
- if(built)built.setRoofVisible(roofToggle.checked&&!['aerial','fallowPlan','eastAnchorPlan','cassettePlan','videoPlan','arcadePlan','annexPlan'].includes(name));
+ if(built)built.setRoofVisible(roofToggle.checked&&!['aerial','fallowPlan','eastAnchorPlan','cassettePlan','videoPlan','arcadePlan','annexPlan','annexAnchorPlan'].includes(name));
  renderer?.render(scene,camera);
 }
 function setChapter(value){
@@ -299,6 +318,10 @@ async function begin(){
   state.sunburstFixtureCountV126=state.sunburstArcadeV126.fixtures.length;
   state.sunburstLampCountV126=state.sunburstArcadeV126.fluorescents.length;
   state.sunburstPosterCountV126=state.sunburstArcadeV126.posters.length;
+  state.annexAnchorV128={...built.annexAnchorV128};
+  state.annexAnchorFixtureCountV128=state.annexAnchorV128.fixtures.length;
+  state.annexAnchorLampCountV128=state.annexAnchorV128.lights.length;
+  state.annexAnchorStockCountV128=state.annexAnchorV128.authoredOriginalStock;
   state.storefrontCount=built.storefrontsV115.length;
   state.storefrontNames=built.storefrontsV115.map(f=>f.sign);
   state.storefrontEntries=built.storefrontsV115.map(f=>({room:f.id,entryWidth:f.entryWidth,windowSpan:f.windowSpan}));
@@ -343,6 +366,9 @@ async function begin(){
    state.videoPosterCountV125+' original fictional film posters · '+
    state.sunburstFixtureCountV126+' real CC0 full-size Sunburst arcade machines · '+
    state.sunburstLampCountV126+' authentic arcade ceiling fluorescents · '+
+   state.annexAnchorFixtureCountV128+' true Northstar GLB fixtures · '+
+   state.annexAnchorLampCountV128+' Northstar source-mounted ceiling lamps · '+
+   state.annexAnchorStockCountV128+' original boxed home goods · '+
    state.benchCountV120+' genuine CC0 benches · '+state.directoryCountV120+
    ' original ground directories. No remote 3D assets.';
   setChapter(state.chapter);
@@ -364,7 +390,7 @@ async function begin(){
 for(const b of document.querySelectorAll('[data-shot]'))b.addEventListener('click',()=>setShot(b.dataset.shot));
 viewSelect.addEventListener('change',e=>setShot(e.target.value));
 chapterSelect.addEventListener('change',e=>setChapter(e.target.value));
-roofToggle.addEventListener('change',()=>{built?.setRoofVisible(roofToggle.checked&&!['aerial','fallowPlan','eastAnchorPlan','cassettePlan','videoPlan','arcadePlan','annexPlan'].includes(state.shot));renderOnDemand()});
+roofToggle.addEventListener('change',()=>{built?.setRoofVisible(roofToggle.checked&&!['aerial','fallowPlan','eastAnchorPlan','cassettePlan','videoPlan','arcadePlan','annexPlan','annexAnchorPlan'].includes(state.shot));renderOnDemand()});
 surveyToggle.addEventListener('change',()=>{
   state.surveyLightOn=surveyToggle.checked;
   if(surveyLight)surveyLight.intensity=state.surveyLightOn?95:0;
