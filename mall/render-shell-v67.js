@@ -13,6 +13,7 @@ import {renderAnchorStockV123} from './render-anchor-stock-v123.js';
 import {renderCassetteCastleV124} from './render-cassette-castle-v124.js';
 import {renderVideoPlanetV125} from './render-video-planet-v125.js';
 import {renderSunburstArcadeV126} from './render-sunburst-arcade-v126.js';
+import {renderStaffServiceV127} from './render-staff-service-v127.js';
 
 function mappedBox(w,h,d,tileMetres=3){
  const g=new THREE.BoxGeometry(w,h,d),uv=g.getAttribute('uv');
@@ -45,6 +46,9 @@ function wallMesh(group,w,mats){
     w.role==='food-court-pier'||w.role==='food-court-header'||w.role==='food-court-return'?mats.shopMasonry:
     w.role==='checkpoint-glass'?mats.checkpointGlass:
     w.role==='checkpoint-partition'||w.role==='checkpoint-header'?mats.checkpointMasonry:
+    w.role==='staff-shutter'?mats.shutter:
+    w.role==='staff-partition'?mats.closedMasonry:
+    w.role==='staff-header'?mats.shutterHeader:
     w.role==='closed-bay-shutter'?mats.shutter:
     w.role==='closed-bay-header'?mats.shutterHeader:
     w.role==='closed-bay-partition'?mats.closedMasonry:
@@ -228,6 +232,7 @@ export async function renderConstructionScene({scene,chapter=1}={}){
  const storefrontVisuals=renderStorefrontsV115(geometryGroups.G,shells.find(s=>s.level==='G').storefronts);
  const closedBayVisuals=renderSealedBaysV116(geometryGroups.G,shells.find(s=>s.level==='G').closedBays);
  const checkpointVisuals=renderVestibuleCheckpointV117(geometryGroups.G,shells.find(s=>s.level==='G').checkpoint);
+ const staffServiceVisuals=renderStaffServiceV127(geometryGroups.G,shells.find(s=>s.level==='G').staffService);
  const galleryColumnsVisuals=renderGalleryColumnsV118(geometryGroups.G,shells.find(s=>s.level==='G').galleryColumns,mats);
  const foodCourtVisuals=renderFoodCourtV119(geometryGroups.G,shells.find(s=>s.level==='G').foodCourt);
  const publicAmenitiesVisuals=await renderGalleryAmenitiesV120(geometryGroups.G,shells.find(s=>s.level==='G').galleryAmenities);
@@ -251,6 +256,7 @@ export async function renderConstructionScene({scene,chapter=1}={}){
   texturesLoaded:Object.keys(t).length,modelsLoaded:measured.length,modelManifest:measured,
   storefrontsV115:storefrontVisuals.manifest,closedBaysV116:closedBayVisuals.manifest,
   checkpointV117:{cells:checkpointVisuals.cells,clearWidth:checkpointVisuals.clearWidth,window:checkpointVisuals.window},
+  staffServiceV127:staffServiceVisuals.manifest,staffFixtureCountV127:shells.find(s=>s.level==='G').staffFixtures.length,
   galleryColumnsV118:galleryColumnsVisuals.manifest,
   foodCourtV119:foodCourtVisuals.manifest,
   galleryAmenitiesV120:publicAmenitiesVisuals.manifest,
@@ -267,7 +273,7 @@ export async function renderConstructionScene({scene,chapter=1}={}){
   setRoofVisible(value){roofs.visible=!!value;ceilings.visible=!!value;anchorIdentityVisuals.root.visible=!!value;cassetteCastleVisuals.ceilingRoot.visible=!!value;videoPlanetVisuals.ceilingRoot.visible=!!value;sunburstArcadeVisuals.ceilingRoot.visible=!!value},
   dispose(){
    scene.remove(group);
-   storefrontVisuals.dispose();closedBayVisuals.dispose();checkpointVisuals.dispose();foodCourtVisuals.dispose();publicAmenitiesVisuals.dispose();anchorRetailVisuals.dispose();anchorIdentityVisuals.dispose();anchorStockVisuals.dispose();cassetteCastleVisuals.dispose();videoPlanetVisuals.dispose();sunburstArcadeVisuals.dispose();
+   storefrontVisuals.dispose();closedBayVisuals.dispose();checkpointVisuals.dispose();staffServiceVisuals.dispose();foodCourtVisuals.dispose();publicAmenitiesVisuals.dispose();anchorRetailVisuals.dispose();anchorIdentityVisuals.dispose();anchorStockVisuals.dispose();cassetteCastleVisuals.dispose();videoPlanetVisuals.dispose();sunburstArcadeVisuals.dispose();
    group.traverse(o=>{if(o.geometry)o.geometry.dispose()});
    for(const texture of Object.values(t))texture.dispose();
    for(const material of Object.values(mats))material.dispose();
