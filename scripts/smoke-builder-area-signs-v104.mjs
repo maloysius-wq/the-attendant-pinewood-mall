@@ -55,7 +55,20 @@ try{
   {gridSize:0,allowClipping:true});
  await page.evaluate(()=>window.__PINEWOOD_BUILDER__.jumpRoom('cassette_castle'));
  mkdirSync('artifacts',{recursive:true});
- await page.screenshot({path:'artifacts/pinewood-area-signs-v104.png'});
+ // The original 41-room/638-model desktop WebGL Builder can take longer
+ // to capture a frame under SwiftShader than its default 30-second allowance.
+ // Keep every live 3D sign, private draft, and no-network assertion intact.
+ try{
+  await page.screenshot({path:'artifacts/pinewood-area-signs-v104.png',
+   animations:'disabled',timeout:120000});
+ }catch(error){
+  console.error('BUILDER_V104_CAPTURE_DIAGNOSTIC '+JSON.stringify({
+   originalError:String(error),errors,external,
+   sourceState:await page.evaluate(()=>window.__PINEWOOD_BUILDER__?.getState?.()).catch(()=>null),
+   signState:await api().catch(()=>null)
+  }));
+  throw error;
+ }
  assert.deepEqual(external,[],'no third-party image/font/runtime requests');
  assert.deepEqual(errors,[],'no renderer or Builder JavaScript errors');
  console.log('PINEWOOD_BUILDER_AREA_SIGNS_V104_DESKTOP_PASS',JSON.stringify({
