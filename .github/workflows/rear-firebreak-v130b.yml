@@ -1,0 +1,54 @@
+name: Pinewood V130b real original rear service enclosure and stair
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'mall/rear-firebreak-plan-v130b.mjs'
+      - 'mall/original-rear-survey-v130.mjs'
+      - 'mall/physical-shell-v67.mjs'
+      - 'mall/render-shell-v67.js'
+      - 'review/mall-construction-v67/**'
+      - 'scripts/test-rear-firebreak-v130b.mjs'
+      - 'scripts/smoke-rear-firebreak-v130b.mjs'
+      - '.github/workflows/rear-firebreak-v130b.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  original-rear-source-desktop:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 29
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify original 63sqm envelope, 61.5sqm source ceiling, 1.5sqm stair opening and six chapters
+        run: |
+          node --check mall/rear-firebreak-plan-v130b.mjs
+          node --check mall/original-rear-survey-v130.mjs
+          node --check mall/physical-shell-v67.mjs
+          node --check mall/render-shell-v67.js
+          node --check review/mall-construction-v67/main.js
+          node --check scripts/smoke-rear-firebreak-v130b.mjs
+          node --test scripts/test-rear-firebreak-v130b.mjs scripts/test-original-rear-survey-v130.mjs scripts/test-residual-firebreak-v129.mjs scripts/test-physical-shell-v67.mjs scripts/test-gameplay-layout-v70.mjs scripts/test-vestibule-checkpoint-v117.mjs scripts/test-storefronts-v115.mjs
+      - name: Preserve genuine locally pinned source models and textures
+        run: node scripts/audit-local-assets-v15.mjs
+      - name: Install desktop Chromium original-source WebGL
+        run: |
+          npm install --no-save playwright@1.55.0
+          npx playwright install chromium
+      - name: Serve canonical building and construction preview
+        run: |
+          python3 -m http.server 4173 --bind 127.0.0.1 >/tmp/pinewood-v130b-http.log 2>&1 &
+          for i in {1..40}; do curl -fsS http://127.0.0.1:4173/review/mall-construction-v67/ >/dev/null && exit 0; sleep 1; done
+          exit 1
+      - name: Capture six real 1440x900 rear service and B1 stair WebGL screenshots
+        run: node scripts/smoke-rear-firebreak-v130b.mjs
+      - name: Retain original full-source desktop review pixels
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: v130b-original-rear-real-desktop
+          path: artifacts/v130b-original-rear/
+          retention-days: 14
