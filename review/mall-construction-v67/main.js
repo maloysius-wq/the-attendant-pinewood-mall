@@ -14,6 +14,7 @@ const state={
  chapter:1,eastExitLocked:true,shot:'service',ceilingMeshes:0,ceilingRooms:[],
  storefrontCount:0,storefrontNames:[],storefrontEntries:[],
  closedBayCount:0,closedBayNames:[],checkpointV117:null,
+ staffServiceV127:[],staffFixtureCountV127:0,
  galleryColumnsV118:[],galleryColumnCount:0,
  galleryAmenitiesV120:null,benchCountV120:0,directoryCountV120:0,wayfindingCountV120:0,
  anchorRetailV121:[],anchorRetailCountV121:0,
@@ -126,6 +127,24 @@ const shots={
   note:'Previously featureless Annex west wall now has actual service-bounded tenant fronts and period shutters.'},
  closedSouth:{floor:'G',eye:[-22,1.75,-104],target:[-23,2.5,-111],label:'GROUND · WEST SERVICE',title:'Old Janitorial Stores',
   note:'The staff supply room is separated from the public gallery by a closed roll-down shutter.'},
+ northService:{floor:'G',eye:[3.7,1.72,-115],target:[8.0,1.85,-115],
+  label:'GROUND · NORTH MAINTENANCE SPARES',title:'Original Rear-Service Utility Closet',
+  note:'Actual original source-attached maintenance bay, with a closed shutter and locally verified CC0 cabinet.'},
+ securityService:{floor:'G',eye:[39.2,1.72,-109.8],target:[44.1,1.73,-108],
+  label:'GROUND · SECURITY SUPPORT',title:'Original CCTV Tape Archive',
+  note:'Real security-office evidence tape bay; chapter consoles, stairwell and LS-05 remain accessible.'},
+ trainingService:{floor:'G',eye:[75.7,1.72,-102.5],target:[79.6,1.77,-102.5],
+  label:'GROUND · ANNEX TRAINING SERVICE',title:'Training T-04 AV Equipment Store',
+  note:'A shuttered source room inside the true annex training suite, with original notes and training desk outside its wall.'},
+ kitchenService:{floor:'G',eye:[77.9,1.72,-92],target:[82.2,1.6,-92],
+  label:'GROUND · EAST ANNEX STAFF KITCHEN',title:'Passable Break Room Kitchen',
+  note:'A real 2.4m open service doorway with CC0 kitchen cupboard and physical gameplay cabinet collision.'},
+ lockerService:{floor:'G',eye:[78.5,1.72,-81],target:[82.2,1.7,-81],
+  label:'GROUND · LOCKER ROOM SUPPORT',title:'Original Uniforms and Supply Bay',
+  note:'A sealed uniform stock enclosure behind the live lockers, outside the LS-06 mixtape and canonical story interactions.'},
+ annexStaff:{floor:'G',eye:[60,1.72,-87],target:[60,1.72,-58],
+  label:'GROUND · 1992 STAFF SPINE',title:'East Annex Employee Route',
+  note:'Real east-wing staff corridor with original story thresholds and five new source-attached back-of-house service functions.'},
  east:{floor:'G',eye:[60,1.75,-54],target:[60,1.75,-97],label:'GROUND · EAST ANNEX',title:'The Later East Wing',
   note:'The East Wing is a period-specific addition to the original mall, with its own employee circulation and sealed thresholds.'},
  security:{floor:'G',eye:[34,1.73,-104],target:[36.5,1.7,-110],label:'GROUND · SECURITY DESK',title:'Security and CCTV',
@@ -231,6 +250,8 @@ async function begin(){
   state.closedBayCount=built.closedBaysV116.length;
   state.closedBayNames=built.closedBaysV116.map(b=>b.name);
   state.checkpointV117={...built.checkpointV117};
+  state.staffServiceV127=[...built.staffServiceV127];
+  state.staffFixtureCountV127=built.staffFixtureCountV127;
   state.galleryColumnsV118=[...built.galleryColumnsV118];
   state.galleryColumnCount=state.galleryColumnsV118.length;
   state.galleryAmenitiesV120={
@@ -289,6 +310,8 @@ async function begin(){
    ' preloaded material maps · '+state.modelsLoaded+' placed CC0 fixtures · '+
    state.storefrontCount+' glazed shopfronts · '+state.closedBayCount+' enclosed support bays · '+
    state.checkpointV117.cells+' closed service-checkpoint cells · '+
+   state.staffServiceV127.length+' authentic 1997 staff/support subdivisions · '+
+   state.staffFixtureCountV127+' licensed CC0 staff service cabinets · '+
    state.galleryColumnCount+' original structural gallery piers · '+
    state.anchorRetailCountV121+' real source-licensed 1979 department-store fittings · '+
    state.ceilingPanelCountV122+' actual pinned ceiling fixtures · '+state.departmentSignCountV122+' wall-fixed internal signs · '+

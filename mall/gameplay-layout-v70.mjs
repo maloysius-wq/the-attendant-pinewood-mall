@@ -45,7 +45,7 @@ export function buildGameplayLayoutV70({chapter,level}={}){
   }
  }
  for(const w of [...shell.walls,...shell.gates,...shell.railings])
-  if(!['lintel','storefront-spandrel','closed-bay-header','checkpoint-header','food-court-header'].includes(w.role))addWallCollision(colliders,w); // Overhead solids are not walk-level obstacles.
+  if(!['lintel','storefront-spandrel','closed-bay-header','checkpoint-header','food-court-header','staff-header'].includes(w.role))addWallCollision(colliders,w); // Overhead solids are not walk-level obstacles.
  // Atrium and gallery support piers are TRUE waist-height collision. Capital
  // overhangs are high overhead, so only the source plinth occupies the walk.
  for(const post of shell.galleryColumns||[]){
@@ -70,6 +70,14 @@ export function buildGameplayLayoutV70({chapter,level}={}){
   const r=f.collisionRadius;
   colliders.push({minX:f.x-r,maxX:f.x+r,minZ:f.z-r,maxZ:f.z+r,
    kind:'original-retail-fixture',id:f.id});
+ }
+ // V127 back-of-house CC0 service cabinets have physical gameplay footprint.
+ // In permanently locked cells this also guards against future accidental
+ // access; the kitchen remains genuinely open with a collidable cabinet.
+ for(const f of shell.staffFixtures||[]){
+  const r=f.collisionRadius;
+  colliders.push({minX:f.x-r,maxX:f.x+r,minZ:f.z-r,maxZ:f.z+r,
+   kind:'original-staff-service-cabinet',id:f.id});
  }
  // V123 original low stock on full-size existing V121 display tables is
  // already within the parent's solid collider. Only true floor cartons,
