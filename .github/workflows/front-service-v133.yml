@@ -17,7 +17,7 @@ permissions:
 jobs:
   original-front-hinge-source:
     runs-on: ubuntu-24.04
-    timeout-minutes: 29
+    timeout-minutes: 35
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -49,6 +49,15 @@ jobs:
           exit 1
       - name: Capture actual six 1440x900 original shared-source front/hinged-view pixels
         run: node scripts/smoke-front-service-v133.mjs
+      - name: Verify actual V113 licensed door opens/closes with E on BOTH sides and cannot trap the player
+        run: node scripts/smoke-vestibule-handoff-v112.mjs
+      - name: Upload genuine V113 chapter one closed real-door gameplay pixel evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: v133-original-real-door-gameplay
+          path: artifacts/v112-chapter-one-vestibule.png
+          if-no-files-found: ignore
       - name: Upload original front-source desktop WebGL evidence
         if: always()
         uses: actions/upload-artifact@v4
