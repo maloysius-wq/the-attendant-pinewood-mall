@@ -2,6 +2,7 @@ import {MALL} from './masterplan-v66.mjs';
 import {planStorefrontsV115,storefrontPhysicalWallsV115,validateStorefrontsV115} from './storefront-plan-v115.mjs';
 import {SEALED_BAYS_V116,sealedBayWallsV116,validateSealedBaysV116} from './sealed-bay-plan-v116.mjs';
 import {STAFF_SERVICE_CELLS_V127,STAFF_SERVICE_FIXTURES_V127,staffServiceWallsV127,validateStaffServiceV127} from './staff-service-plan-v127.mjs';
+import {ANNEX_SPINE_V127B,ANNEX_LIGHTS_V127B,ANNEX_SIGNS_V127B,ANNEX_BULKHEADS_V127B,validateAnnexCirculationV127b} from './annex-circulation-plan-v127b.mjs';
 import {CHECKPOINT_V117,checkpointWallsV117,checkpointCeilingsV117,validateCheckpointV117} from './vestibule-checkpoint-v117.mjs';
 import {GALLERY_COLUMNS_V118,validateGalleryColumnsV118} from './gallery-columns-v118.mjs';
 import {FOOD_COURT_V119,foodCourtWallsV119,validateFoodCourtV119} from './food-court-plan-v119.mjs';
@@ -231,7 +232,15 @@ function floorPlates(level){
    {...westAnchor,id:'v121_fallows_original_carpet',y,material:'carpet'},
    {...eastAnchor,id:'v121_east_original_anchor_carpet',y,material:'carpet'},
    {...arcadeFloor,id:'v126_original_sunburst_arcade_carpet',y,material:'carpet'},
-   {...MALL.footprints.annex,id:'annex',y,material:'carpet'}];
+   // The 1992 staff passage was resilient tile, not shopping-center carpet.
+   // Cut the exact existing slab then re-fill at y=0, never overlay it.
+   ...pieces(MALL.footprints.annex,[
+    rect(ANNEX_SPINE_V127B.x1,ANNEX_SPINE_V127B.x2,
+     ANNEX_SPINE_V127B.z1,ANNEX_SPINE_V127B.z2)
+   ]).map((b,i)=>({...b,id:'annex_carpet_'+i,y,material:'carpet'})),
+   {...rect(ANNEX_SPINE_V127B.x1,ANNEX_SPINE_V127B.x2,
+    ANNEX_SPINE_V127B.z1,ANNEX_SPINE_V127B.z2),
+    id:'v127b_east_employee_hall_tile',y,material:'tile'}];
  }
  if(level==='B1')return [{...MALL.footprints.B1,id:'basement',y,material:'tile'}];
  return MALL.rooms.filter(r=>r.level==='M1').flatMap(r=>
@@ -333,6 +342,7 @@ export function constructPhysicalShell({level='G',chapter=1}={}){
  const shell={version:67,level,chapter,y:levelData(level).y,footprints:MALL.footprints,
   storefronts,closedBays:level==='G'?SEALED_BAYS_V116:[],checkpoint:level==='G'?CHECKPOINT_V117:null,
   staffService:level==='G'?STAFF_SERVICE_CELLS_V127:[],staffFixtures:level==='G'?STAFF_SERVICE_FIXTURES_V127:[],
+  annexCirculation:level==='G'?{spine:ANNEX_SPINE_V127B,lights:ANNEX_LIGHTS_V127B,signs:ANNEX_SIGNS_V127B,bulkheads:ANNEX_BULKHEADS_V127B}:null,
   galleryColumns:level==='G'?GALLERY_COLUMNS_V118:[],
   foodCourt:level==='G'?FOOD_COURT_V119:null,
   galleryAmenities:level==='G'?GALLERY_AMENITIES_V120:null,
@@ -383,6 +393,8 @@ export function isSegmentBlocked(shell,from,to){
   [...(shell.galleryAmenities?.benches||[]),...(shell.galleryAmenities?.directories||[])]
     .some(a=>distanceToSegment2D(a,from,to)<a.collisionRadius)||
   (shell.anchorRetail||[]).some(f=>distanceToSegment2D(f,from,to)<f.collisionRadius)||
+  // V127a physical staff cabinets must match gameplay's real colliders.
+  (shell.staffFixtures||[]).some(f=>distanceToSegment2D(f,from,to)<f.collisionRadius)||
   (shell.anchorStock||[]).filter(f=>!f.support).some(f=>distanceToSegment2D(f,from,to)<f.collisionRadius)||
   (shell.cassetteCastle?.fixtures||[]).some(f=>distanceToSegment2D(f,from,to)<f.collisionRadius)||
    (shell.videoPlanet?.fixtures||[]).some(f=>distanceToSegment2D(f,from,to)<f.collisionRadius)||
@@ -393,6 +405,8 @@ export function validatePhysicalShell(shell){
  if(shell.level==='G'){
   errors.push(...validateCheckpointV117(shell.checkpoint));
   errors.push(...validateStaffServiceV127(shell.staffService,shell.staffFixtures));
+  errors.push(...validateAnnexCirculationV127b(shell.annexCirculation,
+   {walls:shell.walls,portals:shell.portals,ceilings:shell.ceilings}));
   errors.push(...validateGalleryColumnsV118(shell.galleryColumns,shell.portals));
   errors.push(...validateFoodCourtV119(shell.foodCourt,MALL,shell.portals));
   errors.push(...validateGalleryAmenitiesV120(shell.galleryAmenities,
