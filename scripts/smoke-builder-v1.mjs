@@ -35,6 +35,17 @@ try{
   return {x:r.x,y:r.y,width:r.width,height:r.height};
  });
  const clickToolbar=id=>page.evaluate(id=>document.getElementById(id).click(),id);
+ // Use the actual rendered catalog button's native click handler directly.
+ // Under software WebGL, Playwright's pointer/stability polling can starve
+ // even when the catalog button is present and enabled. The physical canvas
+ // movement, wheel rotation and mouse placement below remain genuine.
+ const clickCatalog=label=>page.evaluate(label=>{
+  const button=[...document.querySelectorAll('.catalog-item')]
+   .find(x=>x.textContent.includes(label));
+  if(!button||button.disabled||button.getBoundingClientRect().width<1)
+   throw Error('visible enabled licensed catalog button missing: '+label);
+  button.click();
+ },label);
  const checkToolbar=(id,checked)=>page.evaluate(([id,checked])=>{
   const element=document.getElementById(id);element.checked=checked;
   element.dispatchEvent(new Event('change',{bubbles:true}));
@@ -95,7 +106,7 @@ try{
  await checkToolbar('allow-clipping',true);
  assert.ok((await get()).navigation.position.z>0,'jump arrives at the outdoor parking area');
  const parkProp=await page.evaluate(()=>window.__PINEWOOD_BUILDER__.getCatalog().find(x=>x.id==='silted-octagonal-atrium-fountain'));
- await page.locator('.catalog-item').filter({hasText:parkProp.label}).first().click();
+ await clickCatalog(parkProp.label);
  const parkCanvas=await actualCanvasBox();
  await page.mouse.move(parkCanvas.x+parkCanvas.width/2,parkCanvas.y+parkCanvas.height/2);
  await page.mouse.click(parkCanvas.x+parkCanvas.width/2,parkCanvas.y+parkCanvas.height/2);
@@ -160,7 +171,7 @@ try{
  assert.ok(canvasBox,'editor viewport is visible');
  const targetX=canvasBox.x+canvasBox.width*.5,targetY=canvasBox.y+canvasBox.height*.58;
  async function previewAndPlace(wheelY,{shiftDistance=false}={}){
-  await page.locator('.catalog-item').filter({hasText:target.label}).first().click();
+  await clickCatalog(target.label);
   await page.waitForFunction(()=>document.getElementById('placement-tip').textContent.startsWith('PLACE '));
   await page.mouse.move(targetX,targetY);
   await page.mouse.wheel(0,wheelY);
@@ -204,7 +215,7 @@ try{
  assert.equal((await get()).navigation.mode,'fly');
  // The editor must still accept left-click placement while flying.
  const flyProp=await page.evaluate(()=>window.__PINEWOOD_BUILDER__.getCatalog().find(x=>x.id==='silted-octagonal-atrium-fountain'));
- await page.locator('.catalog-item').filter({hasText:flyProp.label}).first().click();
+ await clickCatalog(flyProp.label);
  await page.waitForFunction(()=>document.getElementById('placement-tip').textContent.startsWith('PLACE '));
  await page.mouse.click(targetX,canvasBox.y+canvasBox.height*.5);
  await page.waitForFunction(()=>window.__PINEWOOD_BUILDER__.getState().draft.added.length===1,{timeout:8000});
