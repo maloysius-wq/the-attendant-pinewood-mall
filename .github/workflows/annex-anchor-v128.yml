@@ -1,0 +1,58 @@
+name: Pinewood V128 real Northstar Annex anchor and original footprint source
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'mall/annex-anchor-plan-v128.mjs'
+      - 'mall/render-annex-anchor-v128.js'
+      - 'mall/residual-footprint-audit-v128.mjs'
+      - 'mall/physical-shell-v67.mjs'
+      - 'mall/render-shell-v67.js'
+      - 'mall/gameplay-layout-v70.mjs'
+      - 'review/mall-construction-v67/**'
+      - 'scripts/test-annex-anchor-v128.mjs'
+      - 'scripts/smoke-annex-anchor-v128.mjs'
+      - '.github/workflows/annex-anchor-v128.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  original-annex-anchor-desktop:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 29
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Audit source geometry, 520m² residual, authentic licensed assets and protected chapters
+        run: |
+          node --check mall/annex-anchor-plan-v128.mjs
+          node --check mall/render-annex-anchor-v128.js
+          node --check mall/residual-footprint-audit-v128.mjs
+          node --check mall/physical-shell-v67.mjs
+          node --check mall/render-shell-v67.js
+          node --check mall/gameplay-layout-v70.mjs
+          node --check scripts/smoke-annex-anchor-v128.mjs
+          node --check review/mall-construction-v67/main.js
+          node --test scripts/test-annex-anchor-v128.mjs scripts/test-annex-corridor-v127b.mjs scripts/test-staff-service-v127.mjs scripts/test-vestibule-checkpoint-v117.mjs scripts/test-sealed-bays-v116.mjs scripts/test-physical-shell-v67.mjs scripts/test-gameplay-layout-v70.mjs scripts/test-story-placement-v70.mjs scripts/test-storefronts-v115.mjs
+      - name: Enforce pre-vendored local-only browser runtime
+        run: node scripts/audit-local-assets-v15.mjs
+      - name: Install original desktop Chromium software WebGL
+        run: |
+          npm install --no-save playwright@1.55.0
+          npx playwright install chromium
+      - name: Serve canonical game/source/Builder geometry locally
+        run: |
+          python3 -m http.server 4173 --bind 127.0.0.1 >/tmp/pinewood-v128-http.log 2>&1 &
+          for i in {1..40}; do curl -fsS http://127.0.0.1:4173/review/mall-construction-v67/ >/dev/null && exit 0; sleep 1; done
+          exit 1
+      - name: Capture seven true original mall 1440x900 WebGL source views
+        run: node scripts/smoke-annex-anchor-v128.mjs
+      - name: Retain original real 3D screenshot evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: v128-original-northstar-annex-desktop-3d
+          path: artifacts/v128-annex-anchor/
+          retention-days: 14
