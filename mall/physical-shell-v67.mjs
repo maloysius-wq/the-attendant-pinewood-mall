@@ -235,9 +235,15 @@ function floorPlates(level){
    {...arcadeFloor,id:'v126_original_sunburst_arcade_carpet',y,material:'carpet'},
    // V127b: the real 9x71m employee corridor gets a REPLACEMENT tiled slab,
    // carved out of the single original Annex carpet (never a second overlay).
-   ...pieces(MALL.footprints.annex,[ANNEX_SPINE_V127B.floor])
+   // Replace Northstar retail carpet with a single true 1992 tile floor at y=0.
+   ...pieces(MALL.footprints.annex,[ANNEX_SPINE_V127B.floor,
+    rect(ANNEX_ANCHOR_ROOM_V128.x1,ANNEX_ANCHOR_ROOM_V128.x2,
+     ANNEX_ANCHOR_ROOM_V128.z1,ANNEX_ANCHOR_ROOM_V128.z2)])
     .map((b,i)=>({...b,id:'annex_carpet_remaining_'+i,y,material:'carpet'})),
-   {...ANNEX_SPINE_V127B.floor,id:'v127b_original_annex_staff_tile',y,material:'tile'}];
+   {...ANNEX_SPINE_V127B.floor,id:'v127b_original_annex_staff_tile',y,material:'tile'},
+   {...rect(ANNEX_ANCHOR_ROOM_V128.x1,ANNEX_ANCHOR_ROOM_V128.x2,
+    ANNEX_ANCHOR_ROOM_V128.z1,ANNEX_ANCHOR_ROOM_V128.z2),
+    id:'v128_northstar_original_retail_tile',y,material:'tile'}];
  }
  if(level==='B1')return [{...MALL.footprints.B1,id:'basement',y,material:'tile'}];
  return MALL.rooms.filter(r=>r.level==='M1').flatMap(r=>
