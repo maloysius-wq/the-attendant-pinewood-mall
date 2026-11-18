@@ -16,7 +16,7 @@ test('subdivide genuine original service rooms without claiming new story rooms 
  assert.deepEqual(validateStaffServiceV127(),[]);
  assert.equal(MALL.rooms.length,41);assert.equal(MALL.evidence.length,9);
  assert.equal(STAFF_SERVICE_CELLS_V127.length,5);
- assert.equal(STAFF_SERVICE_AREA_V127,176.5);
+ assert.equal(STAFF_SERVICE_AREA_V127,190.5);
  assert.deepEqual(STAFF_SERVICE_CELLS_V127.map(c=>c.room),
  ['north_service','security','training_t04','break_room','staff_lockers']);
  assert.equal(STAFF_SERVICE_CELLS_V127.filter(c=>c.kind==='open').length,1);
