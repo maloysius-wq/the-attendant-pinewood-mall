@@ -27,6 +27,7 @@ jobs:
         run: |
           node --check scripts/audit-v113-door-sweep-v133.mjs
           node scripts/audit-v113-door-sweep-v133.mjs
+          node --test scripts/test-front-service-closure-v133.mjs
       - name: Source regression without author-only Builder changes
         run: |
           node --test scripts/test-original-front-seam-v132.mjs scripts/test-vestibule-handoff-v112.mjs scripts/test-vestibule-checkpoint-v117.mjs scripts/test-original-rear-survey-v130.mjs scripts/test-rear-service-closure-v131.mjs scripts/test-physical-shell-v67.mjs scripts/test-gameplay-layout-v70.mjs
