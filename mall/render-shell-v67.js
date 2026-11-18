@@ -16,6 +16,7 @@ import {renderSunburstArcadeV126} from './render-sunburst-arcade-v126.js';
 import {renderAnnexAnchorV128} from './render-annex-anchor-v128.js';
 import {renderFirebreakPlateV129} from './render-residual-firebreak-v129.js';
 import {auditOriginalClosuresV129} from './residual-firebreak-plan-v129.mjs';
+import {auditRearClosureV130B} from './rear-firebreak-plan-v130b.mjs';
 import {renderStaffServiceV127} from './render-staff-service-v127.js';
 import {renderAnnexCorridorV127B} from './render-annex-corridor-v127b.js';
 
@@ -305,6 +306,9 @@ export async function renderConstructionScene({scene,chapter=1}={}){
     ceiling:shells.find(s=>s.level==='G').nwFirebreak.ceiling,
     upperSpandrel:shells.find(s=>s.level==='G').walls.find(w=>w.role==='v129-firebreak-spandrel'),
     survey:auditOriginalClosuresV129()},
+   rearClosureV130B:{...auditRearClosureV130B(),
+    sourceWalls:shells.find(s=>s.level==='G').walls.filter(w=>w.role==='v130b-original-rear-return'),
+    originalCeilings:shells.find(s=>s.level==='G').ceilings.filter(c=>c.id.startsWith('v130b_'))},
   geometryErrors:[],firstFrameFullyLoaded:true,
   setChapter(next){
    for(const g of gates.children)g.visible=next<g.userData.minChapter;
