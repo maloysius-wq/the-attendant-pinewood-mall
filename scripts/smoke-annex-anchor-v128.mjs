@@ -27,6 +27,8 @@ try{
  assert.equal(state.annexAnchorFixtureCountV128,24);
  assert.equal(state.annexAnchorLampCountV128,8);
  assert.equal(state.annexAnchorStockCountV128,176);
+ assert.deepEqual(state.annexAnchorV128.stockBatches.map(b=>b.count),[176,168],
+  'all source-supported boxed goods and price labels must use only two GPU draws');
  assert.equal(state.annexAnchorV128.originalArea,540);
  assert.equal(state.annexAnchorV128.identity.originalArtwork,true);
  assert.equal(state.annexAnchorV128.posters.length,5);
