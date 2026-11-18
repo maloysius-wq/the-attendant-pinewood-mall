@@ -52,15 +52,18 @@ export function surveyOriginalFrontSeamV132(){
  const nw=auditOriginalClosuresV129();
  const rear=auditRearServiceClosureV131();
  const shell=constructPhysicalShell({level:'G',chapter:1});
+ // Preserve V132's actual PRE-V133 survey: no retroactive source statistics.
+ const historicWalls=shell.walls.filter(w=>w.role!=='v133-front-service-partition');
+ const historicCeilings=shell.ceilings.filter(c=>!c.id.startsWith('v133_'));
  const originalCells=old.cells.reduce((n,c)=>n+overlap(c,seam),0);
  const actualFloor=shell.floorPlates.reduce((n,p)=>n+overlap(p,seam),0);
- const interiorCeiling=shell.ceilings.reduce((n,c)=>n+overlap(c,seam),0);
+ const interiorCeiling=historicCeilings.reduce((n,c)=>n+overlap(c,seam),0);
  const weatherRoof=shell.roofs.reduce((n,r)=>n+overlap(r,seam),0);
  const existingSourceFaces=[
-  faceCoverage(shell.walls,'x',seam.x1,seam.z1,seam.z2), // original boarded lobby
-  faceCoverage(shell.walls,'x',seam.x2,seam.z1,seam.z2), // actual contractor vestibule
-  faceCoverage(shell.walls,'z',seam.z2,seam.x1,seam.x2), // original front exterior
-  faceCoverage(shell.walls,'z',seam.z1,seam.x1,seam.x2)  // true central atrium junction
+  faceCoverage(historicWalls,'x',seam.x1,seam.z1,seam.z2), // original boarded lobby
+  faceCoverage(historicWalls,'x',seam.x2,seam.z1,seam.z2), // actual contractor vestibule
+  faceCoverage(historicWalls,'z',seam.z2,seam.x1,seam.x2), // original front exterior
+  faceCoverage(historicWalls,'z',seam.z1,seam.x1,seam.x2)  // true central atrium junction
  ];
  const hinged=vestibuleInnerPortalV112(shell);
  const service=shell.doors.find(d=>d.id==='service_entry');

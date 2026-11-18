@@ -16,6 +16,7 @@ import {SUNBURST_FIXTURES_V126,SUNBURST_LIGHTS_V126,SUNBURST_SIGN_V126,SUNBURST_
 import {ANNEX_ANCHOR_ROOM_V128,ANNEX_ANCHOR_FIXTURES_V128,ANNEX_ANCHOR_LIGHTS_V128,ANNEX_ANCHOR_IDENTITY_V128,ANNEX_ANCHOR_POSTERS_V128,validateAnnexAnchorV128} from './annex-anchor-plan-v128.mjs';
 import {NW_FIREBREAK_V129,FIREBREAK_PLATE_V129,FIREBREAK_CEILING_V129,residualFirebreakWallsV129,validateFirebreakV129} from './residual-firebreak-plan-v129.mjs';
 import {REAR_SERVICE_ENVELOPE_V131,REAR_SERVICE_CEILINGS_V131,rearServiceWallsV131,validateRearServiceV131} from './rear-service-closure-v131.mjs';
+import {FRONT_ORIGINAL_CLOSURE_V133,frontSourceWallV133,frontSourceCeilingV133,validateFrontClosureV133} from './front-service-closure-v133.mjs';
 
 const EPS=1e-6;
 const TEXTURES=Object.freeze({
@@ -361,7 +362,8 @@ export function constructPhysicalShell({level='G',chapter=1}={}){
    annexAnchor:level==='G'?{fixtures:ANNEX_ANCHOR_FIXTURES_V128,lights:ANNEX_ANCHOR_LIGHTS_V128,identity:ANNEX_ANCHOR_IDENTITY_V128,posters:ANNEX_ANCHOR_POSTERS_V128}:null,
    nwFirebreak:level==='G'?{enclosure:NW_FIREBREAK_V129,plate:FIREBREAK_PLATE_V129,ceiling:FIREBREAK_CEILING_V129}:null,
     originalRearClosure:level==='G'?{envelope:REAR_SERVICE_ENVELOPE_V131,ceilings:REAR_SERVICE_CEILINGS_V131}:null,
-  floorPlates:floorPlates(level),ceilings:[...ceilingPlates(level),...(level==='G'?checkpointCeilingsV117():[]),...(level==='G'?[FIREBREAK_CEILING_V129,...REAR_SERVICE_CEILINGS_V131]:[])],walls:[],portals:planar,doors:exposedDoors(level,chapter),
+    originalFrontClosure:level==='G'?FRONT_ORIGINAL_CLOSURE_V133:null,
+  floorPlates:floorPlates(level),ceilings:[...ceilingPlates(level),...(level==='G'?checkpointCeilingsV117():[]),...(level==='G'?[FIREBREAK_CEILING_V129,...REAR_SERVICE_CEILINGS_V131,frontSourceCeilingV133()]:[])],walls:[],portals:planar,doors:exposedDoors(level,chapter),
   railings:level==='M1'?[{id:'atrium_overlook_guard',axis:'z',at:-94,start:-11,end:29,bottom:5.4,top:6.65,thickness:.12,material:'steel',role:'railing'}]:[],
   roofs:roofPlates(level),stairs:MALL.links.filter(l=>l.type==='stairs'&&[room(l.from).level,room(l.to).level].includes(level)).map(makeStairs),
   verticals:verticalTransitions(level),fixtures:fixtures(level),texturePaths:{...TEXTURES}};
@@ -376,7 +378,7 @@ export function constructPhysicalShell({level='G',chapter=1}={}){
  // are reused, never duplicated or masked with a review-only fake.
  const v129Walls=level==='G'?residualFirebreakWallsV129(existingWalls):[];
  const v131Walls=level==='G'?rearServiceWallsV131([...existingWalls,...v129Walls]):[];
-  shell.walls=[...existingWalls,...v129Walls,...v131Walls];
+  shell.walls=[...existingWalls,...v129Walls,...v131Walls,...(level==='G'?[frontSourceWallV133([...existingWalls,...v129Walls,...v131Walls])]:[])];
  shell.gates=insertGates(shell);
  return shell;
 }
@@ -449,6 +451,11 @@ export function validatePhysicalShell(shell){
    walls:shell.walls.filter(w=>w.role==='v131-rear-service-partition'),
    existingWalls:shell.walls.filter(w=>w.role!=='v131-rear-service-partition'),
    ceilings:shell.ceilings,floorPlates:shell.floorPlates,portals:shell.portals}));
+  errors.push(...validateFrontClosureV133({
+   walls:shell.walls.filter(w=>w.role==='v133-front-service-partition'),
+   existingWalls:shell.walls.filter(w=>w.role!=='v133-front-service-partition'),
+   ceilings:shell.ceilings,floorPlates:shell.floorPlates,
+   portals:shell.portals,roofs:shell.roofs}));
  }
  if(shell.version!==67||!levelData(shell.level))errors.push('unknown physical shell version/level');
  for(const w of [...shell.walls,...shell.gates,...shell.railings]){

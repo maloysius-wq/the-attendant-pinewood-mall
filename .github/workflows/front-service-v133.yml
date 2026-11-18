@@ -1,0 +1,67 @@
+name: V133 original pinned GLB door swing and front source construction guard
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'scripts/audit-v113-door-sweep-v133.mjs'
+      - 'mall/front-service-closure-v133.mjs'
+      - 'mall/physical-shell-v67.mjs'
+      - 'mall/original-front-seam-survey-v132.mjs'
+      - 'scripts/test-front-service-closure-v133.mjs'
+      - 'scripts/smoke-front-service-v133.mjs'
+      - 'review/mall-construction-v67/**'
+      - '.github/workflows/front-service-v133.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  original-front-hinge-source:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify real pinned V113 GLB source-door clearance
+        run: |
+          node --check scripts/audit-v113-door-sweep-v133.mjs
+          node scripts/audit-v113-door-sweep-v133.mjs
+          node --test scripts/test-front-service-closure-v133.mjs
+          node --check mall/front-service-closure-v133.mjs
+          node --check mall/physical-shell-v67.mjs
+          node --check mall/render-shell-v67.js
+          node --check review/mall-construction-v67/main.js
+          node --check scripts/smoke-front-service-v133.mjs
+      - name: Source regression without author-only Builder changes
+        run: |
+          node --test scripts/test-original-front-seam-v132.mjs scripts/test-vestibule-handoff-v112.mjs scripts/test-vestibule-checkpoint-v117.mjs scripts/test-original-rear-survey-v130.mjs scripts/test-rear-service-closure-v131.mjs scripts/test-physical-shell-v67.mjs scripts/test-gameplay-layout-v70.mjs
+      - name: Inspect all local runtime asset provenance
+        run: node scripts/audit-local-assets-v15.mjs
+      - name: Install original desktop Chromium
+        run: |
+          npm install --no-save playwright@1.55.0
+          npx playwright install chromium
+      - name: Serve canonical original building and approved construction review
+        run: |
+          python3 -m http.server 4173 --bind 127.0.0.1 >/tmp/pinewood-v133-http.log 2>&1 &
+          for i in {1..40}; do curl -fsS http://127.0.0.1:4173/review/mall-construction-v67/ >/dev/null && exit 0; sleep 1; done
+          exit 1
+      - name: Capture actual six 1440x900 original shared-source front/hinged-view pixels
+        run: node scripts/smoke-front-service-v133.mjs
+      - name: Verify actual V113 licensed door opens/closes with E on BOTH sides and cannot trap the player
+        run: node scripts/smoke-vestibule-handoff-v112.mjs
+      - name: Upload genuine V113 chapter one closed real-door gameplay pixel evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: v133-original-real-door-gameplay
+          path: artifacts/v112-chapter-one-vestibule.png
+          if-no-files-found: ignore
+      - name: Upload original front-source desktop WebGL evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: v133-real-original-front-webgl
+          path: artifacts/v133-front-original/
+          retention-days: 14
