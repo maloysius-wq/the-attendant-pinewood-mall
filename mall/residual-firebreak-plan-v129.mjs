@@ -26,6 +26,14 @@ export const FIREBREAK_CEILING_V129=Object.freeze({
  y:NW_FIREBREAK_V129.ceilingY,thickness:NW_FIREBREAK_V129.ceilingThickness,
  material:'plaster-ceiling'
 });
+/** The public west gallery soffit is y=5.28 with 0.18m thickness:
+ * underside y=5.19. This is the REAL source overhead closure, not a
+ * floating display. The 3.45m service ceiling below remains immutable. */
+export const FIREBREAK_UPPER_INFILL_V129=Object.freeze({
+ id:'v129_fallows_north_gallery_abovewall_infill',
+ axis:'x',at:-29,start:-48,end:-43,bottom:3.45,top:5.19,
+ thickness:.25,role:'v129-firebreak-spandrel',material:'concrete'
+});
 const area=r=>(r.x2-r.x1)*(r.z2-r.z1);
 const overlap=(a,b)=>Math.max(0,Math.min(a.x2,b.x2)-Math.max(a.x1,b.x1))*
  Math.max(0,Math.min(a.z2,b.z2)-Math.max(a.z1,b.z1));
@@ -35,10 +43,11 @@ const near=(a,b)=>Math.abs(a-b)<.001;
  * Those two WALLS ALREADY EXIST. Only the two unsupported side faces
  * x=-46 and x=-29 need genuine new source masonry solids. */
 export function residualFirebreakWallsV129(existing=[],enclosure=NW_FIREBREAK_V129){
- return sealedBayWallsV116([enclosure],existing).map(w=>({
+ const atFloor=sealedBayWallsV116([enclosure],existing).map(w=>({
   ...w,id:'v129_firebreak_'+w.axis+'_'+w.at+'_'+w.start,
   role:'v129-firebreak-partition',material:'concrete'
  }));
+ return [...atFloor,{...FIREBREAK_UPPER_INFILL_V129}];
 }
 const stairHole=Object.freeze({x1:30.5,x2:33.5,z1:-115.5,z2:-108});
 const freightLift=Object.freeze({x1:18.5,x2:22.5,z1:-115.8,z2:-110.5});
@@ -84,11 +93,17 @@ export function validateFirebreakV129({
  if(MALL.links.some(l=>l.from===enclosure.id||l.to===enclosure.id))
   errors.push('closed firebreak introduced a story access portal');
  const sides=[{axis:'x',at:-46},{axis:'x',at:-29}];
+ const partitions=walls.filter(w=>w.role==='v129-firebreak-partition');
+ const cap=walls.filter(w=>w.role==='v129-firebreak-spandrel');
  if(walls.length&&
-  (walls.length!==2||sides.some(side=>!walls.some(w=>w.axis===side.axis&&
-   near(w.at,side.at)&&near(w.start,-48)&&near(w.end,-43)&&
-   near(w.bottom,0)&&near(w.top,3.45)&&w.role==='v129-firebreak-partition'))))
-  errors.push('real north firebreak needs exactly TWO physically new source wall faces');
+  (walls.length!==3||partitions.length!==2||
+   sides.some(side=>!partitions.some(w=>w.axis===side.axis&&
+    near(w.at,side.at)&&near(w.start,-48)&&near(w.end,-43)&&
+    near(w.bottom,0)&&near(w.top,3.45)))||
+   cap.length!==1||cap.some(w=>w.axis!=='x'||!near(w.at,-29)||
+    !near(w.start,-48)||!near(w.end,-43)||!near(w.bottom,3.45)||
+    !near(w.top,5.19)||w.role!=='v129-firebreak-spandrel')))
+  errors.push('source firebreak needs two ground masonry faces PLUS one real gallery-soffit spandrel');
  if(walls.length){
   for(const w of walls){
    for(const o of [...existingWalls,...walls.filter(x=>x!==w)]){
