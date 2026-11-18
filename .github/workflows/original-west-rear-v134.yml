@@ -1,0 +1,30 @@
+name: Pinewood V134 measured original west-rear service seam source survey
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'mall/original-west-rear-survey-v134.mjs'
+      - 'scripts/test-original-west-rear-v134.mjs'
+      - '.github/workflows/original-west-rear-v134.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  original-west-rear-source:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 9
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify exact real 45sqm west-rear gap and original six chapters
+        run: |
+          node --check mall/original-west-rear-survey-v134.mjs
+          node --check scripts/test-original-west-rear-v134.mjs
+          node --test scripts/test-original-west-rear-v134.mjs scripts/test-physical-shell-v67.mjs scripts/test-gameplay-layout-v70.mjs
+      - name: Emit exact actual source faces for the original back-of-house gap
+        run: |
+          node --input-type=module -e "import {surveyOriginalWestRearV134} from './mall/original-west-rear-survey-v134.mjs'; console.log(JSON.stringify(surveyOriginalWestRearV134(),null,2))"
+      - name: Licensed locally pinned sources
+        run: node scripts/audit-local-assets-v15.mjs
