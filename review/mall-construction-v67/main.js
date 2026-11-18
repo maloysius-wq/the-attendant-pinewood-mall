@@ -24,6 +24,7 @@ const state={
  videoPlanetV125:null,videoFixtureCountV125:0,videoCeilingCountV125:0,videoVhsCountV125:0,videoPosterCountV125:0,
  sunburstArcadeV126:null,sunburstFixtureCountV126:0,sunburstLampCountV126:0,sunburstPosterCountV126:0,
  annexAnchorV128:null,annexAnchorFixtureCountV128:0,annexAnchorLampCountV128:0,annexAnchorStockCountV128:0,
+ firebreakV129:null,firebreakClosedAreaV129:0,firebreakRemainingV129:520,
  ceilingFinishes:[],allCeilingsTextured:false,surveyLightOn:true
 };
 const shots={
@@ -122,6 +123,15 @@ const shots={
  cassettePlan:{floor:'G',eye:[-33,11.2,-72],target:[-38,0,-82],
   label:'CASSETTE CASTLE · SURVEY-ONLY ROOF CUTAWAY',title:'Original Music Store Floor Plan',
   note:'Survey-only roof-free view of canonical 17 × 17m music tenant, source-licensed furniture and real checkout/access paths.'},
+ firebreakFront:{floor:'G',eye:[-24.2,1.73,-45.5],target:[-29.2,2.15,-45.5],
+  label:'GROUND · 1979 FALLOW\'S NORTH FIREBREAK',title:'Source-Masonry Sealed Transfer',
+  note:'Actual two source-reinforced end walls reuse the original 1979 retail and V116 reserve masonry; no new playable room or door.'},
+ firebreakAngle:{floor:'G',eye:[-20.5,1.73,-48.5],target:[-29.1,2.1,-45.5],
+  label:'GROUND · 1997 FIREBREAK FRONTAGE',title:'Original Closed North Stock Transfer',
+  note:'Physical source wall with fixed original hand-lettered sign. The authentic Fallow\'s original 4.2m storefront remains untouched.'},
+ firebreakPlan:{floor:'G',eye:[-37.5,16,-45.5],target:[-37.5,0,-45.5],
+  label:'SURVEY · EXACT NORTHWEST ORIGINAL BUILDING SEAM',title:'85m² Original Service Void Closed',
+  note:'Real roof-off geometry shows the 85m² enclosure, its source floor and sole new x=-46 and x=-29 walls. 435m² remains unallocated.'},
  closedNorth:{floor:'G',eye:[-22,1.75,-51],target:[-22,2.8,-43],label:'GROUND · NORTH FORMER RETAIL',title:'Needle & Thread · Shuttered',
   note:'A bounded original-era closed tenant suite beside the boarded main lobby. The steel shutter is physically sealed.'},
  closedAnnex:{floor:'G',eye:[61,1.75,-69],target:[55.8,2.2,-69],label:'GROUND · ANNEX SERVICE FRONTAGE',title:'East Wing Former Tenants',
@@ -220,8 +230,8 @@ function setShot(name){
  // A distant cutaway cannot be judged through full-range scene fog and the
  // camera-mounted near-field lamp. This survey-only overhead fill is never
  // installed in the Builder, opening film or playable game.
- if(scene?.fog)scene.fog.density=['aerial','annexPlan','annexAnchorPlan'].includes(name)?.0011:.005;
- if(aerialAmbient)aerialAmbient.intensity=name==='annexAnchorPlan'?2.8:['aerial','annexPlan'].includes(name)?1.3:0;
+ if(scene?.fog)scene.fog.density=['aerial','annexPlan','annexAnchorPlan','firebreakPlan'].includes(name)?.0011:.005;
+ if(aerialAmbient)aerialAmbient.intensity=name==='annexAnchorPlan'?2.8:name==='firebreakPlan'?2.2:['aerial','annexPlan'].includes(name)?1.3:0;
  if(!camera)return;
  const s=shots[name];camera.position.set(...s.eye);
  const target=new THREE.Vector3(...s.target);
@@ -233,7 +243,7 @@ function setShot(name){
   // 3–6m from their target; never run orbit distance-clamping on those shots.
   if(orbit.enabled)orbit.update();
  }
- if(built)built.setRoofVisible(roofToggle.checked&&!['aerial','fallowPlan','eastAnchorPlan','cassettePlan','videoPlan','arcadePlan','annexPlan','annexAnchorPlan'].includes(name));
+ if(built)built.setRoofVisible(roofToggle.checked&&!['aerial','fallowPlan','eastAnchorPlan','cassettePlan','videoPlan','arcadePlan','annexPlan','annexAnchorPlan','firebreakPlan'].includes(name));
  renderer?.render(scene,camera);
 }
 function setChapter(value){
@@ -322,6 +332,9 @@ async function begin(){
   state.annexAnchorFixtureCountV128=state.annexAnchorV128.fixtures.length;
   state.annexAnchorLampCountV128=state.annexAnchorV128.lights.length;
   state.annexAnchorStockCountV128=state.annexAnchorV128.authoredOriginalStock;
+  state.firebreakV129={...built.firebreakV129};
+  state.firebreakClosedAreaV129=state.firebreakV129.survey.newlyEnclosed;
+  state.firebreakRemainingV129=state.firebreakV129.survey.remaining;
   state.storefrontCount=built.storefrontsV115.length;
   state.storefrontNames=built.storefrontsV115.map(f=>f.sign);
   state.storefrontEntries=built.storefrontsV115.map(f=>({room:f.id,entryWidth:f.entryWidth,windowSpan:f.windowSpan}));
@@ -330,7 +343,7 @@ async function begin(){
   // Keep the legacy 41-room ceiling audit scoped to canonical room names;
   // V117 adds two subordinate drop ceilings but does not create story rooms.
   state.ceilingRooms=[...new Set(built.ceilings.children.map(mesh=>mesh.userData.roomCeiling)
-   .filter(name=>!String(name).startsWith('v117_')))].sort();
+   .filter(name=>!String(name).startsWith('v117_')&&!String(name).startsWith('v129_')))].sort();
   state.ceilingFinishes=[...new Set(built.ceilings.children.map(mesh=>({
    id:mesh.userData.ceilingFinish,
    texture:mesh.material.map?.image?.src?.split('/').pop()||null
@@ -349,6 +362,8 @@ async function begin(){
    state.staffServiceV127.length+' authentic 1997 staff/support subdivisions · '+
    state.staffFixtureCountV127+' licensed CC0 staff service cabinets · '+
    state.annexCorridorV127B.tiledArea+'m² true Annex service tile · '+
+   state.firebreakClosedAreaV129+'m² original north service firebreak enclosed · '+
+   state.firebreakRemainingV129+'m² original-area remainder still unresolved · '+
    state.annexCorridorV127B.panels.length+' licensed ceiling fluorescents · '+
    state.annexCorridorV127B.signs.length+' source-mounted staff plates · '+
    state.annexCorridorV127B.cabinets.length+' licensed Annex filing stations · '+
