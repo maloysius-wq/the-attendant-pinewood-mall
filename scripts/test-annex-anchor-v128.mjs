@@ -46,6 +46,8 @@ test('source real CC0 fixtures have exact SHA-pinned local bytes and no unlicens
  }
  assert.ok(read('LICENSES.md').includes('KSI_counter.glb'));
  assert.ok(read('mall/render-annex-anchor-v128.js').includes('GLTFLoader'));
+ assert.match(read('mall/render-annex-anchor-v128.js'),/new THREE.InstancedMesh/);
+ assert.match(read('mall/render-annex-anchor-v128.js'),/stockBatches/);
  assert.ok(read('mall/render-shell-v67.js').includes('renderAnnexAnchorV128'));
 });
 test('true two-door 4.2m west-to-north through-lane and all six canonical spawns remain open',()=>{
