@@ -11,12 +11,12 @@ door, and actual already-vendored CC0 full-size closed-door cabinets.
 | Original room | Service subcell coordinates (metres) | Area | Access |
 |---|---|---:|---|
 | north_service | x 7.5 to 11; z -118 to -112 | 21 m² | Locked maintenance supplies |
-| security | x 44 to 46; z -115 to -108 | 14 m² | Locked CCTV tape storage |
+| security | x 44 to 46; z -115 to -101 | 28 m² | Locked CCTV tape storage |
 | training_t04 | x 79.5 to 85; z -108 to -97 | 60.5 m² | Closed training AV storage |
 | break_room | x 80.5 to 85; z -97 to -87 | 45 m² | Open staff kitchen doorway |
 | staff_lockers | x 82 to 85; z -87 to -75 | 36 m² | Locked issued-uniform stock |
 
-The new suites represent **176.5 m² of already-assigned staff space**.
+The new suites represent **190.5 m² of already-assigned staff space**.
 They do not reduce V116's independently audited **520 m² unassigned ground
 footprint**. The latter mainly occupies perimeter relief and seam strips, plus
 notable pockets of 85 m² at x -46..-29, z -48..-43; 51 m² at
