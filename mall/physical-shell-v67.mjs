@@ -400,7 +400,7 @@ function distanceToSegment2D(point,a,b){
 }
 export function isSegmentBlocked(shell,from,to){
  if(!shell||!from||!to)throw new TypeError('shell and endpoints are required');
- return [...shell.walls,...shell.gates,...shell.railings].some(w=>!['lintel','storefront-spandrel','closed-bay-header','checkpoint-header','food-court-header','staff-header'].includes(w.role)&&crossLine(w,from,to))||
+ return [...shell.walls,...shell.gates,...shell.railings].some(w=>!['lintel','storefront-spandrel','closed-bay-header','checkpoint-header','food-court-header','staff-header','v129-firebreak-spandrel'].includes(w.role)&&crossLine(w,from,to))||
   (shell.galleryColumns||[]).some(c=>distanceToSegment2D(c,from,to)<c.collisionRadius)||
   [...(shell.galleryAmenities?.benches||[]),...(shell.galleryAmenities?.directories||[])]
     .some(a=>distanceToSegment2D(a,from,to)<a.collisionRadius)||
@@ -439,8 +439,8 @@ export function validatePhysicalShell(shell){
   errors.push(...validateAnnexAnchorV128(shell.annexAnchor,
    {portals:shell.portals,ceilings:shell.ceilings}));
   errors.push(...validateFirebreakV129({...shell.nwFirebreak,
-   walls:shell.walls.filter(w=>w.role==='v129-firebreak-partition'),
-   existingWalls:shell.walls.filter(w=>w.role!=='v129-firebreak-partition'),
+   walls:shell.walls.filter(w=>w.role.startsWith('v129-firebreak-')),
+   existingWalls:shell.walls.filter(w=>!w.role.startsWith('v129-firebreak-')),
    portals:shell.portals}));
  }
  if(shell.version!==67||!levelData(shell.level))errors.push('unknown physical shell version/level');
