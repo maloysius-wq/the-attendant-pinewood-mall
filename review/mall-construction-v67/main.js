@@ -14,7 +14,7 @@ const state={
  chapter:1,eastExitLocked:true,shot:'service',ceilingMeshes:0,ceilingRooms:[],
  storefrontCount:0,storefrontNames:[],storefrontEntries:[],
  closedBayCount:0,closedBayNames:[],checkpointV117:null,
- staffServiceV127:[],staffFixtureCountV127:0,
+ staffServiceV127:[],staffFixtureCountV127:0,annexCorridorV127B:null,
  galleryColumnsV118:[],galleryColumnCount:0,
  galleryAmenitiesV120:null,benchCountV120:0,directoryCountV120:0,wayfindingCountV120:0,
  anchorRetailV121:[],anchorRetailCountV121:0,
@@ -142,6 +142,18 @@ const shots={
  lockerService:{floor:'G',eye:[78.5,1.72,-81],target:[82.2,1.7,-81],
   label:'GROUND · LOCKER ROOM SUPPORT',title:'Original Uniforms and Supply Bay',
   note:'A sealed uniform stock enclosure behind the live lockers, outside the LS-06 mixtape and canonical story interactions.'},
+ annexSouth:{floor:'G',eye:[60.5,1.72,-99],target:[60.5,1.72,-84],
+  label:'GROUND · 1992 EMPLOYEE SERVICE ROUTE',title:'Real 639 m² Original Staff Corridor',
+  note:'Original 9 m by 71 m service hallway now has source-replaced tiled floor, real mounted CC0 ceiling lamps and service doors kept open.'},
+ annexTraining:{floor:'G',eye:[60.5,1.72,-96],target:[64.8,2.8,-99],
+  label:'GROUND · ORIGINAL ANNEX STAFF ENTRIES',title:'Authentic Staff Door Plates',
+  note:'Wall-fixed wayfinding above existing real door lintels; original T-04 training, break, locker, Annex and east-exit paths unchanged.'},
+ annexNorth:{floor:'G',eye:[60.5,1.72,-50],target:[60.5,1.72,-72],
+  label:'GROUND · ANNEX SERVICE NORTH RETURN',title:'Underside-Mounted Late-Shift Lighting',
+  note:'All eight physically measured licensed fluorescent meshes attach to the original 3.36 m service soffit; three remain failed.'},
+ annexPlan:{floor:'G',eye:[60.5,13,-69],target:[60.5,0,-69],
+  label:'GROUND · 1992 STAFF ROUTE CUTAWAY',title:'639 m² True Tile Replacement',
+  note:'Survey-only overhead removes the ceiling to inspect the one true nonoverlapping tile slab and original doors.'},
  annexStaff:{floor:'G',eye:[60,1.72,-87],target:[60,1.72,-58],
   label:'GROUND · 1992 STAFF SPINE',title:'East Annex Employee Route',
   note:'Real east-wing staff corridor with original story thresholds and five new source-attached back-of-house service functions.'},
@@ -189,8 +201,8 @@ function setShot(name){
  // A distant cutaway cannot be judged through full-range scene fog and the
  // camera-mounted near-field lamp. This survey-only overhead fill is never
  // installed in the Builder, opening film or playable game.
- if(scene?.fog)scene.fog.density=name==='aerial'?.0011:.005;
- if(aerialAmbient)aerialAmbient.intensity=name==='aerial'?1.3:0;
+ if(scene?.fog)scene.fog.density=['aerial','annexPlan'].includes(name)?.0011:.005;
+ if(aerialAmbient)aerialAmbient.intensity=['aerial','annexPlan'].includes(name)?1.3:0;
  if(!camera)return;
  const s=shots[name];camera.position.set(...s.eye);
  const target=new THREE.Vector3(...s.target);
@@ -202,7 +214,7 @@ function setShot(name){
   // 3–6m from their target; never run orbit distance-clamping on those shots.
   if(orbit.enabled)orbit.update();
  }
- if(built)built.setRoofVisible(roofToggle.checked&&!['aerial','fallowPlan','eastAnchorPlan','cassettePlan','videoPlan','arcadePlan'].includes(name));
+ if(built)built.setRoofVisible(roofToggle.checked&&!['aerial','fallowPlan','eastAnchorPlan','cassettePlan','videoPlan','arcadePlan','annexPlan'].includes(name));
  renderer?.render(scene,camera);
 }
 function setChapter(value){
@@ -252,6 +264,7 @@ async function begin(){
   state.checkpointV117={...built.checkpointV117};
   state.staffServiceV127=[...built.staffServiceV127];
   state.staffFixtureCountV127=built.staffFixtureCountV127;
+  state.annexCorridorV127B={...built.annexCorridorV127B};
   state.galleryColumnsV118=[...built.galleryColumnsV118];
   state.galleryColumnCount=state.galleryColumnsV118.length;
   state.galleryAmenitiesV120={
@@ -312,6 +325,10 @@ async function begin(){
    state.checkpointV117.cells+' closed service-checkpoint cells · '+
    state.staffServiceV127.length+' authentic 1997 staff/support subdivisions · '+
    state.staffFixtureCountV127+' licensed CC0 staff service cabinets · '+
+   state.annexCorridorV127B.tiledArea+'m² true Annex service tile · '+
+   state.annexCorridorV127B.panels.length+' licensed ceiling fluorescents · '+
+   state.annexCorridorV127B.signs.length+' source-mounted staff plates · '+
+   state.annexCorridorV127B.cabinets.length+' licensed Annex filing stations · '+
    state.galleryColumnCount+' original structural gallery piers · '+
    state.anchorRetailCountV121+' real source-licensed 1979 department-store fittings · '+
    state.ceilingPanelCountV122+' actual pinned ceiling fixtures · '+state.departmentSignCountV122+' wall-fixed internal signs · '+
@@ -347,7 +364,7 @@ async function begin(){
 for(const b of document.querySelectorAll('[data-shot]'))b.addEventListener('click',()=>setShot(b.dataset.shot));
 viewSelect.addEventListener('change',e=>setShot(e.target.value));
 chapterSelect.addEventListener('change',e=>setChapter(e.target.value));
-roofToggle.addEventListener('change',()=>{built?.setRoofVisible(roofToggle.checked&&!['aerial','fallowPlan','eastAnchorPlan','cassettePlan','videoPlan','arcadePlan'].includes(state.shot));renderOnDemand()});
+roofToggle.addEventListener('change',()=>{built?.setRoofVisible(roofToggle.checked&&!['aerial','fallowPlan','eastAnchorPlan','cassettePlan','videoPlan','arcadePlan','annexPlan'].includes(state.shot));renderOnDemand()});
 surveyToggle.addEventListener('change',()=>{
   state.surveyLightOn=surveyToggle.checked;
   if(surveyLight)surveyLight.intensity=state.surveyLightOn?95:0;
