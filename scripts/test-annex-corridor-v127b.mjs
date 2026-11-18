@@ -86,6 +86,7 @@ test('source original employee doors, all six chapters, clearance and exit remai
   'hallway must remain fully continuous for Chapter 4');
  assert.ok(g.canStand(61,-57),'Chapter 4 fire-closure objective');
  for(const f of ANNEX_CABINETS_V127B){
+  assert.equal(f.yaw,-Math.PI/2,'cabinet doors must face staff corridor');
   assert.equal(g.canStand(f.x,f.z),false,'cabinet cannot be ghost geometry '+f.id);
   assert.ok(s.fixtures.some(x=>x.id===f.id),'cabinet model missing '+f.id);
  }
@@ -100,7 +101,11 @@ test('only previously source-pinned and locally licensed original GLBs may be us
  assert.match(read('mall/anchor-identity-plan-v122.mjs'),
   /51cad3ec6b43627251cd5cdce6b1a367fe83e6906334edf096f8dc725dca772d/);
  assert.ok(read('mall/staff-service-plan-v127.mjs').includes(ANNEX_CABINET_SOURCE_V127B.path));
- assert.match(read('mall/render-shell-v67.js'),/renderAnnexCorridorV127B/);
+ const render=read('mall/render-shell-v67.js');
+ assert.match(render,/renderAnnexCorridorV127B/);
+ assert.match(render,/f\.id\.startsWith\('v127b_'\)/);
+ assert.doesNotMatch(render,/warm\(61,3\.0,-(?:55|92),/,
+  'old floating Annex orb lamps cannot coexist with genuine source panels');
  assert.match(read('mall/gameplay-layout-v70.mjs'),/shell\.annexCorridor\?\.cabinets/);
  assert.ok(JSON.parse(read('assets/world/published-layout-v111.json')));
 });
