@@ -15,6 +15,7 @@ const state={
  storefrontCount:0,storefrontNames:[],storefrontEntries:[],
  closedBayCount:0,closedBayNames:[],checkpointV117:null,
  staffServiceV127:[],staffFixtureCountV127:0,
+ annexCirculationV127b:null,
  galleryColumnsV118:[],galleryColumnCount:0,
  galleryAmenitiesV120:null,benchCountV120:0,directoryCountV120:0,wayfindingCountV120:0,
  anchorRetailV121:[],anchorRetailCountV121:0,
@@ -142,6 +143,12 @@ const shots={
  lockerService:{floor:'G',eye:[78.5,1.72,-81],target:[82.2,1.7,-81],
   label:'GROUND · LOCKER ROOM SUPPORT',title:'Original Uniforms and Supply Bay',
   note:'A sealed uniform stock enclosure behind the live lockers, outside the LS-06 mixtape and canonical story interactions.'},
+ annexNorth:{floor:'G',eye:[60.5,1.72,-101],target:[60.5,1.65,-80],
+  label:'GROUND · 1992 ANNEX NORTH',title:'Real Staff Hall From Receiving',
+  note:'The original 9m employee corridor has a true tile replacement floor, source-slab fluorescent fixtures and physical wall finishes, not staged geometry.'},
+ annexSouth:{floor:'G',eye:[60.5,1.72,-57],target:[60.5,1.70,-37],
+  label:'GROUND · 1992 ANNEX EXIT APPROACH',title:'Staff Egress and Wayfinding',
+  note:'Original staff room doors, hall identification and final employee exit route remain clear under irregular working fluorescent fixtures.'},
  annexStaff:{floor:'G',eye:[60,1.72,-87],target:[60,1.72,-58],
   label:'GROUND · 1992 STAFF SPINE',title:'East Annex Employee Route',
   note:'Real east-wing staff corridor with original story thresholds and five new source-attached back-of-house service functions.'},
@@ -252,6 +259,7 @@ async function begin(){
   state.checkpointV117={...built.checkpointV117};
   state.staffServiceV127=[...built.staffServiceV127];
   state.staffFixtureCountV127=built.staffFixtureCountV127;
+  state.annexCirculationV127b={...built.annexCirculationV127b};
   state.galleryColumnsV118=[...built.galleryColumnsV118];
   state.galleryColumnCount=state.galleryColumnsV118.length;
   state.galleryAmenitiesV120={
@@ -312,6 +320,8 @@ async function begin(){
    state.checkpointV117.cells+' closed service-checkpoint cells · '+
    state.staffServiceV127.length+' authentic 1997 staff/support subdivisions · '+
    state.staffFixtureCountV127+' licensed CC0 staff service cabinets · '+
+   state.annexCirculationV127b.lights.length+' source-mounted Annex ceiling panels · '+
+   state.annexCirculationV127b.signs.length+' masonry-attached Annex staff signs · '+
    state.galleryColumnCount+' original structural gallery piers · '+
    state.anchorRetailCountV121+' real source-licensed 1979 department-store fittings · '+
    state.ceilingPanelCountV122+' actual pinned ceiling fixtures · '+state.departmentSignCountV122+' wall-fixed internal signs · '+
