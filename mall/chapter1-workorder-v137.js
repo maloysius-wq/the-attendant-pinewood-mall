@@ -116,7 +116,7 @@ export function installChapter1WorkOrderV137(game){
     if(game.levelIndex!==0||!game.running||game.modal||game.dead)
      throw Error('V137 real-object test requires live Chapter 1');
     const o=game.world?.interactables?.find(predicate);
-    if(!o)throw Error('Expected real Chapter 1 interactable unavailable');
+    if(!o)throw Error('Expected real Chapter 1 interactable unavailable: '+JSON.stringify((game.world?.interactables||[]).map(x=>({type:x.userData?.type,label:x.userData?.label,id:x.userData?.id,collected:!!x.userData?.collected,parent:!!x.parent})).filter(x=>x.type==='key'||/key|service|master/i.test(x.label||'')).slice(0,20)));
     const before=game.interactTarget;
     try{game.interactTarget=o;game.interact();}
     finally{game.interactTarget=before;}
