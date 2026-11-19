@@ -46,7 +46,7 @@ try{
  assert.deepEqual(initial.pickups.map(x=>x.label).sort(),['Noise Maker','Pager Decoy']);
  assert.ok(initial.pickups.every(x=>!x.collected));
  const viewed=await page.evaluate(()=>window.__PINEWOOD_CH1_STEALTH_V139_QA__.viewRealCabinetForTest());
- assert.equal(viewed.target,'cc0_fallow_display',
+ assert.equal(viewed.target,'furnished_fallow_display',
   'original 1440x900 first-person E raycast must reach genuine CC0 cabinet');
  await page.screenshot({path:folder+'/real-fallow-cabinet-before-hide.png',
   animations:'disabled',timeout:120000});

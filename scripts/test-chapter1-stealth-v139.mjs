@@ -51,8 +51,8 @@ test('distant reveal requires real walk and LOS, in forward view and never withi
 });
 function makeGame(){
  const building=new THREE.Group(),model=new THREE.Group();
- model.name='cc0_fallow_display';
- model.userData.cc0ProvenancePath='assets/vendor/runtime/3d7dfedf514e5c4e/bookcaseClosedDoors.glb';
+ model.name='furnished_fallow_display';
+ model.userData={fixtureId:'fallow_display',role:'cabinet',modelSource:'assets/vendor/runtime/3d7dfedf514e5c4e/bookcaseClosedDoors.glb'};
  model.position.set(-43,0,-54);
  const l=new THREE.Group(),r=new THREE.Group();
  l.name='doorLeft';r.name='doorRight';model.add(l,r);building.add(model);
@@ -87,7 +87,7 @@ test('real licensed cabinet is interactive with original-meter hide camera and a
  assert.equal(installChapter1StealthV139(game),ctrl,'do not double wrap');
  assert.ok(game.world.interactables.includes(model));
  assert.equal(model.parent,game.mallV70.group,'do not move the authored model out of its film/Builder scene');
- assert.equal(model.userData.cc0ProvenancePath,ctrl.getState().cabinet.source);
+ assert.equal(model.userData.modelSource,ctrl.getState().cabinet.source);
  game.interactTarget=model;game.interact();
  assert.notEqual(game.entered,model,'original GLB source scale must not corrupt eye height');
  assert.equal(game.entered.userData.hingeL,l);

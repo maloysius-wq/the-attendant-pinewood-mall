@@ -42,9 +42,10 @@ export function installChapter1StealthV139(game){
  };
  const bind=()=>{
   if(game.levelIndex!==0)return;
-  const model=game.mallV70.group.getObjectByName('cc0_'+SOURCE.id,true);
-  if(!model||model.userData?.cc0ProvenancePath!==SOURCE.model)
-   throw Error('V139 original CC0 hide cabinet missing from the true mall');
+  const model=game.mallV70.group.getObjectByName('furnished_'+SOURCE.id,true);
+  if(!model||model.userData?.modelSource!==SOURCE.model||
+     model.userData?.fixtureId!==SOURCE.id||model.userData?.role!=='cabinet'||!model.visible)
+   throw Error('V139 original licensed Fallow hide cabinet missing from the true authored mall');
   const left=model.getObjectByName('doorLeft',true),right=model.getObjectByName('doorRight',true);
   if(!left?.isObject3D||!right?.isObject3D||left===right)
    throw Error('V139 genuine licensed hinged door meshes unavailable');
