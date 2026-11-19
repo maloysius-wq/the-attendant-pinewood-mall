@@ -1,0 +1,20 @@
+name: Pinewood V139 inspect source stealth systems
+on:
+  push:
+    branches: [feature/v139-ch1-authentic-stealth]
+    paths:
+      - 'scripts/inspect-chapter1-stealth-v139.mjs'
+      - '.github/workflows/chapter1-stealth-v139.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  original-stealth-inspection:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: node scripts/inspect-chapter1-stealth-v139.mjs
