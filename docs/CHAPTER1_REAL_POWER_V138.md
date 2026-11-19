@@ -2,7 +2,7 @@
 
 **Parent:** V137 Chapter 1 work-order and genuine Master Service Key repair (PR #147, merged and Pages deployed at `978aebc4`).  
 **Source of truth:** `STORY_BIBLE.md`, `NARRATIVE_IMPLEMENTATION_PLAN.md`, canonical 1979 physical shell.  
-**Status:** standalone PR #148, rebased directly onto verified V137 main; exact V138 source and desktop release checks are required before shipping.
+**Status:** SHIPPED in PR #148, merged to `main` as `84a4d4738f2618fdf0750c2f0c1db4586ae16b62` from exact final head `e52dbc88136708357d52d99c8f1a9b0f5e0e098d`. The exact-head focused source and real 1440×900 desktop Chromium circuits test completed SUCCESS in [run #44592479635](https://github.com/maloysius-wq/the-attendant-pinewood-mall/actions/runs/44592479635); original before/after WebGL frames were downloaded and visually inspected. Merged-source Pages run #44593809518 must be independently confirmed before claiming public deployment.
 
 ## Exact physical sources
 
