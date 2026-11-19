@@ -3,7 +3,7 @@
  */
 import assert from 'node:assert/strict';
 import {chromium} from 'playwright';
-import {mkdir} from 'node:fs/promises';
+import {mkdir,writeFile} from 'node:fs/promises';
 const origin='http://127.0.0.1:4173',folder='artifacts/v138-original-power';
 await mkdir(folder,{recursive:true});
 const browser=await chromium.launch({headless:true,args:[
@@ -14,15 +14,38 @@ const browser=await chromium.launch({headless:true,args:[
 try{
  const page=await browser.newPage({viewport:{width:1440,height:900},deviceScaleFactor:1});
  page.setDefaultTimeout(90000);
- const errors=[],remote=[],failed=[];
+ const errors=[],remote=[],failed=[],consoleErrors=[];
  page.on('pageerror',e=>errors.push(e.message));
+ page.on('console',m=>{if(m.type()==='error')consoleErrors.push(m.text());});
  page.on('request',r=>{if(/^https?:/.test(r.url())&&!r.url().startsWith(origin))remote.push(r.url())});
  page.on('requestfailed',r=>failed.push(r.url()+' '+r.failure()?.errorText));
  await page.goto(origin+'/?openingDisabled=1&chapter1QA=1&vestibuleQA=1',{waitUntil:'domcontentloaded'});
  await page.waitForFunction(()=>!!window.__PINEWOOD_V70_BRIDGE__,null,{timeout:230000});
  await page.locator('#newBtn').click();
- await page.waitForFunction(()=>!!window.__PINEWOOD_CH1_LIGHTS_V138_QA__&&
-  window.__PINEWOOD_CH1_V137_QA__?.getState?.().chapter===1,null,{timeout:275000});
+ try{
+  await page.waitForFunction(()=>!!window.__PINEWOOD_CH1_LIGHTS_V138_QA__&&
+   window.__PINEWOOD_CH1_V137_QA__?.getState?.().chapter===1,
+   null,{timeout:125000});
+ }catch(error){
+  // Never consume four more minutes on a blank screen without reporting what
+  // the actual production loader displayed and which original hooks mounted.
+  const state=await page.evaluate(()=>({
+   url:location.href,readyState:document.readyState,
+   assetStatus:document.getElementById('assetStatus')?.textContent,
+   loadText:document.getElementById('loadText')?.textContent,
+   loadFill:document.getElementById('loadFill')?.style.width,
+   chapterStartVisible:!!document.getElementById('chapterStartBtn')?.onclick,
+   bridge:!!window.__PINEWOOD_V70_BRIDGE__,
+   v112:!!window.__PINEWOOD_V112_QA__,
+   v137:window.__PINEWOOD_CH1_V137_QA__?.getState?.()||null,
+   v138:window.__PINEWOOD_CH1_LIGHTS_V138_QA__?.getState?.()||null,
+   menu:document.getElementById('menu')?.className
+  })).catch(e=>({diagnosticError:String(e)}));
+  const report={error:String(error),state,errors,consoleErrors,failed,remote};
+  await writeFile(folder+'/startup-diagnostics.json',JSON.stringify(report,null,2));
+  console.error('V138_REAL_GAME_START_DIAGNOSTICS '+JSON.stringify(report));
+  throw error;
+ }
  await page.evaluate(()=>{
   const button=document.getElementById('chapterStartBtn');
   if(!button?.onclick)throw Error('Real Begin Shift not available');
