@@ -26,4 +26,7 @@ for(const pattern of expressions){
   line:i+1,text:lines[i].slice(0,1350)
  }))});
 }
-console.log(JSON.stringify({sourceLines:lines.length,findings},null,2));
+const keyIndex=lines.findIndex(s=>s.includes("new THREE.Vector3(6.9,.18,-28.2)"));
+const keyContext=keyIndex>=0?lines.slice(Math.max(0,keyIndex-45),keyIndex+15).map((s,i)=>({line:Math.max(0,keyIndex-45)+i+1,source:s.slice(0,1250)})):[];
+const sourceKeyChecks=lines.filter(s=>/makePickup\('key'|function makePickup|const makePickup|async function buildMall|function buildMall|function buildArcade|await buildArcade|await buildMusic/.test(s)).map(s=>s.slice(0,1450));
+console.log(JSON.stringify({sourceLines:lines.length,findings,keyContext,sourceKeyChecks},null,2));
