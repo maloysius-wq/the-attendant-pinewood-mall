@@ -9,6 +9,8 @@ on:
       - 'game.js'
       - 'scripts/test-chapter1-circuits-v138.mjs'
       - 'scripts/smoke-chapter1-circuits-v138.mjs'
+      - 'scripts/smoke-chapter1-workorder-v137.mjs'
+      - 'docs/CHAPTER1_REAL_POWER_V138.md'
   pull_request:
     branches: [main, feature/v137-chapter1-gameplay-clarity]
     paths:
@@ -17,6 +19,8 @@ on:
       - 'game.js'
       - 'scripts/test-chapter1-circuits-v138.mjs'
       - 'scripts/smoke-chapter1-circuits-v138.mjs'
+      - 'scripts/smoke-chapter1-workorder-v137.mjs'
+      - 'docs/CHAPTER1_REAL_POWER_V138.md'
       - '.github/workflows/chapter1-circuits-v138.yml'
   workflow_dispatch:
 permissions:

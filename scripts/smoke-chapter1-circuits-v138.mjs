@@ -28,7 +28,7 @@ try{
   // handoff using the same timeout as the successful prior Chapter 1 smoke.
   await page.waitForFunction(()=>
    window.__PINEWOOD_CH1_V137_QA__?.getState?.().chapter===1,
-   null,{timeout:275000});
+   null,{timeout:540000,polling:500});
   // Once the actual game is ready, V138 is installed synchronously inside
   // the same relocateStoryV70 hook. Missing lighting QA is a real regression,
   // not a reason to wait another four minutes.

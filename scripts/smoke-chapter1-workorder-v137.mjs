@@ -1,7 +1,7 @@
 /** V137: deterministic desktop Chapter 1 real-object progression smoke; no WASD. */
 import assert from 'node:assert/strict';
 import {chromium} from 'playwright';
-import {mkdir} from 'node:fs/promises';
+import {mkdir,writeFile} from 'node:fs/promises';
 const origin='http://127.0.0.1:4173',dir='artifacts/v137-ch1-workorder';
 await mkdir(dir,{recursive:true});
 const browser=await chromium.launch({headless:true,args:[
@@ -19,8 +19,23 @@ try{
  await page.goto(origin+'/?openingDisabled=1&chapter1QA=1',{waitUntil:'domcontentloaded'});
  await page.waitForFunction(()=>!!window.__PINEWOOD_V70_BRIDGE__,null,{timeout:230000});
  await page.locator('#newBtn').click();
- await page.waitForFunction(()=>window.__PINEWOOD_CH1_V137_QA__?.getState?.().chapter===1,
-  null,{timeout:275000});
+ try{
+  await page.waitForFunction(()=>window.__PINEWOOD_CH1_V137_QA__?.getState?.().chapter===1,
+   null,{timeout:540000,polling:500});
+ }catch(error){
+  const state=await page.evaluate(()=>({
+   assetStatus:document.getElementById('assetStatus')?.textContent,
+   loadText:document.getElementById('loadText')?.textContent,
+   loadFill:document.getElementById('loadFill')?.style.width,
+   bridge:!!window.__PINEWOOD_V70_BRIDGE__,
+   v137:!!window.__PINEWOOD_CH1_V137_QA__,
+   menu:document.getElementById('menu')?.className
+  })).catch(e=>({diagnosticError:String(e)}));
+  const diagnostic={error:String(error),state,errors,remote,failed};
+  await writeFile(dir+'/startup-diagnostics.json',JSON.stringify(diagnostic,null,2));
+  console.error('V137_GAME_START_DIAGNOSTICS '+JSON.stringify(diagnostic));
+  throw error;
+ }
  await page.evaluate(()=>{
   const button=document.getElementById('chapterStartBtn');
   if(!button?.onclick)throw Error('Original Begin Shift handler missing');

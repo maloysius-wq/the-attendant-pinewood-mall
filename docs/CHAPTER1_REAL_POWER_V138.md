@@ -6,7 +6,7 @@
 
 ## Exact physical sources
 
-The real 1979 original `mall/render-shell-v67.js` installs its lights into the common `building.group`, reused by the cinematic, game and Builder. V138 gives existing architectural lights metadata only, with no new bulb positions, materials, GLBs, collision surfaces or network dependencies. During **playable Chapter 1 only**, actual emergency circuit interactions independently raise their source light intensity from 34% safety illumination to 100%:
+The real 1979 original `mall/render-shell-v67.js` installs its lights into the common `building.group`, reused by the cinematic, game and Builder. V138 gives existing architectural lights metadata only, with no new bulb positions, materials, GLBs, collision surfaces or network dependencies. During **playable Chapter 1 only**, the actual emergency circuit interactions independently raise the existing source point lights from **16% safe/off illumination to 450% of their original intensity**; each original bulb diffuser changes only from 16% to its original 100% visible opacity:
 
 - A: four central-gallery original emergency luminaires at z −46, −66, −86 and −106, x0. Visibly restores the long public concourse
 - B: original west-retail source light at x−28,z−80. Gives the retail/PA branch its own physical consequence
@@ -32,10 +32,12 @@ No manual WASD, mobile tests, new licensed assets or public debug cheats. Use th
 
 ## Scene reload and media-regression safety
 
-The original chapter system replaces the entire physical mall group on chapter load. V138 rebinds all actual tagged PointLight and bulb mesh nodes whenever that source group changes, clears prior-run breaker states, and tests activation after a second Chapter 1 load. It restores the original source light intensity, opacity **and material transparency** outside Chapter 1. No previously unloaded light remains referenced by new gameplay.
+The chapter system normally reuses the loaded physical mall group across chapters and may rebuild it on a fresh scene load. V138 rebinds all actually tagged PointLight and bulb nodes when that group changes; reset always clears prior-run breaker states, even when the group is reused. Focused tests also cover reactivation after a fresh scene load. It restores the original source light intensity, opacity **and material transparency** outside Chapter 1. No previously unloaded light remains referenced by new gameplay.
 
 The real desktop 1440×900 smoke intentionally views the actual A-circuit luminaires from the central public concourse for a perceptible before/after inspection. Original local ambient media sometimes receive a browser-generated `net::ERR_ABORTED` on the pinned `furniture_shop_loop.ogg` when Chrome reroutes audio; only that exact on-origin OGG cancellation is allowed. Any other failed asset request, off-origin request, page error, missing original breaker, or source-light-state mismatch remains a hard CI failure.
 
 ## V138 visible power-state tuning
 
 Desktop comparison found the first 34% → 100% source intensity change visually indistinguishable from unpowered G-floor public lighting at the actual authored central-gallery camera. The follow-up intentionally uses the **same original source luminaires** with 16% safe/off and 450% of the original source intensity when an emergency branch energizes. The original physical spherical diffuser moves only from 16% visible opacity to its original 100% opaque appearance (never 450% invalid alpha). This is a localized original-fixture illumination change, not a blanket exposure change: no fake room lights, topology, lighting sprites, textures, cue spam or network assets. Chapters 2–6 restore the original source intensities, transparency and bulb appearance exactly. Real desktop before/after shots must be visually reviewed before merging.
+
+The desktop smoke preserves the full original scene and 1440×900 render. Since loading all locally pinned models under software Chromium can vary significantly between CI runners, it allows up to nine minutes for the established Chapter 1 handoff, then only 15 seconds for the new V138 hook. A timeout records exact in-game loading progress and JavaScript/request diagnostics as an artifact rather than silently weakening any source, interaction, or screenshot assertion.
