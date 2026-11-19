@@ -16,13 +16,13 @@ export function restoreChapter1StealthPickupsV139(source){
  if(source.split(marker).length!==2||
     source.includes('const noiseMakerV139=makePickup('))
   throw Error('V139 original key/pickup anchor missing or repeated');
- const addition=String.raw\`
+ const addition=String.raw`
     // Two actual original prototype pickups lost with the old stores.
     // V70 moves them into genuine measured Chapter 1 walkable locations.
     const noiseMakerV139=makePickup('decoy',new THREE.Vector3(-19.7,.16,-28.1),'Noise Maker');
     world.root.add(noiseMakerV139);world.interactables.push(noiseMakerV139);
     const pagerDecoyV139=makePickup('decoy',new THREE.Vector3(-2.7,.16,28.3),'Pager Decoy');
-    world.root.add(pagerDecoyV139);world.interactables.push(pagerDecoyV139);\`;
+    world.root.add(pagerDecoyV139);world.interactables.push(pagerDecoyV139);`;
  return source.replace(marker,marker+addition);
 }
 export function installChapter1StealthV139(game){
