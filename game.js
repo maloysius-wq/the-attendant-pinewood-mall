@@ -5,6 +5,7 @@ import {VISUAL_VIEWPOINTS_V70} from './mall/visual-anchors-v70.mjs';
 import {CCTV_FEEDS_V70} from './mall/story-placement-v70.mjs';
 import {relocateStoryV70,descendToExitV70} from './mall/story-runtime-v70.js';
 import {installVestibuleDoorGameplayV112} from './mall/vestibule-door-gameplay-v112.js';
+import {installChapter1WorkOrderV137} from './mall/chapter1-workorder-v137.js';
 // Deployment loader for The Attendant: Pinewood Mall.
 // Runtime bundle stays immutable; authored room and world-prop overrides live in /patches.
 const PARTS=[
@@ -325,6 +326,8 @@ try{
    relocateStoryV70:args=>{
     const result=relocateStoryV70(args);
     installVestibuleDoorGameplayV112(args.game);
+    // This wraps only Chapter 1 objective/exit gameplay; chapter 2-6 remain unchanged.
+    installChapter1WorkOrderV137(args.game);
     // Read-only, opt-in automated desktop handoff probe. Not a game API.
     if(new URLSearchParams(location.search).has('vestibuleQA')){
      const game=args.game;
