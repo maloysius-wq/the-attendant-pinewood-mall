@@ -6,7 +6,8 @@ This starts Issue #146 after Issue #119 (original mall architecture) was complet
 
 - Chapter 1 already has physical breaker objects A/B/C, Renee Ward's opening work order, the first distant Attendant reveal, a persistent Contractor Fourteen flag, and reactive PCAS announcements after circuit, key and elevator events. These are existing systems, not V137 inventions.
 - The original HUD only reported a relay count before asking the player to reach the freight elevator. It omitted the Master Service Key even though the real level has a physical named pickup.
-- The original real freight start handler checked emergency-power count but did not check the Master Service Key. The player could therefore depart with power alone.
+- The original real freight start handler checked emergency-power count but did not check the Master Service Key.
+- **Real root cause found by compressed-source audit and desktop gameplay:** the original Master Service Key was constructed inside `buildArcade(world)`. V70 correctly retired that entire obsolete arcade scene when it installed the licensed 1979 mall architecture, but this accidentally removed the *only actual physical key pickup*. V137 now restores exactly the source-authored `makePickup('key', ... ,'Master Service Key')`, adds it back to the real interactables, and uses an exact canonical source position in `central_gallery` (6,-83) through existing relocation. This is not a second fake pickup, duplicate, or key-count workaround. The player could therefore depart with power alone.
 - The original generic inventory key count is consumed by locked doors. A recovered service-key credential must therefore be recorded by the authentic named pickup event, not guessed from current key count.
 - Save/restart is chapter-based in the existing game; the new per-attempt credential is reset with the original Game.resetState. No new persistent save schema or narrative flags are needed.
 

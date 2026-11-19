@@ -1,7 +1,9 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {chapter1WorkOrderStateV137,installChapter1WorkOrderV137}
+import {chapter1WorkOrderStateV137,installChapter1WorkOrderV137,restoreChapter1PickupV137}
  from '../mall/chapter1-workorder-v137.js';
+import {storyTargetV70} from '../mall/story-placement-v70.mjs';
+import {buildGameplayLayoutV70} from '../mall/gameplay-layout-v70.mjs';
 
 const elements=new Map([
  ['objective',{textContent:'',dataset:{}}],
@@ -89,4 +91,19 @@ test('original interaction hint is not overwritten away from the Chapter 1 freig
   game.interactTarget={userData:{type:'breaker'}};
   game.updateInteraction();assert.equal(elements.get('hint').textContent,'E Call freight elevator');
  }finally{globalThis.document=oldDocument;}
+});
+
+test('real original arcade-era source key is restored once without reviving retired arcade',()=>{
+ const synthetic="function makePickup(type,pos,label,text=null){}\n    // Retail is supplied by the actual approved shell and licensed v69 fixtures.\n";
+ const restored=restoreChapter1PickupV137(synthetic);
+ assert.match(restored,/makePickup\('key',new THREE.Vector3\(6\.9,\.18,-28\.2\),'Master Service Key'\)/);
+ assert.match(restored,/world\.interactables\.push\(masterServiceKeyV137\)/);
+ assert.equal((restored.match(/makePickup\('key'/g)||[]).length,1);
+ assert.throws(()=>restoreChapter1PickupV137(restored),/hook missing or repeated/);
+ const location=storyTargetV70({chapter:1,type:'key',label:'Master Service Key'});
+ assert.equal(location.canonical,true,'original pickup must have a canonical source position');
+ assert.equal(location.room,'central_gallery');
+ const layout=buildGameplayLayoutV70({chapter:1});
+ assert.equal(layout.canStand(location.x,location.z),true,
+  'real Chapter 1 physical mall must allow retrieving the key at its location');
 });

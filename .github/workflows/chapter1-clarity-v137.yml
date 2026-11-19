@@ -5,7 +5,8 @@ on:
     paths:
       - 'scripts/inspect-chapter1-runtime-v137.mjs'
       - 'scripts/test-chapter1-objectives-v137.mjs'
-      - 'mall/chapter1-objectives-v137.js'
+      - 'mall/chapter1-workorder-v137.js'
+      - 'mall/story-placement-v70.mjs'
       - 'game.js'
       - 'scripts/smoke-chapter1-workorder-v137.mjs'
       - '.github/workflows/chapter1-clarity-v137.yml'
