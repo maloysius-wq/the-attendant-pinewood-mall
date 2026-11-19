@@ -1,8 +1,8 @@
 # V138 · Chapter 1 real architectural power consequences
 
-**Parent:** V137 Chapter 1 work-order and genuine Master Service Key repair (PR #147).  
+**Parent:** V137 Chapter 1 work-order and genuine Master Service Key repair (PR #147, merged and Pages deployed at `978aebc4`).  
 **Source of truth:** `STORY_BIBLE.md`, `NARRATIVE_IMPLEMENTATION_PLAN.md`, canonical 1979 physical shell.  
-**Status:** staged PR, do not ship ahead of V137.
+**Status:** standalone PR #148, rebased directly onto verified V137 main; exact V138 source and desktop release checks are required before shipping.
 
 ## Exact physical sources
 
@@ -29,3 +29,9 @@ The original Master Service Key was also missing because V70 retired the old `bu
 - `scripts/test-original-perimeter-v136.mjs`: protect completed original exterior, real 286m² inaccessible structural relief and original passage/shafts
 
 No manual WASD, mobile tests, new licensed assets or public debug cheats. Use the original local-only deterministic QA bridge; video and live opening remain unchanged. Follow-up Issue #146 still needs fair first Attendant reveal and stealth teaching, evidence reachability, save/death handling, and Chapter 2 transition pacing.
+
+## Scene reload and media-regression safety
+
+The original chapter system replaces the entire physical mall group on chapter load. V138 rebinds all actual tagged PointLight and bulb mesh nodes whenever that source group changes, clears prior-run breaker states, and tests activation after a second Chapter 1 load. It restores the original source light intensity, opacity **and material transparency** outside Chapter 1. No previously unloaded light remains referenced by new gameplay.
+
+The real desktop 1440×900 smoke intentionally views the actual A-circuit luminaires from the central public concourse for a perceptible before/after inspection. Original local ambient media sometimes receive a browser-generated `net::ERR_ABORTED` on the pinned `furniture_shop_loop.ogg` when Chrome reroutes audio; only that exact on-origin OGG cancellation is allowed. Any other failed asset request, off-origin request, page error, missing original breaker, or source-light-state mismatch remains a hard CI failure.
