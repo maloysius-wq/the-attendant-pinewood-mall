@@ -151,15 +151,20 @@ function placeModel(group,loaded,f,ownedMaterials=[]){
 function installLights(group){
  const hemi=new THREE.HemisphereLight(0x9fbbb8,0x283033,.98);group.add(hemi);
  const moon=new THREE.DirectionalLight(0xc7ced0,.8);moon.position.set(-35,35,20);group.add(moon);
- const warm=(x,y,z,color=0xe9d9b5,strength=18,range=23)=>{
-  const light=new THREE.PointLight(color,strength,range,2);light.position.set(x,y,z);group.add(light);
+ const warm=(x,y,z,color=0xe9d9b5,strength=18,range=23,circuit=null)=>{
+  const light=new THREE.PointLight(color,strength,range,2);light.position.set(x,y,z);
+  if(circuit)light.userData.chapter1CircuitV138=circuit;
+  group.add(light);
   const s=new THREE.Mesh(new THREE.SphereGeometry(.12,8,6),new THREE.MeshBasicMaterial({color}));
-  s.position.copy(light.position);group.add(s);
+  s.position.copy(light.position);if(circuit)s.userData.chapter1CircuitV138=circuit;
+  group.add(s);
  };
- for(const z of[-46,-66,-86,-106])warm(0,7.6,z,0x9cc6bc,25,29);
+ // These are the real source G-floor fixture lights: tagging changes no
+ // construction or film appearance. Only gameplay Chapter 1 dims/energizes them.
+ for(const z of[-46,-66,-86,-106])warm(0,7.6,z,0x9cc6bc,25,29,'A');
  warm(12,2.9,-30,0xd5e7d9,10,14);
- warm(-28,3.4,-80,0xc89a72,10,19);
- warm(32,3.1,-105,0xd9d3b5,13,20);
+ warm(-28,3.4,-80,0xc89a72,10,19,'B');
+ warm(32,3.1,-105,0xd9d3b5,13,20,'C');
  // V127b retired the two unsourced, floating Annex orb stand-ins.
  // The source-fitted 2m CC0 ceiling fluorescents now provide real corridor
  // luminance, and no disconnected spheres remain in the staff passage.

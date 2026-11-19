@@ -1,0 +1,31 @@
+# V138 · Chapter 1 real architectural power consequences
+
+**Parent:** V137 Chapter 1 work-order and genuine Master Service Key repair (PR #147).  
+**Source of truth:** `STORY_BIBLE.md`, `NARRATIVE_IMPLEMENTATION_PLAN.md`, canonical 1979 physical shell.  
+**Status:** staged PR, do not ship ahead of V137.
+
+## Exact physical sources
+
+The real 1979 original `mall/render-shell-v67.js` installs its lights into the common `building.group`, reused by the cinematic, game and Builder. V138 gives existing architectural lights metadata only, with no new bulb positions, materials, GLBs, collision surfaces or network dependencies. During **playable Chapter 1 only**, actual emergency circuit interactions independently raise their source light intensity from 34% safety illumination to 100%:
+
+- A: four central-gallery original emergency luminaires at z −46, −66, −86 and −106, x0. Visibly restores the long public concourse
+- B: original west-retail source light at x−28,z−80. Gives the retail/PA branch its own physical consequence
+- C: original east freight/service lamp x32,z−105. Signals the route leading to the service elevator
+
+The source bulbs are also dimmed/energized so the physical emitter matches the actual light. Only an original breaker with the correct A/B/C `userData.id` and real successful Game.interact turns on its group; an unrelated key, decoy or completed breaker cannot. All original light intensities/appearances are restored in Chapters 2–6. Restart clears the runtime A/B/C state; no extra save schema or duplicated story flags.
+
+## Newly discovered genuine physical route repair
+
+The V137 physical source audit found that the canonical `east_gallery__freight_lobby` doorway was originally centered over the real **open vertical freight shaft** at x18.5..22.5, z−115.8..−110.5. Its source walk cells in the freight lobby were individually valid but not reachable from the public promenade, a real Chapter 1 progression lock. V137 moved **only the source masonry opening** to x14.25..16.75, z−110, west of the shaft on unchanged solid floor. V138's exact test asserts an actual connected key-to-freight walking route. The shaft remains open, with no invented floor or secret teleport.
+
+The original Master Service Key was also missing because V70 retired the old `buildArcade` that constructed it. V137 reinstates the original key model, exact pickup behavior and a stable central-gallery location x6,z−81, moved two metres from an actual physical lounge collider discovered by strict accessibility audit. The key, all three breakers, and the real freight lobby are tested for solid-floor reachability.
+
+## Release gates
+
+- `scripts/test-chapter1-circuits-v138.mjs`: real source wall/route validation and genuine circuit-only lighting state, independent order, duplicate press handling, restart, preserved Chapter 2–6 brightness
+- `scripts/test-chapter1-objectives-v137.mjs`: real service key, blocked freight before key and physical post-shaft repair route
+- `scripts/smoke-chapter1-circuits-v138.mjs`: real desktop Chromium scene; actual Chapter 1 Begin Shift, original three breaker objects, inspect the actual tagged light objects and real original 1440×900 before/after lighting frames
+- `scripts/audit-chapter1-pcas-v20.mjs`: preserve Renee/PCAS canon with no false early voice imitation
+- `scripts/test-original-perimeter-v136.mjs`: protect completed original exterior, real 286m² inaccessible structural relief and original passage/shafts
+
+No manual WASD, mobile tests, new licensed assets or public debug cheats. Use the original local-only deterministic QA bridge; video and live opening remain unchanged. Follow-up Issue #146 still needs fair first Attendant reveal and stealth teaching, evidence reachability, save/death handling, and Chapter 2 transition pacing.

@@ -1,0 +1,63 @@
+name: Pinewood V138 Chapter 1 original circuit lighting
+on:
+  pull_request:
+    branches: [main, feature/v137-chapter1-gameplay-clarity]
+    paths:
+      - 'mall/chapter1-circuit-lights-v138.js'
+      - 'mall/render-shell-v67.js'
+      - 'game.js'
+      - 'scripts/test-chapter1-circuits-v138.mjs'
+      - 'scripts/smoke-chapter1-circuits-v138.mjs'
+      - '.github/workflows/chapter1-circuits-v138.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  circuit-source:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 14
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Diagnose original mall key, panel and freight walk routes
+        run: node scripts/diagnose-chapter1-routes-v138.mjs
+      - name: Check source and three independently responsive real architectural circuits
+        run: |
+          node --check mall/chapter1-circuit-lights-v138.js
+          node --check mall/render-shell-v67.js
+          node --test scripts/test-chapter1-circuits-v138.mjs
+      - name: Preserve original Master Service Key and shaft-safe freight passage
+        run: node --test scripts/test-chapter1-objectives-v137.mjs
+      - name: Preserve original mall shell and Chapter 1 narrative
+        run: |
+          node scripts/test-original-perimeter-v136.mjs
+          node scripts/audit-chapter1-pcas-v20.mjs
+
+  original-circuit-desktop:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 21
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install desktop Chromium
+        run: |
+          npm install --no-save playwright@1.55.0
+          npx playwright install chromium
+      - name: Serve the complete locally authored original Pinewood game
+        run: |
+          python3 -m http.server 4173 --bind 127.0.0.1 >/tmp/pinewood-v138-http.log 2>&1 &
+          for i in {1..40}; do curl -fsS http://127.0.0.1:4173/ >/dev/null && exit 0; sleep 1; done
+          exit 1
+      - name: Actuate real original A/B/C breaker objects and inspect 1979 sources
+        run: node scripts/smoke-chapter1-circuits-v138.mjs
+      - name: Retain true original-mall unpowered and powered desktop frames
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: v138-real-source-luminaires
+          path: artifacts/v138-original-power/
+          retention-days: 14
