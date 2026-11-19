@@ -23,9 +23,17 @@ try{
  await page.waitForFunction(()=>!!window.__PINEWOOD_V70_BRIDGE__,null,{timeout:230000});
  await page.locator('#newBtn').click();
  try{
-  await page.waitForFunction(()=>!!window.__PINEWOOD_CH1_LIGHTS_V138_QA__&&
+  // The original licensed 638-model game can take several minutes to load
+  // under software Chromium. First await its EXISTING, proven V137 game
+  // handoff using the same timeout as the successful prior Chapter 1 smoke.
+  await page.waitForFunction(()=>
    window.__PINEWOOD_CH1_V137_QA__?.getState?.().chapter===1,
-   null,{timeout:125000});
+   null,{timeout:275000});
+  // Once the actual game is ready, V138 is installed synchronously inside
+  // the same relocateStoryV70 hook. Missing lighting QA is a real regression,
+  // not a reason to wait another four minutes.
+  await page.waitForFunction(()=>!!window.__PINEWOOD_CH1_LIGHTS_V138_QA__,
+   null,{timeout:15000});
  }catch(error){
   // Never consume four more minutes on a blank screen without reporting what
   // the actual production loader displayed and which original hooks mounted.
