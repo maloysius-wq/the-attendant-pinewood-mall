@@ -7,6 +7,7 @@ import {relocateStoryV70,descendToExitV70} from './mall/story-runtime-v70.js';
 import {installVestibuleDoorGameplayV112} from './mall/vestibule-door-gameplay-v112.js';
 import {installChapter1WorkOrderV137,restoreChapter1PickupV137} from './mall/chapter1-workorder-v137.js';
 import {installChapter1CircuitLightsV138} from './mall/chapter1-circuit-lights-v138.js';
+import {installChapter1StealthV139,restoreChapter1StealthPickupsV139} from './mall/chapter1-stealth-v139.js';
 // Deployment loader for The Attendant: Pinewood Mall.
 // Runtime bundle stays immutable; authored room and world-prop overrides live in /patches.
 const PARTS=[
@@ -315,6 +316,7 @@ try{
   // terminal source emitter. Keep the established sourceURL loader signature
   // unchanged for all downstream audio and six-chapter source safeguards.
   unifiedSource=restoreChapter1PickupV137(unifiedSource);
+  unifiedSource=restoreChapter1StealthPickupsV139(unifiedSource);
   // V111 is the renderer both the film and the game use. Its selected
   // publication or explicit same-browser Builder preview persists across
   // chapters without touching chapter events or the immutable game bundle.
@@ -334,6 +336,7 @@ try{
     // This wraps only Chapter 1 objective/exit gameplay; chapter 2-6 remain unchanged.
     installChapter1WorkOrderV137(args.game);
     installChapter1CircuitLightsV138(args.game);
+    if(args.game.levelIndex===0)installChapter1StealthV139(args.game);
     // Read-only, opt-in automated desktop handoff probe. Not a game API.
     if(new URLSearchParams(location.search).has('vestibuleQA')){
      const game=args.game;

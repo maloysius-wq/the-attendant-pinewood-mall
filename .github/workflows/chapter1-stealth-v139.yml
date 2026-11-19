@@ -3,6 +3,12 @@ on:
   push:
     branches: [feature/v139-ch1-authentic-stealth]
     paths:
+      - 'mall/chapter1-stealth-v139.js'
+      - 'mall/chapter1-stealth-plan-v139.mjs'
+      - 'game.js'
+      - 'mall/story-placement-v70.mjs'
+      - 'scripts/test-chapter1-stealth-v139.mjs'
+      - 'scripts/smoke-chapter1-stealth-v139.mjs'
       - 'scripts/inspect-chapter1-stealth-v139.mjs'
       - 'scripts/diagnose-chapter1-stealth-v139.mjs'
       - '.github/workflows/chapter1-stealth-v139.yml'
@@ -20,3 +26,9 @@ jobs:
           node-version: '22'
       - run: node scripts/inspect-chapter1-stealth-v139.mjs
       - run: node scripts/diagnose-chapter1-stealth-v139.mjs
+      - run: |
+          node --check mall/chapter1-stealth-v139.js
+          node --test scripts/test-chapter1-stealth-v139.mjs
+          node --test scripts/test-chapter1-objectives-v137.mjs
+          node --test scripts/test-chapter1-circuits-v138.mjs
+          node scripts/audit-local-assets-v15.mjs
