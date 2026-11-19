@@ -109,8 +109,39 @@ export function installChapter1WorkOrderV137(game){
  if(typeof window!=='undefined'&&typeof location!=='undefined'){
   const params=new URLSearchParams(location.search);
   if(params.has('chapter1QA')&&['localhost','127.0.0.1'].includes(location.hostname)){
+   // Localhost-only deterministic smoke controls operate on the REAL
+   // authored breaker, key and freight interactables. No simulated flags,
+   // public cheat surface, manual WASD or remote runtime assets.
+   const useRealInteractable=predicate=>{
+    if(game.levelIndex!==0||!game.running||game.modal||game.dead)
+     throw Error('V137 real-object test requires live Chapter 1');
+    const o=game.world?.interactables?.find(predicate);
+    if(!o)throw Error('Expected real Chapter 1 interactable unavailable');
+    const before=game.interactTarget;
+    try{game.interactTarget=o;game.interact();}
+    finally{game.interactTarget=before;}
+    return controller.getState();
+   };
    window.__PINEWOOD_CH1_V137_QA__={
-    getState:()=>controller.getState()
+    getState:()=>controller.getState(),
+    operateNextActualCircuitForTest(){
+     const before=game.breakers;
+     const state=useRealInteractable(o=>
+      o?.userData?.type==='breaker'&&!o.userData.on);
+     if(game.breakers!==before+1)throw Error('Real breaker interaction did not increment circuits');
+     return state;
+    },
+    collectActualServiceKeyForTest(){
+     const state=useRealInteractable(o=>isMasterKey(o)&&!o.userData.collected);
+     if(!state.keyRecovered)throw Error('Real Master Service Key not registered');
+     return state;
+    },
+    attemptActualFreightForTest(){
+     if(!game.exitObject||game.exitObject.userData?.type!=='exit')
+      throw Error('Original physical freight exit missing');
+     const result=game.startElevator(game.exitObject);
+     return {result:result===false?false:true,...controller.getState()};
+    }
    };
   }
  }
