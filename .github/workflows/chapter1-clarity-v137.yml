@@ -22,6 +22,10 @@ jobs:
           node-version: '22'
       - name: Inspect original Chapter 1 objective and safety hooks
         run: node scripts/inspect-chapter1-runtime-v137.mjs
+      - name: Verify Chapter 1 objective state, real key pickup, blocked exit and later chapters
+        run: |
+          node --check mall/chapter1-workorder-v137.js
+          node --test scripts/test-chapter1-objectives-v137.mjs
       - name: Audit original Chapter 1 canon and staged PCAS dialogue
         run: |
           node scripts/audit-chapter1-story-v18.mjs
