@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import {chapter1WorkOrderStateV137,installChapter1WorkOrderV137,restoreChapter1PickupV137}
  from '../mall/chapter1-workorder-v137.js';
 import {storyTargetV70} from '../mall/story-placement-v70.mjs';
-import {buildGameplayLayoutV70} from '../mall/gameplay-layout-v70.mjs';
+import {buildGameplayLayoutV70,shortestRouteV70} from '../mall/gameplay-layout-v70.mjs';
 
 const elements=new Map([
  ['objective',{textContent:'',dataset:{}}],
@@ -106,4 +106,16 @@ test('real original arcade-era source key is restored once without reviving reti
  const layout=buildGameplayLayoutV70({chapter:1});
  assert.equal(layout.canStand(location.x,location.z),true,
   'real Chapter 1 physical mall must allow retrieving the key at its location');
+ assert.deepEqual([location.x,location.z],[6,-81]);
+ const freight=storyTargetV70({chapter:1,type:'exit'});
+ const portal=layout.shell.portals.find(p=>p.id==='east_gallery__freight_lobby');
+ assert.deepEqual([portal.axis,portal.at,portal.start,portal.end],['z',-110,14.25,16.75]);
+ assert.ok(portal.end+1.5<18.5,'actual service opening must stay west of open freight shaft');
+ assert.ok(shortestRouteV70(layout,location,freight).length>0,
+  'real Chapter 1 key-to-freight route cannot end at an isolated service lobby');
+ for(const id of ['A','B','C']){
+  const point=storyTargetV70({chapter:1,type:'breaker',id});
+  assert.ok(shortestRouteV70(layout,location,point).length>0,
+   'real physical route from recovered key to circuit '+id+' required');
+ }
 });
