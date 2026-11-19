@@ -1,0 +1,28 @@
+name: Pinewood V137 Chapter 1 source audit
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'scripts/inspect-chapter1-runtime-v137.mjs'
+      - 'scripts/test-chapter1-objectives-v137.mjs'
+      - 'mall/chapter1-objectives-v137.js'
+      - 'game.js'
+      - '.github/workflows/chapter1-clarity-v137.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  chapter1-source:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Inspect original Chapter 1 objective and safety hooks
+        run: node scripts/inspect-chapter1-runtime-v137.mjs
+      - name: Audit original Chapter 1 canon and staged PCAS dialogue
+        run: |
+          node scripts/audit-chapter1-story-v18.mjs
+          node scripts/audit-chapter1-pcas-v20.mjs
