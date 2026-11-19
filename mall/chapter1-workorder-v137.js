@@ -8,6 +8,8 @@
  * Put that genuine pickup back in build time before V70 relocation. */
 export function restoreChapter1PickupV137(source){
  if(typeof source!=='string')throw TypeError('Original assembled source is required');
+ if(source.includes("const masterServiceKeyV137=makePickup('key'"))
+  throw Error('V137 key source hook missing or repeated: original source key already restored');
  const anchor='    // Retail is supplied by the actual approved shell and licensed v69 fixtures.';
  if(source.split(anchor).length!==2)throw Error('V137 key source hook missing or repeated');
  if(!source.includes("function makePickup(type,pos,label,text=null)"))
