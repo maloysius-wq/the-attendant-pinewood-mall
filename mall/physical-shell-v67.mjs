@@ -59,6 +59,21 @@ function openingFor(link,a,b){
  const c=boundaryContact(a,b);
  if(!c)return null;
  if(!c.axis)return {id:link.from+'__'+link.to,from:a.id,to:b.id,level:a.level,type:'overlap',minChapter:link.minChapter,locked:false};
+ // V137: The original east-gallery -> freight-lobby opening was centered
+ // at x20 directly above the real x18.5..22.5 elevator shaft! That left the
+ // legitimate Chapter 1 service lobby unreachable on the original walk grid.
+ // Shift the ACTUAL masonry opening west, onto the unchanged solid y=0 slab.
+ // The shaft, freight door, surrounding 1979 wall and all other portals stay.
+ if(link.from==='east_gallery'&&link.to==='freight_lobby'){
+  if(c.axis!=='z'||Math.abs(c.at+110)>.01)throw Error('Original freight gallery geometry changed');
+  const start=14.25,end=16.75;
+  if(start<c.span[0]||end>c.span[1]||end+1.5>=18.5)
+   throw Error('Freight entry is not safely west of the true open shaft');
+  return {id:link.from+'__'+link.to,from:a.id,to:b.id,level:a.level,type:'doorway',
+   axis:c.axis,at:c.at,start,end,width:end-start,height:2.5,
+   minChapter:link.minChapter,locked:false};
+ }
+
  const shared=c.span[1]-c.span[0];
  const isRetail=a.kind==='retail'||b.kind==='retail';
  const isPublic=a.kind==='public'||b.kind==='public';
