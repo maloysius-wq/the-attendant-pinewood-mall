@@ -310,6 +310,10 @@ try{
     const v70=await import(v70PatchUrl);
     unifiedSource=v70.applyUnifiedMallV70(audioDirectionV27Source);
   }finally{URL.revokeObjectURL(v70PatchUrl);}
+  // V137: restore the exact original physical service-key pickup before the
+  // terminal source emitter. Keep the established sourceURL loader signature
+  // unchanged for all downstream audio and six-chapter source safeguards.
+  unifiedSource=restoreChapter1PickupV137(unifiedSource);
   // V111 is the renderer both the film and the game use. Its selected
   // publication or explicit same-browser Builder preview persists across
   // chapters without touching chapter events or the immutable game bundle.
@@ -354,7 +358,7 @@ try{
    descendToExitV70,
    VISUAL_VIEWPOINTS_V70,CCTV_FEEDS_V70
   };
-  const source=restoreChapter1PickupV137(unifiedSource)+'\n//# sourceURL=pinewood-runtime.js\n';
+  const source=unifiedSource+'\n//# sourceURL=pinewood-runtime.js\n';
   const moduleUrl=URL.createObjectURL(new Blob([source],{type:'text/javascript'}));
   try{await import(moduleUrl);}finally{URL.revokeObjectURL(moduleUrl);}
 }catch(err){
