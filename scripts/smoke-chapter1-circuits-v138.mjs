@@ -35,7 +35,7 @@ try{
  assert.deepEqual(before.active,[]);
  for(const id of ['A','B','C']){
   assert.ok(before.sources[id].some(x=>x.kind==='light'));
-  assert.ok(before.sources[id].every(x=>Math.abs(x.current-x.original*.34)<.00001));
+  assert.ok(before.sources[id].every(x=>Math.abs(x.current-x.original*.16)<.00001));
  }
  await page.screenshot({path:folder+'/chapter1-before-power.png',timeout:120000,
   animations:'disabled'});
@@ -54,7 +54,7 @@ try{
   const snap=sequence[i].lighting;
   assert.equal(snap.active.length,i+1);
   for(const id of ['A','B','C'])for(const element of snap.sources[id]){
-   const expected=element.original*(snap.active.includes(id)?1:.34);
+   const expected=element.original*(snap.active.includes(id)?(element.kind==='light'?4.5:1):.16);
    assert.ok(Math.abs(expected-element.current)<.00001,
     'original architectural '+id+' '+element.kind+' did not follow real breaker');
   }

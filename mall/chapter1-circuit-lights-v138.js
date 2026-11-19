@@ -7,7 +7,8 @@ export const CIRCUIT_LABELS_V138=Object.freeze({
  C:'Freight service corridor lights'
 });
 const CIRCUITS=Object.freeze(Object.keys(CIRCUIT_LABELS_V138));
-export function circuitLevelV138(online){return online?1:.34;}
+export function circuitLevelV138(online){return online?4.5:.16;}
+const sourceBulbLevelV138=online=>online?1:.16;
 export function installChapter1CircuitLightsV138(game){
  if(!game?.mallV70?.group?.traverse||typeof game.interact!=='function'||
     typeof game.resetState!=='function')
@@ -45,7 +46,9 @@ export function installChapter1CircuitLightsV138(game){
   bindCurrentScene();
   const chapter1=game.levelIndex===0;
   for(const entry of source){
-   const factor=chapter1?circuitLevelV138(active.has(entry.id)):1;
+   const factor=chapter1?(entry.kind==='light'?
+    circuitLevelV138(active.has(entry.id)):
+    sourceBulbLevelV138(active.has(entry.id))):1;
    if(entry.kind==='light')entry.node.intensity=entry.original*factor;
    else{
     entry.node.material.transparent=chapter1||entry.originalTransparent;

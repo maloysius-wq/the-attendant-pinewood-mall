@@ -16,11 +16,13 @@ const createGame=()=>{
 test('real original architectural A/B/C fixture groups light independently',()=>{
  const game=createGame(),api=installChapter1CircuitLightsV138(game);
  assert.deepEqual(api.getState().active,[]);
+ assert.equal(circuitLevelV138(false),.16);
+ assert.equal(circuitLevelV138(true),4.5);
  assert.ok(api.getState().sources.A.every(x=>x.current===x.original*circuitLevelV138(false)));
  for(const id of ['C','A','B']){
   game.interactTarget={userData:{type:'breaker',id,on:false}};
   game.interact();
-  assert.ok(api.getState().sources[id].every(x=>x.current===x.original));
+  assert.ok(api.getState().sources[id].every(x=>x.current===x.original*(x.kind==='light'?4.5:1)));
  }
  assert.deepEqual(api.getState().active,['A','B','C']);
  game.interactTarget={userData:{type:'breaker',id:'A',on:true}};game.interact();
@@ -33,7 +35,7 @@ test('real original architectural A/B/C fixture groups light independently',()=>
    'later chapters retain original exact source brightness');
  game.levelIndex=0;game.resetState();
  assert.deepEqual(api.getState().active,[]);
- assert.ok(api.getState().sources.C.every(x=>x.current===x.original*.34));
+ assert.ok(api.getState().sources.C.every(x=>x.current===x.original*.16));
  assert.equal(installChapter1CircuitLightsV138(game),api,'no double-wrap');
 });
 test('only real authored breaker power affects circuit lighting',()=>{
@@ -82,12 +84,12 @@ test('reloading Chapter 1 rebinds new REAL source lamps and clears prior-run bre
  assert.equal(reloaded,api,'same Game may be reused across chapters but new scene must rebind');
  assert.deepEqual(reloaded.getState().active,[],'fresh chapter cannot inherit old circuit state');
  for(const id of ['A','B','C'])
-  assert.ok(reloaded.getState().sources[id].every(x=>Math.abs(x.current-x.original*.34)<1e-9),
+  assert.ok(reloaded.getState().sources[id].every(x=>Math.abs(x.current-x.original*.16)<1e-9),
    'fresh original physical light of circuit '+id+' must begin dim again');
  game.interactTarget={userData:{type:'breaker',id:'C',on:false}};
  game.interact();
  assert.deepEqual(reloaded.getState().active,['C']);
- assert.ok(reloaded.getState().sources.C.every(x=>x.current===x.original));
+ assert.ok(reloaded.getState().sources.C.every(x=>x.current===x.original*(x.kind==='light'?4.5:1)));
  game.levelIndex=1;reloaded.sync();
  assert.ok(fresh.filter(x=>x.isMesh).every(x=>x.material.transparent===false),
   'new source bulb materials must restore for Chapter 2–6');
