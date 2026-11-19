@@ -2,7 +2,7 @@
 import {FURNISHINGS_V69} from './furnishing-plan-v69.mjs';
 import {buildGameplayLayoutV70,shortestRouteV70} from './gameplay-layout-v70.mjs';
 export const CHAPTER1_STEALTH_V139=Object.freeze({
- cabinet:Object.freeze({id:'fallow_display',approach:Object.freeze({x:-41,z:-54})}),
+ cabinet:Object.freeze({id:'fallow_display',approach:Object.freeze({x:-43,z:-56})}),
  pickups:Object.freeze([
   Object.freeze({label:'Noise Maker',room:'west_gallery',x:-17,z:-79}),
   Object.freeze({label:'Pager Decoy',room:'east_gallery',x:16,z:-72})

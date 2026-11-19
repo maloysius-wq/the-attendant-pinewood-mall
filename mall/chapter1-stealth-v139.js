@@ -159,11 +159,24 @@ export function installChapter1StealthV139(game){
    getState:snapshot,
    viewRealCabinetForTest(){
     if(game.levelIndex!==0||!game.running||game.modal)throw Error('Chapter 1 must be playing');
-    game.controls.yaw.position.set(SOURCE.x+1.9,1.7,SOURCE.z);
-    game.controls.yaw.rotation.y=Math.PI/2;
+    // The V69 original bookcaseClosedDoors GLB faces toward negative Z.
+    // Stand at its physical SOUTH front door, not the side of its collider.
+    // Update inherited camera matrices before calling the real E raycast:
+    // the local QA placement otherwise uses a stale prior animation frame.
+    game.controls.yaw.position.set(SOURCE.x,1.7,SOURCE.z-1.9);
+    game.controls.yaw.rotation.y=Math.PI;
     game.controls.pitch.rotation.x=0;
+    game.camera.updateWorldMatrix(true,false);
+    sourceModel.updateWorldMatrix(true,true);
     game.updateInteraction();
-    return {state:snapshot(),target:game.interactTarget?.name??null};
+    const hits=game.raycaster.intersectObjects(game.world.interactables,true).slice(0,4);
+    return {state:snapshot(),target:game.interactTarget?.name??null,
+     camera:game.controls.yaw.position.toArray(),
+     expected:sourceModel.name,
+     rayHits:hits.map(h=>({name:h.object.name,distance:Number(h.distance.toFixed(3)),
+      parent:h.object.parent?.name||null})),
+     sourceVisible:sourceModel.visible,
+     sourceWorld:sourceModel.getWorldPosition(new THREE.Vector3()).toArray()};
    },
    viewNorthGalleryForTest(){
     if(game.levelIndex!==0||!game.running||game.modal)throw Error('Chapter 1 must be playing');

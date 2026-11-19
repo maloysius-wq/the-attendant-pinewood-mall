@@ -47,7 +47,7 @@ try{
  assert.ok(initial.pickups.every(x=>!x.collected));
  const viewed=await page.evaluate(()=>window.__PINEWOOD_CH1_STEALTH_V139_QA__.viewRealCabinetForTest());
  assert.equal(viewed.target,'furnished_fallow_display',
-  'original 1440x900 first-person E raycast must reach genuine CC0 cabinet');
+  'original 1440x900 first-person E raycast must reach genuine CC0 cabinet '+JSON.stringify(viewed));
  await page.screenshot({path:folder+'/real-fallow-cabinet-before-hide.png',
   animations:'disabled',timeout:120000});
  const hidden=await page.evaluate(()=>window.__PINEWOOD_CH1_STEALTH_V139_QA__.enterRealCabinetForTest());
