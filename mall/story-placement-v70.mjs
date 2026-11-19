@@ -10,6 +10,8 @@ const FIXED={
     'breaker:C':['north_service',3,-115],
     // V137 reuses the original Master Service Key pickup removed with obsolete arcade geometry.
     'Master Service Key':['central_gallery',6,-81],
+    'Noise Maker':['west_gallery',-17,-79],
+    'Pager Decoy':['east_gallery',16,-72],
     'exit':['freight_lobby',17,-113]
   },
   2:{
