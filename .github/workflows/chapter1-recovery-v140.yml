@@ -22,5 +22,39 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - name: Inspect the original AI/death/stealth implementation
-        run: node scripts/inspect-chapter1-recovery-v140.mjs
+      - name: Inspect original source and run fair-contact/hunt regression
+        run: |
+          node scripts/inspect-chapter1-recovery-v140.mjs >/tmp/v140-source-inspection.txt
+          node --check mall/chapter1-recovery-v140.js
+          node --test scripts/test-chapter1-recovery-v140.mjs
+          node --test scripts/test-chapter1-stealth-v139.mjs
+          node --test scripts/test-chapter1-objectives-v137.mjs
+          node --test scripts/test-chapter1-circuits-v138.mjs
+          node scripts/audit-local-assets-v15.mjs
+  real-chapter1-recovery-desktop:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install desktop Chromium
+        run: |
+          npm install --no-save playwright@1.55.0
+          npx playwright install chromium
+      - name: Serve only local original 3D runtime
+        run: |
+          python3 -m http.server 4173 --bind 127.0.0.1 >/tmp/pinewood-v140-http.log 2>&1 &
+          for i in {1..40}; do curl -fsS http://127.0.0.1:4173/ >/dev/null && exit 0; sleep 1; done
+          exit 1
+      - name: Prove real wall LOS loss, fair pursuit, original death and restart
+        run: node scripts/smoke-chapter1-recovery-v140.mjs
+      - name: Save original 1440x900 death and recovered scene images
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: v140-original-pursuit-recovery
+          path: artifacts/v140-real-recovery/
+          retention-days: 14
+
