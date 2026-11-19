@@ -18,6 +18,7 @@ import {NW_FIREBREAK_V129,FIREBREAK_PLATE_V129,FIREBREAK_CEILING_V129,residualFi
 import {REAR_SERVICE_ENVELOPE_V131,REAR_SERVICE_CEILINGS_V131,rearServiceWallsV131,validateRearServiceV131} from './rear-service-closure-v131.mjs';
 import {FRONT_ORIGINAL_CLOSURE_V133,frontSourceWallV133,frontSourceCeilingV133,validateFrontClosureV133} from './front-service-closure-v133.mjs';
 import {WEST_REAR_SERVICE_V135,westRearSourceWallsV135,westRearCeilingV135,validateWestRearV135} from './west-rear-service-closure-v135.mjs';
+import {realWestFacadeReturnV136,auditOriginalPerimeterV136,validateOriginalPerimeterV136} from './original-perimeter-envelope-v136.mjs';
 
 const EPS=1e-6;
 const TEXTURES=Object.freeze({
@@ -365,6 +366,7 @@ export function constructPhysicalShell({level='G',chapter=1}={}){
     originalRearClosure:level==='G'?{envelope:REAR_SERVICE_ENVELOPE_V131,ceilings:REAR_SERVICE_CEILINGS_V131}:null,
     originalFrontClosure:level==='G'?FRONT_ORIGINAL_CLOSURE_V133:null,
     originalWestRearV135:level==='G'?WEST_REAR_SERVICE_V135:null,
+    originalPerimeterV136:level==='G'?{intentionalFacadeSqm:286}:null,
   floorPlates:floorPlates(level),ceilings:[...ceilingPlates(level),...(level==='G'?checkpointCeilingsV117():[]),...(level==='G'?[FIREBREAK_CEILING_V129,...REAR_SERVICE_CEILINGS_V131,frontSourceCeilingV133(),westRearCeilingV135()]:[])],walls:[],portals:planar,doors:exposedDoors(level,chapter),
   railings:level==='M1'?[{id:'atrium_overlook_guard',axis:'z',at:-94,start:-11,end:29,bottom:5.4,top:6.65,thickness:.12,material:'steel',role:'railing'}]:[],
   roofs:roofPlates(level),stairs:MALL.links.filter(l=>l.type==='stairs'&&[room(l.from).level,room(l.to).level].includes(level)).map(makeStairs),
@@ -382,7 +384,8 @@ export function constructPhysicalShell({level='G',chapter=1}={}){
  const v131Walls=level==='G'?rearServiceWallsV131([...existingWalls,...v129Walls]):[];
   const v133Walls=level==='G'?[frontSourceWallV133([...existingWalls,...v129Walls,...v131Walls])]:[];
  const v135Walls=level==='G'?westRearSourceWallsV135([...existingWalls,...v129Walls,...v131Walls,...v133Walls]):[];
- shell.walls=[...existingWalls,...v129Walls,...v131Walls,...v133Walls,...v135Walls];
+ const v136Walls=level==='G'?[realWestFacadeReturnV136([...existingWalls,...v129Walls,...v131Walls,...v133Walls,...v135Walls])]:[];
+ shell.walls=[...existingWalls,...v129Walls,...v131Walls,...v133Walls,...v135Walls,...v136Walls];
  shell.gates=insertGates(shell);
  return shell;
 }
@@ -465,6 +468,7 @@ export function validatePhysicalShell(shell){
    existingWalls:shell.walls.filter(w=>w.role!=='v135-west-rear-partition'),
    floorPlates:shell.floorPlates,ceilings:shell.ceilings,
    portals:shell.portals,roofs:shell.roofs}));
+  errors.push(...validateOriginalPerimeterV136(shell));
  }
  if(shell.version!==67||!levelData(shell.level))errors.push('unknown physical shell version/level');
  for(const w of [...shell.walls,...shell.gates,...shell.railings]){

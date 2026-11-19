@@ -1,0 +1,57 @@
+name: Pinewood V136 final Issue 119 original physical perimeter and real hinge
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'mall/original-perimeter-envelope-v136.mjs'
+      - 'mall/original-residual-register-v134.mjs'
+      - 'mall/physical-shell-v67.mjs'
+      - 'mall/render-shell-v67.js'
+      - 'review/mall-construction-v67/**'
+      - 'scripts/test-original-perimeter-v136.mjs'
+      - 'scripts/smoke-original-perimeter-v136.mjs'
+      - '.github/workflows/original-perimeter-v136.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  issue119-original-physical-architecture:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify source original facade, final real original door and all Chapter paths
+        run: |
+          node --check mall/original-perimeter-envelope-v136.mjs
+          node --check mall/physical-shell-v67.mjs
+          node --check mall/render-shell-v67.js
+          node --check review/mall-construction-v67/main.js
+          node --check scripts/smoke-original-perimeter-v136.mjs
+          node --test scripts/test-original-perimeter-v136.mjs scripts/test-original-residual-register-v134.mjs scripts/test-west-rear-source-v135.mjs scripts/test-front-service-closure-v133.mjs scripts/test-vestibule-handoff-v112.mjs scripts/test-physical-shell-v67.mjs scripts/test-gameplay-layout-v70.mjs
+      - name: Preserve all locally pinned licensed CC0 models and textures
+        run: node scripts/audit-local-assets-v15.mjs
+      - name: Install full original desktop Chromium only
+        run: |
+          npm install --no-save playwright@1.55.0
+          npx playwright install chromium
+      - name: Serve original single source property
+        run: |
+          python3 -m http.server 4173 --bind 127.0.0.1 >/tmp/pinewood-v136-http.log 2>&1 &
+          for i in {1..40}; do curl -fsS http://127.0.0.1:4173/review/mall-construction-v67/ >/dev/null && exit 0; sleep 1; done
+          exit 1
+      - name: Capture seventeen original 1440x900 retail, gallery, facade and connector views
+        run: node scripts/smoke-original-perimeter-v136.mjs
+      - name: Real original V113 hinged E open-close and anti-trap gameplay
+        run: node scripts/smoke-vestibule-handoff-v112.mjs
+      - name: Retain genuine original WebGL and V113 source door screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: v136-final-issue119-real-original-physical-scene
+          path: |
+            artifacts/v136-issue119-perimeter/
+            artifacts/v112-chapter-one-vestibule.png
+          retention-days: 14
