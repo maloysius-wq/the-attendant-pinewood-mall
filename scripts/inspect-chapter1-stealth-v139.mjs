@@ -23,3 +23,16 @@ for(const pattern of needles){
  }
 }
 console.log('\nTOTAL_LINES '+lines.length+' TOTAL_BYTES '+text.length);
+
+for(const [lo,hi] of [[275,291],[344,360],[513,549],[597,635]]){
+ console.log('\n=== EXACT SOURCE LINES '+lo+'..'+hi+' ===');
+ for(let i=lo;i<=hi;i++)console.log('SOURCE '+i+': '+(lines[i-1]||''));
+}
+const glb=readFileSync('assets/vendor/runtime/3d7dfedf514e5c4e/bookcaseClosedDoors.glb');
+if(glb.toString('ascii',0,4)!=='glTF')throw Error('Original cabinet must be a real pinned GLB');
+const n=glb.readUInt32LE(12),gltf=JSON.parse(glb.subarray(20,20+n).toString());
+console.log('REAL_CABINET_GLTF '+JSON.stringify({
+ nodes:gltf.nodes?.map((o,i)=>({i,name:o.name,mesh:o.mesh,children:o.children,translation:o.translation,rotation:o.rotation,scale:o.scale})),
+ meshes:gltf.meshes?.map((m,i)=>({i,name:m.name,primitiveCount:m.primitives?.length})),
+ scenes:gltf.scenes
+}));
