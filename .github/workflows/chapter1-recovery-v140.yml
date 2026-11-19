@@ -1,0 +1,26 @@
+name: Pinewood V140 Chapter 1 fair pursuit and recovery
+on:
+  push:
+    branches: [feature/v140-chapter1-fair-hunt-recovery]
+    paths:
+      - 'scripts/inspect-chapter1-recovery-v140.mjs'
+      - 'mall/chapter1-recovery-v140.js'
+      - 'mall/chapter1-recovery-rules-v140.mjs'
+      - 'scripts/test-chapter1-recovery-v140.mjs'
+      - 'scripts/smoke-chapter1-recovery-v140.mjs'
+      - 'game.js'
+      - '.github/workflows/chapter1-recovery-v140.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  source-and-recovery:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 9
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Inspect the original AI/death/stealth implementation
+        run: node scripts/inspect-chapter1-recovery-v140.mjs
