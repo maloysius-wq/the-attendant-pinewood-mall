@@ -1,5 +1,14 @@
 name: Pinewood V138 Chapter 1 original circuit lighting
 on:
+  push:
+    branches: [feature/v138-chapter1-real-circuit-lighting]
+    paths:
+      - '.github/workflows/chapter1-circuits-v138.yml'
+      - 'mall/chapter1-circuit-lights-v138.js'
+      - 'mall/render-shell-v67.js'
+      - 'game.js'
+      - 'scripts/test-chapter1-circuits-v138.mjs'
+      - 'scripts/smoke-chapter1-circuits-v138.mjs'
   pull_request:
     branches: [main, feature/v137-chapter1-gameplay-clarity]
     paths:
