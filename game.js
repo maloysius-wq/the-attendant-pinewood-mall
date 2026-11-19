@@ -8,6 +8,7 @@ import {installVestibuleDoorGameplayV112} from './mall/vestibule-door-gameplay-v
 import {installChapter1WorkOrderV137,restoreChapter1PickupV137} from './mall/chapter1-workorder-v137.js';
 import {installChapter1CircuitLightsV138} from './mall/chapter1-circuit-lights-v138.js';
 import {installChapter1StealthV139,restoreChapter1StealthPickupsV139} from './mall/chapter1-stealth-v139.js';
+import {installChapter1RecoveryV140} from './mall/chapter1-recovery-v140.js';
 // Deployment loader for The Attendant: Pinewood Mall.
 // Runtime bundle stays immutable; authored room and world-prop overrides live in /patches.
 const PARTS=[
@@ -336,7 +337,10 @@ try{
     // This wraps only Chapter 1 objective/exit gameplay; chapter 2-6 remain unchanged.
     installChapter1WorkOrderV137(args.game);
     installChapter1CircuitLightsV138(args.game);
-    if(args.game.levelIndex===0)installChapter1StealthV139(args.game);
+    if(args.game.levelIndex===0){
+     installChapter1StealthV139(args.game);
+     installChapter1RecoveryV140(args.game);
+    }
     // Read-only, opt-in automated desktop handoff probe. Not a game API.
     if(new URLSearchParams(location.search).has('vestibuleQA')){
      const game=args.game;
