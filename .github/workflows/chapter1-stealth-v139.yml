@@ -4,6 +4,7 @@ on:
     branches: [feature/v139-ch1-authentic-stealth]
     paths:
       - 'scripts/inspect-chapter1-stealth-v139.mjs'
+      - 'scripts/diagnose-chapter1-stealth-v139.mjs'
       - '.github/workflows/chapter1-stealth-v139.yml'
   workflow_dispatch:
 permissions:
@@ -18,3 +19,4 @@ jobs:
         with:
           node-version: '22'
       - run: node scripts/inspect-chapter1-stealth-v139.mjs
+      - run: node scripts/diagnose-chapter1-stealth-v139.mjs
