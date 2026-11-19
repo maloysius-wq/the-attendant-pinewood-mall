@@ -156,6 +156,21 @@ export function installChapter1StealthV139(game){
  if(LOCAL_HOST()&&typeof window!=='undefined'){
   window.__PINEWOOD_CH1_STEALTH_V139_QA__={
    getState:snapshot,
+   viewRealCabinetForTest(){
+    if(game.levelIndex!==0||!game.running||game.modal)throw Error('Chapter 1 must be playing');
+    game.controls.yaw.position.set(SOURCE.x+1.9,1.7,SOURCE.z);
+    game.controls.yaw.rotation.y=Math.PI/2;
+    game.controls.pitch.rotation.x=0;
+    game.updateInteraction();
+    return {state:snapshot(),target:game.interactTarget?.name??null};
+   },
+   viewNorthGalleryForTest(){
+    if(game.levelIndex!==0||!game.running||game.modal)throw Error('Chapter 1 must be playing');
+    game.controls.yaw.position.set(0,1.7,-96);
+    game.controls.yaw.rotation.y=0;
+    game.controls.pitch.rotation.x=0;
+    return snapshot();
+   },
    collectRealNoiseMakerForTest(){
     if(game.levelIndex!==0||!game.running||game.modal)throw Error('Chapter 1 must be playing');
     const dec=game.world.interactables.find(o=>o.userData?.type==='decoy'&&
