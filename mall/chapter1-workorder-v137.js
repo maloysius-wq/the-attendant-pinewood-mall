@@ -2,6 +2,24 @@
  * Install against the REAL Game instance after V70's authored-story relocation.
  * No new story rooms, no fake pickups, no changes to other chapters.
  */
+/** Restore the EXACT original Game.makePickup('key') scene object.
+ * V70 deliberately removed buildArcade when physical retail replaced old
+ * prototype art, but buildArcade also created the ONLY real Master Service Key.
+ * Put that genuine pickup back in build time before V70 relocation. */
+export function restoreChapter1PickupV137(source){
+ if(typeof source!=='string')throw TypeError('Original assembled source is required');
+ const anchor='    // Retail is supplied by the actual approved shell and licensed v69 fixtures.';
+ if(source.split(anchor).length!==2)throw Error('V137 key source hook missing or repeated');
+ if(!source.includes("function makePickup(type,pos,label,text=null)"))
+  throw Error('V137 requires original key geometry and pickup creator');
+ const add=String.raw`
+    // The removed prototype arcade also contained the ONLY genuine service key.
+    // Reuse the original key pickup and its existing interact() logic; the
+    // physical V70 story-relocation map moves it to central_gallery.
+    const masterServiceKeyV137=makePickup('key',new THREE.Vector3(6.9,.18,-28.2),'Master Service Key');
+    world.root.add(masterServiceKeyV137);world.interactables.push(masterServiceKeyV137);`;
+ return source.replace(anchor,anchor+add);
+}
 const KEY_NAME='Master Service Key';
 const MAX_CIRCUITS=3;
 export function chapter1WorkOrderStateV137({breakers=0,keyRecovered=false,elevator='idle'}={}){
