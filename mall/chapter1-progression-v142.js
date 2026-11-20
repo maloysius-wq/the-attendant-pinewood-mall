@@ -13,7 +13,7 @@ export function installChapter1ProgressionV142(game){
   throw Error('V142 requires live authored Chapter 1, V137 key and V141 panels');
  if(game.__chapter1ProgressionV142)return game.__chapter1ProgressionV142;
  const getTarget=(type,id)=>game.world.interactables.find(o=>!!o.parent&&
-  o.userData?.type===type&&(type==='breaker'?o.userData.id===id:o.userData.label===id));
+  o.userData?.type===type&&(type==='exit'||(type==='breaker'?o.userData.id===id:o.userData.label===id)));
  const getState=()=>{
   const e=game.exitObject,u=e?.userData,p=game.controls.yaw.position;
   const local=e?.worldToLocal?.(p.clone());
