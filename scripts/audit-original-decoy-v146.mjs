@@ -13,13 +13,15 @@ const methods=[
  ['original class Attendant',src.indexOf('class Attendant')],
  ['original Attendant.hear',src.indexOf('hear(pos')],
  ['original Attendant.setPath',src.indexOf('setPath(target')],
- ['original Game.throwDecoy',src.indexOf('throwDecoy()')],
+ ['original Game.throwDecoy',src.indexOf('  throwDecoy(){')],
+ ['original Game.updateDecoys',src.indexOf('  updateDecoys(')],
+ ['original Attendant.update',src.indexOf('  update(dt,t,playerPos,fear){')],
  ['original game decoy landing',src.indexOf('decoyUntil')],
  ['original game decoy object',src.indexOf('decoyObjs')],
 ];
 for(const [name,i] of methods){
  assert.ok(i>=0,name+' missing from immutable original');
- const content=src.slice(Math.max(0,i-220),Math.min(src.length,i+2000));
+ const content=src.slice(Math.max(0,i-220),Math.min(src.length,i+4200));
  if(process.env.V146_PRINT_ORIGINAL==='1')console.log('V146_ORIGINAL '+name+' '+JSON.stringify(content));
 }
 console.log('V146_ORIGINAL_SOURCE_WITNESS '+JSON.stringify(methods.map(([name,i])=>({name,offset:i}))));
