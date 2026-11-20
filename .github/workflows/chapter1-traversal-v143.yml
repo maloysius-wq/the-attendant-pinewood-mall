@@ -1,0 +1,56 @@
+name: Pinewood V143 Original Chapter 1 Continuous Physical Traversal
+on:
+  push:
+    branches: [feature/v143-real-vestibule-to-breaker-traversal]
+    paths:
+      - 'game.js'
+      - 'mall/chapter1-traversal-v143.js'
+      - 'scripts/test-chapter1-traversal-v143.mjs'
+      - 'scripts/smoke-chapter1-traversal-v143.mjs'
+      - '.github/workflows/chapter1-traversal-v143.yml'
+      - 'docs/CHAPTER1_TRAVERSAL_V143.md'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  original-source-route:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Genuine original V113 doorway, shell and three breaker routes
+        run: |
+          node --check mall/chapter1-traversal-v143.js
+          node --test scripts/test-chapter1-traversal-v143.mjs
+          node --test scripts/test-wall-panels-v141.mjs
+          node --test scripts/test-chapter1-progression-v142.mjs
+          node scripts/audit-local-assets-v15.mjs
+  genuine-desktop-walking:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 28
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Desktop original-game Chromium
+        run: |
+          npm install --no-save playwright@1.55.0
+          npx playwright install chromium
+      - name: Serve entirely local original runtime
+        run: |
+          python3 -m http.server 4173 --bind 127.0.0.1 >/tmp/v143-game-http.log 2>&1 &
+          for i in {1..40}; do curl -fsS http://127.0.0.1:4173/ >/dev/null && exit 0; sleep 1; done
+          exit 1
+      - name: Real E source door + pedestrian Game.tryMove to authentic A/B/C
+        run: node scripts/smoke-chapter1-traversal-v143.mjs
+      - name: Save original 1440x900 evidence and movement telemetry
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: v143-original-vestibule-to-breaker-movement
+          path: artifacts/v143-chapter1-traversal/
+          retention-days: 14
