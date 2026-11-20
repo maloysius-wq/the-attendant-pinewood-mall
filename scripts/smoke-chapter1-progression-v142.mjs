@@ -76,7 +76,7 @@ try{
  assert.equal(call.aimed.targetReal,true,'original E must genuinely target physical freight switch');
  assert.equal(call.after.elevator.state,'opening','real source elevator must start via E');
  const waiting=await q(()=>window.__PINEWOOD_CH1_PROGRESSION_V142_QA__.advanceElevator(31,.04));
- assert.equal(waiting.elevator.state,'waiting','doors must be truly open');
+ assert.equal(waiting.elevator.state,'waiting','source doors must remain open until player actually boards: '+JSON.stringify({camera:call.aimed.camera,local:call.after.insideLocal,elevator:waiting.elevator}));
  assert.equal(waiting.elevator.blockerDisabled,true);
  const sample=await q(()=>window.__PINEWOOD_CH1_PROGRESSION_V142_QA__.sampleCab());
  const boarded=await q(()=>window.__PINEWOOD_CH1_PROGRESSION_V142_QA__.enterRealCab());

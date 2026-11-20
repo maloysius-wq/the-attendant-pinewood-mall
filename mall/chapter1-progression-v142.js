@@ -97,9 +97,12 @@ export function installChapter1ProgressionV142(game){
    const p=game.controls.yaw.position;
    const initial={x:p.x,y:p.y,z:p.z,yaw:game.controls.yaw.rotation.y,pitch:game.controls.pitch.rotation.x};
    const attempts=[];
+   // The true freight call must be operated from outside its cab.
+   const angles=type==='exit'?[8,7,9,6,10,5,11,4,12,3,13,2,14,1,15,0]:Array.from({length:16},(_,i)=>i);
    for(const radius of [1.2,1.45,1.7,1.9]){
-    for(let i=0;i<16;i++){
+    for(const i of angles){
      const a=i*2*Math.PI/16,x=t.x+radius*Math.cos(a),z=t.z+radius*Math.sin(a);
+     if(type==='exit'&&x>=t.x-.32)continue;
      if(!game.world.canStand(x,z))continue;
      const d=Math.hypot(t.x-x,t.z-z),y=1.7+(game.mallLevelYV70||0);
      const yaw=Math.atan2(-(t.x-x),-(t.z-z));
@@ -145,6 +148,7 @@ export function installChapter1ProgressionV142(game){
    callFreight(){
     const aimed=view('exit',null);
     const before=getState();
+    if(before.insideLocal?.x>.65&&before.insideLocal?.x<1.82&&Math.abs(before.insideLocal?.z)<.64)throw Error('Freight E call unexpectedly from inside original cab');
     game.interact();
     return {aimed,before,after:getState()};
    },
