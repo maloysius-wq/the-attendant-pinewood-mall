@@ -1,21 +1,62 @@
-name: Pinewood V146 Original Decoy Source Witness
+name: Pinewood V146 Genuine Chapter 1 Decoy Investigation
 on:
   push:
     branches: [feature/v146-authentic-decoy-investigation]
     paths:
+      - 'game.js'
+      - 'mall/chapter1-decoy-response-v146.js'
+      - 'mall/chapter1-decoy-response-v146.mjs'
+      - 'scripts/test-chapter1-decoy-response-v146.mjs'
+      - 'scripts/smoke-chapter1-decoy-response-v146.mjs'
       - 'scripts/audit-original-decoy-v146.mjs'
       - '.github/workflows/chapter1-decoy-investigation-v146.yml'
   workflow_dispatch:
 permissions:
   contents: read
 jobs:
-  original-source:
+  source-authenticity:
     runs-on: ubuntu-24.04
-    timeout-minutes: 8
+    timeout-minutes: 12
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - name: Original immutable Attendant and decoy source witness
-        run: V146_PRINT_ORIGINAL=1 node scripts/audit-original-decoy-v146.mjs
+      - name: Immutable original source and V146 behavior regression
+        run: |
+          node --check mall/chapter1-decoy-response-v146.js
+          node --check mall/chapter1-decoy-response-v146.mjs
+          node --check scripts/smoke-chapter1-decoy-response-v146.mjs
+          node scripts/audit-original-decoy-v146.mjs
+          node --test scripts/test-chapter1-decoy-response-v146.mjs
+          node --test scripts/test-chapter1-stealth-v139.mjs
+          node --test scripts/test-chapter1-recovery-v140.mjs
+          node --test scripts/test-chapter1-decoy-tags-v145.mjs
+          node --test scripts/test-chapter1-atmosphere-v144.mjs
+          node scripts/audit-local-assets-v15.mjs
+  authentic-1440x900-desktop:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 28
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Use real desktop browser and local source
+        run: |
+          npm install --no-save playwright@1.55.0
+          npx playwright install chromium
+      - name: Start isolated local original mall
+        run: |
+          python3 -m http.server 4173 --bind 127.0.0.1 >/tmp/v146-http.log 2>&1 &
+          for i in {1..40}; do curl -fsS http://127.0.0.1:4173/ >/dev/null && exit 0; sleep 1; done
+          exit 1
+      - name: True E pickup, real Q flight, Attendant A-star and visual priority
+        run: node scripts/smoke-chapter1-decoy-response-v146.mjs
+      - name: Preserve genuine original 1440x900 source screenshots and metrics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: v146-original-decoy-ai-evidence
+          path: artifacts/v146-genuine-decoy-investigation/
+          retention-days: 14
