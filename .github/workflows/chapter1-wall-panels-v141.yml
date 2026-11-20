@@ -1,0 +1,27 @@
+name: Pinewood V141 Wall-Mounted Original A/B/C Panels
+on:
+  push:
+    branches: [feature/v141-grounded-breaker-panels]
+    paths:
+      - 'scripts/survey-breaker-walls-v141.mjs'
+      - '.github/workflows/chapter1-wall-panels-v141.yml'
+      - 'mall/chapter1-wall-panels-v141.mjs'
+      - 'mall/chapter1-wall-panels-v141.js'
+      - 'mall/story-placement-v70.mjs'
+      - 'game.js'
+      - 'scripts/test-wall-panels-v141.mjs'
+      - 'scripts/smoke-wall-panels-v141.mjs'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  inspect:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Source-native 1979 breaker and real wall inspection
+        run: node scripts/survey-breaker-walls-v141.mjs
