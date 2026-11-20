@@ -16,8 +16,12 @@ The box's original rear steel face sits **8 mm from the original physical wall f
 
 Source-tested walkable approaches connect to the genuine V113 fire-door spawn, the original service key and the actual freight lobby. The V70 placement map holds *safe approach sites* for these real source controls; the V141 controller then moves each actual source breaker into its final physical mounting, after the genuine story objects are created. Chapters 2–6 retain their original unmodified locations and behavior.
 
-## Release gates
+## Released and verified
 
-Exact feature branch must pass source wall identity, back-face geometry, facing, walkability and reachability tests, plus V137–V140 regression and pinned local-asset audit. The real original 1440×900 desktop WebGL game must show genuine first-person E targeting and switch A/B/C success at the correct wall, with **three original scene screenshots** independently inspected. The actual key and freight elevator must remain usable. No manual WASD, mobile/emulated tests, remote runtime loading or private Builder draft publication.
+Merged [PR #151](https://github.com/maloysius-wq/the-attendant-pinewood-mall/pull/151) to main as `c4ccb7f59a46ea45c69c33010a66ae2f0d6363e3`, exact focused 1440×900 original WebGL and structural-source SUCCESS [#44762727649](https://github.com/maloysius-wq/the-attendant-pinewood-mall/actions/runs/44762727649). All three actual E raycasts at ~1.24–1.31m, three genuine A/B/C circuit interactions, real service key and real freight gate all PASS. Each of the three first-person images independently inspected. Original main Pages [#44765189287](https://github.com/maloysius-wq/the-attendant-pinewood-mall/actions/runs/44765189287) SUCCESS. The old legacy V70 story-placement test needed its pre-V141 hardcoded room names updated to the new true-wall locations, and the navigation CI path filter is now protected from this drift.
+
+## Release gates (fulfilled)
+
+Exact feature branch passed source wall identity, back-face geometry, facing, walkability and reachability tests, plus V137–V140 regression and pinned local-asset audit. The real original 1440×900 desktop WebGL game verified genuine first-person E targeting and switch A/B/C success at the correct wall, with **three original scene screenshots** independently inspected. The actual key and freight elevator must remain usable. No manual WASD, mobile/emulated tests, remote runtime loading or private Builder draft publication.
 
 The only new QA helper is restricted to local desktop Chromium with `?chapter1QA`; it is not a public gameplay cheat.

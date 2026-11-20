@@ -3,7 +3,8 @@ import assert from 'node:assert/strict';
 import {MALL} from '../mall/masterplan-v66.mjs';
 import {FURNISHINGS_V69} from '../mall/furnishing-plan-v69.mjs';
 import {storyTargetV70} from '../mall/story-placement-v70.mjs';
-import {buildGameplayLayoutV70} from '../mall/gameplay-layout-v70.mjs';
+import {buildGameplayLayoutV70,shortestRouteV70} from '../mall/gameplay-layout-v70.mjs';
+import {mountedPanelSitesV141} from '../mall/chapter1-wall-panels-v141.mjs';
 
 test('all nine Last Shift evidence props land on their approved canonical anchors',()=>{
   for(const a of FURNISHINGS_V69.storyAnchors){
@@ -13,15 +14,31 @@ test('all nine Last Shift evidence props land on their approved canonical anchor
   }
 });
 
-test('breaker boxes are reachable in meaningful electrical rooms rather than leftover corridors',()=>{
-  const cases=[
-    [1,'A','west_gallery'],[1,'B','east_gallery'],[1,'C','north_service'],
-    [2,'D','relay_d'],[2,'E','relay_e']
-  ];
-  for(const [chapter,id,room] of cases){
-    const at=storyTargetV70({chapter,type:'breaker',id,index:0});
+test('original breaker boxes are mounted to real masonry with walkable E approaches (V141)',()=>{
+  const chapter1=buildGameplayLayoutV70({chapter:1});
+  const mounted=mountedPanelSitesV141(chapter1);
+  assert.deepEqual(mounted.errors,[],'the actual 1979 wall and route audit must remain valid');
+  const expected={A:'central_gallery',B:'west_gallery',C:'freight_lobby'};
+  for(const id of ['A','B','C']){
+    const at=storyTargetV70({chapter:1,type:'breaker',id,index:0});
+    const source=mounted.panels.find(p=>p.id===id);
+    assert.ok(source,'real source wall missing for breaker '+id);
+    assert.equal(at.room,expected[id]);
+    assert.deepEqual({x:at.x,z:at.z},source.approach,
+      'the relocated original object must first have its safe V141 wall approach');
+    assert.equal(chapter1.canStand(at.x,at.z),true,
+      'real reachable E approach blocked for breaker '+id);
+    assert.ok(shortestRouteV70(chapter1,chapter1.spawn,at).length>0,
+      'breaker '+id+' must be accessible from the true contractor entrance');
+    assert.ok(source.wall.top>=2.1&&source.wall.bottom===0,
+      'breaker '+id+' must attach to solid structural masonry, not glass');
+  }
+  const chapter2=buildGameplayLayoutV70({chapter:2});
+  for(const [id,room] of [['D','relay_d'],['E','relay_e']]){
+    const at=storyTargetV70({chapter:2,type:'breaker',id,index:0});
     assert.equal(at.room,room);
-    assert.equal(buildGameplayLayoutV70({chapter}).canStand(at.x,at.z),true,`breaker ${id} blocks or floats`);
+    assert.equal(chapter2.canStand(at.x,at.z),true,
+      'Chapter 2 original breaker '+id+' must remain reachable');
   }
 });
 
