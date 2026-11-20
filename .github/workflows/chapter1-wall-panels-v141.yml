@@ -11,6 +11,7 @@ on:
       - 'game.js'
       - 'scripts/test-wall-panels-v141.mjs'
       - 'scripts/smoke-wall-panels-v141.mjs'
+      - 'docs/CHAPTER1_WALL_PANELS_V141.md'
   workflow_dispatch:
 permissions:
   contents: read
