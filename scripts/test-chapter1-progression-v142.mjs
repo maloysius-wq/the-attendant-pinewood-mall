@@ -30,7 +30,7 @@ test('all original 1997 LS-01–03 notes exist and are reachable and canonically
  for(const id of ['LS-01','LS-02','LS-03']){
   assert.equal(EVIDENCE_V17[id].chapter,0);
   const a=point('note',id),found=candidates.find(x=>x.id===id);
-  assert.deepEqual({room:a.room,x:a.x,z:a.z},found);
+  assert.deepEqual({room:a.room,x:a.x,z:a.z},{room:found.room,x:found.x,z:found.z});
   assert.ok(layout.canStand(a.x,a.z),'source Last Shift note '+id+' not walkable');
   assert.ok(shortestRouteV70(layout,layout.spawn,a).length>0,'no physical route to '+id);
   assert.ok(shortestRouteV70(layout,{x:6,z:-81},a).length>0,'key route cannot reach '+id);
