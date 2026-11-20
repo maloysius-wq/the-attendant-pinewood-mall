@@ -17,11 +17,46 @@ permissions:
 jobs:
   inspect:
     runs-on: ubuntu-24.04
-    timeout-minutes: 8
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - name: Source-native 1979 breaker and real wall inspection
-        run: node scripts/survey-breaker-walls-v141.mjs
+      - name: Verify source breaker and original wall identity
+        run: node scripts/survey-breaker-walls-v141.mjs >/tmp/v141-source-survey.log
+      - name: Structural source and no-regression tests
+        run: |
+          node --check mall/chapter1-wall-panels-v141.js
+          node --test scripts/test-wall-panels-v141.mjs
+          node --test scripts/test-chapter1-objectives-v137.mjs
+          node --test scripts/test-chapter1-circuits-v138.mjs
+          node --test scripts/test-chapter1-stealth-v139.mjs
+          node --test scripts/test-chapter1-recovery-v140.mjs
+          node scripts/audit-local-assets-v15.mjs
+  original-wall-panels-desktop:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install desktop Chromium
+        run: |
+          npm install --no-save playwright@1.55.0
+          npx playwright install chromium
+      - name: Serve only the original local 3D runtime
+        run: |
+          python3 -m http.server 4173 --bind 127.0.0.1 >/tmp/v141-http.log 2>&1 &
+          for i in {1..40}; do curl -fsS http://127.0.0.1:4173/ >/dev/null && exit 0; sleep 1; done
+          exit 1
+      - name: Operate three true wall-mounted source controls through first-person E
+        run: node scripts/smoke-wall-panels-v141.mjs
+      - name: Capture three actual source wall screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: v141-original-A-B-C-wall-panel-images
+          path: artifacts/v141-source-wall-panels/
+          retention-days: 14
