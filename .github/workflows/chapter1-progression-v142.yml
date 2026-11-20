@@ -23,7 +23,7 @@ jobs:
         with:
           node-version: '22'
       - name: Inspect original physical source for key, evidence and boarding
-        run: node scripts/survey-chapter1-progression-v142.mjs > /tmp/v142-source-survey.log
+        run: node scripts/survey-chapter1-progression-v142.mjs | grep -E 'ORIGINAL_SRC_L|V142_B1' 
       - name: Verify real 1979 geometry and source key/evidence continuity
         run: |
           node --check mall/chapter1-progression-v142.js
