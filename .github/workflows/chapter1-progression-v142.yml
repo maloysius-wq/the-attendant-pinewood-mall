@@ -1,0 +1,26 @@
+name: Pinewood V142 Physical Chapter 1 Key Evidence Freight
+on:
+  push:
+    branches: [feature/v142-ch1-complete-progression]
+    paths:
+      - 'scripts/survey-chapter1-progression-v142.mjs'
+      - '.github/workflows/chapter1-progression-v142.yml'
+      - 'mall/chapter1-progression-v142.js'
+      - 'mall/chapter1-progression-v142.mjs'
+      - 'scripts/test-chapter1-progression-v142.mjs'
+      - 'scripts/smoke-chapter1-progression-v142.mjs'
+      - 'game.js'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  source-survey:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Inspect original physical source for key, evidence and boarding
+        run: node scripts/survey-chapter1-progression-v142.mjs
