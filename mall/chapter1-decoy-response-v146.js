@@ -173,13 +173,15 @@ export function installChapter1DecoyResponseV146(game){
    },
    sendFarActualSourceSound(){
     ensure();
-    const target=new THREE.Vector3(16,0,-72);
-    const nav=game.world.navDistance(game.attendant.root.position,target,48);
-    if(!Number.isFinite(nav)||nav<=DECOY_RULES_V146.maxNavHearingMetres)
-     throw Error('Actual distant east gallery must exceed the bounded audible range '+nav);
+    const sites=[new THREE.Vector3(-17,0,-79),new THREE.Vector3(16,0,-72)];
+    const far=sites.map(target=>({
+     target,nav:game.world.navDistance(game.attendant.root.position,target,48)
+    })).find(x=>x.nav>DECOY_RULES_V146.maxNavHearingMetres);
+    if(!far)throw Error('Original west/east gallery sources unexpectedly near the same Attendant');
     const old=game.attendant.decoyUntil;
-    game.attendant.hear(target,1,'decoy');
-    return {nav,untouched:game.attendant.decoyUntil===old,state:getState()};
+    game.attendant.hear(far.target,1,'decoy');
+    return {nav:far.nav,source:{x:far.target.x,z:far.target.z},
+     untouched:game.attendant.decoyUntil===old,state:getState()};
    },
    proveVisiblePlayerOverridesDecoy(){
     ensure();
