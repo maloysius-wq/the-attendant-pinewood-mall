@@ -1,0 +1,60 @@
+name: Pinewood V142 Physical Chapter 1 Key Evidence Freight
+on:
+  push:
+    branches: [feature/v142-ch1-complete-progression]
+    paths:
+      - 'scripts/survey-chapter1-progression-v142.mjs'
+      - '.github/workflows/chapter1-progression-v142.yml'
+      - 'mall/chapter1-progression-v142.js'
+      - 'mall/chapter1-progression-v142.mjs'
+      - 'scripts/test-chapter1-progression-v142.mjs'
+      - 'scripts/smoke-chapter1-progression-v142.mjs'
+      - 'game.js'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  source-survey:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Inspect original physical source for key, evidence and boarding
+        run: node scripts/survey-chapter1-progression-v142.mjs | grep -E 'ORIGINAL_SRC_L|V142_B1' 
+      - name: Verify real 1979 geometry and source key/evidence continuity
+        run: |
+          node --check mall/chapter1-progression-v142.js
+          node --test scripts/test-chapter1-progression-v142.mjs
+          node --test scripts/test-chapter1-objectives-v137.mjs
+          node --test scripts/test-wall-panels-v141.mjs
+          node --test scripts/test-chapter1-recovery-v140.mjs
+          node scripts/audit-local-assets-v15.mjs
+  real-original-chapter1-to-b1:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 32
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install original game desktop Chromium
+        run: |
+          npm install --no-save playwright@1.55.0
+          npx playwright install chromium
+      - name: Serve original all-local 3D Pinewood
+        run: |
+          python3 -m http.server 4173 --bind 127.0.0.1 >/tmp/pinewood-v142-http.log 2>&1 &
+          for i in {1..40}; do curl -fsS http://127.0.0.1:4173/ >/dev/null && exit 0; sleep 1; done
+          exit 1
+      - name: True first-person key, three journal notes, wall panels, physical freight boarding, Chapter 2
+        run: node scripts/smoke-chapter1-progression-v142.mjs
+      - name: Keep actual original game screenshots and diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: v142-real-chapter1-evidence-key-freight-chapter2
+          path: artifacts/v142-chapter1-progression/
+          retention-days: 14
