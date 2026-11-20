@@ -31,3 +31,20 @@ for(const w of walls.filter(w=>w.bottom<.2&&w.top>2.1&&(w.at===-29||w.at===29||w
  if(w.axis==='x'&&Math.abs(w.at)===29&&w.end<-40||w.axis==='z'&&w.at<=-110&&w.start<32)
   console.log('CANDIDATE_WALL '+JSON.stringify({id:w.id,axis:w.axis,at:w.at,start:w.start,end:w.end,role:w.role,thickness:w.thickness}));
 }
+
+console.log('SOURCE_INTERACTION');
+for(let i=585;i<=625;i++)console.log('SOURCE L'+i+' '+(lines[i-1]||''));
+const proposed=[
+ {id:'A',room:'central_gallery',wall:'north_service_z_-112_1.85',panel:{x:7,z:-111.802},stand:{x:7,z:-110.4}},
+ {id:'B',room:'west_gallery',wall:'v116_west_rear_receiving_closed-bay-partition_x_-29_-118.00',panel:{x:-28.797,z:-109},stand:{x:-27.45,z:-109}},
+ {id:'C',room:'freight_lobby',wall:'freight_lobby_z_-110_11',panel:{x:12.5,z:-110.198},stand:{x:12.5,z:-111.55}}
+];
+for(const p of proposed){
+ const w=walls.find(x=>x.id===p.wall);
+ const obstacles=L.colliders.filter(c=>p.stand.x>c.minX-.5&&p.stand.x<c.maxX+.5&&p.stand.z>c.minZ-.5&&p.stand.z<c.maxZ+.5).map(x=>x.id);
+ console.log('PROPOSED '+JSON.stringify({id:p.id,room:p.room,wall:w,wallFound:!!w,stand:p.stand,
+  standClear:L.canStand(p.stand.x,p.stand.z),roomAt:L.roomAt(p.stand.x,p.stand.z),
+  fromSpawn:shortestRouteV70(L,L.spawn,p.stand).length,
+  fromServiceKey:shortestRouteV70(L,{x:6,z:-81},p.stand).length,
+  freight:shortestRouteV70(L,p.stand,{x:17,z:-113}).length,closeColliders:obstacles.slice(0,8)}));
+}
