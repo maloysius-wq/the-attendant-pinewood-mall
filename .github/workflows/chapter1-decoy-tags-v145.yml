@@ -1,0 +1,59 @@
+name: Pinewood V145 Real Chapter 1 Decoy Discoverability
+on:
+  push:
+    branches: [feature/v145-original-decoy-affordances]
+    paths:
+      - 'game.js'
+      - 'mall/chapter1-decoy-tags-v145.js'
+      - 'mall/chapter1-decoy-tags-v145.mjs'
+      - 'scripts/test-chapter1-decoy-tags-v145.mjs'
+      - 'scripts/smoke-chapter1-decoy-tags-v145.mjs'
+      - '.github/workflows/chapter1-decoy-tags-v145.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  source-authenticity:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: V145 original world, E/Q continuity and pinned runtime
+        run: |
+          node --check mall/chapter1-decoy-tags-v145.js
+          node --check mall/chapter1-decoy-tags-v145.mjs
+          node --test scripts/test-chapter1-decoy-tags-v145.mjs
+          node --test scripts/test-chapter1-stealth-v139.mjs
+          node --test scripts/test-chapter1-recovery-v140.mjs
+          node --test scripts/test-chapter1-atmosphere-v144.mjs
+          node --test scripts/test-chapter1-traversal-v143.mjs
+          node scripts/audit-local-assets-v15.mjs
+  authentic-1440x900-desktop:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 28
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Original desktop Chromium and local source
+        run: |
+          npm install --no-save playwright@1.55.0
+          npx playwright install chromium
+      - name: Start isolated local original mall
+        run: |
+          python3 -m http.server 4173 --bind 127.0.0.1 >/tmp/v145-http.log 2>&1 &
+          for i in {1..40}; do curl -fsS http://127.0.0.1:4173/ >/dev/null && exit 0; sleep 1; done
+          exit 1
+      - name: Genuine fire door and real source Game.tryMove to both original E/Q decoys
+        run: node scripts/smoke-chapter1-decoy-tags-v145.mjs
+      - name: Archive real first-person source screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: v145-original-source-decoy-pickups
+          path: artifacts/v145-original-decoy-tags/
+          retention-days: 14
