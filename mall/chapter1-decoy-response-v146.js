@@ -109,7 +109,7 @@ export function installChapter1DecoyResponseV146(game){
    prepareActualGalleryHunt(){
     ensure();
     const p=game.controls.yaw.position,a=game.attendant;
-    const player={x:-17,z:-79},enemy={x:-17,z:-86};
+    const player={x:-17,z:-79},enemy={x:-20,z:-79};
     if(!game.world.canStand(player.x,player.z)||!game.world.navPassable(enemy.x,enemy.z))
      throw Error('V146 original west gallery route no longer standable');
     const range=game.world.navDistance(enemy,player,48);
@@ -121,7 +121,7 @@ export function installChapter1DecoyResponseV146(game){
     game.camera.updateWorldMatrix(true,false);
     a.awake=true;a.root.visible=true;
     a.root.position.set(enemy.x,game.mallLevelYV70||0,enemy.z);
-    a.root.lookAt(enemy.x,0,enemy.z-8); // Back toward the player's route.
+    a.root.lookAt(enemy.x-8,0,enemy.z); // Real gallery: looking west, player east.
     a.prevPos.copy(a.root.position);a.state='hunt';a.timer=8;a.repath=-1;
     a.decoyUntil=0;a.lastHeard.copy(p);a.path=[];a.pathIndex=0;
     if(a.canSee(p))throw Error('Actual player is wrongly visible to backwards-facing threat');
