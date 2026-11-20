@@ -1,0 +1,11 @@
+# V145: discoverable original Noise Maker and Pager Decoy
+
+**Issue #146, Phase C.** V145 does not add any new collectible or change the original Attendant AI. Both existing V139 original `makePickup('decoy')` objects remain authoritative for E raycast, collection, inventory and Q throw.
+
+Two aged maintenance/security paper slips lie on the **real G-floor** beside the original walkable V70 decoy coordinates, with provenance validated against `CHAPTER1_STEALTH_V139.pickups` and `storyTargetV70`. Each tag stays within approximately 0.65 m of its corresponding real item and is placed only where the original room and collision/nav data permit it. They introduce how sound can pull attention elsewhere, without printing keyboard commands into the world or relying on new HUD spam. The signs disappear with their original source item after a genuine E pickup and rebind to new real source objects on restart.
+
+**Safeguards:** no new interactables/colliders, synthetic pickup proxies, hidden spawn, remote library or asset fetch, fake Renee commentary, public QA shortcuts, authored floor/wall changes, unpublished Builder data, mobile testing or manual WASD. The original V113 hinged fire door, wall-mounted breakers, original decoy pickup models, true LOS and A* AI, six chapters, 41 rooms, 13 bays and story bible remain unchanged.
+
+**Verification gates:** V145 source authenticity, route and printed-label tests; V139, V140, V143 and V144 regressions; local licensed-asset audit; and a genuine 1440×900 desktop Chromium original game smoke that opens the real E fire door, follows `Game.tryMove` to both pickup locations, aims the original first-person E raycaster at each source, picks both up, observes the matching note disappear, and spends one with actual keyboard Q. Require zero browser exceptions and zero failed/off-origin runtime asset requests. Complete the final Actions run and record it before merge.
+
+This addresses the environmental decoy affordance. Full threat cadence and multi-chapter Chapter 1 pacing remain independently open on Issue #146.
