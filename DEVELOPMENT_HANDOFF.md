@@ -1,6 +1,14 @@
 # Development Handoff: The Attendant: Pinewood Mall
 
-## CURRENT: V141 original A/B/C electrical breakers on real masonry (2026-11-20)
+## CURRENT: V142 original Chapter 1 key, journal and freight-to-B1 progression (2026-11-20)
+
+**Complete V142 code, release in review:** [PR #153](https://github.com/maloysius-wq/the-attendant-pinewood-mall/pull/153) with successful exact gameplay-code head ff6df1b791c7b82d72823558d4347fb2a2bd5727, [authentic source + 1440x900 original desktop Actions #44778545462](https://github.com/maloysius-wq/the-attendant-pinewood-mall/actions/runs/44778545462) **BOTH SUCCESS**. Native first-person E genuinely collects service key before or after power, original LS-01/02/03 source journal pickups retain canon entries into B1, actual A/B/C source masonry E panels restore power, true outside E freight call opens collision and source doors, real Game.tryMove enters the cab over 49 steps, real car closes/rides and continues to Chapter 2 true B1 y=-2.6m. V142 guards the actual source lock against softlock when a generic key is spent after collecting the named service credential. Exact original-game visual artifacts were downloaded and independently reviewed, no page errors or external runtime network, hash-pinned local asset/source regression green. See docs/CHAPTER1_PROGRESSION_V142.md.
+
+**NEXT:** V113 physical fire door opening plus a continuous original-collision entrance-to-three-panel traversal, then environmental stealth/sound/breath cues, Jo/Tessa/Luis original evidence breadcrumbs, Chapter 2 PCAS/Renee transitions, restart/continue old-save migration, and 45-60 minute gameplay pacing. Maintain AGENTS.md and STORY_BIBLE.md, all 41 rooms, 9 LS anchors, 6 chapters, 13 sealed bays, private unpublished Builder, no manual WASD/mobile, pinned local assets.
+
+---
+
+## PREVIOUS: V141 original A/B/C electrical breakers on real masonry (2026-11-20)
 
 **COMPLETED + deployed:** [V141 PR #151](https://github.com/maloysius-wq/the-attendant-pinewood-mall/pull/151) merged on main at `c4ccb7f59a46ea45c69c33010a66ae2f0d6363e3`. GitHub Pages exact merged-source [deployment #44765189287](https://github.com/maloysius-wq/the-attendant-pinewood-mall/actions/runs/44765189287) SUCCESS. Exact feature head `b19623096ff6400f2b74af82fb08511b3a09f2e1`, [focused V141 original 1440x900 desktop and source run #44762727649](https://github.com/maloysius-wq/the-attendant-pinewood-mall/actions/runs/44762727649) BOTH SUCCESS, three real original in-scene screenshots independently inspected. Retains the **same original makeBreaker A/B/C mesh, LED, E raycasting, breaker activation, local licensed assets, V137 key/work order and V138 source lamps**, not new switch models or stand-in walls. Genuine player E raycasts landed at 1.24–1.31 m; all circuits A/B/C activated; the original Master Service Key was recovered and freight elevator invoked without a softlock. No page exceptions or invalid remote runtime asset requests.
 
