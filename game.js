@@ -9,6 +9,7 @@ import {installChapter1WorkOrderV137,restoreChapter1PickupV137} from './mall/cha
 import {installChapter1CircuitLightsV138} from './mall/chapter1-circuit-lights-v138.js';
 import {installChapter1StealthV139,restoreChapter1StealthPickupsV139} from './mall/chapter1-stealth-v139.js';
 import {installChapter1RecoveryV140} from './mall/chapter1-recovery-v140.js';
+import {installChapter1WallPanelsV141} from './mall/chapter1-wall-panels-v141.js';
 // Deployment loader for The Attendant: Pinewood Mall.
 // Runtime bundle stays immutable; authored room and world-prop overrides live in /patches.
 const PARTS=[
@@ -340,6 +341,7 @@ try{
     if(args.game.levelIndex===0){
      installChapter1StealthV139(args.game);
      installChapter1RecoveryV140(args.game);
+     installChapter1WallPanelsV141(args.game);
     }
     // Read-only, opt-in automated desktop handoff probe. Not a game API.
     if(new URLSearchParams(location.search).has('vestibuleQA')){

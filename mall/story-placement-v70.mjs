@@ -5,9 +5,12 @@ const BY_ID=new Map(MALL.rooms.map(r=>[r.id,r]));
 const LAST_SHIFT=new Map(FURNISHINGS_V69.storyAnchors.map(a=>[a.id,a]));
 const FIXED={
   1:{
-    'breaker:A':['west_gallery',-16,-62],
-    'breaker:B':['east_gallery',20,-62],
-    'breaker:C':['north_service',3,-115],
+    // V141 map retains standable original-room proximity points; after V70
+    // placement the SAME prototype breakers are mounted flush to genuine
+    // masonry faces by the V141 controller. See chapter1-wall-panels-v141.mjs.
+    'breaker:A':['central_gallery',7,-110.4],
+    'breaker:B':['west_gallery',-27.45,-109],
+    'breaker:C':['freight_lobby',12.5,-111.55],
     // V137 reuses the original Master Service Key pickup removed with obsolete arcade geometry.
     'Master Service Key':['central_gallery',6,-81],
     'Noise Maker':['west_gallery',-17,-79],
