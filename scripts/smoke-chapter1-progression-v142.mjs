@@ -65,6 +65,12 @@ try{
  const pre=await q(()=>window.__PINEWOOD_CH1_PROGRESSION_V142_QA__.getState());
  assert.equal(pre.work.stage,'freight_exit');
  assert.equal(pre.work.keyRecovered,true);
+ // The work-order credential must survive use of a separate disposable door key.
+ // This local-only probe reproduces real inventory consumption before the
+ // original freight lock, without granting a key or altering the shipped save.
+ const spent=await q(()=>window.__PINEWOOD_CH1_PROGRESSION_V142_QA__.simulateSpentGenericKeyAfterRealPickup());
+ assert.equal(spent.work.keyRecovered,true);
+ assert.equal(spent.after,0);
  const call=await q(()=>window.__PINEWOOD_CH1_PROGRESSION_V142_QA__.callFreight());
  assert.equal(call.aimed.targetReal,true,'original E must genuinely target physical freight switch');
  assert.equal(call.after.elevator.state,'opening','real source elevator must start via E');
@@ -91,13 +97,49 @@ try{
   title:document.getElementById('chapterTitle')?.textContent,
   objective:document.getElementById('objective')?.textContent
  }));
+ // The original Save journal is persistent across the source chapter handoff.
+ const persistedJournal=await page.evaluate(()=>
+  window.__PINEWOOD_CH1_PROGRESSION_V142_QA__.journal());
+ for(const id of ['LS-01','LS-02','LS-03'])
+  assert.ok(persistedJournal?.includes(id),'original SAVE lost collected '+id+' on Chapter 2 transition');
+
  await page.screenshot({path:out+'/original-below-grade-chapter2.png',animations:'disabled',timeout:120000});
+ // Start a second real shift using the original New Game UI handler.
+ // This time restore all A/B/C first, THEN recover the actual named key.
+ await page.evaluate(()=>{
+  const newButton=document.getElementById('newBtn');
+  if(!newButton?.onclick)throw Error('Native New Game handler missing');
+  newButton.click();
+ });
+ await page.waitForFunction(()=>window.__PINEWOOD_CH1_PROGRESSION_V142_QA__?.getState?.().chapter===1 &&
+  window.__PINEWOOD_CH1_PROGRESSION_V142_QA__?.getState?.().key?.collected===false,
+  null,{timeout:540000,polling:500});
+ await page.evaluate(()=>document.getElementById('chapterStartBtn').click());
+ const afterFirst=await q(()=>window.__PINEWOOD_CH1_PROGRESSION_V142_QA__.getState());
+ assert.equal(afterFirst.breakers,0);
+ assert.equal(afterFirst.work.keyRecovered,false);
+ for(const id of ['A','B','C']){
+  await page.evaluate(id=>window.__PINEWOOD_CH1_PROGRESSION_V142_QA__.activate(id),id);
+ }
+ const powerFirst=await q(()=>window.__PINEWOOD_CH1_PROGRESSION_V142_QA__.getState());
+ assert.equal(powerFirst.breakers,3);
+ assert.equal(powerFirst.work.stage,'service_key');
+ assert.equal(powerFirst.work.keyRecovered,false);
+ const afterPowerKey=await q(()=>window.__PINEWOOD_CH1_PROGRESSION_V142_QA__.collect('key','Master Service Key'));
+ assert.equal(afterPowerKey.before.breakers,3,'must truly restore power before touching key');
+ assert.equal(afterPowerKey.sourceCollected,true);
+ assert.equal(afterPowerKey.after.work.stage,'freight_exit');
+ const secondCall=await q(()=>window.__PINEWOOD_CH1_PROGRESSION_V142_QA__.callFreight());
+ assert.equal(secondCall.aimed.targetReal,true);
+ assert.equal(secondCall.after.elevator.state,'opening');
  const genuineFailures=failed.filter(x=>!/furniture_shop_loop\.ogg net::ERR_ABORTED$/.test(x));
  await writeFile(out+'/report.json',JSON.stringify({initial,beforeKey:{aim:beforeKey.aim,work:beforeKey.after.work},
-  notes,powered,call:{aim:call.aimed,after:call.after},sample,boarded,ride,next,b1,errors,remote,genuineFailures},null,2));
+  notes,powered,call:{aim:call.aimed,after:call.after},sample,boarded,ride,next,b1,
+  persistedJournal,spent,powerFirst,afterPowerKey:{aim:afterPowerKey.aim,work:afterPowerKey.after.work},
+  secondCall:{aim:secondCall.aimed,after:secondCall.after},errors,remote,genuineFailures},null,2));
  assert.deepEqual(errors,[]);assert.deepEqual(remote,[]);assert.deepEqual(genuineFailures,[]);
  console.log('V142_REAL_CHAPTER1_TO_B1_PASS '+JSON.stringify({
-  keyBeforePower:true,journaled:notes.map(n=>n.id),
+  keyBeforePower:true,keyAfterPower:true,consumableKeySpentNoSoftlock:true,journaled:notes.map(n=>n.id),
   powered:powered.map(p=>p.id),freightE:true,physicalBoardSteps:boarded.path.length,
   elevatorFrom:call.after.elevator.state,elevatorTo:boarded.after.elevator.state,
   originalRideWon:ride.won,chapter2:next.chapter,chapter2Y:next.y,

@@ -5,6 +5,8 @@ import {storyTargetV70} from '../mall/story-placement-v70.mjs';
 import {FURNISHINGS_V69} from '../mall/furnishing-plan-v69.mjs';
 import {EVIDENCE_V17} from '../story/evidence.js';
 import {chapter1WorkOrderStateV137} from '../mall/chapter1-workorder-v137.js';
+import {eligibleFreightCredentialV142} from '../mall/chapter1-progression-v142.mjs';
+import {installChapter1ProgressionV142} from '../mall/chapter1-progression-v142.js';
 
 const layout=buildGameplayLayoutV70({chapter:1});
 const point=(type,id)=>storyTargetV70({chapter:1,type,id,label:id});
@@ -44,4 +46,38 @@ test('original elevator opening allows a standable, continuous route into real i
  }
  assert.ok(layout.canStand(18.2,-113),'full entry to real elevator local x=1.2 must be standable');
  assert.equal(layout.canStand(18.55,-113),false,'original lift shaft remains a true opening, never false floor');
+});
+
+test('spent generic door keys cannot consume the already recovered original Master Service Key credential',()=>{
+ const idle=()=>({userData:{type:'exit',state:'idle',serviceUnlocked:false}});
+ const e=idle(),args={chapter:1,breakers:3,recovered:true,keys:0,exit:e};
+ assert.equal(eligibleFreightCredentialV142(args),true);
+ assert.equal(eligibleFreightCredentialV142({...args,breakers:2}),false);
+ assert.equal(eligibleFreightCredentialV142({...args,recovered:false}),false);
+ assert.equal(eligibleFreightCredentialV142({...args,chapter:2}),false);
+ assert.equal(eligibleFreightCredentialV142({...args,keys:1}),false);
+ assert.equal(eligibleFreightCredentialV142({...args,exit:{userData:{...e.userData,state:'waiting'}}}),false);
+ assert.equal(eligibleFreightCredentialV142({...args,exit:{userData:{...e.userData,serviceUnlocked:true}}}),false);
+ let originalCalls=0;
+ const game={levelIndex:0,breakers:3,keys:0,world:{interactables:[]},
+  controls:{yaw:{position:{clone(){return {}}}}},camera:{updateWorldMatrix(){}},
+  __chapter1WorkOrderV137:{getState:()=>({keyRecovered:true})},
+  __chapter1WallPanelsV141:{},
+  startElevator(o){
+   originalCalls++;
+   if(this.keys<1||this.breakers<3||o.userData.state!=='idle')return false;
+   this.keys--;o.userData.serviceUnlocked=true;o.userData.state='opening';return true;
+  }
+ };
+ const installed=installChapter1ProgressionV142(game);
+ assert.equal(installChapter1ProgressionV142(game),installed);
+ assert.equal(game.startElevator(e),true,'source freight lock should consume the durable service credential');
+ assert.equal(game.keys,0,'never mint a new reusable generic door key');
+ assert.equal(e.userData.serviceUnlocked,true);
+ assert.equal(e.userData.state,'opening');
+ assert.equal(originalCalls,1,'must call original freight controller exactly once');
+ game.levelIndex=1;const second=idle();
+ assert.equal(game.startElevator(second),false,'later chapters never receive a credential');
+ assert.equal(second.userData.serviceUnlocked,false);
+ assert.equal(game.keys,0);
 });
