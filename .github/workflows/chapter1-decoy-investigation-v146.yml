@@ -1,0 +1,21 @@
+name: Pinewood V146 Original Decoy Source Witness
+on:
+  push:
+    branches: [feature/v146-authentic-decoy-investigation]
+    paths:
+      - 'scripts/audit-original-decoy-v146.mjs'
+      - '.github/workflows/chapter1-decoy-investigation-v146.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  original-source:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Original immutable Attendant and decoy source witness
+        run: V146_PRINT_ORIGINAL=1 node scripts/audit-original-decoy-v146.mjs
