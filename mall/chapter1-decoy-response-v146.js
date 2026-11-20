@@ -55,7 +55,17 @@ export function installChapter1DecoyResponseV146(game){
   phase.lastEvent={at:game.time,originalPosition:{x:pos.x,z:pos.z},navMetres:range,
    originalSource:source?'active-thrown-decoy':'original-emitted-decoy-event'};
   if(source)lastPerDecoy.set(source,{time:game.time});
-  return originalHear.call(this,pos,strength,type,...args);
+  const out=originalHear.call(this,pos,strength,type,...args);
+  // Capture the original A* result at the instant genuine hearing runs,
+  // before subsequent source stun/search behavior can intentionally repath.
+  const end=this.path?.at(-1)||null;
+  phase.lastEvent.stateAtHearing=this.state;
+  phase.lastEvent.pathAtHearing=end?{x:end.x,z:end.z}:null;
+  phase.lastEvent.originalGoalCell=(p=>{
+   const c=game.world.cellFromWorld(p.x,p.z);
+   return {x:c.x,z:c.z,passable:game.world.navPassable(c.x,c.z)};
+  })(pos);
+  return out;
  };
  const originalUpdate=game.attendant.update;
  game.attendant.update=function(...args){
@@ -83,6 +93,7 @@ export function installChapter1DecoyResponseV146(game){
   coalesced:phase.coalesced,visualPriority:phase.visualPriority,
   lastEvent:phase.lastEvent,
   originalAttendantState:game.attendant.state,
+  originalAttendantPosition:{x:game.attendant.root.position.x,z:game.attendant.root.position.z},
   originalDecoyActiveUntil:game.attendant.decoyUntil,
   originalDecoyPosition:{x:game.attendant.decoyPos.x,z:game.attendant.decoyPos.z},
   originalPathEnd:(()=>{
