@@ -108,24 +108,55 @@ export function installChapter1DecoyResponseV146(game){
    getState,
    prepareActualGalleryHunt(){
     ensure();
-    const p=game.controls.yaw.position,a=game.attendant;
-    const player={x:-17,z:-79},enemy={x:-20,z:-79};
-    if(!game.world.canStand(player.x,player.z)||!game.world.navPassable(enemy.x,enemy.z))
-     throw Error('V146 original west gallery route no longer standable');
-    const range=game.world.navDistance(enemy,player,48);
-    if(!Number.isFinite(range)||range>20)
-     throw Error('V146 original nearby gallery route no longer connected');
+    const p=game.controls.yaw.position,a=game.attendant,w=game.world;
+    // Pick a REAL original floor route with a physical masonry LOS break,
+    // so the launch's faint 'throw' cue cannot itself give the player away.
+    // No fake walls, collision toggles, invisibility or teleporting enemy paths.
+    const launches=[
+     {x:-27,z:-54,yaw:-Math.PI/2,landing:{x:-22.5,z:-54}},
+     {x:-27,z:-62,yaw:-Math.PI/2,landing:{x:-22.5,z:-62}},
+     {x:-17,z:-79,yaw:Math.PI/2,landing:{x:-21.5,z:-79}},
+     {x:16,z:-72,yaw:-Math.PI/2,landing:{x:20.5,z:-72}}
+    ];
+    const available=[...w.walk].map(v=>{
+     const [x,z]=v.split(',').map(Number);return {x,z};
+    });
+    const attempts=[];
+    let choice=null;
+    for(const launch of launches){
+     if(!w.canStand(launch.x,launch.z)||
+        !w.canStand(launch.landing.x,launch.landing.z))continue;
+     const prospect=available.filter(enemy=>{
+      const d=Math.hypot(enemy.x-launch.x,enemy.z-launch.z);
+      return d>=7.5&&d<=18&&w.navPassable(enemy.x,enemy.z)&&
+       !w.hasLOS(enemy,launch);
+     });
+     for(const enemy of prospect){
+      const fromPlayer=w.navDistance(enemy,launch,48);
+      if(!Number.isFinite(fromPlayer)||fromPlayer<=11||fromPlayer>29)continue;
+      const toLanding=w.navDistance(enemy,launch.landing,48);
+      if(!Number.isFinite(toLanding)||toLanding>23||toLanding<3)continue;
+      attempts.push({launch,enemy,fromPlayer,toLanding});
+      const score=Math.abs(toLanding-16)+Math.abs(fromPlayer-19)*.3;
+      if(!choice||score<choice.score)choice={launch,enemy,fromPlayer,toLanding,score};
+     }
+    }
+    if(!choice)throw Error('No physical original wall-separated audible decoy route: '+
+     JSON.stringify({attempts:attempts.slice(0,3),walk:w.walk.size}));
+    const {launch,enemy}=choice;
     game.time=Math.max(game.time,game.__chapter1StealthV139.getState().graceUntil+1);
-    p.set(player.x,1.7,player.z);
-    game.controls.yaw.rotation.y=Math.PI/2;game.controls.pitch.rotation.x=0;
+    p.set(launch.x,1.7,launch.z);
+    game.controls.yaw.rotation.y=launch.yaw;game.controls.pitch.rotation.x=0;
     game.camera.updateWorldMatrix(true,false);
     a.awake=true;a.root.visible=true;
     a.root.position.set(enemy.x,game.mallLevelYV70||0,enemy.z);
-    a.root.lookAt(enemy.x-8,0,enemy.z); // Real gallery: looking west, player east.
+    a.root.lookAt(enemy.x-4,0,enemy.z);
     a.prevPos.copy(a.root.position);a.state='hunt';a.timer=8;a.repath=-1;
-    a.decoyUntil=0;a.lastHeard.copy(p);a.path=[];a.pathIndex=0;
-    if(a.canSee(p))throw Error('Actual player is wrongly visible to backwards-facing threat');
-    return {setup:true,range,getState:getState()};
+    a.decoyUntil=0;a.lastHeard.copy(a.root.position);a.path=[];a.pathIndex=0;
+    if(a.canSee(p)||w.hasLOS(a.root.position,p))
+     throw Error('Real source masonry must block Attendant line of sight');
+    return {setup:true,range:choice.fromPlayer,heardLandingRange:choice.toLanding,
+     genuineMasonryLOSBreak:true,player:launch,attendant:enemy,getState:getState()};
    },
    advanceActualThrownDecoy(steps=36,dt=.06){
     ensure();
@@ -134,7 +165,9 @@ export function installChapter1DecoyResponseV146(game){
     for(let i=0;i<steps;i++){
      game.time+=dt;game.updateDecoys(dt);
      game.attendant.update(dt,game.time,game.controls.yaw.position,0);
-     if(game.dead)throw Error('Original Attendant unfairly killed player during decoy investigation');
+     if(game.dead)throw Error('Unexpected genuine Attendant death in original wall-separated test '+
+       JSON.stringify({step:i,position:game.controls.yaw.position.toArray(),
+        enemy:game.attendant.root.position.toArray(),state:getState()}));
     }
     return getState();
    },
