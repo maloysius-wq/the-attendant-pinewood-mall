@@ -62,7 +62,7 @@ export function installChapter1ProgressionV142(game){
     const t=o.userData?.type||'unknown';a[t]=(a[t]||0)+1;return a;
    },{})),
    notes:['LS-01','LS-02','LS-03'].map(id=>{
-    const o=getTarget('note',id)||getTarget('tape',id);
+    const o=getTarget('journal',id)||getTarget('note',id)||getTarget('tape',id);
     return {id,found:!!o,collected:!!o?.userData?.collected,
      position:o?{x:o.position.x,y:o.position.y,z:o.position.z}:null,
      text:o?.userData?.text||null};

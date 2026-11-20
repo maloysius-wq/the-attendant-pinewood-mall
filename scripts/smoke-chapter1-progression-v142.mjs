@@ -50,11 +50,10 @@ try{
  assert.ok(beforeKey.aim.targetReal&&beforeKey.aim.fromEntry>0);
  const notes=[];
  for(const id of ['LS-01','LS-02','LS-03']){
-  const note=await page.evaluate(id=>window.__PINEWOOD_CH1_PROGRESSION_V142_QA__.collect('note',id),id);
+  const note=await page.evaluate(id=>window.__PINEWOOD_CH1_PROGRESSION_V142_QA__.collect('journal',id),id);
   assert.ok(note.aim.targetReal&&note.aim.fromEntry>0,id+' requires genuine source E raycast');
   assert.equal(note.sourceCollected,true);
-  assert.ok(note.journal.includes(id)&&note.journal.includes('1997')===false||note.journal.includes(id),
-   'actual source journal does not contain '+id);
+  assert.ok(note.journal.includes(id),'actual source journal does not contain '+id);
   notes.push({id,room:note.aim.room,hits:note.aim.hits,text:note.after.notes.find(n=>n.id===id).text?.slice(0,90)});
  }
  await page.screenshot({path:out+'/last-shift-evidence-collected.png',animations:'disabled',timeout:120000});
