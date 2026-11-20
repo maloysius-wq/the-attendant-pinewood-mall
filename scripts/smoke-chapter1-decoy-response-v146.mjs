@@ -70,10 +70,20 @@ try{
  assert.ok(first.originalDecoyActiveUntil>0);
  assert.ok(Math.hypot(first.originalDecoyPosition.x-landing.x,
   first.originalDecoyPosition.z-landing.z)<.36,'genuine AI stores source landing');
- assert.ok(first.originalPathEnd,'original A* route must point to a real decoy gallery cell');
- assert.ok(Math.hypot(first.originalPathEnd.x-landing.x,
-  first.originalPathEnd.z-landing.z)<1.5,
-  'real original A* must target source decoy, not live player');
+ console.log('V146_DECOY_PATH_AT_HEARING '+JSON.stringify({
+  prepared:{player:prepared.player,attendant:prepared.attendant},
+  event:first.lastEvent,landing,
+  pathAfterSimulation:first.originalPathEnd,
+  attendantAfterSimulation:first.originalAttendantPosition,
+  currentAIState:first.originalAttendantState
+ }));
+ assert.equal(first.lastEvent.originalGoalCell.passable,true,
+  'real original noise landed in a nav-passable source cell');
+ assert.ok(first.lastEvent.pathAtHearing,
+  'original A* route must exist at genuine physical landing sound '+JSON.stringify(first));
+ assert.ok(Math.hypot(first.lastEvent.pathAtHearing.x-landing.x,
+  first.lastEvent.pathAtHearing.z-landing.z)<1.5,
+  'original A* at audible landing must target source decoy '+JSON.stringify(first.lastEvent));
  assert.ok(landing.pulse>.55,'Chapter 1 beep must use calmer real source 1.2s cadence');
  await page.screenshot({path:dir+'/original-decoy-landed-attendant-investigates.png',
   animations:'disabled',timeout:120000});
@@ -103,7 +113,7 @@ try{
  assert.deepEqual(errors,[]);assert.deepEqual(remote,[]);assert.deepEqual(failures,[]);
  console.log('V146_REAL_ORIGINAL_DECOY_RESPONSE_PASS '+JSON.stringify({
   genuineE:true,keyboardQ:true,physicalSourceLanding:{x:landing.x,z:landing.z},
-  originalAStarToDecoy:first.originalPathEnd,
+  originalAStarToDecoy:first.lastEvent.pathAtHearing,
   originalSourceNavHearing:first.lastEvent.navMetres,
   coalescedPulses:continued.coalesced,realUnheardFarSource:distant.nav,
   originalVisiblePlayerWins:true,errors,remote,failures
