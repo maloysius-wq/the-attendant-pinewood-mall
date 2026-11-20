@@ -3,6 +3,7 @@
  * All interactions use the real source Game and real THREE first-person raycaster.
  */
 import * as THREE from '../vendor/three/build/three.module.js';
+import {eligibleFreightCredentialV142} from './chapter1-progression-v142.mjs';
 import {chapterRouteV70,shortestRouteV70} from './gameplay-layout-v70.mjs';
 const localQA=()=>typeof location!=='undefined'&&
  ['127.0.0.1','localhost'].includes(location.hostname)&&
@@ -12,6 +13,28 @@ export function installChapter1ProgressionV142(game){
   !game?.__chapter1WallPanelsV141||!game?.controls?.yaw||!game?.camera?.updateWorldMatrix)
   throw Error('V142 requires live authored Chapter 1, V137 key and V141 panels');
  if(game.__chapter1ProgressionV142)return game.__chapter1ProgressionV142;
+ // V7 freight still tests one generic consumable key even after V137 has
+ // recorded the real, already-picked-up Master Service Key as a credential.
+ // Restore only the key the original lock is about to CONSUME, never a
+ // reusable extra inventory key, and never bypass power or the actual door.
+ const originalFreight=game.startElevator;
+ game.startElevator=function(e,...args){
+  const eligible=eligibleFreightCredentialV142({
+   chapter:this.levelIndex+1,breakers:this.breakers,
+   recovered:!!this.__chapter1WorkOrderV137?.getState().keyRecovered,
+   keys:this.keys,exit:e
+  });
+  if(!eligible)return originalFreight.call(this,e,...args);
+  this.keys=1;
+  try{return originalFreight.call(this,e,...args);}
+  finally{
+   // If an unrelated late controller vetoed opening, never leave a minted
+   // generic key in the player's inventory. A successful source elevator
+   // lock already decrements this back to zero.
+   if(this.keys===1&&!e.userData.serviceUnlocked)this.keys=0;
+  }
+ };
+
  const getTarget=(type,id)=>game.world.interactables.find(o=>!!o.parent&&
   o.userData?.type===type&&(type==='exit'||(type==='breaker'?o.userData.id===id:o.userData.label===id)));
  const getState=()=>{
@@ -146,6 +169,14 @@ export function installChapter1ProgressionV142(game){
      game.time+=.04;game.updateElevator(.04);
     }
     return {path,after:getState()};
+   },
+   simulateSpentGenericKeyAfterRealPickup(){
+    ensure();
+    if(!game.__chapter1WorkOrderV137.getState().keyRecovered)
+     throw Error('Cannot spend a missing real Master Service Key');
+    const before=game.keys;
+    game.keys=0;game.updateHUD();
+    return {before,after:game.keys,work:game.__chapter1WorkOrderV137.getState()};
    },
    journal(){
     game.rebuildJournal();return document.getElementById('journalList')?.textContent;
