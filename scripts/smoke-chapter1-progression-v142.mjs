@@ -40,6 +40,8 @@ try{
  const initial=await q(()=>window.__PINEWOOD_CH1_PROGRESSION_V142_QA__.getState());
  assert.equal(initial.chapter,1);assert.equal(initial.running,true);
  assert.equal(initial.breakers,0);assert.equal(initial.work.keyRecovered,false);
+ console.log('V142_ORIGINAL_EVIDENCE_INVENTORY '+JSON.stringify({
+  types:initial.originalSourceTypes,evidence:initial.evidenceSourceInventory}));
  const beforeKey=await q(()=>window.__PINEWOOD_CH1_PROGRESSION_V142_QA__.collect('key','Master Service Key'));
  assert.equal(beforeKey.before.breakers,0,'original key must be acquirable before any power');
  assert.equal(beforeKey.sourceCollected,true);

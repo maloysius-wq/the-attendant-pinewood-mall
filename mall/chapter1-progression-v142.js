@@ -53,6 +53,14 @@ export function installChapter1ProgressionV142(game){
    key:(()=>{const o=getTarget('key','Master Service Key');
     return o?{collected:!!o.userData.collected,x:o.position.x,y:o.position.y,z:o.position.z,
      visible:o.visible,parent:!!o.parent}:null})(),
+   evidenceSourceInventory:game.world.interactables
+    .filter(o=>['note','tape','journal'].includes(o.userData?.type)||
+      /LS-0[123]|last shift|maintenance tag|route sketch/i.test(String(o.userData?.label||o.userData?.id||'')))
+    .map(o=>({type:o.userData?.type,label:o.userData?.label||null,id:o.userData?.id||null,
+      parent:!!o.parent,visible:o.visible,position:o.position.toArray()})).slice(0,30),
+   originalSourceTypes:Object.entries(game.world.interactables.reduce((a,o)=>{
+    const t=o.userData?.type||'unknown';a[t]=(a[t]||0)+1;return a;
+   },{})),
    notes:['LS-01','LS-02','LS-03'].map(id=>{
     const o=getTarget('note',id)||getTarget('tape',id);
     return {id,found:!!o,collected:!!o?.userData?.collected,

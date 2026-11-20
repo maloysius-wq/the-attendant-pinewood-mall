@@ -28,3 +28,9 @@ console.log('V142_STORY '+JSON.stringify(FURNISHINGS_V69.storyAnchors.filter(x=>
 console.log('V142_B1 '+JSON.stringify({spawn:chapterRouteV70(2),canStand:L2.canStand(L2.spawn.x,L2.spawn.z),
   at:B1_CAN_STAND()}));
 function B1_CAN_STAND(){return [{x:23,z:-110},{x:22,z:-111},{x:23,z:-109},{x:21,z:-110}].map(p=>({...p,room:L2.roomAt(p.x,p.z),canStand:L2.canStand(p.x,p.z)}));}
+
+import {readFileSync} from 'node:fs';
+import {gunzipSync} from 'node:zlib';
+const files=['part-01.txt','part-02.txt','part-03.txt','p4-1.txt','p4-2.txt','p4-3.txt','p4-4.txt','p4-5.txt','p5-1.txt','p5-2.txt','p5-3.txt','p5-4.txt','p5-5.txt'];
+const lines=gunzipSync(Buffer.from(files.map(f=>readFileSync('bundle2/'+f,'utf8').trim()).join(''),'base64')).toString().split('\n');
+for(let i=440;i<=473;i++)console.log('ORIGINAL_SRC_L'+i+' '+lines[i-1]);
