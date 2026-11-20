@@ -47,7 +47,11 @@ try{
  const prepared=await page.evaluate(()=>
   window.__PINEWOOD_CH1_DECOY_RESPONSE_V146_QA__.prepareActualGalleryHunt());
  assert.equal(prepared.setup,true);
- assert.ok(prepared.range<20,'real original path between human and enemy');
+ assert.ok(prepared.range>11&&prepared.range<=29,
+  'real original physical wall route keeps weak throw sound unheard');
+ assert.ok(prepared.heardLandingRange>=3&&prepared.heardLandingRange<=23,
+  'real original physically reachable landing audible behind wall');
+ assert.equal(prepared.genuineMasonryLOSBreak,true);
  await page.keyboard.press('KeyQ');
  const thrown=await page.evaluate(()=>
   window.__PINEWOOD_CH1_DECOY_RESPONSE_V146_QA__.getState());
