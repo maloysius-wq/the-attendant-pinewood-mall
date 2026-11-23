@@ -19,6 +19,8 @@ import {installChapter1FirstPeekDecoyV147} from './mall/chapter1-first-peek-deco
 import {installChapter1RestartWitnessV148} from './mall/chapter1-restart-v148.js';
 import {installChapter1HuntPacingV149} from './mall/chapter1-hunt-pacing-v149.js';
 import {installChapter1StaffBelongingsV150} from './mall/chapter1-staff-belongings-v150.js';
+import {installChapter1StaffInspectionV151} from './mall/chapter1-staff-inspection-v151.js';
+import {patchStoryStaffRecognitionV151} from './mall/staff-recognition-source-v151.mjs';
 import {paceOriginalDecoyBeepV146} from './mall/chapter1-decoy-response-v146.mjs';
 // Deployment loader for The Attendant: Pinewood Mall.
 // Runtime bundle stays immutable; authored room and world-prop overrides live in /patches.
@@ -330,6 +332,8 @@ try{
   unifiedSource=restoreChapter1PickupV137(unifiedSource);
   unifiedSource=restoreChapter1StealthPickupsV139(unifiedSource);
   unifiedSource=paceOriginalDecoyBeepV146(unifiedSource);
+  // V151: scoped existing V17 PEOPLE save-state method, no new save format.
+  unifiedSource=patchStoryStaffRecognitionV151(unifiedSource);
   // V111 is the renderer both the film and the game use. Its selected
   // publication or explicit same-browser Builder preview persists across
   // chapters without touching chapter events or the immutable game bundle.
@@ -362,6 +366,7 @@ try{
      installChapter1RestartWitnessV148(args.game);
      installChapter1HuntPacingV149(args.game);
      installChapter1StaffBelongingsV150(args.game);
+     installChapter1StaffInspectionV151(args.game);
     }
     // Read-only, opt-in automated desktop handoff probe. Not a game API.
     if(new URLSearchParams(location.search).has('vestibuleQA')){
