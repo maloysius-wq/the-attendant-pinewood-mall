@@ -223,6 +223,9 @@ export function installChapter1DecoyResponseV146(game){
     if(!witness)throw Error('No source-authentic standable LOS + Attendant forward-FOV witness '+JSON.stringify({
      candidates:candidates.slice(0,12),originalRooms:game.mallLayoutV70?.roomAt(p.x,p.z)}));
     a.prevPos.copy(a.root.position);a.state='investigate';a.timer=7;
+    // The preceding true Q decoy may have briefly stunned this original
+    // actor; isolate eyesight precedence from that unrelated timed stun.
+    a.stunUntil=Math.min(a.stunUntil||0,game.time);
     a.repath=-1;a.decoyUntil=game.time+6;a.decoyPos.set(-22,0,-79);
     const seen=a.canSee(p),los=w.hasLOS(a.root.position,p);
     if(!seen||!los)throw Error('Selected original LOS witness failed after source setup');
