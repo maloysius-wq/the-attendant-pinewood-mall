@@ -1,0 +1,61 @@
+name: Pinewood V149 Original Attendant Hunt and Search Pacing
+on:
+  push:
+    branches: [feature/v149-attendant-sustained-pacing]
+    paths:
+      - 'game.js'
+      - 'mall/chapter1-hunt-pacing-v149.js'
+      - 'mall/chapter1-hunt-pacing-v149.mjs'
+      - 'scripts/audit-original-attendant-v149.mjs'
+      - 'scripts/test-chapter1-hunt-pacing-v149.mjs'
+      - 'scripts/smoke-chapter1-hunt-pacing-v149.mjs'
+      - '.github/workflows/chapter1-hunt-pacing-v149.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  original-source:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Inspect original Attendant and initial hunt/search state
+        run: |
+          node --check mall/chapter1-hunt-pacing-v149.js
+          node --check mall/chapter1-hunt-pacing-v149.mjs
+          node --check scripts/smoke-chapter1-hunt-pacing-v149.mjs
+          node scripts/audit-original-attendant-v149.mjs
+          node --test scripts/test-chapter1-hunt-pacing-v149.mjs
+          node --test scripts/test-chapter1-recovery-v140.mjs
+          node --test scripts/test-chapter1-decoy-response-v146.mjs
+          node --test scripts/test-chapter1-first-peek-decoy-v147.mjs
+          node scripts/audit-local-assets-v15.mjs
+  original-1440x900-desktop:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install original desktop-only browser
+        run: |
+          npm install --no-save playwright@1.55.0
+          npx playwright install chromium
+      - name: Serve exact original Chapter 1 game over localhost
+        run: |
+          python3 -m http.server 4173 --bind 127.0.0.1 >/tmp/v149-http.log 2>&1 &
+          for i in {1..40}; do curl -fsS http://127.0.0.1:4173/ >/dev/null && exit 0; sleep 1; done
+          exit 1
+      - name: Real Fallow masonry LOS, A-star hunt-to-search sweep and source player priority
+        run: node scripts/smoke-chapter1-hunt-pacing-v149.mjs
+      - name: Archive original 1440x900 snapshot and true source AI telemetry
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: v149-original-hunt-search-pacing
+          path: artifacts/v149-real-original-search/
+          retention-days: 14
