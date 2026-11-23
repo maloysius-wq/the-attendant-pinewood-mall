@@ -1,0 +1,27 @@
+name: Pinewood V151 Original E and Journal Audit
+on:
+  push:
+    branches: [feature/v151-staff-inspection-journal]
+    paths:
+      - 'scripts/audit-original-inspection-v151.mjs'
+      - '.github/workflows/chapter1-inspection-v151.yml'
+      - 'mall/chapter1-staff-inspection-v151.js'
+      - 'mall/staff-recognition-source-v151.mjs'
+      - 'story/characters.js'
+      - 'scripts/test-chapter1-staff-inspection-v151.mjs'
+      - 'scripts/smoke-chapter1-staff-inspection-v151.mjs'
+      - 'game.js'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  source:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Audit original Game E, input, journal and collision sources
+        run: node scripts/audit-original-inspection-v151.mjs
