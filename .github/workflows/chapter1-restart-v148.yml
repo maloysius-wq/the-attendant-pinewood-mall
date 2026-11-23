@@ -1,0 +1,29 @@
+name: Pinewood V148 Original Chapter Restart Integrity
+on:
+  push:
+    branches: [feature/v148-chapter1-restart-integrity]
+    paths:
+      - 'game.js'
+      - 'mall/chapter1-restart-v148.js'
+      - 'scripts/audit-original-restart-v148.mjs'
+      - 'scripts/test-chapter1-restart-v148.mjs'
+      - 'scripts/smoke-chapter1-restart-v148.mjs'
+      - '.github/workflows/chapter1-restart-v148.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  source:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Inspect genuine original Death Restart source contract
+        run: |
+          V148_PRINT_ORIGINAL=1 node scripts/audit-original-restart-v148.mjs
+          node --test scripts/test-chapter1-first-peek-decoy-v147.mjs
+          node --test scripts/test-chapter1-recovery-v140.mjs
+          node scripts/audit-local-assets-v15.mjs
