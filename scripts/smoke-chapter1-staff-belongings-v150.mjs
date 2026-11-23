@@ -28,7 +28,7 @@ try{
    !!window.__PINEWOOD_CH1_RECOVERY_V140_QA__&&
    !!window.__PINEWOOD_CH1_STEALTH_V139_QA__&&
    !!window.__PINEWOOD_CH1_RESTART_V148_QA__,
-   null,{timeout:540000,polling:500});
+   null,{timeout:240000,polling:500});
  }catch(error){
   const state=await page.evaluate(()=>({
    text:document.getElementById('loadText')?.textContent,
@@ -36,7 +36,9 @@ try{
    hasV150:!!window.__PINEWOOD_CH1_STAFF_BELONGINGS_V150_QA__,
    hasV139:!!window.__PINEWOOD_CH1_STEALTH_V139_QA__
   }));
-  await writeFile(dir+'/startup-error.json',JSON.stringify({state,error:String(error),errors,failed,remote},null,2));
+  const info={state,error:String(error),errors,failed,remote};
+  await writeFile(dir+'/startup-error.json',JSON.stringify(info,null,2));
+  console.error('V150_ORIGINAL_STARTUP_DIAGNOSTICS '+JSON.stringify(info));
   throw error;
  }
  await page.evaluate(()=>document.getElementById('chapterStartBtn').click());
