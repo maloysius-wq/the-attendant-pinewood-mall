@@ -21,6 +21,7 @@ import {installChapter1HuntPacingV149} from './mall/chapter1-hunt-pacing-v149.js
 import {installChapter1StaffBelongingsV150} from './mall/chapter1-staff-belongings-v150.js';
 import {installChapter1StaffInspectionV151} from './mall/chapter1-staff-inspection-v151.js';
 import {patchStoryStaffRecognitionV151} from './mall/staff-recognition-source-v151.mjs';
+import {patchChapterHandoffVoiceV152} from './mall/chapter-handoff-voice-v152.mjs';
 import {paceOriginalDecoyBeepV146} from './mall/chapter1-decoy-response-v146.mjs';
 // Deployment loader for The Attendant: Pinewood Mall.
 // Runtime bundle stays immutable; authored room and world-prop overrides live in /patches.
@@ -334,6 +335,8 @@ try{
   unifiedSource=paceOriginalDecoyBeepV146(unifiedSource);
   // V151: scoped existing V17 PEOPLE save-state method, no new save format.
   unifiedSource=patchStoryStaffRecognitionV151(unifiedSource);
+  // V152: do not let old Renee/PCAS speech leak into a new original chapter.
+  unifiedSource=patchChapterHandoffVoiceV152(unifiedSource);
   // V111 is the renderer both the film and the game use. Its selected
   // publication or explicit same-browser Builder preview persists across
   // chapters without touching chapter events or the immutable game bundle.
