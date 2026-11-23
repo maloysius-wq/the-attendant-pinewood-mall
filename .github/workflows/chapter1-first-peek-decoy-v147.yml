@@ -50,7 +50,7 @@ jobs:
           python3 -m http.server 4173 --bind 127.0.0.1 >/tmp/v147-http.log 2>&1 &
           for i in {1..40}; do curl -fsS http://127.0.0.1:4173/ >/dev/null && exit 0; sleep 1; done
           exit 1
-      - name: Real first Attendant sighting and Q decoy early retreat, then genuine restart
+      - name: Real first Attendant sighting, physical Q diversion and post-grace danger
         run: node scripts/smoke-chapter1-first-peek-decoy-v147.mjs
       - name: Archive actual 1440x900 first-person screenshots and browser metrics
         if: always()
