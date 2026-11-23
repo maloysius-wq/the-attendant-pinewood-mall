@@ -5,8 +5,10 @@ on:
     paths:
       - 'game.js'
       - 'mall/chapter1-restart-v148.js'
+      - 'mall/chapter1-decoy-tags-v145.js'
       - 'scripts/audit-original-restart-v148.mjs'
       - 'scripts/test-chapter1-restart-v148.mjs'
+      - 'scripts/test-chapter1-decoy-restart-v148.mjs'
       - 'scripts/smoke-chapter1-restart-v148.mjs'
       - '.github/workflows/chapter1-restart-v148.yml'
   workflow_dispatch:
@@ -24,9 +26,12 @@ jobs:
       - name: Inspect genuine original Death Restart source contract
         run: |
           node --check mall/chapter1-restart-v148.js
+          node --check mall/chapter1-decoy-tags-v145.js
           node --check scripts/smoke-chapter1-restart-v148.mjs
           V148_PRINT_ORIGINAL=1 node scripts/audit-original-restart-v148.mjs
           node --test scripts/test-chapter1-restart-v148.mjs
+          node --test scripts/test-chapter1-decoy-restart-v148.mjs
+          node --test scripts/test-chapter1-decoy-tags-v145.mjs
           node --test scripts/test-chapter1-first-peek-decoy-v147.mjs
           node --test scripts/test-chapter1-recovery-v140.mjs
           node scripts/audit-local-assets-v15.mjs
