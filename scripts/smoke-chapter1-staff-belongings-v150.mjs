@@ -90,8 +90,26 @@ try{
   .triggerGenuineAttendantContact());
  assert.equal(fatal.los,true);
  assert.equal(fatal.state.dead,true,'original lethal Attendant source collision preserved');
- await page.waitForFunction(()=>document.getElementById('deathScreen')?.classList.contains('show'),
-  null,{timeout:12000});
+ try{
+  // Full original Three.js renderer can delay the CSS death overlay after
+  // capturing several 1440x900 screenshots. Poll off animation frames;
+  // this still requires the ACTUAL original death UI, not a fake handler.
+  await page.waitForFunction(()=>document.getElementById('deathScreen')?.classList.contains('show'),
+   null,{timeout:90000,polling:350});
+ }catch(error){
+  const deathState=await page.evaluate(()=>({
+   actualDead:window.__PINEWOOD_CH1_RECOVERY_V140_QA__?.getState?.()?.dead,
+   originalDeathCopy:document.getElementById('deathCopy')?.textContent,
+   originalDeathScreenClass:document.getElementById('deathScreen')?.className,
+   originalLoadingScreenClass:document.getElementById('loadingScreen')?.className
+  }));
+  console.error('V150_ORIGINAL_DEATH_OVERLAY_DIAGNOSTICS '+JSON.stringify({
+   deathState,error:String(error),errors,remote,failed
+  }));
+  await writeFile(dir+'/death-overlay-error.json',
+   JSON.stringify({deathState,error:String(error),errors,remote,failed},null,2));
+  throw error;
+ }
  // Genuine source button retains the original Game.startChapter reset order:
  // world.clear -> resetState (dispose only) -> new scene -> V150 bind.
  await page.evaluate(()=>document.getElementById('deathRestartBtn').click());
