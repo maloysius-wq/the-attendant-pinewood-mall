@@ -7,8 +7,7 @@ const original=gunzipSync(Buffer.from(parts.map(p=>readFileSync('bundle2/'+p,'ut
 for(const [label,needle,before,after] of [
  ['update-interaction','updateInteraction(){',120,3700],
  ['interact-action','interact(){',150,5200],
- ['key-down','onKeyDown(',260,3600],
- ['document-keys',"addEventListener('keydown'",200,1200],
+ ['key-down','keydown',350,3600],
  ['death','die(reason){',120,900],
  ['journal','rebuildJournal(){',150,1900],
  ['controls','pointerlockchange',220,1600]
