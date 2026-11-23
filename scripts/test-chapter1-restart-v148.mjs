@@ -1,0 +1,20 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {readFileSync} from 'node:fs';
+test('V148 witness touches no production path, original death/restart/scene remain authoritative',()=>{
+ const source=readFileSync('mall/chapter1-restart-v148.js','utf8');
+ const bridge=readFileSync('game.js','utf8');
+ assert.match(source,/if\(!localQA\(\)\|\|game\?\.levelIndex!==0\)return null/);
+ assert.match(source,/originalStart\.apply\(this,args\)/);
+ assert.match(source,/originalReset\.apply\(this,args\)/);
+ assert.match(source,/originalGeometry\.apply\(this,args\)/);
+ assert.match(source,/originalClear\.apply\(this,args\)/);
+ assert.match(source,/window\.__PINEWOOD_CH1_RESTART_V148_QA__=api/);
+ assert.match(bridge,/installChapter1FirstPeekDecoyV147\(args\.game\);\s*installChapter1RestartWitnessV148\(args\.game\);/);
+ assert.doesNotMatch(source,/world\.interactables\.push|world\.colliders\.push|localStorage|indexedDB|new THREE|fetch\(|http[s]?:\/\//);
+ const death=readFileSync('scripts/smoke-chapter1-restart-v148.mjs','utf8');
+ assert.match(death,/locator\('#deathRestartBtn'\)\.click\(\)/);
+ assert.match(death,/original.*Attendant|triggerGenuineAttendantContact/);
+ assert.match(death,/stage\.chapterScreen|s\.chapterScreen/);
+ assert.match(death,/stage\.active|s\.active/);
+});
