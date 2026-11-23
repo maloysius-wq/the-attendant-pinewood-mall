@@ -18,6 +18,7 @@ import {installChapter1DecoyResponseV146} from './mall/chapter1-decoy-response-v
 import {installChapter1FirstPeekDecoyV147} from './mall/chapter1-first-peek-decoy-v147.js';
 import {installChapter1RestartWitnessV148} from './mall/chapter1-restart-v148.js';
 import {installChapter1HuntPacingV149} from './mall/chapter1-hunt-pacing-v149.js';
+import {installChapter1StaffBelongingsV150} from './mall/chapter1-staff-belongings-v150.js';
 import {paceOriginalDecoyBeepV146} from './mall/chapter1-decoy-response-v146.mjs';
 // Deployment loader for The Attendant: Pinewood Mall.
 // Runtime bundle stays immutable; authored room and world-prop overrides live in /patches.
@@ -360,6 +361,7 @@ try{
      installChapter1FirstPeekDecoyV147(args.game);
      installChapter1RestartWitnessV148(args.game);
      installChapter1HuntPacingV149(args.game);
+     installChapter1StaffBelongingsV150(args.game);
     }
     // Read-only, opt-in automated desktop handoff probe. Not a game API.
     if(new URLSearchParams(location.search).has('vestibuleQA')){
