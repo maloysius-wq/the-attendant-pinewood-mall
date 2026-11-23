@@ -1,0 +1,59 @@
+name: Pinewood V150 Original Chapter 1 Staff Belongings
+on:
+  push:
+    branches: [feature/v150-chapter1-staff-belongings]
+    paths:
+      - 'game.js'
+      - 'mall/chapter1-staff-belongings-v150.mjs'
+      - 'mall/chapter1-staff-belongings-v150.js'
+      - 'scripts/test-chapter1-staff-belongings-v150.mjs'
+      - 'scripts/smoke-chapter1-staff-belongings-v150.mjs'
+      - '.github/workflows/chapter1-staff-belongings-v150.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  source-and-canon:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Validate story-only fixtures, original rooms, old restart and pinned assets
+        run: |
+          node --check mall/chapter1-staff-belongings-v150.js
+          node --check mall/chapter1-staff-belongings-v150.mjs
+          node --check scripts/smoke-chapter1-staff-belongings-v150.mjs
+          node --test scripts/test-chapter1-staff-belongings-v150.mjs
+          node --test scripts/test-chapter1-decoy-restart-v148.mjs
+          node --test scripts/test-chapter1-hunt-pacing-v149.mjs
+          node --test scripts/test-chapter1-decoy-tags-v145.mjs
+          node scripts/audit-local-assets-v15.mjs
+  actual-1440x900-desktop:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install desktop Chromium only
+        run: |
+          npm install --no-save playwright@1.55.0
+          npx playwright install chromium
+      - name: Serve exact original game locally
+        run: |
+          python3 -m http.server 4173 --bind 127.0.0.1 >/tmp/v150-http.log 2>&1 &
+          for i in {1..40}; do curl -fsS http://127.0.0.1:4173/ >/dev/null && exit 0; sleep 1; done
+          exit 1
+      - name: Genuine Chapter 1 furniture, three first-person artifacts, Attendant death and scene restart
+        run: node scripts/smoke-chapter1-staff-belongings-v150.mjs
+      - name: Archive authentic staff keepsake 1440x900 views and runtime telemetry
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: v150-original-staff-belongings
+          path: artifacts/v150-original-staff-belongings/
+          retention-days: 14
