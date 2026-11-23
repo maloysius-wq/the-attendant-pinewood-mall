@@ -12,7 +12,10 @@ export const STAFF_BELONGINGS_V150=Object.freeze([
   lines:Object.freeze(['FOOD COURT - LAST PASS','Before anyone signs off:','Check stalls, then tables.','Ask the closers in person.'])}),
  Object.freeze({id:'tessa-staff-chart',person:'Tessa Kim',
   fixture:'cassette_counter',room:'cassette_castle',kind:'chart',
-  xOffset:.05,zOffset:.1,width:.34,depth:.26,
+  // Actual original Cassette Castle counter has its licensed register
+  // near its centre. Keep the hand-written chart on a free end of the
+  // same measured long top, not partially underneath the real till.
+  xOffset:0,zOffset:-.42,width:.34,depth:.26,
   title:'CASSETTE CASTLE / STAFF PICKS',owner:'TESSA KIM',
   lines:Object.freeze(['TOP 40 - WEEKLY PICKS','Friday: finish side A','Saturday: make a new mix','Sunday: please let me sleep'])}),
  Object.freeze({id:'luis-copy-sleeve',person:'Luis Ortega',
