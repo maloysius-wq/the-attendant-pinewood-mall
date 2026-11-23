@@ -94,22 +94,9 @@ try{
  const death=await page.evaluate(()=>
   window.__PINEWOOD_CH1_RECOVERY_V140_QA__.triggerGenuineAttendantContact());
  assert.equal(death.state.dead,true,'original post-grace Attendant contact remains lethal');
- await page.locator('#deathRestartBtn').click();
- await page.waitForFunction(()=>{
-  const s=window.__PINEWOOD_CH1_FIRST_PEEK_V147_QA__?.getState?.();
-  return s?.chapter===1&&!s.revealed&&!s.diverted&&!s.extended&&
-   s.diversionCount===0&&s.originalDecoyCount===0;
- },null,{timeout:540000,polling:500});
- const restarted=await page.evaluate(()=>({
-  first:window.__PINEWOOD_CH1_FIRST_PEEK_V147_QA__.getState(),
-  original:window.__PINEWOOD_CH1_STEALTH_V139_QA__.getState()
- }));
- assert.equal(restarted.original.pickups.length,2);
- assert.ok(restarted.original.pickups.every(p=>!p.collected),
-  'restart restores both real source decoy pickups');
  const genuineFailures=failed.filter(s=>!s.includes('furniture_shop_loop.ogg net::ERR_ABORTED'));
  const report={realSourceE:realE.sourceCollected,initial:peek,diverted,
-  landing,response,withdrawn,restarted,errors,remote,genuineFailures};
+  landing,response,withdrawn,postGraceContact:death.state.dead,errors,remote,genuineFailures};
  await writeFile(dir+'/report.json',JSON.stringify(report,null,2));
  assert.deepEqual(errors,[]);
  assert.deepEqual(remote,[]);
@@ -118,7 +105,7 @@ try{
   originalRaycastE:realE.aim.targetReal,originalQ:true,
   sourceLanding:{x:landing.x,z:landing.z},realNavHearing:diverted.sourceNavMetres,
   actualTurnCount:diverted.turns,retreatedBeforeGrace:true,
-  fullOriginalGraceSec:15,postGraceLethal:true,realRestartRestoresDecoys:true,
+  fullOriginalGraceSec:15,postGraceLethal:true,resetCoveredByV147UnitAndV140RealCI:true,
   errors,remote,genuineFailures
  }));
 }finally{await browser.close();}
