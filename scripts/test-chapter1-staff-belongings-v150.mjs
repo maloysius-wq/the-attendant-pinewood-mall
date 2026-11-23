@@ -17,6 +17,14 @@ test('exactly three canon human artifacts are placed on existing measured local 
  // Actual source Video Planet counter Box3: x=[34.596,35.404]m,
  // z=[-65.630,-64.370]m. A centred .34m sleeve fits only when
  // shifted along Z; prior xOffset=.24 floated past the approved top.
+ // Cassette counter uses the SAME KSI source GLB, rotated 90 degrees,
+ // so its 1.2598m axis is X. The card clears the existing till at centre.
+ assert.equal(sites[1].x,-41.6);
+ assert.equal(sites[1].z,-77.4);
+ assert.ok(sites[1].x-sites[1].width/2>-42-1.2598/2+.012);
+ assert.ok(sites[1].x+sites[1].width/2<-42+1.2598/2-.012);
+ assert.ok(sites[1].z-sites[1].depth/2>-77.4-.80765/2+.012);
+ assert.ok(sites[1].z+sites[1].depth/2<-77.4+.80765/2-.012);
  assert.equal(sites[2].x,35);
  assert.ok(Math.abs(sites[2].z-(-64.66))<.00001);
  assert.ok(sites[2].x-sites[2].width/2>34.596+.012);
