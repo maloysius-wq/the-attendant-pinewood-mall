@@ -93,8 +93,17 @@ try{
   'real decoy pulses must not endlessly reset investigation '+JSON.stringify(continued));
  assert.ok(continued.coalesced>=1,
   'repeated pulses from original source must be coalesced');
- const distant=await page.evaluate(()=>
-  window.__PINEWOOD_CH1_DECOY_RESPONSE_V146_QA__.sendFarActualSourceSound());
+ // The original search can naturally complete during the 65 physics steps.
+ // Test distant *hearing range* with the actual Attendant physically present;
+ // otherwise correctly rejecting an invisible dormant actor increments
+ // rejectedHidden, not rejectedFar, and is not a range test.
+ const distant=await page.evaluate(()=>{
+  const qa=window.__PINEWOOD_CH1_DECOY_RESPONSE_V146_QA__;
+  const staged=qa.prepareActualGalleryHunt();
+  if(!staged.getState.originalAttendantPosition)
+   throw Error('Original source Attendant unavailable for range test');
+  return qa.sendFarActualSourceSound();
+ });
  assert.ok(distant.nav>27);
  assert.equal(distant.untouched,true,'far physically disconnected source cannot command original AI');
  assert.ok(distant.state.rejectedFar>=1);
