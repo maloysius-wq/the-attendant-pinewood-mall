@@ -103,9 +103,13 @@ try{
  // The real last-shift LS-03 should promote Luis beyond preliminary traces.
  const notes=sourceAfter.notes;
  assert.ok(notes.find(x=>x.id==='LS-03'&&x.found),'original Luis LS-03 anchor is physical');
- const target=await page.evaluate(()=>window.__PINEWOOD_CH1_PROGRESSION_V142_QA__
-  .view('note','LS-03'));
+ const realLS03=sourceAfter.evidenceSourceInventory.find(x=>
+  x.label==='LS-03'&&['journal','note','tape'].includes(x.type)&&x.parent);
+ assert.ok(realLS03,'true original LS-03 source mesh and evidence type required');
+ const target=await page.evaluate(type=>window.__PINEWOOD_CH1_PROGRESSION_V142_QA__
+  .view(type,'LS-03'),realLS03.type);
  assert.equal(target.targetReal,true);
+ assert.equal(target.type,realLS03.type,'use original LS evidence mesh type, not a guessed note');
  await page.keyboard.press('e');
  const evidence=await page.evaluate(()=>window.__PINEWOOD_CH1_PROGRESSION_V142_QA__.getState());
  assert.ok(evidence.notes.find(x=>x.id==='LS-03'&&x.collected),
