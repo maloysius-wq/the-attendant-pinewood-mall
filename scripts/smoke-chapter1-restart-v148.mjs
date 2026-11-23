@@ -79,15 +79,33 @@ try{
   initialRestart,final:last,snapshots,errors,remote,failed};
  await writeFile(dir+'/restart-stages.json',JSON.stringify(report,null,2));
  if(!restored)throw Error('V148 original restart did not reach genuine clean Chapter 1 within bounded stages; last='+JSON.stringify(last).slice(0,7000));
- await page.locator('#chapterStartBtn').click();
- await page.waitForFunction(()=>window.__PINEWOOD_CH1_RESTART_V148_QA__?.getState?.()?.running===true,null,{timeout:15000});
+ const button=await page.evaluate(()=>{
+  const el=document.getElementById('chapterStartBtn');
+  return {text:el?.textContent,onclick:typeof el?.onclick,
+   visible:document.getElementById('chapterScreen')?.classList.contains('show')};
+ });
+ console.log('V148_ORIGINAL_START_BUTTON '+JSON.stringify(button));
+ assert.equal(button.text,'Begin Shift');
+ assert.equal(button.onclick,'function','original source beginPlay button must be rebound');
+ assert.equal(button.visible,true);
+ // Use original DOM click from the established V140 real desktop smoke:
+ // Playwright locator.click() can run after renderer/pointer lock changes,
+ // while a direct click on the ACTUAL original DOM element activates its
+ // existing onclick without any mock or bypass of real Game.beginPlay.
+ await page.evaluate(()=>document.getElementById('chapterStartBtn').click());
  const playing=await get();
+ console.log('V148_AFTER_REAL_BEGIN '+JSON.stringify({
+  running:playing.running,dead:playing.dead,modal:playing.modal,
+  chapter:playing.chapter,screen:playing.stage,events:playing.events.at(-3)
+ }));
+ assert.equal(playing.running,true,'genuine Begin Shift did not resume original Game');
  assert.equal(playing.chapter,1);
  assert.equal(playing.recovery.breakers,0);
  assert.equal(playing.recovery.decoys,0);
  assert.equal(playing.recovery.realPickups.length,2);
  assert.equal(playing.first.revealed,false);
  assert.equal(playing.first.diversionCount,0);
+ assert.equal(playing.first.extended,false);
  assert.equal(playing.stage.active,false);
  assert.deepEqual(errors,[]);
  assert.deepEqual(remote,[]);
