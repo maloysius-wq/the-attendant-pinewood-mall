@@ -14,6 +14,15 @@ test('exactly three canon human artifacts are placed on existing measured local 
  assert.deepEqual(sites.map(s=>s.room),['food_court','cassette_castle','video_planet']);
  assert.deepEqual(sites.map(s=>s.fixture),['food_table_4','cassette_counter','video_counter']);
  assert.equal(new Set(sites.map(s=>s.id)).size,3);
+ // Actual source Video Planet counter Box3: x=[34.596,35.404]m,
+ // z=[-65.630,-64.370]m. A centred .34m sleeve fits only when
+ // shifted along Z; prior xOffset=.24 floated past the approved top.
+ assert.equal(sites[2].x,35);
+ assert.ok(Math.abs(sites[2].z-(-64.66))<.00001);
+ assert.ok(sites[2].x-sites[2].width/2>34.596+.012);
+ assert.ok(sites[2].x+sites[2].width/2<35.404-.012);
+ assert.ok(sites[2].z-sites[2].depth/2>-65.630+.012);
+ assert.ok(sites[2].z+sites[2].depth/2<-64.370-.012);
  for(const s of sites){
   const original=FURNISHINGS_V69.fixtures.find(f=>f.id===s.fixture);
   assert.ok(original);
