@@ -1,0 +1,61 @@
+name: Pinewood V147 Real Protected First-Sighting Decoy
+on:
+  push:
+    branches: [feature/v147-safe-first-sighting-decoy]
+    paths:
+      - 'game.js'
+      - 'mall/chapter1-first-peek-decoy-v147.js'
+      - 'mall/chapter1-first-peek-decoy-v147.mjs'
+      - 'scripts/test-chapter1-first-peek-decoy-v147.mjs'
+      - 'scripts/smoke-chapter1-first-peek-decoy-v147.mjs'
+      - '.github/workflows/chapter1-first-peek-decoy-v147.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  source-original:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: V147 exact original controlled first reveal and preserved licensed sources
+        run: |
+          node --check mall/chapter1-first-peek-decoy-v147.js
+          node --check mall/chapter1-first-peek-decoy-v147.mjs
+          node --check scripts/smoke-chapter1-first-peek-decoy-v147.mjs
+          node --test scripts/test-chapter1-first-peek-decoy-v147.mjs
+          node --test scripts/test-chapter1-decoy-response-v146.mjs
+          node --test scripts/test-chapter1-stealth-v139.mjs
+          node --test scripts/test-chapter1-recovery-v140.mjs
+          node --test scripts/test-chapter1-decoy-tags-v145.mjs
+          node --test scripts/test-chapter1-atmosphere-v144.mjs
+          node scripts/audit-local-assets-v15.mjs
+  original-1440x900-desktop:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 28
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install original desktop browser only
+        run: |
+          npm install --no-save playwright@1.55.0
+          npx playwright install chromium
+      - name: Host exact source original mall locally
+        run: |
+          python3 -m http.server 4173 --bind 127.0.0.1 >/tmp/v147-http.log 2>&1 &
+          for i in {1..40}; do curl -fsS http://127.0.0.1:4173/ >/dev/null && exit 0; sleep 1; done
+          exit 1
+      - name: Real first Attendant sighting and Q decoy early retreat, then genuine restart
+        run: node scripts/smoke-chapter1-first-peek-decoy-v147.mjs
+      - name: Archive actual 1440x900 first-person screenshots and browser metrics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: v147-original-first-sighting-decoy
+          path: artifacts/v147-real-first-peek/
+          retention-days: 14
