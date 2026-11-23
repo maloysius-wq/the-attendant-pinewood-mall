@@ -24,4 +24,39 @@ jobs:
         with:
           node-version: '22'
       - name: Audit original Game E, input, journal and collision sources
-        run: node scripts/audit-original-inspection-v151.mjs
+        run: |
+          node --check mall/chapter1-staff-inspection-v151.js
+          node --check mall/staff-recognition-source-v151.mjs
+          node --check scripts/smoke-chapter1-staff-inspection-v151.mjs
+          node scripts/audit-original-inspection-v151.mjs
+          node --test scripts/test-chapter1-staff-inspection-v151.mjs
+          node --test scripts/test-chapter1-staff-belongings-v150.mjs
+          node --test scripts/test-chapter1-decoy-restart-v148.mjs
+          node --test scripts/test-chapter1-hunt-pacing-v149.mjs
+          node scripts/audit-local-assets-v15.mjs
+  original-1440x900-desktop:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install original desktop Chromium
+        run: |
+          npm install --no-save playwright@1.55.0
+          npx playwright install chromium
+      - name: Serve exact original source locally
+        run: |
+          python3 -m http.server 4173 --bind 127.0.0.1 >/tmp/v151-http.log 2>&1 &
+          for i in {1..40}; do curl -fsS http://127.0.0.1:4173/ >/dev/null && exit 0; sleep 1; done
+          exit 1
+      - name: Genuine keyboard E on human belongings, original LS03 priority and full restart
+        run: node scripts/smoke-chapter1-staff-inspection-v151.mjs
+      - name: Archive real 1440x900 inspection frames and original save-state witness
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: v151-original-staff-inspection
+          path: artifacts/v151-original-inspection/
+          retention-days: 14
