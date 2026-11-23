@@ -72,9 +72,36 @@ try{
  assert.ok(b1.handoff.epoch>before.epoch);
  await page.waitForFunction(()=>document.getElementById('chapterScreen')?.classList.contains('show'),
   null,{timeout:30000});
+ const b1Button=await q(()=>({
+  text:document.getElementById('chapterStartBtn')?.textContent,
+  bound:typeof document.getElementById('chapterStartBtn')?.onclick,
+  visible:document.getElementById('chapterScreen')?.classList.contains('show')
+ }));
+ assert.equal(b1Button.bound,'function','original Chapter 2 begin handler must exist');
  await page.evaluate(()=>document.getElementById('chapterStartBtn').click());
- await page.waitForFunction(()=>window.__PINEWOOD_AUDIO_V27__?.lastCharacter?.id==='ch2_start',
-  null,{timeout:90000,polling:350});
+ const voiceProbe=()=>q(()=>({
+  chapter:window.__PINEWOOD_V112_QA__?.getState?.(),
+  gameplay:window.__PINEWOOD_CH1_PROGRESSION_V142_QA__?.getState?.(),
+  handoff:{...window.__PINEWOOD_HANDOFF_V152__},
+  audio:{...window.__PINEWOOD_AUDIO_V27__},
+  subtitles:[...document.querySelectorAll('[id*="subtitle"],[class*="subtitle"]')].slice(0,8)
+    .map(x=>({id:x.id,text:x.textContent?.slice(0,280),class:x.className})),
+  visibleScreen:document.querySelector('.screen.show')?.id||null,
+  button:{onclick:typeof document.getElementById('chapterStartBtn')?.onclick},
+  assetStatus:document.getElementById('assetStatus')?.textContent
+ }));
+ const afterBegin=await voiceProbe();
+ console.log('V152_B1_AFTER_NATIVE_BEGIN '+JSON.stringify({b1Button,afterBegin}).slice(0,5000));
+ try{
+  await page.waitForFunction(()=>window.__PINEWOOD_AUDIO_V27__?.lastCharacter?.id==='ch2_start',
+   null,{timeout:25000,polling:350});
+ }catch(error){
+  const diagnostic={error:String(error),b1Button,afterBegin,afterWait:await voiceProbe(),
+   errors,failed,remote};
+  await writeFile(dir+'/b1-voice-diagnostic.json',JSON.stringify(diagnostic,null,2));
+  console.error('V152_B1_VOICE_DIAGNOSTIC '+JSON.stringify(diagnostic).slice(0,12500));
+  throw error;
+ }
  const voice=await q(()=>({
   line:window.__PINEWOOD_AUDIO_V27__.lastCharacter,
   handoff:{...window.__PINEWOOD_HANDOFF_V152__},
