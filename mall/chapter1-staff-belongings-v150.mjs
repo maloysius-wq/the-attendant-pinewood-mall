@@ -17,7 +17,9 @@ export const STAFF_BELONGINGS_V150=Object.freeze([
   lines:Object.freeze(['TOP 40 - WEEKLY PICKS','Friday: finish side A','Saturday: make a new mix','Sunday: please let me sleep'])}),
  Object.freeze({id:'luis-copy-sleeve',person:'Luis Ortega',
   fixture:'video_counter',room:'video_planet',kind:'sleeve',
-  xOffset:.24,zOffset:.13,width:.34,depth:.26,
+  // The original Video Planet counter is only .8076m wide (real GLB Box3).
+  // Move the sleeve lengthwise in Z, away from the actual demo VHS at centre.
+  xOffset:0,zOffset:.34,width:.34,depth:.26,
   title:'VIDEO PLANET / COPY REQUEST',owner:'L. ORTEGA',
   lines:Object.freeze(['NIGHT SECURITY / HOLD','Blank tape by the desk','Return after closing','11 / 14 / 97'])})
 ]);
