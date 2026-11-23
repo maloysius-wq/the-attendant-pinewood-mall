@@ -1,0 +1,57 @@
+name: Pinewood V152 Original Chapter Handoff Voice
+on:
+  push:
+    branches: [feature/v152-chapter-handoff-voice-reset]
+    paths:
+      - 'mall/chapter-handoff-voice-v152.mjs'
+      - 'game.js'
+      - 'scripts/test-chapter-handoff-voice-v152.mjs'
+      - 'scripts/smoke-chapter-handoff-voice-v152.mjs'
+      - '.github/workflows/chapter-handoff-voice-v152.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  source:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 9
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Check voice patch, story precedence and original source protections
+        run: |
+          node --check mall/chapter-handoff-voice-v152.mjs
+          node --check game.js
+          node --check scripts/smoke-chapter-handoff-voice-v152.mjs
+          node --test scripts/test-chapter-handoff-voice-v152.mjs
+          node --test scripts/test-chapter1-staff-inspection-v151.mjs
+          node scripts/audit-chapter2-below-grade-v21.mjs
+          node scripts/audit-local-assets-v15.mjs
+  original-1440x900-desktop:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 26
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install desktop Chromium
+        run: |
+          npm install --no-save playwright@1.55.0
+          npx playwright install chromium
+      - name: Serve the original game with all local licensed assets
+        run: |
+          python3 -m http.server 4173 --bind 127.0.0.1 >/tmp/v152-http.log 2>&1 &
+          for i in {1..40}; do curl -fsS http://127.0.0.1:4173/ >/dev/null && exit 0; sleep 1; done
+          exit 1
+      - name: Original E freight to real B1 and serialized Renee radio
+        run: node scripts/smoke-chapter-handoff-voice-v152.mjs
+      - name: Archive original desktop voice and transition evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: v152-original-chapter-handoff
+          path: artifacts/v152-real-chapter-handoff/
+          retention-days: 14
