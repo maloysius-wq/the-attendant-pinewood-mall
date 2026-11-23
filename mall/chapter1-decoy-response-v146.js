@@ -196,18 +196,41 @@ export function installChapter1DecoyResponseV146(game){
    },
    proveVisiblePlayerOverridesDecoy(){
     ensure();
-    const p=game.controls.yaw.position,a=game.attendant;
+    const p=game.controls.yaw.position,a=game.attendant,w=game.world;
+    // Find an actually standable, uninterrupted original gallery line.
+    // Fixed guesses can land on a source store partition and accidentally
+    // test wall occlusion instead of visual prioritization.
     p.set(-17,1.7,-79);game.camera.updateWorldMatrix(true,false);
-    a.root.position.set(-17,game.mallLevelYV70||0,-86);
-    a.root.lookAt(p.x,0,p.z);
-    a.state='investigate';a.timer=7;a.repath=-1;a.awake=true;a.root.visible=true;
-    a.decoyUntil=game.time+6;a.decoyPos.set(-22,0,-79);
-    const seen=a.canSee(p),los=game.world.hasLOS(a.root.position,p);
-    if(!seen||!los)throw Error('Original visible-gallery vision must be true to test priority');
+    if(!w.canStand(p.x,p.z)||game.playerHidden)
+     throw Error('Original west gallery source player must be standable and unhidden');
+    const candidates=[...w.walk].map(cell=>{
+     const [x,z]=cell.split(',').map(Number);
+     return {x,z,d:Math.hypot(x-p.x,z-p.z)};
+    }).filter(c=>c.d>=3.2&&c.d<=9&&w.canStand(c.x,c.z)&&
+     w.navPassable(c.x,c.z)&&w.hasLOS({x:c.x,y:0,z:c.z},p))
+     .sort((u,v)=>Math.abs(u.d-6)-Math.abs(v.d-6)||u.x-v.x||u.z-v.z);
+    let witness=null;
+    a.awake=true;a.root.visible=true;
+    for(const site of candidates){
+     a.root.position.set(site.x,game.mallLevelYV70||0,site.z);
+     // Original moving Attendant faces +Z. Object3D.lookAt would rotate
+     // its -Z toward the target and falsely fail original canSee FOV.
+     a.root.rotation.y=Math.atan2(p.x-site.x,p.z-site.z);
+     if(a.canSee(p)){
+      witness={x:site.x,z:site.z,range:site.d};break;
+     }
+    }
+    if(!witness)throw Error('No source-authentic standable LOS + Attendant forward-FOV witness '+JSON.stringify({
+     candidates:candidates.slice(0,12),originalRooms:game.mallLayoutV70?.roomAt(p.x,p.z)}));
+    a.prevPos.copy(a.root.position);a.state='investigate';a.timer=7;
+    a.repath=-1;a.decoyUntil=game.time+6;a.decoyPos.set(-22,0,-79);
+    const seen=a.canSee(p),los=w.hasLOS(a.root.position,p);
+    if(!seen||!los)throw Error('Selected original LOS witness failed after source setup');
     const before=phase.visualPriority;
     a.update(.016,game.time,p,0);
-    return {seen,los,prioritized:phase.visualPriority===before+1,
+    return {witness,seen,los,prioritized:phase.visualPriority===before+1,
      decoyExpired:a.decoyUntil<=game.time,state:getState()};
+
    }
   };
  }
