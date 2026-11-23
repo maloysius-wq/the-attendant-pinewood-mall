@@ -1,0 +1,31 @@
+name: Pinewood V149 Original Attendant Hunt and Search Pacing
+on:
+  push:
+    branches: [feature/v149-attendant-sustained-pacing]
+    paths:
+      - 'game.js'
+      - 'mall/chapter1-hunt-pacing-v149.js'
+      - 'mall/chapter1-hunt-pacing-v149.mjs'
+      - 'scripts/audit-original-attendant-v149.mjs'
+      - 'scripts/test-chapter1-hunt-pacing-v149.mjs'
+      - 'scripts/smoke-chapter1-hunt-pacing-v149.mjs'
+      - '.github/workflows/chapter1-hunt-pacing-v149.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  original-source:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Inspect original Attendant and initial hunt/search state
+        run: |
+          node scripts/audit-original-attendant-v149.mjs
+          node --test scripts/test-chapter1-recovery-v140.mjs
+          node --test scripts/test-chapter1-decoy-response-v146.mjs
+          node --test scripts/test-chapter1-first-peek-decoy-v147.mjs
+          node scripts/audit-local-assets-v15.mjs
