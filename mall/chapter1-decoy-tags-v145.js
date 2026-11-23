@@ -99,8 +99,13 @@ export function installChapter1DecoyTagsV145(game){
  const originalReset=game.resetState;
  game.resetState=function(...args){
   const out=originalReset.apply(this,args);
-  if(this.levelIndex===0)bind();
-  else dispose();
+  // Original Game.startChapter calls world.clear() BEFORE resetState(), then
+  // carves/builds the NEW Chapter 1 scene and only later invokes the V70
+  // relocateStory bridge. At reset time the original E decoy pickups do not
+  // exist yet: rebinding now throws and leaves Death -> Restart at 48%.
+  // Release old floor-paper resources; bind() runs when V70 has rebuilt the
+  // real pickup meshes and invokes installChapter1DecoyTagsV145 again.
+  dispose();
   return out;
  };
  const getState=()=>({
