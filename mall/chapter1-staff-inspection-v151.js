@@ -149,7 +149,7 @@ export function installChapter1StaffInspectionV151(game){
  if(localQA()&&typeof window!=='undefined'){
   window.__PINEWOOD_CH1_STAFF_INSPECTION_V151_QA__={
    getState,
-   inspectActualPaperWithOriginalE(id){
+   aimActualPaperForTest(id){
     if(!possible())throw Error('V151 requires real live Chapter 1');
     const view=window.__PINEWOOD_CH1_STAFF_BELONGINGS_V150_QA__?.
      viewOriginalBelongingForTest(id);
@@ -157,9 +157,12 @@ export function installChapter1StaffInspectionV151(game){
     game.updateInteraction();
     if(!focused||focused.site.id!==id||game.interactTarget)
      throw Error('Original camera did not select optional '+id);
-    const before=getState();
-    game.interact(); // real Game.interact that original E invokes
-    return {view,before,after:getState()};
+    return {view,aim:getState(),hint:document.getElementById('hint')?.textContent};
+   },
+   inspectActualPaperWithOriginalE(id){
+    const aimed=this.aimActualPaperForTest(id);
+    game.interact(); // actual original Game.interact; E key also invokes it
+    return {...aimed,after:getState()};
    }
   };
  }
