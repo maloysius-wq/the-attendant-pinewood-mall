@@ -52,7 +52,7 @@ audio.cancelChapterSpeechV152=function(){
     'const buffer=await this.loadCharacterV27(id);if(epochV152!==(this.voiceEpochV152||0))return null;this.voiceLoadingV27=false;if(!buffer||!this.ctx)return unavailable();');
 
   replaceOnce('epoch-bound PCAS loader',
-    'async pcas(id){\n     if(!this.ctx)return null;',
+    'async pcas(id){\n    if(!this.ctx)return null;',
     'async pcas(id){\n     const epochV152=this.voiceEpochV152||0;\n     if(!this.ctx)return null;');
 
   replaceOnce('late PCAS OGG decode',
