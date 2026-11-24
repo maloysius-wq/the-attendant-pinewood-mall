@@ -23,7 +23,12 @@ test('V152 patches ONLY the original V27 async voice and V70 startChapter bounda
  for(const marker of needed.slice(1,7))
   assert.ok(v27.includes(marker.replace('\\n','\n')),'V27 source ownership changed: '+marker);
  assert.ok(v70.includes(needed[7]),'V70 original chapter reset marker changed');
- const synthetic=needed.map(s=>s.replace('\\n','\n')).join('\n')+
+ const instanceMarkers=[
+  'const monitor=setInterval(()=>{const t=window.__PINEWOOD_AUDIO_V27__?.lastCharacter;if(!t||t.id!==id||t.ended)return;',
+  'if(t?.id===id){t.ended=true;'
+ ];
+ for(const marker of instanceMarkers)assert.ok(v27.includes(marker));
+ const synthetic=[...needed,...instanceMarkers].map(s=>s.replace('\\n','\n')).join('\n')+
   '\nsetTimeout(()=>this.characterV27(id,onStart,onUnavailable),';
  const result=patchChapterHandoffVoiceV152(synthetic);
  assert.match(result,/cancelChapterSpeechV152\(\);this\.resetState\(\);this\.storyVoiceUntilV27=0/);
@@ -49,4 +54,24 @@ test('the 1997 ticket is not spoiled in Chapter 1, and Chapter 2 reveals it only
  const v21=readFileSync('patches/chapter2-below-grade-v21.js.txt','utf8');
  assert.match(v21,/if\(this\.breakers===1\).*queueDialogue\('ch2_1997_ticket',5\.1\)/s);
  assert.match(DIALOGUE_V17.ch2_1997_ticket.text,/not hanging up/);
+});
+
+test('relocation rebases the original pickup animation origin with the physical floor',()=>{
+ const source=readFileSync('mall/story-runtime-v70.js','utf8');
+ const match=source.match(/obj\.position\.set\(at\.x,obj\.position\.y\+layout\.y,at\.z\);[\s\S]*?obj\.updateWorldMatrix\(true,true\);/);
+ assert.ok(match,'original V70 relocation missing');
+ // Execute the exact relocation body for the same pickup on each actual floor.
+ const relocate=new Function('obj','at','layout',match[0]);
+ for(const floor of [-4.3,0,5.4]){
+  const obj={position:{y:.18,set(x,y,z){Object.assign(this,{x,y,z});}},userData:{floatBase:.18},updateWorldMatrix(){}};
+  relocate(obj,{x:23,z:-78},{y:floor});
+  assert.ok(Math.abs(obj.position.y-(floor+.18))<1e-9);
+  assert.equal(obj.userData.floatBase,obj.position.y);
+  // Original bobbing must stay near the relocated base, rather than the old G floor.
+  for(const offset of [-.08,.08])assert.ok(Math.abs(obj.userData.floatBase+offset-floor)<.3);
+  const fixed={position:{y:1.3,set(x,y,z){Object.assign(this,{x,y,z});}},userData:{},updateWorldMatrix(){}};
+  relocate(fixed,{x:23,z:-78},{y:floor});
+  assert.equal(fixed.position.y,1.3+floor);
+  assert.equal(fixed.userData.floatBase,undefined);
+ }
 });
