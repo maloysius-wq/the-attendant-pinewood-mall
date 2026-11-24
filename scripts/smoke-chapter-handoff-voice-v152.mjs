@@ -84,6 +84,7 @@ try{
   gameplay:window.__PINEWOOD_CH1_PROGRESSION_V142_QA__?.getState?.(),
   handoff:{...window.__PINEWOOD_HANDOFF_V152__},
   audio:{...window.__PINEWOOD_AUDIO_V27__},
+  scheduler:window.__PINEWOOD_HANDOFF_V152_QA__?.inspect(),
   subtitles:[...document.querySelectorAll('[id*="subtitle"],[class*="subtitle"]')].slice(0,8)
     .map(x=>({id:x.id,text:x.textContent?.slice(0,280),class:x.className})),
   visibleScreen:document.querySelector('.screen.show')?.id||null,
@@ -91,12 +92,27 @@ try{
   assetStatus:document.getElementById('assetStatus')?.textContent
  }));
  const afterBegin=await voiceProbe();
+ assert.ok(afterBegin.scheduler,'original scheduler diagnostics must be present');
+ assert.equal(afterBegin.scheduler.chapter,2);
+ assert.equal(afterBegin.scheduler.running,true);
+ // On software-rendered CI a real game frame can be much longer than the
+ // capped simulation delta. Exercise only the genuine source story scheduler
+ // for 1.2 simulated seconds; do not call the audio playback hook directly.
+ const stepped=await q(()=>window.__PINEWOOD_HANDOFF_V152_QA__.stepStory(30,.04));
+ console.log('V152_ORIGINAL_SCHEDULER_STEP '+JSON.stringify({before:afterBegin.scheduler,after:stepped}));
+ assert.ok(stepped.time>=afterBegin.scheduler.time+1.19);
+ for(const id of ['GAVIN-TICKET','LS-04']){
+  const pickup=stepped.pickups.find(o=>o.id===id);
+  assert.ok(pickup,'missing original basement pickup '+id);
+  assert.ok(pickup.floor<0&&pickup.base>=pickup.floor&&pickup.base<pickup.floor+2,'incorrect original bobbing baseline '+JSON.stringify(pickup));
+  assert.ok(Math.abs(pickup.y-pickup.base)<.4,'original pickup has left its basement floor '+JSON.stringify(pickup));
+ }
  console.log('V152_B1_AFTER_NATIVE_BEGIN '+JSON.stringify({b1Button,afterBegin}).slice(0,5000));
  try{
   await page.waitForFunction(()=>window.__PINEWOOD_AUDIO_V27__?.lastCharacter?.id==='ch2_start',
-   null,{timeout:25000,polling:350});
+   null,{timeout:90000,polling:350});
  }catch(error){
-  const diagnostic={error:String(error),b1Button,afterBegin,afterWait:await voiceProbe(),
+  const diagnostic={error:String(error),b1Button,afterBegin,stepped,afterWait:await voiceProbe(),
    errors,failed,remote};
   await writeFile(dir+'/b1-voice-diagnostic.json',JSON.stringify(diagnostic,null,2));
   console.error('V152_B1_VOICE_DIAGNOSTIC '+JSON.stringify(diagnostic).slice(0,12500));
@@ -109,14 +125,18 @@ try{
   subtitle:document.getElementById('subtitle')?.textContent||''
  }));
  assert.equal(voice.line.id,'ch2_start');
+ assert.ok(voice.line.expectedDuration>5,'the real recorded dialogue must be decoded');
+ await page.waitForFunction(()=>{const v=window.__PINEWOOD_AUDIO_V27__?.lastCharacter;return v?.id==='ch2_start'&&v.ended===true;},null,{timeout:90000,polling:500});
+ const ended=await q(()=>({...window.__PINEWOOD_AUDIO_V27__.lastCharacter}));
+ assert.equal(ended.endedNaturally,true,'Chapter 2 recorded opening must finish naturally');
  assert.equal(voice.chapter.chapter,2);
  assert.equal(voice.handoff.epoch,b1.handoff.epoch,'speech must not trigger another reset');
  await page.screenshot({path:dir+'/original-below-grade-radio.png',animations:'disabled',timeout:120000});
- const genuineFailed=failed.filter(x=>!/furniture_shop_loop\\.ogg net::ERR_ABORTED$/.test(x));
+ const genuineFailed=failed.filter(x=>!/furniture_shop_loop\.ogg net::ERR_ABORTED$/.test(x));
  const result={initial:{chapter:initial.state.chapter,handoff:initial.handoff},
   panels,call:{state:call.after.elevator.state},entered:entered.path.length,
   completed:{won:completed.won,screen:completed.ui.screen},
-  before,b1,voice,errors,remote,failed:genuineFailed};
+  before,b1,voice,ended,stepped,errors,remote,failed:genuineFailed};
  await writeFile(dir+'/report.json',JSON.stringify(result,null,2));
  assert.deepEqual(errors,[]);
  assert.deepEqual(remote,[]);
@@ -124,6 +144,6 @@ try{
  console.log('V152_ORIGINAL_CH1_TO_CH2_VOICE_PASS '+JSON.stringify({
   genuineFreightE:true,genuineB1:voice.chapter.chapter,
   b1Y:voice.chapter.y,oldChapterVoiceInvalidated:b1.handoff.epoch>before.epoch,
-  openingReneeVoice:voice.line.id,errors,remote,failed:genuineFailed
+  openingReneeVoice:voice.line.id,endedNaturally:ended.endedNaturally,basementPickups:stepped.pickups,errors,remote,failed:genuineFailed
  }));
 }finally{await browser.close();}
