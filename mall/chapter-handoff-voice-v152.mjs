@@ -37,7 +37,39 @@ audio.cancelChapterSpeechV152=function(){
   this.activePcasSourcesV152?.clear();
   this.voiceBusyUntilV27=0;
   this.voiceLoadingV27=false;
-};`);
+  // UI.hideAll clears screens, but a previous PA caption can outlive the
+  // chapter. Clear it at the same epoch boundary, never in a later callback.
+  const caption=document.getElementById('subtitle');
+  caption?.classList.remove('show');
+  const speaker=document.getElementById('speaker'),text=document.getElementById('subtitleText');
+  if(speaker)speaker.textContent='';
+  if(text)text.textContent='';
+};
+if(['127.0.0.1','localhost'].includes(location.hostname)&&
+   new URLSearchParams(location.search).has('chapter1QA')){
+  const inspect=()=>({
+    time:GAME.time,chapter:GAME.levelIndex+1,running:GAME.running,modal:GAME.modal,
+    queue:GAME.storyQueue.map(l=>({at:l.at,kind:l.kind,id:l.audioKey||null})),
+    storyLock:GAME.storyVoiceUntilV27||0,context:audio.ctx?.state||null,
+    audioTime:audio.ctx?.currentTime??null,voiceBusy:audio.voiceBusyV27(),
+    voiceLoading:!!audio.voiceLoadingV27,voiceRemaining:audio.voiceRemainingV27(),
+    pickups:GAME.world.interactables.filter(o=>Number.isFinite(o.userData?.floatBase))
+      .map(o=>({id:o.userData.label||o.userData.id,type:o.userData.type,y:o.position.y,
+        base:o.userData.floatBase,floor:GAME.mallLevelYV70,visible:o.visible,collected:!!o.userData.collected}))
+  });
+  window.__PINEWOOD_HANDOFF_V152_QA__=Object.freeze({
+    inspect,
+    stepStory(n=1,dt=.04){
+      if(!GAME.running||GAME.modal||GAME.dead||GAME.won||!Number.isInteger(n)||n<1||n>60||dt<=0||dt>.05)
+        throw Error('Invalid live original story update step');
+      // Advance the actual game clock and execute the actual source story
+      // scheduler, as V142 already does for the original elevator.
+      // Never invoke a specific voice or synthesize an event in the test.
+      for(let i=0;i<n;i++){GAME.time+=dt;GAME.updateStory();}
+      return inspect();
+    }
+  });
+}`);
 
   replaceOnce('epoch-bound Renee loader signature',
     'async characterV27(id,onStart=null,onUnavailable=null){',
@@ -62,6 +94,13 @@ audio.cancelChapterSpeechV152=function(){
   replaceOnce('stop tracked original PCAS clip at chapter transition',
     'this.reserveVoiceV27(buffer.duration/src.playbackRate.value,.52);src.start(this.ctx.currentTime+.20);return src;',
     'this.reserveVoiceV27(buffer.duration/src.playbackRate.value,.52);this.activePcasSourcesV152??=new Set();this.activePcasSourcesV152.add(src);src.onended=()=>this.activePcasSourcesV152?.delete(src);src.start(this.ctx.currentTime+.20);return src;');
+
+  replaceOnce('voice telemetry belongs to original source instance',
+    'const monitor=setInterval(()=>{const t=window.__PINEWOOD_AUDIO_V27__?.lastCharacter;if(!t||t.id!==id||t.ended)return;',
+    'const ownPlayback=telemetry.lastCharacter;const monitor=setInterval(()=>{const t=window.__PINEWOOD_AUDIO_V27__?.lastCharacter;if(t!==ownPlayback||t.ended)return;');
+  replaceOnce('old voice completion cannot mutate new playback',
+    'if(t?.id===id){t.ended=true;',
+    'if(t===ownPlayback){t.ended=true;');
 
   // V70 preserves this exact ORIGINAL startChapter statement after its full
   // world clear. Stop old chapter voices *before* source reset, then permit
