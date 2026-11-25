@@ -9,6 +9,7 @@ on:
       - 'mall/render-furnishing-v69.js'
       - 'mall/food-court-plan-v119.mjs'
       - 'mall/render-food-court-v119.js'
+      - 'mall/render-sealed-bays-v116.js'
       - 'review/mall-construction-v67/main.js'
       - 'scripts/test-storefronts-v115.mjs'
       - 'scripts/smoke-storefronts-v115.mjs'
@@ -31,6 +32,8 @@ jobs:
         run: |
           node --check mall/render-storefronts-v115.js
           node --check mall/render-furnishing-v69.js
+          node --check mall/render-food-court-v119.js
+          node --check mall/render-sealed-bays-v116.js
           node --test scripts/test-storefronts-v115.mjs scripts/test-food-court-v119.mjs scripts/test-furnishing-v69.mjs scripts/test-physical-shell-v67.mjs scripts/test-gameplay-layout-v70.mjs scripts/test-authored-scene-v111.mjs
           node scripts/audit-local-assets-v15.mjs
   desktop:
