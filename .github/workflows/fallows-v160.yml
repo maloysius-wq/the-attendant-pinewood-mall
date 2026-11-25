@@ -23,6 +23,10 @@ jobs:
         with:
           node-version: '22'
       - run: |
+          node --check mall/anchor-layout-v121.mjs
+          node --check mall/anchor-stock-layout-v123.mjs
+          node --check mall/furnishing-plan-v69.mjs
+          node --check review/mall-construction-v67/main.js
           node --check mall/fallow-cartons-v160.js
           node --check mall/render-anchor-retail-v121.js
           node --test scripts/test-fallows-v160.mjs scripts/test-anchor-layout-v121.mjs scripts/test-anchor-stock-layout-v123.mjs scripts/test-furnishing-v69.mjs scripts/test-gameplay-layout-v70.mjs scripts/test-visual-anchors-v70.mjs scripts/test-physical-shell-v67.mjs
