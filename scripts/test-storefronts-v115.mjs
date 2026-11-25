@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {MALL} from '../mall/masterplan-v66.mjs';
 import {constructPhysicalShell,isSegmentBlocked,validatePhysicalShell} from '../mall/physical-shell-v67.mjs';
-import {STOREFRONT_SPECS_V115,planStorefrontsV115,storefrontPhysicalWallsV115,validateStorefrontsV115} from '../mall/storefront-plan-v115.mjs';
+import {STOREFRONT_SPECS_V115,tenantSignDimensionsV157,planStorefrontsV115,storefrontPhysicalWallsV115,validateStorefrontsV115} from '../mall/storefront-plan-v115.mjs';
 import {buildGameplayLayoutV70,chapterRouteV70,shortestRouteV70} from '../mall/gameplay-layout-v70.mjs';
 import {planRoomWallFacesV90} from '../builder/room-wall-layout-v90.mjs';
 
@@ -90,4 +90,17 @@ test('storefront geometry leaves cinematic threshold and physical stair voids un
   assert.equal(wall.axis,'x','no retail overlay may cover the cinematic front or service vestibule');
  assert.ok(s.floorPlates.every(p=>!(p.x1<20&&p.x2>20&&p.z1<-113&&p.z2>-113)),
   'freight shaft remains open');
+});
+
+test('V157 physical sign panels and artwork have identical aspect ratios across all seven tenants',()=>{
+ const fronts=shell().storefronts;
+ for(const front of fronts){
+  const sign=tenantSignDimensionsV157(front);
+  assert.ok(sign.width/sign.height>=4.5&&sign.width/sign.height<=6.05);
+  assert.ok(Math.abs(sign.width/sign.height-sign.pixelWidth/sign.pixelHeight)<.003);
+  assert.ok(sign.center-sign.width/2>front.start+.45&&sign.center+sign.width/2<front.end-.45);
+  assert.ok(sign.y-sign.height/2>front.windowTop&&sign.y+sign.height/2<front.wallTop);
+  assert.ok(sign.width<(front.end-front.start)*.4,'wordmark is not full frontage '+front.room);
+ }
+ assert.equal(tenantSignDimensionsV157(fronts.find(f=>f.room==='annex_anchor')).brand.name,'NORTHSTAR HOME');
 });
