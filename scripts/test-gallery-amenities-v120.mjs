@@ -1,9 +1,10 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
+import {createHash} from 'node:crypto';
 import {MALL} from '../mall/masterplan-v66.mjs';
 import {FURNISHINGS_V69} from '../mall/furnishing-plan-v69.mjs';
-import {GALLERY_AMENITIES_V120,BENCH_ASSET_V120,BIN_ASSET_V163,validateGalleryAmenitiesV120,publicAmenitiesV163,publicAmenityBoundsV163,benchApproachV163}
+import {GALLERY_AMENITIES_V120,BENCH_ASSET_V120,BIN_ASSET_V163,PLANTER_ASSET_V163,validateGalleryAmenitiesV120,publicAmenitiesV163,publicAmenityBoundsV163,benchApproachV163}
  from '../mall/gallery-amenities-v120.mjs';
 import {GALLERY_COLUMNS_V118} from '../mall/gallery-columns-v118.mjs';
 import {constructPhysicalShell,validatePhysicalShell,isSegmentBlocked} from '../mall/physical-shell-v67.mjs';
@@ -19,6 +20,11 @@ test('twenty real mall benches and ten bins are source-pinned CC0 and two direct
  assert.equal(asset.models.length,482,'never shrink or rename original 482 vendor models');
  assert.equal(GALLERY_AMENITIES_V120.benches.length,20);
  assert.equal(GALLERY_AMENITIES_V120.bins.length,10);
+ assert.equal(GALLERY_AMENITIES_V120.planters.length,10);
+ for(const [path,sha] of [[PLANTER_ASSET_V163.path,PLANTER_ASSET_V163.sha256],[PLANTER_ASSET_V163.shrubPath,PLANTER_ASSET_V163.shrubSha256]]){
+  assert.equal(createHash('sha256').update(readFileSync(new URL('../'+path,import.meta.url))).digest('hex'),sha);
+ }
+ assert.equal(PLANTER_ASSET_V163.license,'CC0-1.0');
  const bin=asset.models.find(i=>i.id===BIN_ASSET_V163.catalogId);assert.ok(bin);assert.equal(bin.path,BIN_ASSET_V163.path);assert.equal(bin.sha256,BIN_ASSET_V163.sha256);assert.equal(bin.license,'CC0-1.0');
  assert.equal(GALLERY_AMENITIES_V120.directories.length,2);
  assert.equal(GALLERY_AMENITIES_V120.wayfinding.length,2);

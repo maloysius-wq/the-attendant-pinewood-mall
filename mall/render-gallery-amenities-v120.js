@@ -1,11 +1,11 @@
 /**
- * V120: source-anchored, local-only real CC0 public gallery seating and
- * functional 1989 mall directories. Benches are ACTUAL pinned Kenney GLBs,
+ * V163: source-anchored, local-only real CC0 public gallery seating and
+ * functional 1989 mall directories. Benches, bins and planters use ACTUAL pinned CC0 GLBs,
  * never generated cube stand-ins; directory frames are real grounded kiosks.
  */
 import * as THREE from '../vendor/three/build/three.module.js';
 import {GLTFLoader} from '../vendor/three/examples/jsm/loaders/GLTFLoader.js';
-import {GALLERY_AMENITIES_V120,BENCH_ASSET_V120,BIN_ASSET_V163,validateGalleryAmenitiesV120,publicAmenityBoundsV163,benchApproachV163}
+import {GALLERY_AMENITIES_V120,BENCH_ASSET_V120,BIN_ASSET_V163,PLANTER_ASSET_V163,validateGalleryAmenitiesV120,publicAmenityBoundsV163,benchApproachV163}
  from './gallery-amenities-v120.mjs';
 import {GALLERY_COLUMNS_V118} from './gallery-columns-v118.mjs';
 import {DIRECTORY_PRINT_V163,DIRECTORY_TENANTS_V163,directoryLayoutV163} from './gallery-directory-v163.mjs';
@@ -97,6 +97,63 @@ function fitActualFixture(g,source,f,asset,kind){
   yaw:f.yaw,station:f.station,model:asset.path,realCC0:true,collider,
   ...(kind==='bench'?{approach:benchApproachV163(f)}:{})};
 }
+function fitPlanter(g,potSource,shrubSource,f,mats){
+ const root=new THREE.Group();root.name='v163_real_CC0_planter_'+f.id;
+ root.position.set(f.x,0,f.z);
+ const pot=potSource.scene.clone(true);pot.updateMatrixWorld(true);
+ const pb=new THREE.Box3().setFromObject(pot),ps=pb.getSize(new THREE.Vector3()),pc=pb.getCenter(new THREE.Vector3());
+ if(ps.toArray().some((v,i)=>Math.abs(v-[1.2,.65,.6][i])>.01))throw Error('Unexpected pinned planter geometry');
+ pot.position.set(-pc.x,-pb.min.y,-pc.z);root.add(pot);
+ // Retain both original PBR texture maps; weather the steel, not the soil.
+ root.updateMatrixWorld(true);
+ let soil=null;
+ pot.traverse(o=>{if(o.isMesh&&/recessed.*soil/i.test(o.name))soil=o});
+ if(!soil)throw Error('Actual source soil surface is missing '+f.id);
+ const soilBounds=new THREE.Box3().setFromObject(soil);
+ if(Math.abs(soilBounds.max.y-.595)>.01)throw Error('Actual soil surface changed '+f.id);
+ const supports=[];
+ for(const dx of [-.29,.29]){
+  const ray=new THREE.Raycaster(new THREE.Vector3(f.x+dx,.69,f.z),new THREE.Vector3(0,-1,0));
+  const hit=ray.intersectObject(soil,false)[0];
+  if(!hit||Math.abs(hit.point.y-soilBounds.max.y)>.015)throw Error('No actual planter soil triangle under shrub '+f.id);
+  const shrub=shrubSource.scene.clone(true);shrub.scale.setScalar(PLANTER_ASSET_V163.shrubScale);
+  shrub.updateMatrixWorld(true);
+  const sb=new THREE.Box3().setFromObject(shrub),sc=sb.getCenter(new THREE.Vector3());
+  shrub.position.set(dx-sc.x,hit.point.y-sb.min.y,-sc.z);
+  root.add(shrub);root.updateMatrixWorld(true);
+  const placed=new THREE.Box3().setFromObject(shrub);
+  if(Math.abs(placed.min.y-hit.point.y)>.006||placed.min.x<soilBounds.min.x-.005||
+   placed.max.x>soilBounds.max.x+.005||placed.min.z<soilBounds.min.z-.005||placed.max.z>soilBounds.max.z+.005)
+   throw Error('Shrub is not supported within measured planter soil '+f.id);
+  supports.push({x:hit.point.x,y:hit.point.y,z:hit.point.z,rootY:placed.min.y});
+ }
+ const b=new THREE.Box3().setFromObject(root),s=b.getSize(new THREE.Vector3()),collider=publicAmenityBoundsV163(f);
+ if(Math.abs(b.min.y)>.006||s.toArray().some((v,i)=>Math.abs(v-f.sourceSize[i])>.015)||
+  b.min.x<collider.minX||b.max.x>collider.maxX||b.min.z<collider.minZ||b.max.z>collider.maxZ)
+  throw Error('Combined planter outside measured footprint '+f.id+' '+s.toArray());
+ root.userData.structuralFurnitureV120={id:f.id,room:f.room,radius:f.collisionRadius};
+ root.userData.cc0Provenance={id:PLANTER_ASSET_V163.catalogId,sha256:PLANTER_ASSET_V163.sha256,shrubSha256:PLANTER_ASSET_V163.shrubSha256};
+ root.traverse(o=>{if(o.isMesh){o.castShadow=false;o.receiveShadow=true}});
+ g.add(root);
+ return {id:f.id,room:f.room,x:f.x,z:f.z,height:s.y,width:s.x,depth:s.z,baseY:b.min.y,station:f.station,
+  model:PLANTER_ASSET_V163.path,shrubModel:PLANTER_ASSET_V163.shrubPath,realCC0:true,collider,supports};
+}
+function agePlantSources(pot,shrub,owned){
+ const mats=new Map();
+ const age=(original,isPlant)=>{
+  if(mats.has(original))return mats.get(original);
+  const m=original.clone();
+  if(isPlant){
+   const shades=['#74634a','#867554','#686348'];
+   const index=original.name?.startsWith('(0.048')?0:original.name?.startsWith('(0.083')?1:2;
+   m.color.set(original.name==='bark'?'#4c3c2b':shades[index]);m.roughness=.98;m.metalness=0;
+  }else if(/steel/i.test(original.name)){m.color.set('#6d756a');m.roughness=.94;m.metalness=.15;}
+  mats.set(original,m);owned.push(m);return m;
+ };
+ for(const [source,isPlant] of [[pot,false],[shrub,true]])source.scene.traverse(o=>{
+  if(o.isMesh)o.material=Array.isArray(o.material)?o.material.map(m=>age(m,isPlant)):age(o.material,isPlant);
+ });
+}
 function placeDirectory(g,plan,mats,textures){
  const root=new THREE.Group();root.name='v120_directory_'+plan.id;
  root.position.set(plan.x,0,plan.z);root.rotation.y=plan.facing==='north'?Math.PI:0;
@@ -156,7 +213,7 @@ export async function renderGalleryAmenitiesV120(ground,plan=GALLERY_AMENITIES_V
  const issues=validateGalleryAmenitiesV120(plan);
  if(issues.length)throw Error('V120 source amenity layout failed: '+issues.join(' | '));
  const loader=new GLTFLoader();
- const [benchGLB,binGLB]=await Promise.all([BENCH_ASSET_V120,BIN_ASSET_V163].map(a=>loader.loadAsync(new URL('../'+a.path,import.meta.url).href)));
+ const [benchGLB,binGLB,potGLB,shrubGLB]=await Promise.all([BENCH_ASSET_V120.path,BIN_ASSET_V163.path,PLANTER_ASSET_V163.path,PLANTER_ASSET_V163.shrubPath].map(path=>loader.loadAsync(new URL('../'+path,import.meta.url).href)));
  const group=new THREE.Group();group.name='V120 original period mall public benches and directories';
  const stone=new THREE.MeshStandardMaterial({color:0xa4977b,metalness:.05,roughness:.84});
  const steel=new THREE.MeshStandardMaterial({color:0x394a4a,metalness:.52,roughness:.72});
@@ -164,12 +221,14 @@ export async function renderGalleryAmenitiesV120(ground,plan=GALLERY_AMENITIES_V
  ageSource(benchGLB,mats.owned);ageSource(binGLB,mats.owned);
  const benchManifest=plan.benches.map(f=>fitActualFixture(group,benchGLB,f,BENCH_ASSET_V120,'bench'));
  const binManifest=plan.bins.map(f=>fitActualFixture(group,binGLB,f,BIN_ASSET_V163,'bin'));
+ agePlantSources(potGLB,shrubGLB,mats.owned);
+ const planterManifest=plan.planters.map(f=>fitPlanter(group,potGLB,shrubGLB,f,mats));
  const directoryManifest=plan.directories.map(d=>placeDirectory(group,d,mats,textures));
  const signs=plan.wayfinding.map(s=>placeWayfinding(group,s,mats,textures));
  // No half-loaded objects may be visible before all source model and map
  // materials are validated and measured.
  ground.add(group);
- return {group,manifest:{benches:benchManifest,bins:binManifest,directories:directoryManifest,wayfinding:signs},
+ return {group,manifest:{benches:benchManifest,bins:binManifest,planters:planterManifest,directories:directoryManifest,wayfinding:signs},
   dispose(){
    ground.remove(group);
    textures.forEach(t=>t.dispose());

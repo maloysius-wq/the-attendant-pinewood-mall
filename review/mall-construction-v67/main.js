@@ -16,7 +16,7 @@ const state={
  closedBayCount:0,closedBayNames:[],checkpointV117:null,
  staffServiceV127:[],staffFixtureCountV127:0,annexCorridorV127B:null,
  galleryColumnsV118:[],galleryColumnCount:0,
- galleryAmenitiesV120:null,benchCountV120:0,binCountV163:0,directoryCountV120:0,wayfindingCountV120:0,
+ galleryAmenitiesV120:null,benchCountV120:0,binCountV163:0,planterCountV163:0,directoryCountV120:0,wayfindingCountV120:0,
  anchorRetailV121:[],anchorRetailCountV121:0,
  anchorIdentityV122:null,ceilingPanelCountV122:0,departmentSignCountV122:0,
  anchorStockV123:[],stockCountV123:0,supportedStockV123:0,groundStockV123:0,
@@ -49,7 +49,7 @@ const shots={
   note:'A single-story public gallery with a double-height glazed atrium. The abandoned fountain anchors orientation and later reveals.'},
  atriumLounge:{floor:'G',eye:[1,1.76,-56],target:[-5.6,.92,-59.8],
   label:'GROUND · ORIGINAL ATRIUM LOUNGE',title:'Paired Mall Seating Stations',
-  note:'Period mall benches and litter bins form ten measured stations; the fountain and original evidence approaches remain open.'},
+  note:'Period mall benches, litter bins and withered planters form ten measured stations; the fountain and original evidence approaches remain open.'},
  directoryBack:{floor:'G',eye:[-3,1.65,-54.1],target:[-3,1.22,-52],label:'GROUND · REVERSE DIRECTORY FACE',title:'South-up Original Mall Map',note:'Each physical face has its own orientation and exact location marker.'},
  directoryClose:{floor:'G',eye:[-3,1.65,-49.9],target:[-3,1.22,-52],label:'GROUND · DIRECTORY PRINT',title:'North-up Original Mall Map',note:'Original public ground-floor room geometry, not an invented diagram.'},
  atriumNorthLounge:{floor:'G',eye:[0,1.75,-80],target:[5.6,.9,-85.1],label:'GROUND · NORTH ATRIUM REST AREA',title:'North Fountain Lounge',note:'Two paired seating stations frame the north atrium; walking routes remain clear.'},
@@ -284,6 +284,7 @@ function fullRetailInventory(building){
   ['v69',building.furnitureManifest||[],f=>'furnished_'+f.id],
   ['v120',building.galleryAmenitiesV120.benches||[],f=>'v120_real_CC0_bench_'+f.id],
    ['v163',building.galleryAmenitiesV120.bins||[],f=>'v163_real_CC0_bin_'+f.id],
+   ['v163',building.galleryAmenitiesV120.planters||[],f=>'v163_real_CC0_planter_'+f.id],
   ['v121',building.anchorRetailV121||[],f=>'v121_original_store_fixture_'+f.id],
   ['v123',building.anchorStockV123||[],f=>'v123_real_late_close_stock_'+f.id],
   ['v124',building.cassetteCastleV124.fixtures||[],f=>'v124_original_verified_CC0_shop_fixture_'+f.id],
@@ -422,11 +423,13 @@ async function begin(){
   state.galleryAmenitiesV120={
    benches:[...built.galleryAmenitiesV120.benches],
     bins:[...built.galleryAmenitiesV120.bins],
+    planters:[...built.galleryAmenitiesV120.planters],
    directories:[...built.galleryAmenitiesV120.directories],
    wayfinding:[...built.galleryAmenitiesV120.wayfinding]
   };
   state.benchCountV120=state.galleryAmenitiesV120.benches.length;
    state.binCountV163=state.galleryAmenitiesV120.bins.length;
+   state.planterCountV163=state.galleryAmenitiesV120.planters.length;
   state.directoryCountV120=state.galleryAmenitiesV120.directories.length;
   state.wayfindingCountV120=state.galleryAmenitiesV120.wayfinding.length;
   state.anchorRetailV121=[...built.anchorRetailV121];

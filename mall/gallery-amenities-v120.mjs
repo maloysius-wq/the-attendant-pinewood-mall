@@ -14,6 +14,16 @@ const asset=(name,sha256,size)=>Object.freeze({catalogId:PREFIX+name,
  sha256,license:'CC0-1.0',size:Object.freeze(size)});
 export const BENCH_ASSET_V120=asset('mall-bench-1c2eb350','633f077a40467d64d0bd7928f45392148edfa0f72c32f07293a8ef4e9749f0f6',[1.8,.97,.6]);
 export const BIN_ASSET_V163=asset('mall-bin-816b3425','37227067b795e103d67ccac530b22310eaef413c45415bb0c2f392f5ebbb5ef3',[.6,.78,.6]);
+// Real imported Innerscene planter with measured .595m soil top; two
+// .34-uniform-scale shrubs are rooted on that actual soil, not suspended.
+export const PLANTER_ASSET_V163=Object.freeze({
+ catalogId:'innerscene-weathering-steel-planter-1a0662ed',
+ path:'opening/assets/v63/weathering-steel-planter.glb',
+ sha256:'10e21b1334a3277ac6d0df1a14045370c68ce487a46ddd921c0dff316261415f',
+ shrubPath:'opening/assets/v63/rounded-landscape-shrub.glb',
+ shrubSha256:'bb5605f4367e53f4a11c007c5a46ae92e08c6a6f7a277d23d33e840f354ecef2',
+ license:'CC0-1.0',size:Object.freeze([1.2,1.0732,.6]),shrubScale:.34
+});
 const fixture=(id,room,x,z,yaw,source,station)=>Object.freeze({
  id,room,x,z,yaw,baseY:0,model:source.path,sourceSize:source.size,height:source.size[1],
  collisionRadius:Math.ceil((Math.hypot(source.size[0],source.size[2])/2+.1)*100)/100,
@@ -24,7 +34,7 @@ const directory=(id,x,z,facing)=>Object.freeze({
  height:2.25,width:1.18,depth:.58,sourceSize:Object.freeze([1.36,2.315,.8]),collisionRadius:.89,
  title:'PINEWOOD MALL',period:'1989-directory-refit'
 });
-// Two 1.8m benches per station, .98m between ends; bins are behind rather
+// Two 1.8m benches per station, 1.8m between ends for a central planter; bins are behind rather
 // than in front of the usable seats. Source +Z is the open seat side.
 const stations=[
  ['atrium_sw','central_gallery',-5.6,-59.8,Math.PI/2,-7.3,'atrium_lounge_southwest'],
@@ -40,10 +50,11 @@ const stations=[
 ];
 export const GALLERY_AMENITIES_V120=Object.freeze({
  benches:Object.freeze(stations.flatMap(([id,room,x,z,yaw,,legacy])=>[
-  fixture(legacy,room,x,z+1.4,yaw,BENCH_ASSET_V120,id),
-  fixture(id+'_second_seat',room,x,z-1.4,yaw,BENCH_ASSET_V120,id)
+  fixture(legacy,room,x,z+1.8,yaw,BENCH_ASSET_V120,id),
+  fixture(id+'_second_seat',room,x,z-1.8,yaw,BENCH_ASSET_V120,id)
  ])),
  bins:Object.freeze(stations.map(([id,room,,z,,x])=>fixture(id+'_litter',room,x,z,0,BIN_ASSET_V163,id))),
+ planters:Object.freeze(stations.map(([id,room,x,z])=>fixture(id+'_planter',room,x,z,0,PLANTER_ASSET_V163,id))),
  directories:Object.freeze([directory('main_entrance_directory',-3,-52,'south'),directory('north_retail_directory',3,-101,'north')]),
  wayfinding:Object.freeze([
   Object.freeze({id:'west_retail_direction',columnId:'v118_west_inner_03',room:'west_gallery',facing:'west',
@@ -52,7 +63,7 @@ export const GALLERY_AMENITIES_V120=Object.freeze({
    line1:'← EAST DEPT / VIDEO PLANET',line2:'FOOD COURT →  ·  EAST WALK'})
  ])
 });
-export const publicAmenitiesV163=plan=>[...(plan?.benches||[]),...(plan?.bins||[]),...(plan?.directories||[])];
+export const publicAmenitiesV163=plan=>[...(plan?.benches||[]),...(plan?.bins||[]),...(plan?.planters||[]),...(plan?.directories||[])];
 export function publicAmenityBoundsV163(f){
  const [w,,d]=f.sourceSize,c=Math.abs(Math.cos(f.yaw||0)),s=Math.abs(Math.sin(f.yaw||0));
  const x=(w*c+d*s)/2+.10,z=(w*s+d*c)/2+.10;
@@ -88,8 +99,8 @@ export function validateGalleryAmenitiesV120(plan=GALLERY_AMENITIES_V120,{portal
   if(!canonical||canonical.room!=='central_gallery')
    issues.push('V69 narrative evidence no longer belongs to the source atrium '+site.id);
  }
- if(plan.benches.length!==20||plan.bins?.length!==10||plan.directories.length!==2||plan.wayfinding.length!==2)
-  issues.push('V163 requires ten two-bench stations, ten bins, two directories and two column signs');
+ if(plan.benches.length!==20||plan.bins?.length!==10||plan.planters?.length!==10||plan.directories.length!==2||plan.wayfinding.length!==2)
+  issues.push('V163 requires ten two-bench stations, ten bins, ten planted stations, two directories and two column signs');
  for(const a of physical){
   if(ids.has(a.id))issues.push('duplicate public fixture '+a.id);
   ids.add(a.id);
@@ -128,6 +139,8 @@ export function validateGalleryAmenitiesV120(plan=GALLERY_AMENITIES_V120,{portal
  }
  for(const b of plan.bins||[])if(b.model!==BIN_ASSET_V163.path||b.height!==.78||b.baseY!==0)
   issues.push('unpinned or badly scaled bin '+b.id);
+ for(const f of plan.planters||[])if(f.model!==PLANTER_ASSET_V163.path||JSON.stringify(f.sourceSize)!==JSON.stringify(PLANTER_ASSET_V163.size)||f.baseY!==0)
+  issues.push('unpinned or badly scaled planter '+f.id);
  for(const b of plan.benches){
   const a=benchApproachV163(b);
   for(const f of physical){
@@ -135,7 +148,7 @@ export function validateGalleryAmenitiesV120(plan=GALLERY_AMENITIES_V120,{portal
    if(a.x>q.minX-.45&&a.x<q.maxX+.45&&a.z>q.minZ-.45&&a.z<q.maxZ+.45)
     issues.push('seat approach blocked '+b.id+'/'+f.id);
   }
-  if(plan.benches.filter(x=>x.station===b.station).length!==2||plan.bins.filter(x=>x.station===b.station).length!==1)
+  if(plan.benches.filter(x=>x.station===b.station).length!==2||plan.bins.filter(x=>x.station===b.station).length!==1||plan.planters.filter(x=>x.station===b.station).length!==1)
    issues.push('unpaired station '+b.station);
  }
  for(const w of plan.wayfinding){

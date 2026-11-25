@@ -40,6 +40,11 @@ try{
  assert.equal(initial.checkpointV117.cells,2,'V117 contractor check-in preserved');
  assert.equal(initial.benchCountV120,20);
  assert.equal(initial.binCountV163,10);
+ assert.equal(initial.planterCountV163,10);
+ for(const p of initial.galleryAmenitiesV120.planters){
+  assert.ok(p.realCC0&&Math.abs(p.height-1.0732)<.015&&Math.abs(p.width-1.2)<.015&&Math.abs(p.depth-.6)<.015&&Math.abs(p.baseY)<.006);
+  assert.equal(p.supports.length,2);for(const s of p.supports)assert.ok(Math.abs(s.y-.595)<.015&&Math.abs(s.rootY-s.y)<.006);
+ }
  assert.equal(initial.retailAudit.source.source,'published');
  for(const b of initial.galleryAmenitiesV120.bins){assert.ok(b.realCC0&&Math.abs(b.height-.78)<.025&&Math.abs(b.width-.6)<.025&&Math.abs(b.baseY)<.006);}
  assert.equal(initial.directoryCountV120,2);
@@ -82,6 +87,8 @@ try{
  console.log('PINEWOOD_V120_REAL_PUBLIC_MALL_PASS '+JSON.stringify({
   benchIds:initial.galleryAmenitiesV120.benches.map(x=>x.id),
   benchHeights:initial.galleryAmenitiesV120.benches.map(x=>x.height),
+  planters:initial.galleryAmenitiesV120.planters.length,
+  supports:initial.galleryAmenitiesV120.planters.flatMap(p=>p.supports),
   directories:initial.galleryAmenitiesV120.directories.length,
   signs:initial.galleryAmenitiesV120.wayfinding.length,
   errors,consoleErrors,remote,failed

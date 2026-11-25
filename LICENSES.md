@@ -470,3 +470,5 @@ Scope is **Builder-only**. No plot/game/cinematic asset changes, no banned furni
 
 ## V163 original galleries
 Reuses existing locally vendored CC0-1.0 Retro Arcade and Mall 1989 catalog models: [Mall Bench](https://3dassets.dev/assets/retro-arcade-and-mall-1989-mall-bench-1c2eb350), SHA-256 `633f077a40467d64d0bd7928f45392148edfa0f72c32f07293a8ef4e9749f0f6`; [Mall Bin](https://3dassets.dev/assets/retro-arcade-and-mall-1989-mall-bin-816b3425), SHA-256 `37227067b795e103d67ccac530b22310eaef413c45415bb0c2f392f5ebbb5ef3`. Exact pinned local paths and provenance are in `assets/vendor/builder/catalog-v1.json`. Directory and wayfinding artwork is original Pinewood canvas print; no off-origin runtime fetch.
+
+V163 seating station planters reuse existing Innerscene Corp CC0-1.0 assets under `opening/assets/v63/`: `weathering-steel-planter.glb` (SHA-256 `10e21b1334a3277ac6d0df1a14045370c68ce487a46ddd921c0dff316261415f`) and `rounded-landscape-shrub.glb` (SHA-256 `bb5605f4367e53f4a11c007c5a46ae92e08c6a6f7a277d23d33e840f354ecef2`). Existing manifest records source and license. No new remote runtime dependency.
