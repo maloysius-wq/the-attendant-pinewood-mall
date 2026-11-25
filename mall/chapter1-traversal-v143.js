@@ -141,6 +141,22 @@ export function installChapter1TraversalV143(game){
   for(const q of route)walkSegment(q,label);
   return {label,start,end:location2(p()),room:game.mallLayoutV70.roomAt(p().x,p().z),actualSteps:travel.length-n0,actualMeters:travel.reduce((s,t)=>s+t.moved,0)-m0,worldCanStand:stand(p().x,p().z)};
  };
+ // A separate explicitly isolated arcade QA fixture. Only one starting
+ // location is assigned, OUTSIDE the original storefront. All subsequent
+ // motion is through actual Game.tryMove and actual canStand.
+ let arcadeFixtureSeeded=false;
+ const startArcadeFixture=()=>{
+  ensure();
+  if(!new URLSearchParams(location.search).has('arcadeFixtureQA')||arcadeFixtureSeeded||travel.length)
+   throw Error('Arcade fixture start requires fresh local-only test');
+  const start={x:-26.5,z:-98.5};
+  if(!game.world.canStand(start.x,start.z)||game.mallLayoutV70.roomAt(start.x,start.z)!=='west_gallery')
+   throw Error('Original west gallery fixture start blocked');
+  p().set(start.x,1.7,start.z);
+  game.controls.yaw.rotation.y=Math.PI/2;game.controls.pitch.rotation.x=0;game.camera.updateWorldMatrix(true,false);
+  arcadeFixtureSeeded=true;
+  return {...getState(),isolatedStartingFixture:true};
+ };
  const useRealPanel=id=>{
   ensure();
   const panel=game.world.interactables.find(o=>
@@ -167,7 +183,7 @@ export function installChapter1TraversalV143(game){
   version:143,getState,
   doorApproach:()=>({x:portal.x,z:portal.z+1.5}),
   doorBeyond:()=>({x:portal.x,z:portal.z-1.5}),
-  walkTo,walkArcadeTo,travelStats:()=>({steps:travel.length,meters:travel.reduce((sum,t)=>sum+t.moved,0),
+  walkTo,walkArcadeTo,startArcadeFixture,travelStats:()=>({steps:travel.length,meters:travel.reduce((sum,t)=>sum+t.moved,0),
    first:travel.slice(0,3),last:travel.slice(-3)}),
   useRealPanel
  });

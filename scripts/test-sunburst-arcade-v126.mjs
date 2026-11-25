@@ -7,7 +7,7 @@ import {FURNISHINGS_V69} from '../mall/furnishing-plan-v69.mjs';
 import {ANCHOR_FLUORESCENT_ASSET_V122} from '../mall/anchor-identity-plan-v122.mjs';
 import {
  SUNBURST_ROOM_V126,SUNBURST_PACK_V126,SUNBURST_FIXTURES_V126,SUNBURST_LIGHTS_V126,
- SUNBURST_SIGN_V126,SUNBURST_POSTERS_V126,SUNBURST_SOURCE_SIZES_V126,arcadePlayApproachesV159,arcadeColliderBoundsV159,
+ SUNBURST_SIGN_V126,SUNBURST_POSTERS_V126,SUNBURST_SOURCE_SIZES_V126,arcadePlayApproachesV159,arcadeColliderBoundsV159,arcadeSegmentBlockedV159,
  validateSunburstArcadeV126
 } from '../mall/sunburst-arcade-plan-v126.mjs';
 import {constructPhysicalShell,validatePhysicalShell,isSegmentBlocked} from '../mall/physical-shell-v67.mjs';
@@ -162,4 +162,10 @@ test('V159 collision matches actual source footprints instead of oversized squar
   assert.deepEqual(Object.fromEntries(['minX','maxX','minZ','maxZ'].map(k=>[k,box[k]])),arcadeColliderBoundsV159(f));
  }
  const skee=layout.colliders.find(c=>c.id==='skee_ball');assert.ok(skee.maxX-skee.minX<1&&skee.maxZ-skee.minZ>2.6);
+});
+
+test('V159 shell segment checks agree with narrow actual machine footprints',()=>{
+ const f=SUNBURST_FIXTURES_V126.find(x=>x.id==='skee_ball');
+ assert.ok(arcadeSegmentBlockedV159(f,{x:f.x,z:f.z-2},{x:f.x,z:f.z+2}));
+ assert.equal(arcadeSegmentBlockedV159(f,{x:f.x+.65,z:f.z-2},{x:f.x+.65,z:f.z+2}),false);
 });

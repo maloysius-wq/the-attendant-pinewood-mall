@@ -104,6 +104,15 @@ export function arcadeColliderBoundsV159(f){
  const halfX=(w*c+d*sn)/2+.10,halfZ=(w*sn+d*c)/2+.10;
  return {minX:f.x-halfX,maxX:f.x+halfX,minZ:f.z-halfZ,maxZ:f.z+halfZ};
 }
+export function arcadeSegmentBlockedV159(f,from,to){
+ const b=arcadeColliderBoundsV159(f);let low=0,high=1;
+ for(const [p,d,min,max] of [[from.x,to.x-from.x,b.minX,b.maxX],[from.z,to.z-from.z,b.minZ,b.maxZ]]){
+  if(Math.abs(d)<1e-9){if(p<=min||p>=max)return false;continue;}
+  const a=(min-p)/d,c=(max-p)/d;low=Math.max(low,Math.min(a,c));high=Math.min(high,Math.max(a,c));
+  if(low>=high)return false;
+ }
+ return low<high;
+}
 export function arcadePlayApproachesV159(f){
  if(f.node==='arcade_bin')return [];
  const angles=f.node==='air_hockey_table'?[f.yaw+Math.PI/2,f.yaw-Math.PI/2]:

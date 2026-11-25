@@ -8,7 +8,7 @@ const palette=[['#a7ccc3','#274047','#c18254'],['#e5ac69','#482c3b','#618d9c'],[
 const poweredIds=new Set(['cab_stellar','center_tide','drive_duo','skee_ball_2','coin_machine']);
 export const arcadePoweredV159=f=>poweredIds.has(f.id);
 function textureFor(f,type,aspect,assets){
- const c=document.createElement('canvas');c.width=512;c.height=Math.max(64,Math.round(512/aspect));
+ const c=document.createElement('canvas');c.width=512;c.height=Math.max(16,Math.round(512/aspect));
  const ctx=c.getContext('2d'),w=c.width,h=c.height;
  const r=rng(seedFor(f.id)),[ink,bg,accent]=palette[seedFor(f.id)%palette.length],powered=arcadePoweredV159(f);
  const fit=(label,y,sz,color,weight='bold')=>{
@@ -76,13 +76,18 @@ function faceCandidates(mesh){
    }
   }
   const ts=group.map(n=>triangles[n]),points=ts.flatMap(t=>t.v),bounds=new THREE.Box3().setFromPoints(points);
-  const w=bounds.max.x-bounds.min.x,h=bounds.max.y-bounds.min.y,area=ts.reduce((n,t)=>n+t.area,0);
-  if(w<.20||h<.055||area<.022||area/(w*h)<.69||area/(w*h)>2.1)continue;
-  out.push({mesh,g,triangles:ts,bounds,w,h,area,normalZ:seed.normal.z,centerY:(bounds.min.y+bounds.max.y)/2});
+  // Measure width/height IN THE SURFACE PLANE: even a slanted marquee
+  // gets square raster pixels rather than a projected-height stretch.
+  const uAxis=new THREE.Vector3(1,0,0).addScaledVector(seed.normal,-seed.normal.x).normalize();
+  const vAxis=seed.normal.clone().cross(uAxis).normalize();
+  const u=points.map(p=>p.dot(uAxis)),v=points.map(p=>p.dot(vAxis));
+  const uMin=Math.min(...u),vMin=Math.min(...v),w=Math.max(...u)-uMin,h=Math.max(...v)-vMin,area=ts.reduce((n,t)=>n+t.area,0);
+  if(w<.20||h<.055||area<.022||area/(w*h)<.69||area/(w*h)>1.1)continue;
+  out.push({mesh,g,triangles:ts,bounds,w,h,area,uAxis,vAxis,uMin,vMin,normalZ:seed.normal.z,centerY:(bounds.min.y+bounds.max.y)/2});
  }
  return {g,out};
 }
-function summary(face,type){return {type,width:face.w,height:face.h,normalZ:face.normalZ,triangles:face.triangles.length,min:face.bounds.min.toArray(),max:face.bounds.max.toArray()};}
+function summary(face,type){return {type,width:face.w,height:face.h,normalZ:face.normalZ,textureSize:face.textureSize||null,triangles:face.triangles.length,min:face.bounds.min.toArray(),max:face.bounds.max.toArray()};}
 export function applyOriginalArcadeArtworkV159(model,f,assets){
  const upright=f.node.startsWith('arcade_upright'),screenOnly=['driving_cab','pinball','dance_stage','skee_ball'].includes(f.node);
  if(!upright&&!screenOnly)return {powered:arcadePoweredV159(f),faces:[],candidates:[]};
@@ -109,9 +114,10 @@ export function applyOriginalArcadeArtworkV159(model,f,assets){
   const mats=[mesh.material],indices=new Map(),position=g.getAttribute('position');
   let uv=g.getAttribute('uv');if(!uv){uv=new THREE.BufferAttribute(new Float32Array(position.count*2),2);g.setAttribute('uv',uv);}
   for(const [face,type] of faces){
-   const matIndex=mats.length;mats.push(textureFor(f,type,face.w/face.h,assets));
+   const matIndex=mats.length,material=textureFor(f,type,face.w/face.h,assets);mats.push(material);
+   face.textureSize=[material.map.image.width,material.map.image.height];
    for(const tri of face.triangles){indices.set(tri.i,matIndex);
-    for(let j=0;j<3;j++){const v=tri.v[j];uv.setXY(tri.i+j,(v.x-face.bounds.min.x)/face.w,(v.y-face.bounds.min.y)/face.h);}
+    for(let j=0;j<3;j++){const v=tri.v[j];uv.setXY(tri.i+j,(v.dot(face.uAxis)-face.uMin)/face.w,(v.dot(face.vAxis)-face.vMin)/face.h);}
    }
   }
   uv.needsUpdate=true;g.clearGroups();

@@ -51,7 +51,7 @@ try{
   assert.ok(f.actualWidth>.3&&f.actualWidth<3);
   if(f.node.startsWith('arcade_upright')){
    assert.deepEqual(f.artwork.faces.map(a=>a.type),['screen','marquee'],'must use genuine display face and genuine marquee '+f.id);
-   assert.ok(f.artwork.faces.every(a=>a.normalZ>.55&&a.triangles>0));
+   assert.ok(f.artwork.faces.every(a=>a.normalZ>.55&&a.triangles>0&&Math.abs((a.textureSize[0]/a.textureSize[1])/(a.width/a.height)-1)<.015),'no stretched surface artwork '+f.id);
   }
   assert.ok(f.actualDepth>.3&&f.actualDepth<3);
   assert.ok(f.actualHeight>.74&&f.actualHeight<2.2);

@@ -12,6 +12,11 @@ on:
       - 'mall/arcade-surface-art-v159.js'
       - '.github/workflows/native-arcade-v159.yml'
   workflow_dispatch:
+    inputs:
+      full_entry:
+        description: 'Also test original vestibule door and journey (separate diagnostic)'
+        type: boolean
+        default: false
 permissions:
   contents: read
 jobs:
@@ -33,7 +38,9 @@ jobs:
           python3 -m http.server 4173 --bind 127.0.0.1 >/tmp/v159-native-http.log 2>&1 &
           for i in {1..40}; do curl -fsS http://127.0.0.1:4173/ >/dev/null && exit 0; sleep 1; done
           exit 1
-      - name: Walk actual original game from vestibule to every arcade approach
+      - name: Walk the original game from outside Sunburst to every arcade approach
+        env:
+          V159_NATIVE_FULL: ${{ inputs.full_entry && '1' || '0' }}
         run: node scripts/smoke-native-arcade-v159.mjs
       - uses: actions/upload-artifact@v4
         if: always()
