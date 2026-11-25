@@ -7,8 +7,9 @@
 import {MALL} from './masterplan-v66.mjs';
 import {FURNISHINGS_V69} from './furnishing-plan-v69.mjs';
 import {ORIGINAL_RETAIL_CANDIDATES_V121} from './anchor-retail-source-v121.mjs';
+import {MEDIA_SHELF_V158} from './media-shelf-source-v158.mjs';
 import {ANCHOR_FLUORESCENT_ASSET_V122} from './anchor-identity-plan-v122.mjs';
-const source=new Map(ORIGINAL_RETAIL_CANDIDATES_V121.map(a=>[a.shortName,a]));
+const source=new Map([...ORIGINAL_RETAIL_CANDIDATES_V121,MEDIA_SHELF_V158].map(a=>[a.shortName,a]));
 export const CASSETTE_ROOM_V124=Object.freeze({id:'cassette_castle',x1:-46,x2:-29,z1:-90,z2:-73});
 const fixture=(id,kind,x,z,yaw,collisionRadius,section)=>{
  const a=source.get(kind);
@@ -22,18 +23,18 @@ const fixture=(id,kind,x,z,yaw,collisionRadius,section)=>{
  * No invented room boundaries or residual-floor allocations.
  */
 export const CASSETTE_FIXTURES_V124=Object.freeze([
- fixture('imports_north','wall_bay',-34.4,-74.25,Math.PI,.86,'IMPORTS'),
- fixture('classics_north','wall_bay',-40.4,-74.25,Math.PI,.86,'CLASSICS'),
- fixture('old_rock_west','wall_bay',-44.90,-75.2,Math.PI/2,.86,'ROCK'),
- fixture('rare_tapes_west','wall_bay',-44.90,-79.3,Math.PI/2,.86,'RARE TAPES'),
- fixture('clearance_west','wall_bay',-44.90,-88.6,Math.PI/2,.86,'CLEARANCE'),
- fixture('country_south','wall_bay',-40.3,-88.7,0,.86,'COUNTRY'),
- fixture('jazz_south','wall_bay',-36.5,-88.7,0,.86,'JAZZ'),
- fixture('now_playing_table','table_medium',-38,-75.2,0,1.10,'NEW ARRIVALS'),
- fixture('singles_table','table_medium',-33.5,-77.8,0,1.10,'SINGLES'),
- fixture('archive_table','table_medium',-40,-82.8,0,1.10,'BACK CATALOG'),
- fixture('headphone_spinner','spinner',-33.4,-84.65,0,.70,'HEADPHONES'),
- fixture('mixtape_spinner','spinner',-40.8,-85.3,0,.70,'MIX TAPES')
+ fixture('imports_north','wall_bay',-35.6,-74.4,Math.PI,.86,'IMPORTS'),
+ fixture('classics_north','wall_bay',-44.9,-74.5,Math.PI/2,.86,'CLASSICS'),
+ fixture('old_rock_west','wall_bay',-44.9,-77.8,Math.PI/2,.86,'ROCK'),
+ fixture('rare_tapes_west','wall_bay',-44.9,-88.5,Math.PI/2,.86,'RARE TAPES'),
+ fixture('clearance_west','wall_bay',-31.9,-88.6,0,.86,'CLEARANCE'),
+ fixture('country_south','wall_bay',-41.7,-88.6,0,.86,'COUNTRY'),
+ fixture('jazz_south','wall_bay',-38.4,-88.6,0,.86,'JAZZ'),
+ fixture('now_playing_table','table_medium',-39,-74.7,0,1.10,'NEW ARRIVALS'),
+ fixture('singles_table','table_medium',-33,-77,0,1.10,'SINGLES'),
+ fixture('archive_table','table_medium',-40.3,-83.6,0,1.10,'BACK CATALOG'),
+ fixture('headphone_spinner','spinner',-33.2,-85.6,0,.70,'HEADPHONES'),
+ fixture('mixtape_spinner','spinner',-41.9,-86.2,0,.70,'MIX TAPES')
 ]);
 const lamp=(id,x,z,power)=>Object.freeze({id,room:'cassette_castle',x,z,power,
  model:ANCHOR_FLUORESCENT_ASSET_V122.path,
