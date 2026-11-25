@@ -20,7 +20,7 @@ test('15 real original-room light positions attach exactly to source 5.21m shop-
  assert.equal(MALL.rooms.length,41);
  assert.equal(MALL.evidence.length,9);
  assert.equal(shell.storefronts.length,7);
- assert.equal(shell.anchorRetail.length,49);
+ assert.equal(shell.anchorRetail.length,66);
  assert.equal(shell.galleryColumns.length,28);
  assert.equal(shell.galleryAmenities.benches.length,6);
  for(const lamp of ANCHOR_LIGHTS_V122){

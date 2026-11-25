@@ -21,7 +21,7 @@ test('13 exactly original-source retail and return pieces remain physically in t
  assert.ok(shell.anchorStock.every(f=>ANCHOR_STOCK_CANDIDATES_V123.some(x=>x.path===f.model&&x.sha256===f.sha256)));
  assert.ok(!shell.anchorStock.some(f=>f.source==='shoe_riser'||f.source==='stepped_riser'),
   'wide empty risers rejected from 1979 table placement after real 3D source audition');
- assert.equal(shell.anchorRetail.length,49);
+ assert.equal(shell.anchorRetail.length,66);
  assert.equal(shell.anchorIdentity.lights.length,15);
  assert.equal(shell.galleryColumns.length,28);
  assert.equal(shell.galleryAmenities.benches.length,6);
