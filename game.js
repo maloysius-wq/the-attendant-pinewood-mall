@@ -3,6 +3,7 @@ import {applyAuthoredCollidersV111} from './mall/authored-colliders-v111.mjs';
 import {buildGameplayLayoutV70,eyeHeightOnMezzStairV70} from './mall/gameplay-layout-v70.mjs';
 import {VISUAL_VIEWPOINTS_V70} from './mall/visual-anchors-v70.mjs';
 import {CCTV_FEEDS_V70} from './mall/story-placement-v70.mjs';
+import {installNorthstarTraversalV162} from './mall/northstar-traversal-v162.js';
 import {relocateStoryV70,descendToExitV70} from './mall/story-runtime-v70.js';
 import {installVestibuleDoorGameplayV112} from './mall/vestibule-door-gameplay-v112.js';
 import {installChapter1WorkOrderV137,restoreChapter1PickupV137} from './mall/chapter1-workorder-v137.js';
@@ -352,6 +353,7 @@ try{
    eyeHeightOnMezzStairV70,
    relocateStoryV70:args=>{
     const result=relocateStoryV70(args);
+    installNorthstarTraversalV162(args.game,descendToExitV70);
     installVestibuleDoorGameplayV112(args.game);
     // This wraps only Chapter 1 objective/exit gameplay; chapter 2-6 remain unchanged.
     installChapter1WorkOrderV137(args.game);

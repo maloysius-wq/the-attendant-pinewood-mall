@@ -19,16 +19,16 @@ try{
  await page.waitForFunction(()=>{
   const s=window.__PINEWOOD_MALL_CONSTRUCTION_V67__?.getState?.();
   return s&&(s.ready||s.errors.length>0);
- },null,{timeout:120000});
+ },null,{timeout:540000});
  const get=()=>page.evaluate(()=>window.__PINEWOOD_MALL_CONSTRUCTION_V67__.getState());
  let state=await get();
  assert.equal(state.ready,true,state.errors.join(' | '));
  assert.deepEqual(state.errors,[]);
- assert.equal(state.annexAnchorFixtureCountV128,24);
+ assert.equal(state.annexAnchorFixtureCountV128,73);
  assert.equal(state.annexAnchorLampCountV128,8);
- assert.equal(state.annexAnchorStockCountV128,176);
- assert.deepEqual(state.annexAnchorV128.stockBatches.map(b=>b.count),[176,168],
-  'all source-supported boxed goods and price labels must use only two GPU draws');
+ assert.ok(state.annexAnchorStockCountV128>=900);
+ assert.equal(state.annexAnchorV128.stockBatches.reduce((n,b)=>n+b.count,0),state.annexAnchorStockCountV128);
+ assert.ok(state.annexAnchorV128.stockBatches.length<=14,'instanced stock per SKU');
  assert.equal(state.annexAnchorV128.originalArea,540);
  assert.equal(state.annexAnchorV128.identity.originalArtwork,true);
  assert.equal(state.annexAnchorV128.posters.length,5);

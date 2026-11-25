@@ -463,3 +463,7 @@ Scope is **Builder-only**. No plot/game/cinematic asset changes, no banned furni
 
 **Bulletin board discoverability:** The existing genuine Grab3D CC0 cork board (`wall-decay-v100/models/aged-cork-bulletin-board.glb`) is still the **exact original independently downloaded GLB** with unchanged source SHA-256. Its category is now **Bulletin Boards & Noticeboards**, and its catalog label begins **BULLETIN BOARD**, with a more useful displayed scale and its existing wall-mount handling. It has not been replaced by a fabricated mesh.
 
+
+## V160–V162 licensed department-store service furniture
+- Kenney Furniture Kit CC0 1.0, previously vendored pinned RetroDECK/RetroQUEST `dfa19a5602a31f64bd890d15279a61f43b127328`, `assets/kenney_furniture-kit/Models/GLTF format/desk.glb`, local `assets/vendor/runtime/47206cda3d12810c/desk.glb`, SHA-256 `0164fe828f028b321730fb8c74502e353583f751be74da1682d42fff7d3c5a42`.
+- Kenney Mini Arcade CC0 1.0, same pinned mirror, `assets/kenney_mini-arcade/Models/GLB format/cash-register.glb`, local `assets/vendor/runtime/6aeac44b7c9c0f17/cash-register.glb`, SHA-256 `51d57ddbc623921a54782c40add49664072b192d66b0fa7c16f18f0fb0185c8f`. Existing pinned local colormap dependency retained. Both reused, not new downloads.

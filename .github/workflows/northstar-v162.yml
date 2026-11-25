@@ -1,0 +1,85 @@
+name: Pinewood V162 Northstar Home rebuild
+on:
+  push:
+    branches: [feature/v162-northstar]
+    paths:
+      - 'mall/annex-anchor-plan-v128.mjs'
+      - 'mall/render-annex-anchor-v128.js'
+      - 'mall/northstar-stock-v162.js'
+      - 'mall/physical-shell-v67.mjs'
+      - 'mall/gameplay-layout-v70.mjs'
+      - 'review/mall-construction-v67/main.js'
+      - 'scripts/test-annex-anchor-v128.mjs'
+      - 'scripts/smoke-northstar-v162.mjs'
+      - 'scripts/smoke-native-northstar-v162.mjs'
+      - 'mall/northstar-traversal-v162.js'
+      - 'game.js'
+      - 'LICENSES.md'
+      - '.github/workflows/northstar-v162.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  source:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: |
+          node --check mall/annex-anchor-plan-v128.mjs
+          node --check mall/render-annex-anchor-v128.js
+          node --check mall/northstar-stock-v162.js
+          node --check mall/northstar-traversal-v162.js
+          node --check game.js
+          node --check review/mall-construction-v67/main.js
+          node --test scripts/test-annex-anchor-v128.mjs scripts/test-gameplay-layout-v70.mjs scripts/test-physical-shell-v67.mjs scripts/test-fallows-v160.mjs
+          node scripts/audit-local-assets-v15.mjs
+          node --test scripts/audit-builder-assets-v1.mjs
+  actual-desktop:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: |
+          npm install --no-save playwright@1.55.0
+          npx playwright install chromium
+      - name: Serve exact repository files
+        run: |
+          python3 -m http.server 4173 --bind 127.0.0.1 >/tmp/v162-http.log 2>&1 &
+          for i in {1..40}; do curl -fsS http://127.0.0.1:4173/ >/dev/null && exit 0; sleep 1; done
+          exit 1
+      - run: node scripts/smoke-northstar-v162.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: v162-real-northstar-assembled-desktop
+          path: artifacts/v162-northstar/
+          retention-days: 14
+  native-desktop:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: |
+          npm install --no-save playwright@1.55.0
+          npx playwright install chromium
+      - name: Serve exact repository files
+        run: |
+          python3 -m http.server 4173 --bind 127.0.0.1 >/tmp/v162-native-http.log 2>&1 &
+          for i in {1..40}; do curl -fsS http://127.0.0.1:4173/ >/dev/null && exit 0; sleep 1; done
+          exit 1
+      - run: node scripts/smoke-native-northstar-v162.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: v162-native-northstar
+          path: artifacts/v162-native-northstar/
+          retention-days: 14
