@@ -1,0 +1,6 @@
+# V163 common galleries (in progress)
+Baseline actual published V111 audit #45662120725, artifact 15045113531, visually reviewed: sparse isolated bright outdoor-style benches and largely empty shopping walks; generic directory map. The main dry fountain, 28 columns, evidence LS-01/02 and canonical topology remain protected.
+
+First implementation: ten two-seat stations (20 benches, 10 commercial litter bins) using existing pinned CC0 1989 mall-specific GLBs. Decoded real geometry: bench 1.8 x .97 x .6m, backrest at negative source Z; bin .6 x .78 x .6m. No scaling; grounded from loaded bounds, material aging and exact rotated AABB + .10m, shared source/LOS/gameplay. Original Builder catalog is unchanged; former bench remains catalog-only. Primary x +/-20 walking spines and seat approaches protected. Four atrium and six side-gallery stations.
+
+Next in this same phase: accurate face-oriented directory prints, inspect actual assembled screenshots and native gameplay, refine furnishing and planters as justified. Do not merge based on source tests alone. Preserve V156 pause.

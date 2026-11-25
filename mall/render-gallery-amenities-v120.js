@@ -5,7 +5,7 @@
  */
 import * as THREE from '../vendor/three/build/three.module.js';
 import {GLTFLoader} from '../vendor/three/examples/jsm/loaders/GLTFLoader.js';
-import {GALLERY_AMENITIES_V120,BENCH_ASSET_V120,validateGalleryAmenitiesV120}
+import {GALLERY_AMENITIES_V120,BENCH_ASSET_V120,BIN_ASSET_V163,validateGalleryAmenitiesV120,publicAmenityBoundsV163,benchApproachV163}
  from './gallery-amenities-v120.mjs';
 import {GALLERY_COLUMNS_V118} from './gallery-columns-v118.mjs';
 
@@ -46,31 +46,37 @@ function printCanvas(lines,{portrait=false}={}){
  for(let i=0;i<65;i++)ctx.fillRect((i*173+7)%w,(i*97+13)%h,2+(i%7),1+(i%3));
  const t=new THREE.CanvasTexture(canvas);t.colorSpace=THREE.SRGBColorSpace;return t;
 }
-function fitActualBench(g,source,f){
- const model=source.scene.clone(true);
- model.rotation.y=f.yaw||0;
- model.updateMatrixWorld(true);
- let b=new THREE.Box3().setFromObject(model),s=b.getSize(new THREE.Vector3());
- if(Math.max(s.x,s.y,s.z)<.02||s.y<.02)throw Error('Pinned CC0 bench source has impossible dimensions '+f.id);
- const maxFootprint=f.collisionRadius*1.3;
- const scale=Math.min(f.height/s.y,maxFootprint/Math.max(s.x,s.z));
- if(!(scale>0&&Number.isFinite(scale)))throw Error('Cannot physically scale real CC0 bench '+f.id);
- model.scale.setScalar(scale);model.updateMatrixWorld(true);
+function ageSource(source,owned){
+ const cache=new Map();
+ const age=original=>{
+  if(cache.has(original))return cache.get(original);
+  const m=original.clone();
+  if(m.name==='chrome'){m.color.set('#77736b');m.metalness=.28;m.roughness=.85}
+  else if(m.name==='wood'){m.color.multiplyScalar(.72);m.roughness=.94}
+  else if(m.name==='teal'){m.color.set('#426a63');m.roughness=.94}
+  cache.set(original,m);owned.push(m);return m;
+ };
+ source.scene.traverse(o=>{if(o.isMesh)o.material=Array.isArray(o.material)?o.material.map(age):age(o.material)});
+}
+function fitActualFixture(g,source,f,asset,kind){
+ const model=source.scene.clone(true);model.rotation.y=f.yaw||0;model.updateMatrixWorld(true);
+ let b=new THREE.Box3().setFromObject(model),s=b.getSize(new THREE.Vector3()),center=b.getCenter(new THREE.Vector3());
+ const [w,h,d]=asset.size,c=Math.abs(Math.cos(f.yaw)),sn=Math.abs(Math.sin(f.yaw));
+ const expected=[w*c+d*sn,h,w*sn+d*c];
+ if(s.toArray().some((v,i)=>Math.abs(v-expected[i])>.025))throw Error('Measured V163 model size changed '+f.id+' '+s.toArray());
+ model.position.set(f.x-center.x,-b.min.y,f.z-center.z);model.updateMatrixWorld(true);
  b=new THREE.Box3().setFromObject(model);s=b.getSize(new THREE.Vector3());
- if(s.y<f.height*.80)throw Error('Pinned original Kenney bench would be a toy at '+f.id);
- const center=b.getCenter(new THREE.Vector3());
- model.position.set(f.x-center.x,-b.min.y,f.z-center.z);
- model.updateMatrixWorld(true);
- b=new THREE.Box3().setFromObject(model);s=b.getSize(new THREE.Vector3());
- if(Math.hypot(s.x/2,s.z/2)>f.collisionRadius+.015)
-  throw Error('Actual licensed bench protrudes outside source walking collider '+f.id);
- model.name='v120_real_CC0_bench_'+f.id;
- model.userData.cc0Provenance={id:BENCH_ASSET_V120.catalogId,sha256:BENCH_ASSET_V120.sha256};
+ const collider=publicAmenityBoundsV163(f);
+ if(Math.abs(b.min.y)>.006||b.min.x<collider.minX||b.max.x>collider.maxX||b.min.z<collider.minZ||b.max.z>collider.maxZ)
+  throw Error('Gallery fixture outside measured collision '+f.id);
+ model.name=(kind==='bench'?'v120_real_CC0_bench_':'v163_real_CC0_bin_')+f.id;
+ model.userData.cc0Provenance={id:asset.catalogId,sha256:asset.sha256};
  model.userData.structuralFurnitureV120={id:f.id,room:f.room,radius:f.collisionRadius};
  model.traverse(o=>{if(o.isMesh){o.castShadow=false;o.receiveShadow=true}});
  g.add(model);
- return {id:f.id,room:f.room,x:f.x,z:f.z,height:s.y,width:s.x,depth:s.z,
-  model:BENCH_ASSET_V120.path,realCC0:true};
+ return {id:f.id,room:f.room,x:f.x,z:f.z,height:s.y,width:s.x,depth:s.z,baseY:b.min.y,
+  yaw:f.yaw,station:f.station,model:asset.path,realCC0:true,collider,
+  ...(kind==='bench'?{approach:benchApproachV163(f)}:{})};
 }
 function placeDirectory(g,plan,mats,textures){
  const root=new THREE.Group();root.name='v120_directory_'+plan.id;
@@ -130,20 +136,21 @@ export async function renderGalleryAmenitiesV120(ground,plan=GALLERY_AMENITIES_V
  if(!ground?.isObject3D)throw Error('V120 requires actual source ground-floor group');
  const issues=validateGalleryAmenitiesV120(plan);
  if(issues.length)throw Error('V120 source amenity layout failed: '+issues.join(' | '));
- const path=BENCH_ASSET_V120.path;
  const loader=new GLTFLoader();
- const gltf=await loader.loadAsync(new URL('../'+path,import.meta.url).href);
+ const [benchGLB,binGLB]=await Promise.all([BENCH_ASSET_V120,BIN_ASSET_V163].map(a=>loader.loadAsync(new URL('../'+a.path,import.meta.url).href)));
  const group=new THREE.Group();group.name='V120 original period mall public benches and directories';
  const stone=new THREE.MeshStandardMaterial({color:0xa4977b,metalness:.05,roughness:.84});
  const steel=new THREE.MeshStandardMaterial({color:0x394a4a,metalness:.52,roughness:.72});
  const mats={stone,steel,owned:[stone,steel]},textures=[];
- const benchManifest=plan.benches.map(f=>fitActualBench(group,gltf,f));
+ ageSource(benchGLB,mats.owned);ageSource(binGLB,mats.owned);
+ const benchManifest=plan.benches.map(f=>fitActualFixture(group,benchGLB,f,BENCH_ASSET_V120,'bench'));
+ const binManifest=plan.bins.map(f=>fitActualFixture(group,binGLB,f,BIN_ASSET_V163,'bin'));
  const directoryManifest=plan.directories.map(d=>placeDirectory(group,d,mats,textures));
  const signs=plan.wayfinding.map(s=>placeWayfinding(group,s,mats,textures));
  // No half-loaded objects may be visible before all source model and map
  // materials are validated and measured.
  ground.add(group);
- return {group,manifest:{benches:benchManifest,directories:directoryManifest,wayfinding:signs},
+ return {group,manifest:{benches:benchManifest,bins:binManifest,directories:directoryManifest,wayfinding:signs},
   dispose(){
    ground.remove(group);
    textures.forEach(t=>t.dispose());
