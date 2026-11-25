@@ -169,7 +169,7 @@ export async function renderSunburstArcadeV126(ground,ceilings,plan={
  ground.add(assets.root);ground.add(assets.ceilingRoot);
  return {root:assets.root,ceilingRoot:assets.ceilingRoot,
   manifest:{fixtures,fluorescents,identity,posters,
-   sourcePack:SUNBURST_PACK_V126.path,actualFullSizeMachines:fixtures.filter(f=>f.node!=='arcade_bin').length,amenityCount:fixtures.filter(f=>f.node==='arcade_bin').length},
+   sourcePack:SUNBURST_PACK_V126.path,actualFullSizeMachines:fixtures.filter(f=>!['arcade_bin','prize_wall'].includes(f.node)).length,prizeRackCount:fixtures.filter(f=>f.node==='prize_wall').length,amenityCount:fixtures.filter(f=>f.node==='arcade_bin').length},
   dispose(){
    assets.root.removeFromParent();assets.ceilingRoot.removeFromParent();
    assets.textures.forEach(t=>t.dispose());assets.materials.forEach(m=>m.dispose());

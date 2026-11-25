@@ -47,34 +47,49 @@ const fixture=(id,node,title,x,z,yaw=0)=>{
  * yaw describes the intended customer direction (+Z in the layout frame).
  */
 export const SUNBURST_FIXTURES_V126=Object.freeze([
- fixture('wall_claw','claw_machine','LITTLE COMET',-43.7,-91.4,Math.PI),
- fixture('cab_stellar','arcade_upright_alpha','STELLAR RUSH',-41.4,-91.4,Math.PI),
- fixture('cab_cinder','arcade_upright_beta','CINDER DRIVE',-39.1,-91.4,Math.PI),
- fixture('cab_midnight','arcade_upright_gamma','MIDNIGHT ORBIT',-36.8,-91.4,Math.PI),
- fixture('cab_tide','arcade_upright_alpha','TIDAL SHOCK',-34.5,-91.4,Math.PI),
- fixture('cab_meteor','arcade_upright_beta','METEOR RALLY',-32.2,-91.4,Math.PI),
- fixture('pinball_west','pinball','LAST QUARTER',-44.65,-95,Math.PI/2),
- fixture('pinball_east','pinball','GHOST LIGHTS',-44.65,-97.6,Math.PI/2),
- fixture('upright_west','arcade_upright_gamma','VOID RUNNER',-44.65,-100.2,Math.PI/2),
- fixture('back_upright','arcade_upright_alpha','SHADOW CIRCUIT',-44.65,-102.6,Math.PI/2),
- fixture('prize_wall','prize_wall','PRIZE COUNTER',-44.25,-105.6),
- fixture('prize_wall_2','prize_wall','TICKET PRIZES',-41.9,-105.6),
- fixture('ticket_eater','ticket_eater','TICKET REDEMPTION',-39.95,-105.6),
- fixture('skee_ball','skee_ball','GOLDEN ROLL',-37.4,-104.9),
- fixture('skee_ball_2','skee_ball','SILVER ROLL',-33.9,-104.9),
- fixture('dance_stage','dance_stage','STEP CIRCUIT',-30.6,-104.6,-Math.PI/2),
- fixture('coin_machine','token_changer','TOKEN EXCHANGE',-30.4,-93.9,-Math.PI/2),
+ fixture('wall_claw','claw_machine','LITTLE COMET',-44.7,-91.1,Math.PI),
+ fixture('cab_stellar','arcade_upright_alpha','STELLAR RUSH',-43.55,-91.1,Math.PI),
+ fixture('cab_cinder','arcade_upright_beta','CINDER DRIVE',-42.4,-91.1,Math.PI),
+ fixture('cab_midnight','arcade_upright_gamma','MIDNIGHT ORBIT',-41.25,-91.1,Math.PI),
+ fixture('cab_tide','arcade_upright_alpha','TIDAL SHOCK',-40.1,-91.1,Math.PI),
+ fixture('cab_meteor','arcade_upright_beta','METEOR RALLY',-38.95,-91.1,Math.PI),
+ fixture('cab_north7','arcade_upright_gamma','NEBULA 7',-37.8,-91.1,Math.PI),
+ fixture('cab_north8','arcade_upright_alpha','MOON PATROL II',-36.65,-91.1,Math.PI),
+ fixture('cab_north9','arcade_upright_beta','DUST RACER',-35.5,-91.1,Math.PI),
+ fixture('cab_north10','arcade_upright_gamma','NIGHT VECTOR',-34.35,-91.1,Math.PI),
+ fixture('cab_north11','arcade_upright_alpha','ASTRO BLAST',-33.2,-91.1,Math.PI),
+ fixture('cab_north12','arcade_upright_beta','TURBO CIRCUIT',-32.05,-91.1,Math.PI),
+ fixture('cab_north13','arcade_upright_alpha','ORBITAL RUN',-30.9,-91.1,Math.PI),
+ fixture('pinball_west','pinball','LAST QUARTER',-44.7,-93.8,Math.PI/2),
+ fixture('pinball_east','pinball','GHOST LIGHTS',-44.7,-95,Math.PI/2),
+ fixture('pinball_west3','pinball','SILVER SPARK',-44.7,-96.2,Math.PI/2),
+ fixture('pinball_west4','pinball','STAR CHASER',-44.7,-97.4,Math.PI/2),
+ fixture('upright_west','arcade_upright_gamma','VOID RUNNER',-44.7,-99.9,Math.PI/2),
+ fixture('back_upright','arcade_upright_alpha','SHADOW CIRCUIT',-44.7,-101.3,Math.PI/2),
+ fixture('prize_wall','prize_wall','PRIZES',-44.25,-105.7,0),
+ fixture('prize_wall_2','prize_wall','TICKET PRIZES',-42.6,-105.7,0),
+ fixture('ticket_eater','ticket_eater','TICKET REDEMPTION',-40.9,-105.7,0),
+ fixture('skee_ball','skee_ball','GOLDEN ROLL',-37.6,-104.9,0),
+ fixture('skee_ball_2','skee_ball','SILVER ROLL',-36.35,-104.9,0),
+ fixture('skee_ball_3','skee_ball','COMET ROLL',-35.1,-104.9,0),
+ fixture('dance_stage','dance_stage','STEP CIRCUIT',-31.2,-104.6,-Math.PI/2),
+ fixture('coin_machine','token_changer','TOKEN EXCHANGE',-30.3,-93.9,-Math.PI/2),
  fixture('front_upright','arcade_upright_alpha','COSMIC PILOT',-30.85,-96,-Math.PI/2),
- fixture('arcade_claw','claw_machine','STAR PRIZES',-30.4,-101.2,-Math.PI/2),
- fixture('air_hockey','air_hockey_table','AIR HOCKEY',-37.5,-100.4),
- fixture('cocktail_chess','arcade_cocktail','BYTE DUEL',-42.2,-101.3),
- fixture('drive_duo','driving_cab','COASTLINE 97',-35.8,-95.2,Math.PI/2),
- fixture('drive_pair','driving_cab','DESERT CIRCUIT',-35.8,-97.5,Math.PI/2),
- fixture('center_stellar','arcade_upright_alpha','STAR RUNNER',-41,-95.4),
- fixture('center_cinder','arcade_upright_beta','CINDER 2',-38.8,-95.4),
- fixture('center_midnight','arcade_upright_gamma','NIGHT RACER',-41,-97.4,Math.PI),
- fixture('center_tide','arcade_upright_alpha','TIDE 2',-38.8,-97.4,Math.PI),
- fixture('arcade_bin','arcade_bin','LITTER',-31.2,-102.8)
+ fixture('arcade_claw','claw_machine','STAR PRIZES',-30.4,-101.4,-Math.PI/2),
+ fixture('air_hockey','air_hockey_table','AIR HOCKEY',-37.5,-100.55,0),
+ fixture('cocktail_chess','arcade_cocktail','BYTE DUEL',-42.3,-100.8,0),
+ fixture('cocktail_checkers','arcade_cocktail','BIT WARS',-40.4,-100.8,0),
+ fixture('drive_duo','driving_cab','COASTLINE 97',-35.3,-94.8,Math.PI/2),
+ fixture('drive_pair','driving_cab','DESERT CIRCUIT',-35.3,-96.1,Math.PI/2),
+ fixture('center_stellar','arcade_upright_alpha','STAR RUNNER',-42,-94.8,0),
+ fixture('center_cinder','arcade_upright_beta','CINDER 2',-40.85,-94.8,0),
+ fixture('center_night','arcade_upright_gamma','NIGHT SHIFT',-39.7,-94.8,0),
+ fixture('center_warp','arcade_upright_alpha','WARP DRIVE',-38.55,-94.8,0),
+ fixture('center_midnight','arcade_upright_gamma','NIGHT RACER',-42,-96.15,Math.PI),
+ fixture('center_tide','arcade_upright_alpha','TIDE 2',-40.85,-96.15,Math.PI),
+ fixture('center_vector','arcade_upright_beta','VECTOR CITY',-39.7,-96.15,Math.PI),
+ fixture('center_comet','arcade_upright_gamma','COMET TRAIL',-38.55,-96.15,Math.PI),
+ fixture('arcade_bin','arcade_bin','LITTER',-30.4,-103.05,0)
 ]);
 /** Planned player positions, not proof of source GLB control direction.
  * Full-scale two-ended games get a standing location at both play ends.
@@ -133,7 +148,7 @@ export function validateSunburstArcadeV126(plan={
  const existing=FURNISHINGS_V69.fixtures.filter(f=>f.room==='sunburst_arcade');
  if(existing.length)errors.push('Retired V69 arcade duplicates must not return');
  const {fixtures=[],lights=[],sign,posters=[]}=plan||{};
- if(fixtures.length!==28||lights.length!==4||posters.length!==5||!sign)
+ if(fixtures.length!==43||lights.length!==4||posters.length!==5||!sign)
   errors.push('Missing V126 authentic arcade machines, light panels or original-era art');
  for(const f of fixtures){
   if(seen.has(f.id))errors.push('Duplicate source cabinet '+f.id);seen.add(f.id);
@@ -143,9 +158,10 @@ export function validateSunburstArcadeV126(plan={
    JSON.stringify(f.sourceSize)!==JSON.stringify(dims)||
    Math.abs(r-(Math.ceil((Math.hypot(dims[0],dims[2])/2+.1)*100)/100))>.001)
    errors.push('Unverified or resized original arcade mesh '+f.id);
+  const bounds=arcadeColliderBoundsV159(f);
   if(f.room!=='sunburst_arcade'||!Number.isFinite(f.x+f.z+f.yaw)||
-   !(r>.3&&r<1.6)||f.x<=room.x1+r+.12||f.x>=room.x2-r-.12||
-   f.z<=room.z1+r+.12||f.z>=room.z2-r-.12)
+   !(r>.3&&r<1.6)||bounds.minX<=room.x1+.12||bounds.maxX>=room.x2-.12||
+   bounds.minZ<=room.z1+.12||bounds.maxZ>=room.z2-.12)
    errors.push('Arcade cabinet clips true original suite wall '+f.id);
   for(const p of portals.filter(p=>p.type==='doorway'&&[p.to,p.from].includes('sunburst_arcade'))){
    const a=p.axis==='x'?{x:p.at,z:p.start}:{x:p.start,z:p.at},
@@ -154,10 +170,13 @@ export function validateSunburstArcadeV126(plan={
     errors.push('Arcade cabinet obstructs true 4.2m original shop entrance '+f.id);
   }
  }
- for(let i=0;i<fixtures.length;i++)for(let j=i+1;j<fixtures.length;j++)
-  if(distance(fixtures[i],fixtures[j])<=fixtures[i].collisionRadius+
-   fixtures[j].collisionRadius+.35)
+ // Real machine banks are close together. Exact rectangular clearance,
+ // plus separate swept player approach tests, replaces overlarge circles.
+ for(let i=0;i<fixtures.length;i++)for(let j=i+1;j<fixtures.length;j++){
+  const a=arcadeColliderBoundsV159(fixtures[i]),b=arcadeColliderBoundsV159(fixtures[j]);
+  if(a.minX<b.maxX+.025&&a.maxX>b.minX-.025&&a.minZ<b.maxZ+.025&&a.maxZ>b.minZ-.025)
    errors.push('Insufficient arcade play-space aisle '+fixtures[i].id+'/'+fixtures[j].id);
+ }
  for(const l of lights){
   if(seen.has(l.id))errors.push('duplicate arcade ceiling fitting '+l.id);seen.add(l.id);
   if(l.room!=='sunburst_arcade'||l.model!==ANCHOR_FLUORESCENT_ASSET_V122.path||

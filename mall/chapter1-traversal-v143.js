@@ -112,7 +112,7 @@ export function installChapter1TraversalV143(game){
   // Prefer a direct real-world walk, then a fine local grid. For the
   // long concourse journey use existing canonical grid with swept edges.
   const spacing=game.mallLayoutV70.roomAt(start.x,start.z)==='sunburst_arcade'&&
-   game.mallLayoutV70.roomAt(dest.x,dest.z)==='sunburst_arcade'?.5:1;
+   game.mallLayoutV70.roomAt(dest.x,dest.z)==='sunburst_arcade'?.25:1;
   const key=(a)=>a.x+','+a.z,nearest=(a)=>{
    const seeds=[];for(let dx=-2;dx<=2;dx++)for(let dz=-2;dz<=2;dz++){
     const q={x:Math.round(a.x/spacing)*spacing+dx*spacing,z:Math.round(a.z/spacing)*spacing+dz*spacing};

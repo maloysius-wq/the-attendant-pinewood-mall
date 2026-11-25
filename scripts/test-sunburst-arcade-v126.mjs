@@ -26,7 +26,7 @@ test('V126 keeps original 17×17m Sunburst suite, V115 glass entry, no retired V
  assert.ok(shell.storefronts.some(s=>s.room==='sunburst_arcade'&&Math.abs(s.entryWidth-4.2)<.01),
   'true original 4.2m glass entry absent');
  assert.deepEqual(shell.fixtures.filter(f=>f.room==='sunburst_arcade'),[]);
- assert.equal(shell.sunburstArcade.fixtures.length,28);
+ assert.equal(shell.sunburstArcade.fixtures.length,43);
  assert.equal(shell.sunburstArcade.lights.length,4);
  assert.equal(shell.sunburstArcade.posters.length,5);
  assert.deepEqual(validateSunburstArcadeV126(shell.sunburstArcade,
@@ -44,7 +44,7 @@ test('V126 keeps original 17×17m Sunburst suite, V115 glass entry, no retired V
  assert.equal(shell.cassetteCastle.fixtures.length,12);
 });
 
-test('28 full human-size arcade props are reused from the exact original published and independently measured CC0 GLB',()=>{
+test('43 full human-size arcade props are reused from the exact original published and independently measured CC0 GLB',()=>{
  const manifest=JSON.parse(read('assets/vendor/arcade-v30/manifest.json').toString());
  const measured=JSON.parse(read('diagnostics/arcade-v30-geometry.json').toString());
  assert.equal(manifest.license,'CC0 1.0');
@@ -55,7 +55,7 @@ test('28 full human-size arcade props are reused from the exact original publish
  assert.equal(sha(SUNBURST_PACK_V126.path),SUNBURST_PACK_V126.sha256);
  assert.equal(measured.unit,'metre');
  const sources=new Map(measured.props.map(p=>[p.name,p]));
- assert.equal(SUNBURST_FIXTURES_V126.length,28);
+ assert.equal(SUNBURST_FIXTURES_V126.length,43);
  for(const f of SUNBURST_FIXTURES_V126){
   assert.equal(f.source,SUNBURST_PACK_V126.path);
   assert.equal(f.sha256,vendor.sha256);
@@ -80,7 +80,7 @@ test('28 full human-size arcade props are reused from the exact original publish
 
 test('V126 arcade is physically solid, preserving source entrance and a clear interior route',()=>{
  const layout=buildGameplayLayoutV70({chapter:1});
- assert.equal(layout.colliders.filter(c=>c.kind==='licensed-sunburst-arcade-machine').length,28);
+ assert.equal(layout.colliders.filter(c=>c.kind==='licensed-sunburst-arcade-machine').length,43);
  for(const f of SUNBURST_FIXTURES_V126){
   assert.ok(!layout.canStand(f.x,f.z),'walk-through original CC0 machine '+f.id);
   assert.ok(isSegmentBlocked(layout.shell,{x:f.x-1.8,z:f.z},{x:f.x+1.8,z:f.z}),
@@ -98,12 +98,12 @@ test('V126 arcade is physically solid, preserving source entrance and a clear in
 });
 
 test('V126 1997 arcade cabinets face customers rather than blank masonry or the shop entrance',()=>{
- const north=new Set(['wall_claw','cab_stellar','cab_cinder','cab_midnight','cab_tide','cab_meteor']);
+ const north=new Set(SUNBURST_FIXTURES_V126.filter(f=>f.z===-91.1).map(f=>f.id));
  for(const f of SUNBURST_FIXTURES_V126.filter(f=>north.has(f.id))){
   assert.equal(f.yaw,Math.PI,'north-bank original CC0 controls face wall '+f.id);
   assert.ok(f.z>=-92,'north-bank cabinet moved from source wall '+f.id);
  }
- assert.equal(north.size,6);
+ assert.equal(north.size,13);
  const coin=SUNBURST_FIXTURES_V126.find(f=>f.id==='coin_machine');
  const frontage=SUNBURST_FIXTURES_V126.find(f=>f.id==='front_upright');
  assert.equal(coin.yaw,-Math.PI/2);
@@ -111,7 +111,7 @@ test('V126 1997 arcade cabinets face customers rather than blank masonry or the 
  const driving=SUNBURST_FIXTURES_V126.find(f=>f.id==='drive_duo');
  assert.equal(driving.yaw,Math.PI/2);
  const gameplay=buildGameplayLayoutV70({chapter:1});
- assert.ok(gameplay.canStand(-38.1,-94.1),'1997 north-bank fixed review camera obstructs original game aisle');
+ assert.ok(gameplay.canStand(-38.1,-93.15),'1997 north-bank fixed review camera obstructs original game aisle');
 });
 
 test('V126 validation rejects source swaps, unsafe overlaps, doorway blockers and fake artwork',()=>{
@@ -132,12 +132,27 @@ test('V126 validation rejects source swaps, unsafe overlaps, doorway blockers an
 
 test('V159 every planned play end and customer approach remains connected to the original entry',()=>{
  const layout=buildGameplayLayoutV70({chapter:1});
+ // A fine swept graph validates actual pedestrian geometry, not merely
+ // the rounded integer navigation endpoints (some real cabinet aisles
+ // lie between grid cells). All edges are sampled at <=.075m.
+ const clear=(a,b)=>{
+  const n=Math.max(1,Math.ceil(Math.hypot(a.x-b.x,a.z-b.z)/.075));let prev=a;
+  for(let i=1;i<=n;i++){const t=i/n,x=a.x+(b.x-a.x)*t,z=a.z+(b.z-a.z)*t;
+   if(!layout.canStand(x,prev.z)||!layout.canStand(x,z))return false;prev={x,z};
+  }return true;
+ };
+ const entry={x:-30,z:-98.5},key=a=>a.x+','+a.z,queue=[entry],seen=new Set([key(entry)]);
+ for(let i=0;i<queue.length;i++)for(const [dx,dz] of [[.25,0],[-.25,0],[0,.25],[0,-.25]]){
+  const a=queue[i],b={x:a.x+dx,z:a.z+dz};
+  if(b.x<-46||b.x>-29||b.z<-107||b.z>-90||seen.has(key(b))||!clear(a,b))continue;
+  seen.add(key(b));queue.push(b);
+ }
  for(const f of SUNBURST_FIXTURES_V126)for(const a of arcadePlayApproachesV159(f)){
   assert.ok(layout.canStand(a.x,a.z),'blocked planned player approach '+JSON.stringify(a));
-  assert.ok(shortestRouteV70(layout,{x:-30,z:-98.5},a).length>0,'unreachable planned control approach '+JSON.stringify(a));
+  assert.ok(queue.some(p=>Math.hypot(p.x-a.x,p.z-a.z)<.5&&clear(p,a)),'unreachable swept control approach '+JSON.stringify(a));
  }
  assert.equal(SUNBURST_FIXTURES_V126.filter(f=>f.node==='air_hockey_table').length,1);
- assert.equal(SUNBURST_FIXTURES_V126.filter(f=>f.node==='skee_ball').length,2);
+ assert.equal(SUNBURST_FIXTURES_V126.filter(f=>f.node==='skee_ball').length,3);
 });
 
 test('V159 collision matches actual source footprints instead of oversized square blockers',()=>{

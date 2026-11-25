@@ -35,12 +35,12 @@ try{
  assert.equal(state.ready,true,state.errors.join(' | '));
  assert.deepEqual(state.errors,[]);
  assert.equal(state.firstFrameFullyLoaded,true);
- assert.equal(state.sunburstFixtureCountV126,28);
+ assert.equal(state.sunburstFixtureCountV126,43);
  assert.equal(state.sunburstLampCountV126,4);
  assert.equal(state.sunburstPosterCountV126,5);
  assert.equal(state.sunburstArcadeV126.sourcePack,
   'assets/vendor/arcade-v30/token_gesture/pack.glb');
- assert.equal(state.sunburstArcadeV126.actualFullSizeMachines,27);
+ assert.equal(state.sunburstArcadeV126.actualFullSizeMachines,40);
  assert.equal(state.retailAudit.fixtures.filter(f=>f.room==='sunburst_arcade'&&['v69','v67'].includes(f.layer)).length,0,'retired duplicates must not render');
  const kinds=new Set();
  for(const f of state.sunburstArcadeV126.fixtures){
@@ -68,7 +68,8 @@ try{
  assert.equal(state.cassetteFixtureCountV124,12);
  assert.equal(state.storefrontCount,7);
  assert.equal(state.galleryColumnCount,28);
- const shots=['arcadeFront','arcadeInside','arcadeNorth','arcadeWest','arcadePlan',
+ assert.equal(state.sunburstArcadeV126.prizeRackCount,2);
+ const shots=['arcadeFront','arcadeInside','arcadeNorth','arcadeWest','arcadeRedemption','arcadeDriving','arcadePlan',
   'west','cassetteInside','videoInside','atrium','aerial'];
  for(const shot of shots){
   await page.evaluate(name=>window.__PINEWOOD_MALL_CONSTRUCTION_V67__.goto(name),shot);
