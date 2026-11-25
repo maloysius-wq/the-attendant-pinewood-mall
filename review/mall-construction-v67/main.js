@@ -385,7 +385,7 @@ async function begin(){
   state.perimeterV136={...built.perimeterV136};
   state.storefrontCount=built.storefrontsV115.length;
   state.storefrontNames=built.storefrontsV115.map(f=>f.sign);
-  state.storefrontEntries=built.storefrontsV115.map(f=>({room:f.id,entryWidth:f.entryWidth,windowSpan:f.windowSpan}));
+  state.storefrontEntries=built.storefrontsV115.map(f=>({...f,room:f.id}));
   state.walls=built.shells.reduce((n,s)=>n+s.walls.length,0);
   state.ceilingMeshes=built.ceilings.children.length;
   // Keep the legacy 41-room ceiling audit scoped to canonical room names;
