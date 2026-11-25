@@ -21,14 +21,14 @@ export const FOOD_COURT_V119=Object.freeze({
    counter:Object.freeze({x:42.2,z:-93.60})})
  ]),
  dining:Object.freeze([
-  Object.freeze({table:'food_table_1',x:33.25,z:-83.8,chairs:['food_chair_1','food_chair_2','food_chair_17']}),
-  Object.freeze({table:'food_table_2',x:37.75,z:-83.8,chairs:['food_chair_3','food_chair_4','food_chair_18']}),
-  Object.freeze({table:'food_table_3',x:33.25,z:-93.2,chairs:['food_chair_5','food_chair_6','food_chair_19']}),
-  Object.freeze({table:'food_table_4',x:37.75,z:-93.2,chairs:['food_chair_7','food_chair_8','food_chair_20']}),
-  Object.freeze({table:'food_table_5',x:33.25,z:-86.15,chairs:['food_chair_9','food_chair_10']}),
-  Object.freeze({table:'food_table_6',x:37.75,z:-86.15,chairs:['food_chair_11','food_chair_12']}),
-  Object.freeze({table:'food_table_7',x:33.25,z:-90.85,chairs:['food_chair_13','food_chair_14']}),
-  Object.freeze({table:'food_table_8',x:37.75,z:-90.85,chairs:['food_chair_15','food_chair_16']})
+  Object.freeze({table:'food_table_1',x:33.25,z:-82.4,chairs:['food_chair_1','food_chair_2','food_chair_17','food_chair_25']}),
+  Object.freeze({table:'food_table_2',x:37.75,z:-82.4,chairs:['food_chair_3','food_chair_4','food_chair_18','food_chair_26']}),
+  Object.freeze({table:'food_table_3',x:33.25,z:-94.6,chairs:['food_chair_5','food_chair_6','food_chair_19','food_chair_27']}),
+  Object.freeze({table:'food_table_4',x:37.75,z:-94.6,chairs:['food_chair_7','food_chair_8','food_chair_20','food_chair_28']}),
+  Object.freeze({table:'food_table_5',x:33.25,z:-85.8,chairs:['food_chair_9','food_chair_10','food_chair_21','food_chair_29']}),
+  Object.freeze({table:'food_table_6',x:37.75,z:-85.8,chairs:['food_chair_11','food_chair_12','food_chair_22','food_chair_30']}),
+  Object.freeze({table:'food_table_7',x:33.25,z:-91.2,chairs:['food_chair_13','food_chair_14','food_chair_23','food_chair_31']}),
+  Object.freeze({table:'food_table_8',x:37.75,z:-91.2,chairs:['food_chair_15','food_chair_16','food_chair_24','food_chair_32']})
  ]),
  waypoints:Object.freeze([
   Object.freeze({x:30.0,z:-88.5}),
@@ -103,18 +103,18 @@ export function validateFoodCourtV119(plan=FOOD_COURT_V119,mall=MALL,portals=[])
  }
  const tableIds=new Set(),chairs=new Set();
  for(const t of plan.dining){
-  if(tableIds.has(t.table)||![2,3].includes(t.chairs.length))errors.push('invalid dining cluster '+t.table);
+  if(tableIds.has(t.table)||t.chairs.length!==4)errors.push('invalid dining cluster '+t.table);
   tableIds.add(t.table);
   for(const chair of t.chairs){
    if(chairs.has(chair))errors.push('duplicate chair '+chair);
    chairs.add(chair);
   }
-  if(!(t.x>31.8&&t.x<39.2&&[-83.8,-86.15,-90.85,-93.2].some(z=>close(t.z,z))))
+  if(!(t.x>31.8&&t.x<39.2&&[-82.4,-85.8,-91.2,-94.6].some(z=>close(t.z,z))))
    errors.push('dining row encroaches service or center entrance '+t.table);
   if(plan.booths.some(b=>Math.hypot(t.x-b.counter.x,t.z-b.counter.z)<2.6))
    errors.push('table encroaches service counter '+t.table);
  }
- if(chairs.size!==20)errors.push('twenty licensed chairs required for eight tables');
+ if(chairs.size!==32)errors.push('thirty-two licensed chairs required for eight tables');
  for(const point of plan.waypoints){
   if(point.x<29.65||point.x>=plan.vendorFrontX-2.3||
     Math.abs(point.z+88.5)>.01)errors.push('center approach is not physically usable');
