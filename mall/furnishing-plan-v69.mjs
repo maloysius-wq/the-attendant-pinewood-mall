@@ -23,51 +23,56 @@ export const FURNISHINGS_V69=Object.freeze({
       "id": "cassette_rack_w1",
       "room": "cassette_castle",
       "model": "assets/vendor/runtime/14aeb77ecb6cacff/bookcaseOpen.glb",
-      "x": -44,
-      "z": -81.8,
+      "x": -44.7,
+      "z": -81,
       "targetHeight": 2.12,
       "radius": 1.1,
-      "role": "empty_rack"
+      "role": "empty_rack",
+      "yaw": 1.5707963267948966
     },
     {
       "id": "cassette_rack_w2",
       "room": "cassette_castle",
       "model": "assets/vendor/runtime/14aeb77ecb6cacff/bookcaseOpen.glb",
-      "x": -44,
-      "z": -86,
+      "x": -44.7,
+      "z": -85,
       "targetHeight": 2.12,
       "radius": 1.1,
-      "role": "empty_rack"
+      "role": "empty_rack",
+      "yaw": 1.5707963267948966
     },
     {
       "id": "cassette_rack_e1",
       "room": "cassette_castle",
       "model": "assets/vendor/runtime/14aeb77ecb6cacff/bookcaseOpen.glb",
-      "x": -33,
-      "z": -87,
+      "x": -35,
+      "z": -88.6,
       "targetHeight": 2.12,
       "radius": 1.1,
-      "role": "empty_rack"
+      "role": "empty_rack",
+      "yaw": 0
     },
     {
       "id": "cassette_browse_low",
       "room": "cassette_castle",
       "model": "assets/vendor/runtime/5868465fc2ab24c1/bookcaseOpenLow.glb",
       "x": -37,
-      "z": -84.8,
+      "z": -84.9,
       "targetHeight": 1.15,
       "radius": 0.9,
-      "role": "low_empty_rack"
+      "role": "low_empty_rack",
+      "yaw": 0
     },
     {
       "id": "cassette_stool",
       "room": "cassette_castle",
       "model": "assets/vendor/runtime/7f3df4bac178c342/Stool.glb",
-      "x": -39,
-      "z": -77.3,
+      "x": -42,
+      "z": -75,
       "targetHeight": 0.72,
       "radius": 0.47,
-      "role": "seat"
+      "role": "seat",
+      "yaw": 3.141592653589793
     },
     {
       "id": "arcade_claw",
@@ -123,31 +128,34 @@ export const FURNISHINGS_V69=Object.freeze({
       "id": "video_rack_north",
       "room": "video_planet",
       "model": "assets/vendor/runtime/14aeb77ecb6cacff/bookcaseOpen.glb",
-      "x": 44,
-      "z": -64.5,
+      "x": 44.6,
+      "z": -64.7,
       "targetHeight": 2.1,
       "radius": 1.1,
-      "role": "empty_rack"
+      "role": "empty_rack",
+      "yaw": -1.5707963267948966
     },
     {
       "id": "video_rack_south",
       "room": "video_planet",
       "model": "assets/vendor/runtime/14aeb77ecb6cacff/bookcaseOpen.glb",
-      "x": 44,
-      "z": -77,
+      "x": 44.6,
+      "z": -77.7,
       "targetHeight": 2.1,
       "radius": 1.1,
-      "role": "empty_rack"
+      "role": "empty_rack",
+      "yaw": -1.5707963267948966
     },
     {
       "id": "video_rack_rear",
       "room": "video_planet",
       "model": "assets/vendor/runtime/14aeb77ecb6cacff/bookcaseOpen.glb",
       "x": 37,
-      "z": -77,
+      "z": -78.6,
       "targetHeight": 2.1,
       "radius": 1.1,
-      "role": "empty_rack"
+      "role": "empty_rack",
+      "yaw": 0
     },
     {
       "id": "video_demo_vhs",
