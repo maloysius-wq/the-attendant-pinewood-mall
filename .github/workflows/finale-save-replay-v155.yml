@@ -1,0 +1,58 @@
+name: Pinewood V155 finale save replay
+on:
+  push:
+    branches: [feature/v155-finale-save-replay]
+    paths:
+      - 'patches/chapter6-last-shift-v25.js.txt'
+      - 'story/characters.js'
+      - 'scripts/test-finale-save-replay-v155.mjs'
+      - 'scripts/smoke-finale-save-replay-v155.mjs'
+      - '.github/workflows/finale-save-replay-v155.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  source:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: |
+          node --test scripts/test-finale-save-replay-v155.mjs
+          node scripts/audit-chapter6-finale-source-v25.mjs
+          node scripts/audit-chapter6-last-shift-v25.mjs
+          node scripts/audit-local-assets-v15.mjs
+  original-replay:
+    strategy:
+      fail-fast: false
+      matrix:
+        mode: [standard, 'true', interrupted]
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install desktop Chromium
+        run: |
+          node --check scripts/smoke-finale-save-replay-v155.mjs
+          npm install --no-save playwright@1.55.0
+          npx playwright install chromium
+      - name: Serve original game
+        run: |
+          python3 -m http.server 4173 --bind 127.0.0.1 >/tmp/v155-http.log 2>&1 &
+          for i in {1..40}; do curl -fsS http://127.0.0.1:4173/ >/dev/null && exit 0; sleep 1; done
+          exit 1
+      - name: Continue actual original finale with saved state
+        run: node scripts/smoke-finale-save-replay-v155.mjs ${{ matrix.mode }}
+      - name: Archive evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: v155-replay-${{ matrix.mode }}
+          path: artifacts/v155-replay-${{ matrix.mode }}/
+          retention-days: 14
