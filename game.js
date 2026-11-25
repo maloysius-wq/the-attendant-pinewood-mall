@@ -1,3 +1,4 @@
+import {installFinalePhysicalProbeV153} from './mall/diagnose-finale-physical-v153.js';
 import {renderAuthoredPinewoodV111} from './mall/authored-scene-v111.js';
 import {applyAuthoredCollidersV111} from './mall/authored-colliders-v111.mjs';
 import {buildGameplayLayoutV70,eyeHeightOnMezzStairV70} from './mall/gameplay-layout-v70.mjs';
@@ -368,6 +369,7 @@ try{
      installChapter1StaffBelongingsV150(args.game);
      installChapter1StaffInspectionV151(args.game);
     }
+    installFinalePhysicalProbeV153(args.game);
     // Read-only, opt-in automated desktop handoff probe. Not a game API.
     if(new URLSearchParams(location.search).has('vestibuleQA')){
      const game=args.game;
