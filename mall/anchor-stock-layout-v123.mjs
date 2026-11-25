@@ -34,11 +34,11 @@ export const ORIGINAL_ANCHOR_STOCK_V123=Object.freeze([
  item('fallow_south_display_cube','west_anchor','gift_books',-35.9,-66.4,{support:'fallow_display_island_s'}),
  // East Department's original housewares and returns layout, intentionally
  // less stocked than the west anchor. No toy-size giant shoe fixture.
- item('east_left_clearance','east_original_anchor','promo_bin',32.2,-50,{radius:.65}),
- item('east_return_knitwear','east_original_anchor','folded_stock_cube',40.5,-49.9,{radius:.65}),
- item('east_carton_closed','east_original_anchor','stock_box_closed',44.9,-46.4,{radius:.32}),
- item('east_north_gift_books','east_original_anchor','gift_books',35.8,-46,{support:'east_anchor_display_n'}),
- item('east_south_open_returns','east_original_anchor','stock_box_open',35.8,-58.3,{support:'east_anchor_display_s'})
+ item('east_left_clearance','east_original_anchor','promo_bin',32.2,-49.6,{radius:.65}),
+ item('east_return_knitwear','east_original_anchor','folded_stock_cube',42.5,-48.2,{radius:.65}),
+ item('east_carton_closed','east_original_anchor','stock_box_closed',41.6,-59.6,{radius:.32}),
+ item('east_north_gift_books','east_original_anchor','gift_books',35.8,-46.4,{support:'east_anchor_display_n'}),
+ item('east_south_open_returns','east_original_anchor','stock_box_open',35.8,-57.8,{support:'east_anchor_display_s'})
 ]);
 
 const gap=(a,b)=>Math.hypot(a.x-b.x,a.z-b.z);

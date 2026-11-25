@@ -70,13 +70,16 @@ const shots={
  fallowCheckout:{floor:'G',eye:[-43,1.73,-66.1],target:[-43,1.65,-69.5],label:'GROUND · FALLOW\'S SERVICE ZONE',title:'Customer Service and Returns',note:'Licensed wood service desk, register physically supported on its actual worktop, and back-stock zone.'},
  eastAnchor:{floor:'G',eye:[32.5,1.73,-52.0],target:[42.2,1.2,-52.0],
   label:'GROUND · ORIGINAL EAST ANCHOR STORE',title:'East Original Department Store Fittings',
-  note:'Thirteen original displays, aged lighting, and V123 source-auditioned clearance/returns stock fitted around the 4.2m glazed storefront and original checkout aisles.'},
+  note:'Thirty-four original displays, aged lighting, and V123 source-auditioned clearance/returns stock fitted around the 4.2m glazed storefront and original checkout aisles.'},
  fallowPlan:{floor:'G',eye:[-33,10.5,-49],target:[-38,0,-61],
   label:'1979 FALLOW\'S · SOURCE-ROOF REMOVED (SURVEY ONLY)',title:"Fallow's Original Floor Plan",
   note:'Survey-only cutaway: the real carpet and all imported shop display objects without the overhead roof; no game camera, chapter or mall data was changed.'},
+ eastClearance:{floor:'G',eye:[36.2,1.73,-50.2],target:[36.2,1.4,-44.2],label:'GROUND · EAST DEPARTMENT',title:'Final Clearance',note:'Organized housewares, linens and selected depleted shelves.'},
+ eastReturns:{floor:'G',eye:[41.3,1.73,-56.5],target:[44.4,1.5,-56.5],label:'GROUND · EAST DEPARTMENT',title:'Returns and Collection',note:'Actual wood desk and measured register support.'},
+ eastStripped:{floor:'G',eye:[42.7,1.73,-46.4],target:[45.45,1.4,-46.4],label:'GROUND · EAST DEPARTMENT',title:'Fixtures for Removal',note:'Deliberately emptied adjacent display banks, not accidental missing merchandise.'},
  eastAnchorPlan:{floor:'G',eye:[32,9.6,-44],target:[38,0,-52],
   label:'1979 ORIGINAL EAST ANCHOR · SOURCE-ROOF REMOVED (SURVEY ONLY)',title:'Original East Anchor Floor Plan',
-  note:'Survey-only cutaway of exact 17 × 18 metre original department store and all 13 actual licensed fixtures, not conceptual arrangement.'},
+  note:'Survey-only cutaway of exact 17 × 18 metre original department store and all 34 actual licensed fixtures, not conceptual arrangement.'},
  westGallery:{floor:'G',eye:[-20,1.75,-49],target:[-20,1.9,-104],
   label:'GROUND · WEST 1979 RETAIL GALLERY',title:'West Shopping Walk Columns',
   note:'Original-period structural piers frame the 1979 retail modules and connect to the existing soffit, with an unobstructed central walking line.'},
@@ -418,7 +421,7 @@ async function begin(){
   state.wayfindingCountV120=state.galleryAmenitiesV120.wayfinding.length;
   state.anchorRetailV121=[...built.anchorRetailV121];
   state.anchorRetailCountV121=state.anchorRetailV121.length;
-  state.anchorIdentityV122={panels:[...built.anchorIdentityV122.panels],signs:[...built.anchorIdentityV122.signs],fallowDepartments:[...built.anchorIdentityV122.fallowDepartments]};
+  state.anchorIdentityV122={panels:[...built.anchorIdentityV122.panels],signs:[...built.anchorIdentityV122.signs],fallowDepartments:[...built.anchorIdentityV122.fallowDepartments],eastDepartments:[...built.anchorIdentityV122.eastDepartments]};
   state.ceilingPanelCountV122=state.anchorIdentityV122.panels.length;
   state.departmentSignCountV122=state.anchorIdentityV122.signs.length;
   state.anchorStockV123=[...built.anchorStockV123];

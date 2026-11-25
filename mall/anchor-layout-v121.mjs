@@ -62,19 +62,40 @@ export const ORIGINAL_ANCHOR_FIXTURES_V121=Object.freeze([
  fixture('fallow_display_island_n','west_anchor','table_large',-35.9,-54.7,0,1.15),
  fixture('fallow_display_s','west_anchor','table_large',-39.5,-66.4,0,1.15),
  fixture('fallow_display_island_s','west_anchor','table_large',-35.9,-66.4,0,1.15),
- fixture('east_anchor_wall_n','east_original_anchor','wall_bay',44.9,-51.1,-Math.PI/2,.86),
- fixture('east_anchor_wall_s','east_original_anchor','wall_bay',44.9,-55,-Math.PI/2,.86),
- fixture('east_anchor_display_n','east_original_anchor','table_medium',35.8,-46,0,1.10),
- fixture('east_anchor_display_s','east_original_anchor','table_medium',35.8,-58.3,0,1.10),
- fixture('east_anchor_spinner','east_original_anchor','spinner',41.8,-54.5,0,.70),
- fixture('east_anchor_rail','east_original_anchor','waterfall',39.2,-45.1,0,.84),
- fixture('east_north_shelf_1','east_original_anchor','wall_bay',33,-44.3,Math.PI,0.86),
- fixture('east_north_shelf_2','east_original_anchor','wall_bay',43.9,-44.3,Math.PI,0.86),
- fixture('east_south_shelf_1','east_original_anchor','wall_bay',31.5,-59.8,0,0.86),
- fixture('east_south_shelf_2','east_original_anchor','wall_bay',39.5,-59.8,0,0.86),
- fixture('east_spinner_gallery_n','east_original_anchor','spinner',34,-48.7,0,0.7),
- fixture('east_spinner_gallery_s','east_original_anchor','spinner',34,-55.5,0,0.7),
- fixture('east_waterfall_s','east_original_anchor','waterfall',32,-57,0,0.84)
+ fixture('east_north_cubby_1','east_original_anchor','wall_cubbies',31.5,-43.55,Math.PI,0.7),
+ fixture('east_north_cubby_2','east_original_anchor','wall_cubbies',33,-43.55,Math.PI,0.7),
+ fixture('east_north_cubby_3','east_original_anchor','wall_cubbies',34.5,-43.55,Math.PI,0.7),
+ fixture('east_north_cubby_4','east_original_anchor','wall_cubbies',36,-43.55,Math.PI,0.7),
+ fixture('east_north_cubby_5','east_original_anchor','wall_cubbies',37.5,-43.55,Math.PI,0.7),
+ fixture('east_north_cubby_6','east_original_anchor','wall_cubbies',39,-43.55,Math.PI,0.7),
+ fixture('east_north_cubby_7','east_original_anchor','wall_cubbies',40.5,-43.55,Math.PI,0.7),
+ fixture('east_rear_cubby_1','east_original_anchor','wall_cubbies',45.45,-44.8,-Math.PI/2,0.7),
+ fixture('east_rear_cubby_2','east_original_anchor','wall_cubbies',45.45,-46.3,-Math.PI/2,0.7),
+ fixture('east_rear_cubby_3','east_original_anchor','wall_cubbies',45.45,-47.8,-Math.PI/2,0.7),
+ fixture('east_rear_cubby_4','east_original_anchor','wall_cubbies',45.45,-49.3,-Math.PI/2,0.7),
+ fixture('east_rear_cubby_8','east_original_anchor','wall_cubbies',45.45,-50.9,-Math.PI/2,.7),
+ fixture('east_rear_cubby_9','east_original_anchor','wall_cubbies',45.45,-52.5,-Math.PI/2,.7),
+ fixture('east_rear_cubby_5','east_original_anchor','wall_cubbies',45.45,-55.2,-Math.PI/2,0.7),
+ fixture('east_rear_cubby_6','east_original_anchor','wall_cubbies',45.45,-56.7,-Math.PI/2,0.7),
+ fixture('east_rear_cubby_7','east_original_anchor','wall_cubbies',45.45,-58.2,-Math.PI/2,0.7),
+ fixture('east_south_cubby_1','east_original_anchor','wall_cubbies',31.5,-60.45,0,0.7),
+ fixture('east_south_cubby_2','east_original_anchor','wall_cubbies',33,-60.45,0,0.7),
+ fixture('east_south_cubby_3','east_original_anchor','wall_cubbies',34.5,-60.45,0,0.7),
+ fixture('east_south_cubby_4','east_original_anchor','wall_cubbies',36,-60.45,0,0.7),
+ fixture('east_south_cubby_5','east_original_anchor','wall_cubbies',37.5,-60.45,0,0.7),
+ fixture('east_south_cubby_6','east_original_anchor','wall_cubbies',39,-60.45,0,0.7),
+ fixture('east_clearance_gondola_1','east_original_anchor','gondola',31.2,-46.6,Math.PI/2,0.85),
+ fixture('east_clearance_gondola_2','east_original_anchor','gondola',34.4,-50.05,0,0.85),
+ fixture('east_clearance_gondola_3','east_original_anchor','gondola',38,-50.05,0,0.85),
+ fixture('east_clearance_gondola_4','east_original_anchor','gondola',34.5,-53.95,0,0.85),
+ fixture('east_clearance_gondola_5','east_original_anchor','gondola',38.3,-53.95,0,0.85),
+ fixture('east_clearance_gondola_6','east_original_anchor','gondola',31.5,-57.3,Math.PI/2,0.85),
+ fixture('east_clearance_gondola_7','east_original_anchor','gondola',41.6,-50.05,0,.85),
+ fixture('east_clearance_gondola_8','east_original_anchor','gondola',41.4,-53.95,0,.85),
+ fixture('east_anchor_display_n','east_original_anchor','table_large',35.8,-46.4,0,1.15),
+ fixture('east_clearance_table_n','east_original_anchor','table_large',39.3,-46.4,0,1.15),
+ fixture('east_anchor_display_s','east_original_anchor','table_large',35.8,-57.8,0,1.15),
+ fixture('east_returns_table_s','east_original_anchor','table_large',39.3,-57.8,0,1.15)
 ]);
 
 const rooms=new Map(MALL.rooms.map(r=>[r.id,r]));
@@ -87,7 +108,7 @@ const distToSegment=(p,a,b)=>{
 };
 export function validateAnchorLayoutV121(fixtures=ORIGINAL_ANCHOR_FIXTURES_V121,{portals=[]}={}){
  const defects=[...validateAnchorSourceV121()],ids=new Set();
- if(fixtures.length!==49||fixtures.filter(f=>f.room==='west_anchor').length!==36||fixtures.filter(f=>f.room==='east_original_anchor').length!==13)defects.push('original department-store authored fixture set is incomplete');
+ if(fixtures.length!==70||fixtures.filter(f=>f.room==='west_anchor').length!==36||fixtures.filter(f=>f.room==='east_original_anchor').length!==34)defects.push('original department-store authored fixture set is incomplete');
  for(const f of fixtures){
   if(ids.has(f.id))defects.push('duplicate original retail fixture '+f.id);
   ids.add(f.id);
@@ -97,7 +118,7 @@ export function validateAnchorLayoutV121(fixtures=ORIGINAL_ANCHOR_FIXTURES_V121,
   if(!room||room.level!=='G'||!['west_anchor','east_original_anchor'].includes(f.room)){
    defects.push('fixture is not inside an original named 1979 anchor '+f.id);continue;
   }
-  const exact=f.room==='west_anchor',b=anchorBoundsV160(f);
+  const exact=['west_anchor','east_original_anchor'].includes(f.room),b=anchorBoundsV160(f);
   if(exact?!(b.minX>room.x1+.12&&b.maxX<room.x2-.12&&b.minZ>room.z1+.12&&b.maxZ<room.z2-.12):!(f.x>room.x1+r+.12&&f.x<room.x2-r-.12&&
    f.z>room.z1+r+.12&&f.z<room.z2-r-.12))
    defects.push('store item clips actual source room wall '+f.id);
@@ -122,7 +143,7 @@ export function validateAnchorLayoutV121(fixtures=ORIGINAL_ANCHOR_FIXTURES_V121,
   const a=fixtures[i],b=fixtures[j];
   if(a.room!==b.room)continue;
   const p=anchorBoundsV160(a),q=anchorBoundsV160(b);
-  if(a.room==='west_anchor'?(p.minX<q.maxX+.025&&p.maxX>q.minX-.025&&p.minZ<q.maxZ+.025&&p.maxZ>q.minZ-.025):distance(a,b)<=a.collisionRadius+b.collisionRadius+.5)
+  if(['west_anchor','east_original_anchor'].includes(a.room)?(p.minX<q.maxX+.025&&p.maxX>q.minX-.025&&p.minZ<q.maxZ+.025&&p.maxZ>q.minZ-.025):distance(a,b)<=a.collisionRadius+b.collisionRadius+.5)
    defects.push('original store fixtures overlap or leave unwalkable aisle '+a.id+'/'+b.id);
  }
  return defects;

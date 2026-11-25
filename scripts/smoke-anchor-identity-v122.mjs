@@ -36,7 +36,7 @@ try{
  assert.equal(s.firstFrameFullyLoaded,true);
  assert.equal(s.ceilingPanelCountV122,15);
  assert.equal(s.departmentSignCountV122,2);
- assert.equal(s.anchorRetailCountV121,49);
+ assert.equal(s.anchorRetailCountV121,70);
  assert.equal(s.galleryColumnCount,28);
  assert.equal(s.storefrontCount,7);
  assert.equal(s.closedBayCount,13);

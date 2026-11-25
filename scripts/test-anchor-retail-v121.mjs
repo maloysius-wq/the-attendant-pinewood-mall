@@ -20,7 +20,7 @@ test('exact original two anchor tenants, 41 story rooms and six untouched chapte
  assert.equal(MALL.evidence.length,9);
  assert.equal(FURNISHINGS_V69.fixtures.filter(f=>f.room==='west_anchor').length,3,
   'do not secretly furnish the tenant before licensed source auditions and actual review');
- assert.equal(FURNISHINGS_V69.fixtures.filter(f=>f.room==='east_original_anchor').length,2);
+ assert.equal(FURNISHINGS_V69.fixtures.filter(f=>f.room==='east_original_anchor').length,3);
 });
 
 test('all historic and V160 candidate 3D sources are already pinned licensed byte-exact CC0 imports',()=>{
