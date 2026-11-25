@@ -334,7 +334,7 @@ export const FURNISHINGS_V69=Object.freeze({
     {
       "id": "fallow_register",
       "room": "west_anchor",
-      "model": "assets/vendor/runtime/ae505c72620ea098/cash-register.glb",
+      "model": "assets/vendor/runtime/6aeac44b7c9c0f17/cash-register.glb",
       "x": -43.25,
       "z": -68,
       "targetHeight": 0.27,
@@ -342,7 +342,7 @@ export const FURNISHINGS_V69=Object.freeze({
       "role": "loose_prop",
       "yaw": 0,
       "support": "fallow_counter",
-      "maxWidth": 0.44,
+      "maxWidth": 0.45,
       "maxDepth": 0.44
     },
     {

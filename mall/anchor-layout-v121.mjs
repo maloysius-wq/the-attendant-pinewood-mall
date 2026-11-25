@@ -54,7 +54,7 @@ export const ORIGINAL_ANCHOR_FIXTURES_V121=Object.freeze([
  fixture('fallow_north_gondola_2','west_anchor','gondola',-39.4,-51.8,0,0.85),
  fixture('fallow_north_gondola_3','west_anchor','gondola',-36.4,-51.8,0,0.85),
  fixture('fallow_north_gondola_4','west_anchor','gondola',-42.4,-57.5,0,0.85),
- fixture('fallow_north_gondola_5','west_anchor','gondola',-38.8,-57.5,0,0.85),
+ fixture('fallow_north_gondola_5','west_anchor','gondola',-39.8,-57.5,0,0.85),
  fixture('fallow_south_gondola_1','west_anchor','gondola',-39,-63.6,0,0.85),
  fixture('fallow_south_gondola_2','west_anchor','gondola',-38.6,-69.4,0,0.85),
  fixture('fallow_south_gondola_3','west_anchor','gondola',-35.5,-69.4,0,0.85),
