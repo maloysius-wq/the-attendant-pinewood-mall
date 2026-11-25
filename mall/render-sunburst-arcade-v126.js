@@ -4,6 +4,7 @@
  */
 import * as THREE from '../vendor/three/build/three.module.js';
 import {GLTFLoader} from '../vendor/three/examples/jsm/loaders/GLTFLoader.js';
+import {applyOriginalArcadeArtworkV159,arcadePoweredV159} from './arcade-surface-art-v159.js';
 import {
  SUNBURST_PACK_V126,SUNBURST_FIXTURES_V126,SUNBURST_LIGHTS_V126,
  SUNBURST_SIGN_V126,SUNBURST_POSTERS_V126,validateSunburstArcadeV126
@@ -53,6 +54,19 @@ function fitOriginalSource(pack,f,assets){
   Math.abs(size.y-f.sourceSize[1])>.012||
   Math.abs(size.z-f.sourceSize[2])>.012)
   throw Error('V126 real model geometry differs from audited V30 metres '+f.id);
+ model.traverse(o=>{
+  if(!o.isMesh)return;o.castShadow=false;o.receiveShadow=true;
+  const current=Array.isArray(o.material)?o.material:[o.material];
+  const aged=current.map(m=>{
+   const mat=m.clone();assets.materials.push(mat);
+   if(mat.color)mat.color.multiply(new THREE.Color(0xb1aaa0));
+   if(mat.name==='pack_emissive'){if(mat.color)mat.color.multiplyScalar(arcadePoweredV159(f)?.68:.23);if(mat.emissive)mat.emissive.multiplyScalar(arcadePoweredV159(f)?.35:.03);mat.emissiveIntensity=arcadePoweredV159(f)?.50:.04;}
+   if(typeof mat.roughness==='number')mat.roughness=Math.max(.64,mat.roughness);
+   return mat;
+  });
+  o.material=Array.isArray(o.material)?aged:aged[0];
+ });
+ const artwork=applyOriginalArcadeArtworkV159(model,f,assets);
  model.rotation.y=f.yaw;model.updateMatrixWorld(true);
  b=new THREE.Box3().setFromObject(model);size=b.getSize(new THREE.Vector3());
  if(Math.hypot(size.x/2,size.z/2)>f.collisionRadius+.005)
@@ -64,24 +78,13 @@ function fitOriginalSource(pack,f,assets){
  if(Math.abs(b.min.y)>.01)throw Error('V126 authentic arcade cabinet floats '+f.id);
  model.name='v126_actual_original_CC0_arcade_'+f.id;
  model.userData.realSource={path:f.source,mesh:f.node,sha256:f.sha256,license:f.license};
- model.traverse(o=>{
-  if(!o.isMesh)return;o.castShadow=false;o.receiveShadow=true;
-  const current=Array.isArray(o.material)?o.material:[o.material];
-  const aged=current.map(m=>{
-   const mat=m.clone();assets.materials.push(mat);
-   if(mat.color)mat.color.multiply(new THREE.Color(0xa19c93));
-   if(typeof mat.roughness==='number')mat.roughness=Math.max(.64,mat.roughness);
-   return mat;
-  });
-  o.material=Array.isArray(o.material)?aged:aged[0];
- });
  assets.root.add(model);
  // Keep the licensed cabinet's actual printed surfaces; the previous
  // free-floating marquee plane was not attached to measured cabinet geometry.
  return {id:f.id,node:f.node,title:f.title,x:f.x,z:f.z,
   source:f.source,sha256:f.sha256,license:f.license,
   actualWidth:size.x,actualDepth:size.z,actualHeight:size.y,
-  groundY:b.min.y,collisionRadius:f.collisionRadius,realMesh:true};
+  groundY:b.min.y,collisionRadius:f.collisionRadius,realMesh:true,artwork};
 }
 function ceilingLamp(gltf,f,ceilings,assets){
  const slab=ceilings.find(c=>c.room==='sunburst_arcade'&&

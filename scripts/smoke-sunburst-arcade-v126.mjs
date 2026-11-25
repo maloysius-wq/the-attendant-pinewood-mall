@@ -43,11 +43,16 @@ try{
  assert.equal(state.sunburstArcadeV126.actualFullSizeMachines,40);
  assert.equal(state.retailAudit.fixtures.filter(f=>f.room==='sunburst_arcade'&&['v69','v67'].includes(f.layer)).length,0,'retired duplicates must not render');
  const kinds=new Set();
+ console.log('V159_MESH_ARTWORK '+JSON.stringify(state.sunburstArcadeV126.fixtures.map(f=>({id:f.id,node:f.node,artwork:f.artwork}))));
  for(const f of state.sunburstArcadeV126.fixtures){
   kinds.add(f.node);
   assert.equal(f.license,'CC0-1.0');assert.equal(f.realMesh,true);
   assert.ok(f.source.startsWith('assets/vendor/arcade-v30/'));
   assert.ok(f.actualWidth>.3&&f.actualWidth<3);
+  if(f.node.startsWith('arcade_upright')){
+   assert.deepEqual(f.artwork.faces.map(a=>a.type),['screen','marquee'],'must use genuine display face and genuine marquee '+f.id);
+   assert.ok(f.artwork.faces.every(a=>a.normalZ>.55&&a.triangles>0));
+  }
   assert.ok(f.actualDepth>.3&&f.actualDepth<3);
   assert.ok(f.actualHeight>.74&&f.actualHeight<2.2);
   assert.ok(state.retailAudit.fixtures.some(m=>m.layer==='v126'&&m.id===f.id),'missing from actual assembled scene '+f.id);
@@ -56,6 +61,7 @@ try{
    'authentic full-size source out of gameplay collider '+f.id);
  }
  assert.ok(kinds.size>=10,'not a realistic varied 1997 arcade');
+ assert.equal(state.sunburstArcadeV126.fixtures.filter(f=>f.artwork.powered).length,5,'only a small number of devices remain powered');
  for(const light of state.sunburstArcadeV126.fluorescents){
   assert.equal(light.license,'CC0-1.0');
   assert.ok(Math.abs(light.ceilingUnderside-5.21)<.02);

@@ -7,6 +7,9 @@ on:
       - 'scripts/smoke-native-arcade-v159.mjs'
       - 'mall/sunburst-arcade-plan-v126.mjs'
       - 'mall/gameplay-layout-v70.mjs'
+      - 'mall/render-sunburst-arcade-v126.js'
+      - 'mall/render-shell-v67.js'
+      - 'mall/arcade-surface-art-v159.js'
       - '.github/workflows/native-arcade-v159.yml'
   workflow_dispatch:
 permissions:
