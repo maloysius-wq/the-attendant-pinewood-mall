@@ -58,8 +58,10 @@ try{
  for(const d of initial.galleryAmenitiesV120.directories){
   assert.ok(d.physicalDirectory&&d.height===2.25&&d.collisionRadius>=.8);
   assert.equal(d.printedFaces,2,'actual freestanding north/south directory must display framed maps on BOTH sides: '+d.id);
+  assert.equal(d.faces.length,2);assert.notEqual(d.faces[0].northUp,d.faces[1].northUp);
+  for(const face of d.faces){assert.deepEqual(face.markerWorld,{x:d.x,z:d.z});assert.equal(face.roomIds.length,10);assert.ok(Math.abs(face.textureWidth/face.textureHeight-face.meshWidth/face.meshHeight)<.001);}
  }
- const views=['atriumLounge','directorySouth','directoryNorth','westLounge','eastLounge','westGallery','eastGallery','aerial'];
+ const views=['atriumLounge','atriumNorthLounge','directorySouth','directoryNorth','directoryClose','directoryBack','westLounge','eastLounge','westGallery','eastGallery','aerial'];
  for(const shot of views){
   await page.evaluate(s=>{const api=window.__PINEWOOD_MALL_CONSTRUCTION_V67__;api.goto(s);api.setAuditLight(true)},shot);
   await page.waitForTimeout(200);
@@ -67,6 +69,10 @@ try{
   assert.equal(s.shot,shot);
   assert.deepEqual(s.errors,[]);
   await page.screenshot({path:dir+'/'+shot+'.png',fullPage:true,animations:'disabled',timeout:90000});
+ }
+ for(const shot of ['atriumLounge','westGallery','eastGallery']){
+  await page.evaluate(s=>{const api=window.__PINEWOOD_MALL_CONSTRUCTION_V67__;api.goto(s);api.setAuditLight(false)},shot);
+  await page.screenshot({path:dir+'/'+shot+'-ambient.png',timeout:120000,animations:'disabled'});
  }
  assert.deepEqual(errors,[],'real browser exceptions');
  assert.deepEqual(consoleErrors,[],'no construction/asset errors');

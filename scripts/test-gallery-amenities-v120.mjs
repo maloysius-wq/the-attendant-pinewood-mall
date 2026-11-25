@@ -106,3 +106,26 @@ test('all six chapter routes, original cinema-to-door, and actual LS evidence po
  }
  assert.equal(MALL.rooms.length,41);
 });
+
+import {DIRECTORY_PRINT_V163,DIRECTORY_TENANTS_V163,directoryLayoutV163} from '../mall/gallery-directory-v163.mjs';
+test('every directory has two rotated, location-correct, aspect-matched plans of canonical public rooms',()=>{
+ const {width,height,meshWidth,meshHeight,metrePixels}=DIRECTORY_PRINT_V163;
+ assert.ok(Math.abs(width/height-meshWidth/meshHeight)<.001);
+ assert.equal(DIRECTORY_TENANTS_V163.length,6);
+ for(const d of GALLERY_AMENITIES_V120.directories){
+  const north=directoryLayoutV163(d,d.facing==='south'?1:-1),south=directoryLayoutV163(d,d.facing==='south'?-1:1);
+  assert.equal(north.northUp,true);assert.equal(south.northUp,false);
+  assert.deepEqual(north.markerWorld,{x:d.x,z:d.z});assert.deepEqual(south.markerWorld,north.markerWorld);
+  assert.ok(Math.abs(north.marker.x+south.marker.x-760)<1e-8);
+  assert.ok(Math.abs(north.marker.y+south.marker.y-1040)<1e-8);
+  assert.notEqual(north.marker.x,south.marker.x);
+  for(const r of north.rooms){const source=MALL.rooms.find(x=>x.id===r.id);
+   assert.ok(source&&source.level==='G'&&['retail','public'].includes(source.kind));
+   assert.ok(Math.abs(r.w-(source.x2-source.x1)*metrePixels)<1e-8);
+   assert.ok(Math.abs(r.h-(source.z2-source.z1)*metrePixels)<1e-8);
+  }
+  const centre=north.rooms.find(r=>r.id==='central_gallery');
+  assert.ok(north.marker.x>centre.x&&north.marker.x<centre.x+centre.w&&north.marker.y>centre.y&&north.marker.y<centre.y+centre.h);
+  assert.ok(!north.rooms.some(r=>r.id==='east_wing_spine'));
+ }
+});

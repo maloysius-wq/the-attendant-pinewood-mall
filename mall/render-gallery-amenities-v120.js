@@ -8,43 +8,62 @@ import {GLTFLoader} from '../vendor/three/examples/jsm/loaders/GLTFLoader.js';
 import {GALLERY_AMENITIES_V120,BENCH_ASSET_V120,BIN_ASSET_V163,validateGalleryAmenitiesV120,publicAmenityBoundsV163,benchApproachV163}
  from './gallery-amenities-v120.mjs';
 import {GALLERY_COLUMNS_V118} from './gallery-columns-v118.mjs';
+import {DIRECTORY_PRINT_V163,DIRECTORY_TENANTS_V163,directoryLayoutV163} from './gallery-directory-v163.mjs';
 
 function cuboid(g,name,x,y,z,w,h,d,material){
  const mesh=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),material);
  mesh.name=name;mesh.position.set(x,y,z);mesh.receiveShadow=true;g.add(mesh);return mesh;
 }
-function printCanvas(lines,{portrait=false}={}){
- const canvas=document.createElement('canvas');
- canvas.width=portrait?768:1024;canvas.height=portrait?1024:256;
- const ctx=canvas.getContext('2d');if(!ctx)throw Error('Gallery directory texture context unavailable');
- const w=canvas.width,h=canvas.height;
- ctx.fillStyle='#223435';ctx.fillRect(0,0,w,h);
- ctx.fillStyle='#95866b';ctx.fillRect(0,0,w,portrait?32:18);
- ctx.strokeStyle='#afaa8c';ctx.lineWidth=8;ctx.strokeRect(17,17,w-34,h-34);
- ctx.textBaseline='middle';ctx.textAlign='center';
- if(!portrait){
-  ctx.fillStyle='#dcd5b9';ctx.font='bold 57px Arial';ctx.fillText(lines[0],w/2,108,w-45);
-  ctx.font='bold 34px Arial';ctx.fillText(lines[1],w/2,186,w-60);
- }else{
-  ctx.fillStyle='#e1d6b9';ctx.font='bold 65px Arial';ctx.fillText('PINEWOOD MALL',w/2,118,w-42);
-  ctx.font='bold 30px Arial';ctx.fillText('EST. 1979    ·    DIRECTORY',w/2,172,w-30);
-  ctx.fillStyle='#3b5555';ctx.fillRect(77,238,614,550);
-  ctx.strokeStyle='#acb4aa';ctx.lineWidth=7;ctx.strokeRect(77,238,614,550);
-  ctx.strokeStyle='#7d9791';ctx.lineWidth=4;
-  ctx.strokeRect(315,268,138,490);
-  ctx.fillStyle='#a7aa8d';ctx.fillRect(345,474,80,65);
-  ctx.font='bold 30px Arial';ctx.fillStyle='#eee6cf';ctx.fillText('FOUNTAIN',384,566,235);
-  ctx.font='bold 32px Arial';ctx.fillText('WEST',194,298,190);ctx.fillText('EAST',570,298,190);
-  ctx.font='bold 22px Arial';ctx.fillText("FALLOW'S",194,396,190);
-  ctx.fillText('CASSETTE',194,485,190);ctx.fillText('ARCADE',194,641,190);
-  ctx.fillText('VIDEO PLANET',565,431,205);ctx.fillText('FOOD COURT',565,617,205);
-  ctx.fillStyle='#e4b66a';ctx.font='bold 38px Arial';ctx.fillText('YOU ARE HERE',w/2,876,w-50);
-  ctx.font='bold 22px Arial';ctx.fillStyle='#c6baa0';ctx.fillText(lines[0],w/2,931,w-50);
- }
- // Small deterministic physical fading chips, not random transient noise.
- ctx.fillStyle='#7c877540';
- for(let i=0;i<65;i++)ctx.fillRect((i*173+7)%w,(i*97+13)%h,2+(i%7),1+(i%3));
+function canvasTexture(canvas){
  const t=new THREE.CanvasTexture(canvas);t.colorSpace=THREE.SRGBColorSpace;return t;
+}
+function printCanvas(lines){
+ const canvas=document.createElement('canvas');canvas.width=1190;canvas.height=290;
+ const ctx=canvas.getContext('2d'),w=canvas.width,h=canvas.height;
+ if(!ctx)throw Error('Gallery sign texture unavailable');
+ ctx.fillStyle='#263a36';ctx.fillRect(0,0,w,h);
+ ctx.strokeStyle='#a89d80';ctx.lineWidth=8;ctx.strokeRect(12,12,w-24,h-24);
+ ctx.fillStyle='#dfd5b8';ctx.textBaseline='middle';ctx.textAlign='center';
+ ctx.font='bold 59px Arial';ctx.fillText(lines[0],w/2,106,w-58);
+ ctx.font='bold 43px Arial';ctx.fillText(lines[1],w/2,200,w-64);
+ return canvasTexture(canvas);
+}
+function printDirectory(plan,face){
+ const layout=directoryLayoutV163(plan,face),canvas=document.createElement('canvas');
+ canvas.width=DIRECTORY_PRINT_V163.width;canvas.height=DIRECTORY_PRINT_V163.height;
+ const ctx=canvas.getContext('2d'),w=canvas.width,h=canvas.height;if(!ctx)throw Error('Directory canvas missing');
+ const label=(s,x,y,size,color='#e4dac0',align='center',maxWidth=w-40)=>{
+  ctx.font='bold '+size+'px Arial';ctx.textAlign=align;ctx.textBaseline='middle';ctx.fillStyle=color;ctx.fillText(s,x,y,maxWidth);
+ };
+ ctx.fillStyle='#253832';ctx.fillRect(0,0,w,h);
+ ctx.strokeStyle='#b1a07c';ctx.lineWidth=6;ctx.strokeRect(15,15,w-30,h-30);
+ label('PINEWOOD MALL',w/2,78,60);label('ORIGINAL GALLERIES  ·  GROUND FLOOR',w/2,142,25);
+ ctx.fillStyle='#172723';ctx.fillRect(45,188,670,654);
+ label(layout.orientation+' ↑',w-95,216,25);
+ for(const r of layout.rooms){
+  ctx.fillStyle=r.id==='boarded_lobby'?'#565651':r.number?'#777d65':'#49625a';
+  ctx.fillRect(r.x,r.y,r.w,r.h);ctx.strokeStyle='#d0c6a7';ctx.lineWidth=2.5;ctx.strokeRect(r.x,r.y,r.w,r.h);
+  if(r.number)label(String(r.number),r.x+r.w/2,r.y+r.h/2,29);
+  if(r.id==='boarded_lobby'){label('MAIN ENTRY',r.x+r.w/2,r.y+r.h/2-12,18);label('CLOSED',r.x+r.w/2,r.y+r.h/2+12,16,'#d8b983')}
+ }
+ ctx.beginPath();ctx.arc(layout.fountain.x,layout.fountain.y,layout.fountain.radius,0,Math.PI*2);
+ ctx.fillStyle='#9c9a7d';ctx.fill();ctx.strokeStyle='#e3d9bd';ctx.lineWidth=2;ctx.stroke();
+ label('FOUNTAIN',layout.fountain.x,layout.fountain.y,13,'#202c25');
+ ctx.beginPath();ctx.arc(layout.marker.x,layout.marker.y,9,0,Math.PI*2);
+ ctx.fillStyle='#e9b65c';ctx.fill();ctx.strokeStyle='#1c2923';ctx.lineWidth=3;ctx.stroke();
+ ctx.beginPath();ctx.arc(98,879,9,0,Math.PI*2);ctx.fillStyle='#e9b65c';ctx.fill();
+ label('YOU ARE HERE',120,879,30,'#e9b65c','left');
+ for(const [i,t] of DIRECTORY_TENANTS_V163.entries()){
+  const x=i<3?70:390,y=958+(i%3)*63;
+  ctx.fillStyle='#777d65';ctx.fillRect(x,y-20,42,40);label(String(t.number),x+21,y,24);
+  label(t.label,x+56,y,25,'#e4dac0','left',260);
+ }
+ ctx.strokeStyle='#9a8c6e';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(60,1149);ctx.lineTo(700,1149);ctx.stroke();
+ label('EAST WING  ·  STAFF ACCESS ONLY',w/2,1191,27,'#c7b891');
+ label(plan.id==='main_entrance_directory'?'SOUTH ATRIUM DIRECTORY':'NORTH ATRIUM DIRECTORY',w/2,1262,25);
+ label('PINEWOOD PROPERTY MANAGEMENT',w/2,1348,20,'#a79b7e');
+ ctx.fillStyle='#d4c6a512';for(let i=0;i<85;i++)ctx.fillRect((i*173+7)%w,(i*97+13)%h,2+(i%6),1+(i%3));
+ return {texture:canvasTexture(canvas),layout};
 }
 function ageSource(source,owned){
  const cache=new Map();
@@ -84,10 +103,7 @@ function placeDirectory(g,plan,mats,textures){
  g.add(root);
  cuboid(root,'directory_plinth',0,.11,0,1.36,.22,.80,mats.stone);
  cuboid(root,'directory_real_back',0,1.18,0,plan.width,2.12,plan.depth,mats.steel);
- const texture=printCanvas([plan.id==='main_entrance_directory'?'MAIN SOUTH ENTRANCE':'NORTH GALLERY'],{portrait:true});
- textures.push(texture);
- const material=new THREE.MeshBasicMaterial({map:texture,side:THREE.DoubleSide});
- mats.owned.push(material);
+ const faces=[];
  // Source's free-standing kiosk is accessible from EITHER mall direction.
  // Mirrored framed faces are real printed mesh planes at the two actual
  // cabinet surfaces, not a double-sided plane whose back is still hidden
@@ -97,6 +113,9 @@ function placeDirectory(g,plan,mats,textures){
   cuboid(root,'directory_frame_top',0,2.27,z,plan.width+.12,.09,.10,mats.stone);
   for(const x of [-.58,.58])
    cuboid(root,'directory_side_stanchion',x,1.14,z,.08,2.12,.10,mats.stone);
+  const {texture,layout}=printDirectory(plan,face);textures.push(texture);
+  const material=new THREE.MeshBasicMaterial({map:texture,side:THREE.FrontSide});mats.owned.push(material);
+  faces.push({face,northUp:layout.northUp,markerWorld:layout.markerWorld,marker:layout.marker,roomIds:layout.rooms.map(r=>r.id),textureWidth:texture.image.width,textureHeight:texture.image.height,meshWidth:.95,meshHeight:1.78});
   const p=new THREE.Mesh(new THREE.PlaneGeometry(.95,1.78),material);
   p.name=face===1?'printed_original_mall_map_front':'printed_original_mall_map_back';
   p.position.set(0,1.22,face*.342);
@@ -105,11 +124,11 @@ function placeDirectory(g,plan,mats,textures){
   cuboid(root,'directory_lower_mailslot',0,.26,z,.66,.04,.05,mats.stone);
  }
  const printedFaces=root.children.filter(x=>x.name.startsWith('printed_original_mall_map_'));
- if(printedFaces.length!==2||!printedFaces.every(x=>x.isMesh&&x.material.map===texture))
+ if(printedFaces.length!==2||!printedFaces.every(x=>x.isMesh&&x.material.map)||printedFaces[0].material.map===printedFaces[1].material.map)
   throw Error('Free-standing mall directory lost one authentic printed side '+plan.id);
  return {id:plan.id,room:plan.room,x:plan.x,z:plan.z,
   height:plan.height,collisionRadius:plan.collisionRadius,physicalDirectory:true,
-  printedFaces:printedFaces.length};
+  printedFaces:printedFaces.length,faces};
 }
 function placeWayfinding(g,entry,mats,textures){
  const c=GALLERY_COLUMNS_V118.find(x=>x.id===entry.columnId);
