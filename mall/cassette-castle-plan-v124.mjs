@@ -30,7 +30,7 @@ export const CASSETTE_FIXTURES_V124=Object.freeze([
  fixture('clearance_west','wall_bay',-31.9,-88.6,0,.86,'CLEARANCE'),
  fixture('country_south','wall_bay',-41.7,-88.6,0,.86,'COUNTRY'),
  fixture('jazz_south','wall_bay',-38.4,-88.6,0,.86,'JAZZ'),
- fixture('now_playing_table','table_medium',-39,-74.7,0,1.10,'NEW ARRIVALS'),
+ fixture('now_playing_table','table_medium',-38.3,-74.7,0,1.10,'NEW ARRIVALS'),
  fixture('singles_table','table_medium',-33,-77,0,1.10,'SINGLES'),
  fixture('archive_table','table_medium',-40.3,-83.6,0,1.10,'BACK CATALOG'),
  fixture('headphone_spinner','spinner',-33.2,-85.6,0,.70,'HEADPHONES'),
