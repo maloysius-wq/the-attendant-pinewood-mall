@@ -1,0 +1,157 @@
+/** LOCAL DIAGNOSTIC BRANCH ONLY: actual source chapter 6 movement and E.
+ * No alternate world, direct puzzle handlers, state injection or movement
+ * teleport. Temporary camera trials are restored before original walking.
+ */
+import * as THREE from '../vendor/three/build/three.module.js';
+export function installCampaignProbeV156(g){
+ if(!['127.0.0.1','localhost'].includes(location.hostname)||
+    !new URLSearchParams(location.search).has('campaignQA'))return;
+ const p=()=>g.controls.yaw.position;
+ const state=()=>{
+  const s=g.levelIndex===5?g.ch6V25:null;
+  const saved=JSON.parse(localStorage.getItem('pinewood_attendant_reborn_v1')||'{}');
+  return {chapter:g.levelIndex+1,level:g.mallLayoutV70?.level,ground:!!g.mallGroundExitV70,
+   position:p().toArray(),running:!!g.running,modal:!!g.modal,dead:!!g.dead,won:!!g.won,
+   screen:document.querySelector('.screen.show')?.id||null,
+   title:document.getElementById('chapterTitle')?.textContent,
+   hint:document.getElementById('hint')?.textContent,objective:document.getElementById('objective')?.textContent,
+   firstEchoSeen:!!s?.firstEchoSeen,staffAcknowledged:!!s?.staffAcknowledged,keyCleared:!!s?.keyCleared,
+   serviceCleared:!!s?.serviceCleared,eliProcessed:!!s?.eliProcessed,accountabilityOne:!!s?.accountabilityOne,
+   clockedOut:!!s?.clockedOut,exitOpen:!!s?.exitOpen,recallCount:s?.recallCount,completed:!!s?.completed,
+   controls:g.world.interactables.filter(o=>o.parent).map(o=>({
+    type:o.userData.type,label:o.userData.label||null,id:o.userData.id||o.userData.controlId||null,position:o.position.toArray(),visible:o.visible,collected:!!o.userData.collected,exit:o===g.exitObject
+   })),progress:{breakers:g.breakers,keys:g.keys,feeder:!!g.ch2V21?.feederIsolated,pump:!!g.ch2V21?.pumpRunning,drained:!!g.ch2V21?.drained,gavin:!!g.ch2V21?.gavinFound,cctv:!!g.ch3V22?.cctvUsed,routeSwaps:g.ch3V22?.routeSwaps,luis:!!g.ch3V22?.luisSeen,map:!!g.ch4V23?.mapRead,locker:!!g.ch4V23?.tessaLocker,photo:!!g.ch4V23?.staffPhoto,radioCompromised:!!g.ch4V23?.radioCompromised,eliGate:!!g.ch5V24?.eliGate?.userData?.open,sessions:!!g.ch5V24?.sessionsRevealed},saved};
+ };
+ const ensure=()=>{if(!g.running||g.modal||g.dead||g.won)throw Error('Original live chapter required '+JSON.stringify(state()));};
+ const xy=()=>({x:p().x,z:p().z});
+ // The legacy one-metre navigation grid checks only endpoint cells.
+ // A narrow fixture corner can obstruct the swept player between two
+ // otherwise standable cells. Match original tryMove's X-then-Z sampling
+ // for every candidate edge, and never teleport across a blocked corner.
+ const stand=(x,z)=>g.world.canStand(x,z);
+ const clear=(a,b)=>{
+  if(!stand(a.x,a.z)||!stand(b.x,b.z))return false;
+  const d=Math.hypot(b.x-a.x,b.z-a.z),n=Math.max(1,Math.ceil(d/.075));
+  let x=a.x,z=a.z;
+  for(let i=1;i<=n;i++){
+   const nx=a.x+(b.x-a.x)*i/n,nz=a.z+(b.z-a.z)*i/n;
+   if(!stand(nx,z)||!stand(nx,nz))return false;
+   x=nx;z=nz;
+  }
+  return true;
+ };
+ const route=(start,end)=>{
+  if(clear(start,end)&&Math.hypot(start.x-end.x,start.z-end.z)<2)return [end];
+  const nodes=point=>{
+   const out=[];
+   for(let x=Math.round(point.x)-2;x<=Math.round(point.x)+2;x++)
+    for(let z=Math.round(point.z)-2;z<=Math.round(point.z)+2;z++){
+     const n={x,z};if(Math.hypot(x-point.x,z-point.z)<=2.2&&clear(point,n))out.push(n);
+    }
+   return out.sort((a,b)=>Math.hypot(a.x-point.x,a.z-point.z)-Math.hypot(b.x-point.x,b.z-point.z));
+  };
+  const key=n=>n.x+','+n.z,starts=nodes(start),goals=new Set(nodes(end).filter(n=>clear(n,end)).map(key));
+  const queue=starts.slice(),parents=new Map(starts.map(n=>[key(n),null]));
+  for(let i=0;i<queue.length&&i<12000;i++){
+   const n=queue[i],k=key(n);
+   if(goals.has(k)){const out=[];let at=k;while(at){const [x,z]=at.split(',').map(Number);out.push({x,z});at=parents.get(at);}return out.reverse();}
+   for(const [dx,dz] of [[1,0],[-1,0],[0,1],[0,-1]]){
+    const next={x:n.x+dx,z:n.z+dz},id=key(next);
+    if(parents.has(id)||!clear(n,next))continue;
+    parents.set(id,k);queue.push(next);
+   }
+  }
+  return [];
+ };
+ const nearby=()=>g.world.colliders.filter(c=>!c.disabled&&p().x>c.minX-.8&&p().x<c.maxX+.8&&p().z>c.minZ-.8&&p().z<c.maxZ+.8)
+  .slice(0,15).map(c=>({id:c.id,kind:c.kind,box:[c.minX,c.maxX,c.minZ,c.maxZ]}));
+ let strideCount=0,meters=0;
+ const segment=(dest,{allowEnding=false}={})=>{
+  for(let i=0;i<1500;i++){
+   const now=xy(),dx=dest.x-now.x,dz=dest.z-now.z,d=Math.hypot(dx,dz);
+   if(d<.006)return;
+   if(g.won&&allowEnding)return;
+   ensure();
+   const stride=Math.min(.08,d);
+   g.tryMove(dx*stride/d,dz*stride/d);
+   const moved=Math.hypot(p().x-now.x,p().z-now.z);
+   strideCount++;meters+=moved;
+   if(moved<stride*.88)throw Error('Original movement blocked '+JSON.stringify({from:now,to:dest,at:p().toArray(),stride,moved,level:g.mallLayoutV70.level,nearby:nearby()}));
+   if(g.levelIndex===5&&g.ch6V25?.exitOpen&&g.mallGroundExitV70)g.updateLastShiftV25(.016);
+  }
+  throw Error('Bounded original movement could not reach '+JSON.stringify(dest));
+ };
+ const walk=(end,{allowEnding=false}={})=>{
+  const start=xy(),points=route(start,end),before=strideCount,dist=meters;
+  if(!points.length&&Math.hypot(start.x-end.x,start.z-end.z)>.08)throw Error('No original navigable route '+JSON.stringify({start,end,level:g.mallLayoutV70.level,nearby:nearby()}));
+  for(const at of points){if(g.won&&allowEnding)break;segment(at,{allowEnding});}
+  if(!g.won)segment(end,{allowEnding});
+  return {start,end:xy(),nodes:points.length,steps:strideCount-before,meters:meters-dist,level:g.mallLayoutV70.level};
+ };
+ function aim(type,id=null){
+  ensure();
+  const o=g.world.interactables.find(o=>o.parent&&o.visible&&!o.userData?.collected&&(type==='exitObject'?o===g.exitObject:(type==='*'||o.userData?.type===type)&&(id===null||[o.userData?.label,o.userData?.id,o.userData?.controlId].includes(id))));
+  if(!o)throw Error('Missing original terminal '+type+' '+JSON.stringify(state().controls));
+  const origin=p().clone(),yaw=g.controls.yaw.rotation.y,pitch=g.controls.pitch.rotation.x;
+  o.updateWorldMatrix(true,true);
+  const t=o.getWorldPosition(new THREE.Vector3()),y=g.mallLevelYV70+1.7;
+  let selected=null;
+  const orient=(x,z,height)=>{
+   g.controls.yaw.rotation.y=Math.atan2(x-t.x,z-t.z);
+   g.controls.pitch.rotation.x=-Math.atan2(y-t.y-height,Math.hypot(x-t.x,z-t.z));
+   g.camera.updateWorldMatrix(true,false);o.updateWorldMatrix(true,true);g.updateInteraction();
+  };
+  try{
+   search:for(const r of [1.2,1.45,1.65,1.85,2.05])for(let a=0;a<16;a++){
+    const x=t.x+r*Math.cos(a*Math.PI/8),z=t.z+r*Math.sin(a*Math.PI/8);
+    if(!g.world.canStand(x,z))continue;
+    p().set(x,y,z);
+    for(const h of [.03,.1,.22,.38,.65,1,1.35,1.6]){
+     orient(x,z,h);
+     if(g.interactTarget===o){
+      const ray=new THREE.Raycaster();ray.setFromCamera({x:0,y:0},g.camera);
+      const hit=ray.intersectObject(o,true)[0];
+      if(hit&&hit.distance<=2.45&&route({x:origin.x,z:origin.z},{x,z}).length){selected={x,z,h};break search;}
+     }
+    }
+   }
+  }finally{p().copy(origin);g.controls.yaw.rotation.y=yaw;g.controls.pitch.rotation.x=pitch;g.camera.updateWorldMatrix(true,false);g.updateInteraction();}
+  if(!selected)throw Error('No reachable E aim for '+type+' '+JSON.stringify({source:t.toArray(),state:state()}));
+  const travel=walk({x:selected.x,z:selected.z});
+  orient(p().x,p().z,selected.h);
+  if(g.interactTarget!==o)throw Error('Original source E target lost after actual walk '+type);
+  const ray=new THREE.Raycaster();ray.setFromCamera({x:0,y:0},g.camera);
+  const hit=ray.intersectObject(o,true)[0];
+  if(!hit||hit.distance>2.45)throw Error('Original E range failed '+type);
+  return {type,source:t.toArray(),camera:p().toArray(),distance:hit.distance,travel,hint:document.getElementById('hint')?.textContent};
+ }
+ window.__PINEWOOD_CAMPAIGN_V156_QA__=Object.freeze({
+  state,aim,
+  tick(n=1){
+   ensure();if(!Number.isInteger(n)||n<1||n>500)throw Error('Invalid original chapter clock batch');
+   const methods=['','updateBelowGradeV21','updateSecurityV22','updateEastWingV23','updateAccountabilityV24','updateLastShiftV25'];
+   for(let i=0;i<n;i++){g.time+=.04;if(methods[g.levelIndex])g[methods[g.levelIndex]](.04);g.updateStory();}
+   return state();
+  },
+  observeMemory(){
+   ensure();for(let i=0;i<120;i++){g.time+=.04;g.updateLastShiftV25(.04);}
+   return state();
+  },
+  walkStair(){
+   ensure();if(!g.ch6V25.exitOpen||g.mallGroundExitV70)throw Error('Employee release required before physical M1 descent');
+   const approach=walk({x:51,z:-103});
+   const before=state();
+   segment({x:51,z:-113.4});
+   const after=state();
+   if(!after.ground||after.level!=='G'||Math.abs(after.position[1]-1.7)>.2)throw Error('Original stair did not physically descend '+JSON.stringify(after));
+   return {approach,before,after,steps:strideCount};
+  },
+  crossExterior(){
+   ensure();if(!g.mallGroundExitV70||!g.ch6V25.exitOpen)throw Error('Original released G employee exit required');
+   const route=walk({x:85,z:-42});
+   const before=state();
+   segment({x:87,z:-42},{allowEnding:true});
+   return {route,before,after:state(),steps:strideCount,meters};
+  }
+ });
+}
