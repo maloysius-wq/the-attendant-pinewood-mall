@@ -78,6 +78,10 @@ export function relocateStoryV70({game,layout,THREE}={}){
   if(obj.parent!==root)root.attach(obj);
   const at=nearestSafe(layout,target);
   obj.position.set(at.x,obj.position.y+layout.y,at.z);
+  // The original pickup animator rewrites position.y from floatBase every
+  // frame. Rebase its absolute floor-local origin together with the mesh.
+  // Otherwise B1 evidence rises to G and M1 evidence falls below its floor.
+  if(Number.isFinite(obj.userData?.floatBase))obj.userData.floatBase+=layout.y;
   obj.updateWorldMatrix(true,true);
   moved.add(obj);moved.add(top);
  }
