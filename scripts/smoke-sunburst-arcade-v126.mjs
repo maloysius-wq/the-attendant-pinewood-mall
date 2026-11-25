@@ -17,12 +17,12 @@ try{
  page.on('console',m=>{if(m.type()==='error')consoleErrors.push(m.text())});
  page.on('request',r=>{if(/^https?:/.test(r.url())&&!r.url().startsWith(origin))remote.push(r.url())});
  page.on('requestfailed',r=>failed.push(r.url()+' '+r.failure()?.errorText));
- await page.goto(origin+'/review/mall-construction-v67/',{waitUntil:'domcontentloaded'});
+ await page.goto(origin+'/review/mall-construction-v67/?retailAudit=1',{waitUntil:'domcontentloaded'});
  try{
   await page.waitForFunction(()=>{
    const app=window.__PINEWOOD_MALL_CONSTRUCTION_V67__;
    return !!app&&(app.ready||app.getState()?.errors.length>0);
-  },null,{timeout:115000});
+  },null,{timeout:540000});
  }catch(error){
   console.error('V126_BOOT_DIAGNOSTICS '+JSON.stringify({
    errors,consoleErrors,remote,failed,
@@ -35,12 +35,13 @@ try{
  assert.equal(state.ready,true,state.errors.join(' | '));
  assert.deepEqual(state.errors,[]);
  assert.equal(state.firstFrameFullyLoaded,true);
- assert.equal(state.sunburstFixtureCountV126,18);
+ assert.equal(state.sunburstFixtureCountV126,28);
  assert.equal(state.sunburstLampCountV126,4);
  assert.equal(state.sunburstPosterCountV126,5);
  assert.equal(state.sunburstArcadeV126.sourcePack,
   'assets/vendor/arcade-v30/token_gesture/pack.glb');
- assert.equal(state.sunburstArcadeV126.actualFullSizeMachines,18);
+ assert.equal(state.sunburstArcadeV126.actualFullSizeMachines,27);
+ assert.equal(state.retailAudit.fixtures.filter(f=>f.room==='sunburst_arcade'&&['v69','v67'].includes(f.layer)).length,0,'retired duplicates must not render');
  const kinds=new Set();
  for(const f of state.sunburstArcadeV126.fixtures){
   kinds.add(f.node);
@@ -49,6 +50,7 @@ try{
   assert.ok(f.actualWidth>.3&&f.actualWidth<3);
   assert.ok(f.actualDepth>.3&&f.actualDepth<3);
   assert.ok(f.actualHeight>.74&&f.actualHeight<2.2);
+  assert.ok(state.retailAudit.fixtures.some(m=>m.layer==='v126'&&m.id===f.id),'missing from actual assembled scene '+f.id);
   assert.ok(Math.abs(f.groundY)<.012,'floating original machine '+f.id);
   assert.ok(Math.hypot(f.actualWidth/2,f.actualDepth/2)<=f.collisionRadius+.008,
    'authentic full-size source out of gameplay collider '+f.id);

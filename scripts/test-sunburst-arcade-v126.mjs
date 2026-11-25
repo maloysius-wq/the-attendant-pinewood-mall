@@ -7,7 +7,7 @@ import {FURNISHINGS_V69} from '../mall/furnishing-plan-v69.mjs';
 import {ANCHOR_FLUORESCENT_ASSET_V122} from '../mall/anchor-identity-plan-v122.mjs';
 import {
  SUNBURST_ROOM_V126,SUNBURST_PACK_V126,SUNBURST_FIXTURES_V126,SUNBURST_LIGHTS_V126,
- SUNBURST_SIGN_V126,SUNBURST_POSTERS_V126,SUNBURST_SOURCE_SIZES_V126,
+ SUNBURST_SIGN_V126,SUNBURST_POSTERS_V126,SUNBURST_SOURCE_SIZES_V126,arcadePlayApproachesV159,
  validateSunburstArcadeV126
 } from '../mall/sunburst-arcade-plan-v126.mjs';
 import {constructPhysicalShell,validatePhysicalShell,isSegmentBlocked} from '../mall/physical-shell-v67.mjs';
@@ -15,20 +15,18 @@ import {buildGameplayLayoutV70,shortestRouteV70,chapterRouteV70} from '../mall/g
 const read=p=>readFileSync(new URL('../'+p,import.meta.url));
 const sha=p=>createHash('sha256').update(read(p)).digest('hex');
 
-test('V126 keeps original 17×17m Sunburst suite, V115 glass entry, four V69 legacy arcade pieces and six story chapters',()=>{
+test('V126 keeps original 17×17m Sunburst suite, V115 glass entry, no retired V69 or V67 duplicates and six story chapters',()=>{
  const room=MALL.rooms.find(r=>r.id==='sunburst_arcade');
  assert.deepEqual(Object.fromEntries(Object.keys(SUNBURST_ROOM_V126).map(k=>[k,room[k]])),SUNBURST_ROOM_V126);
  assert.equal(MALL.rooms.length,41);assert.equal(MALL.evidence.length,9);
  for(let n=1;n<=6;n++)assert.equal(chapterRouteV70(n).chapter,n);
  const legacy=FURNISHINGS_V69.fixtures.filter(f=>f.room==='sunburst_arcade');
- assert.deepEqual(legacy.map(f=>f.id).sort(),
-  ['arcade_air_hockey','arcade_basketball','arcade_claw','arcade_stool']);
+ assert.deepEqual(legacy,[]);
  const shell=constructPhysicalShell({level:'G',chapter:1});
  assert.ok(shell.storefronts.some(s=>s.room==='sunburst_arcade'&&Math.abs(s.entryWidth-4.2)<.01),
   'true original 4.2m glass entry absent');
- assert.deepEqual(shell.fixtures.filter(f=>f.room==='sunburst_arcade').map(f=>f.id),
-  ['arcade_one','arcade_two']);
- assert.equal(shell.sunburstArcade.fixtures.length,18);
+ assert.deepEqual(shell.fixtures.filter(f=>f.room==='sunburst_arcade'),[]);
+ assert.equal(shell.sunburstArcade.fixtures.length,28);
  assert.equal(shell.sunburstArcade.lights.length,4);
  assert.equal(shell.sunburstArcade.posters.length,5);
  assert.deepEqual(validateSunburstArcadeV126(shell.sunburstArcade,
@@ -46,7 +44,7 @@ test('V126 keeps original 17×17m Sunburst suite, V115 glass entry, four V69 leg
  assert.equal(shell.cassetteCastle.fixtures.length,12);
 });
 
-test('18 full human-size arcade meshes are reused from the exact original published and independently measured CC0 GLB',()=>{
+test('28 full human-size arcade props are reused from the exact original published and independently measured CC0 GLB',()=>{
  const manifest=JSON.parse(read('assets/vendor/arcade-v30/manifest.json').toString());
  const measured=JSON.parse(read('diagnostics/arcade-v30-geometry.json').toString());
  assert.equal(manifest.license,'CC0 1.0');
@@ -57,7 +55,7 @@ test('18 full human-size arcade meshes are reused from the exact original publis
  assert.equal(sha(SUNBURST_PACK_V126.path),SUNBURST_PACK_V126.sha256);
  assert.equal(measured.unit,'metre');
  const sources=new Map(measured.props.map(p=>[p.name,p]));
- assert.equal(SUNBURST_FIXTURES_V126.length,18);
+ assert.equal(SUNBURST_FIXTURES_V126.length,28);
  for(const f of SUNBURST_FIXTURES_V126){
   assert.equal(f.source,SUNBURST_PACK_V126.path);
   assert.equal(f.sha256,vendor.sha256);
@@ -82,7 +80,7 @@ test('18 full human-size arcade meshes are reused from the exact original publis
 
 test('V126 arcade is physically solid, preserving source entrance and a clear interior route',()=>{
  const layout=buildGameplayLayoutV70({chapter:1});
- assert.equal(layout.colliders.filter(c=>c.kind==='licensed-sunburst-arcade-machine').length,18);
+ assert.equal(layout.colliders.filter(c=>c.kind==='licensed-sunburst-arcade-machine').length,28);
  for(const f of SUNBURST_FIXTURES_V126){
   assert.ok(!layout.canStand(f.x,f.z),'walk-through original CC0 machine '+f.id);
   assert.ok(isSegmentBlocked(layout.shell,{x:f.x-1.8,z:f.z},{x:f.x+1.8,z:f.z}),
@@ -124,12 +122,20 @@ test('V126 validation rejects source swaps, unsafe overlaps, doorway blockers an
   .some(e=>e.includes('Unverified')));
  assert.ok(check({fixtures:plan.fixtures.map((f,i)=>i?f:{...f,x:-29.8,z:-98.5})})
   .some(e=>e.includes('entrance')));
- assert.ok(check({fixtures:plan.fixtures.map((f,i)=>i?f:{...f,x:-43,z:-94})})
-  .some(e=>e.includes('intersects original')));
  assert.ok(check({fixtures:plan.fixtures.map((f,i)=>i===1?{...f,x:plan.fixtures[0].x+.1,z:plan.fixtures[0].z}:f)})
   .some(e=>e.includes('aisle')));
  assert.ok(check({lights:plan.lights.map((l,i)=>i?l:{...l,model:'remote.glb'})})
   .some(e=>e.includes('Unlicensed')));
  assert.ok(check({posters:plan.posters.map((p,i)=>i?p:{...p,originalArtwork:false})})
   .some(e=>e.includes('non-original')));
+});
+
+test('V159 every planned play end and customer approach remains connected to the original entry',()=>{
+ const layout=buildGameplayLayoutV70({chapter:1});
+ for(const f of SUNBURST_FIXTURES_V126)for(const a of arcadePlayApproachesV159(f)){
+  assert.ok(layout.canStand(a.x,a.z),'blocked planned player approach '+JSON.stringify(a));
+  assert.ok(shortestRouteV70(layout,{x:-30,z:-98.5},a).length>0,'unreachable planned control approach '+JSON.stringify(a));
+ }
+ assert.equal(SUNBURST_FIXTURES_V126.filter(f=>f.node==='air_hockey_table').length,1);
+ assert.equal(SUNBURST_FIXTURES_V126.filter(f=>f.node==='skee_ball').length,2);
 });

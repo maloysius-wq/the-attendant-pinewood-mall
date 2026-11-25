@@ -27,7 +27,9 @@ const sourceSizes=Object.freeze({
  skee_ball:[.70,2.05,2.616],
  ticket_eater:[.40,1.115,.42],
  prize_wall:[1.2,1.88,.42],
- claw_machine:[.72,1.9,.83]
+ claw_machine:[.72,1.9,.83],
+ air_hockey_table:[1.9,.8,1.02],
+ arcade_bin:[.4639,.755,.4639]
 });
 export const SUNBURST_SOURCE_SIZES_V126=sourceSizes;
 const fixture=(id,node,title,x,z,yaw=0)=>{
@@ -39,31 +41,51 @@ const fixture=(id,node,title,x,z,yaw=0)=>{
   source:SUNBURST_PACK_V126.path,sha256:SUNBURST_PACK_V126.sha256,
   license:'CC0-1.0',sourceSize:size,collisionRadius,period:'1979–1997'});
 };
-/** Deliberate departments, not randomly scattered props:
- * north wall cabinet bank; west pinball/prize wall; central cockpit/cocktail
- * games; southern high-score and skee-ball corner. Original four V69 pieces
- * and two original physical-shell machines are not moved.
+/** V159: a single 289m² coin-operated arcade, with one consistent
+ * genuine metre-scale pack. Rows have a clear approach; two opposed cabinet
+ * banks share a central aisle; the rear is a redemption and skill-game zone.
+ * yaw describes the intended customer direction (+Z in the layout frame).
  */
 export const SUNBURST_FIXTURES_V126=Object.freeze([
- fixture('wall_claw','claw_machine','LITTLE COMET',-44.4,-91.62,Math.PI),
- fixture('cab_stellar','arcade_upright_alpha','STELLAR RUSH',-41,-91.65,Math.PI),
- fixture('cab_cinder','arcade_upright_beta','CINDER DRIVE',-38.65,-91.65,Math.PI),
- fixture('cab_midnight','arcade_upright_gamma','MIDNIGHT ORBIT',-36.15,-91.65,Math.PI),
- fixture('cab_tide','arcade_upright_alpha','TIDAL SHOCK',-33.8,-91.65,Math.PI),
- fixture('cab_meteor','arcade_upright_beta','METEOR RALLY',-31.35,-91.65,Math.PI),
- fixture('pinball_west','pinball','LAST QUARTER',-44.62,-97.1,Math.PI/2),
- fixture('upright_west','arcade_upright_gamma','VOID RUNNER',-44.62,-100,Math.PI/2),
- fixture('cocktail_chess','arcade_cocktail','BYTE DUEL',-40,-94.65),
- fixture('drive_duo','driving_cab','COASTLINE 97',-36,-95.3,Math.PI/2),
- fixture('pinball_east','pinball','GHOST LIGHTS',-33.5,-94.75),
- fixture('coin_machine','token_changer','TOKEN EXCHANGE',-30.75,-93.9,-Math.PI/2),
- fixture('dance_stage','dance_stage','STEP CIRCUIT',-36.9,-101.45),
- fixture('skee_ball','skee_ball','GOLDEN ROLL',-39.4,-99.9),
- fixture('ticket_eater','ticket_eater','TICKET REDEMPTION',-30.9,-102.1),
- fixture('prize_wall','prize_wall','PRIZE COUNTER',-44.45,-103,Math.PI/2),
- fixture('back_upright','arcade_upright_beta','SHADOW CIRCUIT',-42.1,-103.2),
- fixture('front_upright','arcade_upright_alpha','COSMIC PILOT',-31.3,-96.5,-Math.PI/2)
+ fixture('wall_claw','claw_machine','LITTLE COMET',-43.7,-91.4,Math.PI),
+ fixture('cab_stellar','arcade_upright_alpha','STELLAR RUSH',-41.4,-91.4,Math.PI),
+ fixture('cab_cinder','arcade_upright_beta','CINDER DRIVE',-39.1,-91.4,Math.PI),
+ fixture('cab_midnight','arcade_upright_gamma','MIDNIGHT ORBIT',-36.8,-91.4,Math.PI),
+ fixture('cab_tide','arcade_upright_alpha','TIDAL SHOCK',-34.5,-91.4,Math.PI),
+ fixture('cab_meteor','arcade_upright_beta','METEOR RALLY',-32.2,-91.4,Math.PI),
+ fixture('pinball_west','pinball','LAST QUARTER',-44.65,-95,Math.PI/2),
+ fixture('pinball_east','pinball','GHOST LIGHTS',-44.65,-97.6,Math.PI/2),
+ fixture('upright_west','arcade_upright_gamma','VOID RUNNER',-44.65,-100.2,Math.PI/2),
+ fixture('back_upright','arcade_upright_alpha','SHADOW CIRCUIT',-44.65,-102.6,Math.PI/2),
+ fixture('prize_wall','prize_wall','PRIZE COUNTER',-44.25,-105.6),
+ fixture('prize_wall_2','prize_wall','TICKET PRIZES',-41.9,-105.6),
+ fixture('ticket_eater','ticket_eater','TICKET REDEMPTION',-39.95,-105.6),
+ fixture('skee_ball','skee_ball','GOLDEN ROLL',-37.4,-104.9),
+ fixture('skee_ball_2','skee_ball','SILVER ROLL',-33.9,-104.9),
+ fixture('dance_stage','dance_stage','STEP CIRCUIT',-30.6,-104.6,-Math.PI/2),
+ fixture('coin_machine','token_changer','TOKEN EXCHANGE',-30.4,-93.9,-Math.PI/2),
+ fixture('front_upright','arcade_upright_alpha','COSMIC PILOT',-30.85,-96,-Math.PI/2),
+ fixture('arcade_claw','claw_machine','STAR PRIZES',-30.4,-101.2,-Math.PI/2),
+ fixture('air_hockey','air_hockey_table','AIR HOCKEY',-37.5,-100.4),
+ fixture('cocktail_chess','arcade_cocktail','BYTE DUEL',-42.2,-101.3),
+ fixture('drive_duo','driving_cab','COASTLINE 97',-35.8,-95.2,Math.PI/2),
+ fixture('drive_pair','driving_cab','DESERT CIRCUIT',-35.8,-97.5,Math.PI/2),
+ fixture('center_stellar','arcade_upright_alpha','STAR RUNNER',-41,-95.4),
+ fixture('center_cinder','arcade_upright_beta','CINDER 2',-38.8,-95.4),
+ fixture('center_midnight','arcade_upright_gamma','NIGHT RACER',-41,-97.4,Math.PI),
+ fixture('center_tide','arcade_upright_alpha','TIDE 2',-38.8,-97.4,Math.PI),
+ fixture('arcade_bin','arcade_bin','LITTER',-31.2,-102.8)
 ]);
+/** Planned player positions, not proof of source GLB control direction.
+ * Full-scale two-ended games get a standing location at both play ends.
+ */
+export function arcadePlayApproachesV159(f){
+ if(f.node==='arcade_bin')return [];
+ const angles=f.node==='air_hockey_table'?[f.yaw+Math.PI/2,f.yaw-Math.PI/2]:
+  f.node==='arcade_cocktail'?[f.yaw,f.yaw+Math.PI]:[f.yaw];
+ const depth=(f.node==='air_hockey_table'?f.sourceSize[0]:f.sourceSize[2])/2;
+ return angles.map(yaw=>({id:f.id,x:f.x+Math.sin(yaw)*(depth+.8),z:f.z+Math.cos(yaw)*(depth+.8)}));
+}
 const light=(id,x,z,power)=>Object.freeze({id,room:'sunburst_arcade',
  x,z,power,model:ANCHOR_FLUORESCENT_ASSET_V122.path,
  sha256:ANCHOR_FLUORESCENT_ASSET_V122.sha256,license:'CC0-1.0'});
@@ -99,12 +121,9 @@ export function validateSunburstArcadeV126(plan={
  if(MALL.rooms.length!==41||MALL.evidence.length!==9)
   errors.push('Original six-chapter narrative topology changed');
  const existing=FURNISHINGS_V69.fixtures.filter(f=>f.room==='sunburst_arcade');
- if(existing.length!==4||!['arcade_claw','arcade_air_hockey','arcade_basketball','arcade_stool'].every(id=>existing.some(f=>f.id===id)))
-  errors.push('V69 original four arcade props missing');
- const legacy=[...existing.filter(f=>f.radius>0).map(f=>({id:f.id,x:f.x,z:f.z,r:f.radius})),
-  {id:'arcade_one',x:-38,z:-97,r:.9},{id:'arcade_two',x:-42,z:-101,r:.9}];
+ if(existing.length)errors.push('Retired V69 arcade duplicates must not return');
  const {fixtures=[],lights=[],sign,posters=[]}=plan||{};
- if(fixtures.length!==18||lights.length!==4||posters.length!==5||!sign)
+ if(fixtures.length!==28||lights.length!==4||posters.length!==5||!sign)
   errors.push('Missing V126 authentic arcade machines, light panels or original-era art');
  for(const f of fixtures){
   if(seen.has(f.id))errors.push('Duplicate source cabinet '+f.id);seen.add(f.id);
@@ -118,8 +137,6 @@ export function validateSunburstArcadeV126(plan={
    !(r>.3&&r<1.6)||f.x<=room.x1+r+.12||f.x>=room.x2-r-.12||
    f.z<=room.z1+r+.12||f.z>=room.z2-r-.12)
    errors.push('Arcade cabinet clips true original suite wall '+f.id);
-  for(const old of legacy)if(distance(f,old)<=r+old.r+.18)
-   errors.push('Arcade machine intersects original V69/V67 '+f.id+'/'+old.id);
   for(const p of portals.filter(p=>p.type==='doorway'&&[p.to,p.from].includes('sunburst_arcade'))){
    const a=p.axis==='x'?{x:p.at,z:p.start}:{x:p.start,z:p.at},
     b=p.axis==='x'?{x:p.at,z:p.end}:{x:p.end,z:p.at};
