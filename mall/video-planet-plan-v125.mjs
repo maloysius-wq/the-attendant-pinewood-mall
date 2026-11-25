@@ -4,10 +4,11 @@
 import {MALL} from './masterplan-v66.mjs';
 import {FURNISHINGS_V69} from './furnishing-plan-v69.mjs';
 import {ORIGINAL_RETAIL_CANDIDATES_V121} from './anchor-retail-source-v121.mjs';
+import {MEDIA_SHELF_V158} from './media-shelf-source-v158.mjs';
 import {ANCHOR_FLUORESCENT_ASSET_V122} from './anchor-identity-plan-v122.mjs';
 
 export const VIDEO_PLANET_ROOM_V125=Object.freeze({id:'video_planet',x1:29,x2:46,z1:-80,z2:-61});
-const sources=new Map(ORIGINAL_RETAIL_CANDIDATES_V121.map(f=>[f.shortName,f]));
+const sources=new Map([...ORIGINAL_RETAIL_CANDIDATES_V121,MEDIA_SHELF_V158].map(f=>[f.shortName,f]));
 const fixture=(id,kind,section,x,z,yaw,collisionRadius)=>{
  const original=sources.get(kind);
  if(!original||!['wall_bay','table_medium','spinner'].includes(kind))
@@ -21,22 +22,22 @@ const fixture=(id,kind,section,x,z,yaw,collisionRadius)=>{
  * continuous customer path clear. Sectioned perimeter runs, not a scatter.
  */
 export const VIDEO_PLANET_FIXTURES_V125=Object.freeze([
- fixture('new_releases_north','wall_bay','NEW RELEASES',32,-62.3,Math.PI,.86),
- fixture('drama_north','wall_bay','DRAMA',38,-62.3,Math.PI,.86),
- fixture('thrillers_north','wall_bay','THRILLERS',42,-62.3,Math.PI,.86),
- fixture('family_south','wall_bay','FAMILY',32,-78.6,0,.86),
- fixture('classics_south','wall_bay','CLASSICS',40.5,-78.6,0,.86),
+ fixture('new_releases_north','wall_bay', 'NEW RELEASES',31.6,-62.4,Math.PI,.86),
+ fixture('drama_north','wall_bay','DRAMA',37.8,-62.4,Math.PI,.86),
+ fixture('thrillers_north','wall_bay','THRILLERS',41,-62.4,Math.PI,.86),
+ fixture('family_south','wall_bay','FAMILY',31.6,-78.6,0,.86),
+ fixture('classics_south','wall_bay','CLASSICS',40.2,-78.6,0,.86),
  fixture('horror_east','wall_bay','HORROR',44.8,-69.0,-Math.PI/2,.86),
  fixture('scifi_east','wall_bay','SCI-FI',44.8,-73.3,-Math.PI/2,.86),
- fixture('rewind_west','wall_bay','RETURNED TODAY',30.45,-76.7,Math.PI/2,.86),
+ fixture('rewind_west','wall_bay','RETURNED TODAY',36.3,-74.5,0,.86),
  // Two deliberately bounded customer browsing aisles inside the actual
  // 323m2 rental floor. Both keep the entry-to-LS-03 and cashier corridors free.
  fixture('front_comedy','wall_bay','COMEDY',32.2,-67,Math.PI,.86),
  fixture('evening_drama','wall_bay','DRAMA PICKS',35.7,-68,Math.PI,.86),
  fixture('late_night_thrillers','wall_bay','LATE NIGHT',41,-66.6,Math.PI,.86),
- fixture('summer_rentals','wall_bay','WEEKEND',33.5,-74.5,0,.86),
+ fixture('summer_rentals','wall_bay','WEEKEND',32.7,-74.5,0,.86),
  fixture('sci_fi_classics','wall_bay','CULT FAVORITES',39.6,-74.5,0,.86),
- fixture('membership_spinner','spinner','MEMBERSHIP',31.6,-65.2,0,.70),
+ fixture('membership_spinner','spinner','MEMBERSHIP',30.55,-64.6,0,.70),
  fixture('rental_accessories','spinner','REWIND KITS',42.5,-75.5,0,.70),
  fixture('staff_picks_table','table_medium','STAFF PICKS',36.8,-72.2,0,1.10)
 ]);
