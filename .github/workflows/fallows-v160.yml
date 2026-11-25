@@ -11,6 +11,7 @@ on:
       - 'mall/render-furnishing-v69.js'
       - 'mall/physical-shell-v67.mjs'
       - 'mall/gameplay-layout-v70.mjs'
+      - 'mall/chapter1-traversal-v143.js'
       - 'mall/render-anchor-retail-v121.js'
       - 'review/mall-construction-v67/main.js'
       - 'scripts/*fallows-v160.mjs'
@@ -57,4 +58,29 @@ jobs:
         with:
           name: v160-real-fallows-assembled-desktop
           path: artifacts/v160-fallows/
+          retention-days: 14
+  native-desktop:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: |
+          node --check mall/chapter1-traversal-v143.js
+          node --check scripts/smoke-native-fallows-v160.mjs
+          npm install --no-save playwright@1.55.0
+          npx playwright install chromium
+      - name: Serve exact repository files
+        run: |
+          python3 -m http.server 4173 --bind 127.0.0.1 >/tmp/v160-native-http.log 2>&1 &
+          for i in {1..40}; do curl -fsS http://127.0.0.1:4173/ >/dev/null && exit 0; sleep 1; done
+          exit 1
+      - run: node scripts/smoke-native-fallows-v160.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: v160-native-fallows
+          path: artifacts/v160-native-fallows/
           retention-days: 14
