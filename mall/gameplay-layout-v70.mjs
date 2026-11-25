@@ -1,6 +1,7 @@
 import {MALL} from './masterplan-v66.mjs';
 import {constructPhysicalShell} from './physical-shell-v67.mjs';
 import {FURNISHINGS_V69} from './furnishing-plan-v69.mjs';
+import {arcadeColliderBoundsV159} from './sunburst-arcade-plan-v126.mjs';
 import {VESTIBULE_HANDOFF_V112} from './vestibule-handoff-v112.mjs';
 
 const CHAPTERS=Object.freeze([
@@ -112,9 +113,7 @@ export function buildGameplayLayoutV70({chapter,level}={}){
  // V126: genuine CC0 Sunburst arcade cabinets block the same physical
  // scene used by film, playable chapters and Builder.
  for(const f of shell.sunburstArcade?.fixtures||[]){
-  const r=f.collisionRadius;
-  colliders.push({minX:f.x-r,maxX:f.x+r,minZ:f.z-r,maxZ:f.z+r,
-   kind:'licensed-sunburst-arcade-machine',id:f.id});
+  colliders.push({...arcadeColliderBoundsV159(f),kind:'licensed-sunburst-arcade-machine',id:f.id});
  }
  // V128 original 540sqm Northstar Annex retail: exact real CC0 support
  // footprints match the Builder/film shared geometry and source collisions.

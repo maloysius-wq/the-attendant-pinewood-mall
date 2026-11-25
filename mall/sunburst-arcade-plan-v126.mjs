@@ -79,6 +79,16 @@ export const SUNBURST_FIXTURES_V126=Object.freeze([
 /** Planned player positions, not proof of source GLB control direction.
  * Full-scale two-ended games get a standing location at both play ends.
  */
+/** True rotated floor footprint. All authored yaw values are cardinal;
+ * the original dimensions are measured from the pinned GLB. The older
+ * enclosing-radius square remains a conservative layout separation check,
+ * not the invisible blocking shape around the machine.
+ */
+export function arcadeColliderBoundsV159(f){
+ const [w,,d]=f.sourceSize,c=Math.abs(Math.cos(f.yaw)),sn=Math.abs(Math.sin(f.yaw));
+ const halfX=(w*c+d*sn)/2+.10,halfZ=(w*sn+d*c)/2+.10;
+ return {minX:f.x-halfX,maxX:f.x+halfX,minZ:f.z-halfZ,maxZ:f.z+halfZ};
+}
 export function arcadePlayApproachesV159(f){
  if(f.node==='arcade_bin')return [];
  const angles=f.node==='air_hockey_table'?[f.yaw+Math.PI/2,f.yaw-Math.PI/2]:

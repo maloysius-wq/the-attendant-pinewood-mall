@@ -18,7 +18,7 @@ jobs:
         run: node scripts/inspect-arcade-orientation-v159.mjs
       - name: Check canonical physical routes, fixtures and local asset pins
         run: |
-          node --test scripts/test-sunburst-arcade-v126.mjs scripts/test-furnishing-v69.mjs scripts/test-physical-shell-v67.mjs scripts/test-gameplay-layout-v70.mjs scripts/test-authored-scene-v111.mjs
+          node --test scripts/test-sunburst-arcade-v126.mjs scripts/test-furnishing-v69.mjs scripts/test-physical-shell-v67.mjs scripts/test-gameplay-layout-v70.mjs scripts/test-authored-scene-v111.mjs scripts/test-story-runtime-v70.mjs scripts/test-builder-material-v91.mjs scripts/test-builder-schema-v1.mjs
           node scripts/audit-local-assets-v15.mjs
       - uses: actions/upload-artifact@v4
         if: always()

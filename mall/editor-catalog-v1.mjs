@@ -11,8 +11,17 @@ const category=role=>{
 };
 const readable=path=>decodeURIComponent(path.split('/').pop().replace(/\.glb$/i,''))
  .replace(/[_-]+/g,' ').replace(/([a-z])([A-Z])/g,'$1 $2').trim();
+// V159: retiring authored placements must not invalidate existing private
+// Builder documents or their pinned material-index IDs. These four entries
+// exist ONLY in the asset library, never in the published floor layout.
+const CATALOG_ONLY_LEGACY_ARCADE=[
+ {model:'assets/vendor/runtime/8023a1e257e42500/claw-machine.glb',role:'arcade',targetHeight:2,radius:1.12},
+ {model:'assets/vendor/runtime/8fcc6eb8e8f17912/air-hockey.glb',role:'arcade',targetHeight:.9,radius:1.5},
+ {model:'assets/vendor/runtime/27d4b43c5e16d9ea/basketball-game.glb',role:'arcade',targetHeight:2.35,radius:2.28},
+ {model:'assets/vendor/runtime/5b4443e3640efa71/arcade-machine.glb',role:'arcade',targetHeight:1.85,radius:.9}
+];
 const ordered=new Map();
-for(const f of [...FURNISHINGS_V69.fixtures,...EDITOR_EXTRA_FIXTURES_V1]){
+for(const f of [...FURNISHINGS_V69.fixtures,...EDITOR_EXTRA_FIXTURES_V1,...CATALOG_ONLY_LEGACY_ARCADE]){
  if(!f.model.startsWith('assets/vendor/runtime/')||!/\.glb$/i.test(f.model))continue;
  if(/ShelfLarge|ShelfSmall|Shelf%20Large|Shelf%20Small|\/Shelf Large\.glb|\/Shelf Small\.glb/i.test(f.model))continue;
  if(ordered.has(f.model))continue;

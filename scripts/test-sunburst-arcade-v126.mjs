@@ -7,7 +7,7 @@ import {FURNISHINGS_V69} from '../mall/furnishing-plan-v69.mjs';
 import {ANCHOR_FLUORESCENT_ASSET_V122} from '../mall/anchor-identity-plan-v122.mjs';
 import {
  SUNBURST_ROOM_V126,SUNBURST_PACK_V126,SUNBURST_FIXTURES_V126,SUNBURST_LIGHTS_V126,
- SUNBURST_SIGN_V126,SUNBURST_POSTERS_V126,SUNBURST_SOURCE_SIZES_V126,arcadePlayApproachesV159,
+ SUNBURST_SIGN_V126,SUNBURST_POSTERS_V126,SUNBURST_SOURCE_SIZES_V126,arcadePlayApproachesV159,arcadeColliderBoundsV159,
  validateSunburstArcadeV126
 } from '../mall/sunburst-arcade-plan-v126.mjs';
 import {constructPhysicalShell,validatePhysicalShell,isSegmentBlocked} from '../mall/physical-shell-v67.mjs';
@@ -138,4 +138,13 @@ test('V159 every planned play end and customer approach remains connected to the
  }
  assert.equal(SUNBURST_FIXTURES_V126.filter(f=>f.node==='air_hockey_table').length,1);
  assert.equal(SUNBURST_FIXTURES_V126.filter(f=>f.node==='skee_ball').length,2);
+});
+
+test('V159 collision matches actual source footprints instead of oversized square blockers',()=>{
+ const layout=buildGameplayLayoutV70({chapter:1});
+ for(const f of SUNBURST_FIXTURES_V126){
+  const box=layout.colliders.find(c=>c.id===f.id&&c.kind==='licensed-sunburst-arcade-machine');
+  assert.deepEqual(Object.fromEntries(['minX','maxX','minZ','maxZ'].map(k=>[k,box[k]])),arcadeColliderBoundsV159(f));
+ }
+ const skee=layout.colliders.find(c=>c.id==='skee_ball');assert.ok(skee.maxX-skee.minX<1&&skee.maxZ-skee.minZ>2.6);
 });

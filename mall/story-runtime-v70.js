@@ -170,11 +170,25 @@ export function relocateStoryV70({game,layout,THREE}={}){
  world.colliders=[...shellCollision,...owned];world.navCache.clear();
  world.wallMeshes=[];world.floorMeshes=[];
  world.hasLOS=(a,b)=>{
-  const dist=Math.hypot(b.x-a.x,b.z-a.z),steps=Math.max(1,Math.ceil(dist/.32));
+  const dx=b.x-a.x,dz=b.z-a.z,dist=Math.hypot(dx,dz);
+  if(dist<1e-8)return true;
+  // Continuous slab intersection, not .32m point samples that can skip
+  // thin storefront glazing when adjacent furnishing changes.
+  for(const c of world.colliders){
+   if(c.disabled||c.physicalBlock===false)continue;
+   let enter=1e-7,leave=1-1e-7;
+   for(const [p,d,min,max] of [[a.x,dx,c.minX,c.maxX],[a.z,dz,c.minZ,c.maxZ]]){
+    if(Math.abs(d)<1e-9){if(p<=min||p>=max){enter=1;leave=0;break;}continue;}
+    const t1=(min-p)/d,t2=(max-p)/d;
+    enter=Math.max(enter,Math.min(t1,t2));leave=Math.min(leave,Math.max(t1,t2));
+    if(enter>=leave)break;
+   }
+   if(enter<leave)return false;
+  }
+  const steps=Math.max(1,Math.ceil(dist/.32));
   for(let i=1;i<steps;i++){
-   const t=i/steps,x=a.x+(b.x-a.x)*t,z=a.z+(b.z-a.z)*t;
+   const t=i/steps,x=a.x+dx*t,z=a.z+dz*t;
    if(!world.walk.has(Math.round(x)+','+Math.round(z)))return false;
-   if(world.colliders.some(c=>!c.disabled&&c.physicalBlock!==false&&x>c.minX&&x<c.maxX&&z>c.minZ&&z<c.maxZ))return false;
   }
   return true;
  };
