@@ -65,12 +65,12 @@ test('all three concession shutters have real collision-active masonry, steel an
 
 test('actual existing licensed V69 tables, chairs and props are intentionally reflowed, not deleted',()=>{
  const f=food();
- assert.equal(f.length,30);
+ assert.equal(f.length,42);
  assert.deepEqual(validateFurnishingPlan(FURNISHINGS_V69),[]);
  const tables=f.filter(x=>x.role==='table');
  const seats=f.filter(x=>x.role==='seat');
  const shell=constructPhysicalShell({level:'G',chapter:1});
- assert.equal(tables.length,8);assert.equal(seats.length,20);
+ assert.equal(tables.length,8);assert.equal(seats.length,32);
  assert.equal(f.filter(x=>x.role==='counter').length,0,'no miniature wedge GLBs used for fixed food counterwork');
  for(const table of FOOD_COURT_V119.dining){
   const f=food().find(x=>x.id===table.table);
