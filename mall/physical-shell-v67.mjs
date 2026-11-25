@@ -12,7 +12,7 @@ import {ANCHOR_LIGHTS_V122,ANCHOR_SIGNS_V122,validateAnchorIdentityV122} from '.
 import {ORIGINAL_ANCHOR_STOCK_V123,validateAnchorStockLayoutV123} from './anchor-stock-layout-v123.mjs';
 import {CASSETTE_FIXTURES_V124,CASSETTE_LIGHTS_V124,CASSETTE_SIGN_V124,validateCassetteCastleV124} from './cassette-castle-plan-v124.mjs';
 import {VIDEO_PLANET_FIXTURES_V125,VIDEO_PLANET_LIGHTS_V125,VIDEO_PLANET_SIGN_V125,VIDEO_PLANET_POSTERS_V125,validateVideoPlanetV125} from './video-planet-plan-v125.mjs';
-import {SUNBURST_FIXTURES_V126,SUNBURST_LIGHTS_V126,SUNBURST_SIGN_V126,SUNBURST_POSTERS_V126,validateSunburstArcadeV126} from './sunburst-arcade-plan-v126.mjs';
+import {SUNBURST_FIXTURES_V126,SUNBURST_LIGHTS_V126,SUNBURST_SIGN_V126,SUNBURST_POSTERS_V126,validateSunburstArcadeV126,arcadeSegmentBlockedV159} from './sunburst-arcade-plan-v126.mjs';
 import {ANNEX_ANCHOR_ROOM_V128,ANNEX_ANCHOR_FIXTURES_V128,ANNEX_ANCHOR_LIGHTS_V128,ANNEX_ANCHOR_IDENTITY_V128,ANNEX_ANCHOR_POSTERS_V128,validateAnnexAnchorV128} from './annex-anchor-plan-v128.mjs';
 import {NW_FIREBREAK_V129,FIREBREAK_PLATE_V129,FIREBREAK_CEILING_V129,residualFirebreakWallsV129,validateFirebreakV129} from './residual-firebreak-plan-v129.mjs';
 import {REAR_SERVICE_ENVELOPE_V131,REAR_SERVICE_CEILINGS_V131,rearServiceWallsV131,validateRearServiceV131} from './rear-service-closure-v131.mjs';
@@ -327,8 +327,6 @@ function fixtures(level){
  if(level==='G')return [
   fixture('dry_fountain_art','assets/vendor/runtime/8cefa5be6dbaf538/pavement-fountain.glb','central_gallery',0,-71,2.0),
   fixture('cassette_register','assets/vendor/runtime/6aeac44b7c9c0f17/cash-register.glb','cassette_castle',-38,-80,.3),
-  fixture('arcade_one','assets/vendor/runtime/5b4443e3640efa71/arcade-machine.glb','sunburst_arcade',-38,-97,1.85),
-  fixture('arcade_two','assets/vendor/runtime/5b4443e3640efa71/arcade-machine.glb','sunburst_arcade',-42,-101,1.85),
   fixture('checkpoint_counter_desk','assets/vendor/runtime/47206cda3d12810c/desk.glb','service_vestibule',14.86,-30.85,.62),
   fixture('checkpoint_office_chair','assets/vendor/runtime/47ff560e83dfc315/Chair.glb','service_vestibule',15.20,-32.85,.75),
   fixture('security_desk','assets/vendor/runtime/47206cda3d12810c/desk.glb','security',37,-109,.76),
@@ -438,7 +436,7 @@ export function isSegmentBlocked(shell,from,to){
   (shell.anchorStock||[]).filter(f=>!f.support).some(f=>distanceToSegment2D(f,from,to)<f.collisionRadius)||
   (shell.cassetteCastle?.fixtures||[]).some(f=>distanceToSegment2D(f,from,to)<f.collisionRadius)||
    (shell.videoPlanet?.fixtures||[]).some(f=>distanceToSegment2D(f,from,to)<f.collisionRadius)||
-   (shell.sunburstArcade?.fixtures||[]).some(f=>distanceToSegment2D(f,from,to)<f.collisionRadius)||
+   (shell.sunburstArcade?.fixtures||[]).some(f=>arcadeSegmentBlockedV159(f,from,to))||
    (shell.annexAnchor?.fixtures||[]).some(f=>distanceToSegment2D(f,from,to)<f.collisionRadius)||
    (shell.annexCorridor?.cabinets||[]).some(f=>distanceToSegment2D(f,from,to)<f.collisionRadius);
 }

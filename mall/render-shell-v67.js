@@ -13,6 +13,7 @@ import {renderAnchorStockV123} from './render-anchor-stock-v123.js';
 import {renderCassetteCastleV124} from './render-cassette-castle-v124.js';
 import {renderVideoPlanetV125} from './render-video-planet-v125.js';
 import {renderSunburstArcadeV126} from './render-sunburst-arcade-v126.js';
+import {makeSunburstCarpetTextureV159} from './arcade-surface-art-v159.js';
 import {renderAnnexAnchorV128} from './render-annex-anchor-v128.js';
 import {renderFirebreakPlateV129} from './render-residual-firebreak-v129.js';
 import {auditOriginalClosuresV129} from './residual-firebreak-plan-v129.mjs';
@@ -84,7 +85,7 @@ async function preloadTextures(paths){
 }
 function renderFloor(group,p,mats){
  const w=p.x2-p.x1,d=p.z2-p.z1;
- const material=p.material==='terrazzo'?mats.terrazzo:p.material==='carpet'?mats.carpet:mats.tiles;
+ const material=p.id==='v126_original_sunburst_arcade_carpet'?mats.sunburstCarpet:p.material==='terrazzo'?mats.terrazzo:p.material==='carpet'?mats.carpet:mats.tiles;
  const mesh=addBox(group,'floor_'+p.id,(p.x1+p.x2)/2,p.y-.095,(p.z1+p.z2)/2,w,.19,d,material);
  mesh.userData.walkableFloor=true;return mesh;
 }
@@ -186,7 +187,7 @@ function makeMaterials(t){
  const carpet=material(0x6b6a65,t.carpet,t.carpetRough);
  const concrete=material(0x8d9490,t.concrete,t.concreteRough);
  return {
-  terrazzo,carpet,tiles:material(0x777d7a,t.tile,t.tileRough),
+  terrazzo,carpet,sunburstCarpet:material(0xd5c8c4,makeSunburstCarpetTextureV159(t.carpet),t.carpetRough),tiles:material(0x777d7a,t.tile,t.tileRough),
   outer:material(0x666f6e,t.concrete,t.concreteRough),
   wall:material(0xa49b89,t.concrete,t.concreteRough),
   annexWall:material(0x657a7e,t.concrete,t.concreteRough),
@@ -335,6 +336,7 @@ export async function renderConstructionScene({scene,chapter=1}={}){
    storefrontVisuals.dispose();closedBayVisuals.dispose();checkpointVisuals.dispose();staffServiceVisuals.dispose();annexCorridorVisuals.dispose();foodCourtVisuals.dispose();publicAmenitiesVisuals.dispose();anchorRetailVisuals.dispose();anchorIdentityVisuals.dispose();anchorStockVisuals.dispose();cassetteCastleVisuals.dispose();videoPlanetVisuals.dispose();sunburstArcadeVisuals.dispose();annexAnchorVisuals.dispose();northFirebreakVisuals.dispose();
    group.traverse(o=>{if(o.geometry)o.geometry.dispose()});
    for(const texture of Object.values(t))texture.dispose();
+   mats.sunburstCarpet.map.dispose();
    for(const material of Object.values(mats))material.dispose();
    for(const material of ownedAnnexMaterials)material.dispose();
   }

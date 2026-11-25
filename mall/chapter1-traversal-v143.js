@@ -94,6 +94,69 @@ export function installChapter1TraversalV143(game){
    worldCanStand:game.world.canStand(end.x,end.z),
    room:layout.roomAt(end.x,end.z),lastNodes:route.slice(-7)};
  };
+ // V159: local-only precise walking for furniture layouts. Use original
+ // canStand at each intermediate point and actual tryMove for every stride.
+ // The integer AI grid is retained for the rest of the game's routes.
+ const walkArcadeTo=(x,z,label='arcade approach')=>{
+  ensure();
+  const start=location2(p()),dest={x,z},stand=(x,z)=>game.world.canStand(x,z);
+  if(!stand(x,z)||!stand(start.x,start.z))throw Error('Unstandable physical arcade endpoint '+JSON.stringify({start,dest,label}));
+  const clear=(a,b)=>{
+   const len=distance(a,b),n=Math.max(1,Math.ceil(len/.075));let last=a;
+   for(let i=1;i<=n;i++){
+    const t=i/n,c={x:a.x+(b.x-a.x)*t,z:a.z+(b.z-a.z)*t};
+    if(!stand(c.x,last.z)||!stand(c.x,c.z))return false;last=c;
+   }
+   return true;
+  };
+  // Prefer a direct real-world walk, then a fine local grid. For the
+  // long concourse journey use existing canonical grid with swept edges.
+  const spacing=game.mallLayoutV70.roomAt(start.x,start.z)==='sunburst_arcade'&&
+   game.mallLayoutV70.roomAt(dest.x,dest.z)==='sunburst_arcade'?.25:1;
+  const key=(a)=>a.x+','+a.z,nearest=(a)=>{
+   const seeds=[];for(let dx=-2;dx<=2;dx++)for(let dz=-2;dz<=2;dz++){
+    const q={x:Math.round(a.x/spacing)*spacing+dx*spacing,z:Math.round(a.z/spacing)*spacing+dz*spacing};
+    if(distance(q,a)<=2.2&&stand(q.x,q.z)&&clear(a,q))seeds.push(q);
+   }return seeds.sort((a1,b1)=>distance(a1,a)-distance(b1,a));
+  };
+  const n0=travel.length,m0=travel.reduce((s,t)=>s+t.moved,0);
+  let route=[];
+  if(clear(start,dest))route=[dest];
+  else{
+   const starts=nearest(start),ends=nearest(dest),goals=new Set(ends.map(key)),queue=[...starts],parents=new Map(starts.map(a=>[key(a),null]));
+   let found=null;
+   for(let i=0;i<queue.length&&i<45000;i++){
+    const a=queue[i],k=key(a);
+    if(goals.has(k)){found=k;break;}
+    for(const [dx,dz] of [[spacing,0],[-spacing,0],[0,spacing],[0,-spacing]]){
+     const q={x:a.x+dx,z:a.z+dz},nk=key(q);
+     if(parents.has(nk)||!stand(q.x,q.z)||!clear(a,q))continue;
+     parents.set(nk,k);queue.push(q);
+    }
+   }
+   if(found===null)throw Error('No swept source route '+JSON.stringify({start,dest,label,visited:parents.size}));
+   for(let k=found;k!==null;k=parents.get(k)){const [x,z]=k.split(',').map(Number);route.push({x,z});}
+   route.reverse();route.push(dest);
+  }
+  for(const q of route)walkSegment(q,label);
+  return {label,start,end:location2(p()),room:game.mallLayoutV70.roomAt(p().x,p().z),actualSteps:travel.length-n0,actualMeters:travel.reduce((s,t)=>s+t.moved,0)-m0,worldCanStand:stand(p().x,p().z)};
+ };
+ // A separate explicitly isolated arcade QA fixture. Only one starting
+ // location is assigned, OUTSIDE the original storefront. All subsequent
+ // motion is through actual Game.tryMove and actual canStand.
+ let arcadeFixtureSeeded=false;
+ const startArcadeFixture=()=>{
+  ensure();
+  if(!new URLSearchParams(location.search).has('arcadeFixtureQA')||arcadeFixtureSeeded||travel.length)
+   throw Error('Arcade fixture start requires fresh local-only test');
+  const start={x:-26.5,z:-98.5};
+  if(!game.world.canStand(start.x,start.z)||game.mallLayoutV70.roomAt(start.x,start.z)!=='west_gallery')
+   throw Error('Original west gallery fixture start blocked');
+  p().set(start.x,1.7,start.z);
+  game.controls.yaw.rotation.y=Math.PI/2;game.controls.pitch.rotation.x=0;game.camera.updateWorldMatrix(true,false);
+  arcadeFixtureSeeded=true;
+  return {...getState(),isolatedStartingFixture:true};
+ };
  const useRealPanel=id=>{
   ensure();
   const panel=game.world.interactables.find(o=>
@@ -120,7 +183,7 @@ export function installChapter1TraversalV143(game){
   version:143,getState,
   doorApproach:()=>({x:portal.x,z:portal.z+1.5}),
   doorBeyond:()=>({x:portal.x,z:portal.z-1.5}),
-  walkTo,travelStats:()=>({steps:travel.length,meters:travel.reduce((sum,t)=>sum+t.moved,0),
+  walkTo,walkArcadeTo,startArcadeFixture,travelStats:()=>({steps:travel.length,meters:travel.reduce((sum,t)=>sum+t.moved,0),
    first:travel.slice(0,3),last:travel.slice(-3)}),
   useRealPanel
  });

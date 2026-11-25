@@ -111,3 +111,11 @@ test('independently controlled security shutters retain distinct physical doorwa
  assert.equal(east.position.z,-101);
  assert.notEqual(west.position.x,east.position.x);
 });
+
+test('V159 line of sight cannot skip thin physical storefronts between sample points',()=>{
+ const game=fakeGame(1),layout=buildGameplayLayoutV70({chapter:1});relocateStoryV70({game,layout,THREE});
+ game.world.colliders=[{minX:20.1,maxX:20.155,minZ:-75.5,maxZ:-74.5,physicalBlock:true}];
+ const a={x:20,z:-75},b={x:21,z:-75};
+ assert.equal(game.world.hasLOS(a,b),false);assert.equal(game.world.hasLOS(b,a),false);
+ game.world.colliders[0].disabled=true;assert.equal(game.world.hasLOS(a,b),true);
+});

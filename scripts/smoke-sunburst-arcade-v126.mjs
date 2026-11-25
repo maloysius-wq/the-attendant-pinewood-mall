@@ -17,12 +17,12 @@ try{
  page.on('console',m=>{if(m.type()==='error')consoleErrors.push(m.text())});
  page.on('request',r=>{if(/^https?:/.test(r.url())&&!r.url().startsWith(origin))remote.push(r.url())});
  page.on('requestfailed',r=>failed.push(r.url()+' '+r.failure()?.errorText));
- await page.goto(origin+'/review/mall-construction-v67/',{waitUntil:'domcontentloaded'});
+ await page.goto(origin+'/review/mall-construction-v67/?retailAudit=1',{waitUntil:'domcontentloaded'});
  try{
   await page.waitForFunction(()=>{
    const app=window.__PINEWOOD_MALL_CONSTRUCTION_V67__;
    return !!app&&(app.ready||app.getState()?.errors.length>0);
-  },null,{timeout:115000});
+  },null,{timeout:540000});
  }catch(error){
   console.error('V126_BOOT_DIAGNOSTICS '+JSON.stringify({
    errors,consoleErrors,remote,failed,
@@ -35,25 +35,33 @@ try{
  assert.equal(state.ready,true,state.errors.join(' | '));
  assert.deepEqual(state.errors,[]);
  assert.equal(state.firstFrameFullyLoaded,true);
- assert.equal(state.sunburstFixtureCountV126,18);
+ assert.equal(state.sunburstFixtureCountV126,43);
  assert.equal(state.sunburstLampCountV126,4);
  assert.equal(state.sunburstPosterCountV126,5);
  assert.equal(state.sunburstArcadeV126.sourcePack,
   'assets/vendor/arcade-v30/token_gesture/pack.glb');
- assert.equal(state.sunburstArcadeV126.actualFullSizeMachines,18);
+ assert.equal(state.sunburstArcadeV126.actualFullSizeMachines,40);
+ assert.equal(state.retailAudit.fixtures.filter(f=>f.room==='sunburst_arcade'&&['v69','v67'].includes(f.layer)).length,0,'retired duplicates must not render');
  const kinds=new Set();
+ console.log('V159_MESH_ARTWORK '+JSON.stringify(state.sunburstArcadeV126.fixtures.map(f=>({id:f.id,node:f.node,artwork:f.artwork}))));
  for(const f of state.sunburstArcadeV126.fixtures){
   kinds.add(f.node);
   assert.equal(f.license,'CC0-1.0');assert.equal(f.realMesh,true);
   assert.ok(f.source.startsWith('assets/vendor/arcade-v30/'));
   assert.ok(f.actualWidth>.3&&f.actualWidth<3);
+  if(f.node.startsWith('arcade_upright')){
+   assert.deepEqual(f.artwork.faces.map(a=>a.type),['screen','marquee'],'must use genuine display face and genuine marquee '+f.id);
+   assert.ok(f.artwork.faces.every(a=>a.normalZ>.55&&a.triangles>0&&Math.abs((a.textureSize[0]/a.textureSize[1])/(a.width/a.height)-1)<.015),'no stretched surface artwork '+f.id);
+  }
   assert.ok(f.actualDepth>.3&&f.actualDepth<3);
   assert.ok(f.actualHeight>.74&&f.actualHeight<2.2);
+  assert.ok(state.retailAudit.fixtures.some(m=>m.layer==='v126'&&m.id===f.id),'missing from actual assembled scene '+f.id);
   assert.ok(Math.abs(f.groundY)<.012,'floating original machine '+f.id);
   assert.ok(Math.hypot(f.actualWidth/2,f.actualDepth/2)<=f.collisionRadius+.008,
    'authentic full-size source out of gameplay collider '+f.id);
  }
  assert.ok(kinds.size>=10,'not a realistic varied 1997 arcade');
+ assert.equal(state.sunburstArcadeV126.fixtures.filter(f=>f.artwork.powered).length,5,'only a small number of devices remain powered');
  for(const light of state.sunburstArcadeV126.fluorescents){
   assert.equal(light.license,'CC0-1.0');
   assert.ok(Math.abs(light.ceilingUnderside-5.21)<.02);
@@ -66,7 +74,8 @@ try{
  assert.equal(state.cassetteFixtureCountV124,12);
  assert.equal(state.storefrontCount,7);
  assert.equal(state.galleryColumnCount,28);
- const shots=['arcadeFront','arcadeInside','arcadeNorth','arcadeWest','arcadePlan',
+ assert.equal(state.sunburstArcadeV126.prizeRackCount,2);
+ const shots=['arcadeFront','arcadeInside','arcadeNorth','arcadeWest','arcadeRedemption','arcadeDriving','arcadePlan',
   'west','cassetteInside','videoInside','atrium','aerial'];
  for(const shot of shots){
   await page.evaluate(name=>window.__PINEWOOD_MALL_CONSTRUCTION_V67__.goto(name),shot);

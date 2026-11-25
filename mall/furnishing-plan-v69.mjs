@@ -75,46 +75,6 @@ export const FURNISHINGS_V69=Object.freeze({
       "yaw": 3.141592653589793
     },
     {
-      "id": "arcade_claw",
-      "room": "sunburst_arcade",
-      "model": "assets/vendor/runtime/8023a1e257e42500/claw-machine.glb",
-      "x": -43,
-      "z": -94,
-      "targetHeight": 2,
-      "radius": 1.12,
-      "role": "arcade"
-    },
-    {
-      "id": "arcade_air_hockey",
-      "room": "sunburst_arcade",
-      "model": "assets/vendor/runtime/8fcc6eb8e8f17912/air-hockey.glb",
-      "x": -39,
-      "z": -104.5,
-      "targetHeight": 0.9,
-      "radius": 1.5,
-      "role": "arcade"
-    },
-    {
-      "id": "arcade_basketball",
-      "room": "sunburst_arcade",
-      "model": "assets/vendor/runtime/27d4b43c5e16d9ea/basketball-game.glb",
-      "x": -33.5,
-      "z": -104.5,
-      "targetHeight": 2.35,
-      "radius": 2.28,
-      "role": "arcade"
-    },
-    {
-      "id": "arcade_stool",
-      "room": "sunburst_arcade",
-      "model": "assets/vendor/runtime/7f3df4bac178c342/Stool.glb",
-      "x": -43,
-      "z": -105,
-      "targetHeight": 0.72,
-      "radius": 0.46,
-      "role": "seat"
-    },
-    {
       "id": "video_counter",
       "room": "video_planet",
       "model": "assets/vendor/runtime/ae14ac85cb3b895b/KSI_counter.glb",

@@ -4,6 +4,7 @@
  */
 import * as THREE from '../vendor/three/build/three.module.js';
 import {GLTFLoader} from '../vendor/three/examples/jsm/loaders/GLTFLoader.js';
+import {applyOriginalArcadeArtworkV159,arcadePoweredV159} from './arcade-surface-art-v159.js';
 import {
  SUNBURST_PACK_V126,SUNBURST_FIXTURES_V126,SUNBURST_LIGHTS_V126,
  SUNBURST_SIGN_V126,SUNBURST_POSTERS_V126,validateSunburstArcadeV126
@@ -23,9 +24,11 @@ function print(assets,title,subtitle,{ink='#e8bc77',background='#202a39',
  c.globalAlpha=1;c.fillStyle=ink;c.textAlign='center';
  const scale=width/height>2?Math.min(height*.36,width*.093):Math.min(height*.14,width*.125);
  c.font='bold '+Math.round(scale)+'px Georgia,serif';
- c.fillText(title,width/2,height*.54,width*.90);
+ while(c.measureText(title).width>width*.90){const px=parseFloat(c.font.match(/[0-9.]+px/)[0]);c.font='bold '+Math.max(8,px-1)+'px Georgia,serif';if(px<=8)break;}
+ c.fillText(title,width/2,height*.54);
  c.font='bold '+Math.round(Math.min(height*.16,width*.037))+'px Arial,sans-serif';
- c.fillText(subtitle,width/2,height*.78,width*.88);
+ while(c.measureText(subtitle).width>width*.88){const px=parseFloat(c.font.match(/[0-9.]+px/)[0]);c.font='bold '+Math.max(8,px-1)+'px Arial,sans-serif';if(px<=8)break;}
+ c.fillText(subtitle,width/2,height*.78);
  c.fillStyle='#c29c68';c.fillRect(25,height*.92,width-50,5);
  const texture=new THREE.CanvasTexture(canvas);texture.colorSpace=THREE.SRGBColorSpace;
  texture.anisotropy=4;assets.textures.push(texture);return texture;
@@ -51,6 +54,19 @@ function fitOriginalSource(pack,f,assets){
   Math.abs(size.y-f.sourceSize[1])>.012||
   Math.abs(size.z-f.sourceSize[2])>.012)
   throw Error('V126 real model geometry differs from audited V30 metres '+f.id);
+ model.traverse(o=>{
+  if(!o.isMesh)return;o.castShadow=false;o.receiveShadow=true;
+  const current=Array.isArray(o.material)?o.material:[o.material];
+  const aged=current.map(m=>{
+   const mat=m.clone();assets.materials.push(mat);
+   if(mat.color)mat.color.multiply(new THREE.Color(0xb1aaa0));
+   if(mat.name==='pack_emissive'){if(mat.color)mat.color.multiplyScalar(arcadePoweredV159(f)?.68:.23);if(mat.emissive)mat.emissive.multiplyScalar(arcadePoweredV159(f)?.35:.03);mat.emissiveIntensity=arcadePoweredV159(f)?.50:.04;}
+   if(typeof mat.roughness==='number')mat.roughness=Math.max(.64,mat.roughness);
+   return mat;
+  });
+  o.material=Array.isArray(o.material)?aged:aged[0];
+ });
+ const artwork=applyOriginalArcadeArtworkV159(model,f,assets);
  model.rotation.y=f.yaw;model.updateMatrixWorld(true);
  b=new THREE.Box3().setFromObject(model);size=b.getSize(new THREE.Vector3());
  if(Math.hypot(size.x/2,size.z/2)>f.collisionRadius+.005)
@@ -62,36 +78,13 @@ function fitOriginalSource(pack,f,assets){
  if(Math.abs(b.min.y)>.01)throw Error('V126 authentic arcade cabinet floats '+f.id);
  model.name='v126_actual_original_CC0_arcade_'+f.id;
  model.userData.realSource={path:f.source,mesh:f.node,sha256:f.sha256,license:f.license};
- model.traverse(o=>{
-  if(!o.isMesh)return;o.castShadow=false;o.receiveShadow=true;
-  const current=Array.isArray(o.material)?o.material:[o.material];
-  const aged=current.map(m=>{
-   const mat=m.clone();assets.materials.push(mat);
-   if(mat.color)mat.color.multiply(new THREE.Color(0xa19c93));
-   if(typeof mat.roughness==='number')mat.roughness=Math.max(.64,mat.roughness);
-   return mat;
-  });
-  o.material=Array.isArray(o.material)?aged:aged[0];
- });
  assets.root.add(model);
- // These are genuine machine-attached original printed marquees, not
- // procedural stand-ins for, or rescalings of, the licensed cabinet geometry.
- if(!['ticket_eater','token_changer','prize_wall','skee_ball'].includes(f.node)){
-  const local=new THREE.Group();local.name='v126_original_fictional_marquee_on_real_'+f.id;
-  local.position.set(f.x,0,f.z);local.rotation.y=f.yaw;
-  const width=Math.min(f.sourceSize[0]*.82,.76);
-  const z=f.sourceSize[2]/2+.011,top=Math.min(f.sourceSize[1]-.13,1.78);
-  const artwork=print(assets,f.title,'SUNBURST  ·  25¢',{width:768,height:240,
-   ink:['#e9ab75','#96cad4','#d2bb8d'][f.id.length%3]});
-  const panel=new THREE.Mesh(new THREE.PlaneGeometry(width,.22),
-   createMaterial(assets,{map:artwork,side:THREE.DoubleSide,roughness:.82}));
-  panel.position.set(0,top,z);panel.name='1997_licensed_cabinet_attached_fictional_marquee';local.add(panel);
-  assets.root.add(local);
- }
+ // Keep the licensed cabinet's actual printed surfaces; the previous
+ // free-floating marquee plane was not attached to measured cabinet geometry.
  return {id:f.id,node:f.node,title:f.title,x:f.x,z:f.z,
   source:f.source,sha256:f.sha256,license:f.license,
   actualWidth:size.x,actualDepth:size.z,actualHeight:size.y,
-  groundY:b.min.y,collisionRadius:f.collisionRadius,realMesh:true};
+  groundY:b.min.y,collisionRadius:f.collisionRadius,realMesh:true,artwork};
 }
 function ceilingLamp(gltf,f,ceilings,assets){
  const slab=ceilings.find(c=>c.room==='sunburst_arcade'&&
@@ -145,8 +138,8 @@ function wallArt(assets,p,identity=false){
  const backing=createMaterial(assets,{color:0x39363c,roughness:.91});
  box(frame,'real_masonry_fixed_print_backing',0,0,0,width,height,.045,backing);
  const tex=print(assets,identity?p.title:p.title,
-  identity?p.subtitle:p.subtitle,{width:identity?2048:640,
-  height:identity?360:768,ink:identity?'#f1c778':p.ink,
+  identity?p.subtitle:p.subtitle,{width:Math.round(768*(width-.06)/(height-.065)),
+  height:768,ink:identity?'#f1c778':p.ink,
   background:identity?'#332b3c':'#252d3b'});
  const panel=new THREE.Mesh(new THREE.PlaneGeometry(width-.06,height-.065),
   createMaterial(assets,{map:tex,roughness:.96,side:THREE.DoubleSide}));
@@ -179,7 +172,7 @@ export async function renderSunburstArcadeV126(ground,ceilings,plan={
  ground.add(assets.root);ground.add(assets.ceilingRoot);
  return {root:assets.root,ceilingRoot:assets.ceilingRoot,
   manifest:{fixtures,fluorescents,identity,posters,
-   sourcePack:SUNBURST_PACK_V126.path,actualFullSizeMachines:fixtures.length},
+   sourcePack:SUNBURST_PACK_V126.path,actualFullSizeMachines:fixtures.filter(f=>!['arcade_bin','prize_wall'].includes(f.node)).length,prizeRackCount:fixtures.filter(f=>f.node==='prize_wall').length,amenityCount:fixtures.filter(f=>f.node==='arcade_bin').length},
   dispose(){
    assets.root.removeFromParent();assets.ceilingRoot.removeFromParent();
    assets.textures.forEach(t=>t.dispose());assets.materials.forEach(m=>m.dispose());
