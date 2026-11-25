@@ -11,21 +11,22 @@ function box(root,id,x,y,z,dx,dy,dz,mat){
  const mesh=new THREE.Mesh(new THREE.BoxGeometry(dx,dy,dz),mat);
  mesh.name=id;mesh.position.set(x,y,z);mesh.receiveShadow=true;root.add(mesh);return mesh;
 }
-function menuCanvas(booth){
- const canvas=document.createElement('canvas');canvas.width=1024;canvas.height=256;
- const ctx=canvas.getContext('2d');
+function menuCanvas(booth,width,height){
+ const canvas=document.createElement('canvas');canvas.height=256;canvas.width=Math.round(canvas.height*width/height);
+ const w=canvas.width,h=canvas.height,ctx=canvas.getContext('2d');
  if(!ctx)throw Error('Food court canvas menu board unavailable');
- ctx.fillStyle='#292e2d';ctx.fillRect(0,0,1024,256);
- ctx.fillStyle=booth.id==='coffee'?'#9b8265':booth.id==='slice'?'#98755f':'#75857a';
- ctx.fillRect(0,0,1024,24);
- ctx.fillStyle='#d5d0b5';ctx.fillRect(18,234,988,5);
- ctx.fillStyle='#e6e0cf';ctx.textAlign='center';ctx.textBaseline='middle';
- ctx.font='bold 86px Arial,sans-serif';ctx.fillText(booth.name,512,110,967);
- ctx.font='bold 39px Arial,sans-serif';ctx.fillText(booth.subtitle,512,188,950);
- ctx.fillStyle='#958c7270';
- for(let i=0;i<90;i++)ctx.fillRect((i*131)%1024,(i*71)%250,2+(i%5),1+(i%3));
- const texture=new THREE.CanvasTexture(canvas);texture.colorSpace=THREE.SRGBColorSpace;
- return texture;
+ const themes={slice:['#612e27','#d5ba84','Georgia, serif'],coffee:['#3c3026','#e0c9a7','Georgia, serif'],grill:['#344740','#e8d9b7','Arial, sans-serif']};
+ const [background,ink,font]=themes[booth.id];
+ ctx.fillStyle=background;ctx.fillRect(0,0,w,h);
+ ctx.fillStyle=ink;ctx.fillRect(0,0,w,16);ctx.fillRect(24,h-22,w-48,4);
+ ctx.textAlign='center';ctx.textBaseline='middle';
+ const fit=(label,y,max)=>{
+  let px=max;do{ctx.font='bold '+px+'px '+font;if(ctx.measureText(label).width<=w-96)break;px--;}while(px>12);
+  ctx.fillStyle=ink;ctx.fillText(label,w/2,y);return ctx.measureText(label).width;
+ };
+ const nameWidth=fit(booth.name,108,96);fit(booth.subtitle,188,36);
+ const texture=new THREE.CanvasTexture(canvas);texture.colorSpace=THREE.SRGBColorSpace;texture.anisotropy=4;
+ return {texture,nameWidth,pixelWidth:w,pixelHeight:h};
 }
 
 export function renderFoodCourtV119(ground,plan=FOOD_COURT_V119){
@@ -53,11 +54,12 @@ export function renderFoodCourtV119(ground,plan=FOOD_COURT_V119){
   }
   // A solid original-era tenant fascia, not a detached billboard.
   box(group,prefix+'_faded_fascia',x-.12,4.13,mid,.13,.89,length-.22,faded);
-  const texture=menuCanvas(b),mat=new THREE.MeshBasicMaterial({
-   map:texture,side:THREE.DoubleSide,transparent:false
+  const signHeight=.68,signWidth=Math.min(4.45,length-.25,6.0*signHeight);
+  const print=menuCanvas(b,signWidth,signHeight),mat=new THREE.MeshBasicMaterial({
+   map:print.texture,side:THREE.FrontSide,transparent:false
   });
-  textures.push(texture);owned.push(mat);
-  const sign=new THREE.Mesh(new THREE.PlaneGeometry(Math.min(4.45,length-.25),.68),mat);
+  textures.push(print.texture);owned.push(mat);
+  const sign=new THREE.Mesh(new THREE.PlaneGeometry(signWidth,signHeight),mat);
   sign.name=prefix+'_concession_brand';
   sign.rotation.y=-Math.PI/2;sign.position.set(x-.204,4.12,mid);
   group.add(sign);
@@ -78,7 +80,7 @@ export function renderFoodCourtV119(ground,plan=FOOD_COURT_V119){
   lamp.position.set(x-.63,3.3,mid);
   lamp.name=prefix+'_failing_fixture';group.add(lamp);
   manifest.push({id:b.id,name:b.name,x,z:mid,frontLength:length,shutterClosed:true,builtInCounter:true,
-   fasciaHeight:4.12,counter:b.counter});
+   fasciaHeight:4.12,counter:b.counter,signWidth,signHeight,textureWidth:print.pixelWidth,textureHeight:print.pixelHeight,nameWidthPx:print.nameWidth});
  }
  return {group,manifest,dispose(){
   textures.forEach(t=>t.dispose());
