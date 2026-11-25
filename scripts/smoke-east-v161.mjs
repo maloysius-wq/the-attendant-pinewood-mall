@@ -25,7 +25,9 @@ try{
  assert.ok(signs.every(s=>s.actualWallMounted&&s.printAspectError<.01));
  const west=state.anchorRetailV121.filter(f=>f.room==='west_anchor');
  assert.equal(west.length,36);assert.equal(west.reduce((n,f)=>n+f.fallowCartonsV160.cartons,0),769,'completed Fallow stock changed');
- assert.equal(state.retailAudit.fixtures.filter(f=>f.room==='sunburst_arcade').length,43,'completed arcade changed');
+ assert.equal(state.sunburstFixtureCountV126,43,'completed arcade changed');
+ assert.equal(state.sunburstArcadeV126.actualFullSizeMachines,40);
+ assert.ok(state.sunburstArcadeV126.fixtures.every(f=>state.retailAudit.fixtures.some(m=>m.layer==='v126'&&m.id===f.id)),'every completed arcade fixture must appear in actual assembled scene');
  console.log('V161_ACTUAL_EAST_STOCK '+JSON.stringify(report));
  const shots=['eastAnchorFront','eastAnchor','eastClearance','eastReturns','eastStripped','eastAnchorPlan'];
  for(const name of shots){
