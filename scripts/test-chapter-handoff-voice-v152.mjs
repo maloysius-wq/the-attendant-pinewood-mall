@@ -28,7 +28,10 @@ test('V152 patches ONLY the original V27 async voice and V70 startChapter bounda
   'if(t?.id===id){t.ended=true;'
  ];
  for(const marker of instanceMarkers)assert.ok(v27.includes(marker));
- const synthetic=[...needed,...instanceMarkers].map(s=>s.replace('\\n','\n')).join('\n')+
+ const drainMarkers=['s.water.position.y=.035-t*.18;','if(s.floodBlocker)s.floodBlocker.disabled=true;'];
+ const v21=readFileSync('patches/chapter2-below-grade-v21.js.txt','utf8');
+ for(const marker of drainMarkers)assert.ok(v21.includes(marker),'original drain marker missing');
+ const synthetic=[...needed,...instanceMarkers,...drainMarkers].map(s=>s.replace('\\n','\n')).join('\n')+
   '\nsetTimeout(()=>this.characterV27(id,onStart,onUnavailable),';
  const result=patchChapterHandoffVoiceV152(synthetic);
  assert.match(result,/cancelChapterSpeechV152\(\);this\.resetState\(\);this\.storyVoiceUntilV27=0/);
@@ -36,6 +39,8 @@ test('V152 patches ONLY the original V27 async voice and V70 startChapter bounda
  assert.equal(result.split('this.characterV27(id,onStart,onUnavailable,epochV152)').length-1,2);
  assert.match(result,/this\.activePcasSourcesV152\.add\(src\)/);
  assert.match(result,/this\.voiceBusyUntilV27=0/);
+ assert.match(result,/s\.water\.position\.y=\(this\.mallLevelYV70\?\?0\)\+\.035-t\*\.18/);
+ assert.match(result,/s\.floodBlocker\.disabled=true;this\.world\.navCache\.clear\(\)/);
  assert.throws(()=>patchChapterHandoffVoiceV152(result),/missing or ambiguous|expected 2/);
  assert.throws(()=>patchChapterHandoffVoiceV152(synthetic.replace('this.world.clear();','')),/chapter-scene handoff/);
 });
