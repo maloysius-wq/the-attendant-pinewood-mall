@@ -1,0 +1,71 @@
+name: Pinewood V157 retail identity and dining overhaul
+on:
+  push:
+    branches: [feature/v157-retail-identity-overhaul]
+    paths:
+      - 'mall/storefront-plan-v115.mjs'
+      - 'mall/render-storefronts-v115.js'
+      - 'mall/furnishing-plan-v69.mjs'
+      - 'mall/render-furnishing-v69.js'
+      - 'mall/food-court-plan-v119.mjs'
+      - 'mall/render-food-court-v119.js'
+      - 'review/mall-construction-v67/main.js'
+      - 'scripts/test-storefronts-v115.mjs'
+      - 'scripts/smoke-storefronts-v115.mjs'
+      - 'scripts/test-food-court-v119.mjs'
+      - 'scripts/smoke-food-court-v119.mjs'
+      - '.github/workflows/retail-identity-v157.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  source:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify authored proportions, seating and existing story routes
+        run: |
+          node --check mall/render-storefronts-v115.js
+          node --check mall/render-furnishing-v69.js
+          node --test scripts/test-storefronts-v115.mjs scripts/test-food-court-v119.mjs scripts/test-furnishing-v69.mjs scripts/test-physical-shell-v67.mjs scripts/test-gameplay-layout-v70.mjs scripts/test-authored-scene-v111.mjs
+          node scripts/audit-local-assets-v15.mjs
+  desktop:
+    strategy:
+      fail-fast: false
+      matrix:
+        view: [storefronts, food-court]
+    runs-on: ubuntu-24.04
+    timeout-minutes: 24
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: |
+          npm install --no-save playwright@1.55.0
+          npx playwright install chromium
+      - name: Serve actual shared mall assets
+        run: |
+          python3 -m http.server 4173 --bind 127.0.0.1 >/tmp/v157-http.log 2>&1 &
+          for i in {1..40}; do curl -fsS http://127.0.0.1:4173/ >/dev/null && exit 0; sleep 1; done
+          exit 1
+      - name: Measure and capture actual desktop shared renderer
+        run: |
+          if [ "${{ matrix.view }}" = storefronts ]; then
+            node scripts/smoke-storefronts-v115.mjs
+          else
+            node scripts/smoke-food-court-v119.mjs
+          fi
+      - name: Archive source-model measurements and views
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: v157-${{ matrix.view }}-desktop
+          path: |
+            artifacts/v115-storefronts/
+            artifacts/v119-baseline-food/
+          retention-days: 14
