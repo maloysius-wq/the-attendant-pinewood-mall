@@ -22,7 +22,9 @@ const fixture=(id,room,source,x,z,yaw,collisionRadius)=>{
  * Keep the center-front 4.2m actual glass threshold free, preserve V69
  * registers and cabinets and arrange aisle-connected display families.
  */
-// V160 first Fallow's reflow: grouped perimeter runs, paired display islands,\n// an unobstructed entrance spine and window-side accessory stations.\nexport const ORIGINAL_ANCHOR_FIXTURES_V121=Object.freeze([
+// V160 first Fallow's reflow: grouped perimeter runs, paired display islands,
+// an unobstructed entrance spine and window-side accessory stations.
+export const ORIGINAL_ANCHOR_FIXTURES_V121=Object.freeze([
  fixture('fallow_wall_bay_n','west_anchor','wall_bay',-43.8,-49.4,Math.PI,0.86),
  fixture('fallow_wall_bay_s','west_anchor','wall_bay',-41.45,-49.4,Math.PI,0.86),
  fixture('fallow_display_n','west_anchor','table_large',-39.5,-54.7,0,1.15),
