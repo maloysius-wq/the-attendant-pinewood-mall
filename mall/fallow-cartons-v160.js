@@ -68,6 +68,8 @@ export function stockFallowDisplaysV160(group,fixtures,manifest){
      for(const y of surfaces(model,b,x,z)){
       if(y<b.min.y+.20||y>b.max.y-.12)continue;
       if(!supported(model,b,x,z,halfW*2,halfD*2,y))continue;
+      // No carton can overlap the next actual horizontal support above it.
+      if(surfaces(model,b,x,z).some(h=>h>y+.012&&h<y+.13))continue;
       ray.set(new THREE.Vector3(x+fx*(depth+.18),y+.055,z+fz*(depth+.18)),new THREE.Vector3(-fx,0,-fz));
       const obstruction=ray.intersectObject(model,true)[0];
       if(obstruction&&(obstruction.point.x-x)*fx+(obstruction.point.z-z)*fz>-.06)continue;

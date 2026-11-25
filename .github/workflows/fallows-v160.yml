@@ -1,0 +1,52 @@
+name: Pinewood V160 Fallow's measured retail rebuild
+on:
+  push:
+    branches: [feature/v160-fallows-rebuild]
+    paths:
+      - 'mall/anchor-layout-v121.mjs'
+      - 'mall/anchor-stock-layout-v123.mjs'
+      - 'mall/furnishing-plan-v69.mjs'
+      - 'mall/fallow-cartons-v160.js'
+      - 'mall/render-anchor-retail-v121.js'
+      - 'review/mall-construction-v67/main.js'
+      - 'scripts/*fallows-v160.mjs'
+      - '.github/workflows/fallows-v160.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  source:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: |
+          node --check mall/fallow-cartons-v160.js
+          node --check mall/render-anchor-retail-v121.js
+          node --test scripts/test-fallows-v160.mjs scripts/test-anchor-layout-v121.mjs scripts/test-anchor-stock-layout-v123.mjs scripts/test-furnishing-v69.mjs scripts/test-gameplay-layout-v70.mjs scripts/test-visual-anchors-v70.mjs scripts/test-physical-shell-v67.mjs
+          node scripts/audit-local-assets-v15.mjs
+  actual-desktop:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: |
+          npm install --no-save playwright@1.55.0
+          npx playwright install chromium
+      - name: Serve exact repository files
+        run: |
+          python3 -m http.server 4173 --bind 127.0.0.1 >/tmp/v160-http.log 2>&1 &
+          for i in {1..40}; do curl -fsS http://127.0.0.1:4173/ >/dev/null && exit 0; sleep 1; done
+          exit 1
+      - run: node scripts/smoke-fallows-v160.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: v160-real-fallows-assembled-desktop
+          path: artifacts/v160-fallows/
+          retention-days: 14
