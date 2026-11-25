@@ -454,17 +454,18 @@ async function begin(){
   state.storefrontNames=built.storefrontsV115.map(f=>f.sign);
   state.storefrontEntries=built.storefrontsV115.map(f=>({...f,room:f.id}));
   state.walls=built.shells.reduce((n,s)=>n+s.walls.length,0);
-  state.ceilingMeshes=built.ceilings.children.length;
+  const ceilingMeshes=built.ceilings.children.filter(mesh=>mesh.isMesh&&mesh.userData.roomCeiling);
+  state.ceilingMeshes=ceilingMeshes.length;
   // Keep the legacy 41-room ceiling audit scoped to canonical room names;
   // V117 adds two subordinate drop ceilings but does not create story rooms.
-  state.ceilingRooms=[...new Set(built.ceilings.children.map(mesh=>mesh.userData.roomCeiling)
+  state.ceilingRooms=[...new Set(ceilingMeshes.map(mesh=>mesh.userData.roomCeiling)
    .filter(name=>!String(name).startsWith('v117_')&&!String(name).startsWith('v129_')&&!String(name).startsWith('v131_')&&!String(name).startsWith('v133_')&&!String(name).startsWith('v135_')))].sort();
-  state.ceilingFinishes=[...new Set(built.ceilings.children.map(mesh=>({
+  state.ceilingFinishes=[...new Set(ceilingMeshes.map(mesh=>({
    id:mesh.userData.ceilingFinish,
-   texture:mesh.material.map?.image?.src?.split('/').pop()||null
+   texture:mesh.material?.map?.image?.src?.split('/').pop()||null
   })).map(x=>JSON.stringify(x)))].map(x=>JSON.parse(x));
-  state.allCeilingsTextured=built.ceilings.children.length>0&&built.ceilings.children.every(mesh=>
-   mesh.material.isMeshStandardMaterial&&!!mesh.material.map?.image?.width);
+  state.allCeilingsTextured=ceilingMeshes.length>0&&ceilingMeshes.every(mesh=>
+   mesh.material?.isMeshStandardMaterial&&!!mesh.material.map?.image?.width);
   state.errors=[...built.geometryErrors];
   document.getElementById('walls-stat').textContent=String(state.walls);
   document.getElementById('models-stat').textContent=String(state.modelsLoaded);
