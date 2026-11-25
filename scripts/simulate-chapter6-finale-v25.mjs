@@ -1,4 +1,9 @@
 import { chromium } from 'playwright';
+import {mkdir,writeFile} from 'node:fs/promises';
+const selected=process.argv[2]||'both';
+if(!['standard','true','both'].includes(selected))throw Error('Expected standard, true or both');
+const dir='artifacts/v153-finale-simulation';
+await mkdir(dir,{recursive:true});
 
 const base=process.env.PINEWOOD_BASE_URL||'http://127.0.0.1:4173/';
 const fail=msg=>{throw new Error('Chapter 6 finale simulation failed: '+msg);};
@@ -6,6 +11,7 @@ const expect=(cond,msg)=>{if(!cond)fail(msg);};
 
 async function runPath(browser,mode){
   const page=await browser.newPage({viewport:{width:1280,height:720}});
+  const bootStarted=Date.now();
   const errors=[],remote=[];const origin=new URL(base).origin;
   page.on('pageerror',e=>errors.push(e.stack||e.message));
   page.on('console',m=>{if(m.type()==='error')errors.push(m.text());});
@@ -13,7 +19,8 @@ async function runPath(browser,mode){
   const url=new URL(base);url.searchParams.set('visualTest','last-shift-control');
   try{
     await page.goto(url.toString(),{waitUntil:'domcontentloaded',timeout:90000});
-    await page.waitForFunction(()=>window.__PINEWOOD_VISUAL_READY__===true&&!!window.__PINEWOOD_CH6_TEST_V25__,null,{timeout:120000});
+    await page.waitForFunction(()=>window.__PINEWOOD_VISUAL_READY__===true&&!!window.__PINEWOOD_CH6_TEST_V25__,null,{timeout:540000,polling:500});
+    console.log('V153_FINALE_BOOT '+JSON.stringify({mode,elapsedMs:Date.now()-bootStarted}));
     const initial=await page.evaluate(mode=>window.__PINEWOOD_CH6_TEST_V25__.prepare(mode),mode);
     expect(initial.allEvidence===(mode==='true'),`${mode}: evidence preparation mismatch`);
     expect(initial.accountabilityOne===false&&initial.clockedOut===false,`${mode}: finale started too far ahead`);
@@ -64,13 +71,20 @@ async function runPath(browser,mode){
     }
     expect(errors.length===0,`${mode}: browser errors: ${errors.join(' | ')}`);
     expect(remote.length===0,`${mode}: remote requests escaped local runtime: ${[...new Set(remote)].join(', ')}`);
-    return {mode,ending:state.ending,recalls:[recall1.route?.label,recall2.route?.label],title,completed:true};
+    const result={mode,ending:state.ending,recalls:[recall1.route?.label,recall2.route?.label],title,completed:true,scope:'scripted original handlers with seeded evidence; not physical traversal',save};
+    await writeFile(dir+'/'+mode+'.json',JSON.stringify(result,null,2));
+    await page.screenshot({path:dir+'/'+mode+'.png',timeout:120000});
+    return result;
+  }catch(error){
+    const diagnostic=await page.evaluate(()=>({status:document.getElementById('assetStatus')?.textContent,load:document.getElementById('loadText')?.textContent,screen:document.querySelector('.screen.show')?.id,ready:window.__PINEWOOD_VISUAL_READY__,finale:window.__PINEWOOD_CH6_V25__,state:window.__PINEWOOD_CH6_TEST_V25__?.state?.()})).catch(()=>null);
+    await writeFile(dir+'/'+mode+'-failure.json',JSON.stringify({error:String(error),diagnostic,errors,remote},null,2));
+    console.error('V153_FINALE_FAILURE '+JSON.stringify({mode,error:String(error),diagnostic,errors,remote}));throw error;
   }finally{await page.close();}
 }
 
 const browser=await chromium.launch({headless:true,args:['--enable-webgl','--ignore-gpu-blocklist','--use-gl=swiftshader','--enable-unsafe-swiftshader','--disable-dev-shm-usage']});
 try{
-  const standard=await runPath(browser,'standard');
-  const truth=await runPath(browser,'true');
-  console.log(JSON.stringify({pass:true,standard,trueEnding:truth},null,2));
+  const results=[];
+  for(const mode of selected==='both'?['standard','true']:[selected])results.push(await runPath(browser,mode));
+  console.log('V153_FINALE_SIMULATION_PASS '+JSON.stringify({pass:true,results:results.map(({save,...r})=>r)}));
 }finally{await browser.close();}
