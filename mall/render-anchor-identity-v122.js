@@ -68,7 +68,7 @@ function mountPanel(g,src,f,ceiling,mats){
 function enamelPrint(s){
  const canvas=document.createElement('canvas');canvas.width=2048;canvas.height=300;
  const c=canvas.getContext('2d');if(!c)throw Error('1979 department sign texture unavailable');
- c.fillStyle='#222725';c.fillRect(0,0,2048,300);
+ c.fillStyle=s.id?.startsWith('east_')?'#34483e':'#222725';c.fillRect(0,0,2048,300);
  c.fillStyle='#93785c';c.fillRect(0,0,2048,13);
  c.fillRect(0,282,2048,5);
  c.textAlign='center';c.textBaseline='middle';
@@ -114,6 +114,11 @@ const FALLOW_DEPARTMENTS_V160=[
  {id:'fallow_gifts',room:'west_anchor',name:'GIFTS & HOUSEWARES',subtitle:'FINE GOODS  ·  ACCESSORIES  ·  BEAUTY',x:-35.5,z:-73,y:2.92,face:1,axis:'z',width:4.9,height:.78},
  {id:'fallow_service',room:'west_anchor',name:'CUSTOMER SERVICE',subtitle:'RETURNS  ·  EXCHANGES  ·  LAYAWAY',x:-43,z:-73,y:2.92,face:1,axis:'z',width:4.2,height:.68}
 ];
+const EAST_DEPARTMENTS_V161=[
+ {id:'east_closeout',room:'east_original_anchor',name:'FINAL CLEARANCE',subtitle:'HOUSEWARES  ·  LINENS  ·  REMAINING STOCK',x:35.5,z:-43,y:2.92,face:-1,axis:'z',width:4.9,height:.78},
+ {id:'east_fixture_removal',room:'east_original_anchor',name:'FIXTURES FOR REMOVAL',subtitle:'DISPLAY UNITS  ·  NOT FOR SALE',x:46,z:-46.5,y:2.92,face:-1,axis:'x',width:4.2,height:.68},
+ {id:'east_returns',room:'east_original_anchor',name:'RETURNS & COLLECTION',subtitle:'FINAL SALE  ·  ORDER PICKUP',x:46,z:-56.7,y:2.92,face:-1,axis:'x',width:4.2,height:.68}
+];
 function mountFallowDepartment(g,s,mats,textures){
  const room=MALL.rooms.find(r=>r.id===s.room&&r.level==='G');
  const edge=s.axis==='x'?(s.face===1?room?.x1:room?.x2):(s.face===1?room?.z1:room?.z2);
@@ -151,8 +156,9 @@ export async function renderAnchorIdentityV122(
   const panels=lights.map(f=>mountPanel(root,src,f,ceilings,mats));
   const mountedSigns=signs.map(s=>mountWallSign(root,s,mats,textures));
   const fallowDepartments=FALLOW_DEPARTMENTS_V160.map(s=>mountFallowDepartment(root,s,mats,textures));
+  const eastDepartments=EAST_DEPARTMENTS_V161.map(s=>mountFallowDepartment(root,s,mats,textures));
   property.add(root);
-  return {root,manifest:{panels,signs:mountedSigns,fallowDepartments},dispose(){
+  return {root,manifest:{panels,signs:mountedSigns,fallowDepartments,eastDepartments},dispose(){
    root.removeFromParent();
    textures.forEach(t=>t.dispose());mats.forEach(m=>m.dispose());
    // The shared source render owns panel source geometry, like V108.
