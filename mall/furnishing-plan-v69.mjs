@@ -167,7 +167,7 @@ export const FURNISHINGS_V69=Object.freeze({
       "room": "food_court",
       "model": "assets/vendor/runtime/85f4a59fc2e8a75e/Table_Round_Small.glb",
       "x": 33.25,
-      "z": -83.8,
+      "z": -82.4,
       "targetHeight": 0.78,
       "radius": 0.83,
       "role": "table"
@@ -177,7 +177,7 @@ export const FURNISHINGS_V69=Object.freeze({
       "room": "food_court",
       "model": "assets/vendor/runtime/85f4a59fc2e8a75e/Table_Round_Small.glb",
       "x": 37.75,
-      "z": -83.8,
+      "z": -82.4,
       "targetHeight": 0.78,
       "radius": 0.83,
       "role": "table"
@@ -187,7 +187,7 @@ export const FURNISHINGS_V69=Object.freeze({
       "room": "food_court",
       "model": "assets/vendor/runtime/85f4a59fc2e8a75e/Table_Round_Small.glb",
       "x": 33.25,
-      "z": -93.2,
+      "z": -94.6,
       "targetHeight": 0.78,
       "radius": 0.83,
       "role": "table"
@@ -197,7 +197,7 @@ export const FURNISHINGS_V69=Object.freeze({
       "room": "food_court",
       "model": "assets/vendor/runtime/85f4a59fc2e8a75e/Table_Round_Small.glb",
       "x": 37.75,
-      "z": -93.2,
+      "z": -94.6,
       "targetHeight": 0.78,
       "radius": 0.83,
       "role": "table"
@@ -206,88 +206,120 @@ export const FURNISHINGS_V69=Object.freeze({
       "id": "food_chair_1",
       "room": "food_court",
       "model": "assets/vendor/runtime/4f24ab1a44c14f48/chair.glb",
-      "x": 31.8,
-      "z": -83.8,
-      "targetHeight": 0.87,
+      "x": 32.31,
+      "z": -82.4,
+      "targetHeight": 0.94,
       "radius": 0.48,
-      "role": "seat"
+      "role": "seat",
+      "face": [
+        1,
+        0
+      ]
     },
     {
       "id": "food_chair_2",
       "room": "food_court",
       "model": "assets/vendor/runtime/4f24ab1a44c14f48/chair.glb",
-      "x": 34.7,
-      "z": -83.8,
-      "targetHeight": 0.87,
+      "x": 34.19,
+      "z": -82.4,
+      "targetHeight": 0.94,
       "radius": 0.48,
-      "role": "seat"
+      "role": "seat",
+      "face": [
+        -1,
+        0
+      ]
     },
     {
       "id": "food_chair_3",
       "room": "food_court",
       "model": "assets/vendor/runtime/4f24ab1a44c14f48/chair.glb",
-      "x": 36.3,
-      "z": -83.8,
-      "targetHeight": 0.87,
+      "x": 36.81,
+      "z": -82.4,
+      "targetHeight": 0.94,
       "radius": 0.48,
-      "role": "seat"
+      "role": "seat",
+      "face": [
+        1,
+        0
+      ]
     },
     {
       "id": "food_chair_4",
       "room": "food_court",
       "model": "assets/vendor/runtime/4f24ab1a44c14f48/chair.glb",
-      "x": 39.2,
-      "z": -83.8,
-      "targetHeight": 0.87,
+      "x": 38.69,
+      "z": -82.4,
+      "targetHeight": 0.94,
       "radius": 0.48,
-      "role": "seat"
+      "role": "seat",
+      "face": [
+        -1,
+        0
+      ]
     },
     {
       "id": "food_chair_5",
       "room": "food_court",
       "model": "assets/vendor/runtime/4f24ab1a44c14f48/chair.glb",
-      "x": 31.8,
-      "z": -93.2,
-      "targetHeight": 0.87,
+      "x": 32.31,
+      "z": -94.6,
+      "targetHeight": 0.94,
       "radius": 0.48,
-      "role": "seat"
+      "role": "seat",
+      "face": [
+        1,
+        0
+      ]
     },
     {
       "id": "food_chair_6",
       "room": "food_court",
       "model": "assets/vendor/runtime/4f24ab1a44c14f48/chair.glb",
-      "x": 34.7,
-      "z": -93.2,
-      "targetHeight": 0.87,
+      "x": 34.19,
+      "z": -94.6,
+      "targetHeight": 0.94,
       "radius": 0.48,
-      "role": "seat"
+      "role": "seat",
+      "face": [
+        -1,
+        0
+      ]
     },
     {
       "id": "food_chair_7",
       "room": "food_court",
       "model": "assets/vendor/runtime/4f24ab1a44c14f48/chair.glb",
-      "x": 36.3,
-      "z": -93.2,
-      "targetHeight": 0.87,
+      "x": 36.81,
+      "z": -94.6,
+      "targetHeight": 0.94,
       "radius": 0.48,
-      "role": "seat"
+      "role": "seat",
+      "face": [
+        1,
+        0
+      ]
     },
     {
       "id": "food_chair_8",
       "room": "food_court",
       "model": "assets/vendor/runtime/4f24ab1a44c14f48/chair.glb",
-      "x": 39.2,
-      "z": -93.2,
-      "targetHeight": 0.87,
+      "x": 38.69,
+      "z": -94.6,
+      "targetHeight": 0.94,
       "radius": 0.48,
-      "role": "seat"
+      "role": "seat",
+      "face": [
+        -1,
+        0
+      ]
     },
     {
       "id": "food_pizza_box",
       "room": "food_court",
       "model": "assets/vendor/runtime/6a62ba711ba90736/pizza-box.glb",
       "x": 33.25,
-      "z": -83.8,
+      "z": -82.4,
       "targetHeight": 0.3,
       "radius": 0,
       "role": "loose_prop",
@@ -300,7 +332,7 @@ export const FURNISHINGS_V69=Object.freeze({
       "room": "food_court",
       "model": "assets/vendor/runtime/f576c2b30a9defad/cup.glb",
       "x": 37.75,
-      "z": -83.8,
+      "z": -82.4,
       "targetHeight": 0.12,
       "radius": 0,
       "role": "loose_prop",
@@ -651,6 +683,382 @@ export const FURNISHINGS_V69=Object.freeze({
       "targetHeight": 0.85,
       "radius": 1.35,
       "role": "desk"
+    },
+    {
+      "id": "food_table_5",
+      "room": "food_court",
+      "model": "assets/vendor/runtime/85f4a59fc2e8a75e/Table_Round_Small.glb",
+      "x": 33.25,
+      "z": -85.8,
+      "targetHeight": 0.78,
+      "radius": 0.83,
+      "role": "table"
+    },
+    {
+      "id": "food_chair_9",
+      "room": "food_court",
+      "model": "assets/vendor/runtime/4f24ab1a44c14f48/chair.glb",
+      "x": 32.31,
+      "z": -85.8,
+      "targetHeight": 0.94,
+      "radius": 0.48,
+      "role": "seat",
+      "face": [
+        1,
+        0
+      ]
+    },
+    {
+      "id": "food_chair_10",
+      "room": "food_court",
+      "model": "assets/vendor/runtime/4f24ab1a44c14f48/chair.glb",
+      "x": 34.19,
+      "z": -85.8,
+      "targetHeight": 0.94,
+      "radius": 0.48,
+      "role": "seat",
+      "face": [
+        -1,
+        0
+      ]
+    },
+    {
+      "id": "food_table_6",
+      "room": "food_court",
+      "model": "assets/vendor/runtime/85f4a59fc2e8a75e/Table_Round_Small.glb",
+      "x": 37.75,
+      "z": -85.8,
+      "targetHeight": 0.78,
+      "radius": 0.83,
+      "role": "table"
+    },
+    {
+      "id": "food_chair_11",
+      "room": "food_court",
+      "model": "assets/vendor/runtime/4f24ab1a44c14f48/chair.glb",
+      "x": 36.81,
+      "z": -85.8,
+      "targetHeight": 0.94,
+      "radius": 0.48,
+      "role": "seat",
+      "face": [
+        1,
+        0
+      ]
+    },
+    {
+      "id": "food_chair_12",
+      "room": "food_court",
+      "model": "assets/vendor/runtime/4f24ab1a44c14f48/chair.glb",
+      "x": 38.69,
+      "z": -85.8,
+      "targetHeight": 0.94,
+      "radius": 0.48,
+      "role": "seat",
+      "face": [
+        -1,
+        0
+      ]
+    },
+    {
+      "id": "food_table_7",
+      "room": "food_court",
+      "model": "assets/vendor/runtime/85f4a59fc2e8a75e/Table_Round_Small.glb",
+      "x": 33.25,
+      "z": -91.2,
+      "targetHeight": 0.78,
+      "radius": 0.83,
+      "role": "table"
+    },
+    {
+      "id": "food_chair_13",
+      "room": "food_court",
+      "model": "assets/vendor/runtime/4f24ab1a44c14f48/chair.glb",
+      "x": 32.31,
+      "z": -91.2,
+      "targetHeight": 0.94,
+      "radius": 0.48,
+      "role": "seat",
+      "face": [
+        1,
+        0
+      ]
+    },
+    {
+      "id": "food_chair_14",
+      "room": "food_court",
+      "model": "assets/vendor/runtime/4f24ab1a44c14f48/chair.glb",
+      "x": 34.19,
+      "z": -91.2,
+      "targetHeight": 0.94,
+      "radius": 0.48,
+      "role": "seat",
+      "face": [
+        -1,
+        0
+      ]
+    },
+    {
+      "id": "food_table_8",
+      "room": "food_court",
+      "model": "assets/vendor/runtime/85f4a59fc2e8a75e/Table_Round_Small.glb",
+      "x": 37.75,
+      "z": -91.2,
+      "targetHeight": 0.78,
+      "radius": 0.83,
+      "role": "table"
+    },
+    {
+      "id": "food_chair_15",
+      "room": "food_court",
+      "model": "assets/vendor/runtime/4f24ab1a44c14f48/chair.glb",
+      "x": 36.81,
+      "z": -91.2,
+      "targetHeight": 0.94,
+      "radius": 0.48,
+      "role": "seat",
+      "face": [
+        1,
+        0
+      ]
+    },
+    {
+      "id": "food_chair_16",
+      "room": "food_court",
+      "model": "assets/vendor/runtime/4f24ab1a44c14f48/chair.glb",
+      "x": 38.69,
+      "z": -91.2,
+      "targetHeight": 0.94,
+      "radius": 0.48,
+      "role": "seat",
+      "face": [
+        -1,
+        0
+      ]
+    },
+    {
+      "id": "food_chair_17",
+      "room": "food_court",
+      "model": "assets/vendor/runtime/4f24ab1a44c14f48/chair.glb",
+      "x": 33.25,
+      "z": -81.46000000000001,
+      "targetHeight": 0.94,
+      "radius": 0.48,
+      "role": "seat",
+      "face": [
+        0,
+        -1
+      ]
+    },
+    {
+      "id": "food_chair_18",
+      "room": "food_court",
+      "model": "assets/vendor/runtime/4f24ab1a44c14f48/chair.glb",
+      "x": 37.75,
+      "z": -81.46000000000001,
+      "targetHeight": 0.94,
+      "radius": 0.48,
+      "role": "seat",
+      "face": [
+        0,
+        -1
+      ]
+    },
+    {
+      "id": "food_chair_19",
+      "room": "food_court",
+      "model": "assets/vendor/runtime/4f24ab1a44c14f48/chair.glb",
+      "x": 33.25,
+      "z": -95.53999999999999,
+      "targetHeight": 0.94,
+      "radius": 0.48,
+      "role": "seat",
+      "face": [
+        0,
+        1
+      ]
+    },
+    {
+      "id": "food_chair_20",
+      "room": "food_court",
+      "model": "assets/vendor/runtime/4f24ab1a44c14f48/chair.glb",
+      "x": 37.75,
+      "z": -95.53999999999999,
+      "targetHeight": 0.94,
+      "radius": 0.48,
+      "role": "seat",
+      "face": [
+        0,
+        1
+      ]
+    },
+    {
+      "id": "food_chair_25",
+      "room": "food_court",
+      "model": "assets/vendor/runtime/4f24ab1a44c14f48/chair.glb",
+      "x": 33.25,
+      "z": -83.34,
+      "targetHeight": 0.94,
+      "radius": 0.48,
+      "role": "seat",
+      "face": [
+        0,
+        1
+      ]
+    },
+    {
+      "id": "food_chair_26",
+      "room": "food_court",
+      "model": "assets/vendor/runtime/4f24ab1a44c14f48/chair.glb",
+      "x": 37.75,
+      "z": -83.34,
+      "targetHeight": 0.94,
+      "radius": 0.48,
+      "role": "seat",
+      "face": [
+        0,
+        1
+      ]
+    },
+    {
+      "id": "food_chair_27",
+      "room": "food_court",
+      "model": "assets/vendor/runtime/4f24ab1a44c14f48/chair.glb",
+      "x": 33.25,
+      "z": -93.66,
+      "targetHeight": 0.94,
+      "radius": 0.48,
+      "role": "seat",
+      "face": [
+        0,
+        -1
+      ]
+    },
+    {
+      "id": "food_chair_28",
+      "room": "food_court",
+      "model": "assets/vendor/runtime/4f24ab1a44c14f48/chair.glb",
+      "x": 37.75,
+      "z": -93.66,
+      "targetHeight": 0.94,
+      "radius": 0.48,
+      "role": "seat",
+      "face": [
+        0,
+        -1
+      ]
+    },
+    {
+      "id": "food_chair_21",
+      "room": "food_court",
+      "model": "assets/vendor/runtime/4f24ab1a44c14f48/chair.glb",
+      "x": 33.25,
+      "z": -84.86,
+      "targetHeight": 0.94,
+      "radius": 0.48,
+      "role": "seat",
+      "face": [
+        0,
+        -1
+      ]
+    },
+    {
+      "id": "food_chair_29",
+      "room": "food_court",
+      "model": "assets/vendor/runtime/4f24ab1a44c14f48/chair.glb",
+      "x": 33.25,
+      "z": -86.74,
+      "targetHeight": 0.94,
+      "radius": 0.48,
+      "role": "seat",
+      "face": [
+        0,
+        1
+      ]
+    },
+    {
+      "id": "food_chair_22",
+      "room": "food_court",
+      "model": "assets/vendor/runtime/4f24ab1a44c14f48/chair.glb",
+      "x": 37.75,
+      "z": -84.86,
+      "targetHeight": 0.94,
+      "radius": 0.48,
+      "role": "seat",
+      "face": [
+        0,
+        -1
+      ]
+    },
+    {
+      "id": "food_chair_30",
+      "room": "food_court",
+      "model": "assets/vendor/runtime/4f24ab1a44c14f48/chair.glb",
+      "x": 37.75,
+      "z": -86.74,
+      "targetHeight": 0.94,
+      "radius": 0.48,
+      "role": "seat",
+      "face": [
+        0,
+        1
+      ]
+    },
+    {
+      "id": "food_chair_23",
+      "room": "food_court",
+      "model": "assets/vendor/runtime/4f24ab1a44c14f48/chair.glb",
+      "x": 33.25,
+      "z": -92.14,
+      "targetHeight": 0.94,
+      "radius": 0.48,
+      "role": "seat",
+      "face": [
+        0,
+        1
+      ]
+    },
+    {
+      "id": "food_chair_31",
+      "room": "food_court",
+      "model": "assets/vendor/runtime/4f24ab1a44c14f48/chair.glb",
+      "x": 33.25,
+      "z": -90.26,
+      "targetHeight": 0.94,
+      "radius": 0.48,
+      "role": "seat",
+      "face": [
+        0,
+        -1
+      ]
+    },
+    {
+      "id": "food_chair_24",
+      "room": "food_court",
+      "model": "assets/vendor/runtime/4f24ab1a44c14f48/chair.glb",
+      "x": 37.75,
+      "z": -92.14,
+      "targetHeight": 0.94,
+      "radius": 0.48,
+      "role": "seat",
+      "face": [
+        0,
+        1
+      ]
+    },
+    {
+      "id": "food_chair_32",
+      "room": "food_court",
+      "model": "assets/vendor/runtime/4f24ab1a44c14f48/chair.glb",
+      "x": 37.75,
+      "z": -90.26,
+      "targetHeight": 0.94,
+      "radius": 0.48,
+      "role": "seat",
+      "face": [
+        0,
+        -1
+      ]
     }
   ],
   "rehomeLegacy": [

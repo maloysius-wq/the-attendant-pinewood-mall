@@ -86,3 +86,26 @@ export function validateStorefrontsV115(fronts,portals){
  }
  return issues;
 }
+
+
+/** V157: the architectural fascia spans the shop, the tenant wordmark does
+ * not. Sign artwork is sampled in square pixels at the physical panel aspect. */
+export const TENANT_BRANDS_V157=Object.freeze({
+ west_anchor:{name:"Fallow's",subtitle:"DEPARTMENT STORE",background:"#42352e",ink:"#ead4a6",accent:"#997451",family:"Georgia, serif",weight:"bold",ratio:4.6},
+ cassette_castle:{name:"CASSETTE CASTLE",subtitle:"MUSIC · TAPES · RECORDS",background:"#282b30",ink:"#ebd48d",accent:"#ad8b43",family:"Arial, sans-serif",weight:"bold",ratio:5.7},
+ sunburst_arcade:{name:"SUNBURST ARCADE",subtitle:"GAMES · TOKENS · PRIZES",background:"#25233d",ink:"#f4bd6e",accent:"#a84e4d",family:"Arial, sans-serif",weight:"bold",ratio:5.8},
+ east_original_anchor:{name:"EAST DEPARTMENT",subtitle:"CLOSED FOR RENOVATION",background:"#45483d",ink:"#d7d2b7",accent:"#83876b",family:"Georgia, serif",weight:"bold",ratio:5.7},
+ video_planet:{name:"VIDEO PLANET",subtitle:"MOVIES · RENTALS",background:"#243748",ink:"#d4e6de",accent:"#5d929d",family:"Arial, sans-serif",weight:"bold",ratio:4.9},
+ food_court:{name:"PINEWOOD FOOD COURT",subtitle:"DINING · TAKEAWAY",background:"#493a30",ink:"#f0d5ae",accent:"#9f7652",family:"Georgia, serif",weight:"bold",ratio:6.0},
+ annex_anchor:{name:"NORTHSTAR HOME",subtitle:"LINENS · HOUSEWARES · GIFTS",background:"#294340",ink:"#e1dbc1",accent:"#79958c",family:"Georgia, serif",weight:"bold",ratio:5.6}
+});
+export function tenantSignDimensionsV157(front){
+ const brand=TENANT_BRANDS_V157[front.room];
+ if(!brand)throw Error('Missing tenant identity '+front.room);
+ const available=front.end-front.start-1.1;
+ const height=.76,width=Math.min(available,brand.ratio*height);
+ const pixelHeight=256,pixelWidth=Math.round(pixelHeight*width/height);
+ if(!Number.isFinite(width)||width<2.5)throw Error('Insufficient original fascia '+front.room);
+ return Object.freeze({brand,width,height,pixelWidth,pixelHeight,
+  center:(front.doorStart+front.doorEnd)/2,y:4.46});
+}

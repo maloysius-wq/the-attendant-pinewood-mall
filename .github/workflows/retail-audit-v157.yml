@@ -1,0 +1,39 @@
+name: Pinewood V157 complete authored retail survey
+on:
+  push:
+    branches: [feature/v157-retail-identity-overhaul]
+    paths:
+      - 'scripts/smoke-retail-audit-v157.mjs'
+      - 'review/mall-construction-v67/main.js'
+      - '.github/workflows/retail-audit-v157.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  actual-assembled-desktop:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: |
+          node --check review/mall-construction-v67/main.js
+          node --check scripts/smoke-retail-audit-v157.mjs
+          npm install --no-save playwright@1.55.0
+          npx playwright install chromium
+      - name: Serve actual source
+        run: |
+          python3 -m http.server 4173 --bind 127.0.0.1 >/tmp/v157-audit-http.log 2>&1 &
+          for i in {1..40}; do curl -fsS http://127.0.0.1:4173/ >/dev/null && exit 0; sleep 1; done
+          exit 1
+      - name: Survey published shared V111 assembly, all seven shops and galleries
+        run: node scripts/smoke-retail-audit-v157.mjs
+      - name: Archive real eye-level, plan views and asset manifest
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pinewood-complete-assembled-retail-audit
+          path: artifacts/v157-complete-retail-audit/
+          retention-days: 14

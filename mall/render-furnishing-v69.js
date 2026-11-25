@@ -11,10 +11,37 @@ const FLOOR_Y=new Map(MALL.levels.map(l=>[l.id,l.y]));
 const boxOf=object=>new THREE.Box3().setFromObject(object);
 const dim=box=>box.getSize(new THREE.Vector3());
 const center=box=>box.getCenter(new THREE.Vector3());
+// Read the actual chair backrest from the upper vertices of the pinned
+// source mesh. Source axes are not interchangeable between GLBs.
+const chairFrontCache=new WeakMap();
+function measuredChairFront(scene){
+ if(chairFrontCache.has(scene))return chairFrontCache.get(scene);
+ scene.updateMatrixWorld(true);
+ const b=boxOf(scene),size=dim(b),mid=center(b),upper=new THREE.Box3();
+ const point=new THREE.Vector3();
+ scene.traverse(o=>{
+  const a=o.isMesh&&o.geometry?.attributes?.position;
+  if(!a)return;
+  for(let i=0;i<a.count;i++){
+   point.fromBufferAttribute(a,i).applyMatrix4(o.matrixWorld);
+   if(point.y>=b.min.y+size.y*.80)upper.expandByPoint(point);
+  }
+ });
+ if(upper.isEmpty())throw Error('Dining chair has no measured backrest');
+ const u=center(upper),dx=(u.x-mid.x)/size.x,dz=(u.z-mid.z)/size.z;
+ if(Math.max(Math.abs(dx),Math.abs(dz))<.10)throw Error('Dining chair source front is ambiguous; inspect asset rather than guess');
+ const front=Math.abs(dx)>Math.abs(dz)?[-Math.sign(dx),0]:[0,-Math.sign(dz)];
+ chairFrontCache.set(scene,front);return front;
+}
 function fitModel(scene,f){
  const object=scene.clone(true);
  object.rotation.x=f.pitch||0;
  object.rotation.y=f.yaw||0;
+ if(f.face){
+  const front=measuredChairFront(scene);
+  object.rotation.y=Math.atan2(f.face[0],f.face[1])-Math.atan2(front[0],front[1]);
+  object.userData.measuredSourceFront=front;
+ }
  object.updateMatrixWorld(true);
  const initial=boxOf(object),size=dim(initial);
  if(!Number.isFinite(size.x+size.y+size.z)||Math.max(size.x,size.y,size.z)<.00001)
@@ -60,7 +87,7 @@ function measurePlaced(f,object){
  return {id:f.id,room:f.room,model:f.model,
   yBottom:b.min.y,measuredHeight:s.y,requestedHeight:f.targetHeight,width:s.x,depth:s.z,
   centerX:c.x,centerZ:c.z,
-  colliderRadius:f.radius};
+  colliderRadius:f.radius,...(f.face?{facing:f.face,sourceFront:object.userData.measuredSourceFront,yaw:object.rotation.y}:{})};
 }
 export async function attachLicensedInteriorsV69(building){
  const defects=validateFurnishingPlan(FURNISHINGS_V69);

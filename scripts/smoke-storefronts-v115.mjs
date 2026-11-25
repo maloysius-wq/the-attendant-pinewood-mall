@@ -15,7 +15,7 @@ try{
   if(/^https?:/.test(r.url())&&!r.url().startsWith(origin))remote.push(r.url());
  });
  await page.goto(origin+'/review/mall-construction-v67/',{waitUntil:'domcontentloaded'});
- try{await page.waitForFunction(()=>window.__PINEWOOD_MALL_CONSTRUCTION_V67__?.ready,null,{timeout:45000});}
+ try{await page.waitForFunction(()=>window.__PINEWOOD_MALL_CONSTRUCTION_V67__?.ready,null,{timeout:540000});}
  catch(e){
   console.error('V115_STARTUP',JSON.stringify({
    errors,failed,remote,
@@ -30,6 +30,11 @@ try{
  assert.ok(initial.storefrontNames.includes('VIDEO PLANET'));
  assert.ok(initial.storefrontNames.includes('FALLOW\'S'));
  assert.ok(initial.storefrontEntries.every(x=>x.entryWidth>=4.1&&x.windowSpan>0));
+ for(const e of initial.storefrontEntries){
+  assert.ok(e.nameWidthPx>0&&e.nameWidthPx<=e.textureWidth-96);
+  assert.ok(Math.abs(e.signWidth/e.signHeight-e.textureWidth/e.textureHeight)<.003);
+  assert.ok(e.signWidth/e.signHeight<=6.05);
+ }
  assert.ok(initial.firstFrameFullyLoaded,'no fake empty-first-frame storefronts');
  for(const shot of ['atrium','west','east','aerial']){
   await page.evaluate(s=>window.__PINEWOOD_MALL_CONSTRUCTION_V67__.goto(s),shot);

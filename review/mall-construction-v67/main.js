@@ -243,7 +243,58 @@ const shots={
  aerial:{floor:'G',eye:[130,103,102],target:[17,0,-72],label:'ALL LEVELS · CUTAWAY',title:'Joined Mall Structure',
   note:'The public mall, basement service level, and administrative mezzanine occupy one consistent world.'}
 };
+// Opt-in survey of the *actual* V111 assembly, including older V69
+// props omitted by construction-only views. Never load private drafts.
+const retailAudit=new URLSearchParams(location.search).get('retailAudit')==='1';
+const extraShots={
+ fallowFront:{eye:[-20,1.73,-60.5],target:[-29,3.5,-60.5],title:"Fallow's fascia and window"},
+ eastAnchorFront:{eye:[20,1.73,-52],target:[29,3.5,-52],title:'East Department fascia and window'},
+ foodFront:{eye:[20,1.73,-88.5],target:[29,3.5,-88.5],title:'Food court fascia and window'},
+ foodInside:{eye:[30.6,1.73,-88.5],target:[42,1.4,-88.5],title:'Food court dining and concessions'},
+ foodRear:{eye:[40,1.73,-88.5],target:[32.5,1.2,-84.5],title:'Food court seating banks'},
+ foodPlan:{eye:[37.5,18,-88.5],target:[37.5,0,-88.5],title:'Food court true floor plan'}
+};
+if(retailAudit){
+ for(const [id,shot] of Object.entries(extraShots))shots[id]={floor:'G',label:'ACTUAL SHARED PUBLISHED ASSEMBLY',note:'Retail audit: original physical scene with V69 and V111 furnishings.',...shot};
+ const select=document.getElementById('view-select');
+ for(const [id,shot] of Object.entries(extraShots)){const option=document.createElement('option');option.value=id;option.textContent=shot.title;select.append(option);}
+}
 let scene,camera,renderer,orbit,built,surveyLight,aerialAmbient;
+const auditOriginalVisibility=new Map();
+const auditPlanShots=new Set(['fallowPlan','eastAnchorPlan','cassettePlan','videoPlan','arcadePlan','annexAnchorPlan','foodPlan']);
+function fullRetailInventory(building){
+ const rows=[],seen=new Set();
+ const sources=[
+  ['v67',building.modelManifest||[],f=>'cc0_'+f.id],
+  ['v69',building.furnitureManifest||[],f=>'furnished_'+f.id],
+  ['v120',building.galleryAmenitiesV120.benches||[],f=>'v120_real_CC0_bench_'+f.id],
+  ['v121',building.anchorRetailV121||[],f=>'v121_original_store_fixture_'+f.id],
+  ['v123',building.anchorStockV123||[],f=>'v123_real_late_close_stock_'+f.id],
+  ['v124',building.cassetteCastleV124.fixtures||[],f=>'v124_original_verified_CC0_shop_fixture_'+f.id],
+  ['v125',building.videoPlanetV125.fixtures||[],f=>'v125_actual_CC0_video_store_fixture_'+f.id],
+  ['v126',building.sunburstArcadeV126.fixtures||[],f=>'v126_actual_original_CC0_arcade_'+f.id],
+  ['v128',building.annexAnchorV128.fixtures||[],f=>'v128_actual_SHA_pinned_licensed_CC0_retail_'+f.id]
+ ];
+ building.group.updateMatrixWorld(true);
+ for(const [layer,manifest,name] of sources)for(const f of manifest){
+  const key=name(f),object=building.group.getObjectByName(key);
+  if(seen.has(key))throw Error('Repeated asset audit ID '+key);
+  seen.add(key);
+  if(!object)throw Error('Actual assembled model missing '+key);
+  const bounds=new THREE.Box3().setFromObject(object),size=bounds.getSize(new THREE.Vector3()),center=bounds.getCenter(new THREE.Vector3());
+  const room=building.shells.flatMap(s=>s.rooms||[]).find(r=>center.x>=r.x1&&center.x<=r.x2&&center.z>=r.z1&&center.z<=r.z2);
+  auditOriginalVisibility.set(object,object.visible);
+  rows.push({layer,id:f.id,name:key,declaredRoom:f.room||null,room:f.room||room?.id||null,
+   visible:object.visible,source:f.model||(typeof f.source==='string'&&f.source.startsWith('assets/')?f.source:null)||object.userData.cc0ProvenancePath||f.source||null,
+   measured:{min:bounds.min.toArray(),max:bounds.max.toArray(),size:size.toArray(),center:center.toArray()},
+   worldQuaternion:object.getWorldQuaternion(new THREE.Quaternion()).toArray(),worldScale:object.getWorldScale(new THREE.Vector3()).toArray(),
+   sourceManifest:f});
+ }
+ return {source:building.authored.getState(),fixtures:rows,storyAnchors:building.storyAnchors,
+  supportedStock:building.supportChecks,clearanceWarnings:building.clearanceWarnings,
+  signs:[...building.storefrontsV115,...building.closedBaysV116.filter(x=>x.front),...building.foodCourtV119]};
+}
+
 const publicApi={
  ready:false,
  getState:()=>JSON.parse(JSON.stringify({...state,
@@ -252,7 +303,8 @@ const publicApi={
   cameraTarget:shots[state.shot].target
  })),
  goto:setShot,
- setChapter
+ setChapter,
+ setAuditLight(enabled){if(!retailAudit)throw Error('Retail audit mode required');state.surveyLightOn=!!enabled;surveyLight.intensity=enabled?95:0;renderOnDemand();}
 };
 window.__PINEWOOD_MALL_CONSTRUCTION_V67__=publicApi;
 function syncReadout(){
@@ -283,7 +335,17 @@ function setShot(name){
   // 3–6m from their target; never run orbit distance-clamping on those shots.
   if(orbit.enabled)orbit.update();
  }
- if(built)built.setRoofVisible(roofToggle.checked&&!['aerial','fallowPlan','eastAnchorPlan','cassettePlan','videoPlan','arcadePlan','annexPlan','annexAnchorPlan','firebreakPlan','rearSealPlan','rearSealStair','frontSeamPlan','westRearPlan'].includes(name));
+ if(built)built.setRoofVisible(roofToggle.checked&&!['foodPlan','aerial','fallowPlan','eastAnchorPlan','cassettePlan','videoPlan','arcadePlan','annexPlan','annexAnchorPlan','firebreakPlan','rearSealPlan','rearSealStair','frontSeamPlan','westRearPlan'].includes(name));
+ if(retailAudit&&built){
+  const plan=auditPlanShots.has(name);
+  built.geometryGroups.M1.visible=!plan;built.geometryGroups.B1.visible=!plan;
+  // The V69 group spans floors independently of the shell groups.
+  for(const object of built.furnishingGroup.children){
+   const y=new THREE.Box3().setFromObject(object).min.y;
+   object.visible=(auditOriginalVisibility.get(object)??true)&&(!plan||y>=-.05&&y<5.4);
+  }
+  if(plan){aerialAmbient.intensity=2.3;if(scene.fog)scene.fog.density=.0011;}
+ }
  renderer?.render(scene,camera);
 }
 function setChapter(value){
@@ -324,7 +386,12 @@ async function begin(){
   orbit.addEventListener('change',renderOnDemand);
   setShot('service');
   clock.value=30;
-  built=await renderConstructionScene({scene,chapter:state.chapter});
+  if(retailAudit){
+   if(new URLSearchParams(location.search).has('builderPreview'))throw Error('Retail audit requires published layout, never private Builder draft');
+   const {renderAuthoredPinewoodV111}=await import('../../mall/authored-scene-v111.js');
+   built=await renderAuthoredPinewoodV111({scene,chapter:state.chapter,automaticLighting:false});
+   state.retailAudit=fullRetailInventory(built);
+  }else built=await renderConstructionScene({scene,chapter:state.chapter});
   clock.value=94;
   state.texturesLoaded=built.texturesLoaded;
   state.modelsLoaded=built.modelsLoaded;
@@ -385,19 +452,20 @@ async function begin(){
   state.perimeterV136={...built.perimeterV136};
   state.storefrontCount=built.storefrontsV115.length;
   state.storefrontNames=built.storefrontsV115.map(f=>f.sign);
-  state.storefrontEntries=built.storefrontsV115.map(f=>({room:f.id,entryWidth:f.entryWidth,windowSpan:f.windowSpan}));
+  state.storefrontEntries=built.storefrontsV115.map(f=>({...f,room:f.id}));
   state.walls=built.shells.reduce((n,s)=>n+s.walls.length,0);
-  state.ceilingMeshes=built.ceilings.children.length;
+  const ceilingMeshes=built.ceilings.children.filter(mesh=>mesh.isMesh&&mesh.userData.roomCeiling);
+  state.ceilingMeshes=ceilingMeshes.length;
   // Keep the legacy 41-room ceiling audit scoped to canonical room names;
   // V117 adds two subordinate drop ceilings but does not create story rooms.
-  state.ceilingRooms=[...new Set(built.ceilings.children.map(mesh=>mesh.userData.roomCeiling)
+  state.ceilingRooms=[...new Set(ceilingMeshes.map(mesh=>mesh.userData.roomCeiling)
    .filter(name=>!String(name).startsWith('v117_')&&!String(name).startsWith('v129_')&&!String(name).startsWith('v131_')&&!String(name).startsWith('v133_')&&!String(name).startsWith('v135_')))].sort();
-  state.ceilingFinishes=[...new Set(built.ceilings.children.map(mesh=>({
+  state.ceilingFinishes=[...new Set(ceilingMeshes.map(mesh=>({
    id:mesh.userData.ceilingFinish,
-   texture:mesh.material.map?.image?.src?.split('/').pop()||null
+   texture:mesh.material?.map?.image?.src?.split('/').pop()||null
   })).map(x=>JSON.stringify(x)))].map(x=>JSON.parse(x));
-  state.allCeilingsTextured=built.ceilings.children.length>0&&built.ceilings.children.every(mesh=>
-   mesh.material.isMeshStandardMaterial&&!!mesh.material.map?.image?.width);
+  state.allCeilingsTextured=ceilingMeshes.length>0&&ceilingMeshes.every(mesh=>
+   mesh.material?.isMeshStandardMaterial&&!!mesh.material.map?.image?.width);
   state.errors=[...built.geometryErrors];
   document.getElementById('walls-stat').textContent=String(state.walls);
   document.getElementById('models-stat').textContent=String(state.modelsLoaded);

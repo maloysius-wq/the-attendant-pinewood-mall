@@ -7,6 +7,7 @@
  * decorative blocks floating in the walking line.
  */
 import * as THREE from '../vendor/three/build/three.module.js';
+import {tenantSignDimensionsV157} from './storefront-plan-v115.mjs';
 
 const n=(value,label)=>{if(!Number.isFinite(value))throw Error('Invalid storefront '+label);return value;};
 function bar(group,id,x,y,z,width,height,depth,mat){
@@ -15,34 +16,27 @@ function bar(group,id,x,y,z,width,height,depth,mat){
  object.castShadow=false;object.receiveShadow=true;
  group.add(object);return object;
 }
-function tenantTexture(spec){
- const c=document.createElement('canvas');c.width=2048;c.height=256;
- const context=c.getContext('2d');
- if(!context)throw Error('Storefront sign canvas unavailable');
- context.fillStyle='#182326';context.fillRect(0,0,c.width,c.height);
- const color='#'+spec.color.toString(16).padStart(6,'0');
- context.fillStyle=color;context.fillRect(0,0,2048,14);
- context.fillStyle='#a5a38d';context.fillRect(34,231,1980,3);
- // Lettering is a single storefront-scaled canvas, not arbitrary 3D billboards
- // repeatedly laid across floors or room openings.
- context.textAlign='center';context.textBaseline='middle';
- context.font='bold 106px Arial, sans-serif';
- while(context.measureText(spec.name).width>1850&&parseInt(context.font,10)>45){
-  context.font='bold '+(parseInt(context.font,10)-6)+'px Arial, sans-serif';
- }
- context.fillStyle='#e0dac9';context.fillText(spec.name,1024,94,1880);
- context.font='bold 36px Arial, sans-serif';context.fillStyle='#b8a98c';
- context.fillText(spec.subtitle,1024,182,1880);
- // Weathering belongs to the old enamel sign itself, not floating stains.
- for(let i=0;i<190;i++){
-  const x=52+(i*379)%1942,y=35+(i*89)%186;
-  context.fillStyle=i%3?'#203032c9':'#a3a18b56';
-  context.fillRect(x,y,1+(i%7),1+(i%3));
- }
+// V157: physical dimensions determine the canvas. Never use fillText's
+// maxWidth argument (which squeezes glyphs), or stretch the finished art.
+function tenantTexture(dim){
+ const {brand,pixelWidth:w,pixelHeight:h}=dim;
+ const c=document.createElement('canvas');c.width=w;c.height=h;
+ const ctx=c.getContext('2d');if(!ctx)throw Error('Storefront sign canvas unavailable');
+ ctx.fillStyle=brand.background;ctx.fillRect(0,0,w,h);
+ ctx.fillStyle=brand.accent;ctx.fillRect(0,0,w,13);ctx.fillRect(0,h-12,w,12);
+ ctx.strokeStyle=brand.accent;ctx.lineWidth=2;ctx.strokeRect(16,23,w-32,h-46);
+ ctx.textAlign='center';ctx.textBaseline='middle';
+ const line=(text,y,maxSize,weight,ink)=>{
+  let px=maxSize;
+  do{ctx.font=weight+' '+px+'px '+brand.family;if(ctx.measureText(text).width<=w-96)break;px--;}while(px>12);
+  ctx.fillStyle=ink;ctx.fillText(text,w/2,y);
+  return {fontPx:px,textWidth:ctx.measureText(text).width};
+ };
+ const name=line(brand.name,105,108,brand.weight,brand.ink);
+ const subtitle=line(brand.subtitle,191,31,'normal',brand.ink);
  const texture=new THREE.CanvasTexture(c);
- texture.colorSpace=THREE.SRGBColorSpace;
- texture.anisotropy=4;
- return texture;
+ texture.colorSpace=THREE.SRGBColorSpace;texture.anisotropy=4;
+ return {texture,name,subtitle};
 }
 export function renderStorefrontsV115(layer,storefronts){
  if(!layer||!layer.isObject3D)throw TypeError('Physical G floor layer required');
@@ -93,20 +87,27 @@ export function renderStorefrontsV115(layer,storefronts){
   // never the 4.2m playable opening and never the glass panes.
   const span=f.end-f.start-.85,mid=(f.start+f.end)/2;
   bar(frontGroup,id('sign-band',mid),outward,4.44,mid,.13,.98,span,charcoal);
-  const texture=tenantTexture(f);
-  const signMat=new THREE.MeshBasicMaterial({map:texture,transparent:false,side:THREE.DoubleSide});
+  const dim=tenantSignDimensionsV157(f);
+  const {texture,name,subtitle}=tenantTexture(dim);
+  // Separate the narrow, physically framed tenant sign from the long
+  // architectural band. The frame is surface-mounted, above the doorway.
+  bar(frontGroup,id('wordmark-frame',dim.center),f.at+f.facing*.255,
+   dim.y,dim.center,.12,dim.height+.10,dim.width+.12,brass);
+  const signMat=new THREE.MeshBasicMaterial({map:texture,transparent:false,side:THREE.FrontSide});
   textures.push(texture);signMaterials.push(signMat);
-  const sign=new THREE.Mesh(new THREE.PlaneGeometry(span-.25,.81),signMat);
+  const sign=new THREE.Mesh(new THREE.PlaneGeometry(dim.width,dim.height),signMat);
   sign.name='v115_shop_sign_'+f.room;
   sign.rotation.y=f.facing>0?Math.PI/2:-Math.PI/2;
-  sign.position.set(f.at+f.facing*.241,4.46,mid);
+  sign.position.set(f.at+f.facing*.322,dim.y,dim.center);
   frontGroup.add(sign);
   // Trim is attached to the fascia and exposes the 1979 original / 1992
   // later wing material differences without changing the canonical story.
   bar(frontGroup,id('fascia-top',mid),outward,4.97,mid,.12,.065,span,brass);
   bar(frontGroup,id('fascia-bottom',mid),outward,3.93,mid,.12,.08,span,metal);
   manifest.push({id:f.room,sign:f.name,entryWidth:entranceWidth,windowSpan:span-entranceWidth,
-   axis:'x',x:f.at,from:f.start,to:f.end,level:'G'});
+   axis:'x',x:f.at,from:f.start,to:f.end,level:'G',wordmark:dim.brand.name,
+   signWidth:dim.width,signHeight:dim.height,textureWidth:dim.pixelWidth,textureHeight:dim.pixelHeight,
+   nameFontPx:name.fontPx,nameWidthPx:name.textWidth,subtitleWidthPx:subtitle.textWidth});
  }
  return {group,manifest,dispose(){
   // Building owns the actual geometry; dispose the unique sign materials and

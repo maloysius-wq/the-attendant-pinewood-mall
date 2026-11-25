@@ -14,7 +14,7 @@ test('real 17m food court has three source-fixed concessions, a separate dining 
  assert.deepEqual(validateFoodCourtV119(FOOD_COURT_V119,MALL,shell.portals),[]);
  assert.deepEqual(validatePhysicalShell(shell),[]);
  assert.equal(shell.foodCourt.booths.length,3);
- assert.equal(shell.foodCourt.dining.length,4);
+ assert.equal(shell.foodCourt.dining.length,8);
  assert.equal(MALL.rooms.length,41);
  assert.equal(MALL.rooms.filter(r=>r.id==='food_court').length,1);
  assert.equal(shell.storefronts.length,7);
@@ -65,18 +65,23 @@ test('all three concession shutters have real collision-active masonry, steel an
 
 test('actual existing licensed V69 tables, chairs and props are intentionally reflowed, not deleted',()=>{
  const f=food();
- assert.equal(f.length,14);
+ assert.equal(f.length,42);
  assert.deepEqual(validateFurnishingPlan(FURNISHINGS_V69),[]);
  const tables=f.filter(x=>x.role==='table');
  const seats=f.filter(x=>x.role==='seat');
  const shell=constructPhysicalShell({level:'G',chapter:1});
- assert.equal(tables.length,4);assert.equal(seats.length,8);
+ assert.equal(tables.length,8);assert.equal(seats.length,32);
  assert.equal(f.filter(x=>x.role==='counter').length,0,'no miniature wedge GLBs used for fixed food counterwork');
  for(const table of FOOD_COURT_V119.dining){
   const f=food().find(x=>x.id===table.table);
   assert.ok(near(f.x,table.x)&&near(f.z,table.z),
    'canonical dining station moved without matching attached actual V69 GLB '+table.table);
-  for(const chairId of table.chairs)assert.ok(seats.some(x=>x.id===chairId));
+  for(const chairId of table.chairs){
+   const chair=seats.find(x=>x.id===chairId);assert.ok(chair);
+   assert.ok(Array.isArray(chair.face)&&Math.hypot(...chair.face)===1);
+   const dx=table.x-chair.x,dz=table.z-chair.z;
+   assert.ok((dx*chair.face[0]+dz*chair.face[1])/Math.hypot(dx,dz)>.999,'chair faces its table '+chairId);
+  }
  }
  for(const b of FOOD_COURT_V119.booths){
   const physical=shell.walls.find(w=>w.id==='v119_stall_'+b.id+'_counter');
