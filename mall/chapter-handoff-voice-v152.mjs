@@ -61,12 +61,14 @@ if(['127.0.0.1','localhost'].includes(location.hostname)&&
     inspect,
     // This is a camera/interaction probe, not a progression shortcut.
     // The test must send the native E key itself and inspect persisted results.
-    aimB1(type,id){
+    aimB1(type,id){return this.aimOriginal(type,id,1);},
+    aimM1(type,id){return this.aimOriginal(type,id,4);},
+    aimOriginal(type,id,chapter){
       const g=GAME;
-      if(g.levelIndex!==1||!g.running||g.modal||g.dead||g.won)
-        throw Error('Original live B1 required');
+      if(![1,4].includes(chapter)||g.levelIndex!==chapter||!g.running||g.modal||g.dead||g.won)
+        throw Error('Original live requested floor required');
       const o=g.world.interactables.find(o=>o.parent&&o.visible&&!o.userData.collected&&
-        o.userData.type===type&&(o.userData.label===id||o.userData.id===id||o.userData.controlId===id));
+        o.userData.type===type&&(id==null||o.userData.label===id||o.userData.id===id||o.userData.controlId===id));
       if(!o)throw Error('Missing visible original B1 target '+type+'/'+id);
       o.updateWorldMatrix(true,true);
       const t=o.getWorldPosition(new THREE.Vector3()),p=g.controls.yaw.position,
@@ -98,6 +100,16 @@ if(['127.0.0.1','localhost'].includes(location.hostname)&&
       p.copy(initial);g.controls.yaw.rotation.y=yaw0;g.controls.pitch.rotation.x=pitch0;
       g.camera.updateWorldMatrix(true,false);g.updateInteraction();
       throw Error('Original B1 E raycast missed '+id+' at '+t.toArray()+'; attempts '+JSON.stringify(attempts.slice(-8)));
+    },
+    mezzanineState(){
+      const g=GAME,s=g.ch5V24;
+      if(g.levelIndex!==4||!s)throw Error('Original M1 Records required');
+      return {chapter:g.levelIndex+1,level:g.mallLayoutV70.level,position:g.controls.yaw.position.toArray(),running:g.running,
+        dead:g.dead,modal:g.modal,joPages:!!s.joPages,payroll:!!s.payroll,timeclock:!!s.timeclock,
+        rosterReconciled:!!s.rosterReconciled,overrideFound:!!s.overrideFound,eliBodySeen:!!s.eliBodySeen,
+        eliGateOpen:!!s.eliGate?.userData?.open,eliRecorder:!!s.eliRecorder,sessionsRevealed:!!s.sessionsRevealed,
+        objective:document.getElementById('objective')?.textContent,pickups:inspect().pickups,
+        evidence:{...SAVE.story.evidence},people:{...SAVE.story.people},journal:{...SAVE.journal}};
     },
     basementState(){
       const g=GAME,s=g.ch2V21;
