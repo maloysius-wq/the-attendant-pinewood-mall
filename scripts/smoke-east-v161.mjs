@@ -43,14 +43,15 @@ try{
   await page.evaluate(name=>{const a=window.__PINEWOOD_MALL_CONSTRUCTION_V67__;a.goto(name);a.setAuditLight(false)},name);
   await page.screenshot({path:dir+'/'+name+'-ambient.png',timeout:120000,animations:'disabled'});
  }
- assert.equal(fixtures.length,30);assert.equal(report.length,30);
+ assert.equal(fixtures.length,34);assert.equal(report.length,34);
  assert.equal(report.filter(r=>r.intentionallyCleared).length,5);
  assert.ok(report.filter(r=>r.intentionallyCleared).every(r=>r.cartons===0));
  assert.ok(report.filter(r=>!r.intentionallyCleared).every(r=>r.cartons>=2),'stocked display empty');
  assert.ok(report.filter(r=>r.fixtureType==='gondola'&&!r.intentionallyCleared).every(r=>r.stockedFaces===2),'both accessible faces stocked');
  assert.ok(report.every(r=>r.slots.length===r.cartons&&r.slots.every(s=>Number.isFinite(s.supportY))));
  assert.equal(new Set(report.flatMap(r=>r.slots.map(s=>s.sku))).size,8);
- assert.ok(count>=200&&count<650,'clearance should be substantial but partially depleted');
+ assert.ok(count>=300&&count<650,'clearance should be substantial but partially depleted');
+ assert.ok(report.filter(r=>r.fixtureType==='table_large'&&!r.centerReserved).every(r=>r.cartons>=12),'unreserved sale tables should have substantial displayed stock');
  const register=state.retailAudit.fixtures.find(f=>f.id==='east_returns_register');
  assert.ok(register?.sourceManifest?.actualSupportV160?.samples.length===5,'actual register worktop support');
  assert.ok(register.measured.min[1]>.75&&register.measured.min[1]<1.02);

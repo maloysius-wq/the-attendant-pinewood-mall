@@ -73,6 +73,8 @@ export const ORIGINAL_ANCHOR_FIXTURES_V121=Object.freeze([
  fixture('east_rear_cubby_2','east_original_anchor','wall_cubbies',45.45,-46.3,-Math.PI/2,0.7),
  fixture('east_rear_cubby_3','east_original_anchor','wall_cubbies',45.45,-47.8,-Math.PI/2,0.7),
  fixture('east_rear_cubby_4','east_original_anchor','wall_cubbies',45.45,-49.3,-Math.PI/2,0.7),
+ fixture('east_rear_cubby_8','east_original_anchor','wall_cubbies',45.45,-50.9,-Math.PI/2,.7),
+ fixture('east_rear_cubby_9','east_original_anchor','wall_cubbies',45.45,-52.5,-Math.PI/2,.7),
  fixture('east_rear_cubby_5','east_original_anchor','wall_cubbies',45.45,-55.2,-Math.PI/2,0.7),
  fixture('east_rear_cubby_6','east_original_anchor','wall_cubbies',45.45,-56.7,-Math.PI/2,0.7),
  fixture('east_rear_cubby_7','east_original_anchor','wall_cubbies',45.45,-58.2,-Math.PI/2,0.7),
@@ -83,11 +85,13 @@ export const ORIGINAL_ANCHOR_FIXTURES_V121=Object.freeze([
  fixture('east_south_cubby_5','east_original_anchor','wall_cubbies',37.5,-60.45,0,0.7),
  fixture('east_south_cubby_6','east_original_anchor','wall_cubbies',39,-60.45,0,0.7),
  fixture('east_clearance_gondola_1','east_original_anchor','gondola',31.2,-46.6,Math.PI/2,0.85),
- fixture('east_clearance_gondola_2','east_original_anchor','gondola',34.4,-49,0,0.85),
- fixture('east_clearance_gondola_3','east_original_anchor','gondola',38,-49,0,0.85),
- fixture('east_clearance_gondola_4','east_original_anchor','gondola',34.5,-54.8,0,0.85),
- fixture('east_clearance_gondola_5','east_original_anchor','gondola',38.3,-54.8,0,0.85),
+ fixture('east_clearance_gondola_2','east_original_anchor','gondola',34.4,-50.05,0,0.85),
+ fixture('east_clearance_gondola_3','east_original_anchor','gondola',38,-50.05,0,0.85),
+ fixture('east_clearance_gondola_4','east_original_anchor','gondola',34.5,-53.95,0,0.85),
+ fixture('east_clearance_gondola_5','east_original_anchor','gondola',38.3,-53.95,0,0.85),
  fixture('east_clearance_gondola_6','east_original_anchor','gondola',31.5,-57.3,Math.PI/2,0.85),
+ fixture('east_clearance_gondola_7','east_original_anchor','gondola',41.6,-50.05,0,.85),
+ fixture('east_clearance_gondola_8','east_original_anchor','gondola',41.4,-53.95,0,.85),
  fixture('east_anchor_display_n','east_original_anchor','table_large',35.8,-46.4,0,1.15),
  fixture('east_clearance_table_n','east_original_anchor','table_large',39.3,-46.4,0,1.15),
  fixture('east_anchor_display_s','east_original_anchor','table_large',35.8,-57.8,0,1.15),
@@ -104,7 +108,7 @@ const distToSegment=(p,a,b)=>{
 };
 export function validateAnchorLayoutV121(fixtures=ORIGINAL_ANCHOR_FIXTURES_V121,{portals=[]}={}){
  const defects=[...validateAnchorSourceV121()],ids=new Set();
- if(fixtures.length!==66||fixtures.filter(f=>f.room==='west_anchor').length!==36||fixtures.filter(f=>f.room==='east_original_anchor').length!==30)defects.push('original department-store authored fixture set is incomplete');
+ if(fixtures.length!==70||fixtures.filter(f=>f.room==='west_anchor').length!==36||fixtures.filter(f=>f.room==='east_original_anchor').length!==34)defects.push('original department-store authored fixture set is incomplete');
  for(const f of fixtures){
   if(ids.has(f.id))defects.push('duplicate original retail fixture '+f.id);
   ids.add(f.id);

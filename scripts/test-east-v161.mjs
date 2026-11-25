@@ -5,11 +5,11 @@ import {FURNISHINGS_V69} from '../mall/furnishing-plan-v69.mjs';
 import {buildGameplayLayoutV70,shortestRouteV70} from '../mall/gameplay-layout-v70.mjs';
 test('East Department clearance, removal, returns and primary circulation',()=>{
  const east=fittings.filter(f=>f.room==='east_original_anchor'),nav=buildGameplayLayoutV70({chapter:1});
- assert.equal(east.length,30);
- assert.equal(east.filter(f=>f.source==='wall_cubbies').length,20);
- assert.equal(east.filter(f=>f.source==='gondola').length,6);
+ assert.equal(east.length,34);
+ assert.equal(east.filter(f=>f.source==='wall_cubbies').length,22);
+ assert.equal(east.filter(f=>f.source==='gondola').length,8);
  assert.equal(east.filter(f=>f.source==='table_large').length,4);
- assert.equal(east.filter(f=>f.source==='wall_cubbies'&&f.x===45.45).length,7);
+ assert.equal(east.filter(f=>f.source==='wall_cubbies'&&f.x===45.45).length,9);
  assert.equal(FURNISHINGS_V69.fixtures.find(f=>f.id==='east_returns_register').support,'east_returns_counter');
  for(let x=30;x<=44;x+=.5)for(const z of [-52.75,-52,-51.25])
   assert.ok(nav.canStand(x,z),'central public aisle obstructed '+[x,z]);

@@ -71,7 +71,7 @@ function merchandiseFor(f,s,i){
  return choices[(Math.round(s.y*10)+Math.floor(i/2)+f.id.length)%choices.length];
 }
 // Deliberately cleared adjoining bays, not scattered arbitrary empty fixtures.
-const stripped=new Set(['east_north_cubby_6','east_north_cubby_7','east_rear_cubby_1','east_rear_cubby_2','east_clearance_gondola_1']);
+const stripped=new Set(['east_north_cubby_6','east_north_cubby_7','east_rear_cubby_1','east_rear_cubby_2','east_clearance_gondola_7']);
 export function stockEastDisplaysV161(group,fixtures,manifest){
  group.updateMatrixWorld(true);
  const root=new THREE.Group();root.name='v161_east_clearance_and_returns_stock';
@@ -81,12 +81,12 @@ export function stockEastDisplaysV161(group,fixtures,manifest){
   const model=group.getObjectByName('v121_original_store_fixture_'+f.id);
   if(!model)throw Error('V161 missing original stock support '+f.id);
   const b=new THREE.Box3().setFromObject(model),center=b.getCenter(new THREE.Vector3()),size=b.getSize(new THREE.Vector3());
-  const table=f.source==='table_large',turn=Math.abs(Math.sin(f.yaw))>.5;
+  const table=f.source==='table_large',reserved=table&&['east_anchor_display_n','east_anchor_display_s'].includes(f.id),turn=Math.abs(Math.sin(f.yaw))>.5;
   const slots=[];
   if(table){
    // Existing V123 center stock (up to .69m wide) stays independent and clear.
    // Use the outer edges of the real large tabletop, not its reserved center.
-   for(const dx of [-.53,.53])for(const dz of [-.25,.25]){
+   for(const dx of (reserved?[-.53,.53]:[-.52,-.26,0,.26,.52]))for(const dz of (reserved?[-.25,.25]:[-.28,0,.28])){
     const x=center.x+dx,z=center.z+dz,y=b.max.y;
     if(supported(model,b,x,z,.22,.14,y))slots.push({x,y,z,yaw:0});
    }
@@ -132,7 +132,7 @@ export function stockEastDisplaysV161(group,fixtures,manifest){
    placements[sku].push(s);accepted.push({...s,sku:designs[sku].title});
   }
   slots.length=0;slots.push(...accepted);
-  report.push({id:f.id,cartons:slots.length,slots:slots.map(s=>({x:s.x,z:s.z,supportY:s.y,sku:s.sku})),support:'five upward source-triangle contacts',centerReserved:table,fixtureType:f.source,intentionallyCleared:stripped.has(f.id),stockedFaces:[...new Set(slots.map(s=>Math.round(s.yaw*1000)/1000))].length});
+  report.push({id:f.id,cartons:slots.length,slots:slots.map(s=>({x:s.x,z:s.z,supportY:s.y,sku:s.sku})),support:'five upward source-triangle contacts',centerReserved:reserved,fixtureType:f.source,intentionallyCleared:stripped.has(f.id),stockedFaces:[...new Set(slots.map(s=>Math.round(s.yaw*1000)/1000))].length});
  }
  const dummy=new THREE.Object3D();
  for(let i=0;i<mats.length;i++){
