@@ -1,0 +1,42 @@
+name: Pinewood V153 Chapter 6 startup diagnosis
+on:
+  push:
+    branches: [diagnostic/v153-chapter6-startup]
+    paths:
+      - 'scripts/diagnose-chapter6-startup-v153.mjs'
+      - '.github/workflows/diagnose-chapter6-startup-v153.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  original-chapter6:
+    strategy:
+      fail-fast: false
+      matrix:
+        mode: [visual, continue]
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install desktop Chromium
+        run: |
+          node --check scripts/diagnose-chapter6-startup-v153.mjs
+          npm install --no-save playwright@1.55.0
+          npx playwright install chromium
+      - name: Serve unchanged original mall
+        run: |
+          python3 -m http.server 4173 --bind 127.0.0.1 >/tmp/v153-http.log 2>&1 &
+          for i in {1..40}; do curl -fsS http://127.0.0.1:4173/ >/dev/null && exit 0; sleep 1; done
+          exit 1
+      - name: Measure original Chapter 6 startup
+        run: node scripts/diagnose-chapter6-startup-v153.mjs ${{ matrix.mode }}
+      - name: Archive desktop evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: v153-chapter6-${{ matrix.mode }}
+          path: artifacts/v153-chapter6-${{ matrix.mode }}/
+          retention-days: 14
