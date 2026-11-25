@@ -26,7 +26,7 @@ test('V124 17x17m original 1979 Cassette Castle and source glass frontage remain
  assert.equal(shell.cassetteCastle.lights.length,4);
  assert.deepEqual(validateCassetteCastleV124(shell.cassetteCastle,{portals:shell.portals,ceilings:shell.ceilings}),[]);
  assert.deepEqual(validatePhysicalShell(shell),[]);
- assert.equal(shell.anchorRetail.length,66);
+ assert.equal(shell.anchorRetail.length,70);
  assert.equal(shell.anchorStock.length,13);
  assert.equal(shell.anchorIdentity.lights.length,15);
  assert.equal(shell.galleryColumns.length,28);

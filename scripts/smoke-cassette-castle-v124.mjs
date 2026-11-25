@@ -75,7 +75,7 @@ try{
    'original ceiling fixture is not physically mounted to shop soffit');
   assert.ok(lamp.actualWidth>1.7&&lamp.actualDepth>1.7);
  }
- assert.equal(s.anchorRetailCountV121,66);
+ assert.equal(s.anchorRetailCountV121,70);
  assert.equal(s.stockCountV123,13);
  assert.equal(s.ceilingPanelCountV122,15);
  assert.equal(s.departmentSignCountV122,2);

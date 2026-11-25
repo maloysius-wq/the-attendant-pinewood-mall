@@ -37,7 +37,7 @@ try{
  assert.equal(s.stockCountV123,13);
  assert.equal(s.supportedStockV123,6);
  assert.equal(s.groundStockV123,7);
- assert.equal(s.anchorRetailCountV121,66);
+ assert.equal(s.anchorRetailCountV121,70);
  assert.equal(s.ceilingPanelCountV122,15);
  assert.equal(s.departmentSignCountV122,2);
  assert.equal(s.galleryColumnCount,28);
