@@ -43,9 +43,9 @@ export const VISUAL_VIEWPOINTS_V70=Object.freeze({
   "arcade-checkout": {
     "chapter": 0,
     "p": [
-      -38,
+      -39.5,
       1.7,
-      -95
+      -102.6
     ],
     "yaw": 0,
     "pitch": -0.03
