@@ -20,6 +20,12 @@ try{
  const fixtures=state.anchorRetailV121.filter(f=>f.room==='west_anchor');
  const report=fixtures.map(f=>f.fallowCartonsV160).filter(Boolean);
  const count=report.reduce((n,f)=>n+f.cartons,0);
+ const signs=state.anchorIdentityV122.fallowDepartments;
+ assert.deepEqual(signs.map(s=>s.name),['APPAREL & LINENS','GIFTS & HOUSEWARES','CUSTOMER SERVICE']);
+ assert.ok(signs.every(s=>s.actualWallMounted&&s.printAspectError<.01),'all department enamel prints must be wall-mounted and aspect-correct');
+ for(const r of report){const north=fixtures.find(f=>f.id===r.id).z>-60.5;
+  assert.ok(r.slots.every(s=>north?!['GIFT SOAP','HAND CREAM','GIFT SET','GIFT WRAP','HOME FRAGRANCE'].includes(s.sku):!['HOSIERY','HANDKERCHIEFS','COTTON KNIT','RIBBED KNIT','COTTON SCARF'].includes(s.sku)),'department stock is not in its authored section '+r.id);
+ }
  console.log('V160_ACTUAL_SOURCE_CARTONS '+JSON.stringify(report));
  const shots=['fallowFront','fallows','fallowNorth','fallowSouth','fallowCheckout','fallowPlan'];
  for(const name of shots){

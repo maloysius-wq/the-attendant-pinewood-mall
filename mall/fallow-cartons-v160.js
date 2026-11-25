@@ -73,7 +73,7 @@ function materials(){
 function merchandiseFor(f,s,i){
  // Northern clothing/linen, southern gifts/beauty. Repeat SKUs in short
  // runs within each shelf, rather than making every adjacent box a new item.
- const north=f.z<-60.5,choices=north?[3,4,5,6,7,8,9]:[0,1,2,10,11,8,9];
+ const north=f.z>-60.5,choices=north?[3,4,5,6,7,8,9]:[0,1,2,10,11,8,9];
  const row=Math.round(s.y*10),run=Math.floor(i/2);
  return choices[(row+run+f.id.length)%choices.length];
 }

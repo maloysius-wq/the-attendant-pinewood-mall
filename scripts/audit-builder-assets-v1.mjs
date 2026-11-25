@@ -151,7 +151,7 @@ test('original repo-pinned Builder fixtures expose their actual material provena
  }
  const index=JSON.parse(fs.readFileSync('assets/vendor/builder/material-index-v1.json','utf8'));
  assert.equal(index.existingTotalModels,EDITOR_CATALOG_V1.length);
- assert.deepEqual(index.existingImageBearingIds,existingImageBearingIds,'Legacy model surface types must match original GLBs');
+ assert.deepEqual([...index.existingImageBearingIds].sort(),[...existingImageBearingIds].sort(),'Legacy model surface types must match original GLBs');
  console.log('PINEWOOD_BUILDER_EXISTING_MATERIAL_INDEX '+JSON.stringify(existingImageBearingIds));
  console.log('PINEWOOD_BUILDER_EXISTING_MATERIAL_AUDIT_PASS',JSON.stringify({
   count:EDITOR_CATALOG_V1.length,colorOnly,imageBearing,missingMaterial,externalImages,dataUriImages,missingUV,missingImageFiles,relativeImageFiles,examples

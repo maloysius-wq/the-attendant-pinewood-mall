@@ -35,8 +35,9 @@ jobs:
           node --check review/mall-construction-v67/main.js
           node --check mall/fallow-cartons-v160.js
           node --check mall/render-anchor-retail-v121.js
-          node --test scripts/test-fallows-v160.mjs scripts/test-anchor-retail-v121.mjs scripts/test-anchor-layout-v121.mjs scripts/test-anchor-stock-layout-v123.mjs scripts/test-furnishing-v69.mjs scripts/test-gameplay-layout-v70.mjs scripts/test-visual-anchors-v70.mjs scripts/test-physical-shell-v67.mjs
+          node --test scripts/test-fallows-v160.mjs scripts/test-anchor-retail-v121.mjs scripts/test-anchor-identity-v122.mjs scripts/test-cassette-castle-v124.mjs scripts/test-anchor-layout-v121.mjs scripts/test-anchor-stock-layout-v123.mjs scripts/test-furnishing-v69.mjs scripts/test-gameplay-layout-v70.mjs scripts/test-visual-anchors-v70.mjs scripts/test-physical-shell-v67.mjs
           node scripts/audit-local-assets-v15.mjs
+          node --test scripts/audit-builder-assets-v1.mjs
   actual-desktop:
     runs-on: ubuntu-24.04
     timeout-minutes: 25
