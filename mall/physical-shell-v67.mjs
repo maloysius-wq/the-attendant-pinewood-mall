@@ -8,6 +8,7 @@ import {GALLERY_COLUMNS_V118,validateGalleryColumnsV118} from './gallery-columns
 import {FOOD_COURT_V119,foodCourtWallsV119,validateFoodCourtV119} from './food-court-plan-v119.mjs';
 import {GALLERY_AMENITIES_V120,validateGalleryAmenitiesV120} from './gallery-amenities-v120.mjs';
 import {ORIGINAL_ANCHOR_FIXTURES_V121,validateAnchorLayoutV121} from './anchor-layout-v121.mjs';
+import {anchorSegmentBlockedV160} from './fallows-sources-v160.mjs';
 import {ANCHOR_LIGHTS_V122,ANCHOR_SIGNS_V122,validateAnchorIdentityV122} from './anchor-identity-plan-v122.mjs';
 import {ORIGINAL_ANCHOR_STOCK_V123,validateAnchorStockLayoutV123} from './anchor-stock-layout-v123.mjs';
 import {CASSETTE_FIXTURES_V124,CASSETTE_LIGHTS_V124,CASSETTE_SIGN_V124,validateCassetteCastleV124} from './cassette-castle-plan-v124.mjs';
@@ -429,7 +430,7 @@ export function isSegmentBlocked(shell,from,to){
   (shell.galleryColumns||[]).some(c=>distanceToSegment2D(c,from,to)<c.collisionRadius)||
   [...(shell.galleryAmenities?.benches||[]),...(shell.galleryAmenities?.directories||[])]
     .some(a=>distanceToSegment2D(a,from,to)<a.collisionRadius)||
-  (shell.anchorRetail||[]).some(f=>distanceToSegment2D(f,from,to)<f.collisionRadius)||
+  (shell.anchorRetail||[]).some(f=>f.room==='west_anchor'?anchorSegmentBlockedV160(f,from,to):distanceToSegment2D(f,from,to)<f.collisionRadius)||
   // V127 cabinets occupy real floor; the source segment query must agree
   // with the gameplay AABB colliders, including the open staff kitchen.
   (shell.staffFixtures||[]).some(f=>distanceToSegment2D(f,from,to)<f.collisionRadius)||

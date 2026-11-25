@@ -24,8 +24,8 @@ const item=(id,room,key,x,z,{support=null,radius=0,yaw=0}={})=>{
 export const ORIGINAL_ANCHOR_STOCK_V123=Object.freeze([
  // Fallow's retained clearance and counter-top merchandise; the original
  // 4.2m shop doorway and central entry-to-register route remain empty.
- item('fallow_folded_knitwear','west_anchor','folded_stock_cube',-42.15,-65.1,{radius:.65}),
- item('fallow_last_clearance','west_anchor','promo_bin',-31.8,-63.5,{radius:.65}),
+ item('fallow_folded_knitwear','west_anchor','folded_stock_cube',-42.15,-64.7,{radius:.65}),
+ item('fallow_last_clearance','west_anchor','promo_bin',-31.4,-63.5,{radius:.65}),
  item('fallow_carton_closed','west_anchor','stock_box_closed',-45,-70.7,{radius:.32}),
  item('fallow_carton_open','west_anchor','stock_box_open',-44.1,-70.7,{radius:.45}),
  item('fallow_north_catalogues','west_anchor','gift_books',-39.5,-54.7,{support:'fallow_display_n'}),

@@ -314,7 +314,7 @@ export const FURNISHINGS_V69=Object.freeze({
       "room": "west_anchor",
       "model": "assets/vendor/runtime/3d7dfedf514e5c4e/bookcaseClosedDoors.glb",
       "x": -44.6,
-      "z": -53.1,
+      "z": -64.1,
       "targetHeight": 2.05,
       "radius": 1,
       "role": "cabinet",
@@ -323,12 +323,27 @@ export const FURNISHINGS_V69=Object.freeze({
     {
       "id": "fallow_counter",
       "room": "west_anchor",
-      "model": "assets/vendor/runtime/ae14ac85cb3b895b/KSI_counter.glb",
+      "model": "assets/vendor/runtime/47206cda3d12810c/desk.glb",
       "x": -43,
       "z": -68,
-      "targetHeight": 0.9,
+      "targetHeight": 0.88,
       "radius": 1.35,
-      "role": "counter"
+      "role": "counter",
+      "yaw": 3.141592653589793
+    },
+    {
+      "id": "fallow_register",
+      "room": "west_anchor",
+      "model": "assets/vendor/runtime/ae505c72620ea098/cash-register.glb",
+      "x": -43.25,
+      "z": -68,
+      "targetHeight": 0.27,
+      "radius": 0,
+      "role": "loose_prop",
+      "yaw": 0,
+      "support": "fallow_counter",
+      "maxWidth": 0.44,
+      "maxDepth": 0.44
     },
     {
       "id": "east_anchor_rack_n",
