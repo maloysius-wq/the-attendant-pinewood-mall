@@ -31,7 +31,9 @@ test('V124 17x17m original 1979 Cassette Castle and source glass frontage remain
  assert.equal(shell.anchorIdentity.lights.length,15);
  assert.equal(shell.galleryColumns.length,28);
  assert.equal(shell.closedBays.length,13);
- assert.equal(shell.galleryAmenities.benches.length,6);
+ assert.equal(shell.galleryAmenities.benches.length,20);
+ assert.equal(shell.galleryAmenities.bins.length,10);
+ assert.equal(shell.galleryAmenities.planters.length,10);
  assert.equal(shell.galleryAmenities.directories.length,2);
 });
 test('Every V124 real licensed object SHA256 byte matches original catalog and was already source-auditioned',()=>{

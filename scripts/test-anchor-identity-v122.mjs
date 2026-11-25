@@ -22,7 +22,9 @@ test('15 real original-room light positions attach exactly to source 5.21m shop-
  assert.equal(shell.storefronts.length,7);
  assert.equal(shell.anchorRetail.length,70);
  assert.equal(shell.galleryColumns.length,28);
- assert.equal(shell.galleryAmenities.benches.length,6);
+ assert.equal(shell.galleryAmenities.benches.length,20);
+ assert.equal(shell.galleryAmenities.bins.length,10);
+ assert.equal(shell.galleryAmenities.planters.length,10);
  for(const lamp of ANCHOR_LIGHTS_V122){
   const hits=shell.ceilings.filter(c=>c.room===lamp.room&&
    lamp.x>c.x1+1.1&&lamp.x<c.x2-1.1&&lamp.z>c.z1+1.1&&lamp.z<c.z2-1.1);

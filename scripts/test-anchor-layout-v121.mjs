@@ -25,7 +25,9 @@ test('both original large anchor stores gain 70 true visually auditioned and sou
  assert.equal(shell.closedBays.length,13);
  assert.equal(shell.galleryColumns.length,28);
  assert.equal(shell.foodCourt.booths.length,3);
- assert.equal(shell.galleryAmenities.benches.length,6);
+ assert.equal(shell.galleryAmenities.benches.length,20);
+ assert.equal(shell.galleryAmenities.bins.length,10);
+ assert.equal(shell.galleryAmenities.planters.length,10);
  assert.equal(shell.galleryAmenities.directories.length,2);
  assert.equal(shell.checkpoint.cells.length,2);
  const known=new Set([...ORIGINAL_RETAIL_CANDIDATES_V121,...FALLOWS_SOURCES_V160].map(a=>a.path));
