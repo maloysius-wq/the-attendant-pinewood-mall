@@ -82,7 +82,9 @@ try{
  assert.equal(s.galleryColumnCount,28);
  assert.equal(s.closedBayCount,13);
  assert.equal(s.storefrontCount,7);
- assert.equal(s.benchCountV120,6);
+ assert.equal(s.benchCountV120,20);
+ assert.equal(s.binCountV163,10);
+ assert.equal(s.planterCountV163,10);
  assert.equal(s.directoryCountV120,2);
  const shots=['west','cassetteInside','cassetteCounter','cassetteRear','cassettePlan',
   'westGallery','fallows','eastAnchor','aerial'];

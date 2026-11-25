@@ -1,0 +1,38 @@
+name: Pinewood V163 actual common gallery pedestrian routes
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'mall/gallery-amenities-v120.mjs'
+      - 'mall/gameplay-layout-v70.mjs'
+      - 'mall/physical-shell-v67.mjs'
+      - 'mall/render-gallery-amenities-v120.js'
+      - 'scripts/smoke-native-gallery-v163.mjs'
+      - '.github/workflows/common-gallery-native-v163.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  native-gallery:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: node --check scripts/smoke-native-gallery-v163.mjs
+      - run: |
+          npm install --no-save playwright@1.55.0
+          npx playwright install chromium
+      - run: |
+          python3 -m http.server 4173 --bind 127.0.0.1 >/tmp/pinewood-v163-http.log 2>&1 &
+          for i in {1..35}; do curl -fsS http://127.0.0.1:4173/ >/dev/null && exit 0; sleep 1; done
+          exit 1
+      - run: node scripts/smoke-native-gallery-v163.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: v163-native-gallery
+          path: artifacts/v163-native-gallery/
+          retention-days: 14

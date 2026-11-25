@@ -43,7 +43,9 @@ try{
  assert.equal(s.galleryColumnCount,28);
  assert.equal(s.storefrontCount,7);
  assert.equal(s.closedBayCount,13);
- assert.equal(s.benchCountV120,6);
+ assert.equal(s.benchCountV120,20);
+ assert.equal(s.binCountV163,10);
+ assert.equal(s.planterCountV163,10);
  assert.equal(s.directoryCountV120,2);
  assert.equal(s.anchorStockV123.filter(f=>f.room==='west_anchor').length,8);
  assert.equal(s.anchorStockV123.filter(f=>f.room==='east_original_anchor').length,5);

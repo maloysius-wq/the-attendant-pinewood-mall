@@ -17,12 +17,12 @@ try{
  page.on('console',m=>{if(m.type()==='error')consoleErrors.push(m.text())});
  page.on('request',r=>{if(/^https?:/.test(r.url())&&!r.url().startsWith(origin))remote.push(r.url())});
  page.on('requestfailed',r=>failed.push(r.url()+' '+r.failure()?.errorText));
- await page.goto(origin+'/review/mall-construction-v67/',{waitUntil:'domcontentloaded'});
+ await page.goto(origin+'/review/mall-construction-v67/?retailAudit=1',{waitUntil:'domcontentloaded'});
  try{
   await page.waitForFunction(()=>{
    const a=window.__PINEWOOD_MALL_CONSTRUCTION_V67__;
    return !!a&&(a.ready||a.getState().errors.length>0);
-  },null,{timeout:110000});
+  },null,{timeout:540000});
  }catch(e){
   console.log('V120_BOOT_TIMEOUT '+JSON.stringify({errors,consoleErrors,remote,failed,
    state:await page.evaluate(()=>window.__PINEWOOD_MALL_CONSTRUCTION_V67__?.getState?.()),
@@ -38,13 +38,21 @@ try{
  assert.equal(initial.storefrontCount,7,'V115 original shopfronts preserved');
  assert.equal(initial.closedBayCount,13,'V116 sealed suites preserved');
  assert.equal(initial.checkpointV117.cells,2,'V117 contractor check-in preserved');
- assert.equal(initial.benchCountV120,6);
+ assert.equal(initial.benchCountV120,20);
+ assert.equal(initial.binCountV163,10);
+ assert.equal(initial.planterCountV163,10);
+ for(const p of initial.galleryAmenitiesV120.planters){
+  assert.ok(p.realCC0&&Math.abs(p.height-1.0732)<.015&&Math.abs(p.width-1.2)<.015&&Math.abs(p.depth-.6)<.015&&Math.abs(p.baseY)<.006);
+  assert.equal(p.supports.length,2);for(const s of p.supports)assert.ok(Math.abs(s.y-.595)<.015&&Math.abs(s.rootY-s.y)<.006);
+ }
+ assert.equal(initial.retailAudit.source.source,'published');
+ for(const b of initial.galleryAmenitiesV120.bins){assert.ok(b.realCC0&&Math.abs(b.height-.78)<.025&&Math.abs(b.width-.6)<.025&&Math.abs(b.baseY)<.006);}
  assert.equal(initial.directoryCountV120,2);
  assert.equal(initial.wayfindingCountV120,2);
- assert.equal(initial.galleryAmenitiesV120.benches.length,6);
+ assert.equal(initial.galleryAmenitiesV120.benches.length,20);
  assert.equal(initial.galleryAmenitiesV120.benches.every(b=>b.realCC0),true);
  for(const bench of initial.galleryAmenitiesV120.benches){
-  assert.ok(bench.height>=.76&&bench.height<=.96,
+  assert.ok(Math.abs(bench.height-.97)<.025,
    'real CC0 bench has wrong physical stature: '+JSON.stringify(bench));
   assert.ok(Math.max(bench.width,bench.depth)>=1.25,
    'real asset looks like a single chair rather than a usable public mall bench: '+bench.id);
@@ -55,15 +63,21 @@ try{
  for(const d of initial.galleryAmenitiesV120.directories){
   assert.ok(d.physicalDirectory&&d.height===2.25&&d.collisionRadius>=.8);
   assert.equal(d.printedFaces,2,'actual freestanding north/south directory must display framed maps on BOTH sides: '+d.id);
+  assert.equal(d.faces.length,2);assert.notEqual(d.faces[0].northUp,d.faces[1].northUp);
+  for(const face of d.faces){assert.deepEqual(face.markerWorld,{x:d.x,z:d.z});assert.equal(face.roomIds.length,10);assert.ok(Math.abs(face.textureWidth/face.textureHeight-face.meshWidth/face.meshHeight)<.001);}
  }
- const views=['atriumLounge','directorySouth','directoryNorth','westLounge','eastLounge','westGallery','eastGallery','aerial'];
+ const views=['atriumLounge','atriumNorthLounge','directorySouth','directoryNorth','directoryClose','directoryBack','westLounge','eastLounge','westGallery','eastGallery','aerial'];
  for(const shot of views){
-  await page.evaluate(s=>window.__PINEWOOD_MALL_CONSTRUCTION_V67__.goto(s),shot);
+  await page.evaluate(s=>{const api=window.__PINEWOOD_MALL_CONSTRUCTION_V67__;api.goto(s);api.setAuditLight(true)},shot);
   await page.waitForTimeout(200);
   const s=await state();
   assert.equal(s.shot,shot);
   assert.deepEqual(s.errors,[]);
   await page.screenshot({path:dir+'/'+shot+'.png',fullPage:true,animations:'disabled',timeout:90000});
+ }
+ for(const shot of ['atriumLounge','westGallery','eastGallery']){
+  await page.evaluate(s=>{const api=window.__PINEWOOD_MALL_CONSTRUCTION_V67__;api.goto(s);api.setAuditLight(false)},shot);
+  await page.screenshot({path:dir+'/'+shot+'-ambient.png',timeout:120000,animations:'disabled'});
  }
  assert.deepEqual(errors,[],'real browser exceptions');
  assert.deepEqual(consoleErrors,[],'no construction/asset errors');
@@ -73,6 +87,8 @@ try{
  console.log('PINEWOOD_V120_REAL_PUBLIC_MALL_PASS '+JSON.stringify({
   benchIds:initial.galleryAmenitiesV120.benches.map(x=>x.id),
   benchHeights:initial.galleryAmenitiesV120.benches.map(x=>x.height),
+  planters:initial.galleryAmenitiesV120.planters.length,
+  supports:initial.galleryAmenitiesV120.planters.flatMap(p=>p.supports),
   directories:initial.galleryAmenitiesV120.directories.length,
   signs:initial.galleryAmenitiesV120.wayfinding.length,
   errors,consoleErrors,remote,failed

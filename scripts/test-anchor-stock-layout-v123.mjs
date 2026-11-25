@@ -24,7 +24,9 @@ test('13 exactly original-source retail and return pieces remain physically in t
  assert.equal(shell.anchorRetail.length,70);
  assert.equal(shell.anchorIdentity.lights.length,15);
  assert.equal(shell.galleryColumns.length,28);
- assert.equal(shell.galleryAmenities.benches.length,6);
+ assert.equal(shell.galleryAmenities.benches.length,20);
+ assert.equal(shell.galleryAmenities.bins.length,10);
+ assert.equal(shell.galleryAmenities.planters.length,10);
  assert.equal(shell.galleryAmenities.directories.length,2);
  assert.equal(shell.storefronts.length,7);
  assert.equal(shell.closedBays.length,13);

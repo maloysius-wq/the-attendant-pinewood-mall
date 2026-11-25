@@ -1,3 +1,4 @@
+import {publicAmenitiesV163,publicAmenityBoundsV163} from './gallery-amenities-v120.mjs';
 import {MALL} from './masterplan-v66.mjs';
 import {constructPhysicalShell} from './physical-shell-v67.mjs';
 import {FURNISHINGS_V69} from './furnishing-plan-v69.mjs';
@@ -59,12 +60,8 @@ export function buildGameplayLayoutV70({chapter,level}={}){
  // Permanent public benches and real two-faced directory kiosks share the
  // physical source with Builder/opening/film. Conservative base colliders
  // occupy the true floor, not the overhead attached column wayfinding.
- for(const amenity of [...(shell.galleryAmenities?.benches||[]),
-  ...(shell.galleryAmenities?.directories||[])]){
-  const r=amenity.collisionRadius;
-  colliders.push({minX:amenity.x-r,maxX:amenity.x+r,
-   minZ:amenity.z-r,maxZ:amenity.z+r,
-   kind:'public-mall-amenity',id:amenity.id});
+ for(const amenity of publicAmenitiesV163(shell.galleryAmenities)){
+  colliders.push({...publicAmenityBoundsV163(amenity),kind:'public-mall-amenity',id:amenity.id});
  }
  // Exact CC0 retail-fitting footprints share this authoritative walkable
  // floor and physical shell with all six story routes. These grounded

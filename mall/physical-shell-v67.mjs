@@ -6,7 +6,7 @@ import {ANNEX_SPINE_V127B,ANNEX_LAMPS_V127B,ANNEX_CABINETS_V127B,ANNEX_SIGNS_V12
 import {CHECKPOINT_V117,checkpointWallsV117,checkpointCeilingsV117,validateCheckpointV117} from './vestibule-checkpoint-v117.mjs';
 import {GALLERY_COLUMNS_V118,validateGalleryColumnsV118} from './gallery-columns-v118.mjs';
 import {FOOD_COURT_V119,foodCourtWallsV119,validateFoodCourtV119} from './food-court-plan-v119.mjs';
-import {GALLERY_AMENITIES_V120,validateGalleryAmenitiesV120} from './gallery-amenities-v120.mjs';
+import {GALLERY_AMENITIES_V120,validateGalleryAmenitiesV120,publicAmenitiesV163,publicAmenitySegmentBlockedV163} from './gallery-amenities-v120.mjs';
 import {ORIGINAL_ANCHOR_FIXTURES_V121,validateAnchorLayoutV121} from './anchor-layout-v121.mjs';
 import {anchorSegmentBlockedV160} from './fallows-sources-v160.mjs';
 import {ANCHOR_LIGHTS_V122,ANCHOR_SIGNS_V122,validateAnchorIdentityV122} from './anchor-identity-plan-v122.mjs';
@@ -428,8 +428,7 @@ export function isSegmentBlocked(shell,from,to){
  if(!shell||!from||!to)throw new TypeError('shell and endpoints are required');
  return [...shell.walls,...shell.gates,...shell.railings].some(w=>!['lintel','storefront-spandrel','closed-bay-header','checkpoint-header','food-court-header','staff-header','v129-firebreak-spandrel'].includes(w.role)&&crossLine(w,from,to))||
   (shell.galleryColumns||[]).some(c=>distanceToSegment2D(c,from,to)<c.collisionRadius)||
-  [...(shell.galleryAmenities?.benches||[]),...(shell.galleryAmenities?.directories||[])]
-    .some(a=>distanceToSegment2D(a,from,to)<a.collisionRadius)||
+  publicAmenitiesV163(shell.galleryAmenities).some(a=>publicAmenitySegmentBlockedV163(a,from,to))||
   (shell.anchorRetail||[]).some(f=>['west_anchor','east_original_anchor'].includes(f.room)?anchorSegmentBlockedV160(f,from,to):distanceToSegment2D(f,from,to)<f.collisionRadius)||
   // V127 cabinets occupy real floor; the source segment query must agree
   // with the gameplay AABB colliders, including the open staff kitchen.
