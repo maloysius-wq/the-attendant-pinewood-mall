@@ -188,8 +188,8 @@ export async function attachLicensedInteriorsV69(building){
   const support=supports.get(f.support);
   if(!support||support.room!==f.room)throw Error('Invalid model support for '+f.id);
   const object=fitModel(loaded.get(f.model).scene,f);
-  if(f.id==='fallow_register')finishFallowRegister(object,ownedFallowFinish);
-  const checked=f.id==='fallow_register'?verifiedFallowSupport(support,object,f):{top:support.top,samples:null};
+  if(['fallow_register','east_returns_register'].includes(f.id))finishFallowRegister(object,ownedFallowFinish);
+  const checked=['fallow_register','east_returns_register'].includes(f.id)?verifiedFallowSupport(support,object,f):{top:support.top,samples:null};
   const b=ground(object,f.x,f.z,checked.top+.012);
   group.add(object);
   modelManifest.push({...measurePlaced(f,object),...(checked.samples?{actualSupportV160:{id:f.support,top:checked.top,samples:checked.samples}}:{})});
