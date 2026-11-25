@@ -39,9 +39,9 @@ function materials(){
 export function stockFallowDisplaysV160(group,fixtures,manifest){
  group.updateMatrixWorld(true);
  const root=new THREE.Group();root.name='v160_fallows_original_printed_gift_cartons';
- const mats=materials(),geometry=new THREE.BoxGeometry(.22,.10,.14);
+ const mats=materials(),geometry=new THREE.BoxGeometry(.22,.15,.14);
  const placements=mats.map(()=>[]),report=[];
- for(const f of fixtures.filter(f=>f.room==='west_anchor'&&['table_large','wall_bay'].includes(f.source))){
+ for(const f of fixtures.filter(f=>f.room==='west_anchor'&&['table_large','wall_cubbies','gondola'].includes(f.source))){
   const model=group.getObjectByName('v121_original_store_fixture_'+f.id);
   if(!model)throw Error('V160 missing original stock support '+f.id);
   const b=new THREE.Box3().setFromObject(model),center=b.getCenter(new THREE.Vector3()),size=b.getSize(new THREE.Vector3());
@@ -55,39 +55,43 @@ export function stockFallowDisplaysV160(group,fixtures,manifest){
     if(supported(model,b,x,z,.22,.14,y))slots.push({x,y,z,yaw:0});
    }
   }else{
-   // Source wall bays may be rails rather than shelves. Test the actual
-   // horizontal support and open customer-facing ray, never invent a shelf.
-   const yaw=f.yaw,fx=Math.sin(yaw),fz=Math.cos(yaw),sideX=Math.cos(yaw),sideZ=-Math.sin(yaw);
-   const width=turn?size.z:size.x,depth=turn?size.x:size.z;
-   const halfW=turn?.07:.11,halfD=turn?.11:.07;
-   for(const fraction of [.22,.08,-.08]){
-    const trial=[];
-    for(let i=0;i<Math.floor((width-.12)/.24);i++){
-     const n=Math.floor((width-.12)/.24),offset=(i-(n-1)/2)*.24;
-     const x=center.x+sideX*offset+fx*depth*fraction,z=center.z+sideZ*offset+fz*depth*fraction;
-     for(const y of surfaces(model,b,x,z)){
-      if(y<b.min.y+.20||y>b.max.y-.12)continue;
-      if(!supported(model,b,x,z,halfW*2,halfD*2,y))continue;
-      // No carton can overlap the next actual horizontal support above it.
-      if(surfaces(model,b,x,z).some(h=>h>y+.012&&h<y+.13))continue;
-      ray.set(new THREE.Vector3(x+fx*(depth+.18),y+.055,z+fz*(depth+.18)),new THREE.Vector3(-fx,0,-fz));
-      const obstruction=ray.intersectObject(model,true)[0];
-      if(obstruction&&(obstruction.point.x-x)*fx+(obstruction.point.z-z)*fz>-.06)continue;
-      trial.push({x,y,z,yaw});
+   // Distinct measured shelf faces. No stock inside the central gondola
+   // backing or without real upward source triangle support.
+   for(const side of (f.source==='gondola'?[0,Math.PI]:[0])){
+    const yaw=f.yaw+side,fx=Math.sin(yaw),fz=Math.cos(yaw),sideX=Math.cos(yaw),sideZ=-Math.sin(yaw);
+    const width=turn?size.z:size.x,depth=turn?size.x:size.z;
+    const halfW=turn?.07:.11,halfD=turn?.11:.07;
+    let best=[];
+    for(const fraction of (f.source==='gondola'?[.32,.27,.22]:[.19,.08,-.08])){
+     const trial=[],n=Math.floor((width-.09)/.235);
+     for(let i=0;i<n;i++){
+      const offset=(i-(n-1)/2)*.235;
+      const x=center.x+sideX*offset+fx*depth*fraction,z=center.z+sideZ*offset+fz*depth*fraction;
+      const ys=surfaces(model,b,x,z);
+      for(const y of ys){
+       if(y<b.min.y+.12||y>b.max.y-.17)continue;
+       if(!supported(model,b,x,z,halfW*2,halfD*2,y))continue;
+       if(ys.some(h=>h>y+.012&&h<y+.175))continue;
+       ray.set(new THREE.Vector3(x+fx*(depth+.18),y+.077,z+fz*(depth+.18)),new THREE.Vector3(-fx,0,-fz));
+       const obstruction=ray.intersectObject(model,true)[0];
+       if(obstruction&&(obstruction.point.x-x)*fx+(obstruction.point.z-z)*fz>-.065)continue;
+       trial.push({x,y,z,yaw});
+      }
      }
+     if(trial.length>best.length)best=trial;
     }
-    if(trial.length>slots.length){slots.length=0;slots.push(...trial)}
+    slots.push(...best.filter(p=>!slots.some(q=>Math.abs(q.y-p.y)<.16&&Math.hypot(q.x-p.x,q.z-p.z)<.15)));
    }
   }
   for(const [i,s] of slots.entries())placements[(f.id.length+i)%mats.length].push(s);
-  report.push({id:f.id,cartons:slots.length,slots:slots.map(s=>({x:s.x,z:s.z,supportY:s.y})),support:'five upward source-triangle contacts',centerReserved:table});
+  report.push({id:f.id,cartons:slots.length,slots:slots.map(s=>({x:s.x,z:s.z,supportY:s.y})),support:'five upward source-triangle contacts',centerReserved:table,fixtureType:f.source,stockedFaces:[...new Set(slots.map(s=>Math.round(s.yaw*1000)/1000))].length});
  }
  const dummy=new THREE.Object3D();
  for(let i=0;i<mats.length;i++){
   const slots=placements[i];if(!slots.length)continue;
   const mesh=new THREE.InstancedMesh(geometry,mats[i],slots.length);
   mesh.name='v160_original_period_carton_batch_'+i;
-  slots.forEach((s,j)=>{dummy.position.set(s.x,s.y+.052,s.z);dummy.rotation.y=s.yaw;dummy.updateMatrix();mesh.setMatrixAt(j,dummy.matrix)});
+  slots.forEach((s,j)=>{dummy.position.set(s.x,s.y+.077,s.z);dummy.rotation.y=s.yaw;dummy.updateMatrix();mesh.setMatrixAt(j,dummy.matrix)});
   mesh.instanceMatrix.needsUpdate=true;mesh.computeBoundingBox();root.add(mesh);
  }
  group.add(root);

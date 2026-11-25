@@ -83,6 +83,21 @@ function measureSupport(id,object,room){
   throw Error('Unmeasurable furniture support '+id);
  return {id,object,box,top:box.max.y,room};
 }
+// Actual five upward desk triangles under the new store register.
+function verifiedFallowSupport(support,object,f){
+ const b=boxOf(object),d=dim(b);
+ const ray=new THREE.Raycaster(),n=new THREE.Vector3(),matrix=new THREE.Matrix3();
+ const down=new THREE.Vector3(0,-1,0),tops=[];
+ for(const [dx,dz] of [[0,0],[-.47,-.47],[-.47,.47],[.47,-.47],[.47,.47]]){
+  ray.set(new THREE.Vector3(f.x+dx*d.x,support.box.max.y+.05,f.z+dz*d.z),down);
+  const hit=ray.intersectObject(support.object,true).find(h=>h.face&&n.copy(h.face.normal).applyMatrix3(matrix.getNormalMatrix(h.object.matrixWorld)).normalize().y>.85);
+  if(!hit)throw Error('V160 register lacks actual desk triangle support at a footprint corner');
+  tops.push(hit.point.y);
+ }
+ if(Math.max(...tops)-Math.min(...tops)>.008||Math.min(...tops)<.75||Math.max(...tops)>1.0)
+  throw Error('V160 register desk support is not a level human-scale worktop');
+ return {top:Math.max(...tops),samples:tops};
+}
 function measurePlaced(f,object){
  const b=boxOf(object),s=dim(b),c=center(b);
  return {id:f.id,room:f.room,model:f.model,
@@ -144,14 +159,15 @@ export async function attachLicensedInteriorsV69(building){
   const support=supports.get(f.support);
   if(!support||support.room!==f.room)throw Error('Invalid model support for '+f.id);
   const object=fitModel(loaded.get(f.model).scene,f);
-  const b=ground(object,f.x,f.z,support.top+.012);
+  const checked=f.id==='fallow_register'?verifiedFallowSupport(support,object,f):{top:support.top,samples:null};
+  const b=ground(object,f.x,f.z,checked.top+.012);
   group.add(object);
-  modelManifest.push(measurePlaced(f,object));
+  modelManifest.push({...measurePlaced(f,object),...(checked.samples?{actualSupportV160:{id:f.support,top:checked.top,samples:checked.samples}}:{})});
   const c=center(b),s=support.box;
-  const supported=Math.abs(b.min.y-support.top-.012)<.025&&
+  const supported=Math.abs(b.min.y-checked.top-.012)<.025&&
    c.x>=s.min.x-.08&&c.x<=s.max.x+.08&&
    c.z>=s.min.z-.08&&c.z<=s.max.z+.08;
-  supportChecks.push({id:f.id,support:f.support,bottom:b.min.y,surface:support.top,supported});
+  supportChecks.push({id:f.id,support:f.support,bottom:b.min.y,surface:checked.top,supported,...(checked.samples?{samples:checked.samples}:{})});
   if(!supported)clearanceWarnings.push('unsupported tabletop model '+f.id);
  }
  building.group.add(group);
