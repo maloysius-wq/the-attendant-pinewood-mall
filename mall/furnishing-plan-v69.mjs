@@ -350,20 +350,36 @@ export const FURNISHINGS_V69=Object.freeze({
       "room": "east_original_anchor",
       "model": "assets/vendor/runtime/14aeb77ecb6cacff/bookcaseOpen.glb",
       "x": 43,
-      "z": -47.5,
+      "z": -44.6,
       "targetHeight": 2.08,
       "radius": 1.1,
-      "role": "empty_rack"
+      "role": "empty_rack",
+      "yaw": 3.141592653589793
     },
     {
-      "id": "east_anchor_rack_s",
+      "id": "east_returns_counter",
       "room": "east_original_anchor",
-      "model": "assets/vendor/runtime/14aeb77ecb6cacff/bookcaseOpen.glb",
+      "model": "assets/vendor/runtime/47206cda3d12810c/desk.glb",
       "x": 43,
-      "z": -58,
-      "targetHeight": 2.08,
-      "radius": 1.1,
-      "role": "empty_rack"
+      "z": -56.5,
+      "targetHeight": 0.88,
+      "radius": 1.35,
+      "role": "counter",
+      "yaw": 1.5707963267948966
+    },
+    {
+      "id": "east_returns_register",
+      "room": "east_original_anchor",
+      "model": "assets/vendor/runtime/6aeac44b7c9c0f17/cash-register.glb",
+      "x": 43,
+      "z": -56.25,
+      "targetHeight": 0.27,
+      "radius": 0,
+      "role": "loose_prop",
+      "yaw": 1.5707963267948966,
+      "support": "east_returns_counter",
+      "maxWidth": 0.45,
+      "maxDepth": 0.45
     },
     {
       "id": "security_chair",

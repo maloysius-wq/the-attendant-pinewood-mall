@@ -82,7 +82,7 @@ function fitOriginalLicensedSource(src,f,assets){
   const materials=Array.isArray(o.material)?o.material:[o.material];
   const originals=materials.map(old=>{
    const m=old.clone();assets.materials.push(m);
-   if(m.color)m.color.multiply(new THREE.Color(f.kind==='counter'?0xa9a18c:/carcass/i.test(m.name)?0x879ba5:/surface/i.test(m.name)?0xc1b9a0:0x919c9c));
+   if(m.color)m.color.multiply(new THREE.Color(f.kind==='counter'?0x9a968d:/carcass/i.test(m.name)?0x879ba5:/surface/i.test(m.name)?0xc1b9a0:0x919c9c));
    if(typeof m.roughness==='number')m.roughness=Math.max(.83,m.roughness);
    return m;
   });
@@ -93,6 +93,35 @@ function fitOriginalLicensedSource(src,f,assets){
   x:f.x,z:f.z,actualWidth:size.x,actualDepth:size.z,actualHeight:size.y,
   groundY:bounds.min.y,collisionRadius:f.collisionRadius,
   sha256:f.sha256,license:f.license,source:f.source};
+}
+function finishNorthstarRegister(object,owned){
+ object.traverse(o=>{
+  if(!o.isMesh)return;
+  const copy=old=>{
+   const mat=old.clone();owned.push(mat);
+   if(old.map?.image){
+    const image=old.map.image,canvas=document.createElement('canvas');
+    canvas.width=image.width;canvas.height=image.height;
+    const cx=canvas.getContext('2d');cx.drawImage(image,0,0);
+    const im=cx.getImageData(0,0,canvas.width,canvas.height);
+    for(let i=0;i<im.data.length;i+=4){
+     const r=im.data[i],g=im.data[i+1],b=im.data[i+2],lum=.2126*r+.7152*g+.0722*b;
+     const warm=35+lum*.74;
+     im.data[i]=Math.min(255,warm+r*.10);
+     im.data[i+1]=Math.min(255,warm*.97+g*.10);
+     im.data[i+2]=Math.min(255,warm*.88+b*.10);
+    }
+    cx.putImageData(im,0,0);
+    const tex=new THREE.CanvasTexture(canvas);tex.colorSpace=old.map.colorSpace;
+    tex.flipY=old.map.flipY;tex.magFilter=old.map.magFilter;tex.minFilter=old.map.minFilter;
+    tex.wrapS=old.map.wrapS;tex.wrapT=old.map.wrapT;tex.offset.copy(old.map.offset);
+    tex.repeat.copy(old.map.repeat);tex.rotation=old.map.rotation;tex.center.copy(old.map.center);
+    mat.map=tex;mat.roughness=.84;owned.push(tex);
+   }
+   return mat;
+  };
+  o.material=Array.isArray(o.material)?o.material.map(copy):copy(o.material);
+ });
 }
 function mountRegisterV162(src,fixture,assets){
  const support=assets.root.getObjectByName('v128_actual_SHA_pinned_licensed_CC0_retail_'+fixture.id);
@@ -111,6 +140,7 @@ function mountRegisterV162(src,fixture,assets){
  m.position.set(x-center.x,Math.max(...samples)-b.min.y+.006,z-center.z);
  m.name='v162_actual_supported_northstar_register';
  m.traverse(o=>{if(o.isMesh){o.castShadow=false;o.receiveShadow=true;const orig=Array.isArray(o.material)?o.material:[o.material];const copies=orig.map(old=>{const next=old.clone();assets.materials.push(next);if(next.color)next.color.multiply(new THREE.Color(0xaaa89d));return next});o.material=Array.isArray(o.material)?copies:copies[0]}});
+ finishNorthstarRegister(m,assets.materials);
  assets.root.add(m);m.updateMatrixWorld(true);
  return {id:'northstar_register',support:fixture.id,source:NORTHSTAR_REGISTER_V162.path,sha256:NORTHSTAR_REGISTER_V162.sha256,samples,width:d.x,depth:d.z,height:d.y,bottom:new THREE.Box3().setFromObject(m).min.y};
 }

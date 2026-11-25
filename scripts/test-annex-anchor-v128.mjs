@@ -122,7 +122,7 @@ test('true 520 m² residual has no invented rooms or hidden double allocations',
 });
 
 test('V162 measured department footprints protect the exact finale route and source marker',()=>{
- const plan=ANNEX_ANCHOR_FIXTURES_V128,nav=buildGameplayLayoutV70({chapter:6});
+ const plan=ANNEX_ANCHOR_FIXTURES_V128,nav=buildGameplayLayoutV70({chapter:6,level:'G'});
  for(const f of plan){assert.ok(!nav.canStand(f.x,f.z),f.id+' actual fixture collision missing');const b=northstarBoundsV162(f);assert.ok(b.minX>65&&b.maxX<85&&b.minZ>-75&&b.maxZ<-48);}
  for(let x=66;x<=75;x+=.5)for(const z of [-62.2,-61.5,-60.8])assert.ok(nav.canStand(x,z),'entry lane '+x+','+z);
  for(let z=-61.5;z<=-48.5;z+=.5)for(const x of [74.3,75,75.7])assert.ok(nav.canStand(x,z),'finale exit lane '+x+','+z);

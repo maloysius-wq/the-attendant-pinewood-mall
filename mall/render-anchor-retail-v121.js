@@ -7,6 +7,7 @@ import * as THREE from '../vendor/three/build/three.module.js';
 import {GLTFLoader} from '../vendor/three/examples/jsm/loaders/GLTFLoader.js';
 import {ORIGINAL_ANCHOR_FIXTURES_V121,validateAnchorLayoutV121} from './anchor-layout-v121.mjs';
 import {stockFallowDisplaysV160} from './fallow-cartons-v160.js';
+import {stockEastDisplaysV161} from './east-stock-v161.js';
 import {FALLOWS_SOURCE_DIMENSIONS_V160} from './fallows-sources-v160.mjs';
 
 function cubbyFront(model){
@@ -36,7 +37,7 @@ function placeOriginalModel(gltf,f,parent,owned){
  if(Math.abs(dim.y-f.targetHeight)>.001||Math.hypot(dim.x/2,dim.z/2)>f.collisionRadius+.005)
   throw Error('Pinned authentic retail model protrudes beyond source collision / target: '+f.id+
    ' size='+JSON.stringify(dim.toArray()));
- if(f.room==='west_anchor'){
+ if(['west_anchor','east_original_anchor'].includes(f.room)){
   const known=FALLOWS_SOURCE_DIMENSIONS_V160[f.source],turn=Math.abs(Math.sin(f.yaw))>.5;
   if(known&&Math.max(Math.abs(dim.x-known[turn?2:0]),Math.abs(dim.z-known[turn?0:2]))>.012)
    throw Error('V160 real GLB footprint no longer matches authoritative collider '+f.id);
@@ -57,6 +58,12 @@ function placeOriginalModel(gltf,f,parent,owned){
     else n.color.multiplyScalar(.72);
    }return n;};
    o.material=Array.isArray(o.material)?o.material.map(copy):copy(o.material);
+  }else if(f.room==='east_original_anchor'){
+   const copy=m=>{const n=m.clone();owned.push(n);if(n.color){
+    if(/carcass/i.test(n.name))n.color.multiply(new THREE.Color(0x91aa98));
+    else if(/surface/i.test(n.name))n.color.multiply(new THREE.Color(0xa3ae9c));
+    else n.color.multiplyScalar(.67);
+   }return n;};o.material=Array.isArray(o.material)?o.material.map(copy):copy(o.material);
   }
  }});
  parent.add(model);
@@ -85,9 +92,10 @@ export async function renderAnchorRetailV121(ground,plan=ORIGINAL_ANCHOR_FIXTURE
  // source collision checks pass, the first visible game/cinematic frame
  // never exposes half-loaded fixtures or missing 3D models.
  const cartons=stockFallowDisplaysV160(group,plan,manifest);
+ const eastStock=stockEastDisplaysV161(group,plan,manifest);
  ground.add(group);
  return {
   group,manifest,uniquePinnedModels:originals.length,
-  dispose(){cartons.dispose();owned.forEach(m=>m.dispose());ground.remove(group);}
+  dispose(){cartons.dispose();eastStock.dispose();owned.forEach(m=>m.dispose());ground.remove(group);}
  };
 }

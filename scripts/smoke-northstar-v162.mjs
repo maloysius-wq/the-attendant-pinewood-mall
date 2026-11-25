@@ -20,6 +20,7 @@ try{
  const west=state.anchorRetailV121.filter(f=>f.room==='west_anchor');
  assert.equal(west.length,36);assert.equal(west.reduce((n,f)=>n+f.fallowCartonsV160.cartons,0),769);
  assert.equal(state.sunburstFixtureCountV126,43);
+ const east=state.anchorRetailV121.filter(f=>f.room==='east_original_anchor');assert.equal(east.length,34);assert.equal(east.reduce((n,f)=>n+f.eastStockV161.cartons,0),427,'verified East unchanged');
  const annex=state.annexAnchorV128,fixtures=annex.fixtures,report=fixtures.map(f=>f.northstarStockV162).filter(Boolean);
  const count=report.reduce((n,f)=>n+f.cartons,0);
  assert.equal(fixtures.length,73);assert.equal(report.length,72);

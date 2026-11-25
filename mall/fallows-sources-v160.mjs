@@ -7,7 +7,7 @@ export const FALLOWS_SOURCES_V160=Object.freeze([
 ]);
 export const FALLOWS_SOURCE_DIMENSIONS_V160=Object.freeze({wall_cubbies:FALLOWS_SOURCES_V160[0].size,gondola:FALLOWS_SOURCES_V160[1].size,table_large:[1.519918,.95,1.013341]});
 export function anchorBoundsV160(f,pad=.09){
- const s=f.room==='west_anchor'&&FALLOWS_SOURCE_DIMENSIONS_V160[f.source];
+ const s=['west_anchor','east_original_anchor'].includes(f.room)&&FALLOWS_SOURCE_DIMENSIONS_V160[f.source];
  if(!s){const r=f.collisionRadius;return {minX:f.x-r,maxX:f.x+r,minZ:f.z-r,maxZ:f.z+r}}
  const c=Math.abs(Math.cos(f.yaw)),n=Math.abs(Math.sin(f.yaw));
  const x=(s[0]*c+s[2]*n)/2+pad,z=(s[0]*n+s[2]*c)/2+pad;
