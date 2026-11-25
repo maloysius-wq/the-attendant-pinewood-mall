@@ -30,9 +30,15 @@ try{
   await page.evaluate(name=>{const a=window.__PINEWOOD_MALL_CONSTRUCTION_V67__;a.goto(name);a.setAuditLight(false)},name);
   await page.screenshot({path:dir+'/'+name+'-ambient.png',timeout:120000,animations:'disabled'});
  }
- assert.equal(fixtures.length,17);
- assert.equal(report.length,12,'all four display tables and eight perimeter bays surveyed');
- assert.ok(count>=8,'insufficient actually supported period merchandise');
+ assert.equal(fixtures.length,36);
+ assert.equal(report.length,36,'all authentic retail display fixtures surveyed');
+ assert.ok(report.filter(r=>r.fixtureType==='wall_cubbies').every(r=>r.cartons>=4),'every perimeter cubby needs real supported stock');
+ assert.ok(report.filter(r=>r.fixtureType==='gondola').every(r=>r.stockedFaces===2&&r.cartons>=4),'each real double-sided gondola needs merchandise on both faces');
+ const register=state.retailAudit.fixtures.find(f=>f.id==='fallow_register');
+ assert.ok(register?.sourceManifest?.actualSupportV160?.samples.length===5,'real register five-point measured worktop contact');
+ assert.ok(register.measured.min[1]>.75&&register.measured.min[1]<1.02);
+ assert.ok(state.retailAudit.fixtures.find(f=>f.id==='fallow_counter')?.source.endsWith('/desk.glb'),'retired sci-fi checkout still present');
+ assert.ok(count>=100,'insufficient actually supported period merchandise');
  assert.ok(report.filter(r=>r.centerReserved).every(r=>r.cartons>=2),'each real table must support visible additional stock');
  assert.ok(report.every(r=>r.slots.length===r.cartons&&r.slots.every(s=>Number.isFinite(s.supportY))));
  assert.deepEqual(errors,[]);assert.deepEqual(remote,[]);assert.deepEqual(failed,[]);

@@ -7,6 +7,10 @@ on:
       - 'mall/anchor-stock-layout-v123.mjs'
       - 'mall/furnishing-plan-v69.mjs'
       - 'mall/fallow-cartons-v160.js'
+      - 'mall/fallows-sources-v160.mjs'
+      - 'mall/render-furnishing-v69.js'
+      - 'mall/physical-shell-v67.mjs'
+      - 'mall/gameplay-layout-v70.mjs'
       - 'mall/render-anchor-retail-v121.js'
       - 'review/mall-construction-v67/main.js'
       - 'scripts/*fallows-v160.mjs'
@@ -29,7 +33,7 @@ jobs:
           node --check review/mall-construction-v67/main.js
           node --check mall/fallow-cartons-v160.js
           node --check mall/render-anchor-retail-v121.js
-          node --test scripts/test-fallows-v160.mjs scripts/test-anchor-layout-v121.mjs scripts/test-anchor-stock-layout-v123.mjs scripts/test-furnishing-v69.mjs scripts/test-gameplay-layout-v70.mjs scripts/test-visual-anchors-v70.mjs scripts/test-physical-shell-v67.mjs
+          node --test scripts/test-fallows-v160.mjs scripts/test-anchor-retail-v121.mjs scripts/test-anchor-layout-v121.mjs scripts/test-anchor-stock-layout-v123.mjs scripts/test-furnishing-v69.mjs scripts/test-gameplay-layout-v70.mjs scripts/test-visual-anchors-v70.mjs scripts/test-physical-shell-v67.mjs
           node scripts/audit-local-assets-v15.mjs
   actual-desktop:
     runs-on: ubuntu-24.04
