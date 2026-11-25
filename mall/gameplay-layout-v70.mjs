@@ -2,6 +2,7 @@ import {MALL} from './masterplan-v66.mjs';
 import {constructPhysicalShell} from './physical-shell-v67.mjs';
 import {FURNISHINGS_V69} from './furnishing-plan-v69.mjs';
 import {arcadeColliderBoundsV159} from './sunburst-arcade-plan-v126.mjs';
+import {anchorBoundsV160} from './fallows-sources-v160.mjs';
 import {VESTIBULE_HANDOFF_V112} from './vestibule-handoff-v112.mjs';
 
 const CHAPTERS=Object.freeze([
@@ -68,9 +69,7 @@ export function buildGameplayLayoutV70({chapter,level}={}){
  // floor and physical shell with all six story routes. These grounded
  // shop fittings are NOT owner Builder draft assets.
  for(const f of shell.anchorRetail||[]){
-  const r=f.collisionRadius;
-  colliders.push({minX:f.x-r,maxX:f.x+r,minZ:f.z-r,maxZ:f.z+r,
-   kind:'original-retail-fixture',id:f.id});
+  colliders.push({...anchorBoundsV160(f),kind:'original-retail-fixture',id:f.id});
  }
  // V127 back-of-house CC0 service cabinets have physical gameplay footprint.
  // In permanently locked cells this also guards against future accidental

@@ -111,8 +111,8 @@ export function installChapter1TraversalV143(game){
   };
   // Prefer a direct real-world walk, then a fine local grid. For the
   // long concourse journey use existing canonical grid with swept edges.
-  const spacing=game.mallLayoutV70.roomAt(start.x,start.z)==='sunburst_arcade'&&
-   game.mallLayoutV70.roomAt(dest.x,dest.z)==='sunburst_arcade'?.25:1;
+  const startRoom=game.mallLayoutV70.roomAt(start.x,start.z),endRoom=game.mallLayoutV70.roomAt(dest.x,dest.z);
+  const spacing=startRoom===endRoom&&['sunburst_arcade','west_anchor'].includes(startRoom)?.25:1;
   const key=(a)=>a.x+','+a.z,nearest=(a)=>{
    const seeds=[];for(let dx=-2;dx<=2;dx++)for(let dz=-2;dz<=2;dz++){
     const q={x:Math.round(a.x/spacing)*spacing+dx*spacing,z:Math.round(a.z/spacing)*spacing+dz*spacing};
@@ -157,6 +157,19 @@ export function installChapter1TraversalV143(game){
   arcadeFixtureSeeded=true;
   return {...getState(),isolatedStartingFixture:true};
  };
+ // Fresh localhost-only Fallow's fixture, outside its real storefront.
+ const startFallowsFixture=()=>{
+  ensure();
+  if(!new URLSearchParams(location.search).has('fallowsFixtureQA')||arcadeFixtureSeeded||travel.length)
+   throw Error('Fallow fixture requires a fresh isolated local test');
+  const start={x:-26.5,z:-60.5};
+  if(!game.world.canStand(start.x,start.z)||game.mallLayoutV70.roomAt(start.x,start.z)!=='west_gallery')
+   throw Error('Original Fallow gallery fixture start blocked');
+  p().set(start.x,1.7,start.z);
+  game.controls.yaw.rotation.y=Math.PI/2;game.controls.pitch.rotation.x=0;game.camera.updateWorldMatrix(true,false);
+  arcadeFixtureSeeded=true;
+  return {...getState(),isolatedStartingFixture:true};
+ };
  const useRealPanel=id=>{
   ensure();
   const panel=game.world.interactables.find(o=>
@@ -183,7 +196,7 @@ export function installChapter1TraversalV143(game){
   version:143,getState,
   doorApproach:()=>({x:portal.x,z:portal.z+1.5}),
   doorBeyond:()=>({x:portal.x,z:portal.z-1.5}),
-  walkTo,walkArcadeTo,startArcadeFixture,travelStats:()=>({steps:travel.length,meters:travel.reduce((sum,t)=>sum+t.moved,0),
+  walkTo,walkArcadeTo,startArcadeFixture,startFallowsFixture,travelStats:()=>({steps:travel.length,meters:travel.reduce((sum,t)=>sum+t.moved,0),
    first:travel.slice(0,3),last:travel.slice(-3)}),
   useRealPanel
  });

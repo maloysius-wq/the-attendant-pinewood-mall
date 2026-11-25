@@ -64,13 +64,16 @@ const shots={
   note:'Actual scaled CC0 bench outside east x20 circulation, supported by the original 1979 structural piers.'},
  fallows:{floor:'G',eye:[-32.1,1.73,-60.5],target:[-42.0,1.2,-60.5],
   label:'GROUND · FALLOW\'S 1979 ORIGINAL ANCHOR',title:"Fallow's Real Store Fittings",
-  note:'Seventeen licensed displays, V122 failing ceiling lights, and real V123 folded stock, returns cartons, and supported original table merchandise. The 4.2m entry stays open.'},
+  note:'Grouped genuine cubby banks, double-sided gondolas, paired gift tables and a real service desk. V122 failing ceiling lights remain. The 4.2m entry stays open.'},
+ fallowNorth:{floor:'G',eye:[-38.5,1.73,-58.6],target:[-39.5,1.1,-51.0],label:'GROUND · FALLOW\'S APPAREL AND GIFTS',title:'North Display Department',note:'Grouped wall bays, paired tables and measured source-supported period packaging.'},
+ fallowSouth:{floor:'G',eye:[-38.5,1.73,-62.4],target:[-37.5,1.05,-69.0],label:'GROUND · FALLOW\'S ACCESSORIES AND CLEARANCE',title:'South Sale Department',note:'Paired sale tables, south perimeter and protected cashier access.'},
+ fallowCheckout:{floor:'G',eye:[-43,1.73,-66.1],target:[-43,1.65,-69.5],label:'GROUND · FALLOW\'S SERVICE ZONE',title:'Customer Service and Returns',note:'Licensed wood service desk, register physically supported on its actual worktop, and back-stock zone.'},
  eastAnchor:{floor:'G',eye:[32.5,1.73,-52.0],target:[42.2,1.2,-52.0],
   label:'GROUND · ORIGINAL EAST ANCHOR STORE',title:'East Original Department Store Fittings',
   note:'Thirteen original displays, aged lighting, and V123 source-auditioned clearance/returns stock fitted around the 4.2m glazed storefront and original checkout aisles.'},
  fallowPlan:{floor:'G',eye:[-33,10.5,-49],target:[-38,0,-61],
   label:'1979 FALLOW\'S · SOURCE-ROOF REMOVED (SURVEY ONLY)',title:"Fallow's Original Floor Plan",
-  note:'Survey-only cutaway: the real carpet and all 17 imported shop display objects without the overhead roof; no game camera, chapter or mall data was changed.'},
+  note:'Survey-only cutaway: the real carpet and all imported shop display objects without the overhead roof; no game camera, chapter or mall data was changed.'},
  eastAnchorPlan:{floor:'G',eye:[32,9.6,-44],target:[38,0,-52],
   label:'1979 ORIGINAL EAST ANCHOR · SOURCE-ROOF REMOVED (SURVEY ONLY)',title:'Original East Anchor Floor Plan',
   note:'Survey-only cutaway of exact 17 × 18 metre original department store and all 13 actual licensed fixtures, not conceptual arrangement.'},
@@ -415,7 +418,7 @@ async function begin(){
   state.wayfindingCountV120=state.galleryAmenitiesV120.wayfinding.length;
   state.anchorRetailV121=[...built.anchorRetailV121];
   state.anchorRetailCountV121=state.anchorRetailV121.length;
-  state.anchorIdentityV122={panels:[...built.anchorIdentityV122.panels],signs:[...built.anchorIdentityV122.signs]};
+  state.anchorIdentityV122={panels:[...built.anchorIdentityV122.panels],signs:[...built.anchorIdentityV122.signs],fallowDepartments:[...built.anchorIdentityV122.fallowDepartments]};
   state.ceilingPanelCountV122=state.anchorIdentityV122.panels.length;
   state.departmentSignCountV122=state.anchorIdentityV122.signs.length;
   state.anchorStockV123=[...built.anchorStockV123];

@@ -57,7 +57,7 @@ try{
  assert.equal(s.staffServiceV127.length,5);
  assert.equal(s.closedBayCount,13);
  assert.equal(s.storefrontCount,7);
- assert.equal(s.sunburstFixtureCountV126,18);
+ assert.equal(s.sunburstFixtureCountV126,43);
  // Four forward-looking source views, one roof-off plan, existing adjacent
  // staff-context frame; genuine 1440 x 900 local Chromium WebGL pixels.
  const views=['annexSouth','annexTraining','annexNorth','annexPlan','annexStaff','aerial'];

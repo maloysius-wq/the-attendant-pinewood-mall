@@ -3,18 +3,19 @@ import assert from 'node:assert/strict';
 import {MALL} from '../mall/masterplan-v66.mjs';
 import {FURNISHINGS_V69} from '../mall/furnishing-plan-v69.mjs';
 import {ORIGINAL_ANCHOR_FIXTURES_V121,validateAnchorLayoutV121} from '../mall/anchor-layout-v121.mjs';
+import {FALLOWS_SOURCES_V160} from '../mall/fallows-sources-v160.mjs';
 import {ORIGINAL_RETAIL_CANDIDATES_V121} from '../mall/anchor-retail-source-v121.mjs';
 import {constructPhysicalShell,validatePhysicalShell,isSegmentBlocked} from '../mall/physical-shell-v67.mjs';
 import {buildGameplayLayoutV70,chapterRouteV70,shortestRouteV70} from '../mall/gameplay-layout-v70.mjs';
 
 const dist=(a,b)=>Math.hypot(a.x-b.x,a.z-b.z);
-test('both original large anchor stores gain 30 true visually auditioned and source-pinned fixtures',()=>{
+test('both original large anchor stores gain 49 true visually auditioned and source-pinned fixtures',()=>{
  const shell=constructPhysicalShell({level:'G',chapter:1});
  assert.deepEqual(validateAnchorLayoutV121(shell.anchorRetail,{portals:shell.portals}),[]);
  assert.deepEqual(validatePhysicalShell(shell),[]);
- assert.equal(shell.anchorRetail.length,30);
- assert.equal(new Set(shell.anchorRetail.map(f=>f.id)).size,30);
- assert.equal(shell.anchorRetail.filter(f=>f.room==='west_anchor').length,17);
+ assert.equal(shell.anchorRetail.length,49);
+ assert.equal(new Set(shell.anchorRetail.map(f=>f.id)).size,49);
+ assert.equal(shell.anchorRetail.filter(f=>f.room==='west_anchor').length,36);
  assert.equal(shell.anchorRetail.filter(f=>f.room==='east_original_anchor').length,13);
  assert.ok(!shell.anchorRetail.some(f=>f.source==='podium'),
   'real preview proved the giant >7m wide podium is inappropriate for a department store display');
@@ -27,7 +28,7 @@ test('both original large anchor stores gain 30 true visually auditioned and sou
  assert.equal(shell.galleryAmenities.benches.length,6);
  assert.equal(shell.galleryAmenities.directories.length,2);
  assert.equal(shell.checkpoint.cells.length,2);
- const known=new Set(ORIGINAL_RETAIL_CANDIDATES_V121.map(a=>a.path));
+ const known=new Set([...ORIGINAL_RETAIL_CANDIDATES_V121,...FALLOWS_SOURCES_V160].map(a=>a.path));
  assert.ok(shell.anchorRetail.every(f=>known.has(f.model)&&f.license==='CC0-1.0'));
 });
 
@@ -70,7 +71,7 @@ test('new store source surfaces never overlap existing licensed registers, shelv
 test('real gameplay blocks full-size source displays but permits both 1979 customer aisles',()=>{
  const nav=buildGameplayLayoutV70({chapter:1});
  const blockers=nav.colliders.filter(x=>x.kind==='original-retail-fixture');
- assert.equal(blockers.length,30);
+ assert.equal(blockers.length,49);
  for(const f of ORIGINAL_ANCHOR_FIXTURES_V121){
   assert.ok(blockers.some(c=>c.id===f.id),'source image has no corresponding gameplay blocker '+f.id);
   assert.ok(!nav.canStand(f.x,f.z),'player can phase through source GLB '+f.id);

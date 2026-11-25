@@ -5,6 +5,7 @@
  */
 import * as THREE from '../vendor/three/build/three.module.js';
 import {GLTFLoader} from '../vendor/three/examples/jsm/loaders/GLTFLoader.js';
+import {MALL} from './masterplan-v66.mjs';
 import {ANCHOR_LIGHTS_V122,ANCHOR_SIGNS_V122,ANCHOR_FLUORESCENT_ASSET_V122,validateAnchorIdentityV122}
  from './anchor-identity-plan-v122.mjs';
 
@@ -106,6 +107,33 @@ function mountWallSign(g,s,materials,textures){
   mountedX:x,printedX:printed.position.x,z:s.z,y:s.y,
   width:s.width,height:s.height,name:s.name,subtitle:s.subtitle};
 }
+/** Fallow-specific original departmental wayfinding on canonical masonry,
+ * above real 2.12m cubbies. No freestanding sign collision or external art. */
+const FALLOW_DEPARTMENTS_V160=[
+ {id:'fallow_apparel',room:'west_anchor',name:'APPAREL & LINENS',subtitle:'KNITWEAR  ·  HOSIERY  ·  BED & BATH',x:-38.9,z:-48,y:2.92,face:-1,axis:'z',width:4.9,height:.78},
+ {id:'fallow_gifts',room:'west_anchor',name:'GIFTS & HOUSEWARES',subtitle:'FINE GOODS  ·  ACCESSORIES  ·  BEAUTY',x:-35.5,z:-73,y:2.92,face:1,axis:'z',width:4.9,height:.78},
+ {id:'fallow_service',room:'west_anchor',name:'CUSTOMER SERVICE',subtitle:'RETURNS  ·  EXCHANGES  ·  LAYAWAY',x:-43,z:-73,y:2.92,face:1,axis:'z',width:4.2,height:.68}
+];
+function mountFallowDepartment(g,s,mats,textures){
+ const room=MALL.rooms.find(r=>r.id===s.room&&r.level==='G');
+ const edge=s.axis==='x'?(s.face===1?room?.x1:room?.x2):(s.face===1?room?.z1:room?.z2);
+ const along=s.axis==='x'?s.z:s.x,lo=s.axis==='x'?room?.z1:room?.x1,hi=s.axis==='x'?room?.z2:room?.x2;
+ if(!room||Math.abs((s.axis==='x'?s.x:s.z)-edge)>.001||along-s.width/2<lo+.12||along+s.width/2>hi-.12||s.y-s.height/2<2.35)
+  throw Error('V160 departmental wayfinding detached from canonical masonry '+s.id);
+ const aspect=(s.width-.10)/(s.height-.08);
+ if(Math.abs(aspect/(2048/300)-1)>.01)throw Error('V160 printed department sign aspect drift '+s.id);
+ const x=s.x+(s.axis==='x'?s.face*.17:0),z=s.z+(s.axis==='z'?s.face*.17:0);
+ const rot=s.axis==='x'?s.face*Math.PI/2:s.face===1?0:Math.PI;
+ const root=new THREE.Group();root.name='v160_fixed_department_'+s.id;
+ root.position.set(x,s.y,z);root.rotation.y=rot;
+ const mat=new THREE.MeshStandardMaterial({color:0x352d27,roughness:.84,metalness:.15});mats.push(mat);
+ const back=new THREE.Mesh(new THREE.BoxGeometry(s.width,s.height,.10),mat);root.add(back);
+ const tex=enamelPrint(s);textures.push(tex);
+ const printMat=new THREE.MeshBasicMaterial({map:tex});mats.push(printMat);
+ const print=new THREE.Mesh(new THREE.PlaneGeometry(s.width-.10,s.height-.08),printMat);
+ print.position.z=.051;root.add(print);g.add(root);
+ return {...s,mountedX:x,mountedZ:z,actualWallMounted:true,printAspectError:Math.abs(aspect/(2048/300)-1)};
+}
 export async function renderAnchorIdentityV122(
  property,{lights=ANCHOR_LIGHTS_V122,signs=ANCHOR_SIGNS_V122}={},
  ceilings=[]
@@ -122,8 +150,9 @@ export async function renderAnchorIdentityV122(
  try{
   const panels=lights.map(f=>mountPanel(root,src,f,ceilings,mats));
   const mountedSigns=signs.map(s=>mountWallSign(root,s,mats,textures));
+  const fallowDepartments=FALLOW_DEPARTMENTS_V160.map(s=>mountFallowDepartment(root,s,mats,textures));
   property.add(root);
-  return {root,manifest:{panels,signs:mountedSigns},dispose(){
+  return {root,manifest:{panels,signs:mountedSigns,fallowDepartments},dispose(){
    root.removeFromParent();
    textures.forEach(t=>t.dispose());mats.forEach(m=>m.dispose());
    // The shared source render owns panel source geometry, like V108.
