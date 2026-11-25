@@ -2,6 +2,7 @@ import {MALL} from './masterplan-v66.mjs';
 import {constructPhysicalShell} from './physical-shell-v67.mjs';
 import {FURNISHINGS_V69} from './furnishing-plan-v69.mjs';
 import {arcadeColliderBoundsV159} from './sunburst-arcade-plan-v126.mjs';
+import {northstarBoundsV162} from './annex-anchor-plan-v128.mjs';
 import {anchorBoundsV160} from './fallows-sources-v160.mjs';
 import {VESTIBULE_HANDOFF_V112} from './vestibule-handoff-v112.mjs';
 
@@ -117,9 +118,7 @@ export function buildGameplayLayoutV70({chapter,level}={}){
  // V128 original 540sqm Northstar Annex retail: exact real CC0 support
  // footprints match the Builder/film shared geometry and source collisions.
  for(const f of shell.annexAnchor?.fixtures||[]){
-  const r=f.collisionRadius;
-  colliders.push({minX:f.x-r,maxX:f.x+r,minZ:f.z-r,maxZ:f.z+r,
-   kind:'licensed-original-annex-retail',id:f.id});
+  colliders.push({...northstarBoundsV162(f),kind:'licensed-original-annex-retail',id:f.id});
  }
  // Floor openings are real holes in the v67 mesh; never let the legacy
  // 2D walk grid place a suspended player over an elevator or stair void.

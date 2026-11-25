@@ -14,7 +14,7 @@ import {ORIGINAL_ANCHOR_STOCK_V123,validateAnchorStockLayoutV123} from './anchor
 import {CASSETTE_FIXTURES_V124,CASSETTE_LIGHTS_V124,CASSETTE_SIGN_V124,validateCassetteCastleV124} from './cassette-castle-plan-v124.mjs';
 import {VIDEO_PLANET_FIXTURES_V125,VIDEO_PLANET_LIGHTS_V125,VIDEO_PLANET_SIGN_V125,VIDEO_PLANET_POSTERS_V125,validateVideoPlanetV125} from './video-planet-plan-v125.mjs';
 import {SUNBURST_FIXTURES_V126,SUNBURST_LIGHTS_V126,SUNBURST_SIGN_V126,SUNBURST_POSTERS_V126,validateSunburstArcadeV126,arcadeSegmentBlockedV159} from './sunburst-arcade-plan-v126.mjs';
-import {ANNEX_ANCHOR_ROOM_V128,ANNEX_ANCHOR_FIXTURES_V128,ANNEX_ANCHOR_LIGHTS_V128,ANNEX_ANCHOR_IDENTITY_V128,ANNEX_ANCHOR_POSTERS_V128,validateAnnexAnchorV128} from './annex-anchor-plan-v128.mjs';
+import {ANNEX_ANCHOR_ROOM_V128,ANNEX_ANCHOR_FIXTURES_V128,ANNEX_ANCHOR_LIGHTS_V128,ANNEX_ANCHOR_IDENTITY_V128,ANNEX_ANCHOR_POSTERS_V128,validateAnnexAnchorV128,northstarSegmentBlockedV162} from './annex-anchor-plan-v128.mjs';
 import {NW_FIREBREAK_V129,FIREBREAK_PLATE_V129,FIREBREAK_CEILING_V129,residualFirebreakWallsV129,validateFirebreakV129} from './residual-firebreak-plan-v129.mjs';
 import {REAR_SERVICE_ENVELOPE_V131,REAR_SERVICE_CEILINGS_V131,rearServiceWallsV131,validateRearServiceV131} from './rear-service-closure-v131.mjs';
 import {FRONT_ORIGINAL_CLOSURE_V133,frontSourceWallV133,frontSourceCeilingV133,validateFrontClosureV133} from './front-service-closure-v133.mjs';
@@ -438,7 +438,7 @@ export function isSegmentBlocked(shell,from,to){
   (shell.cassetteCastle?.fixtures||[]).some(f=>distanceToSegment2D(f,from,to)<f.collisionRadius)||
    (shell.videoPlanet?.fixtures||[]).some(f=>distanceToSegment2D(f,from,to)<f.collisionRadius)||
    (shell.sunburstArcade?.fixtures||[]).some(f=>arcadeSegmentBlockedV159(f,from,to))||
-   (shell.annexAnchor?.fixtures||[]).some(f=>distanceToSegment2D(f,from,to)<f.collisionRadius)||
+   (shell.annexAnchor?.fixtures||[]).some(f=>northstarSegmentBlockedV162(f,from,to))||
    (shell.annexCorridor?.cabinets||[]).some(f=>distanceToSegment2D(f,from,to)<f.collisionRadius);
 }
 export function validatePhysicalShell(shell){
