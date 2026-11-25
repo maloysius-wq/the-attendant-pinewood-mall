@@ -260,6 +260,7 @@ if(retailAudit){
  for(const [id,shot] of Object.entries(extraShots)){const option=document.createElement('option');option.value=id;option.textContent=shot.title;select.append(option);}
 }
 let scene,camera,renderer,orbit,built,surveyLight,aerialAmbient;
+const auditOriginalVisibility=new Map();
 const auditPlanShots=new Set(['fallowPlan','eastAnchorPlan','cassettePlan','videoPlan','arcadePlan','annexAnchorPlan','foodPlan']);
 function fullRetailInventory(building){
  const rows=[],seen=new Set();
@@ -282,14 +283,16 @@ function fullRetailInventory(building){
   if(!object)throw Error('Actual assembled model missing '+key);
   const bounds=new THREE.Box3().setFromObject(object),size=bounds.getSize(new THREE.Vector3()),center=bounds.getCenter(new THREE.Vector3());
   const room=building.shells.flatMap(s=>s.rooms||[]).find(r=>center.x>=r.x1&&center.x<=r.x2&&center.z>=r.z1&&center.z<=r.z2);
+  auditOriginalVisibility.set(object,object.visible);
   rows.push({layer,id:f.id,name:key,declaredRoom:f.room||null,room:f.room||room?.id||null,
-   visible:object.visible,source:f.source||f.model||object.userData.cc0ProvenancePath||null,
+   visible:object.visible,source:f.model||(typeof f.source==='string'&&f.source.startsWith('assets/')?f.source:null)||object.userData.cc0ProvenancePath||f.source||null,
    measured:{min:bounds.min.toArray(),max:bounds.max.toArray(),size:size.toArray(),center:center.toArray()},
    worldQuaternion:object.getWorldQuaternion(new THREE.Quaternion()).toArray(),worldScale:object.getWorldScale(new THREE.Vector3()).toArray(),
    sourceManifest:f});
  }
  return {source:building.authored.getState(),fixtures:rows,storyAnchors:building.storyAnchors,
-  supportedStock:building.supportChecks,clearanceWarnings:building.clearanceWarnings};
+  supportedStock:building.supportChecks,clearanceWarnings:building.clearanceWarnings,
+  signs:[...building.storefrontsV115,...building.closedBaysV116.filter(x=>x.front),...building.foodCourtV119]};
 }
 
 const publicApi={
@@ -339,7 +342,7 @@ function setShot(name){
   // The V69 group spans floors independently of the shell groups.
   for(const object of built.furnishingGroup.children){
    const y=new THREE.Box3().setFromObject(object).min.y;
-   object.visible=!plan||y>=-.05&&y<5.4;
+   object.visible=(auditOriginalVisibility.get(object)??true)&&(!plan||y>=-.05&&y<5.4);
   }
   if(plan){aerialAmbient.intensity=2.3;if(scene.fog)scene.fog.density=.0011;}
  }
