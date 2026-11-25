@@ -1,0 +1,41 @@
+name: Pinewood V154 mezzanine evidence desktop diagnosis
+on:
+  push:
+    branches: [diagnostic/v154-mezzanine-evidence]
+    paths:
+      - 'mall/chapter-handoff-voice-v152.mjs'
+      - 'scripts/diagnose-mezzanine-evidence-v154.mjs'
+      - '.github/workflows/diagnose-mezzanine-evidence-v154.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  original-mezzanine:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 26
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install desktop Chromium and audit source
+        run: |
+          node --check mall/chapter-handoff-voice-v152.mjs
+          node --check scripts/diagnose-mezzanine-evidence-v154.mjs
+          node --test scripts/test-chapter-handoff-voice-v152.mjs
+          npm install --no-save playwright@1.55.0
+          npx playwright install chromium
+      - name: Serve original mall
+        run: |
+          python3 -m http.server 4173 --bind 127.0.0.1 >/tmp/v154-http.log 2>&1 &
+          for i in {1..40}; do curl -fsS http://127.0.0.1:4173/ >/dev/null && exit 0; sleep 1; done
+          exit 1
+      - name: Original native E on M1 Records evidence and terminals
+        run: node scripts/diagnose-mezzanine-evidence-v154.mjs
+      - name: Archive original M1 evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: v154-mezzanine-evidence
+          path: artifacts/v154-mezzanine-evidence/
+          retention-days: 14
