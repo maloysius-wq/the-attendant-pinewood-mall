@@ -34,6 +34,35 @@ function measuredChairFront(scene){
  const front=Math.abs(dx)>Math.abs(dz)?[-Math.sign(dx),0]:[0,-Math.sign(dz)];
  chairFrontCache.set(scene,front);return front;
 }
+function finishFallowRegister(object,owned){
+ object.traverse(o=>{
+  if(!o.isMesh)return;
+  const copy=old=>{
+   const mat=old.clone();owned.push(mat);
+   if(old.map?.image){
+    const image=old.map.image,canvas=document.createElement('canvas');
+    canvas.width=image.width;canvas.height=image.height;
+    const cx=canvas.getContext('2d');cx.drawImage(image,0,0);
+    const im=cx.getImageData(0,0,canvas.width,canvas.height);
+    for(let i=0;i<im.data.length;i+=4){
+     const r=im.data[i],g=im.data[i+1],b=im.data[i+2],lum=.2126*r+.7152*g+.0722*b;
+     const warm=35+lum*.74;
+     im.data[i]=Math.min(255,warm+r*.10);
+     im.data[i+1]=Math.min(255,warm*.97+g*.10);
+     im.data[i+2]=Math.min(255,warm*.88+b*.10);
+    }
+    cx.putImageData(im,0,0);
+    const tex=new THREE.CanvasTexture(canvas);tex.colorSpace=old.map.colorSpace;
+    tex.flipY=old.map.flipY;tex.magFilter=old.map.magFilter;tex.minFilter=old.map.minFilter;
+    tex.wrapS=old.map.wrapS;tex.wrapT=old.map.wrapT;tex.offset.copy(old.map.offset);
+    tex.repeat.copy(old.map.repeat);tex.rotation=old.map.rotation;tex.center.copy(old.map.center);
+    mat.map=tex;mat.roughness=.84;owned.push(tex);
+   }
+   return mat;
+  };
+  o.material=Array.isArray(o.material)?o.material.map(copy):copy(o.material);
+ });
+}
 function fitModel(scene,f,mediaResources){
  const media=mediaResources&&['empty_rack','low_empty_rack'].includes(f.role)&&['cassette_castle','video_planet'].includes(f.room);
  const object=media?makeMeasuredMediaRackV158(scene,{id:f.id,targetHeight:f.targetHeight,yaw:f.yaw||0,radius:f.radius,resources:mediaResources}):scene.clone(true);
@@ -116,7 +145,7 @@ export async function attachLicensedInteriorsV69(building){
   loaded.set(path,await gltfLoader.loadAsync(new URL('../'+path,import.meta.url).href));
  }));
  const group=new THREE.Group();group.name='Pinewood v69 licensed deserted interiors';
- const modelManifest=[],supportChecks=[],clearanceWarnings=[];
+ const modelManifest=[],supportChecks=[],clearanceWarnings=[],ownedFallowFinish=[];
  const supports=new Map();
  const mediaResources={cassette_castle:createMediaShelfResourcesV158('cassette'),video_planet:createMediaShelfResourcesV158('video')};
  // The v67 desk and table are real imported CC0 models; their surface
@@ -159,6 +188,7 @@ export async function attachLicensedInteriorsV69(building){
   const support=supports.get(f.support);
   if(!support||support.room!==f.room)throw Error('Invalid model support for '+f.id);
   const object=fitModel(loaded.get(f.model).scene,f);
+  if(f.id==='fallow_register')finishFallowRegister(object,ownedFallowFinish);
   const checked=f.id==='fallow_register'?verifiedFallowSupport(support,object,f):{top:support.top,samples:null};
   const b=ground(object,f.x,f.z,checked.top+.012);
   group.add(object);
@@ -183,6 +213,7 @@ export async function attachLicensedInteriorsV69(building){
   dispose(){
    building.group.remove(group);
    Object.values(mediaResources).forEach(r=>r.dispose());
+   ownedFallowFinish.forEach(m=>m.dispose());
    // GLB geometries/materials belong to a shared vendored model cache; do
    // not dispose originals. All newly owned cloned groups are detached.
   }

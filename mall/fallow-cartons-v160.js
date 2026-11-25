@@ -21,20 +21,61 @@ function supported(model,b,x,z,w,d,y){
  return [[0,0],[-.47,-.47],[-.47,.47],[.47,-.47],[.47,.47]].every(([a,c])=>
   surfaces(model,b,x+a*w,z+c*d).some(h=>Math.abs(h-y)<.012));
 }
+// Distinct period merchandise families, still within the verified .22 × .15 × .14m
+// supported package envelope. Colors and sizes vary by real department, not random clutter.
 const designs=[
- ['FALLOW’S','GIFT SOAP','#8e7967'],['FALLOW’S','HOSIERY','#765b59'],
- ['FALLOW’S','HANDKERCHIEFS','#657a73'],['FALLOW’S','GIFT SET','#897f55']
+ {brand:'FALLOW’S',title:'GIFT SOAP',color:'#866454',size:[.92,.83,.95]},
+ {brand:'HARTWELL',title:'HAND CREAM',color:'#746d55',size:[.78,.92,.84]},
+ {brand:'MILL & CO.',title:'GIFT SET',color:'#496b66',size:[1,.90,1]},
+ {brand:'FALLOW’S',title:'HOSIERY',color:'#794e58',size:[.82,.94,.80]},
+ {brand:'ASHFORD',title:'HANDKERCHIEFS',color:'#4c6779',size:[1,.55,.98]},
+ {brand:'FIELDSTONE',title:'COTTON KNIT',color:'#5e6b68',size:[.98,.50,1],fabric:true},
+ {brand:'FIELDSTONE',title:'RIBBED KNIT',color:'#775e51',size:[1,.55,1],fabric:true},
+ {brand:'FALLOW’S',title:'COTTON SCARF',color:'#75586e',size:[.92,.42,.96],fabric:true},
+ {brand:'HARTWELL',title:'BATH LINEN',color:'#687957',size:[1,.63,1],fabric:true},
+ {brand:'MILL & CO.',title:'TABLE LINEN',color:'#85815e',size:[1,.51,1],fabric:true},
+ {brand:'FALLOW’S',title:'GIFT WRAP',color:'#79604c',size:[.90,.68,.92]},
+ {brand:'PINE & BAY',title:'HOME FRAGRANCE',color:'#6a5360',size:[.76,1,.85]}
 ];
 function materials(){
- return designs.map(([brand,title,color])=>{
-  const canvas=document.createElement('canvas');canvas.width=256;canvas.height=128;
-  const c=canvas.getContext('2d');c.fillStyle=color;c.fillRect(0,0,256,128);
-  c.strokeStyle='#d8c9a9';c.lineWidth=3;c.strokeRect(7,7,242,114);
-  c.fillStyle='#e8dac3';c.textAlign='center';c.font='bold 27px Georgia';c.fillText(brand,128,42);
-  c.font='bold 18px Arial';c.fillText(title,128,70);c.font='13px Arial';c.fillText('DEPARTMENT STORE · 1997',128,103);
+ return designs.map(({brand,title,color,fabric},i)=>{
+  const canvas=document.createElement('canvas');canvas.width=256;canvas.height=160;
+  const c=canvas.getContext('2d');c.fillStyle=color;c.fillRect(0,0,256,160);
+  if(fabric){
+   // Woven textile with repeated knit stitches, folded-edge shadow and
+   // a narrow paper retail band. Source geometry is never replaced.
+   c.strokeStyle='#ded0b72b';c.lineWidth=1.5;
+   for(let y=3;y<160;y+=7)for(let x=2;x<256;x+=7){
+    c.beginPath();c.moveTo(x,y);c.lineTo(x+3,y+3);c.lineTo(x+6,y);c.stroke();
+   }
+   c.fillStyle='#231c183e';c.fillRect(0,139,256,13);c.fillRect(0,153,256,3);
+   c.fillStyle='#c6bda4';c.fillRect(89,0,78,160);
+   c.fillStyle='#454238';c.textAlign='center';c.font='bold 10px Georgia';c.fillText(brand,128,59,71);
+   c.font='bold 9px Arial';c.fillText(title,128,76,71);
+   c.font='9px Arial';c.fillText('100% COTTON',128,92,70);
+  }else{
+   c.strokeStyle='#d8c9a9';c.lineWidth=2;c.strokeRect(7,7,242,146);
+   if(i%2){c.fillStyle='#d8c9a935';c.fillRect(9,99,238,34);}
+   else{c.fillStyle='#e9dcc241';c.beginPath();c.arc(128,54,27,0,Math.PI*2);c.fill();}
+   c.fillStyle='#e8dac3';c.textAlign='center';c.font='bold 24px Georgia';c.fillText(brand,128,40,225);
+   c.font='bold 18px Arial';c.fillText(title,128,87,222);
+   c.font='12px Arial';c.fillText(i%2?'FINE GOODS':'FALLOW’S DEPARTMENT STORE',128,124,225);
+   c.font='10px Arial';c.fillText(i%2?'$ 8.95':'1997 COLLECTION',128,142,225);
+  }
+  for(let n=0;n<30;n++){
+   c.fillStyle=n%2?'#170f1020':'#e5d7bc22';
+   c.fillRect((n*53+i*7)%251,(n*37)%157,2+n%4,1+n%2);
+  }
   const tex=new THREE.CanvasTexture(canvas);tex.colorSpace=THREE.SRGBColorSpace;tex.anisotropy=4;
-  return new THREE.MeshStandardMaterial({map:tex,roughness:.86});
+  return new THREE.MeshStandardMaterial({map:tex,roughness:fabric?.98:.86});
  });
+}
+function merchandiseFor(f,s,i){
+ // Northern clothing/linen, southern gifts/beauty. Repeat SKUs in short
+ // runs within each shelf, rather than making every adjacent box a new item.
+ const north=f.z<-60.5,choices=north?[3,4,5,6,7,8,9]:[0,1,2,10,11,8,9];
+ const row=Math.round(s.y*10),run=Math.floor(i/2);
+ return choices[(row+run+f.id.length)%choices.length];
 }
 export function stockFallowDisplaysV160(group,fixtures,manifest){
  group.updateMatrixWorld(true);
@@ -83,15 +124,26 @@ export function stockFallowDisplaysV160(group,fixtures,manifest){
     slots.push(...best.filter(p=>!slots.some(q=>Math.abs(q.y-p.y)<.16&&Math.hypot(q.x-p.x,q.z-p.z)<.15)));
    }
   }
-  for(const [i,s] of slots.entries())placements[(f.id.length+i)%mats.length].push(s);
-  report.push({id:f.id,cartons:slots.length,slots:slots.map(s=>({x:s.x,z:s.z,supportY:s.y})),support:'five upward source-triangle contacts',centerReserved:table,fixtureType:f.source,stockedFaces:[...new Set(slots.map(s=>Math.round(s.yaw*1000)/1000))].length});
+  const accepted=[];
+  for(const [i,s] of slots.entries()){
+   const sku=merchandiseFor(f,s,i),d=designs[sku].size;
+   // Smaller footprints are independently checked, not assumed to have
+   // solid contact merely because the previous larger carton did.
+   if(!supported(model,b,s.x,s.z,(turn?.14*d[2]:.22*d[0]),(turn?.22*d[0]:.14*d[2]),s.y))continue;
+   // Deterministic gaps on long banks suggest picked-over stock; keep all
+   // table displays and preserve both gondola sides.
+   if(!table&&i%9===7)continue;
+   placements[sku].push(s);accepted.push({...s,sku:designs[sku].title});
+  }
+  slots.length=0;slots.push(...accepted);
+  report.push({id:f.id,cartons:slots.length,slots:slots.map(s=>({x:s.x,z:s.z,supportY:s.y,sku:s.sku})),support:'five upward source-triangle contacts',centerReserved:table,fixtureType:f.source,stockedFaces:[...new Set(slots.map(s=>Math.round(s.yaw*1000)/1000))].length});
  }
  const dummy=new THREE.Object3D();
  for(let i=0;i<mats.length;i++){
   const slots=placements[i];if(!slots.length)continue;
   const mesh=new THREE.InstancedMesh(geometry,mats[i],slots.length);
   mesh.name='v160_original_period_carton_batch_'+i;
-  slots.forEach((s,j)=>{dummy.position.set(s.x,s.y+.077,s.z);dummy.rotation.y=s.yaw;dummy.updateMatrix();mesh.setMatrixAt(j,dummy.matrix)});
+  slots.forEach((s,j)=>{const d=designs[i].size;dummy.position.set(s.x,s.y+.15*d[1]/2+.002,s.z);dummy.rotation.y=s.yaw;dummy.scale.set(...d);dummy.updateMatrix();mesh.setMatrixAt(j,dummy.matrix)});
   mesh.instanceMatrix.needsUpdate=true;mesh.computeBoundingBox();root.add(mesh);
  }
  group.add(root);

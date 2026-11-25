@@ -9,6 +9,7 @@ on:
       - 'mall/fallow-cartons-v160.js'
       - 'mall/fallows-sources-v160.mjs'
       - 'mall/render-furnishing-v69.js'
+      - 'mall/render-anchor-identity-v122.js'
       - 'mall/physical-shell-v67.mjs'
       - 'mall/gameplay-layout-v70.mjs'
       - 'mall/chapter1-traversal-v143.js'
