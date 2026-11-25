@@ -1,0 +1,44 @@
+name: Pinewood V153 physical finale desktop diagnosis
+on:
+  push:
+    branches: [diagnostic/v153-chapter6-startup]
+    paths:
+      - 'mall/diagnose-finale-physical-v153.js'
+      - 'scripts/diagnose-finale-physical-v153.mjs'
+      - '.github/workflows/diagnose-finale-physical-v153.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  original-physical-ending:
+    strategy:
+      fail-fast: false
+      matrix:
+        ending: [standard, 'true']
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install desktop Chromium
+        run: |
+          node --check mall/diagnose-finale-physical-v153.js
+          node --check scripts/diagnose-finale-physical-v153.mjs
+          npm install --no-save playwright@1.55.0
+          npx playwright install chromium
+      - name: Serve original runtime
+        run: |
+          python3 -m http.server 4173 --bind 127.0.0.1 >/tmp/v153-physical-http.log 2>&1 &
+          for i in {1..40}; do curl -fsS http://127.0.0.1:4173/ >/dev/null && exit 0; sleep 1; done
+          exit 1
+      - name: Native E and original tryMove through actual finale
+        run: node scripts/diagnose-finale-physical-v153.mjs ${{ matrix.ending }}
+      - name: Archive original physical evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: v153-finale-physical-${{ matrix.ending }}
+          path: artifacts/v153-finale-physical-${{ matrix.ending }}/
+          retention-days: 14
