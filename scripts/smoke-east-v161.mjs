@@ -23,6 +23,11 @@ try{
  const signs=state.anchorIdentityV122.eastDepartments;
  assert.deepEqual(signs.map(s=>s.name),['FINAL CLEARANCE','FIXTURES FOR REMOVAL','RETURNS & COLLECTION']);
  assert.ok(signs.every(s=>s.actualWallMounted&&s.printAspectError<.01));
+ const mainSign=state.anchorIdentityV122.signs.find(s=>s.room==='east_original_anchor');
+ assert.ok(Math.abs(((mainSign.width-.15)/(mainSign.height-.12))/(2048/300)-1)<.01,'main sign artwork aspect');
+ for(const s of signs.filter(s=>s.axis==='x')){
+  assert.ok(Math.abs(mainSign.z-s.z)>(mainSign.width+s.width)/2+.12,'wall signs overlap '+s.id);
+ }
  const west=state.anchorRetailV121.filter(f=>f.room==='west_anchor');
  assert.equal(west.length,36);assert.equal(west.reduce((n,f)=>n+f.fallowCartonsV160.cartons,0),769,'completed Fallow stock changed');
  assert.equal(state.sunburstFixtureCountV126,43,'completed arcade changed');

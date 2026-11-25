@@ -117,7 +117,7 @@ const FALLOW_DEPARTMENTS_V160=[
 const EAST_DEPARTMENTS_V161=[
  {id:'east_closeout',room:'east_original_anchor',name:'FINAL CLEARANCE',subtitle:'HOUSEWARES  ·  LINENS  ·  REMAINING STOCK',x:35.5,z:-43,y:2.92,face:-1,axis:'z',width:4.9,height:.78},
  {id:'east_fixture_removal',room:'east_original_anchor',name:'FIXTURES FOR REMOVAL',subtitle:'DISPLAY UNITS  ·  NOT FOR SALE',x:46,z:-46.5,y:2.92,face:-1,axis:'x',width:4.2,height:.68},
- {id:'east_returns',room:'east_original_anchor',name:'RETURNS & COLLECTION',subtitle:'FINAL SALE  ·  ORDER PICKUP',x:46,z:-56.7,y:2.92,face:-1,axis:'x',width:4.2,height:.68}
+ {id:'east_returns',room:'east_original_anchor',name:'RETURNS & COLLECTION',subtitle:'FINAL SALE  ·  ORDER PICKUP',x:46,z:-57.4,y:2.92,face:-1,axis:'x',width:4.2,height:.68}
 ];
 function mountFallowDepartment(g,s,mats,textures){
  const room=MALL.rooms.find(r=>r.id===s.room&&r.level==='G');

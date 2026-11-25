@@ -36,7 +36,7 @@ export const ANCHOR_SIGNS_V122=Object.freeze([
  Object.freeze({id:'fallows_main',room:'west_anchor',name:"FALLOW'S",
   subtitle:'APPAREL  ·  ACCESSORIES  ·  HOME',wallX:-46,face:1,z:-60.5,y:3.36,width:7.2,height:.86}),
  Object.freeze({id:'east_main',room:'east_original_anchor',name:'EAST DEPARTMENT',
-  subtitle:'HOUSEWARES  ·  CLOTHING  ·  GIFTS',wallX:46,face:-1,z:-52,y:3.36,width:7.2,height:.86})
+  subtitle:'HOUSEWARES  ·  CLOTHING  ·  GIFTS',wallX:46,face:-1,z:-52,y:3.52,width:6.2,height:1.00625})
 ]);
 
 export function validateAnchorIdentityV122(
