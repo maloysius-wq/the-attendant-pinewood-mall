@@ -47,8 +47,6 @@ export const ANNEX_ANCHOR_FIXTURES_V128=Object.freeze([
  fixture('east_wall_6','wall_cubbies','GIFTS',84.45,-65.75,-1.5707963267948966,0.7),
  fixture('east_wall_7','wall_cubbies','GIFTS',84.45,-64.25,-1.5707963267948966,0.7),
  fixture('east_wall_8','wall_cubbies','GIFTS',84.45,-62.75,-1.5707963267948966,0.7),
- fixture('east_wall_9','wall_cubbies','GIFTS',84.45,-61.25,-1.5707963267948966,0.7),
- fixture('east_wall_10','wall_cubbies','GIFTS',84.45,-59.75,-1.5707963267948966,0.7),
  fixture('east_wall_11','wall_cubbies','BATH LINENS',84.45,-58.25,-1.5707963267948966,0.7),
  fixture('east_wall_12','wall_cubbies','BATH LINENS',84.45,-56.75,-1.5707963267948966,0.7),
  fixture('east_wall_13','wall_cubbies','BATH LINENS',84.45,-55.25,-1.5707963267948966,0.7),
@@ -160,7 +158,7 @@ export function validateAnnexAnchorV128(plan={
  if(MALL.rooms.length!==41||MALL.evidence.length!==9)
   issues.push('original rooms or nine evidence markers changed');
  const {fixtures=[],lights=[],identity,posters=[]}=plan||{};
- if(fixtures.length!==75||lights.length!==8||posters.length!==5||!identity)
+ if(fixtures.length!==73||lights.length!==8||posters.length!==5||!identity)
   issues.push('V128 required genuine retail scene content missing');
  const doorways=portals.filter(p=>p.type==='doorway'&&[p.from,p.to].includes('annex_anchor'));
  if(portals.length&&doorways.length!==2)

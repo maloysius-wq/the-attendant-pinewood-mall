@@ -7,7 +7,7 @@ import {auditSealedBayCoverageV116} from '../mall/sealed-bay-plan-v116.mjs';
 import {auditOriginalRemainderV128,ORIGINAL_REMAINDER_POCKETS_V128}
  from '../mall/residual-footprint-audit-v128.mjs';
 import {ANNEX_ANCHOR_ROOM_V128,ANNEX_ANCHOR_FIXTURES_V128,ANNEX_ANCHOR_LIGHTS_V128,
- ANNEX_ANCHOR_IDENTITY_V128,ANNEX_ANCHOR_POSTERS_V128,validateAnnexAnchorV128}
+ ANNEX_ANCHOR_IDENTITY_V128,ANNEX_ANCHOR_POSTERS_V128,validateAnnexAnchorV128,NORTHSTAR_REGISTER_V162,northstarBoundsV162}
  from '../mall/annex-anchor-plan-v128.mjs';
 import {constructPhysicalShell,validatePhysicalShell,isSegmentBlocked}
  from '../mall/physical-shell-v67.mjs';
@@ -24,10 +24,10 @@ test('V128 source-licensed retail fits unchanged exact 540 m² original Annex fl
  assert.equal((r.x2-r.x1)*(r.z2-r.z1),540);
  assert.deepEqual({id:r.id,x1:r.x1,x2:r.x2,z1:r.z1,z2:r.z2,area:540,ceilingUnderside:7.61},ANNEX_ANCHOR_ROOM_V128);
  assert.equal(MALL.rooms.length,41);assert.equal(MALL.evidence.length,9);
- assert.equal(shell.annexAnchor.fixtures.length,24);
- assert.equal(ANNEX_ANCHOR_FIXTURES_V128.filter(f=>f.kind==='wall_bay').length,17);
+ assert.equal(shell.annexAnchor.fixtures.length,73);
+ assert.equal(ANNEX_ANCHOR_FIXTURES_V128.filter(f=>f.kind==='wall_cubbies').length,46);
  assert.equal(ANNEX_ANCHOR_FIXTURES_V128.filter(f=>f.kind.startsWith('table_')).length,4);
- assert.equal(ANNEX_ANCHOR_FIXTURES_V128.filter(f=>f.kind==='spinner').length,2);
+ assert.equal(ANNEX_ANCHOR_FIXTURES_V128.filter(f=>f.kind==='gondola').length,22);
  assert.equal(ANNEX_ANCHOR_FIXTURES_V128.filter(f=>f.kind==='counter').length,1);
  assert.equal(ANNEX_ANCHOR_POSTERS_V128.length,5);
  assert.equal(ANNEX_ANCHOR_IDENTITY_V128.name,'NORTHSTAR HOME');
@@ -35,8 +35,8 @@ test('V128 source-licensed retail fits unchanged exact 540 m² original Annex fl
 });
 test('source real CC0 fixtures have exact SHA-pinned local bytes and no unlicensed placeholder',()=>{
  const sources=[...new Map([...ANNEX_ANCHOR_FIXTURES_V128.map(f=>[f.source,f.sha256]),
-  ...ANNEX_ANCHOR_LIGHTS_V128.map(l=>[l.model,l.sha256])]).entries()];
- assert.equal(sources.length,6,'five retail source types + one local ceiling GLB');
+  ...ANNEX_ANCHOR_LIGHTS_V128.map(l=>[l.model,l.sha256]),[NORTHSTAR_REGISTER_V162.path,NORTHSTAR_REGISTER_V162.sha256]]).entries()];
+ assert.equal(sources.length,6,'four primary retail fixture sources + ceiling and supported register');
  for(const [path,sha] of sources){
   assert.ok(/^(assets\/vendor\/runtime\/|assets\/vendor\/builder\/models\/)/.test(path));
   const file=new URL('../'+path,import.meta.url);
@@ -44,9 +44,9 @@ test('source real CC0 fixtures have exact SHA-pinned local bytes and no unlicens
   const hash=createHash('sha256').update(readFileSync(file)).digest('hex');
   assert.equal(hash,sha,'GLB content no longer matches pinned authored provenance '+path);
  }
- assert.ok(read('LICENSES.md').includes('KSI_counter.glb'));
+ assert.ok(read('LICENSES.md').includes('desk.glb'));
  assert.ok(read('mall/render-annex-anchor-v128.js').includes('GLTFLoader'));
- assert.match(read('mall/render-annex-anchor-v128.js'),/new THREE.InstancedMesh/);
+ assert.match(read('mall/northstar-stock-v162.js'),/new THREE.InstancedMesh/);
  assert.match(read('mall/render-annex-anchor-v128.js'),/stockBatches/);
  assert.ok(read('mall/render-shell-v67.js').includes('renderAnnexAnchorV128'));
 });
@@ -119,4 +119,15 @@ test('true 520 m² residual has no invented rooms or hidden double allocations',
   Array.from({length:9},(_,i)=>'LS-'+String(i+1).padStart(2,'0')));
  const world=JSON.parse(read('assets/world/published-layout-v111.json'));
  assert.ok(world&&typeof world==='object','private Builder remains intentionally unpublished');
+});
+
+test('V162 measured department footprints protect the exact finale route and source marker',()=>{
+ const plan=ANNEX_ANCHOR_FIXTURES_V128,nav=buildGameplayLayoutV70({chapter:6});
+ for(const f of plan){assert.ok(!nav.canStand(f.x,f.z),f.id+' actual fixture collision missing');const b=northstarBoundsV162(f);assert.ok(b.minX>65&&b.maxX<85&&b.minZ>-75&&b.maxZ<-48);}
+ for(let x=66;x<=75;x+=.5)for(const z of [-62.2,-61.5,-60.8])assert.ok(nav.canStand(x,z),'entry lane '+x+','+z);
+ for(let z=-61.5;z<=-48.5;z+=.5)for(const x of [74.3,75,75.7])assert.ok(nav.canStand(x,z),'finale exit lane '+x+','+z);
+ for(const [x,z] of [[71,-67.8],[79.8,-67.8],[73.2,-55.1],[77.5,-52.1],[81.6,-52.1],[83,-60]]){
+  assert.ok(nav.canStand(x,z),'retail approach '+x+','+z);assert.ok(shortestRouteV70(nav,{x:67,z:-61.5},{x,z}).length>0,'retail path '+x+','+z);
+ }
+ assert.ok(shortestRouteV70(nav,{x:67,z:-61.5},{x:75,z:-44}).length>0,'canonical exit route');
 });
