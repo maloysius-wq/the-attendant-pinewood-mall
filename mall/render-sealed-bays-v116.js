@@ -13,26 +13,23 @@ function panel(parent,id,x,y,z,sx,sy,sz,material){
  mesh.name=id;mesh.position.set(x,y,z);mesh.receiveShadow=true;
  mesh.castShadow=false;parent.add(mesh);return mesh;
 }
-function signTexture(bay){
- const canvas=document.createElement('canvas');canvas.width=1536;canvas.height=256;
- const c=canvas.getContext('2d');if(!c)throw Error('V116 sign canvas could not initialize');
- c.fillStyle=bay.kind==='retail'?'#273235':'#3c4544';c.fillRect(0,0,1536,256);
- c.fillStyle=bay.kind==='retail'?'#b29c7b':'#788c7e';c.fillRect(10,16,1516,7);
- c.fillStyle='#b6ac91';c.fillRect(12,232,1512,4);
+function signTexture(bay,width,height){
+ const canvas=document.createElement('canvas');canvas.height=256;canvas.width=Math.round(256*width/height);
+ const w=canvas.width,h=canvas.height,c=canvas.getContext('2d');if(!c)throw Error('V116 sign canvas could not initialize');
+ c.fillStyle=bay.kind==='retail'?'#273235':'#3c4544';c.fillRect(0,0,w,h);
+ c.fillStyle=bay.kind==='retail'?'#b29c7b':'#788c7e';c.fillRect(10,16,w-20,7);
+ c.fillStyle='#b6ac91';c.fillRect(12,232,w-24,4);
  c.textAlign='center';c.textBaseline='middle';
- let fontSize=90;
- do{c.font='bold '+fontSize+'px Arial,sans-serif';fontSize-=3}
- while(c.measureText(bay.front.sign).width>1410&&fontSize>38);
- c.fillStyle='#e5ddc5';c.fillText(bay.front.sign,768,104,1425);
- c.fillStyle='#c4bca8';c.font='bold 31px Arial,sans-serif';
- c.fillText(bay.front.tag,768,181,1425);
- for(let i=0;i<140;i++){
-  const x=25+(i*307)%1492,y=42+(i*73)%158;
-  c.fillStyle=i%3?'#192527bb':'#ada68a55';c.fillRect(x,y,1+(i%5),1+(i%2));
- }
+ const line=(text,y,max,color)=>{
+  let px=max;do{c.font='bold '+px+'px Arial,sans-serif';if(c.measureText(text).width<=w-86)break;px--;}while(px>12);
+  c.fillStyle=color;c.fillText(text,w/2,y);
+  return c.measureText(text).width;
+ };
+ const nameWidth=line(bay.front.sign,104,100,'#e5ddc5');
+ line(bay.front.tag,188,36,'#c4bca8');
  const texture=new THREE.CanvasTexture(canvas);
  texture.colorSpace=THREE.SRGBColorSpace;texture.anisotropy=4;
- return texture;
+ return {texture,nameWidth,pixelWidth:w,pixelHeight:h};
 }
 export function renderSealedBaysV116(ground,bays){
  if(!ground?.isObject3D||!Array.isArray(bays)||bays.length!==13)
@@ -74,9 +71,10 @@ export function renderSealedBaysV116(ground,bays){
   const span=end-start-.9;
   trim('fascia',mid,3.19,.39,span,base);
   trim('fascia-cap',mid,3.44,.045,span,edge);
-  const tex=signTexture(bay),signMat=new THREE.MeshBasicMaterial({map:tex,side:THREE.DoubleSide});
-  textures.push(tex);signMats.push(signMat);
-  const sign=new THREE.Mesh(new THREE.PlaneGeometry(span-.16,.34),signMat);
+  const signHeight=.34,signWidth=Math.min(span-.16,6.2*signHeight);
+  const print=signTexture(bay,signWidth,signHeight),signMat=new THREE.MeshBasicMaterial({map:print.texture,side:THREE.FrontSide});
+  textures.push(print.texture);signMats.push(signMat);
+  const sign=new THREE.Mesh(new THREE.PlaneGeometry(signWidth,signHeight),signMat);
   sign.name='v116_sign_'+bay.id;
   if(f.axis==='x'){
    sign.rotation.y=f.side>0?Math.PI/2:-Math.PI/2;
@@ -88,7 +86,7 @@ export function renderSealedBaysV116(ground,bays){
   sect.add(sign);
   // The sealed store remains closed, regardless of the current story chapter.
   manifest.push({id:bay.id,name:bay.label,open:false,front:f.adjacent,
-   shutterWidth:doorWidth,area:w*d});
+   shutterWidth:doorWidth,area:w*d,signWidth,signHeight,textureWidth:print.pixelWidth,textureHeight:print.pixelHeight,nameWidthPx:print.nameWidth});
  }
  return {group,manifest,dispose(){
   for(const t of textures)t.dispose();
