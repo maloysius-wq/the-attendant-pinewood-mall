@@ -6,6 +6,7 @@
 import * as THREE from '../vendor/three/build/three.module.js';
 import {GLTFLoader} from '../vendor/three/examples/jsm/loaders/GLTFLoader.js';
 import {ORIGINAL_ANCHOR_FIXTURES_V121,validateAnchorLayoutV121} from './anchor-layout-v121.mjs';
+import {stockFallowDisplaysV160} from './fallow-cartons-v160.js';
 
 function placeOriginalModel(gltf,f,parent){
  const model=gltf.scene.clone(true);
@@ -53,9 +54,10 @@ export async function renderAnchorRetailV121(ground,plan=ORIGINAL_ANCHOR_FIXTURE
  // By attaching only after all local loads, scaled bounds, grounding, and
  // source collision checks pass, the first visible game/cinematic frame
  // never exposes half-loaded fixtures or missing 3D models.
+ const cartons=stockFallowDisplaysV160(group,plan,manifest);
  ground.add(group);
  return {
   group,manifest,uniquePinnedModels:originals.length,
-  dispose(){ground.remove(group);}
+  dispose(){cartons.dispose();ground.remove(group);}
  };
 }
