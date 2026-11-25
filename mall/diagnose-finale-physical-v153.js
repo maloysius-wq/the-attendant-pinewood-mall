@@ -3,7 +3,6 @@
  * teleport. Temporary camera trials are restored before original walking.
  */
 import * as THREE from '../vendor/three/build/three.module.js';
-import {shortestRouteV70} from './gameplay-layout-v70.mjs';
 export function installFinalePhysicalProbeV153(g){
  if(!['127.0.0.1','localhost'].includes(location.hostname)||
     !new URLSearchParams(location.search).has('finaleQA')||g.levelIndex!==5)return;
@@ -25,7 +24,45 @@ export function installFinalePhysicalProbeV153(g){
  };
  const ensure=()=>{if(g.levelIndex!==5||!g.running||g.modal||g.dead||g.won)throw Error('Original live finale required '+JSON.stringify(state()));};
  const xy=()=>({x:p().x,z:p().z});
- const route=(start,end)=>shortestRouteV70({...g.mallLayoutV70,canStand:(x,z)=>g.world.canStand(x,z)},start,end);
+ // The legacy one-metre navigation grid checks only endpoint cells.
+ // A narrow fixture corner can obstruct the swept player between two
+ // otherwise standable cells. Match original tryMove's X-then-Z sampling
+ // for every candidate edge, and never teleport across a blocked corner.
+ const stand=(x,z)=>g.world.canStand(x,z);
+ const clear=(a,b)=>{
+  if(!stand(a.x,a.z)||!stand(b.x,b.z))return false;
+  const d=Math.hypot(b.x-a.x,b.z-a.z),n=Math.max(1,Math.ceil(d/.075));
+  let x=a.x,z=a.z;
+  for(let i=1;i<=n;i++){
+   const nx=a.x+(b.x-a.x)*i/n,nz=a.z+(b.z-a.z)*i/n;
+   if(!stand(nx,z)||!stand(nx,nz))return false;
+   x=nx;z=nz;
+  }
+  return true;
+ };
+ const route=(start,end)=>{
+  if(clear(start,end)&&Math.hypot(start.x-end.x,start.z-end.z)<2)return [end];
+  const nodes=point=>{
+   const out=[];
+   for(let x=Math.round(point.x)-2;x<=Math.round(point.x)+2;x++)
+    for(let z=Math.round(point.z)-2;z<=Math.round(point.z)+2;z++){
+     const n={x,z};if(Math.hypot(x-point.x,z-point.z)<=2.2&&clear(point,n))out.push(n);
+    }
+   return out.sort((a,b)=>Math.hypot(a.x-point.x,a.z-point.z)-Math.hypot(b.x-point.x,b.z-point.z));
+  };
+  const key=n=>n.x+','+n.z,starts=nodes(start),goals=new Set(nodes(end).filter(n=>clear(n,end)).map(key));
+  const queue=starts.slice(),parents=new Map(starts.map(n=>[key(n),null]));
+  for(let i=0;i<queue.length&&i<12000;i++){
+   const n=queue[i],k=key(n);
+   if(goals.has(k)){const out=[];let at=k;while(at){const [x,z]=at.split(',').map(Number);out.push({x,z});at=parents.get(at);}return out.reverse();}
+   for(const [dx,dz] of [[1,0],[-1,0],[0,1],[0,-1]]){
+    const next={x:n.x+dx,z:n.z+dz},id=key(next);
+    if(parents.has(id)||!clear(n,next))continue;
+    parents.set(id,k);queue.push(next);
+   }
+  }
+  return [];
+ };
  const nearby=()=>g.world.colliders.filter(c=>!c.disabled&&p().x>c.minX-.8&&p().x<c.maxX+.8&&p().z>c.minZ-.8&&p().z<c.maxZ+.8)
   .slice(0,15).map(c=>({id:c.id,kind:c.kind,box:[c.minX,c.maxX,c.minZ,c.maxZ]}));
  let strideCount=0,meters=0;
