@@ -313,11 +313,12 @@ export const FURNISHINGS_V69=Object.freeze({
       "id": "fallow_display",
       "room": "west_anchor",
       "model": "assets/vendor/runtime/3d7dfedf514e5c4e/bookcaseClosedDoors.glb",
-      "x": -43,
-      "z": -54,
+      "x": -44.6,
+      "z": -53.1,
       "targetHeight": 2.05,
       "radius": 1,
-      "role": "cabinet"
+      "role": "cabinet",
+      "yaw": 1.5707963267948966
     },
     {
       "id": "fallow_counter",
