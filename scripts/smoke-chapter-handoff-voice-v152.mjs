@@ -132,11 +132,59 @@ try{
  assert.equal(voice.chapter.chapter,2);
  assert.equal(voice.handoff.epoch,b1.handoff.epoch,'speech must not trigger another reset');
  await page.screenshot({path:dir+'/original-below-grade-radio.png',animations:'disabled',timeout:120000});
+ // Native original E on each real B1 target. Deterministic camera placement
+ // requires a route through the current original navigation graph; it does
+ // not certify every intervening movement step (a separate traversal check).
+ const b1State=()=>q(()=>window.__PINEWOOD_HANDOFF_V152_QA__.basementState());
+ const use=async(type,id)=>{
+  const aimed=await page.evaluate(({type,id})=>window.__PINEWOOD_HANDOFF_V152_QA__.aimB1(type,id),{type,id});
+  assert.ok(aimed.distance>0&&aimed.distance<=2.45,'source interaction ray must hit '+id);
+  await page.keyboard.press('e');
+  const state=await b1State();
+  console.log('V152_NATIVE_B1_E '+JSON.stringify({id,aimed,state}).slice(0,2600));
+  return {aimed,state};
+ };
+ const basementInitial=await b1State();
+ assert.equal(basementInitial.keyVisible,false);
+ assert.ok(basementInitial.waterY< -4,'water is on the original basement floor');
+ const denied=await use('breaker','D');
+ assert.equal(denied.state.breakers,0,'cannot reset D before isolating feeder');
+ const feeder=await use('ch2_control_v21','feeder');
+ assert.equal(feeder.state.feeder,true);
+ const d=await use('breaker','D');
+ assert.equal(d.state.breakers,1);
+ const pump=await use('ch2_control_v21','pump');
+ assert.equal(pump.state.pump,true);
+ const drained=await q(()=>window.__PINEWOOD_HANDOFF_V152_QA__.stepDrain(230,.04));
+ assert.equal(drained.drained,true);
+ assert.equal(drained.floodDisabled,true);
+ assert.ok(drained.waterY< -4.3&&drained.waterY> -4.6,'drain surface stays at B1 elevation');
+ const e=await use('breaker','E');
+ assert.equal(e.state.breakers,2);
+ const gavin=await use('journal','GAVIN-TICKET');
+ assert.equal(gavin.state.gavinFound,true);
+ assert.equal(gavin.state.evidence['GAVIN-TICKET'],true);
+ assert.equal(gavin.state.people.gavin,'body_found');
+ assert.equal(gavin.state.keyVisible,true);
+ const ls04=await use('journal','LS-04');
+ assert.equal(ls04.state.evidence['LS-04'],true);
+ const card=await use('key','Security Keycard');
+ assert.equal(card.state.keys,1);
+ assert.equal(card.state.pickups.find(x=>x.id==='Security Keycard')?.collected,true);
+ const persisted=await q(()=>JSON.parse(localStorage.getItem('pinewood_attendant_reborn_v1')||'{}'));
+ for(const id of ['GAVIN-TICKET','LS-04']){
+  assert.equal(persisted.story?.evidence?.[id],true);
+  assert.ok(persisted.journal?.[id]);
+ }
+ const basement={basementInitial,denied,feeder,d,pump,drained,e,gavin,ls04,card};
+ await writeFile(dir+'/basement-native-e.json',JSON.stringify(basement,null,2));
+ await page.screenshot({path:dir+'/original-basement-keycard.png',animations:'disabled',timeout:120000});
+ console.log('V152_NATIVE_B1_E_PASS '+JSON.stringify({relays:card.state.breakers,drained,keys:card.state.keys,gavin:card.state.gavinFound,evidence:card.state.evidence}));
  const genuineFailed=failed.filter(x=>!/furniture_shop_loop\.ogg net::ERR_ABORTED$/.test(x));
  const result={initial:{chapter:initial.state.chapter,handoff:initial.handoff},
   panels,call:{state:call.after.elevator.state},entered:entered.path.length,
   completed:{won:completed.won,screen:completed.ui.screen},
-  before,b1,voice,ended,stepped,errors,remote,failed:genuineFailed};
+  before,b1,voice,ended,stepped,basement,errors,remote,failed:genuineFailed};
  await writeFile(dir+'/report.json',JSON.stringify(result,null,2));
  assert.deepEqual(errors,[]);
  assert.deepEqual(remote,[]);
