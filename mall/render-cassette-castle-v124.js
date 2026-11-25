@@ -5,6 +5,7 @@
  * Four original CC0 fluorescent ceiling panels share the exact soffit.
  */
 import * as THREE from '../vendor/three/build/three.module.js';
+import {createMediaShelfResourcesV158,makeMeasuredMediaRackV158} from './media-shelf-geometry-v158.js';
 import {GLTFLoader} from '../vendor/three/examples/jsm/loaders/GLTFLoader.js';
 import {CASSETTE_FIXTURES_V124,CASSETTE_LIGHTS_V124,CASSETTE_SIGN_V124,validateCassetteCastleV124}
  from './cassette-castle-plan-v124.mjs';
@@ -52,36 +53,6 @@ function addBox(parent,name,x,y,z,sx,sy,sz,mat){
  m.name=name;m.position.set(x,y,z);m.castShadow=false;m.receiveShadow=true;parent.add(m);return m;
 }
 const C_W=.109,C_H=.069,C_D=.017; // Full-scale standard compact-cassette jewel cases.
-function populateCassetteWall(f,assets){
- const g=new THREE.Group();g.name='v124_real_source_rack_merchandise_'+f.id;
- g.position.set(f.x,0,f.z);g.rotation.y=f.yaw;
- const caseColors=assets.caseMaterials,edge=assets.edgeMaterial;
- const labels=assets.caseLabelMaterial;
- for(let row=0;row<2;row++){
-  const y=row ? 1.43 : .81;
-  addBox(g,'attached_original_cassette_display_tray',0,y-.049,.13,.995,.022,.225,assets.wood);
-  addBox(g,'real_source_rail_front_retainer',0,y-.026,.244,.995,.035,.028,assets.brass);
-  for(let col=0;col<7;col++){
-   const x=(col-3)*.134;
-   const m=addBox(g,'full_scale_recorded_music_jewel_case',x,y,.13,C_W,C_H,C_D,
-    caseColors[(col+row*2+f.section.length)%caseColors.length]);
-   m.userData.authoredCompactCassette={originalArtwork:true,metres:[C_W,C_H,C_D],section:f.section};
-   addBox(g,'cassette_spine_print',x,y,.140,.091,.038,.002,labels[(col+row)%labels.length]);
-  }
- }
- const category=document.createElement('canvas');category.width=640;category.height=160;
- const c=category.getContext('2d');c.fillStyle='#393029';c.fillRect(0,0,640,160);
- c.fillStyle='#d2c099';c.font='bold 62px Arial,sans-serif';c.textAlign='center';
- c.fillText(f.section,320,102,580);
- const tex=new THREE.CanvasTexture(category);tex.colorSpace=THREE.SRGBColorSpace;
- assets.textures.push(tex);
- addBox(g,'physically_attached_category_enamel_mount',0,2.24,.14,1.06,.25,.065,assets.wood);
- const card=new THREE.Mesh(new THREE.PlaneGeometry(1.01,.19),
-  material(assets,{map:tex,side:THREE.DoubleSide,roughness:.9}));
- card.position.set(0,2.24,.18);card.name='readable_rack_section_id_'+f.id;g.add(card);
- assets.root.add(g);
- return 14;
-}
 function populateCassetteTable(f,index,assets){
  // The actual source medium nesting GLB measures 1.367 × .95 × .936m.
  // All added original merchandise rests on its real y=0.95 top and remains
@@ -126,11 +97,13 @@ function populateSpinner(f,assets){
  assets.root.add(g);return 4;
 }
 function fitRealLicensedFixture(gltf,f,parent,assets){
- const model=gltf.scene.clone(true);
- model.rotation.y=f.yaw;model.updateMatrixWorld(true);
+ const media=f.kind==='wall_bay';
+ const model=media?makeMeasuredMediaRackV158(gltf.scene,{id:f.id,targetHeight:f.targetHeight,yaw:f.yaw,radius:f.collisionRadius,resources:assets.media}):gltf.scene.clone(true);
+ if(!media)model.rotation.y=f.yaw;
+ model.updateMatrixWorld(true);
  let bounds=new THREE.Box3().setFromObject(model),size=bounds.getSize(new THREE.Vector3());
  if(size.y<.05)throw Error('V124 authentic licensed fixture has zero-height geometry '+f.id);
- const scale=f.targetHeight/size.y;model.scale.multiplyScalar(scale);model.updateMatrixWorld(true);
+ const scale=media?1:f.targetHeight/size.y;model.scale.multiplyScalar(scale);model.updateMatrixWorld(true);
  bounds=new THREE.Box3().setFromObject(model);size=bounds.getSize(new THREE.Vector3());
  if(Math.abs(size.y-f.targetHeight)>.001||
   Math.hypot(size.x/2,size.z/2)>f.collisionRadius+.005)
@@ -147,7 +120,7 @@ function fitRealLicensedFixture(gltf,f,parent,assets){
  model.traverse(o=>{
   if(!o.isMesh)return;
   o.castShadow=false;o.receiveShadow=true;
-  if(f.kind==='wall_bay'){
+  if(media&&!o.isInstancedMesh){
    const sourceMats=Array.isArray(o.material)?o.material:[o.material];
    const weathered=sourceMats.map(src=>{
     const m=src.clone();assets.materials.push(m);
@@ -162,7 +135,7 @@ function fitRealLicensedFixture(gltf,f,parent,assets){
  return {id:f.id,kind:f.kind,section:f.section,room:f.room,source:f.source,
   sha256:f.sha256,license:f.license,x:f.x,z:f.z,
   actualHeight:size.y,actualWidth:size.x,actualDepth:size.z,
-  groundY:bounds.min.y,collisionRadius:f.collisionRadius};
+  groundY:bounds.min.y,collisionRadius:f.collisionRadius,mediaShelf:model.userData.mediaShelfV158||null};
 }
 function installRealFluorescent(src,f,ceilings,assets){
  const slab=ceilings.find(s=>s.room==='cassette_castle'&&
@@ -289,7 +262,7 @@ export async function renderCassetteCastleV124(
    throw Error('V124 refused off-origin or unlicensed original GLB '+path);
   return [path,await loader.loadAsync(new URL('../'+path,import.meta.url).href)];
  })));
- const assets={root:new THREE.Group(),ceilingRoot:new THREE.Group(),textures:[],materials:[]};
+ const assets={root:new THREE.Group(),ceilingRoot:new THREE.Group(),textures:[],materials:[],media:createMediaShelfResourcesV158('cassette')};
  assets.root.name='V124 original full size Cassette Castle licensed source fittings and merchandise';
  assets.ceilingRoot.name='V124 true original cassette shop fluorescent roof';
  assets.wood=material(assets,{color:0x4b4037,roughness:.91});
@@ -302,7 +275,7 @@ export async function renderCassetteCastleV124(
  const fixtures=plan.fixtures.map(f=>fitRealLicensedFixture(models.get(f.source),f,assets.root,assets));
  let wallCases=0,tableCases=0,vinylSleeves=0,spinnerCases=0,tableSupports=[];
  for(const f of plan.fixtures){
-  if(f.kind==='wall_bay')wallCases+=populateCassetteWall(f,assets);
+  if(f.kind==='wall_bay')wallCases+=fixtures.find(x=>x.id===f.id).mediaShelf.products;
   else if(f.kind==='table_medium'){
    const data=populateCassetteTable(f,tableSupports.length,assets);
    tableCases+=data.cassette;vinylSleeves+=data.vinyl;tableSupports.push(data.supportId);
@@ -322,6 +295,6 @@ export async function renderCassetteCastleV124(
     totalCassetteCases:wallCases+tableCases+spinnerCases}},
   dispose(){
    assets.root.removeFromParent();assets.ceilingRoot.removeFromParent();
-   assets.textures.forEach(t=>t.dispose());assets.materials.forEach(m=>m.dispose());
+   assets.textures.forEach(t=>t.dispose());assets.materials.forEach(m=>m.dispose());assets.media.dispose();
   }};
 }

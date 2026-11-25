@@ -4,6 +4,7 @@ import {readFileSync} from 'node:fs';
 import {createHash} from 'node:crypto';
 import {MALL} from '../mall/masterplan-v66.mjs';
 import {FURNISHINGS_V69} from '../mall/furnishing-plan-v69.mjs';
+import {MEDIA_SHELF_V158} from '../mall/media-shelf-source-v158.mjs';
 import {ORIGINAL_RETAIL_CANDIDATES_V121} from '../mall/anchor-retail-source-v121.mjs';
 import {ANCHOR_FLUORESCENT_ASSET_V122} from '../mall/anchor-identity-plan-v122.mjs';
 import {VIDEO_PLANET_ROOM_V125,VIDEO_PLANET_FIXTURES_V125,VIDEO_PLANET_LIGHTS_V125,VIDEO_PLANET_SIGN_V125,VIDEO_PLANET_POSTERS_V125,validateVideoPlanetV125} from '../mall/video-planet-plan-v125.mjs';
@@ -37,7 +38,7 @@ test('V125 retains exact 17x19m original Video Planet, glass entry, Luis LS-03 a
 });
 test('All V125 CC0 source GLB bytes match original vendor catalog and independent prior source audition',()=>{
  assert.equal(catalog.models.length,482);
- const candidates=new Map(ORIGINAL_RETAIL_CANDIDATES_V121.map(x=>[x.shortName,x]));
+ const candidates=new Map([...ORIGINAL_RETAIL_CANDIDATES_V121,MEDIA_SHELF_V158].map(x=>[x.shortName,x]));
  assert.equal(VIDEO_PLANET_FIXTURES_V125.filter(f=>f.kind==='wall_bay').length,13);
  assert.equal(VIDEO_PLANET_FIXTURES_V125.filter(f=>f.kind==='spinner').length,2);
  assert.equal(VIDEO_PLANET_FIXTURES_V125.filter(f=>f.kind==='table_medium').length,1);
@@ -96,4 +97,11 @@ test('All six chapters and all original ground-floor evidence anchors remain sta
  const layout=buildGameplayLayoutV70({chapter:1});
  for(const e of FURNISHINGS_V69.storyAnchors.filter(a=>MALL.rooms.find(r=>r.id===a.room)?.level==='G'))
   assert.ok(layout.canStand(e.x,e.z),'source story evidence blocked '+e.id);
+});
+
+test('V158 actual open media shelf replaces the clothing rail; licensed source bytes and physical facing are explicit',()=>{
+ const shelves=VIDEO_PLANET_FIXTURES_V125.filter(f=>f.kind==='wall_bay');
+ assert.ok(shelves.length>0&&shelves.every(f=>f.source===MEDIA_SHELF_V158.path&&f.sha256===MEDIA_SHELF_V158.sha256));
+ assert.equal(shaOf(MEDIA_SHELF_V158.path),MEDIA_SHELF_V158.sha256);
+ for(const f of shelves)assert.ok(Number.isFinite(f.yaw));
 });

@@ -4,6 +4,7 @@ import {readFileSync} from 'node:fs';
 import {createHash} from 'node:crypto';
 import {MALL} from '../mall/masterplan-v66.mjs';
 import {FURNISHINGS_V69} from '../mall/furnishing-plan-v69.mjs';
+import {MEDIA_SHELF_V158} from '../mall/media-shelf-source-v158.mjs';
 import {ORIGINAL_RETAIL_CANDIDATES_V121} from '../mall/anchor-retail-source-v121.mjs';
 import {ANCHOR_FLUORESCENT_ASSET_V122} from '../mall/anchor-identity-plan-v122.mjs';
 import {CASSETTE_ROOM_V124,CASSETTE_FIXTURES_V124,CASSETTE_LIGHTS_V124,CASSETTE_SIGN_V124,validateCassetteCastleV124} from '../mall/cassette-castle-plan-v124.mjs';
@@ -35,7 +36,7 @@ test('V124 17x17m original 1979 Cassette Castle and source glass frontage remain
 });
 test('Every V124 real licensed object SHA256 byte matches original catalog and was already source-auditioned',()=>{
  assert.equal(licensed.models.length,482);
- const candidates=new Map(ORIGINAL_RETAIL_CANDIDATES_V121.map(a=>[a.shortName,a]));
+ const candidates=new Map([...ORIGINAL_RETAIL_CANDIDATES_V121,MEDIA_SHELF_V158].map(a=>[a.shortName,a]));
  assert.deepEqual([...new Set(CASSETTE_FIXTURES_V124.map(f=>f.kind))].sort(),
   ['spinner','table_medium','wall_bay']);
  assert.equal(CASSETTE_FIXTURES_V124.filter(f=>f.kind==='wall_bay').length,7);
@@ -100,4 +101,11 @@ test('All original six playable chapters, evidence locations and staff exit rema
  const entry=buildGameplayLayoutV70({chapter:1});
  for(const e of FURNISHINGS_V69.storyAnchors.filter(a=>MALL.rooms.find(r=>r.id===a.room)?.level==='G'))
   assert.ok(entry.canStand(e.x,e.z),'LS evidence blocked by music merchandise '+e.id);
+});
+
+test('V158 actual open media shelf replaces the clothing rail; licensed source bytes and physical facing are explicit',()=>{
+ const shelves=CASSETTE_FIXTURES_V124.filter(f=>f.kind==='wall_bay');
+ assert.ok(shelves.length>0&&shelves.every(f=>f.source===MEDIA_SHELF_V158.path&&f.sha256===MEDIA_SHELF_V158.sha256));
+ assert.equal(shaOf(MEDIA_SHELF_V158.path),MEDIA_SHELF_V158.sha256);
+ for(const f of shelves)assert.ok(Number.isFinite(f.yaw));
 });

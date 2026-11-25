@@ -1,0 +1,71 @@
+name: Pinewood V158 measured media-shop rebuild
+on:
+  push:
+    branches: [feature/v158-media-retail-rebuild]
+    paths:
+      - 'mall/media-shelf-*.js'
+      - 'mall/media-shelf-*.mjs'
+      - 'mall/cassette-castle-plan-v124.mjs'
+      - 'mall/video-planet-plan-v125.mjs'
+      - 'mall/render-cassette-castle-v124.js'
+      - 'mall/render-video-planet-v125.js'
+      - 'mall/furnishing-plan-v69.mjs'
+      - 'mall/render-furnishing-v69.js'
+      - 'scripts/smoke-media-retail-v158.mjs'
+      - '.github/workflows/media-retail-v158.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  source:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify actual authored layout, source bytes, staff interactions and story routes
+        run: |
+          node --check mall/media-shelf-geometry-v158.js
+          node --check mall/render-cassette-castle-v124.js
+          node --check mall/render-video-planet-v125.js
+          node --check mall/render-furnishing-v69.js
+          node --test scripts/test-cassette-castle-v124.mjs scripts/test-video-planet-v125.mjs scripts/test-furnishing-v69.mjs scripts/test-food-court-v119.mjs scripts/test-gameplay-layout-v70.mjs scripts/test-chapter1-staff-belongings-v150.mjs scripts/test-chapter1-staff-inspection-v151.mjs
+          node scripts/audit-local-assets-v15.mjs
+  desktop:
+    strategy:
+      fail-fast: false
+      matrix:
+        type: [assembled-media, original-inspection]
+    runs-on: ubuntu-24.04
+    timeout-minutes: 28
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: |
+          npm install --no-save playwright@1.55.0
+          npx playwright install chromium
+      - name: Serve exact committed assets locally
+        run: |
+          python3 -m http.server 4173 --bind 127.0.0.1 >/tmp/v158-http.log 2>&1 &
+          for i in {1..40}; do curl -fsS http://127.0.0.1:4173/ >/dev/null && exit 0; sleep 1; done
+          exit 1
+      - name: Real desktop render or native original E interaction
+        run: |
+          if [ "${{ matrix.type }}" = assembled-media ]; then
+            node scripts/smoke-media-retail-v158.mjs
+          else
+            node scripts/smoke-chapter1-staff-inspection-v151.mjs
+          fi
+      - name: Archive actual render measurements and screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: v158-${{ matrix.type }}
+          path: |
+            artifacts/v158-media-retail/
+            artifacts/v151-original-inspection/
+          retention-days: 14

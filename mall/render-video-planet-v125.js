@@ -3,6 +3,7 @@
  * Movie titles, poster art, rental cases and labels are entirely Pinewood fiction.
  */
 import * as THREE from '../vendor/three/build/three.module.js';
+import {createMediaShelfResourcesV158,makeMeasuredMediaRackV158} from './media-shelf-geometry-v158.js';
 import {GLTFLoader} from '../vendor/three/examples/jsm/loaders/GLTFLoader.js';
 import {
  VIDEO_PLANET_FIXTURES_V125,VIDEO_PLANET_LIGHTS_V125,VIDEO_PLANET_SIGN_V125,
@@ -83,31 +84,6 @@ function addVhsCase(g,assets,id,x,y,z,design){
  plastic.userData.originalRentalV125={metres:[VHS_WIDTH,VHS_HEIGHT,VHS_DEPTH],
   title:name,originalArt:true};return plastic;
 }
-function stockWallRack(f,assets){
- const g=new THREE.Group();g.name='v125_real_source_shelf_supported_VHS_'+f.id;
- g.position.set(f.x,0,f.z);g.rotation.y=f.yaw;
- let count=0;
- // Restock four full supported rack levels rather than the two sparse
- // strips revealed by the original 1440x900 in-world inspection.
- for(let row=0;row<4;row++){
-  const foot=[.26,.76,1.26,1.76][row];
-  // A narrow original display lip, not a stand-in for the real CC0 shelf GLB.
-  box(g,'attached_VHS_support_lip',0,foot-.026,.13,1.04,.026,.24,assets.wood);
-  box(g,'real_rental_shelf_front_stop',0,foot-.006,.252,1.04,.034,.024,assets.brass);
-  for(let col=0;col<6;col++){
-   const id=f.id+'_'+row+'_'+col;
-   addVhsCase(g,assets,id,(col-2.5)*.166,foot+.106,.13,
-    titles[(row*6+col+f.id.length)%titles.length]);count++;
-  }
- }
- const tex=labelTexture(assets,f.section,{heading:'VIDEO PLANET  ·  1997',
-  background:'#302e30',ink:'#e8c48d',width:1024,height:300});
- box(g,'shelf_directly_fixed_category_backing',0,2.23,.12,1.12,.25,.075,assets.wood);
- const sign=new THREE.Mesh(new THREE.PlaneGeometry(1.08,.21),
-  makeMaterial(assets,{map:tex,side:THREE.DoubleSide,roughness:1}));
- sign.position.set(0,2.23,.162);sign.name='period_rental_shelf_category_'+f.id;g.add(sign);
- assets.root.add(g);return count;
-}
 function stockTable(f,assets){
  const g=new THREE.Group();g.name='v125_VHS_returns_on_real_CC0_table';
  g.position.set(f.x,0,f.z);g.rotation.y=f.yaw;
@@ -133,10 +109,13 @@ function stockSpinner(f,assets){
  assets.root.add(g);return 4;
 }
 function fitLicensedSource(gltf,f,assets){
- const model=gltf.scene.clone(true);model.rotation.y=f.yaw;model.updateMatrixWorld(true);
+ const media=f.kind==='wall_bay';
+ const model=media?makeMeasuredMediaRackV158(gltf.scene,{id:f.id,targetHeight:f.targetHeight,yaw:f.yaw,radius:f.collisionRadius,resources:assets.media}):gltf.scene.clone(true);
+ if(!media)model.rotation.y=f.yaw;
+ model.updateMatrixWorld(true);
  let bounds=new THREE.Box3().setFromObject(model),size=bounds.getSize(new THREE.Vector3());
  if(size.y<.05)throw Error('V125 CC0 model has no geometry '+f.id);
- model.scale.multiplyScalar(f.targetHeight/size.y);model.updateMatrixWorld(true);
+ model.scale.multiplyScalar(media?1:f.targetHeight/size.y);model.updateMatrixWorld(true);
  bounds=new THREE.Box3().setFromObject(model);size=bounds.getSize(new THREE.Vector3());
  if(Math.abs(size.y-f.targetHeight)>.001||
   Math.hypot(size.x/2,size.z/2)>f.collisionRadius+.005)
@@ -149,7 +128,7 @@ function fitLicensedSource(gltf,f,assets){
  model.userData.license={path:f.source,sha256:f.sha256,license:f.license};
  model.traverse(o=>{
   if(!o.isMesh)return;
-  o.castShadow=false;o.receiveShadow=true;
+  o.castShadow=false;o.receiveShadow=true;if(o.isInstancedMesh)return;
   const old=Array.isArray(o.material)?o.material:[o.material];
   const aged=old.map(m=>{
    const clone=m.clone();assets.materials.push(clone);
@@ -161,7 +140,7 @@ function fitLicensedSource(gltf,f,assets){
  assets.root.add(model);
  return {id:f.id,section:f.section,kind:f.kind,source:f.source,sha256:f.sha256,
   license:f.license,x:f.x,z:f.z,actualWidth:size.x,actualDepth:size.z,
-  actualHeight:size.y,groundY:bounds.min.y,collisionRadius:f.collisionRadius};
+  actualHeight:size.y,groundY:bounds.min.y,collisionRadius:f.collisionRadius,mediaShelf:model.userData.mediaShelfV158||null};
 }
 function installFluorescent(gltf,f,ceilings,assets){
  const slab=ceilings.find(c=>c.room==='video_planet'&&
@@ -246,7 +225,7 @@ export async function renderVideoPlanetV125(ground,ceilings,plan={
    throw Error('V125 refuses off-origin / unpinned rental source '+path);
   return [path,await loader.loadAsync(new URL('../'+path,import.meta.url).href)];
  })));
- const assets={root:new THREE.Group(),ceilingRoot:new THREE.Group(),textures:[],materials:[],coverMaterials:new Map()};
+ const assets={root:new THREE.Group(),ceilingRoot:new THREE.Group(),textures:[],materials:[],coverMaterials:new Map(),media:createMediaShelfResourcesV158('video')};
  assets.root.name='V125 real source-pinned Video Planet original rental shelves and films';
  assets.ceilingRoot.name='V125 real ceiling-mounted 1979 video rental fluorescent panels';
  assets.wood=makeMaterial(assets,{color:0x51463d,roughness:.92});
@@ -256,7 +235,7 @@ export async function renderVideoPlanetV125(ground,ceilings,plan={
  const fixtures=plan.fixtures.map(f=>fitLicensedSource(models.get(f.source),f,assets));
  let wallCases=0,tableCases=0,spinnerCards=0;
  for(const f of plan.fixtures){
-  if(f.kind==='wall_bay')wallCases+=stockWallRack(f,assets);
+  if(f.kind==='wall_bay')wallCases+=fixtures.find(x=>x.id===f.id).mediaShelf.products;
   else if(f.kind==='table_medium')tableCases+=stockTable(f,assets);
   else if(f.kind==='spinner')spinnerCards+=stockSpinner(f,assets);
  }
@@ -273,6 +252,6 @@ export async function renderVideoPlanetV125(ground,ceilings,plan={
     allOriginalCards:wallCases+tableCases+spinnerCards}},
   dispose(){
    assets.root.removeFromParent();assets.ceilingRoot.removeFromParent();
-   assets.textures.forEach(t=>t.dispose());assets.materials.forEach(m=>m.dispose());
+   assets.textures.forEach(t=>t.dispose());assets.materials.forEach(m=>m.dispose());assets.media.dispose();
   }};
 }
