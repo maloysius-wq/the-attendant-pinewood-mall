@@ -4,6 +4,7 @@
 import * as THREE from '../vendor/three/build/three.module.js';
 import {GLTFLoader} from '../vendor/three/examples/jsm/loaders/GLTFLoader.js';
 import {MALL} from './masterplan-v66.mjs';
+import {createMediaShelfResourcesV158,makeMeasuredMediaRackV158} from './media-shelf-geometry-v158.js';
 import {FURNISHINGS_V69,validateFurnishingPlan} from './furnishing-plan-v69.mjs';
 
 const ROOM_BY_ID=new Map(MALL.rooms.map(r=>[r.id,r]));
@@ -33,10 +34,10 @@ function measuredChairFront(scene){
  const front=Math.abs(dx)>Math.abs(dz)?[-Math.sign(dx),0]:[0,-Math.sign(dz)];
  chairFrontCache.set(scene,front);return front;
 }
-function fitModel(scene,f){
- const object=scene.clone(true);
- object.rotation.x=f.pitch||0;
- object.rotation.y=f.yaw||0;
+function fitModel(scene,f,mediaResources){
+ const media=mediaResources&&['empty_rack','low_empty_rack'].includes(f.role)&&['cassette_castle','video_planet'].includes(f.room);
+ const object=media?makeMeasuredMediaRackV158(scene,{id:f.id,targetHeight:f.targetHeight,yaw:f.yaw||0,radius:f.radius,resources:mediaResources}):scene.clone(true);
+ if(!media){object.rotation.x=f.pitch||0;object.rotation.y=f.yaw||0;}
  if(f.face){
   const front=measuredChairFront(scene);
   object.rotation.y=Math.atan2(f.face[0],f.face[1])-Math.atan2(front[0],front[1]);
@@ -51,7 +52,7 @@ function fitModel(scene,f){
  const widthCap=f.support?f.maxWidth:1.32*f.radius;
  const depthCap=f.support?f.maxDepth:1.32*f.radius;
  const byHeight=size.y>.00001?f.targetHeight/size.y:Number.POSITIVE_INFINITY;
- const scale=Math.min(byHeight,widthCap/Math.max(size.x,.00001),depthCap/Math.max(size.z,.00001));
+ const scale=media?1:Math.min(byHeight,widthCap/Math.max(size.x,.00001),depthCap/Math.max(size.z,.00001));
  if(!Number.isFinite(scale)||scale<=0)throw Error('Cannot fit '+f.id);
  // A mathematically valid footprint can still make a real cabinet or
  // machine look like a toy. Fail visibly instead of shrinking silently.
@@ -87,7 +88,7 @@ function measurePlaced(f,object){
  return {id:f.id,room:f.room,model:f.model,
   yBottom:b.min.y,measuredHeight:s.y,requestedHeight:f.targetHeight,width:s.x,depth:s.z,
   centerX:c.x,centerZ:c.z,
-  colliderRadius:f.radius,...(f.face?{facing:f.face,sourceFront:object.userData.measuredSourceFront,yaw:object.rotation.y}:{})};
+  colliderRadius:f.radius,...(object.userData.mediaShelfV158?{mediaShelf:object.userData.mediaShelfV158}:{}),...(f.face?{facing:f.face,sourceFront:object.userData.measuredSourceFront,yaw:object.rotation.y}:{})};
 }
 export async function attachLicensedInteriorsV69(building){
  const defects=validateFurnishingPlan(FURNISHINGS_V69);
@@ -102,6 +103,7 @@ export async function attachLicensedInteriorsV69(building){
  const group=new THREE.Group();group.name='Pinewood v69 licensed deserted interiors';
  const modelManifest=[],supportChecks=[],clearanceWarnings=[];
  const supports=new Map();
+ const mediaResources={cassette_castle:createMediaShelfResourcesV158('cassette'),video_planet:createMediaShelfResourcesV158('video')};
  // The v67 desk and table are real imported CC0 models; their surface
  // heights must be read from the rendered GLB rather than guessed.
  const legacy=[
@@ -115,7 +117,7 @@ export async function attachLicensedInteriorsV69(building){
  // can never be rendered until its physical counter/table is measured.
  for(const f of FURNISHINGS_V69.fixtures.filter(f=>!f.support)){
   const room=ROOM_BY_ID.get(f.room),level=FLOOR_Y.get(room.level);
-  const object=fitModel(loaded.get(f.model).scene,f);
+  const object=fitModel(loaded.get(f.model).scene,f,mediaResources[f.room]);
   const b=ground(object,f.x,f.z,level);
   group.add(object);
   const m=measurePlaced(f,object);
@@ -164,6 +166,7 @@ export async function attachLicensedInteriorsV69(building){
   firstFrameFullyLoaded:true,
   dispose(){
    building.group.remove(group);
+   Object.values(mediaResources).forEach(r=>r.dispose());
    // GLB geometries/materials belong to a shared vendored model cache; do
    // not dispose originals. All newly owned cloned groups are detached.
   }
